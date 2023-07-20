@@ -1,0 +1,10 @@
+.agdai
+*.agdai
+ROmega-ICFP23
+ROmega-ICFP23/*
+R-Omega-supp-materials
+R-Omega-supp-materials/*
+html/*
+*.html
+*.zip
+*.qcow

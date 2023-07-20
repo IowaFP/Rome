@@ -1,0 +1,72 @@
+------------------------------------------------------------
+-- K-Var
+-- ⟦ Γ ⊢ a : K ⟧
+
+⟦ k-var _ _ k _ _ ⟧⊢ₖ σ           =  σ (BindK k) 
+
+------------------------------------------------------------
+--  K-→
+-- ⟦ Γ ⊢  T₁ → T₂ : ★ ⟧ = ⟦ Γ ⊢ T₁ : ★ ⟧ → ⟦ Γ ⊢ T₂ : ★ ⟧
+
+⟦ k-→ _ t₁ t₂ ⊢ₖt₁⦂★ ⊢ₖt₂⦂★ ⟧⊢ₖ σ = (⟦ ⊢ₖt₁⦂★ ⟧⊢ₖ σ) → (⟦ ⊢ₖt₂⦂★ ⟧⊢ₖ σ)
+
+------------------------------------------------------------
+-- K-⇒
+-- ⟦ Γ ⊢ p ⇒ t : ⋆ ⟧
+--
+-- Needa think here:
+-- The meaning of π ⇒ τ should be a function
+-- which takes in *evidence* of π and then produces
+-- the terms in the meaning of τ. We need to use the cofinite quantification
+-- to assert that Γ, a ⦂ π ⊢ₖ t ⦂ ★.
+-- We also need to provide a new σ.
+--   Goal: ⟦ b ⟧b ((fresh (dom Γ) ⦂π p) ∷ Γ)
+-- The meaning of b should be deducible, depending on if b = fresh (dom Γ) or not.
+-- If the two are equal, the meaning of b is ⟦ p ⟧π.
+-- If the two are not equal, the meaning of b is (σ b).
+--
+-- So, this *should* work. Just requires some finaggling.
+⟦ k-⇒ Γ p t L' ⊢πp cof ⟧⊢ₖ σ  = ⟦ cof (fresh L') (fresh∉ L') ⟧⊢ₖ σ'
+  where
+    a = fresh L'
+    σ' : ⟦ (a ⦂π p) ∷ Γ ⟧ₑ
+    σ' b@(BindK _) = σ b 
+    σ' b@(BindT _) = {!!}
+    -- Is predicate equality decidable?
+    -- Need to hash out such infra.
+    σ' b@(BindP p') = {!!}
+
+------------------------------------------------------------
+-- ∀I
+-- ⟦ Γ ⊢ ∀α : k. t : ⋆ ⟧
+
+-- This case faces same challenges as above.  It is not clear to me why we use
+-- cofinite quantification over arbitrary L rather than (dom Γ).
+⟦ k-∀ Γ k t L' cof ⟧⊢ₖ σ = ⟦ cof a (fresh∉ L') ⟧⊢ₖ {!σ'!}
+  where
+    a = fresh L'
+    σ' : ⟦ (a ⦂ₖ k) ∷ Γ ⟧ₑ
+    σ' b@(BindK x) = σ b
+    σ' b@(BindT x) = {!!} -- with (dom Γ ∈? a)
+--    ... | c  = {!!}
+    σ' b@(BindP x) = {!!}
+  --   σ' b = ?
+         --⟦  ⟧⊢ₖ {!!}
+
+------------------------------------------------------------
+-- →I
+-- ⟦ Γ ⊢ λ α : k₁. t : k₁ → k₂ ⟧
+⟦ k-→I _ k₁ k₂ t L₁ x ⟧⊢ₖ σ        = {!!}
+
+------------------------------------------------------------
+-- →E
+-- ⟦ Γ ⊢ t₁ · t₂ : k₂ ⟧
+
+⟦ k-→E t₁⦂k₁→k₂ t₂⦂k₁ ⟧⊢ₖ σ     =  (⟦ t₁⦂k₁→k₂ ⟧⊢ₖ σ) (⟦ t₂⦂k₁ ⟧⊢ₖ σ) 
+⟦ k-lab _ l ⟧⊢ₖ σ                 = {!!}
+-- ⟦ k-sing _ t t⦂L ⟧⊢ₖ σ            = ⟦ t⦂L ⟧⊢ₖ σ 
+⟦ k-lty _ t₁ t₂ _ t₁⦂L t₂⦂k ⟧⊢ₖ σ = ⟦ t₂⦂k ⟧⊢ₖ σ
+⟦ k-Π _ z _ c ⟧⊢ₖ σ               = {!!}
+⟦ k-Σ _ z _ c ⟧⊢ₖ σ               = {!!}
+⟦ k-lift₁ c c₁ ⟧⊢ₖ σ              = {!!}
+⟦ k-lift₂ c c₁ ⟧⊢ₖ σ              = {!!}
