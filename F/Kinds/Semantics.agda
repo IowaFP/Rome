@@ -10,7 +10,11 @@ open import Data.Product using (_×_)
 open import F.Kinds.Syntax
 
 --------------------------------------------------------------------------------
--- The meaning of kinds.
+-- The meaning of kinds.  
+--
+-- N.B. System F does not strictly need kinds, of course. But, we are in
+-- *stratified system F*, which must keep track of levels. It will be easiest
+-- and most uniform (w.r.t. extended systems) to do so with kinds.
 
 ⟦_⟧k : ∀ {ℓ} → Kind ℓ → Set (lsuc ℓ)
 ⟦ ★ ℓ ⟧k = Set ℓ

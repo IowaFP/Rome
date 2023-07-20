@@ -39,7 +39,6 @@ open import Lib.Equality
 ⟦ Z ⟧v H (η , x) = x
 ⟦ S v ⟧v H (η , x) = ⟦ v ⟧v H η
 
-
 --------------------------------------------------------------------------------
 -- Denotational Weakening Lemma.
 
@@ -52,10 +51,7 @@ weaken⟦_⟧e {Δ = Δ} {κ = κ} (_,_ {ℓκ = ℓκ} Γ τ) H (⟦Γ⟧ , ⟦
   rewrite τ-preservation Δ (Δ , κ) H (H , X) S (λ _ → refl) τ = weaken⟦ Γ ⟧e H ⟦Γ⟧ X , ⟦τ⟧
 
 --------------------------------------------------------------------------------
--- -- The meaning of terms.
-
--- open _↔_
--- open _≃_
+-- The meaning of terms.
  
 ⟦_⟧ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΓ ℓτ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓτ)} →

@@ -16,12 +16,6 @@ open import F.Kinds
 open import F.Types.Syntax
 
 --------------------------------------------------------------------------------
--- The meaning of kinding environments and predicates (mutually recursive).
-
-
-⟦_⟧t : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} {κ : Kind ι} →
-      Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
---------------------------------------------------------------------------------
 -- The meaning of type vars.
 
 ⟦_⟧tv : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} {κ : Kind ι}
@@ -32,6 +26,8 @@ open import F.Types.Syntax
 --------------------------------------------------------------------------------
 -- The meaning of types.
 
+⟦_⟧t : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} {κ : Kind ι} →
+      Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 ⟦ U ⟧t           H = ⊤
 ⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H

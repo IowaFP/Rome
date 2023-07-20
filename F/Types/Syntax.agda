@@ -14,22 +14,6 @@ open import F.Kinds.Syntax
 infixr 9 _`→_
 
 --------------------------------------------------------------------------------
--- Labels are Strings.
-
-Label : Set
-Label = String
-
---------------------------------------------------------------------------------
--- Kinding Environments, types, and predicates.
---
--- Kinding Environments, types, and predicates are tied up together, like so:
---   - Pred references Ty, KEnv
---   - Type   references KEnv
---   - KEnv references Pred
-
-data Type : {ℓ ι : Level} → KEnv ℓ → Kind ι →  Set
-
---------------------------------------------------------------------------------
 -- Type vars.
 data TVar : ∀ {ℓ ι} → KEnv ℓ → Kind ι → Set where
   Z : ∀ {ℓ₁ ℓ₂} {Δ : KEnv ℓ₁} {κ : Kind ℓ₂}
@@ -40,11 +24,9 @@ data TVar : ∀ {ℓ ι} → KEnv ℓ → Kind ι → Set where
 --------------------------------------------------------------------------------
 -- Types.
 
-data Type where
+data Type : {ℓ ι : Level} → KEnv ℓ → Kind ι →  Set where
   ------------------------------------------------------------
-  -- Base types (for mechanization).
-
-  -- Unit (Mechanization.)
+  -- Unit.
   U : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
 
          --------------
