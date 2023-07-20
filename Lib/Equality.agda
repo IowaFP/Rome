@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.Lib.Equality where
+module Lib.Equality where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; subst)
 

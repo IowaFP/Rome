@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.IndexCalculus.Records where
+module IndexCalculus.Records where
 
 open import Agda.Primitive
 
@@ -17,8 +17,8 @@ open import Data.Product
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
   hiding (fold)  
 
-open import ROmega.IndexCalculus.Rows
-open import ROmega.IndexCalculus.Properties
+open import IndexCalculus.Rows
+open import IndexCalculus.Properties
 
 --------------------------------------------------------------------------------
 -- Records say: "If you give me an index in range, I can give you a type".

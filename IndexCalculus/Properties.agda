@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.IndexCalculus.Properties where
+module IndexCalculus.Properties where
 
 
 open import Agda.Primitive
@@ -16,7 +16,7 @@ open import Data.Product
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
 
-open import ROmega.IndexCalculus.Rows
+open import IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Building evidence that ρ pick i · ρ delete i ~ ρ.

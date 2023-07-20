@@ -12,7 +12,7 @@ open import Data.Product
 
 open import Data.Fin renaming (suc to fsuc; zero to fzero)
 
-open import ROmega.Postulates.FunExt
+open import Postulates.FunExt
 open import ROmega.Kinds
 open import ROmega.Types
 open import ROmega.Types.Substitution

@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.IndexCalculus.Rows where
+module IndexCalculus.Rows where
 
 open import Agda.Primitive
 

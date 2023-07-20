@@ -1,4 +1,4 @@
-module ROmega.All where
+module ROmega where
 
 --------------------------------------------------------------------------------
 -- Load & typecheck *all* modules.
@@ -14,14 +14,14 @@ open import ROmega.Equivalence -- extensionality
 open import ROmega.Examples.Section-3 -- extensionality
 
 -- IndexCalculus.
-open import ROmega.IndexCalculus.Rows as Ix
-open import ROmega.IndexCalculus.Properties
+open import IndexCalculus.Rows as Ix
+open import IndexCalculus.Properties
 
 -- Lib (shared util).
-open import ROmega.Lib.Equality
+open import Lib.Equality
 
 -- Postulates.
-open import ROmega.Postulates.FunExt
+open import Postulates.FunExt
 
 -- Terms.
 open import ROmega.Terms as Terms -- extensionality

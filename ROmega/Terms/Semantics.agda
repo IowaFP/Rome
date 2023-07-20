@@ -23,10 +23,10 @@ open import ROmega.Types.Substitution.Properties -- extensionality
 open import ROmega.Terms.Syntax
 open import ROmega.Equivalence -- extensionality
 open import ROmega.Entailment -- extensionality
-open import ROmega.Lib.Equality
-open import ROmega.IndexCalculus
-open import ROmega.IndexCalculus.Properties
-import ROmega.IndexCalculus as Ix
+open import Lib.Equality
+open import IndexCalculus
+open import IndexCalculus.Properties
+import IndexCalculus as Ix
 
 
 --------------------------------------------------------------------------------

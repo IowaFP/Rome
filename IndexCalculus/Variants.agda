@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.IndexCalculus.Variants where
+module IndexCalculus.Variants where
 
 open import Agda.Primitive
 
@@ -14,7 +14,7 @@ open import Data.Product
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
 
-open import ROmega.IndexCalculus.Rows
+open import IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Variants say: "Of the types in this row, I can give you exactly one."

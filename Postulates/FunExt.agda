@@ -1,4 +1,4 @@
-module ROmega.Postulates.FunExt where
+module Postulates.FunExt where
 
 open import Axiom.Extensionality.Propositional public
 
