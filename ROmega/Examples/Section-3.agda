@@ -225,15 +225,16 @@ reify = `Λ R[ ★₀ ] (`Λ ★₀ (`λ (((Σ z) `→ t)) (syn z (`λ ★₀ ((
 --                sel ·[ Ł ] ·[ ((λ X. X) U) → T ] ·[ lift₂ (λ (X : ★). X → T) ζ ]
 --                    ·⟨ ? ⟩ ·( r ) ·( l ) ·( u ))
 
-reflectT : Type ε ★₁
-reflectT = `∀ R[ ★₀ ] (`∀ ★₀
-              (Π (⌈ (`λ ★₀ ((tvar Z) `→ (tvar (S Z)))) ⌉· z) `→
+reflectT :  ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (suc ℓ))
+reflectT {ℓ} = `∀ R[ (★ ℓ) ] (`∀ (★ ℓ)
+              (Π (⌈ (`λ (★ ℓ) ((tvar Z) `→ (tvar (S Z)))) ⌉· z) `→
               ((Σ (⌈ idω ⌉· z)) `→ t)))
          where
            t = tvar Z
            z = tvar (S Z)
 
-reflect : Term ε ε ε reflectT
+reflect :  ∀ {ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → 
+           Term Δ φ Γ reflectT
 reflect =
 --     Λ ζ : R[ ★ ].
       `Λ R[ ★₀ ]
@@ -476,3 +477,4 @@ map-Σ κ =
                  ⌈ g' ⌉· (Ł R▹ U ) ≲ ⌈ g' ⌉· z'
               ⊩⟨ n-≡ (peq-≲ teq-lift₂ teq-refl) ⟩
               ∎)) (n-var Z))
+

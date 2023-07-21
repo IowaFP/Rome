@@ -10,4 +10,6 @@ burdened with the literal expression problem.
   https://dl.acm.org/doi/pdf/10.1145/3563355
 - Generic datatypes à la carte. Steven Keuchel and Tom Schrijvers. 2013. 
   https://dl.acm.org/doi/pdf/10.1145/2502488.2502491
+- Extensible Metatheory Mechanization via Family Polymorphism. PLDI 2023.
+  https://dl.acm.org/doi/pdf/10.1145/3591286
 
