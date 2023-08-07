@@ -5,27 +5,27 @@ open import Agda.Primitive
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import R2Mu.Kinds
-open import R2Mu.Types
+open import R2Mu.Types.Syntax
 
 --------------------------------------------------------------------------------
 -- Defs.
 
 -- A Δ-map (renaming) maps type vars in environment Δ₁ to environment Δ₂.
-Δ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
+Δ-map : ∀ (Δ₁ : KEnv) (Δ₂ : KEnv) → Set
 Δ-map Δ₁ Δ₂ =
-  (∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → TVar Δ₂ κ)
+  (∀ {κ : Kind} → TVar Δ₁ κ → TVar Δ₂ κ)
 
 -- A mapping from types to types.
-τ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-τ-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ κ → Type Δ₂ κ)
+τ-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) → Set
+τ-map Δ₁ Δ₂ = (∀ {κ : Kind} → Type Δ₁ κ → Type Δ₂ κ)
 
 -- A mapping from preds to preds.
-π-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-π-map Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → Pred Δ₁ κ → Pred Δ₂ κ
+π-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) → Set
+π-map Δ₁ Δ₂ = ∀ {κ : Kind} → Pred Δ₁ κ → Pred Δ₂ κ
 
 -- A Context maps type vars to types.
-Context : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-Context Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → Type Δ₂ κ
+Context : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) → Set
+Context Δ₁ Δ₂ = ∀ {κ : Kind} → TVar Δ₁ κ → Type Δ₂ κ
 
 --------------------------------------------------------------------------------
 -- Extension.
@@ -34,7 +34,7 @@ Context Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → Type
 -- yields a map from the first Context extended to the second Context similarly
 -- extended.
 
-ext : ∀ {ℓ₁ ℓ₂ ℓ₃} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} {ι : Kind ℓ₃} →
+ext : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} {ι : Kind} →
          Δ-map Δ₁ Δ₂ →
          Δ-map (Δ₁ , ι) (Δ₂ , ι)
 ext ρ Z = Z
@@ -46,10 +46,10 @@ ext ρ (S x) = S (ρ x)
 -- Renaming is a necessary prelude to substitution, enabling us to “rebase” a
 -- type from one Context to another.
 
-rename : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+rename : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} →
            Δ-map Δ₁ Δ₂ →
            τ-map Δ₁ Δ₂
-renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+renamePred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} →
            Δ-map Δ₁ Δ₂ →
            π-map Δ₁ Δ₂
 
@@ -68,6 +68,8 @@ rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
 rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename ρ τ
 rename ρ (r ·⌈ τ ⌉) =  (rename ρ r)  ·⌈ (rename ρ τ) ⌉
 rename ρ (⌈ τ ⌉· r) = ⌈ (rename ρ τ) ⌉· (rename ρ r)
+rename ρ (μ τ) = μ (rename ρ τ)
+rename ρ (ν τ) = ν (rename ρ τ)
 rename ρ ∅ = ∅
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
@@ -76,7 +78,7 @@ renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ r
 --------------------------------------------------------------------------------
 -- Weakening (of a typing derivation.)
 
-weaken : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
+weaken : ∀ {Δ : KEnv} {κ : Kind} →
            τ-map Δ (Δ , κ)
 weaken = rename S
            
@@ -89,9 +91,8 @@ weaken = rename S
 -- not be closed.
 
 
-exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
-         {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
-         {ι : Kind ℓ₃} →
+exts : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv}
+         {ι : Kind} →
          Context Δ₁ Δ₂ →
          Context (Δ₁ , ι) (Δ₂ , ι) 
 exts θ Z = tvar Z
@@ -101,11 +102,11 @@ exts θ (S x) = rename S (θ x)
 -- Substitution.
 --
 
-subst : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+subst : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} →
            Context Δ₁ Δ₂ →
            τ-map Δ₁ Δ₂
 
-substPred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+substPred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} →
           Context Δ₁ Δ₂ →
           π-map Δ₁ Δ₂
 
@@ -124,6 +125,8 @@ subst θ (Type.Σ r) = Type.Σ (subst θ r)
 subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
 subst θ ( r ·⌈ τ ⌉) = (subst θ r) ·⌈ (subst θ τ) ⌉
 subst θ ( ⌈ τ ⌉· r) = ⌈ (subst θ τ) ⌉· (subst θ r)
+subst θ (μ τ) = μ (subst θ τ)
+subst θ (ν τ) = ν (subst θ τ)
 subst _ ∅ = ∅
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
@@ -133,21 +136,21 @@ substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subs
 -- Single substitution.
 
 -- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
-Z↦ : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
+Z↦ : ∀ {Δ : KEnv} {κ : Kind} →
         Type Δ κ → Context (Δ , κ) Δ
 Z↦ τ Z = τ
 Z↦ τ (S x) = tvar x
 
 -- Regular ol' substitution.
-_β[_] : ∀ {ℓΔ ℓκ ℓι} {Δ : KEnv ℓΔ} {κ : Kind ℓκ}{ι : Kind ℓι}
+_β[_] : ∀ {Δ : KEnv} {κ : Kind}{ι : Kind}
          → Type (Δ , ι) κ → Type Δ ι → Type Δ κ
 τ β[ υ ] = subst (Z↦ υ) τ
 
 --------------------------------------------------------------------------------
 -- examples, to move elsewhere
 
-t0 : Type (ε , ★ lzero) (★ lzero)
-t0 = tvar Z `→ tvar Z
+-- t0 : Type (ε , ★ lzero) (★ lzero)
+-- t0 = tvar Z `→ tvar Z
 
-_ : subst (Z↦ U) t0 ≡ U `→ U
-_ = refl
+-- _ : subst (Z↦ U) t0 ≡ U `→ U
+-- _ = refl
