@@ -70,6 +70,16 @@ data _≡t_ where
             ----------------
             `∀ κ τ ≡t `∀ κ υ
 
+  teq-μ : ∀ {κ¹ : Kind¹ κ} {τ υ : Type Δ (★¹ `→ ★)} →
+            
+            -- n.b. if τ, υ : ★¹ → ★, then 
+            -- they will be incomparable; we don't have equality
+            -- between λ-bound terms.
+            -- (I don't see why we couldn't, though, under the same rules as ∀?)
+            τ ≡t υ →
+            ----------------
+            μ τ ≡t μ υ
+
   teq-β     : ∀ {κ¹ : Kind¹ κ} {τ : Type (Δ , κ) κ₁} {υ : Type Δ κ} →
                 
                 ------------------------------

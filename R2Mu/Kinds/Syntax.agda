@@ -33,12 +33,12 @@ data Kind where
   _`→_ : ∀ {κ} → Kind¹ κ → Kind → Kind
 
 data Kind¹ where
-  ★₁ :
+  ★¹ :
  
        -----------
        Kind¹ ★
 
-  L₁ :
+  L¹ :
  
        -----------
        Kind¹ L
