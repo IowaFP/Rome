@@ -85,12 +85,12 @@ data Type where
           -------------------------------------
           Type Δ (★)
 
-  `λ :  ∀ {Δ : KEnv} {k : Kind} (κ¹ : Kind₁ k) {κ₂ : Kind} →
+  `λ :  ∀ {Δ : KEnv} {k : Kind} (κ¹ : Kind¹ k) {κ₂ : Kind} →
           Type (Δ , k) κ₂ →
           -----------------------------------------
           Type Δ (κ¹ `→ κ₂)
 
-  _·[_] : ∀ {Δ : KEnv}{κ : Kind} {κ¹ : Kind₁ κ} {κ₂ : Kind} →
+  _·[_] : ∀ {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ (κ¹ `→ κ₂) → Type Δ κ →
           -----------------------------
           Type Δ κ₂
@@ -99,12 +99,12 @@ data Type where
   -- Recursion.
 
   -- LFP
-  μ : {Δ : KEnv}{κ : Kind} {κ¹ : Kind₁ κ} →
+  μ : {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} →
           Type Δ (κ¹ `→ κ) → 
           Type Δ κ
 
   -- GFP
-  ν : {Δ : KEnv}{κ : Kind} {κ¹ : Kind₁ κ} →
+  ν : {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} →
           Type Δ (κ¹ `→ κ) → 
           Type Δ κ
 
@@ -163,14 +163,14 @@ data Type where
 
   -- lift₁ (lifting a function argument to row kind).
   _·⌈_⌉ : ∀ {Δ : KEnv}
-            {κ : Kind} {κ¹ : Kind₁ κ} {κ₂ : Kind} →
+            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ R[ κ¹ `→ κ₂ ] → Type Δ κ →
           --------------------------------
           Type Δ R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
   ⌈_⌉·_ : ∀ {Δ : KEnv}
-            {κ : Kind} {κ¹ : Kind₁ κ} {κ₂ : Kind} →
+            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ (κ¹ `→ κ₂) → Type Δ R[ κ ] →
           --------------------------------
           Type Δ R[ κ₂ ]

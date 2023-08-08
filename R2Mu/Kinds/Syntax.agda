@@ -21,32 +21,32 @@ module R2Mu.Kinds.Syntax where
 -- 
 
 --   κ : Kind₂    is a second order kind;
--- (`κ : Kind₁ κ) is a predicate stating κ is first order.
+-- (`κ : Kind¹ κ) is a predicate stating κ is first order.
 data Kind₂  :  Set
-data Kind₁ : Kind₂ → Set
+data Kind¹ : Kind₂ → Set
 
 
 data Kind₂ where
   ★ : Kind₂
   L : Kind₂
   R[_] : Kind₂ → Kind₂
-  _`→_ : ∀ {κ} → Kind₁ κ → Kind₂ → Kind₂
+  _`→_ : ∀ {κ} → Kind¹ κ → Kind₂ → Kind₂
 
-data Kind₁ where
+data Kind¹ where
   ★₁ :
  
        -----------
-       Kind₁ ★
+       Kind¹ ★
 
   L₁ :
  
        -----------
-       Kind₁ L
+       Kind¹ L
 
   R₁[_] : 
-       {κ : Kind₂} → Kind₁ κ → 
+       {κ : Kind₂} → Kind¹ κ → 
        ---------------------
-       Kind₁ (R[ κ ])
+       Kind¹ (R[ κ ])
 
 
 Kind = Kind₂
