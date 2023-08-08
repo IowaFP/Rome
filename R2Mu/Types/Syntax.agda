@@ -10,13 +10,13 @@ open import R2Mu.Kinds.Syntax
 --------------------------------------------------------------------------------
 -- infix OOP.
 
--- infixr 9 _`→_
--- infixr 9 _⇒_
--- infixr 10 _▹_
--- infixr 10 _R▹_
--- infixr 10 _≲_
--- infix 10 _·_~_
--- infixl 11 _·[_]
+infixr 9 _`→_
+infixr 9 _⇒_
+infixr 10 _▹_
+infixr 10 _R▹_
+infixr 10 _≲_
+infix 10 _·_~_
+infixl 11 _·[_]
 
 --------------------------------------------------------------------------------
 -- Labels are Strings.
