@@ -7,6 +7,7 @@ open import Function using (id)
 
 open import R2Mu.Kinds.Syntax
 open import R2Mu.Types.Syntax
+open import R2Mu.Entailment.Syntax
 
 --------------------------------------------------------------------------------
 -- Entailment derivations in the style of PLFA equational reasoning.
@@ -15,15 +16,13 @@ infixr 2 _⊩⟨_⟩_
 
 private
   variable
-    ℓΔ ℓΦ ℓκ : Level
-    Δ : KEnv ℓΔ
-    Φ : PEnv Δ ℓΦ
-    κ : Kind ℓκ
+    Δ : KEnv 
+    Φ : PEnv Δ 
+    κ : Kind
     π : Pred Δ κ
 
-open SimpleRowSyntax
 
-_⊩⟨_⟩_ : ∀ {κ₁ κ₂ κ₃ : Kind ℓκ} {π₂ : Pred Δ κ₂}  {π₃ : Pred Δ κ₃} 
+_⊩⟨_⟩_ : ∀ {κ₁ κ₂ κ₃ : Kind} {π₂ : Pred Δ κ₂}  {π₃ : Pred Δ κ₃} 
          (π₁ : Pred Δ κ₁) →
          (Ent Δ Φ π₁ → Ent Δ Φ π₂) →
          (Ent Δ Φ π₂ → Ent Δ Φ π₃) →
