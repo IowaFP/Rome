@@ -6,7 +6,6 @@ open import Agda.Primitive
 open import Function using (id)
 
 open import R2Mu.Kinds.Syntax
-open import R2Mu.Entailment.Syntax
 open import R2Mu.Types.Syntax
 
 --------------------------------------------------------------------------------

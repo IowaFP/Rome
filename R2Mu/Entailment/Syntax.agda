@@ -15,28 +15,28 @@ open import R2Mu.Equivalence.Syntax
 --------------------------------------------------------------------------------
 -- Environments & weakening.
 
-data PEnv : {ℓ : Level} → KEnv ℓ → Level → Set where
-  ε : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
-        PEnv Δ lzero
-  _,_ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-          PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
+data PEnv : KEnv → Set where
+  ε : ∀ {Δ : KEnv } →
+        PEnv Δ
+  _,_ : ∀ {Δ : KEnv } {κ : Kind } →
+          PEnv Δ → Pred Δ κ → PEnv Δ
 
 
-weakΦ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-          PEnv Δ ℓΦ → PEnv (Δ , κ) ℓΦ
+weakΦ : ∀  {Δ : KEnv } {κ : Kind } →
+          PEnv Δ → PEnv (Δ , κ)
 weakΦ ε = ε
 weakΦ (Φ , π) = weakΦ Φ , renamePred S π
 
 --------------------------------------------------------------------------------
 -- Predicate variables.
 
-data PVar : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-              PEnv Δ ℓΦ → Pred Δ κ → Set where
-  Z : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΓ}
-        {Φ : PEnv Δ ℓΓ} {ℓκ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+data PVar : ∀  {Δ : KEnv } {κ : Kind } →
+              PEnv Δ → Pred Δ κ → Set where
+  Z : ∀  {Δ : KEnv}
+        {Φ : PEnv Δ} {κ : Kind } {π : Pred Δ κ} →
         PVar (Φ , π) π
-  S : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΦ} {Φ : PEnv Δ ℓΦ}
-        {ℓι ℓκ} {ι : Kind ℓι} {κ : Kind ℓκ}
+  S : ∀  {Δ : KEnv } {Φ : PEnv Δ}
+         {ι : Kind } {κ : Kind }
         {π : Pred Δ ι} {ψ : Pred Δ κ} →
         PVar Φ π → PVar (Φ , ψ) π
 
@@ -45,14 +45,13 @@ data PVar : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
 
 private
   variable
-    ℓΔ ℓΦ ℓκ : Level
-    Δ : KEnv ℓΔ
-    Φ : PEnv Δ ℓΦ
-    κ : Kind ℓκ
+    Δ : KEnv 
+    Φ : PEnv Δ
+    κ κ₁ κ₂ κ₃ : Kind 
     π : Pred Δ κ
 
 module SimpleRowSyntax where
-  data Ent : (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set where
+  data Ent : (Δ : KEnv ) → PEnv Δ → Pred Δ κ → Set where
   
     n-var : ∀  {π : Pred Δ κ} →
   
@@ -77,33 +76,33 @@ module SimpleRowSyntax where
           ------------------------
           Ent Δ Φ π₂
   
-    n-≲lift₁ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ : Type Δ R[ κ `→ κ' ]}
+    n-≲lift₁ : ∀ {κ¹ : Kind¹ κ}
+               {ρ₁ ρ₂ : Type Δ R[ κ¹ `→ κ₂ ]}
                {τ : Type Δ κ} →
     
                Ent Δ Φ (ρ₁ ≲ ρ₂) →
                ---------------------
                Ent Δ Φ (( ρ₁ ·⌈ τ ⌉) ≲ (ρ₂ ·⌈ τ ⌉))
     
-    n-≲lift₂ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ : Type Δ R[ κ ]}
-               {τ : Type Δ (κ `→ κ')} →
+    n-≲lift₂ : ∀  {κ¹ : Kind¹ κ₁}
+               {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
+               {τ : Type Δ (κ¹ `→ κ₂)} →
     
                Ent Δ Φ (ρ₁ ≲ ρ₂) →
                ---------------------
                Ent Δ Φ ((⌈ τ ⌉· ρ₁) ≲ (⌈ τ ⌉· ρ₂))
   
-    n-·lift₁ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ `→ κ' ]}
-               {τ : Type Δ κ} →
+    n-·lift₁ : ∀ {κ¹ : Kind¹ κ₁}
+               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ¹ `→ κ₂ ]}
+               {τ : Type Δ κ₁} →
     
                Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
                ---------------------
                Ent Δ Φ ((ρ₁ ·⌈ τ ⌉) · (ρ₂ ·⌈ τ ⌉) ~ (ρ₃ ·⌈ τ ⌉))
   
-    n-·lift₂ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]}
-               {τ : Type Δ (κ `→ κ')} →
+    n-·lift₂ : ∀  {κ¹ : Kind¹ κ₁}
+               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
+               {τ : Type Δ (κ¹ `→ κ₂)} →
     
                Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
                ---------------------
