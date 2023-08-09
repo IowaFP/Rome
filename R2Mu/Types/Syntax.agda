@@ -5,6 +5,7 @@ open import Agda.Primitive
 open import Level
 
 open import Data.String
+open import Data.Nat using (ℕ ; suc ; zero)
 
 open import R2Mu.Kinds.Syntax
 import R2Mu.Types.Pre as Pre
@@ -39,8 +40,8 @@ data Pred (Δ : KEnv) (_ : Pre.Pred) (κ : Kind) : Set
 
 private
   variable
-    π₁ π₂ : Pre.Type
-    τ₁ τ₂ τ₃ : Pre.Type
+    π π₁ π₂ : Pre.Pred
+    τ τ₁ τ₂ τ₃ : Pre.Type
 
 data Pred Δ π κ where
   _≲_ : (ρ₁ : Type Δ τ₁ R[ κ ]) →
@@ -54,11 +55,12 @@ data Pred Δ π κ where
 
 --------------------------------------------------------------------------------
 -- Type vars.
-data TVar : KEnv → Kind → Set where
+data TVar : KEnv → Kind → ℕ → Set where
   Z : ∀ {Δ : KEnv} {κ : Kind}
-      → TVar (Δ , κ) κ
-  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind}
-      → TVar Δ κ → TVar (Δ , κ') κ
+      → TVar (Δ , κ) κ ℕ.zero
+
+  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} 
+      (n : ℕ) → TVar Δ κ n → TVar (Δ , κ') κ (ℕ.suc n)
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -80,9 +82,9 @@ data Type where
 
   tvar : ∀ {Δ : KEnv} {κ : Kind} →
 
-         TVar Δ κ →
+         (n : ℕ) → TVar Δ κ n →
          -----------
-         Type Δ (tvar {!!}) κ
+         Type Δ (tvar n) κ
 
   _`→_ : ∀ {Δ : KEnv} →
           Type Δ τ₁ ★ → Type Δ τ₂ ★ →
@@ -104,83 +106,135 @@ data Type where
           -----------------------------
           Type Δ τ₃ κ₂
 
-  -- ------------------------------------------------------------
-  -- -- Recursion.
+  ------------------------------------------------------------
+  -- Recursion.
 
-  -- -- LFP. A thought---what happens if we take lfp of R[★] → R[★]?
-  -- μ : {Δ : KEnv} →
-  --         Type Δ (★¹ `→ ★) → 
-  --         Type Δ ★
+  -- LFP. A thought---what happens if we take lfp of R[★] → R[★]?
+  μ : {Δ : KEnv} →
+          Type Δ τ (★¹ `→ ★) → 
+          Type Δ (μ τ) ★
 
-  -- -- GFP
-  -- ν : {Δ : KEnv} →
-  --         Type Δ (★¹ `→ ★) → 
-  --         Type Δ ★
+  -- GFP
+  ν : {Δ : KEnv} →
+          Type Δ τ (★¹ `→ ★) → 
+          Type Δ (μ τ) ★
 
-  -- ------------------------------------------------------------
-  -- -- Qualified types.
+  ------------------------------------------------------------
+  -- Qualified types.
 
-  -- _⇒_ : ∀ {κ : Kind} {Δ : KEnv} →
-  --          (π : Pred Δ κ) → Type Δ ★ →
-  --          --------------------------------
-  --          Type Δ ★
+  _⇒_ : ∀ {κ : Kind} {Δ : KEnv} →
+           (π' : Pred Δ π κ) → Type Δ τ ★ →
+           --------------------------------
+           Type Δ (π ⇒ τ)  ★
 
-  -- ------------------------------------------------------------
-  -- -- System Rω.
+  ------------------------------------------------------------
+  -- System Rω.
 
-  -- -- Labels.
-  -- lab : ∀ {Δ : KEnv} →
-  --       Label →
-  --       ----------
-  --       Type Δ (L)
+  -- Labels.
+  lab : ∀ {Δ : KEnv} →
+        (l : Label) →
+        ----------
+        Type Δ (lab l) L
 
-  -- -- singleton formation.
-  -- _▹_ : ∀ {Δ : KEnv} {κ : Kind} →
-  --       Type Δ (L) → Type Δ κ →
-  --       -------------------
-  --       Type Δ κ
+  -- singleton formation.
+  _▹_ : ∀ {Δ : KEnv} {κ : Kind} →
+        Type Δ τ₁ L → Type Δ τ₂ κ →
+        -------------------
+        Type Δ (τ₁ ▹ τ₂) κ
 
-  -- -- Row singleton formation.
-  -- _R▹_ : ∀ {Δ : KEnv} {κ : Kind} →
-  --        Type Δ L → Type Δ κ →
-  --        -------------------
-  --        Type Δ R[ κ ]
+  -- Row singleton formation.
+  _R▹_ : ∀ {Δ : KEnv} {κ : Kind} →
+         Type Δ τ₁ L → Type Δ τ₂ κ →
+         -------------------
+         Type Δ (τ₁ R▹ τ₂) R[ κ ]
 
-  -- -- label constant formation.
-  -- ⌊_⌋ : ∀ {Δ : KEnv} →
-  --       Type Δ (L) →
-  --       ----------
-  --       Type Δ (★)
+  -- label constant formation.
+  ⌊_⌋ : ∀ {Δ : KEnv} →
+        Type Δ τ L →
+        ----------
+        Type Δ ⌊ τ ⌋ (★)
 
-  -- -- The empty record (mechanization only.)
-  -- ∅ : ∀ {Δ : KEnv} →
+  -- The empty record (mechanization only.)
+  ∅ : ∀ {Δ : KEnv} →
   
-  --     --------------
-  --     Type Δ (★)
+      --------------
+      Type Δ ∅ (★)
 
-  -- -- Record formation.
-  -- Π : ∀ {Δ : KEnv} →
-  --     Type Δ R[ (★) ] →
-  --     -------------
-  --     Type Δ (★)
+  -- Record formation.
+  Π : ∀ {Δ : KEnv} →
+      Type Δ τ R[ (★) ] →
+      -------------
+      Type Δ (Π τ) ★
 
-  -- -- Variant formation.
-  -- Σ : ∀ {Δ : KEnv} →
-  --     Type Δ R[ (★) ] →
-  --     -------------
-  --     Type Δ (★)
+  -- Variant formation.
+  Σ : ∀ {Δ : KEnv} →
+      Type Δ τ R[ ★ ] →
+      -------------
+      Type Δ (Π τ) ★
 
-  -- -- lift₁ (lifting a function argument to row kind).
-  -- _·⌈_⌉ : ∀ {Δ : KEnv}
-  --           {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
-  --         Type Δ R[ κ¹ `→ κ₂ ] → Type Δ κ →
-  --         --------------------------------
-  --         Type Δ R[ κ₂ ]
+  -- lift₁ (lifting a function argument to row kind).
+  _·⌈_⌉ : ∀ {Δ : KEnv}
+            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
+          Type Δ τ₁ R[ κ¹ `→ κ₂ ] → Type Δ τ₂ κ →
+          --------------------------------
+          Type Δ (τ₁ ·⌈ τ₂ ⌉) R[ κ₂ ]
 
-  -- -- lift₂ (lifting a function to row kind.)
-  -- ⌈_⌉·_ : ∀ {Δ : KEnv}
-  --           {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
-  --         Type Δ (κ¹ `→ κ₂) → Type Δ R[ κ ] →
-  --         --------------------------------
-  --         Type Δ R[ κ₂ ]
+  -- lift₂ (lifting a function to row kind.)
+  ⌈_⌉·_ : ∀ {Δ : KEnv}
+            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
+          Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ R[ κ ] →
+          --------------------------------
+          Type Δ (⌈ τ₁ ⌉· τ₂) R[ κ₂ ]
+
+
+--------------------------------------------------------------------------------
+-- Decidability (move to Decidabilty.agda later)
+
+
+open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
+import Relation.Nullary.Decidable using (⌊_⌋; True; toWitness; fromWitness)
+import Relation.Nullary.Negation using (¬?)
+import Relation.Nullary.Product using (_×-dec_)
+import Relation.Nullary.Sum using (_⊎-dec_)
+import Relation.Binary using (Decidable)
+
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
+
+open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_)
+
+-- Todo---need type-level "Value" predicate.
+⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (κ : Kind) → Dec (Type Δ τ κ)
+⊢ₖ? τ ★                 = {!!}
+
+⊢ₖ? (lab l) L           = yes (lab l)
+⊢ₖ? {Δ} U L                 = no P
+  where
+    P : ¬ Type Δ U L
+    P (tvar n x ·[ τ ])      = {!!}
+    P p@(`λ {τ₁} _ M ·[ τ ]) = {!P !}
+    P (F ·[ F₁ ] ·[ τ ])     = P {!!}
+    P ((F ▹ F₁) ·[ τ ])      = {!!}
+⊢ₖ? (tvar x) L          = {!!}
+⊢ₖ? (τ `→ τ₁) L         = {!!}
+⊢ₖ? (`∀ x τ) L          = {!!}
+⊢ₖ? (`λ x τ) L          = {!!}
+⊢ₖ? (τ ·[ τ₁ ]) L       = {!!}
+⊢ₖ? (μ τ) L             = {!!}
+⊢ₖ? (ν τ) L             = {!!}
+⊢ₖ? (x ⇒ τ) L           = {!!}
+⊢ₖ? {Δ} (τ₁ ▹ τ₂) L with ⊢ₖ? {Δ} τ₁ L | ⊢ₖ? {Δ} τ₂ L
+...   | yes l₁ | yes l₂ =  yes (l₁ ▹ l₂)
+...   | yes l₁ | no p   =  no (λ { (F ·[ τ ]) → {!!} ; (_ ▹ l) → p l })
+...   | no  p | _       =  no λ { (F ·[ τ ]) → {!!} ; (l ▹ _) → p l }
+⊢ₖ? (τ R▹ τ₁) L         = {!!}
+⊢ₖ? ⌊ τ ⌋ L             = {!!}
+⊢ₖ? ∅ L                 = {!!}
+⊢ₖ? (Π τ) L             = {!!}
+⊢ₖ? (Σ τ) L             = {!!}
+⊢ₖ? (τ ·⌈ τ₁ ⌉) L       = {!!}
+⊢ₖ? (⌈ τ ⌉· τ₁) L       = {!!}
+
+⊢ₖ? τ R[ κ ]            = {!!}
+⊢ₖ? τ (x `→ κ)          = {!!}
 

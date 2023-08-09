@@ -26,8 +26,9 @@ data Type where
   _·[_] : Type → Type → Type
   μ      : Type → Type
   ν      : Type → Type
-  _⇒_   : Pred → Type
+  _⇒_   : Pred → Type → Type
   lab    : String → Type
+  _▹_    : Type → Type → Type
   _R▹_    : Type → Type → Type
   ⌊_⌋ : Type → Type
   ∅ : Type
