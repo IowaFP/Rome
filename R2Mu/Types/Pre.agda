@@ -15,7 +15,7 @@ data Pred : Set
 
 data Pred where
    _≲_ : Type → Type → Pred
-   _·_~_ : Type → Type → Pred
+   _·_~_ : Type → Type → Type → Pred
        
 data Type where
   U : Type
@@ -36,3 +36,34 @@ data Type where
   Σ : Type → Type
   _·⌈_⌉ : Type → Type → Type
   ⌈_⌉·_ : Type → Type → Type
+
+-- N.B., do not think I can get away with this;
+-- see Types.Syntax decidability
+private
+  variable
+    π : Pred
+    τ τ₁ τ₂ τ₃ : Type
+
+data PValue : Pred → Set
+data Value : Type → Set
+
+data PValue where
+   _≲_ : Value τ₁ → Value τ₂ → PValue (τ₁ ≲ τ₂)
+   _·_~_ : Value τ₁ → Value τ₂ → Value τ₃ →  PValue (τ₁ · τ₂ ~ τ₃)
+
+data Value where
+  U : Value U
+  tvar : (n : ℕ) → Value (tvar n)
+  _`→_  : (v₁ : Value τ₁) → (v₂ : Value τ₂) → Value (τ₁ `→ τ₂)
+  `∀     : (κ : Kind) → Value τ → Value (`∀ κ τ)
+  `λ     : (κ : Kind) → Value τ → Value (`λ κ τ)
+  μ      : Value τ → Value (μ τ)
+  ν      : Value τ → Value (ν τ)
+  _⇒_   : PValue π → Value τ → Value (π ⇒ τ)
+  lab    : (l : String) → Value (lab l)
+  _▹_    : Value τ₁ → Value τ₂ → Value (τ₁ ▹ τ₂)
+  _R▹_    : Value τ₁ → Value τ₂ → Value (τ₁ R▹ τ₂)
+  ⌊_⌋ : Value τ → Value (⌊ τ ⌋)
+  ∅ : Value ∅ 
+  Π : Value τ → Value (Π τ)
+  Σ : Value τ → Value (Σ τ)
