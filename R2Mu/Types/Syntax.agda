@@ -36,6 +36,8 @@ Label = String
 --   - KEnv references Pred
 
 data Type : KEnv → Pre.Type → Kind →  Set
+data Value : ∀ (Δ : KEnv) (τ : Pre.Type) (κ : Kind) → Type Δ τ κ → Set
+
 data Pred (Δ : KEnv) (_ : Pre.Pred) (κ : Kind) : Set
 
 private
@@ -117,7 +119,7 @@ data Type where
   -- GFP
   ν : {Δ : KEnv} →
           Type Δ τ (★¹ `→ ★) → 
-          Type Δ (μ τ) ★
+          Type Δ (ν τ) ★
 
   ------------------------------------------------------------
   -- Qualified types.
@@ -161,13 +163,13 @@ data Type where
       Type Δ ∅ (★)
 
   -- Record formation.
-  Π : ∀ {Δ : KEnv} →
+  Π : ∀ {τ} {Δ : KEnv} →
       Type Δ τ R[ (★) ] →
       -------------
       Type Δ (Π τ) ★
 
   -- Variant formation.
-  Σ : ∀ {Δ : KEnv} →
+  Σ : ∀ {τ} {Δ : KEnv} →
       Type Δ τ R[ ★ ] →
       -------------
       Type Δ (Π τ) ★
@@ -186,81 +188,10 @@ data Type where
           --------------------------------
           Type Δ (⌈ τ₁ ⌉· τ₂) R[ κ₂ ]
 
---------------------------------------------------------------------------------
--- Decidability (move to Decidabilty.agda later)
-
-
-open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
-import Relation.Nullary.Decidable using (⌊_⌋; True; toWitness; fromWitness)
-import Relation.Nullary.Negation using (¬?)
-import Relation.Nullary.Product using (_×-dec_)
-import Relation.Nullary.Sum using (_⊎-dec_)
-import Relation.Binary using (Decidable)
-
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
-
-open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_)
-
-⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (v : Pre.Value τ) → (κ : Kind) → Dec (Type Δ τ κ)
-⊢ₖ? .U Pre.U ★ = yes U
-⊢ₖ? .(tvar n) (Pre.tvar n) ★ = yes (tvar n {!!})
-⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) ★ = {!!}
-⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) ★ = {!!}
-⊢ₖ? .(`λ κ _) (Pre.`λ κ v) ★ = {!!}
-⊢ₖ? .(μ _) (Pre.μ v) ★ = {!!}
-⊢ₖ? .(ν _) (Pre.ν v) ★ = {!!}
-⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) ★ = {!!}
-⊢ₖ? .(lab l) (Pre.lab l) ★ = {!!}
-⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) ★ = {!!}
-⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) ★ = {!!}
-⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ ★ = {!!}
-⊢ₖ? .∅ Pre.∅ ★ = {!!}
-⊢ₖ? .(Π τ) (Pre.Π v) ★ = yes (Π τ)
-⊢ₖ? .(Σ _) (Pre.Σ v) ★ = {!!}
-
-⊢ₖ? .U v@Pre.U L = {!!}
-⊢ₖ? .(tvar n) (Pre.tvar n) L = {!!}
-⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) L = {!!}
-⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) L = {!!}
-⊢ₖ? .(`λ κ _) (Pre.`λ κ v) L = {!!}
-⊢ₖ? .(μ _) (Pre.μ v) L = {!!}
-⊢ₖ? .(ν _) (Pre.ν v) L = {!!}
-⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) L = {!!}
-⊢ₖ? .(lab l) (Pre.lab l) L = {!!}
-⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) L = {!!}
-⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) L = {!!}
-⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ L = {!!}
-⊢ₖ? .∅ Pre.∅ L = {!!}
-⊢ₖ? .(Π _) (Pre.Π v) L = {!!}
-⊢ₖ? .(Σ _) (Pre.Σ v) L = {!!}
-⊢ₖ? .U Pre.U R[ κ ] = {!!}
-⊢ₖ? .(tvar n) (Pre.tvar n) R[ κ ] = {!!}
-⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) R[ κ ] = {!!}
-⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) R[ κ₁ ] = {!!}
-⊢ₖ? .(`λ κ _) (Pre.`λ κ v) R[ κ₁ ] = {!!}
-⊢ₖ? .(μ _) (Pre.μ v) R[ κ ] = {!!}
-⊢ₖ? .(ν _) (Pre.ν v) R[ κ ] = {!!}
-⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) R[ κ ] = {!!}
-⊢ₖ? .(lab l) (Pre.lab l) R[ κ ] = {!!}
-⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) R[ κ ] = {!!}
-⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) R[ κ ] = {!!}
-⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ R[ κ ] = {!!}
-⊢ₖ? .∅ Pre.∅ R[ κ ] = {!!}
-⊢ₖ? .(Π _) (Pre.Π v) R[ κ ] = {!!}
-⊢ₖ? .(Σ _) (Pre.Σ v) R[ κ ] = {!!}
-⊢ₖ? .U Pre.U (x `→ κ) = {!!}
-⊢ₖ? .(tvar n) (Pre.tvar n) (x `→ κ) = {!!}
-⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) (x `→ κ) = {!!}
-⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) (x `→ κ₁) = {!!}
-⊢ₖ? .(`λ κ _) (Pre.`λ κ v) (x `→ κ₁) = {!!}
-⊢ₖ? .(μ _) (Pre.μ v) (x `→ κ) = {!!}
-⊢ₖ? .(ν _) (Pre.ν v) (x `→ κ) = {!!}
-⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) (x₁ `→ κ) = {!!}
-⊢ₖ? .(lab l) (Pre.lab l) (x `→ κ) = {!!}
-⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) (x `→ κ) = {!!}
-⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) (x `→ κ) = {!!}
-⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ (x `→ κ) = {!!}
-⊢ₖ? .∅ Pre.∅ (x `→ κ) = {!!}
-⊢ₖ? .(Π _) (Pre.Π v) (x `→ κ) = {!!}
-⊢ₖ? .(Σ _) (Pre.Σ v) (x `→ κ) = {!!}
+-- N.B. that this Value type is actually a relation
+-- on Pre.Type and Type.
+-- 
+data Value where
+  U : ∀ {Δ} → Value Δ U ★ U
+  -- Need to relate ℕ and TVar somehow...
+--   tvar : ∀ {Δ}{n} → Value Δ (tvar n) ★ (tvar n)
