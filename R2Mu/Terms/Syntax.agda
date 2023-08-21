@@ -286,13 +286,14 @@ module TermSyntax
           Term Δ Φ Γ ((F ·[ (μ F) ] ) `→ μ F)
 
     Out : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ}
-          {F : Type Δ (★¹ `→ ★)} {A : Type Δ ★} →
+          {F : Type Δ (★¹ `→ ★)} →
           Term Δ Φ Γ (μ F `→ (F ·[ (μ F) ]))
 
-    cata : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ}
-          {F : Type Δ (★¹ `→ ★)} {A : Type Δ ★} →
-          (M : Term Δ Φ Γ ((F ·[ A ] ) `→ A)) →
-          Term Δ Φ Γ ((μ F) `→ A)
+    -- Need to decide on this business.
+    -- μ : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ} →
+    --       Term (Δ , τ)  Φ  →
+    --       Term Δ Φ Γ A
+
   
   --------------------------------------------------------------------------------
   -- admissable rules.
