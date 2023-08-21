@@ -36,10 +36,18 @@ open Pre.Type
   just (S n v)
 
 
-⊢p? : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
+⊢ₖp? : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
 ⊢ₖ? : ∀ (Δ : KEnv) → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
 
-⊢p? Δ π κ = {!!}
+⊢ₖp? Δ (τ₁ Pre.≲ τ₂) κ = do 
+  t₁ ← ⊢ₖ? Δ τ₁ R[ κ ]
+  t₂ ← ⊢ₖ? Δ τ₂ R[ κ ]
+  just (t₁ ≲ t₂)
+⊢ₖp? Δ (τ₁ Pre.· τ₂ ~ τ₃) κ = do
+  t₁ ← ⊢ₖ? Δ τ₁ R[ κ ]
+  t₂ ← ⊢ₖ? Δ τ₂ R[ κ ]
+  t₃ ← ⊢ₖ? Δ τ₃ R[ κ ]
+  just (t₁ · t₂ ~ t₃)
 
 
 -- This *should* return Dec (Type Δ τ κ), but for the moment I am only
@@ -70,7 +78,7 @@ open Pre.Type
   just (ν t)
 -- Predicates.
 ⊢ₖ? Δ (π ⦂ κ ⇒ τ) ★ = do
-  p ← ⊢p? Δ π κ
+  p ← ⊢ₖp? Δ π κ
   t ← ⊢ₖ? Δ τ ★
   just (p ⇒ t)
 -- Applications
@@ -93,6 +101,7 @@ open Pre.Type
   just ( ⌈ t ⌉· u)
 ... | no _ = nothing
 -- Trivial cases.
+⊢ₖ? Δ (lab l) L = just (lab l)
 ⊢ₖ? Δ U ★ = just U
 ⊢ₖ? Δ (τ₁ `→ τ₂) ★ = do
   t₁ ← ⊢ₖ? Δ τ₁ ★

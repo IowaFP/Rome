@@ -52,7 +52,7 @@ data Pred Δ π κ where
 
   _·_~_ : (ρ₁ : Type Δ τ₁ R[ κ ]) →
           (ρ₂ : Type Δ τ₂ R[ κ ]) →
-          (ρ₃ : Type Δ τ₂ R[ κ ]) →
+          (ρ₃ : Type Δ τ₃ R[ κ ]) →
           Pred Δ π κ
 
 --------------------------------------------------------------------------------
@@ -157,6 +157,8 @@ data Type where
         Type Δ ⌊ τ ⌋ (★)
 
   -- The empty record (mechanization only.)
+  -- Todo---remove and replace with empty record ε.
+  -- (then ∅ ≃ Π ε.)
   ∅ : ∀ {Δ : KEnv} →
   
       --------------
