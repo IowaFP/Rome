@@ -106,7 +106,7 @@ data Type where
   _·[_] : ∀ {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ κ →
           -----------------------------
-          Type Δ τ₃ κ₂
+          Type Δ (τ₁ ·[ τ₂ ]) κ₂
 
   ------------------------------------------------------------
   -- Recursion.
@@ -172,7 +172,7 @@ data Type where
   Σ : ∀ {τ} {Δ : KEnv} →
       Type Δ τ R[ ★ ] →
       -------------
-      Type Δ (Π τ) ★
+      Type Δ (Σ τ) ★
 
   -- lift₁ (lifting a function argument to row kind).
   _·⌈_⌉ : ∀ {Δ : KEnv}

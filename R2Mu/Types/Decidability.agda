@@ -16,76 +16,53 @@ open import R2Mu.Kinds.Syntax
 open import R2Mu.Types.Syntax
 import R2Mu.Types.Pre as Pre
 
+open import Data.Maybe
+open import Data.Maybe.Categorical
 
 open Pre.Type
 
--- Need to change output type to Σ[ ⊢τ ∈ Type Δ τ κ] (Value ⊢τ)
--- where Value defined on Syntax.Type...
-⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (v : Pre.Value τ) → (κ : Kind) → Σ[ ⊢τ ∈ Type Δ τ κ ] (Value ⊢τ)
--- ⊢ₖ? .Pre.U Pre.U ★            = yes U
--- ⊢ₖ? .(tvar n) (Pre.tvar n) ★  = yes (tvar n {!!})
--- ⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) ★ = {!!}
--- ⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) ★  = {!!}
--- ⊢ₖ? .(`λ κ _) (Pre.`λ κ v) ★  = {!!}
--- ⊢ₖ? .(μ _) (Pre.μ v) ★        = {!!}
--- ⊢ₖ? .(ν _) (Pre.ν v) ★        = {!!}
--- ⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) ★    = {!!}
--- ⊢ₖ? .(lab l) (Pre.lab l) ★    = {!!}
--- ⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) ★   = {!!}
--- ⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) ★ = {!!}
--- ⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ ★  = {!!}
--- ⊢ₖ? .∅ Pre.∅ ★                = yes ∅
--- ⊢ₖ? .(Π τ) (Pre.Π {τ} v) ★ with ⊢ₖ? τ v R[ ★ ]
--- ... | yes p = yes (Π p)
--- -- N.b. I need a notion of *typed* values to prevent case distinction
--- -- on _·[_]...
--- ... | no p = no λ { (x ·[ x₁ ]) → {!!} ; (Π x) → p x ; (Σ x) → p x }
-
--- ⊢ₖ? .(Σ _) (Pre.Σ v) ★ = {!!}
-
--- ⊢ₖ? .U v@Pre.U L = {!!}
--- ⊢ₖ? .(tvar n) (Pre.tvar n) L = {!!}
--- ⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) L = {!!}
--- ⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) L = {!!}
--- ⊢ₖ? .(`λ κ _) (Pre.`λ κ v) L = {!!}
--- ⊢ₖ? .(μ _) (Pre.μ v) L = {!!}
--- ⊢ₖ? .(ν _) (Pre.ν v) L = {!!}
--- ⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) L = {!!}
--- ⊢ₖ? .(lab l) (Pre.lab l) L = {!!}
--- ⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) L = {!!}
--- ⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) L = {!!}
--- ⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ L = {!!}
--- ⊢ₖ? .∅ Pre.∅ L = {!!}
--- ⊢ₖ? .(Π _) (Pre.Π v) L = {!!}
--- ⊢ₖ? .(Σ _) (Pre.Σ v) L = {!!}
--- ⊢ₖ? .U Pre.U R[ κ ] = {!!}
--- ⊢ₖ? .(tvar n) (Pre.tvar n) R[ κ ] = {!!}
--- ⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) R[ κ ] = {!!}
--- ⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) R[ κ₁ ] = {!!}
--- ⊢ₖ? .(`λ κ _) (Pre.`λ κ v) R[ κ₁ ] = {!!}
--- ⊢ₖ? .(μ _) (Pre.μ v) R[ κ ] = {!!}
--- ⊢ₖ? .(ν _) (Pre.ν v) R[ κ ] = {!!}
--- ⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) R[ κ ] = {!!}
--- ⊢ₖ? .(lab l) (Pre.lab l) R[ κ ] = {!!}
--- ⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) R[ κ ] = {!!}
--- ⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) R[ κ ] = {!!}
--- ⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ R[ κ ] = {!!}
--- ⊢ₖ? .∅ Pre.∅ R[ κ ] = {!!}
--- ⊢ₖ? .(Π _) (Pre.Π v) R[ κ ] = {!!}
--- ⊢ₖ? .(Σ _) (Pre.Σ v) R[ κ ] = {!!}
--- ⊢ₖ? .U Pre.U (x `→ κ) = {!!}
--- ⊢ₖ? .(tvar n) (Pre.tvar n) (x `→ κ) = {!!}
--- ⊢ₖ? .(_ `→ _) (v Pre.`→ v₁) (x `→ κ) = {!!}
--- ⊢ₖ? .(`∀ κ _) (Pre.`∀ κ v) (x `→ κ₁) = {!!}
--- ⊢ₖ? .(`λ κ _) (Pre.`λ κ v) (x `→ κ₁) = {!!}
--- ⊢ₖ? .(μ _) (Pre.μ v) (x `→ κ) = {!!}
--- ⊢ₖ? .(ν _) (Pre.ν v) (x `→ κ) = {!!}
--- ⊢ₖ? .(_ ⇒ _) (x Pre.⇒ v) (x₁ `→ κ) = {!!}
--- ⊢ₖ? .(lab l) (Pre.lab l) (x `→ κ) = {!!}
--- ⊢ₖ? .(_ ▹ _) (v Pre.▹ v₁) (x `→ κ) = {!!}
--- ⊢ₖ? .(_ R▹ _) (v Pre.R▹ v₁) (x `→ κ) = {!!}
--- ⊢ₖ? .(⌊ _ ⌋) Pre.⌊ v ⌋ (x `→ κ) = {!!}
--- ⊢ₖ? .∅ Pre.∅ (x `→ κ) = {!!}
--- ⊢ₖ? .(Π _) (Pre.Π v) (x `→ κ) = {!!}
--- ⊢ₖ? .(Σ _) (Pre.Σ v) (x `→ κ) = {!!}
-  
+-- This *should* return Dec (Type Δ τ κ), but for the moment I am only
+-- interested in a procedure that builds typing derivations for me; false
+-- negatives are fine, for now.
+⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
+⊢ₖ? {Δ} U ★ = just U
+⊢ₖ? {Δ} U _ = nothing
+⊢ₖ? {Δ} (tvar x) κ = {!!}
+⊢ₖ? {Δ} (τ₁ `→ τ₂) ★ = do
+  t₁ ← ⊢ₖ? {Δ} τ₁ ★
+  t₂ ← ⊢ₖ? {Δ} τ₂ ★
+  just (t₁ `→ t₂)
+⊢ₖ? {Δ} (τ₁ `→ τ₂) _ = nothing
+⊢ₖ? {Δ} (`∀ κ' τ) κ = {!!}
+⊢ₖ? {Δ} (`λ κ' τ) κ = {!!}
+⊢ₖ? {Δ} (τ ·[ υ ]) κ₂ = {!!}
+⊢ₖ? {Δ} (μ τ) κ = {!!}
+⊢ₖ? {Δ} (ν τ) κ = {!!}
+⊢ₖ? {Δ} (x ⇒ τ) κ = {!!}
+⊢ₖ? {Δ} (lab x) L = just (lab x) 
+⊢ₖ? {Δ} (lab x) _ = nothing
+⊢ₖ? {Δ} (τ₁ ▹ τ₂) κ = do
+  l ← ⊢ₖ? {Δ} τ₁ L
+  t ← ⊢ₖ? {Δ} τ₂ κ
+  just (l ▹ t)
+⊢ₖ? {Δ} (τ₁ R▹ τ₂) R[ κ ] = do
+  l ← ⊢ₖ? {Δ} τ₁ L
+  t ← ⊢ₖ? {Δ} τ₂ κ
+  just (l R▹ t)
+⊢ₖ? {Δ} (τ₁ R▹ τ₂) _      = nothing
+⊢ₖ? {Δ} ⌊ τ ⌋ ★ = do
+  l ← ⊢ₖ? {Δ} τ L 
+  just (⌊ l ⌋) 
+⊢ₖ? {Δ} ⌊ τ ⌋ _ = nothing
+⊢ₖ? {Δ} ∅ ★ = just ∅
+⊢ₖ? {Δ} ∅ _ = nothing
+⊢ₖ? {Δ} (Π τ) ★ = do
+  ρ ← ⊢ₖ? {Δ} τ R[ ★ ] 
+  just (Π ρ)
+⊢ₖ? {Δ} (Π τ) _ = nothing
+⊢ₖ? {Δ} (Σ τ) ★ = do
+  ρ ← ⊢ₖ? {Δ} τ R[ ★ ] 
+  just (Σ ρ)
+⊢ₖ? {Δ} (Σ τ) _ = nothing
+⊢ₖ? {Δ} (τ ·⌈ τ₁ ⌉) κ = {!!}
+⊢ₖ? {Δ} (⌈ τ ⌉· τ₁) κ = {!!}
