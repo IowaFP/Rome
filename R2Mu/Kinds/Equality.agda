@@ -13,7 +13,7 @@ import Relation.Binary using (Decidable)
 open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
 
 --------------------------------------------------------------------------------
--- Decidable equality for kinds.
+-- Decidability of kind equality.
 
 _≡?_ : ∀ (κ₁ κ₂ : Kind) → Dec (κ₁ ≡ κ₂)
 _≡¹?_ : ∀ {κ} (κ₁ κ₂ : Kind¹ κ) → Dec (κ₁ ≡ κ₂)

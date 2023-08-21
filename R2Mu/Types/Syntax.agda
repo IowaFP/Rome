@@ -106,7 +106,7 @@ data Type where
   _·[_] : ∀ {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ κ →
           -----------------------------
-          Type Δ (τ₁ ·[ τ₂ ]) κ₂
+          Type Δ ((τ₁ ·[ τ₂ ]) (κ¹ `→ κ₂)) κ₂
 
   ------------------------------------------------------------
   -- Recursion.
@@ -127,7 +127,7 @@ data Type where
   _⇒_ : ∀ {κ : Kind} {Δ : KEnv} →
            (π' : Pred Δ π κ) → Type Δ τ ★ →
            --------------------------------
-           Type Δ (π ⇒ τ)  ★
+           Type Δ (π ⦂ κ ⇒ τ)  ★
 
   ------------------------------------------------------------
   -- System Rω.
@@ -179,14 +179,14 @@ data Type where
             {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ τ₁ R[ κ¹ `→ κ₂ ] → Type Δ τ₂ κ →
           --------------------------------
-          Type Δ (τ₁ ·⌈ τ₂ ⌉) R[ κ₂ ]
+          Type Δ ((τ₁ ·⌈ τ₂ ⌉)  (κ¹ `→ κ₂ )) R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
   ⌈_⌉·_ : ∀ {Δ : KEnv}
             {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
           Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ R[ κ ] →
           --------------------------------
-          Type Δ (⌈ τ₁ ⌉· τ₂) R[ κ₂ ]
+          Type Δ ((⌈ τ₁ ⌉· τ₂) (κ¹ `→ κ₂)) R[ κ₂ ]
 
 -- N.B. that this Value type is actually a relation
 -- on Pre.Type and Type.

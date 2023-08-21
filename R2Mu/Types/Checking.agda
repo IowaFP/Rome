@@ -13,6 +13,7 @@ open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
 open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_)
 
 open import R2Mu.Kinds.Syntax
+open import R2Mu.Kinds.Equality
 open import R2Mu.Types.Syntax
 import R2Mu.Types.Pre as Pre
 
@@ -23,59 +24,97 @@ open import Data.Maybe.Categorical
 
 open Pre.Type
 
+-- TVar checking
+⊢v? : (Δ : KEnv) → (n : ℕ) → (κ : Kind) → Maybe (TVar Δ κ n)
+⊢v? ε zero κ = nothing
+⊢v? ε (suc n) κ = nothing
+⊢v? (Δ , have) zero want with want ≡? have
+... | yes refl = just Z
+... | no  p    = nothing 
+⊢v? (Δ , _) (suc n) κ = do
+  v ← ⊢v? Δ n κ
+  just (S n v)
+
+
+⊢p? : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
+⊢ₖ? : ∀ (Δ : KEnv) → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
+
+⊢p? Δ π κ = {!!}
+
+
 -- This *should* return Dec (Type Δ τ κ), but for the moment I am only
 -- interested in a procedure that builds typing derivations for me; false
 -- negatives are fine, for now.
-⊢p? : ∀ {Δ : KEnv} → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
-⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
-⊢p? = {!!}
 -- Variables.
-⊢ₖ? {ε} (tvar x) κ = nothing
-⊢ₖ? {Δ , κ'} (tvar zero) κ with κ' ≡ κ
-... | c = {!!}
-⊢ₖ? {Δ , κ'} (tvar (suc x)) κ = {!!}
+⊢ₖ? ε (tvar x) κ = nothing
+⊢ₖ? (Δ , κ') (tvar zero) κ with κ' ≡? κ
+... | yes refl = just (tvar zero Z)
+... | no  p = nothing
+⊢ₖ? (Δ , κ') (tvar (suc n)) κ = do
+  v' ← ⊢v? Δ n κ
+  just (tvar (suc n) (S n v'))
 -- Bindings.
-⊢ₖ? {Δ} (`∀ κ' τ) κ = {!!}
-⊢ₖ? {Δ} (`λ κ' τ) κ = {!!}
-⊢ₖ? {Δ} (μ τ) κ = {!!}
-⊢ₖ? {Δ} (ν τ) κ = {!!}
+⊢ₖ? Δ (`∀ κ' τ) ★ = do
+  t ← ⊢ₖ? (Δ , κ') τ ★
+  just (`∀ κ' t)
+⊢ₖ? Δ (`λ κ' τ) (_`→_ {κ₁} κ₁¹ κ₂) with κ' ≡? κ₁
+... | yes refl = do
+  t ← ⊢ₖ? (Δ , κ') τ κ₂
+  just (`λ κ₁¹ t)
+... | no _ = nothing
+⊢ₖ? Δ (μ τ) ★ = do
+  t ← ⊢ₖ? Δ τ (★¹ `→ ★)
+  just (μ t)
+⊢ₖ? Δ (ν τ) ★ = do
+  t ← ⊢ₖ? Δ τ (★¹ `→ ★)
+  just (ν t)
 -- Predicates.
-⊢ₖ? {Δ} (π ⇒ τ) κ = {!!}
+⊢ₖ? Δ (π ⦂ κ ⇒ τ) ★ = do
+  p ← ⊢p? Δ π κ
+  t ← ⊢ₖ? Δ τ ★
+  just (p ⇒ t)
 -- Applications
-⊢ₖ? {Δ} (τ ·[ υ ]) κ₂ = {!!}
-⊢ₖ? {Δ} (τ ·⌈ τ₁ ⌉) κ = {!!}
-⊢ₖ? {Δ} (⌈ τ ⌉· τ₁) κ = {!!}
+⊢ₖ? Δ ((τ ·[ υ ]) (_`→_ {κ₁} κ₁¹ κ₂)) κ with κ₂ ≡? κ
+... | yes refl = do
+  t ← ⊢ₖ? Δ τ (κ₁¹ `→ κ₂)
+  u ← ⊢ₖ? Δ υ κ₁
+  just (t ·[ u ])
+... | no q = nothing
+⊢ₖ? Δ ((τ ·⌈ υ ⌉) (_`→_ {κ₁} κ₁¹ κ₂)) R[ κ ] with κ₂ ≡? κ
+... | yes refl = do
+  t ← ⊢ₖ? Δ τ R[ (κ₁¹ `→ κ₂) ]
+  u ← ⊢ₖ? Δ υ κ₁
+  just (t ·⌈ u ⌉)
+... | no _ = nothing
+⊢ₖ? Δ ((⌈ τ ⌉· υ) (_`→_ {κ₁} κ₁¹ κ₂)) R[ κ ] with κ₂ ≡? κ
+... | yes refl = do
+  t ← ⊢ₖ? Δ τ (κ₁¹ `→ κ₂)
+  u ← ⊢ₖ? Δ υ R[ κ₁ ]
+  just ( ⌈ t ⌉· u)
+... | no _ = nothing
 -- Trivial cases.
-⊢ₖ? {Δ} U ★ = just U
-⊢ₖ? {Δ} U _ = nothing
-⊢ₖ? {Δ} (τ₁ `→ τ₂) ★ = do
-  t₁ ← ⊢ₖ? {Δ} τ₁ ★
-  t₂ ← ⊢ₖ? {Δ} τ₂ ★
+⊢ₖ? Δ U ★ = just U
+⊢ₖ? Δ (τ₁ `→ τ₂) ★ = do
+  t₁ ← ⊢ₖ? Δ τ₁ ★
+  t₂ ← ⊢ₖ? Δ τ₂ ★
   just (t₁ `→ t₂)
-⊢ₖ? {Δ} (τ₁ `→ τ₂) _ = nothing
-⊢ₖ? {Δ} (lab x) L = just (lab x) 
-⊢ₖ? {Δ} (lab x) _ = nothing
-⊢ₖ? {Δ} (τ₁ ▹ τ₂) κ = do
-  l ← ⊢ₖ? {Δ} τ₁ L
-  t ← ⊢ₖ? {Δ} τ₂ κ
+⊢ₖ? Δ (τ₁ ▹ τ₂) κ = do
+  l ← ⊢ₖ? Δ τ₁ L
+  t ← ⊢ₖ? Δ τ₂ κ
   just (l ▹ t)
-⊢ₖ? {Δ} (τ₁ R▹ τ₂) R[ κ ] = do
-  l ← ⊢ₖ? {Δ} τ₁ L
-  t ← ⊢ₖ? {Δ} τ₂ κ
+⊢ₖ? Δ (τ₁ R▹ τ₂) R[ κ ] = do
+  l ← ⊢ₖ? Δ τ₁ L
+  t ← ⊢ₖ? Δ τ₂ κ
   just (l R▹ t)
-⊢ₖ? {Δ} (τ₁ R▹ τ₂) _      = nothing
-⊢ₖ? {Δ} ⌊ τ ⌋ ★ = do
-  l ← ⊢ₖ? {Δ} τ L 
+⊢ₖ? Δ ⌊ τ ⌋ ★ = do
+  l ← ⊢ₖ? Δ τ L 
   just (⌊ l ⌋) 
-⊢ₖ? {Δ} ⌊ τ ⌋ _ = nothing
-⊢ₖ? {Δ} ∅ ★ = just ∅
-⊢ₖ? {Δ} ∅ _ = nothing
-⊢ₖ? {Δ} (Π τ) ★ = do
-  ρ ← ⊢ₖ? {Δ} τ R[ ★ ] 
+⊢ₖ? Δ ∅ ★ = just ∅
+⊢ₖ? Δ (Π τ) ★ = do
+  ρ ← ⊢ₖ? Δ τ R[ ★ ] 
   just (Π ρ)
-⊢ₖ? {Δ} (Π τ) _ = nothing
-⊢ₖ? {Δ} (Σ τ) ★ = do
-  ρ ← ⊢ₖ? {Δ} τ R[ ★ ] 
+⊢ₖ? Δ (Σ τ) ★ = do
+  ρ ← ⊢ₖ? Δ τ R[ ★ ] 
   just (Σ ρ)
-⊢ₖ? {Δ} (Σ τ) _ = nothing
+⊢ₖ? Δ _ _ = nothing
 
