@@ -1,4 +1,4 @@
-module R2Mu.Types.Decidability where
+module R2Mu.Types.Checking where
 
 open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
 import Relation.Nullary.Decidable using (⌊_⌋; True; toWitness; fromWitness)
@@ -16,6 +16,8 @@ open import R2Mu.Kinds.Syntax
 open import R2Mu.Types.Syntax
 import R2Mu.Types.Pre as Pre
 
+open import Data.Nat using (ℕ ; zero ; suc)
+
 open import Data.Maybe
 open import Data.Maybe.Categorical
 
@@ -24,21 +26,33 @@ open Pre.Type
 -- This *should* return Dec (Type Δ τ κ), but for the moment I am only
 -- interested in a procedure that builds typing derivations for me; false
 -- negatives are fine, for now.
+⊢p? : ∀ {Δ : KEnv} → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
 ⊢ₖ? : ∀ {Δ : KEnv} → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
+⊢p? = {!!}
+-- Variables.
+⊢ₖ? {ε} (tvar x) κ = nothing
+⊢ₖ? {Δ , κ'} (tvar zero) κ with κ' ≡ κ
+... | c = {!!}
+⊢ₖ? {Δ , κ'} (tvar (suc x)) κ = {!!}
+-- Bindings.
+⊢ₖ? {Δ} (`∀ κ' τ) κ = {!!}
+⊢ₖ? {Δ} (`λ κ' τ) κ = {!!}
+⊢ₖ? {Δ} (μ τ) κ = {!!}
+⊢ₖ? {Δ} (ν τ) κ = {!!}
+-- Predicates.
+⊢ₖ? {Δ} (π ⇒ τ) κ = {!!}
+-- Applications
+⊢ₖ? {Δ} (τ ·[ υ ]) κ₂ = {!!}
+⊢ₖ? {Δ} (τ ·⌈ τ₁ ⌉) κ = {!!}
+⊢ₖ? {Δ} (⌈ τ ⌉· τ₁) κ = {!!}
+-- Trivial cases.
 ⊢ₖ? {Δ} U ★ = just U
 ⊢ₖ? {Δ} U _ = nothing
-⊢ₖ? {Δ} (tvar x) κ = {!!}
 ⊢ₖ? {Δ} (τ₁ `→ τ₂) ★ = do
   t₁ ← ⊢ₖ? {Δ} τ₁ ★
   t₂ ← ⊢ₖ? {Δ} τ₂ ★
   just (t₁ `→ t₂)
 ⊢ₖ? {Δ} (τ₁ `→ τ₂) _ = nothing
-⊢ₖ? {Δ} (`∀ κ' τ) κ = {!!}
-⊢ₖ? {Δ} (`λ κ' τ) κ = {!!}
-⊢ₖ? {Δ} (τ ·[ υ ]) κ₂ = {!!}
-⊢ₖ? {Δ} (μ τ) κ = {!!}
-⊢ₖ? {Δ} (ν τ) κ = {!!}
-⊢ₖ? {Δ} (x ⇒ τ) κ = {!!}
 ⊢ₖ? {Δ} (lab x) L = just (lab x) 
 ⊢ₖ? {Δ} (lab x) _ = nothing
 ⊢ₖ? {Δ} (τ₁ ▹ τ₂) κ = do
@@ -64,5 +78,4 @@ open Pre.Type
   ρ ← ⊢ₖ? {Δ} τ R[ ★ ] 
   just (Σ ρ)
 ⊢ₖ? {Δ} (Σ τ) _ = nothing
-⊢ₖ? {Δ} (τ ·⌈ τ₁ ⌉) κ = {!!}
-⊢ₖ? {Δ} (⌈ τ ⌉· τ₁) κ = {!!}
+
