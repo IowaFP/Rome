@@ -16,17 +16,30 @@ open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
 -- Decidability of kind equality.
 
 _≡?_ : ∀ (κ₁ κ₂ : Kind) → Dec (κ₁ ≡ κ₂)
+_≡¹?_ : ∀ {κ} (κ₁ κ₂ : Kind¹ κ) → Dec (κ₁ ≡ κ₂)
+_≡¹?_ {κ} κ₁ κ₂ with κ ≡? κ 
+_≡¹?_ {★} ★¹ ★¹ | yes refl = yes refl
+_≡¹?_ {L} L¹ L¹ | yes refl = yes refl
+_≡¹?_ {x `→ κ} () κ₂ | yes refl 
+_≡¹?_ {R[ κ ]} R₁[ κ₁ ] R₁[ κ₂ ] | yes refl with κ₁ ≡¹? κ₂
+... | yes refl = yes refl
+... | no p     = no (λ {refl → p refl })
+_≡¹?_ _ _ | no p = no (λ _ → p refl)
+
 -- ≡? non-trivial.
 ★ ≡? ★ = yes refl
 L ≡? L = yes refl
 R[ κ₁ ] ≡? R[ κ₂ ] with κ₁ ≡? κ₂
 ... | yes refl = yes refl
 ... | no p  = no (λ { refl → p refl })
-(κ₁ `→ κ₂) ≡? (κ₃ `→  κ₄)
+(_`→_ {κ₁} κ₁¹ κ₂) ≡? _`→_ {κ₃} κ₃¹ κ₄
   with  κ₁ ≡? κ₃ | κ₂ ≡? κ₄
-... | yes refl | yes refl = yes refl
-... | _ | no q = no (λ { refl → q refl })
-... | no p | _ = no (λ { refl → p refl })
+... | yes refl | no q = no (λ { refl → q refl })
+... | no p | yes refl = no (λ { refl → p refl })
+... | no p | no q = no λ { refl → p refl }
+... | yes refl | yes refl with κ₁¹ ≡¹? κ₃¹
+...   | yes refl = yes refl
+...   | no p = no (λ { refl → p refl })
 -- ≡? trivial.
 ★ ≡? L = no (λ ())
 ★ ≡? R[ κ₂ ] = no (λ ())

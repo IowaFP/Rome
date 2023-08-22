@@ -17,8 +17,8 @@ _ = ⊢ₖ? ε U ★
 
 open import Data.Nat using (ℕ ; zero ; suc)
 
-x : Maybe (Type ε ((`λ ★ (tvar zero) ·[ U ]) (★¹ `→ ★)) ★)
-x = ⊢ₖ? ε (((`λ ★ (tvar zero)) ·[ U ]) (★¹ `→ ★)) ★
+x : Maybe (Type ε ((`λ ★ (tvar zero) ⦂ (★ `→ ★) ·[ U ])) ★)
+x = ⊢ₖ? ε (((`λ ★ (tvar zero)) ⦂ (★ `→ ★) ·[ U ])) ★
  
 r : Maybe (Type ε (Π (Σ U)) ★)
 r = ⊢ₖ? ε (Π (Σ U)) ★ 

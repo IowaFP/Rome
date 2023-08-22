@@ -36,8 +36,6 @@ Label = String
 --   - KEnv references Pred
 
 data Type : KEnv → Pre.Type → Kind →  Set
-data Value : ∀ (Δ : KEnv) (τ : Pre.Type) (κ : Kind) → Type Δ τ κ → Set
-
 data Pred (Δ : KEnv) (_ : Pre.Pred) (κ : Kind) : Set
 
 private
@@ -98,27 +96,27 @@ data Type where
           -------------------------------------
           Type Δ (`∀ κ τ₁) ★
 
-  `λ :  ∀ {Δ : KEnv} {κ : Kind} (κ¹ : Kind¹ κ) {κ₂ : Kind} →
-          Type (Δ , κ) τ₁ κ₂ →
+  `λ :  ∀ {Δ : KEnv} (κ₁ : Kind) {κ₂ : Kind} →
+          Type (Δ , κ₁) τ₁ κ₂ →
           -----------------------------------------
-          Type Δ (`λ κ τ₁) (κ¹ `→ κ₂)
+          Type Δ (`λ κ₁ τ₁) (κ₁ `→ κ₂)
 
-  _·[_] : ∀ {Δ : KEnv}{κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
-          Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ κ →
+  _·[_] : ∀ {Δ : KEnv}{κ₁ : Kind} {κ₂ : Kind} →
+          Type Δ τ₁ (κ₁ `→ κ₂) → Type Δ τ₂ κ₁ →
           -----------------------------
-          Type Δ ((τ₁ ·[ τ₂ ]) (κ¹ `→ κ₂)) κ₂
+          Type Δ (τ₁ ⦂ (κ₁ `→ κ₂) ·[ τ₂ ]) κ₂
 
   ------------------------------------------------------------
   -- Recursion.
 
   -- LFP. A thought---what happens if we take lfp of R[★] → R[★]?
   μ : {Δ : KEnv} →
-          Type Δ τ (★¹ `→ ★) → 
+          Type Δ τ (★ `→ ★) → 
           Type Δ (μ τ) ★
 
   -- GFP
   ν : {Δ : KEnv} →
-          Type Δ τ (★¹ `→ ★) → 
+          Type Δ τ (★ `→ ★) → 
           Type Δ (ν τ) ★
 
   ------------------------------------------------------------
@@ -178,22 +176,14 @@ data Type where
 
   -- lift₁ (lifting a function argument to row kind).
   _·⌈_⌉ : ∀ {Δ : KEnv}
-            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
-          Type Δ τ₁ R[ κ¹ `→ κ₂ ] → Type Δ τ₂ κ →
+            {κ₁ : Kind} {κ₂ : Kind} →
+          Type Δ τ₁ R[ κ₁ `→ κ₂ ] → Type Δ τ₂ κ₁ →
           --------------------------------
-          Type Δ ((τ₁ ·⌈ τ₂ ⌉)  (κ¹ `→ κ₂ )) R[ κ₂ ]
+          Type Δ (τ₁ ⦂ (κ₁ `→ κ₂ ) ·⌈ τ₂ ⌉) R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
   ⌈_⌉·_ : ∀ {Δ : KEnv}
-            {κ : Kind} {κ¹ : Kind¹ κ} {κ₂ : Kind} →
-          Type Δ τ₁ (κ¹ `→ κ₂) → Type Δ τ₂ R[ κ ] →
+            {κ₁ : Kind} {κ₂ : Kind} →
+          Type Δ τ₁ (κ₁ `→ κ₂) → Type Δ τ₂ R[ κ₁ ] →
           --------------------------------
-          Type Δ ((⌈ τ₁ ⌉· τ₂) (κ¹ `→ κ₂)) R[ κ₂ ]
-
--- N.B. that this Value type is actually a relation
--- on Pre.Type and Type.
--- 
-data Value where
-  U : ∀ {Δ} → Value Δ U ★ U
-  -- Need to relate ℕ and TVar somehow...
---   tvar : ∀ {Δ}{n} → Value Δ (tvar n) ★ (tvar n)
+          Type Δ (⌈ τ₁ ⦂ (κ₁ `→ κ₂) ⌉· τ₂)  R[ κ₂ ]
