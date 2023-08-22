@@ -2,7 +2,6 @@ module R2Mu.Types.Checking where
 
 open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
 import Relation.Nullary.Decidable using (⌊_⌋; True; toWitness; fromWitness)
-import Relation.Nullary.Negation using (¬?)
 import Relation.Nullary.Product using (_×-dec_)
 import Relation.Nullary.Sum using (_⊎-dec_)
 import Relation.Binary using (Decidable)
