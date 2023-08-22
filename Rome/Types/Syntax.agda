@@ -36,7 +36,7 @@ Label = String
 --   - KEnv references Pred
 
 data Type : KEnv → Pre.Type → Kind →  Set
-data Pred (Δ : KEnv) (_ : Pre.Pred) (κ : Kind) : Set
+data Pred (Δ : KEnv) (π : Pre.Pred) (κ : Kind) : Set
 
 private
   variable

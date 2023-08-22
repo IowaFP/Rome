@@ -23,7 +23,8 @@ open import Data.Maybe.Categorical
 
 open Pre.Type
 
--- TVar checking
+--------------------------------------------------------------------------------
+-- TVar checking.
 ⊢v? : (Δ : KEnv) → (n : ℕ) → (κ : Kind) → Maybe (TVar Δ κ n)
 ⊢v? ε zero κ = nothing
 ⊢v? ε (suc n) κ = nothing
@@ -34,6 +35,9 @@ open Pre.Type
   v ← ⊢v? Δ n κ
   just (S n v)
 
+
+--------------------------------------------------------------------------------
+-- Predicate & type formation.
 
 ⊢ₖp? : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Maybe (Pred Δ π κ)
 ⊢ₖ? : ∀ (Δ : KEnv) → (τ : Pre.Type) → (κ : Kind) → Maybe (Type Δ τ κ)
