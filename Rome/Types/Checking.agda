@@ -25,7 +25,7 @@ open Pre.Type
 
 --------------------------------------------------------------------------------
 -- TVar checking.
-⊢v? : (Δ : KEnv) → (n : ℕ) → (κ : Kind) → Maybe (TVar Δ κ n)
+⊢v? : (Δ : KEnv) → (n : ℕ) → (κ : Kind) → Maybe (TVar Δ κ)
 ⊢v? ε zero κ = nothing
 ⊢v? ε (suc n) κ = nothing
 ⊢v? (Δ , have) zero want with want ≡? have
@@ -33,7 +33,7 @@ open Pre.Type
 ... | no  p    = nothing 
 ⊢v? (Δ , _) (suc n) κ = do
   v ← ⊢v? Δ n κ
-  just (S n v)
+  just (S v)
 
 
 --------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ open Pre.Type
 ... | no  p = nothing
 ⊢ₖ? (Δ , κ') (tvar (suc n)) κ = do
   v' ← ⊢v? Δ n κ
-  just (tvar (suc n) (S n v'))
+  just (tvar (suc n) (S v'))
 -- Bindings.
 ⊢ₖ? Δ (`∀ κ' τ) ★ = do
   t ← ⊢ₖ? (Δ , κ') τ ★

@@ -55,12 +55,12 @@ data Pred Δ π κ where
 
 --------------------------------------------------------------------------------
 -- Type vars.
-data TVar : KEnv → Kind → ℕ → Set where
+data TVar : KEnv → Kind → Set where
   Z : ∀ {Δ : KEnv} {κ : Kind}
-      → TVar (Δ , κ) κ ℕ.zero
+      → TVar (Δ , κ) κ
 
-  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} 
-      (n : ℕ) → TVar Δ κ n → TVar (Δ , κ') κ (ℕ.suc n)
+  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} →
+      TVar Δ κ → TVar (Δ , κ') κ 
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -82,7 +82,7 @@ data Type where
 
   tvar : ∀ {Δ : KEnv} {κ : Kind} →
 
-         (n : ℕ) → TVar Δ κ n →
+         (n : ℕ) → TVar Δ κ →
          -----------
          Type Δ (tvar n) κ
 
