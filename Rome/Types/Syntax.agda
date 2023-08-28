@@ -1,9 +1,6 @@
 {-# OPTIONS --safe #-}
 module Rome.Types.Syntax where
 
-open import Agda.Primitive
-open import Level
-
 open import Data.String
 open import Data.Nat using (ℕ ; suc ; zero)
 
@@ -55,12 +52,12 @@ data Pred Δ π κ where
 
 --------------------------------------------------------------------------------
 -- Type vars.
-data TVar : KEnv → Kind → Set where
+data TVar : KEnv → ℕ → Kind → Set where
   Z : ∀ {Δ : KEnv} {κ : Kind}
-      → TVar (Δ , κ) κ
+      → TVar (Δ , κ) 0 κ
 
-  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} →
-      TVar Δ κ → TVar (Δ , κ') κ 
+  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} {n} →
+      TVar Δ n κ → TVar (Δ , κ') (suc n) κ 
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -82,7 +79,7 @@ data Type where
 
   tvar : ∀ {Δ : KEnv} {κ : Kind} →
 
-         (n : ℕ) → TVar Δ κ →
+         (n : ℕ) → TVar Δ n κ →
          -----------
          Type Δ (tvar n) κ
 
