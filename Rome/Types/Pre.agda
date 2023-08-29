@@ -23,7 +23,7 @@ data Type where
   _`→_  : Type → Type → Type  
   `∀     : Kind → Type → Type
   `λ     : Kind → Type → Type
-  _⦂_·[_] : Type → Kind → Type → Type
+  _·[_] : Type → Type → Type
   μ      : Type → Type
   ν      : Type → Type
   _⦂_⇒_   : Pred → Kind → Type → Type
@@ -34,8 +34,8 @@ data Type where
   ∅ : Type
   Π : Type → Type
   Σ : Type → Type
-  _⦂_·⌈_⌉ : Type → Kind → Type → Type
-  ⌈_⦂_⌉·_ : Type → Kind → Type → Type
+  _·⌈_⌉ : Type → Type → Type
+  ⌈_⌉·_ : Type → Type → Type
 
 -- data PValue : Pred → Set
 -- data Value : Type → Set
