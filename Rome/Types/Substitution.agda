@@ -21,11 +21,11 @@ open import Function
 open import Data.Nat using (ℕ ; zero ; suc)
 ℕ-map = ℕ → ℕ
 
-_<τ>_ : ∀ (f : ℕ-map) → Pre.Type → Pre.Type
-_<π>_ : ∀ (f : ℕ-map) → Pre.Pred → Pre.Pred
+_<$>τ_ : ∀ (f : ℕ-map) → Pre.Type → Pre.Type
+_<$>π_ : ∀ (f : ℕ-map) → Pre.Pred → Pre.Pred
 
 ℂ-map = ℕ → Pre.Type
--- ℂ-map f = (n : ℕ) → f <τ> Σ[ g ∈ (ℕ → Pre.Type) ] (∀ n. g (f n) ≡ 
+-- ℂ-map f = (n : ℕ) → f <$>τ Σ[ g ∈ (ℕ → Pre.Type) ] (∀ n. g (f n) ≡ 
 
 ext : ℕ-map → ℕ-map
 ext f zero = zero
@@ -33,29 +33,29 @@ ext f (suc n) = suc (f n)
 
 ext-c : ℂ-map → ℂ-map
 ext-c f zero = tvar zero
-ext-c f (suc n) = suc <τ> (f n)
+ext-c f (suc n) = suc <$>τ (f n)
 
-_<τ>_ f U = U
-_<τ>_ f (tvar x) = tvar (f x)
-_<τ>_ f (τ `→ τ') = f <τ> τ `→ f <τ> τ'
-_<τ>_ f (`∀ κ τ) = `∀ κ ((ext f) <τ> τ) 
-_<τ>_ f (`λ κ τ) = `λ κ ((ext f) <τ> τ)
-_<τ>_ f (τ ⦂ κ ·[ τ' ]) = (f <τ> τ) ⦂ κ ·[ f <τ> τ' ]
-_<τ>_ f (μ τ) = μ (f <τ> τ)
-_<τ>_ f (ν τ) = ν (f <τ> τ)
-_<τ>_ f (π ⦂ κ ⇒ τ) = (f <π> π) ⦂ κ ⇒ (f <τ> τ) 
-_<τ>_ f (lab x) = lab x
-_<τ>_ f (τ ▹ τ') = (f <τ> τ) ▹ (f <τ> τ')
-_<τ>_ f (τ R▹ τ') = (f <τ> τ) R▹ (f <τ> τ')
-_<τ>_ f ⌊ τ ⌋ = ⌊ (f <τ> τ) ⌋
-_<τ>_ f ∅ = ∅
-_<τ>_ f (Π τ) = Π (f <τ> τ)
-_<τ>_ f (Σ τ) = Σ (f <τ> τ)
-_<τ>_ f (τ ⦂ κ ·⌈ τ' ⌉) = (f <τ> τ) ⦂ κ ·⌈ (f <τ> τ') ⌉
-_<τ>_ f (⌈ τ ⦂ κ ⌉· τ') = ⌈ (f <τ> τ) ⦂ κ ⌉· (f <τ> τ')
+_<$>τ_ f U = U
+_<$>τ_ f (tvar x) = tvar (f x)
+_<$>τ_ f (τ `→ τ') = f <$>τ τ `→ f <$>τ τ'
+_<$>τ_ f (`∀ κ τ) = `∀ κ ((ext f) <$>τ τ) 
+_<$>τ_ f (`λ κ τ) = `λ κ ((ext f) <$>τ τ)
+_<$>τ_ f (τ ·[ τ' ]) = (f <$>τ τ) ·[ f <$>τ τ' ]
+_<$>τ_ f (μ τ) = μ (f <$>τ τ)
+_<$>τ_ f (ν τ) = ν (f <$>τ τ)
+_<$>τ_ f (π ⦂ κ ⇒ τ) = (f <$>π π) ⦂ κ ⇒ (f <$>τ τ) 
+_<$>τ_ f (lab x) = lab x
+_<$>τ_ f (τ ▹ τ') = (f <$>τ τ) ▹ (f <$>τ τ')
+_<$>τ_ f (τ R▹ τ') = (f <$>τ τ) R▹ (f <$>τ τ')
+_<$>τ_ f ⌊ τ ⌋ = ⌊ (f <$>τ τ) ⌋
+_<$>τ_ f ∅ = ∅
+_<$>τ_ f (Π τ) = Π (f <$>τ τ)
+_<$>τ_ f (Σ τ) = Σ (f <$>τ τ)
+_<$>τ_ f (τ ·⌈ τ' ⌉) = (f <$>τ τ) ·⌈ (f <$>τ τ') ⌉
+_<$>τ_ f (⌈ τ ⌉· τ') = ⌈ (f <$>τ τ) ⌉· (f <$>τ τ')
 
-f <π> (ρ₁ Pre.≲ ρ₂) = (f <τ> ρ₁) ≲ ((f <τ> ρ₂))
-f <π> (ρ₁ Pre.· ρ₂ ~ ρ₃) = (f <τ> ρ₁) · f <τ> ρ₂ ~ (f <τ> ρ₃)
+f <$>π (ρ₁ Pre.≲ ρ₂) = (f <$>τ ρ₁) ≲ ((f <$>τ ρ₂))
+f <$>π (ρ₁ Pre.· ρ₂ ~ ρ₃) = (f <$>τ ρ₁) · f <$>τ ρ₂ ~ (f <$>τ ρ₃)
 
 
 --------------------------------------------------------------------------------
@@ -69,11 +69,11 @@ f <π> (ρ₁ Pre.· ρ₂ ~ ρ₃) = (f <τ> ρ₁) · f <τ> ρ₂ ~ (f <τ> �
 
 -- -- A mapping from types to types.
 τ-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (f : ℕ-map) → Set
-τ-map Δ₁ Δ₂ f = (∀ {κ : Kind}{τ : Pre.Type} → Type Δ₁ τ κ → Type Δ₂ (f <τ> τ) κ)
+τ-map Δ₁ Δ₂ f = (∀ {κ : Kind}{τ : Pre.Type} → Type Δ₁ τ κ → Type Δ₂ (f <$>τ τ) κ)
 
 -- -- A mapping from preds to preds.
 π-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (f : ℕ-map) → Set
-π-map Δ₁ Δ₂ f = ∀ {κ : Kind}{p : Pre.Pred} → Pred Δ₁ p κ → Pred Δ₂ (f <π> p) κ
+π-map Δ₁ Δ₂ f = ∀ {κ : Kind}{p : Pre.Pred} → Pred Δ₁ p κ → Pred Δ₂ (f <$>π p) κ
 
 -- A Context maps type vars to types.
 Context : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv)(c : ℂ-map) → Set
@@ -149,35 +149,35 @@ ext-Context c θ (S n) = rename suc S (θ n)
 -- -- Substitution of *zero or more* type variables in types.
 
 -- N.b. need to relate ℕ- and ℂ-maps---may be as simple as indexing.
-subst : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
-           Context Δ₁ Δ₂ c →
-           τ-map Δ₁ Δ₂ f
+-- subst : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
+--            Context Δ₁ Δ₂ c →
+--            τ-map Δ₁ Δ₂ f
 
-substPred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
-          Context Δ₁ Δ₂ c →
-          π-map Δ₁ Δ₂ f
+-- substPred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
+--           Context Δ₁ Δ₂ c →
+--           π-map Δ₁ Δ₂ f
 
-subst f c θ (tvar _ x) = θ x
-subst f c θ (τ `→ υ) = subst f c θ τ `→ subst f c θ υ
-subst f c θ (`∀ κ τ) = `∀ κ (subst (ext-Context θ) τ)
-subst f c θ (`λ s τ) = `λ s (subst (ext-Context θ) τ)
-subst f c θ (τ ·[ υ ]) = subst f c θ τ ·[ subst f c θ υ ]
-subst f c θ U = U
-subst f c θ (lab l) = lab l
-subst f c θ (t ▹ v) = (subst f c θ t) ▹ (subst f c θ v)
-subst f c θ (⌊ t ⌋) = ⌊ subst f c θ t ⌋
-subst f c θ (t R▹ v) = subst f c θ t R▹ subst f c θ v
-subst f c θ (Π r) = Π (subst f c θ r)
-subst f c θ (Type.Σ r) = Type.Σ (subst f c θ r)
-subst f c θ (π ⇒ τ) = substPred f c θ π ⇒ subst f c θ τ
-subst f c θ ( r ·⌈ τ ⌉) = (subst f c θ r) ·⌈ (subst f c θ τ) ⌉
-subst f c θ ( ⌈ τ ⌉· r) = ⌈ (subst f c θ τ) ⌉· (subst f c θ r)
-subst f c θ (μ τ) = μ (subst f c θ τ)
-subst f c θ (ν τ) = ν (subst f c θ τ)
-subst _ ∅ = ∅
+-- subst f c θ (tvar _ x) = ? -- θ x
+-- subst f c θ (τ `→ υ) = subst f c θ τ `→ subst f c θ υ
+-- subst f c θ (`∀ κ τ) = `∀ κ (subst (ext-Context f c θ) τ)
+-- subst f c θ (`λ s τ) = `λ s (subst (ext-Context f c θ) τ)
+-- subst f c θ (τ ·[ υ ]) = subst f c θ τ ·[ subst f c θ υ ]
+-- subst f c θ U = U
+-- subst f c θ (lab l) = lab l
+-- subst f c θ (t ▹ v) = (subst f c θ t) ▹ (subst f c θ v)
+-- subst f c θ (⌊ t ⌋) = ⌊ subst f c θ t ⌋
+-- subst f c θ (t R▹ v) = subst f c θ t R▹ subst f c θ v
+-- subst f c θ (Π r) = Π (subst f c θ r)
+-- subst f c θ (Type.Σ r) = Type.Σ (subst f c θ r)
+-- subst f c θ (π ⇒ τ) = substPred f c θ π ⇒ subst f c θ τ
+-- subst f c θ ( r ·⌈ τ ⌉) = (subst f c θ r) ·⌈ (subst f c θ τ) ⌉
+-- subst f c θ ( ⌈ τ ⌉· r) = ⌈ (subst f c θ τ) ⌉· (subst f c θ r)
+-- subst f c θ (μ τ) = μ (subst f c θ τ)
+-- subst f c θ (ν τ) = ν (subst f c θ τ)
+-- subst _ ∅ = ∅
 
-substPred f c θ (ρ₁ ≲ ρ₂)      = subst f c θ ρ₁ ≲ subst f c θ ρ₂
-substPred f c θ (ρ₁ · ρ₂ ~ ρ₃) = subst f c θ ρ₁ ·  subst f c θ ρ₂ ~ subst f c θ ρ₃
+-- substPred f c θ (ρ₁ ≲ ρ₂)      = subst f c θ ρ₁ ≲ subst f c θ ρ₂
+-- substPred f c θ (ρ₁ · ρ₂ ~ ρ₃) = subst f c θ ρ₁ ·  subst f c θ ρ₂ ~ subst f c θ ρ₃
 
 -- --------------------------------------------------------------------------------
 -- -- Single substitution.
