@@ -5,7 +5,7 @@ open import Data.String
 open import Data.Nat using (ℕ ; suc ; zero)
 
 open import Rome.Kinds.Syntax
-import Rome.Types.Pre as Pre
+import Rome.Pre.Types as Pre
 
 --------------------------------------------------------------------------------
 -- infix OOP.

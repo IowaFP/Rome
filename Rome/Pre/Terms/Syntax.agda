@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Rome.Terms.Pre where
+module Rome.Pre.Terms.Syntax where
 
 open import Data.Nat
 open import Data.String
