@@ -14,94 +14,150 @@ open Pre.Type
 open Pre.Pred
 
 open import Function
+--------------------------------------------------------------------------------
+-- Substitution & Weakening.
+--
+-- We follow the approach of Wadler, Kokke, and Siek.
+-- https://plfa.github.io/DeBruijn/
+--
+-- As we are substituting over *intrinsically kinded types*, there is no
+-- separation of substitution/weakening *logic* and substitution/weakening
+-- *theory*. That is to say, the code is metatheory and vice versa.
 
 --------------------------------------------------------------------------------
--- Pre-Defs.
+-- The general idea.
+--
+-- If we try implement a weakening lemma directly,
+-- we will get stuck here:
+--     weaken :∀ Δ κ τ →  Type Δ τ κ → Type (Δ , ι) τ κ
+--     weaken (`∀ k t) = ?
+-- as our IH is restricted to a specific Δ, whereas we need to induct
+-- on (Δ , k), given that the subdata t has type Type (Δ , k) τ' κ'.
+--
+-- We generalize Δ by establishing a notion of *context invariant maps* (denoted
+-- `τ-map`s), which are a mapping of type variables from KEnv Δ₁ to Δ₂ such that
+-- all well kinded types τ in Δ₁ are also well-kinded in Δ₂. You may also think
+-- of this operation as "rebasing" a type in one environment to another.
+
+
+--------------------------------------------------------------------------------
+-- Pre-Renaming.
 
 open import Data.Nat using (ℕ ; zero ; suc)
-ℕ-map = ℕ → ℕ
 
-_<$>τ_ : ∀ (f : ℕ-map) → Pre.Type → Pre.Type
-_<$>π_ : ∀ (f : ℕ-map) → Pre.Pred → Pre.Pred
+index = ℕ → ℕ
+pre-τ-map = Pre.Type → Pre.Type
+pre-π-map = Pre.Pred → Pre.Pred
 
-ℂ-map = ℕ → Pre.Type
--- ℂ-map f = (n : ℕ) → f <$>τ Σ[ g ∈ (ℕ → Pre.Type) ] (∀ n. g (f n) ≡ 
-
-ext : ℕ-map → ℕ-map
+ext : index → index
 ext f zero = zero
 ext f (suc n) = suc (f n)
 
-ext-c : ℂ-map → ℂ-map
-ext-c f zero = tvar zero
-ext-c f (suc n) = suc <$>τ (f n)
+pre-rename : index → Pre.Type → Pre.Type
+pre-rename-π : index → Pre.Pred → Pre.Pred
+pre-rename-π f (ρ₁ Pre.≲ ρ₂) = (pre-rename f ρ₁) ≲ ((pre-rename f ρ₂))
+pre-rename-π f (ρ₁ Pre.· ρ₂ ~ ρ₃) = (pre-rename f ρ₁) · pre-rename f ρ₂ ~ (pre-rename f ρ₃)
 
-_<$>τ_ f U = U
-_<$>τ_ f (tvar x) = tvar (f x)
-_<$>τ_ f (τ `→ τ') = f <$>τ τ `→ f <$>τ τ'
-_<$>τ_ f (`∀ κ τ) = `∀ κ ((ext f) <$>τ τ) 
-_<$>τ_ f (`λ κ τ) = `λ κ ((ext f) <$>τ τ)
-_<$>τ_ f (τ ·[ τ' ]) = (f <$>τ τ) ·[ f <$>τ τ' ]
-_<$>τ_ f (μ τ) = μ (f <$>τ τ)
-_<$>τ_ f (ν τ) = ν (f <$>τ τ)
-_<$>τ_ f (π ⦂ κ ⇒ τ) = (f <$>π π) ⦂ κ ⇒ (f <$>τ τ) 
-_<$>τ_ f (lab x) = lab x
-_<$>τ_ f (τ ▹ τ') = (f <$>τ τ) ▹ (f <$>τ τ')
-_<$>τ_ f (τ R▹ τ') = (f <$>τ τ) R▹ (f <$>τ τ')
-_<$>τ_ f ⌊ τ ⌋ = ⌊ (f <$>τ τ) ⌋
-_<$>τ_ f ∅ = ∅
-_<$>τ_ f (Π τ) = Π (f <$>τ τ)
-_<$>τ_ f (Σ τ) = Σ (f <$>τ τ)
-_<$>τ_ f (τ ·⌈ τ' ⌉) = (f <$>τ τ) ·⌈ (f <$>τ τ') ⌉
-_<$>τ_ f (⌈ τ ⌉· τ') = ⌈ (f <$>τ τ) ⌉· (f <$>τ τ')
-
-f <$>π (ρ₁ Pre.≲ ρ₂) = (f <$>τ ρ₁) ≲ ((f <$>τ ρ₂))
-f <$>π (ρ₁ Pre.· ρ₂ ~ ρ₃) = (f <$>τ ρ₁) · f <$>τ ρ₂ ~ (f <$>τ ρ₃)
+pre-rename f U = U
+pre-rename f (tvar x) = tvar (f x)
+pre-rename f (τ `→ τ') = pre-rename f τ `→ pre-rename f τ'
+pre-rename f (`∀ κ τ) = `∀ κ (pre-rename (ext f) τ) -- `∀ κ ((ext f) <$>τ τ) 
+pre-rename f (`λ κ τ) = `λ κ (pre-rename (ext f) τ) -- `λ κ ((ext f) <$>τ τ)
+pre-rename f (τ ·[ τ' ]) = (pre-rename f τ) ·[ pre-rename f τ' ]
+pre-rename f (μ τ) = μ (pre-rename f τ)
+pre-rename f (ν τ) = ν (pre-rename f τ)
+pre-rename f (π ⦂ κ ⇒ τ) = (pre-rename-π f π) ⦂ κ ⇒ (pre-rename f τ) 
+pre-rename f (lab x) = lab x
+pre-rename f (τ ▹ τ') = (pre-rename f τ) ▹ (pre-rename f τ')
+pre-rename f (τ R▹ τ') = (pre-rename f τ) R▹ (pre-rename f τ')
+pre-rename f ⌊ τ ⌋ = ⌊ (pre-rename f τ) ⌋
+pre-rename f ∅ = ∅
+pre-rename f (Π τ) = Π (pre-rename f τ)
+pre-rename f (Σ τ) = Σ (pre-rename f τ)
+pre-rename f (τ ·⌈ τ' ⌉) = (pre-rename f τ) ·⌈ (pre-rename f τ') ⌉
+pre-rename f (⌈ τ ⌉· τ') = ⌈ (pre-rename f τ) ⌉· (pre-rename f τ')
 
 
 --------------------------------------------------------------------------------
--- Defs.
+-- Pre-substitution.
 
--- -- A Δ-map maps type vars in environment Δ₁ to environment Δ₂.
--- -- (This is the De Bruijn equivalent of renaming variables.)
-Δ-map : ∀ (Δ₁ : KEnv) (Δ₂ : KEnv) (f : ℕ-map) → Set
+pre-context = ℕ → Pre.Type
+ext-c : pre-context → pre-context
+ext-c f zero = tvar zero
+ext-c f (suc n) = pre-rename suc (f n)
+
+pre-subst : pre-context → Pre.Type → Pre.Type
+pre-subst-π : pre-context → Pre.Pred → Pre.Pred
+pre-subst-π f (ρ₁ Pre.≲ ρ₂) = (pre-subst f ρ₁) ≲ ((pre-subst f ρ₂))
+pre-subst-π f (ρ₁ Pre.· ρ₂ ~ ρ₃) = (pre-subst f ρ₁) · pre-subst f ρ₂ ~ (pre-subst f ρ₃)
+
+pre-subst f U = U
+pre-subst f (tvar x) = f x
+pre-subst f (τ `→ τ') = pre-subst f τ `→ pre-subst f τ'
+pre-subst f (`∀ κ τ) = `∀ κ (pre-subst (ext-c f) τ) -- `∀ κ ((ext f) <$>τ τ) 
+pre-subst f (`λ κ τ) = `λ κ (pre-subst (ext-c f) τ) -- `λ κ ((ext f) <$>τ τ)
+pre-subst f (τ ·[ τ' ]) = (pre-subst f τ) ·[ pre-subst f τ' ]
+pre-subst f (μ τ) = μ (pre-subst f τ)
+pre-subst f (ν τ) = ν (pre-subst f τ)
+pre-subst f (π ⦂ κ ⇒ τ) = (pre-subst-π f π) ⦂ κ ⇒ (pre-subst f τ) 
+pre-subst f (lab x) = lab x
+pre-subst f (τ ▹ τ') = (pre-subst f τ) ▹ (pre-subst f τ')
+pre-subst f (τ R▹ τ') = (pre-subst f τ) R▹ (pre-subst f τ')
+pre-subst f ⌊ τ ⌋ = ⌊ (pre-subst f τ) ⌋
+pre-subst f ∅ = ∅
+pre-subst f (Π τ) = Π (pre-subst f τ)
+pre-subst f (Σ τ) = Σ (pre-subst f τ)
+pre-subst f (τ ·⌈ τ' ⌉) = (pre-subst f τ) ·⌈ (pre-subst f τ') ⌉
+pre-subst f (⌈ τ ⌉· τ') = ⌈ (pre-subst f τ) ⌉· (pre-subst f τ')
+
+--------------------------------------------------------------------------------
+-- Defs & context invariance.
+--
+-- A Δ-map can be thought of as a "reindexing" of type variables:
+--   if you give me a tvar in Δ with kind κ at index n,
+--   I can give you a (reindexed) tvar in Δ₂ with kind Κ at index (f n),
+--   with f : ℕ → ℕ the ℕ index.
+Δ-map : ∀ (Δ₁ : KEnv) (Δ₂ : KEnv) (f : index) → Set
 Δ-map Δ₁ Δ₂ f =
   (∀ {κ : Kind} {n} → TVar Δ₁ n κ → TVar Δ₂ (f n) κ)
 
--- -- A mapping from types to types.
-τ-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (f : ℕ-map) → Set
-τ-map Δ₁ Δ₂ f = (∀ {κ : Kind}{τ : Pre.Type} → Type Δ₁ τ κ → Type Δ₂ (f <$>τ τ) κ)
+-- Here be the main idea: context invariance over types.
+--   give me a type in Δ₁ and I'll give you the same kinded type in Δ₂.
+τ-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (T : pre-τ-map) → Set
+τ-map Δ₁ Δ₂ T = (∀ {κ : Kind}{τ : Pre.Type} → Type Δ₁ τ κ → Type Δ₂ (T τ) κ)
 
--- -- A mapping from preds to preds.
-π-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (f : ℕ-map) → Set
-π-map Δ₁ Δ₂ f = ∀ {κ : Kind}{p : Pre.Pred} → Pred Δ₁ p κ → Pred Δ₂ (f <$>π p) κ
+-- Context invariance over preds.
+π-map : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv) (P : pre-π-map) → Set
+π-map Δ₁ Δ₂ P = ∀ {κ : Kind}{p : Pre.Pred} → Pred Δ₁ p κ → Pred Δ₂ (P p) κ
 
--- A Context maps type vars to types.
-Context : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv)(c : ℂ-map) → Set
+-- Some overloaded terminology: A *Context* here denotes not the kinding
+-- environment but the mapping from tvars to types, i.e., a context in
+-- type-level evaluation. Again we have a notion of "rebasing" from Δ₁ to Δ₂.
+Context : ∀  (Δ₁ : KEnv) (Δ₂ : KEnv)(c : pre-context) → Set
 Context Δ₁ Δ₂ c = ∀ {κ : Kind}{n} → TVar Δ₁ n κ → Type Δ₂ (c n) κ 
-
 
 --------------------------------------------------------------------------------
 -- Δ-map extension.
 
-
-ext-Δ : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} {ι : Kind} {f : ℕ-map} →
+-- IF I have a rebasing of tvars, I can extend each rebasing by kind ι.
+ext-Δ : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} {ι : Kind} {f : index} →
          Δ-map Δ₁ Δ₂ f →
          Δ-map (Δ₁ , ι) (Δ₂ , ι) (ext f)
 ext-Δ ρ Z     = Z
 ext-Δ ρ (S x) = S (ρ x)
 
 --------------------------------------------------------------------------------
--- Renaming.
+-- Renaming lemma.
 --
--- Renaming lifts a Δ-map (which renames type vars) to a τ-map (which renames
--- type vars in types.)
+-- Aka, if I can rebase the tvars, then I can rebase the types,
+-- where (in De Bruijn notation), *rebasing is renaming*.
 
-rename : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) →
+rename : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : index) →
            Δ-map Δ₁ Δ₂ f →
-           τ-map Δ₁ Δ₂ f
-renamePred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) →
+           τ-map Δ₁ Δ₂ (pre-rename f)
+renamePred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : index) →
            Δ-map Δ₁ Δ₂ f →
-           π-map Δ₁ Δ₂ f
+           π-map Δ₁ Δ₂ (pre-rename-π f)
 
 rename f ρ (tvar n v) = tvar (f n) (ρ v)
 rename f ρ (τ `→ υ) = rename f ρ τ `→ rename f ρ υ
@@ -125,79 +181,75 @@ rename f ρ ∅ = ∅
 renamePred f ρ (ρ₁ ≲ ρ₂) = rename f ρ ρ₁ ≲ rename f ρ ρ₂
 renamePred f ρ (ρ₁ · ρ₂ ~ ρ₃) = rename f ρ ρ₁ ·  rename f ρ ρ₂ ~ rename f ρ ρ₃
 
--- --------------------------------------------------------------------------------
--- -- Weakening (of a typing derivation.)
-
+--------------------------------------------------------------------------------
+-- Weakening.
+--
 weaken : ∀ {Δ : KEnv} {κ : Kind} →
-           τ-map Δ (Δ , κ) suc
+           τ-map Δ (Δ , κ) (pre-rename suc)
 weaken = rename suc S
 
--- --------------------------------------------------------------------------------
+-- -- --------------------------------------------------------------------------------
 -- -- Context extension.
 -- --
 
 ext-Context : ∀ {Δ₁ : KEnv} {Δ₂ : KEnv}
-         {ι : Kind} (c : ℂ-map) →
+         {ι : Kind} (c : pre-context) →
          Context Δ₁ Δ₂ c →
          Context (Δ₁ , ι) (Δ₂ , ι) (ext-c c)
 ext-Context c θ Z = tvar zero Z
 ext-Context c θ (S n) = rename suc S (θ n)
 
--- --------------------------------------------------------------------------------
--- -- (Simultaneous) Substitution.
--- --
--- -- Substitution of *zero or more* type variables in types.
+--------------------------------------------------------------------------------
+-- (Simultaneous) Substitution.
+--
+-- Substitution of *zero or more* type variables in types.
 
--- N.b. need to relate ℕ- and ℂ-maps---may be as simple as indexing.
--- subst : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
---            Context Δ₁ Δ₂ c →
---            τ-map Δ₁ Δ₂ f
+-- N.b. need to relate ℕ- and pre-contexts---may be as simple as indexing.
+subst : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : index) (σ : pre-context) →
+           Context Δ₁ Δ₂ σ →
+           τ-map Δ₁ Δ₂ (pre-subst σ)
 
--- substPred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : ℕ-map) (c : ℂ-map) →
---           Context Δ₁ Δ₂ c →
---           π-map Δ₁ Δ₂ f
+substPred : ∀  {Δ₁ : KEnv} {Δ₂ : KEnv} (f : index) (σ : pre-context) →
+          Context Δ₁ Δ₂ σ →
+          π-map Δ₁ Δ₂ (pre-subst-π σ)
 
--- subst f c θ (tvar _ x) = ? -- θ x
--- subst f c θ (τ `→ υ) = subst f c θ τ `→ subst f c θ υ
--- subst f c θ (`∀ κ τ) = `∀ κ (subst (ext-Context f c θ) τ)
--- subst f c θ (`λ s τ) = `λ s (subst (ext-Context f c θ) τ)
--- subst f c θ (τ ·[ υ ]) = subst f c θ τ ·[ subst f c θ υ ]
--- subst f c θ U = U
--- subst f c θ (lab l) = lab l
--- subst f c θ (t ▹ v) = (subst f c θ t) ▹ (subst f c θ v)
--- subst f c θ (⌊ t ⌋) = ⌊ subst f c θ t ⌋
--- subst f c θ (t R▹ v) = subst f c θ t R▹ subst f c θ v
--- subst f c θ (Π r) = Π (subst f c θ r)
--- subst f c θ (Type.Σ r) = Type.Σ (subst f c θ r)
--- subst f c θ (π ⇒ τ) = substPred f c θ π ⇒ subst f c θ τ
--- subst f c θ ( r ·⌈ τ ⌉) = (subst f c θ r) ·⌈ (subst f c θ τ) ⌉
--- subst f c θ ( ⌈ τ ⌉· r) = ⌈ (subst f c θ τ) ⌉· (subst f c θ r)
--- subst f c θ (μ τ) = μ (subst f c θ τ)
--- subst f c θ (ν τ) = ν (subst f c θ τ)
--- subst _ ∅ = ∅
+subst f σ θ (tvar _ x) = θ x -- θ x
+subst f σ θ (τ `→ υ) = subst f σ θ τ `→ subst f σ θ υ
+subst f σ θ (`∀ κ τ) = `∀ κ (subst f (ext-c σ) (ext-Context σ θ) τ) 
+subst f σ θ (`λ κ τ) = `λ κ (subst f (ext-c σ) (ext-Context σ θ) τ)
+subst f σ θ (τ ·[ υ ]) = subst f σ θ τ ·[ subst f σ θ υ ]
+subst f σ θ U = U
+subst f σ θ (lab l) = lab l
+subst f σ θ (t ▹ v) = (subst f σ θ t) ▹ (subst f σ θ v)
+subst f σ θ (⌊ t ⌋) = ⌊ subst f σ θ t ⌋
+subst f σ θ (t R▹ v) = subst f σ θ t R▹ subst f σ θ v
+subst f σ θ (Π r) = Π (subst f σ θ r)
+subst f σ θ (Type.Σ r) = Type.Σ (subst f σ θ r)
+subst f σ θ (π ⇒ τ) = substPred f σ θ π ⇒ subst f σ θ τ
+subst f σ θ ( r ·⌈ τ ⌉) = (subst f σ θ r) ·⌈ (subst f σ θ τ) ⌉
+subst f σ θ ( ⌈ τ ⌉· r) = ⌈ (subst f σ θ τ) ⌉· (subst f σ θ r)
+subst f σ θ (μ τ) = μ (subst f σ θ τ)
+subst f σ θ (ν τ) = ν (subst f σ θ τ)
+subst _ _ _ ∅ = ∅
 
--- substPred f c θ (ρ₁ ≲ ρ₂)      = subst f c θ ρ₁ ≲ subst f c θ ρ₂
--- substPred f c θ (ρ₁ · ρ₂ ~ ρ₃) = subst f c θ ρ₁ ·  subst f c θ ρ₂ ~ subst f c θ ρ₃
+substPred f σ θ (ρ₁ ≲ ρ₂)      = subst f σ θ ρ₁ ≲ subst f σ θ ρ₂
+substPred f σ θ (ρ₁ · ρ₂ ~ ρ₃) = subst f σ θ ρ₁ ·  subst f σ θ ρ₂ ~ subst f σ θ ρ₃
 
--- --------------------------------------------------------------------------------
--- -- Single substitution.
+--------------------------------------------------------------------------------
+-- Single substitution.
 
--- -- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
--- -- Z↦ : ∀ {Δ : KEnv} {κ : Kind} →
--- --         Type Δ κ → Context (Δ , κ) Δ
--- -- Z↦ τ Z = τ
--- -- Z↦ τ (S x) = tvar x
 
--- -- -- Regular ol' substitution.
--- -- _β[_] : ∀ {Δ : KEnv} {κ : Kind}{ι : Kind}
--- --          → Type (Δ , ι) κ → Type Δ ι → Type Δ κ
--- -- τ β[ υ ] = subst (Z↦ υ) τ
+pre-Z↦ : Pre.Type → pre-context
+pre-Z↦ t zero    = t
+pre-Z↦ t (suc n) = tvar n
 
--- --------------------------------------------------------------------------------
--- -- examples, to move elsewhere
+-- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
+Z↦ : ∀ {Δ : KEnv} {κ : Kind} {τ} →
+        Type Δ τ κ → Context (Δ , κ) Δ (pre-Z↦ τ)
+Z↦ τ Z = τ
+Z↦ τ (S {n = n} x) = tvar n x
 
--- -- t0 : Type (ε , ★ lzero) (★ lzero)
--- -- t0 = tvar Z `→ tvar Z
-
--- -- _ : subst (Z↦ U) t0 ≡ U `→ U
--- -- _ = refl
+-- Regular ol' substitution.
+_β[_] : ∀ {Δ : KEnv} {κ : Kind}{ι : Kind} {τ υ}
+         → Type (Δ , ι) τ κ → Type Δ υ ι → Type Δ (pre-subst (pre-Z↦ υ) τ) κ
+τ β[ υ ] = subst id _ (Z↦ υ) τ

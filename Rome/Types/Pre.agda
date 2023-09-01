@@ -36,27 +36,3 @@ data Type where
   Σ : Type → Type
   _·⌈_⌉ : Type → Type → Type
   ⌈_⌉·_ : Type → Type → Type
-
--- data PValue : Pred → Set
--- data Value : Type → Set
-
--- data PValue where
---    _≲_ : ∀ {τ₁ τ₂} → Value τ₁ → Value τ₂ → PValue (τ₁ ≲ τ₂)
---    _·_~_ : ∀ {τ₁ τ₂ τ₃} → Value τ₁ → Value τ₂ → Value τ₃ →  PValue (τ₁ · τ₂ ~ τ₃)
-
--- data Value where
---   U : Value U
---   tvar : (n : ℕ) → Value (tvar n)
---   _`→_  : ∀ {τ₁ τ₂} → (v₁ : Value τ₁) → (v₂ : Value τ₂) → Value (τ₁ `→ τ₂)
---   `∀     : ∀ {τ} → (κ : Kind) → Value τ → Value (`∀ κ τ)
---   `λ     : ∀ {τ} → (κ : Kind) → Value τ → Value (`λ κ τ)
---   μ      : ∀ {τ} → Value τ → Value (μ τ)
---   ν      : ∀ {τ} → Value τ → Value (ν τ)
---   _⇒_   : ∀ {π τ} → PValue π → Value τ → Value (π ⇒ τ)
---   lab    : (l : String) → Value (lab l)
---   _▹_    : ∀ {τ₁ τ₂} → Value τ₁ → Value τ₂ → Value (τ₁ ▹ τ₂)
---   _R▹_    : ∀ {τ₁ τ₂} → Value τ₁ → Value τ₂ → Value (τ₁ R▹ τ₂)
---   ⌊_⌋ : ∀ {τ} → Value τ → Value (⌊ τ ⌋)
---   ∅ : Value ∅ 
---   Π : ∀ {τ} → Value τ → Value (Π τ)
---   Σ : ∀ {τ} → Value τ → Value (Σ τ)
