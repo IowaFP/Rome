@@ -1,4 +1,4 @@
-module Postulates.FunExt where
+module Shared.Postulates.FunExt where
 
 open import Axiom.Extensionality.Propositional public
 

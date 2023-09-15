@@ -16,6 +16,8 @@ open import Data.Fin
   renaming (zero to fzero; suc to fsuc)
   hiding (fold)
 
+open import Shared.Lib.Equality
+
 open import ROmega.Kinds
 open import ROmega.Types
 open import ROmega.Types.Substitution
@@ -23,7 +25,7 @@ open import ROmega.Types.Substitution.Properties -- extensionality
 open import ROmega.Terms.Syntax
 open import ROmega.Equivalence -- extensionality
 open import ROmega.Entailment -- extensionality
-open import Lib.Equality
+
 open import IndexCalculus
 open import IndexCalculus.Properties
 import IndexCalculus as Ix

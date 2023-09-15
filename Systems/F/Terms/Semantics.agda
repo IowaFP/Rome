@@ -21,7 +21,7 @@ open import F.Types
 open import F.Types.Substitution
 open import F.Types.Substitution.Properties -- extensionality
 open import F.Terms.Syntax
-open import Lib.Equality
+open import Shared.Lib.Equality
 
 --------------------------------------------------------------------------------
 -- The meaning of environments.

@@ -10,7 +10,7 @@ open import Data.Product
 open import F.Kinds
 open import F.Types
 open import F.Types.Substitution
-open import Postulates.FunExt
+open import Shared.Postulates.FunExt
 
 --------------------------------------------------------------------------------
 -- Preservation of meaning across type-var maps, type maps, and

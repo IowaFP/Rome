@@ -5,7 +5,7 @@ open import Data.Nat
 open import Data.String
 open import Rome.Kinds.Syntax
 
-open import Rome.Types.Pre
+open import Rome.Pre.Types
 
 data Term : Set where
   var : ℕ → Term

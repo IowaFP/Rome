@@ -10,7 +10,7 @@ open import Data.Product
 open import ROmega.Kinds
 open import ROmega.Types
 open import ROmega.Types.Substitution
-open import Postulates.FunExt
+open import Shared.Postulates.FunExt
 
 --------------------------------------------------------------------------------
 -- Preservation of meaning across type-var maps, predicate maps, type maps, and
