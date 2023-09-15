@@ -28,6 +28,9 @@ open import Shared.Lib.Monads.Fuck
 --------------------------------------------------------------------------------
 -- Var lookup
 
+-- Syntax here means _∈[_] is TVar lookup and _∈[_∣_] is Var lookup, and so
+-- later, should _∈[_∣_∣_] be PVar lookup? This is sort of janky, but I also
+-- dislike indexing every name with κ, τ, and π.
 _∈[_∣_] : (n : ℕ) (Δ : KEnv) (Γ : Env Δ) → Fuck? (∃[ τ ] (Var Γ τ))
 n ∈[ Δ ∣ ε ] = wtf? 
   ("You tried to look up the variable " ++ (show n) ++ " in an empty environment")
@@ -40,18 +43,19 @@ suc n ∈[ Δ ∣ Γ , τ ] = do
 -- 
 
 -- Synthesis.
-[_∣_∣_]⊢?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → Fuck? (Term Δ Φ Γ)
+[_∣_∣_]⊢?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → Fuck? (∃[ τ ] (Term Δ Φ Γ τ))
 
 -- Checking.
-[_∣_∣_]⊢_⦂?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → (τ : Pre.Type) → Fuck? (Term Δ Φ Γ)
+[_∣_∣_]⊢_⦂?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → (τ : Type Δ ★) → Fuck? (Term Δ Φ Γ τ)
 
 [_∣_∣_]⊢?_ = {!!}
 
 
 -- vars.
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.var x ⦂? τ = do
-  (τ , v ) ← x ∈[ Δ ∣ Γ ]
-  yiss (var v)
+  (τ' , v ) ← x ∈[ Δ ∣ Γ ]
+  -- must check if τ ≡ τ'
+  yiss (var {!!})
 
 -- binding sites.
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.`λ x M ⦂? τ = {!!}
@@ -66,12 +70,21 @@ suc n ∈[ Δ ∣ Γ , τ ] = do
 [ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ x ·⟨ x₁ ⟩ ⦂? τ = {!!}
 
 -- label and row singletons.
-[ Δ ∣ Φ ∣ Γ ]⊢ Pre.lab l ⦂? t = do
-  τ ← Δ ⊢ t ⦂? L
-  yiss (lab τ)
-[ Δ ∣ Φ ∣ Γ ]⊢ l Pre.▹ M ⦂? τ = [ Δ ∣ Φ ∣ Γ ]⊢ M ⦂? τ
-[ Δ ∣ Φ ∣ Γ ]⊢ M Pre./ M₁ ⦂? τ = {!!}
-[ Δ ∣ Φ ∣ Γ ]⊢ Pre.∅ ⦂? τ = yiss ∅
+[ Δ ∣ Φ ∣ Γ ]⊢ Pre.lab l ⦂? (⌊ ℓ ⌋) = do
+  yiss (lab ℓ)
+
+[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.▹ N ⦂? (ℓ ▹ τ) = do
+  l ← [ Δ ∣ Φ ∣ Γ ]⊢ M ⦂? ⌊ ℓ ⌋
+  n ←  [ Δ ∣ Φ ∣ Γ ]⊢ N ⦂? τ
+  yiss (l ▹ n)
+[ Δ ∣ Φ ∣ Γ ]⊢ M Pre./ N ⦂? τ = {!!}
+-- Need to check if M has type (ℓ ▹ τ)
+-- and N has type ⌊ ℓ ⌋, which means
+-- synthesizing ⌊ ℓ ⌋.
+--  do
+  -- l ← [ Δ | Γ ]⊢ N ⦂? ⌊ ℓ ⌋
+  -- m ← [ Δ | Γ ]⊢ M ⦂? (ℓ ▹ τ)
+[ Δ ∣ Φ ∣ Γ ]⊢ Pre.∅ ⦂? ∅ = yiss ∅
 
 -- Row primitives.
 [ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⊹ M₁ ⦂? τ = {!!}
@@ -89,3 +102,4 @@ suc n ∈[ Δ ∣ Γ , τ ] = do
 -- recursion
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.In M ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.Out M ⦂? τ = {!!}
+[ Δ ∣ Φ ∣ Γ ]⊢ M ⦂? τ = wtf? "M does not have type τ. (I'll write printers for these later.)"
