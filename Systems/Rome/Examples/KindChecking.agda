@@ -2,7 +2,7 @@ module Rome.Examples.KindChecking where
 
 open import Rome.Kinds.Syntax
 open import Rome.Types.Syntax
-import Rome.Types.Pre as Pre
+import Rome.Pre.Types as Pre
 open import Rome.Types.Checking
 open import Data.Maybe
 
