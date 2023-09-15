@@ -16,7 +16,7 @@ open import Rome.Equivalence.Syntax
 -- Environments & weakening.
 
 data PEnv : KEnv → Set where
-  ε : ∀ {Δ : KEnv } →
+  ε : ∀ {Δ : KEnv} →
         PEnv Δ
   _,_ : ∀ {Δ : KEnv } {κ : Kind } →
           PEnv Δ → Pred Δ κ → PEnv Δ
@@ -50,7 +50,7 @@ private
     κ κ₁ κ₂ κ₃ : Kind 
     π : Pred Δ κ
 
-data Ent : (Δ : KEnv ) → PEnv Δ → Pred Δ κ → Set where
+data Ent : (Δ : KEnv) → PEnv Δ → Pred Δ κ → Set where
 
   n-var : ∀  {π : Pred Δ κ} →
 

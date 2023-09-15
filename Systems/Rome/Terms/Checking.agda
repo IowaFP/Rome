@@ -21,10 +21,10 @@ open import Rome.Terms.Syntax
 
 import Rome.Types.Pre as PreTypes
 import Rome.Terms.Pre as PreTerms
-open PreTypes.Type
-open PreTerms.Term
+import Pre
 
 --------------------------------------------------------------------------------
 -- 
 
-⊢τ? : ∀ (Δ : KEnv) (Φ : PEnv) → (τ : Pre.Type) → (κ : Kind) → Maybe (Term Δ Φ τ )
+_∣_⊢τ_⦂_ : ∀ (Δ : KEnv) (Φ : PEnv) → Pre.Term → (τ : Pre.Type) → Maybe (Term Δ Φ τ)
+-- _∣_⊢τ? = ∀ (Δ : KEnv) (Φ : PEnv) → (τ : Pre.Type) → (κ : Kind) → Maybe (Term Δ Φ τ) 

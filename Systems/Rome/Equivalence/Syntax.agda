@@ -4,6 +4,8 @@ module Rome.Equivalence.Syntax where
 open import Agda.Primitive
 open import Level
 
+import Rome.Pre.Types as Pre
+
 open import Rome.Kinds
 open import Rome.Types
 open import Rome.Types.Substitution
@@ -28,14 +30,21 @@ data _≡t_ : ∀ {t₁ t₂} → Type Δ t₁ κ → Type Δ t₂ κ  → Set
 infix 0 _≡p_
 infix 0 _≡t_
 
+private
+  variable
+    t t' t₁ t₂ t₃ u u' u₁ u₂ u₃ : Pre.Type
+
 data _≡p_ where
-  peq-≲ : ∀ {τ₁ τ₂ υ₁ υ₂ : Type Δ R[ κ ]} →
+  peq-≲ : ∀ {τ₁ : Type Δ t₁ R[ κ ]}
+            {τ₂ : Type Δ t₂ R[ κ ]}
+            {υ₁ : Type Δ u₁ R[ κ ]}
+            {υ₂ : Type Δ u₂ R[ κ ]} →
 
           τ₁ ≡t υ₁ → τ₂ ≡t υ₂ →
           ------------------------
-          (τ₁ ≲ τ₂) ≡p υ₁ ≲ υ₂
+          _≡p_ {p₁ = t₁ Pre.≲ t₂} {p₂ = u₁ Pre.≲ u₂} (τ₁ ≲ τ₂)  (υ₁ ≲ υ₂)
 
-  peq-· : ∀ {τ₁ τ₂ τ₃ υ₁ υ₂ υ₃ : Type Δ R[ κ ]} →
+  peq-· : ∀ {τ₁ τ₂ τ₃ υ₁ υ₂ υ₃ : Type Δ t R[ κ ]} →
 
             τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ →
             ----------------------------------
