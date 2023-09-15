@@ -32,32 +32,32 @@ Label = String
 --   - Type   references KEnv
 --   - KEnv references Pred
 
-data Type : KEnv → Pre.Type → Kind →  Set
-data Pred (Δ : KEnv) (π : Pre.Pred) (κ : Kind) : Set
+data Type : KEnv → Kind →  Set
+data Pred (Δ : KEnv) (κ : Kind) : Set
 
 private
   variable
     π π₁ π₂ : Pre.Pred
     τ τ₁ τ₂ τ₃ : Pre.Type
 
-data Pred Δ π κ where
-  _≲_ : (ρ₁ : Type Δ τ₁ R[ κ ]) →
-        (ρ₂ : Type Δ τ₂ R[ κ ]) →
-        Pred Δ π κ
+data Pred Δ κ where
+  _≲_ : (ρ₁ : Type Δ  R[ κ ]) →
+        (ρ₂ : Type Δ  R[ κ ]) →
+        Pred Δ κ
 
-  _·_~_ : (ρ₁ : Type Δ τ₁ R[ κ ]) →
-          (ρ₂ : Type Δ τ₂ R[ κ ]) →
-          (ρ₃ : Type Δ τ₃ R[ κ ]) →
-          Pred Δ π κ
+  _·_~_ : (ρ₁ : Type Δ R[ κ ]) →
+          (ρ₂ : Type Δ R[ κ ]) →
+          (ρ₃ : Type Δ R[ κ ]) →
+          Pred Δ κ
 
 --------------------------------------------------------------------------------
 -- Type vars.
-data TVar : KEnv → ℕ → Kind → Set where
+data TVar : KEnv → Kind → Set where
   Z : ∀ {Δ : KEnv} {κ : Kind}
-      → TVar (Δ , κ) 0 κ
+      → TVar (Δ , κ) κ
 
-  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} {n} →
-      TVar Δ n κ → TVar (Δ , κ') (suc n) κ 
+  S : ∀ {Δ : KEnv} {κ : Kind} {κ' : Kind} →
+      TVar Δ κ → TVar (Δ , κ') κ 
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -72,57 +72,57 @@ data Type where
   U : ∀ {Δ : KEnv} →
 
          --------------
-         Type Δ U (★)
+         Type Δ (★)
 
   ------------------------------------------------------------
   -- System Fω.
 
   tvar : ∀ {Δ : KEnv} {κ : Kind} →
 
-         (n : ℕ) → TVar Δ n κ →
+         TVar Δ κ →
          -----------
-         Type Δ (tvar n) κ
+         Type Δ κ
 
   _`→_ : ∀ {Δ : KEnv} →
-          Type Δ τ₁ ★ → Type Δ τ₂ ★ →
+          Type Δ ★ → Type Δ ★ →
           -----------------------------------
-          Type Δ (τ₁ `→ τ₂) ★
+          Type Δ ★
 
   `∀ :  ∀ {Δ : KEnv} →
-          (κ : Kind) → Type (Δ , κ) τ₁ ★ →
+          (κ : Kind) → Type (Δ , κ) ★ →
           -------------------------------------
-          Type Δ (`∀ κ τ₁) ★
+          Type Δ ★
 
   `λ :  ∀ {Δ : KEnv} (κ₁ : Kind) {κ₂ : Kind} →
-          Type (Δ , κ₁) τ₁ κ₂ →
+          Type (Δ , κ₁) κ₂ →
           -----------------------------------------
-          Type Δ (`λ κ₁ τ₁) (κ₁ `→ κ₂)
+          Type Δ (κ₁ `→ κ₂)
 
   _·[_] : ∀ {Δ : KEnv}{κ₁ : Kind} {κ₂ : Kind} →
-          Type Δ τ₁ (κ₁ `→ κ₂) → Type Δ τ₂ κ₁ →
+          Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
           -----------------------------
-          Type Δ (τ₁ ·[ τ₂ ]) κ₂
+          Type Δ κ₂
 
   ------------------------------------------------------------
   -- Recursion.
 
   -- LFP. A thought---what happens if we take lfp of R[★] → R[★]?
   μ : {Δ : KEnv} →
-          Type Δ τ (★ `→ ★) → 
-          Type Δ (μ τ) ★
+          Type Δ (★ `→ ★) → 
+          Type Δ ★
 
   -- GFP
   ν : {Δ : KEnv} →
-          Type Δ τ (★ `→ ★) → 
-          Type Δ (ν τ) ★
+          Type Δ (★ `→ ★) → 
+          Type Δ ★
 
   ------------------------------------------------------------
   -- Qualified types.
 
   _⇒_ : ∀ {κ : Kind} {Δ : KEnv} →
-           (π' : Pred Δ π κ) → Type Δ τ ★ →
+           (π' : Pred Δ κ) → Type Δ ★ →
            --------------------------------
-           Type Δ (π ⦂ κ ⇒ τ)  ★
+           Type Δ  ★
 
   ------------------------------------------------------------
   -- System Rω.
@@ -131,25 +131,25 @@ data Type where
   lab : ∀ {Δ : KEnv} →
         (l : Label) →
         ----------
-        Type Δ (lab l) L
+        Type Δ L
 
   -- singleton formation.
   _▹_ : ∀ {Δ : KEnv} {κ : Kind} →
-        Type Δ τ₁ L → Type Δ τ₂ κ →
+        Type Δ L → Type Δ κ →
         -------------------
-        Type Δ (τ₁ ▹ τ₂) κ
+        Type Δ κ
 
   -- Row singleton formation.
   _R▹_ : ∀ {Δ : KEnv} {κ : Kind} →
-         Type Δ τ₁ L → Type Δ τ₂ κ →
+         Type Δ L → Type Δ κ →
          -------------------
-         Type Δ (τ₁ R▹ τ₂) R[ κ ]
+         Type Δ R[ κ ]
 
   -- label constant formation.
   ⌊_⌋ : ∀ {Δ : KEnv} →
-        Type Δ τ L →
+        Type Δ L →
         ----------
-        Type Δ ⌊ τ ⌋ (★)
+        Type Δ (★)
 
   -- The empty record (mechanization only.)
   -- Todo---remove and replace with empty record ε.
@@ -157,30 +157,30 @@ data Type where
   ∅ : ∀ {Δ : KEnv} →
   
       --------------
-      Type Δ ∅ (★)
+      Type Δ ★
 
   -- Record formation.
-  Π : ∀ {τ} {Δ : KEnv} →
-      Type Δ τ R[ (★) ] →
+  Π : ∀ {Δ : KEnv} →
+      Type Δ R[ ★ ] →
       -------------
-      Type Δ (Π τ) ★
+      Type Δ ★
 
   -- Variant formation.
-  Σ : ∀ {τ} {Δ : KEnv} →
-      Type Δ τ R[ ★ ] →
+  Σ : ∀ {Δ : KEnv} →
+      Type Δ R[ ★ ] →
       -------------
-      Type Δ (Σ τ) ★
+      Type Δ ★
 
   -- lift₁ (lifting a function argument to row kind).
   _·⌈_⌉ : ∀ {Δ : KEnv}
             {κ₁ : Kind} {κ₂ : Kind} →
-          Type Δ τ₁ R[ κ₁ `→ κ₂ ] → Type Δ τ₂ κ₁ →
+          Type Δ R[ κ₁ `→ κ₂ ] → Type Δ κ₁ →
           --------------------------------
-          Type Δ (τ₁ ·⌈ τ₂ ⌉) R[ κ₂ ]
+          Type Δ R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
   ⌈_⌉·_ : ∀ {Δ : KEnv}
             {κ₁ : Kind} {κ₂ : Kind} →
-          Type Δ τ₁ (κ₁ `→ κ₂) → Type Δ τ₂ R[ κ₁ ] →
+          Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] →
           --------------------------------
-          Type Δ (⌈ τ₁ ⌉· τ₂)  R[ κ₂ ]
+          Type Δ R[ κ₂ ]

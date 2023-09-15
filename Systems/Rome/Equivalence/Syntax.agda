@@ -22,29 +22,22 @@ private
 --------------------------------------------------------------------------------
 -- Type & Predicate equivalence.
 
--- (Need to duplicate *all* of this logic ↓ to the pre-level.)
-data _≡p_ : ∀ {p₁ p₂} → Pred Δ p₁ κ → Pred Δ p₂ κ → Set
+data _≡p_ : Pred Δ κ → Pred Δ κ → Set
             
-data _≡t_ : ∀ {t₁ t₂} → Type Δ t₁ κ → Type Δ t₂ κ  → Set
+data _≡t_ : Type Δ κ → Type Δ κ → Set
 
 infix 0 _≡p_
 infix 0 _≡t_
 
-private
-  variable
-    t t' t₁ t₂ t₃ u u' u₁ u₂ u₃ : Pre.Type
 
 data _≡p_ where
-  peq-≲ : ∀ {τ₁ : Type Δ t₁ R[ κ ]}
-            {τ₂ : Type Δ t₂ R[ κ ]}
-            {υ₁ : Type Δ u₁ R[ κ ]}
-            {υ₂ : Type Δ u₂ R[ κ ]} →
+  peq-≲ : ∀ {τ₁ τ₂ υ₁ υ₂ : Type Δ R[ κ ]} →
 
           τ₁ ≡t υ₁ → τ₂ ≡t υ₂ →
           ------------------------
-          _≡p_ {p₁ = t₁ Pre.≲ t₂} {p₂ = u₁ Pre.≲ u₂} (τ₁ ≲ τ₂)  (υ₁ ≲ υ₂)
+           (τ₁ ≲ τ₂) ≡p  (υ₁ ≲ υ₂)
 
-  peq-· : ∀ {τ₁ τ₂ τ₃ υ₁ υ₂ υ₃ : Type Δ t R[ κ ]} →
+  peq-· : ∀ {τ₁ τ₂ τ₃ υ₁ υ₂ υ₃ : Type Δ R[ κ ]} →
 
             τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ →
             ----------------------------------

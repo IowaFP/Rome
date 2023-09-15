@@ -26,12 +26,12 @@ open Pre.Type
 -- --------------------------------------------------------------------------------
 -- Some helper business.
 
-to-∃ : ∀ {Δ} {τ} {κ} → Type Δ τ κ → ∃[ κ' ] (Type Δ τ κ')
-to-∃ {_} {_} {κ} τ = ( κ , τ)
+to-∃ : ∀ {Δ} {κ} → Type Δ κ → ∃[ κ' ] (Type Δ κ')
+to-∃ {_} {κ} τ = ( κ , τ)
 
 --------------------------------------------------------------------------------
 -- TVar checking (is n ∈ ℕ in KEnv Δ?) 
-_⊢v?_ : (Δ : KEnv) → (n : ℕ) → Fuck? (∃[ κ ] (TVar Δ n κ))
+_⊢v?_ : (Δ : KEnv) → (n : ℕ) → Fuck? (∃[ κ ] (TVar Δ κ))
 _⊢v?_ ε  zero = rip pfft
 _⊢v?_ ε (suc n) = rip pfft
 _⊢v?_ (Δ , κ) zero = yiss (κ , Z)
@@ -44,16 +44,16 @@ _⊢v?_ (Δ , _) (suc n) = do
 -- recursive).
 
 -- -- Predicate formation.
-_⊢p_⦂?_ : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Fuck? (Pred Δ π κ)
+_⊢p_⦂?_ : ∀ (Δ : KEnv) → (π : Pre.Pred) → (κ : Kind) → Fuck? (Pred Δ κ)
 -- Kind checking.
-_⊢ₖ_⦂?_ : ∀ (Δ : KEnv) → (τ : Pre.Type) → (κ : Kind) → Fuck? (Type Δ τ κ)
+_⊢ₖ_⦂?_ : ∀ (Δ : KEnv) → (τ : Pre.Type) → (κ : Kind) → Fuck? (Type Δ κ)
 -- Kind synthesis.
-_⊢ₖ?_ : ∀ (Δ : KEnv) → (τ : Pre.Type) →  Fuck? (∃[ κ ] (Type Δ τ κ))
+_⊢ₖ?_ : ∀ (Δ : KEnv) → (τ : Pre.Type) →  Fuck? (∃[ κ ] (Type Δ κ))
 
 Δ ⊢ₖ? U = yiss (★ , U)
 Δ ⊢ₖ? tvar x = do
   (κ , v) ← Δ ⊢v? x
-  yiss (κ , tvar x v)
+  yiss (κ , tvar v)
 Δ ⊢ₖ? (τ₁ `→ τ₂) =  to-∃ <$> (Δ ⊢ₖ (τ₁ `→ τ₂) ⦂? ★)
 Δ ⊢ₖ? `∀ κ τ = to-∃ <$> (Δ ⊢ₖ (`∀ κ τ) ⦂? ★)  
 Δ ⊢ₖ? `λ κ τ = do
@@ -110,8 +110,8 @@ _⊢ₖ_⦂?_ Δ (tvar x) κ = do
   (κ' , v) ← Δ ⊢v? x
   elim {κ'} {v} (κ ≡? κ')
   where
-    elim : ∀ {κ'} {v} → Dec (κ ≡ κ') → Fuck? (Type Δ (tvar x) κ)
-    elim {_} {v} (yes refl) = yiss (tvar x v)
+    elim : ∀ {κ'} {v} → Dec (κ ≡ κ') → Fuck? (Type Δ κ)
+    elim {_} {v} (yes refl) = yiss (tvar v)
     elim (no _)     = rip pfft
 _⊢ₖ_⦂?_  Δ (`∀ κ' τ) ★ = do
   t ← _⊢ₖ_⦂?_  (Δ , κ') τ ★
