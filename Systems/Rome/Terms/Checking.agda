@@ -9,8 +9,10 @@ import Relation.Binary using (Decidable)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
 
-open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_)
+open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_)
 open import Data.Nat using (ℕ ; zero ; suc)
+open import Data.Nat.Show using (show)
+open import Data.String using (String ; _++_)
 
 open import Rome.Kinds.Syntax
 open import Rome.Kinds.Equality
@@ -24,25 +26,54 @@ import Rome.Pre as Pre
 open import Shared.Lib.Monads.Fuck
 
 --------------------------------------------------------------------------------
+-- Var lookup
+
+_∈[_∣_] : (n : ℕ) (Δ : KEnv) (Γ : Env Δ) → Fuck? (∃[ τ ] (Var Γ τ))
+n ∈[ Δ ∣ ε ] = wtf? 
+  ("You tried to look up the variable " ++ (show n) ++ " in an empty environment")
+zero ∈[ Δ ∣ Γ , τ ] = yiss (τ , Z)
+suc n ∈[ Δ ∣ Γ , τ ] = do
+  (τ , v) ← n ∈[ Δ ∣ Γ ]
+  yiss (τ , (S v))
+
+--------------------------------------------------------------------------------
 -- 
 
-_∣_∣_⊢?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → Fuck? (Term Δ Φ Γ)
-[_∣_∣_]⊢_⦂?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → (τ : Pre.Type) → Fuck? (Term Δ Φ Γ)
-_∣_∣_⊢?_ = {!!}
+-- Synthesis.
+[_∣_∣_]⊢?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → Fuck? (Term Δ Φ Γ)
 
-[ Δ ∣ Φ ∣ Γ ]⊢ Pre.var x ⦂? τ = {!!}
+-- Checking.
+[_∣_∣_]⊢_⦂?_ : ∀ (Δ : KEnv) (Φ : PEnv Δ) (Γ : Env Δ) → Pre.Term → (τ : Pre.Type) → Fuck? (Term Δ Φ Γ)
+
+[_∣_∣_]⊢?_ = {!!}
+
+
+-- vars.
+[ Δ ∣ Φ ∣ Γ ]⊢ Pre.var x ⦂? τ = do
+  (τ , v ) ← x ∈[ Δ ∣ Γ ]
+  yiss (var v)
+
+-- binding sites.
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.`λ x M ⦂? τ = {!!}
-[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ M₁ · x ⦂? τ = {!!}
-[ Δ ∣ Φ ∣ Γ ]⊢ Pre.`Λ x M ⦂? τ = {!!}
-[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ x ·[ x₁ ] ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.`ƛ x M ⦂? τ = {!!}
+[ Δ ∣ Φ ∣ Γ ]⊢ Pre.`Λ x M ⦂? τ = {!!}
+
+-- applications.
+[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ M₁ · x ⦂? τ = {!!}
+
+[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ x ·[ x₁ ] ⦂? τ = {!!}
+
 [ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⦂ x ·⟨ x₁ ⟩ ⦂? τ = {!!}
+
+-- label and row singletons.
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.lab l ⦂? t = do
   τ ← Δ ⊢ t ⦂? L
   yiss (lab τ)
-[ Δ ∣ Φ ∣ Γ ]⊢ M Pre.▹ M₁ ⦂? τ = {!!}
+[ Δ ∣ Φ ∣ Γ ]⊢ l Pre.▹ M ⦂? τ = [ Δ ∣ Φ ∣ Γ ]⊢ M ⦂? τ
 [ Δ ∣ Φ ∣ Γ ]⊢ M Pre./ M₁ ⦂? τ = {!!}
-[ Δ ∣ Φ ∣ Γ ]⊢ Pre.∅ ⦂? τ = {!!}
+[ Δ ∣ Φ ∣ Γ ]⊢ Pre.∅ ⦂? τ = yiss ∅
+
+-- Row primitives.
 [ Δ ∣ Φ ∣ Γ ]⊢ M Pre.⊹ M₁ ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.prj M M₁ ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.Π M ⦂? τ = {!!}
@@ -54,5 +85,7 @@ _∣_∣_⊢?_ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.syn M M₁ ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.ana x x₁ M ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.fold M M₁ M₂ M₃ ⦂? τ = {!!}
+
+-- recursion
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.In M ⦂? τ = {!!}
 [ Δ ∣ Φ ∣ Γ ]⊢ Pre.Out M ⦂? τ = {!!}
