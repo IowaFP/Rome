@@ -11,7 +11,7 @@ open import Rome.Pre.Types
 data Term : Set where
   var : ℕ → Term
   `λ : Type → Term → Term
-  _·_ : Term → Type → Term
+  _·_ : Term → Term → Term
   `Λ : Type → Term → Term
   _·[_] : Term → Type → Term
   `ƛ : Pred → Term → Term
