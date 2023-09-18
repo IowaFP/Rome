@@ -2,15 +2,7 @@ module Rome.Kinds.Equality where
 
 open import Rome.Kinds.Syntax
 
-import Relation.Binary.PropositionalEquality as Eq
-open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
-import Relation.Nullary.Decidable using (⌊_⌋; True; toWitness; fromWitness)
-import Relation.Nullary.Negation using (¬?)
-import Relation.Nullary.Product using (_×-dec_)
-import Relation.Nullary.Sum using (_⊎-dec_)
-import Relation.Binary using (Decidable)
-
-open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
+open import Preludes.Relation
 
 --------------------------------------------------------------------------------
 -- Decidability of kind equality.

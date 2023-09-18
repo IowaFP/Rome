@@ -23,7 +23,7 @@ open import Rome.Entailment.Syntax
 
 import Rome.Pre as Pre
 
-open import Shared.Lib.Monads.Fuck
+open import Shared.Monads.Fuck
 
 --------------------------------------------------------------------------------
 -- Var lookup

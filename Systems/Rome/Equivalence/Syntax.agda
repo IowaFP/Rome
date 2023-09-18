@@ -1,9 +1,6 @@
 {-# OPTIONS --safe #-}
 module Rome.Equivalence.Syntax where
 
-open import Agda.Primitive
-open import Level
-
 import Rome.Pre.Types as Pre
 
 open import Rome.Kinds

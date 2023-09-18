@@ -2,10 +2,10 @@
 module Rome.Entailment.Syntax where
 
 open import Agda.Primitive
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym)
+open import Preludes.Relation
+open import Preludes.Data
 
 open import Data.Unit.Polymorphic
-open import Data.Product renaming (Σ to Sum)
 
 open import Rome.Kinds
 open import Rome.Types

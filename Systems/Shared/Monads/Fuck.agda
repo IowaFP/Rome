@@ -1,4 +1,4 @@
-module Shared.Lib.Monads.Fuck where
+module Shared.Monads.Fuck where
 
 open import Data.Sum renaming (_⊎_ to _or_ ; inj₁ to rip ; inj₂ to yiss) public
 open import Data.String using (String) public

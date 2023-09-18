@@ -1,11 +1,12 @@
 {-# OPTIONS --safe #-}
 module Rome.Pre.Terms.Syntax where
 
-open import Data.Nat
-open import Data.String
-open import Rome.Kinds.Syntax
+open import Preludes.Data
 
+open import Rome.Kinds.Syntax
 open import Rome.Pre.Types
+--------------------------------------------------------------------------------
+-- Pre-terms.
 
 data Term : Set where
   var : ℕ → Term

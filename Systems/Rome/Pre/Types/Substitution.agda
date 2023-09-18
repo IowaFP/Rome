@@ -2,13 +2,11 @@
 module Rome.Pre.Types.Substitution where
 
 open import Agda.Primitive
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+open import Preludes.Data
+open import Preludes.Relation
 
 open import Rome.Kinds
 open import Rome.Pre.Types.Syntax
-
-open import Data.Product hiding (Σ)
-open import Data.Nat using (ℕ ; zero ; suc)
 
 open import Function
 
