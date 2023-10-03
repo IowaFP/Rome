@@ -1,8 +1,7 @@
 {-# OPTIONS --safe #-}
 module Rome.Pre.Types.Syntax where
 
-open import Data.Nat
-open import Data.String
+open import Preludes.Data
 
 open import Rome.Kinds.Syntax
 

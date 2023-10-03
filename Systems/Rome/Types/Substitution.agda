@@ -1,19 +1,15 @@
 {-# OPTIONS --safe #-}
 module Rome.Types.Substitution where
 
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+open import Preludes.Relation
+open import Preludes.Data
 
 open import Rome.Kinds
 open import Rome.Types.Syntax
-
-open import Data.Product hiding (Σ)
-open import Data.Nat
-
 import Rome.Pre.Types as Pre
+
 open Pre.Type
 open Pre.Pred
-
-open import Function
 
 --------------------------------------------------------------------------------
 -- Substitution & Weakening.

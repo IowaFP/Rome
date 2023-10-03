@@ -1,25 +1,14 @@
 module Rome.Types.Checking where
 
-open import Relation.Nullary using (Dec ; yes ; no ; ¬_)
-open import Relation.Nullary.Decidable using (isYes; True; toWitness; fromWitness; From-yes)
-import Relation.Nullary.Product using (_×-dec_)
-import Relation.Nullary.Sum using (_⊎-dec_)
-import Relation.Binary using (Decidable)
-
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)
-
-open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_)
+open import Preludes.Relation
+open import Preludes.Data
 
 open import Rome.Kinds.Syntax
 open import Rome.Kinds.Equality
 open import Rome.Types.Syntax
 import Rome.Pre.Types as Pre
 
-open import Shared.Lib.Monads.Fuck
-
-open import Data.Nat using (ℕ ; zero ; suc)
-open import Data.Bool
+open import Shared.Monads.Fuck
 open Pre.Type
 
 

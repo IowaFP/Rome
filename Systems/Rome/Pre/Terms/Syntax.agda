@@ -1,20 +1,21 @@
 {-# OPTIONS --safe #-}
 module Rome.Pre.Terms.Syntax where
 
-open import Data.Nat
-open import Data.String
-open import Rome.Kinds.Syntax
+open import Preludes.Data
 
+open import Rome.Kinds.Syntax
 open import Rome.Pre.Types
+--------------------------------------------------------------------------------
+-- Pre-terms.
 
 data Term : Set where
   var : ℕ → Term
   `λ : Type → Term → Term
-  _⦂_·_ : Term → Term → Type → Term
+  _·_ : Term → Term → Term
   `Λ : Type → Term → Term
-  _⦂_·[_] : Term → Type → Type → Term
+  _·[_] : Term → Type → Term
   `ƛ : Pred → Term → Term
-  _⦂_·⟨_⟩ : Term → Kind → Pred → Term
+  _·⟨_⟩ : Term → Pred → Term
   lab : String → Term
   _▹_ : Term → Term → Term
   _/_ : Term → Term → Term

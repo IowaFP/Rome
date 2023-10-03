@@ -1,0 +1,10 @@
+{-# OPTIONS --safe #-}
+module Preludes.Data where
+
+--------------------------------------------------------------------------------
+-- Data.Nat imports.
+
+open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_) public
+open import Data.Nat using (ℕ ; zero ; suc) public
+open import Data.Nat.Show using (show) public
+open import Data.String using (String ; _++_) public
