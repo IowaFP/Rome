@@ -19,11 +19,11 @@ open import Rome.Types.Syntax
 ⟦_⟧τ : ∀ {Δ} {κ} → Type Δ κ → M.Type ⟦ Δ ⟧Δ ⟦ κ ⟧κ
 ⟦ Π ρ ⟧τ = M.`∀ M.Nat (M.Ix (M.tvar M.Z) M.`→ (M.weaken ⟦ ρ ⟧τ M.·[ M.tvar M.Z ]))
 ⟦ Σ ρ ⟧τ = M.`∃ M.Nat (M.weaken ⟦ ρ ⟧τ M.·[ M.tvar M.Z ])
-⟦ ε ⟧τ = M.`λ M.Nat {!!}
+⟦ ε ⟧τ = M.`λ M.Nat M.⊤ -- <--- Needa think on this one.
 ⟦ l R▹ τ ⟧τ = {!!}
  
 ⟦ U ⟧τ = M.⊤
-⟦ tvar x ⟧τ = M.tvar {!x!}
+⟦ tvar x ⟧τ = M.tvar {!!}
 ⟦ τ₁ `→ τ₂ ⟧τ = ⟦ τ₁ ⟧τ M.`→ ⟦ τ₂ ⟧τ
 ⟦ `∀ {Δ} κ τ ⟧τ = M.`∀ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
 ⟦ `λ {Δ} κ τ ⟧τ = M.`λ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
