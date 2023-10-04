@@ -1,48 +1,102 @@
 module Mix.Syntax where
 
-open import Data.Nat
+open import Preludes.Data
 
 --------------------------------------------------------------------------------
--- Type syntax of Mix without kind-type stratification.
+-- Kinds.
+-- #############################################################################
+--------------------------------------------------------------------------------
 
-data TEnv : Set
+data Kind : Set where
+  ★    : Kind
+  _`→_ : Kind → Kind → Kind
+  Ix   : ∀ {n} → Fin n → Kind
 
-data Type : Set
-data TVar : (Δ : TEnv) → (Type Δ) → Set
+data KEnv : Set where
+  ε : KEnv
+  _,_ : KEnv → Kind → KEnv
 
-data TEnv where
-  ε : TEnv
-  _,_ : (Δ : TEnv) → Type → TEnv
+--------------------------------------------------------------------------------
+-- Types.
+-- #############################################################################
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- Var business.
 
+data TVar : KEnv → Kind → Set where
+    Z : ∀ {Δ} {κ} → TVar (Δ , κ) κ
+    S : ∀ {Δ} {κ κ'} → TVar Δ κ → TVar (Δ , κ') κ
 
-data TVar where
-    Z : ∀ {Δ} {τ} → TVar (Δ , τ) τ
-    S : ∀ {Δ} {τ τ'} → TVar (Δ , τ') τ
+private
+  variable
+    κ κ₁ κ₂ : Kind
+    Δ Δ₁ Δ₂ : KEnv
 
-data Type where
-  ★ : Type
-  _`→_ : Type → Type → Type
-  Fin : Type → Type
-  Nat : Type
-  `∀ : Type → Type → Type
-  `∃ : Type → Type → Type
-  ⊤ : Type
-  
-  
-  
+data Type : KEnv → Kind → Set where
 -- ----------------------------------------
-  -- ⊤     : Type Δ ★
-  -- tvar  : TVar Δ κ → Type Δ κ
-  -- _`→_  : Type Δ ★ → Type Δ ★ → Type Δ ★
-  -- `∀    : ∀ {Δ} (κ : Kind) →
-  --         Type (Δ , κ) ★ → Type Δ ★
-  -- `λ    : ∀ {Δ} (κ₁ : Kind) →
-  --         Type (Δ , κ₁) κ₂ → Type Δ (κ₁ `→ κ₂)
-  -- _·[_] : Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
-  --         Type Δ κ₂
-  -- -- N.b. can also restrict existential quantification be over only indices.
-  -- `∃    : ∀ {Δ} (κ : Kind) →
-  --         Type (Δ , κ) ★ → Type Δ ★
-  -- _∼_   : Type Δ ★ → Type Δ ★ → Type Δ ★
-  -- μ     : Type Δ (★ `→ ★) → Type Δ ★
-  -- υ     : Type Δ (★ `→ ★) → Type Δ ★
+  ⊤     : Type Δ ★
+  tvar  : TVar Δ κ → Type Δ κ
+  _`→_  : Type Δ ★ → Type Δ ★ → Type Δ ★
+  -- The type of dependent index functions
+  `∀    : ∀ {Δ} (κ : Kind) →
+          Type (Δ , κ) ★ → Type Δ ★
+  `λ    : ∀ {Δ} (κ₁ : Kind) →
+          Type (Δ , κ₁) κ₂ → Type Δ (κ₁ `→ κ₂)
+  _·[_] : Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
+          Type Δ κ₂
+  -- N.b. can also restrict existential quantification to be over only indices.
+  `∃    : ∀ {Δ} (κ : Kind) →
+          Type (Δ , κ) ★ → Type Δ ★
+  _∼_   : Type Δ ★ → Type Δ ★ → Type Δ ★
+  μ     : Type Δ (★ `→ ★) → Type Δ ★
+  υ     : Type Δ (★ `→ ★) → Type Δ ★
+  Ix    :  ∀ {n} → Fin n → Type Δ ★
+  Row   :  ∀ {n} → (Fin n → Type Δ ★) → Type Δ ★
+
+data Env (Δ : KEnv) : Set where
+  ε : Env Δ
+  _,_ : ∀ {κ} → Env Δ → Type Δ κ → Env Δ
+
+
+data Var : ∀ {Δ} {κ} → Env Δ → Type Δ κ → Set where
+    Z    : ∀ {Δ} {Γ : Env Δ} {τ : Type Δ ★} → Var (Γ , τ) τ
+    S    : ∀ {Δ} {Γ : Env Δ} {τ υ : Type Δ ★} → 
+             Var Γ τ  → Var Γ τ → Var (Γ , υ) τ
+
+
+--------------------------------------------------------------------------------
+-- Terms.
+-- #############################################################################
+--------------------------------------------------------------------------------
+
+private
+  variable
+    Γ : Env Δ
+    τ : Type Δ ★
+
+postulate
+  weakΓ : Env Δ → Env (Δ , κ)
+
+data Term : ∀ (Δ : KEnv) → (Γ : Env Δ) → Type Δ ★ → Set where
+  var : Var Γ τ →
+        ----------
+        Term Δ Γ τ
+
+  `λ : (τ υ : Type Δ ★) → Term Δ (Γ , τ) υ →
+       -------------------------------------
+       Term Δ Γ (τ `→ υ)
+
+  -- dependent index introduction.
+  `Λ : ∀ {Δ : KEnv} {Γ : Env Δ}
+         (κ : Kind) {τ : Type (Δ , κ) ★} →
+  
+         Term (Δ , κ) (weakΓ Γ) τ →
+         ----------------------------------------------------
+         Term Δ Γ (`∀ κ τ)
+  
+
+  
+
+
+
+

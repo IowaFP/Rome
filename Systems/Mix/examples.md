@@ -14,9 +14,10 @@ concat = Λ z₁ z₂ z₃ : R[ ★ ].
 ↝
 
 ```agda
-concat : ∀ n : ℕ. (z₁ z₂ z₃ : Σ[ n ∈ ℕ ](Fin n → Type)).
+concat : ∀ n : ℕ. ∀ (z₁ z₂ z₃ : Σ[ n ∈ ℕ ](Fin n → Type)).
 	     (∀ (i : Fin n) → 
-		 (can inject from left to right) × (can inject from right to left) 
+		 (can inject from left to right) × (can inject from right to left)
+	    (
 		 
 ```
 

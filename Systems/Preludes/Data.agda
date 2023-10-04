@@ -8,3 +8,4 @@ open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_) public
 open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.Nat.Show using (show) public
 open import Data.String using (String ; _++_) public
+open import Data.Fin renaming (zero to fzero ; suc to fsuc) public

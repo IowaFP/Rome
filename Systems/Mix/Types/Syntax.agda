@@ -17,7 +17,7 @@ data TVar : KEnv → Kind → Set where
 
 private
   variable
-    κ κ₁ κ₂ : Kind
+    κ κ' κ₁ κ₂ : Kind
     Δ Δ₁ Δ₂ : KEnv
 
 data Type : KEnv → Kind → Set where
@@ -37,4 +37,11 @@ data Type : KEnv → Kind → Set where
   _∼_   : Type Δ ★ → Type Δ ★ → Type Δ ★
   μ     : Type Δ (★ `→ ★) → Type Δ ★
   υ     : Type Δ (★ `→ ★) → Type Δ ★
+  Ix    :  (n : Type Δ Nat) → Type Δ ★
 
+postulate
+  weaken : Type Δ κ → Type (Δ , κ') κ
+
+
+
+-- len : Type Δ → ℕ
