@@ -101,7 +101,7 @@ rename ρ (r ·⌈ τ ⌉) =  (rename ρ r)  ·⌈ (rename ρ τ) ⌉
 rename ρ (⌈ τ ⌉· r) = ⌈ (rename ρ τ) ⌉· (rename ρ r)
 rename ρ (μ τ) = μ (rename ρ τ)
 rename ρ (ν τ) = ν (rename ρ τ)
-rename ρ ∅ = ∅
+rename ρ ε = ε
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
@@ -155,7 +155,7 @@ subst θ ( r ·⌈ τ ⌉) = (subst θ r) ·⌈ (subst θ τ) ⌉
 subst θ ( ⌈ τ ⌉· r) = ⌈ (subst θ τ) ⌉· (subst θ r)
 subst θ (μ τ) = μ (subst θ τ)
 subst θ (ν τ) = ν (subst θ τ)
-subst _ ∅ = ∅
+subst _ ε = ε
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
 substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃

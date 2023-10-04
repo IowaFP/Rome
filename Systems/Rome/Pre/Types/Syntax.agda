@@ -30,7 +30,7 @@ data Type where
   _▹_    : Type → Type → Type
   _R▹_    : Type → Type → Type
   ⌊_⌋ : Type → Type
-  ∅ : Type
+  ε : Type
   Π : Type → Type
   Σ : Type → Type
   _·⌈_⌉ : Type → Type → Type

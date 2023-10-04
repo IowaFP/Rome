@@ -150,13 +150,11 @@ data Type where
         ----------
         Type Δ (★)
 
-  -- The empty record (mechanization only.)
-  -- Todo---remove and replace with empty record ε.
-  -- (then ∅ ≃ Π ε.)
-  ∅ : ∀ {Δ : KEnv} →
+  -- The empty row.
+  ε : ∀ {Δ : KEnv} →
   
       --------------
-      Type Δ ★
+      Type Δ R[ ★ ]
 
   -- Record formation.
   Π : ∀ {Δ : KEnv} →
