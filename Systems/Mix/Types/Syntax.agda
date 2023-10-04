@@ -11,7 +11,7 @@ open import Mix.Kinds.Syntax
 
 data TVar : KEnv → Kind → Set where
     Z : ∀ {Δ} {κ} → TVar (Δ , κ) κ
-    S : ∀ {Δ} {κ κ'} → TVar (Δ , κ') κ
+    S : ∀ {Δ} {κ κ'} → TVar Δ κ → TVar (Δ , κ') κ
 
 --------------------------------------------------------------------------------
 
@@ -37,7 +37,10 @@ data Type : KEnv → Kind → Set where
   _∼_   : Type Δ ★ → Type Δ ★ → Type Δ ★
   μ     : Type Δ (★ `→ ★) → Type Δ ★
   υ     : Type Δ (★ `→ ★) → Type Δ ★
+-- ----------------------------------------
   Ix    :  (n : Type Δ Nat) → Type Δ ★
+  Zero  : Type Δ Nat
+  Suc  : Type Δ Nat
 
 postulate
   weaken : Type Δ κ → Type (Δ , κ') κ
