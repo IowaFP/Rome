@@ -200,10 +200,10 @@ Rules for the System $F_{\omega}$ fragment of \RO have a trivial correspondence 
 \vspace{5em}
 \Sem{\ib{\irule
           {\KindJ \Gamma \rho {\RowK \kappa}};
-          {\KindJ \Gamma {\Pi\rho} \kappa}}} &= {\forall n \co \Nat. Ix \, n \to \Sem{\rho} \, n} \\
+          {\KindJ \Gamma {\Pi\rho} \kappa}}} &= {\forall n \co \Nat. Ix \, n \to \Sem{\KindJ \Gamma \rho {\RowK \kappa}} \, n} \\
 \Sem{\ib{\irule
           {\KindJ \Gamma \rho {\RowK \kappa}};
-          {\KindJ \Gamma {\Sigma\rho} \kappa}}} &= {\exists n \co \Nat. \Sem{\rho} \, n} \\
+          {\KindJ \Gamma {\Sigma\rho} \kappa}}} &= {\exists n \co \Nat. \Sem{\KindJ \Gamma \rho {\RowK \kappa}} \, n} \\
 \Sem{\ib{\irule
           {\EnvJ \Gamma};
           {\KindJ \Gamma \ell \LabK}}} &= \top \\
