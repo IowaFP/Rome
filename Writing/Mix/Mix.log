@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  5 OCT 2023 09:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  5 OCT 2023 11:33
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**template.tex
-(./template.tex
+**Mix.tex
+(./Mix.tex
 LaTeX2e <2022-06-01> pre-release-0 (develop 2022-6-16 branch)
 L3 programming layer <2022-06-02>
 (/usr/local/texlive/2022/texmf-dist/tex/latex/base/article.cls
@@ -672,17 +672,65 @@ Package: subcaption 2022/01/07 v1.5 Sub-captions (AR)
 \c@subfigure=\count320
 \c@subtable=\count321
 )
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2020/05/29 v2.20.6
+\thm@style=\toks44
+\thm@bodyfont=\toks45
+\thm@headfont=\toks46
+\thm@notefont=\toks47
+\thm@headpunct=\toks48
+\thm@preskip=\skip62
+\thm@postskip=\skip63
+\thm@headsep=\skip64
+\dth@everypar=\toks49
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup7
+\symAMSb=\mathgroup8
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)
+LaTeX Font Info:    Redeclaring math symbol \boxdot on input line 44.
+)
+(/home/alex/texmf/tex/latex/local/bibentry.sty
+Package: bibentry 2007/10/30 1.5 (PWD)
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/bibunits/bibunits.sty
+Package: bibunits 2004/05/12 v2.4 Multiple bibliographies in one document.
+\@bibunitaux=\write4
+\@bibunitauxcnt=\count322
+)
 (../sty/mathwidth.sty
-\c@mv@hask=\count322
+\c@mv@hask=\count323
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `hask'
 (Font)                  OT1/cmr/m/n --> OT1/cmr/m/n on input line 19.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `hask'
 (Font)                  OT1/cmr/bx/n --> OT1/cmr/bx/n on input line 19.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `hask'
 (Font)                  OT1/cmss/m/n --> OT1/cmss/m/n on input line 19.
-\symitalics=\mathgroup7
+\symitalics=\mathgroup9
 LaTeX Font Info:    Redeclaring math alphabet \mathrm on input line 19.
 LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 19.
+) (../sty/sectsty.sty
+
+LaTeX Warning: You have requested package `../sty/sectsty',
+               but the package provides `sectsty'.
+
+Package: sectsty 2002/02/25 v2.0.2 Commands to change all sectional heading sty
+les
+
+LaTeX Warning: Command \underbar  has changed.
+               Check if current package is valid.
+
+
+LaTeX Warning: Command \underline  has changed.
+               Check if current package is valid.
+
 ) (../sty/infer.sty
 This is `infer.sty' for typesetting inference rules and proofs
 \infskip=\dimen301
@@ -696,29 +744,151 @@ This is `infer.sty' for typesetting inference rules and proofs
 \rul@length=\dimen303
 \t@pleft=\dimen304
 \t@pright=\dimen305
-) (../sty/commands.sty)
+) (../sty/commands.sty) (../sty/higher.sty
+(/usr/local/texlive/2022/texmf-dist/tex/latex/oberdiek/centernot.sty
+Package: centernot 2016/05/16 v1.4 Centers the not symbol horizontally (HO)
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/tensor/tensor.sty
+Package: tensor 2004/12/20 v2.1 tensor indices package (PGR)
+\tnsr@Sps=\toks50
+\tnsr@Sbs=\toks51
+\tnsr@Spe=\toks52
+\tnsr@Sbe=\toks53
+\ncld@Mno=\toks54
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thmtools.sty
+Package: thmtools 2022/06/01 v0.73
+\thmt@toks=\toks55
+\c@thmt@dummyctr=\count324
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-patch.sty
+Package: thm-patch 2022/06/01 v0.73
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/parseargs.sty
+Package: parseargs 2022/06/01 v0.73
+\@parsespec=\toks56
+))
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-kv.sty
+Package: thm-kv 2022/06/01 v0.73
+Package thm-kv Info: Theorem names will be uppercased on input line 42.
+Package thm-kv Info: kvsetkeys patch (v1.16 or later) on input line 158.
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-autoref.sty
+Package: thm-autoref 2022/06/01 v0.73
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/aliasctr.sty
+Package: aliasctr 2022/06/01 v0.73
+))
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-listof.sty
+Package: thm-listof 2022/06/01 v0.73
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-restate.sty
+Package: thm-restate 2022/06/01 v0.73
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/thmtools/thm-amsthm.sty
+Package: thm-amsthm 2022/06/01 v0.73
+\thmt@style@headstyle=\toks57
+))
+(/usr/local/texlive/2022/texmf-dist/tex/generic/ulem/ulem.sty
+\UL@box=\box121
+\UL@hyphenbox=\box122
+\UL@skip=\skip65
+\UL@hook=\toks58
+\UL@height=\dimen306
+\UL@pe=\count325
+\UL@pixel=\dimen307
+\ULC@box=\box123
+Package: ulem 2019/11/18
+\ULdepth=\dimen308
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/cleveref/cleveref.sty
+Package: cleveref 2018/03/27 v0.21.4 Intelligent cross-referencing
+Package cleveref Info: `amsthm' support loaded on input line 3026.
+Package cleveref Info: always capitalise cross-reference names on input line 78
+30.
+Package cleveref Info: always capitalise cross-reference names on input line 78
+52.
+Package cleveref Info: no abbreviation of names on input line 7852.
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/listings/listings.sty
+\lst@mode=\count326
+\lst@gtempboxa=\box124
+\lst@token=\toks59
+\lst@length=\count327
+\lst@currlwidth=\dimen309
+\lst@column=\count328
+\lst@pos=\count329
+\lst@lostspace=\dimen310
+\lst@width=\dimen311
+\lst@newlines=\count330
+\lst@lineno=\count331
+\lst@maxwidth=\dimen312
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+\c@lstnumber=\count332
+\lst@skipnumbers=\count333
+\lst@framebox=\box125
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/listings/listings.cfg
+File: listings.cfg 2020/03/24 1.8d listings configuration
+))
+Package: listings 2020/03/24 1.8d (Carsten Heinz)
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2020/03/24 1.8d listings language file
+)
+(/usr/local/texlive/2022/texmf-dist/tex/latex/listings/lstlang2.sty
+File: lstlang2.sty 2020/03/24 1.8d listings language file
+))
+(/home/alex/texmf/tex/latex/local/natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip66
+\bibsep=\skip67
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count334
+)
+
+Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 55.
+
+
+Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 55.
+
 (/usr/local/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2022-04-20 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count323
-\l__pdf_internal_box=\box121
+\l__color_backend_stack_int=\count335
+\l__pdf_internal_box=\box126
 )
-(./template.aux)
-\openout1 = `template.aux'.
+(./Mix.aux (./bu.aux)
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
+LaTeX Warning: Label `fig:syntax' multiply defined.
+
+
+LaTeX Warning: Label `fig:syntax@cref' multiply defined.
+
+
+LaTeX Warning: Label `fig:kinding' multiply defined.
+
+
+LaTeX Warning: Label `fig:kinding@cref' multiply defined.
+
+)
+\openout1 = `Mix.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -756,17 +926,17 @@ LaTeX Font Info:    ... okay on input line 45.
 
 (/usr/local/texlive/2022/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count324
-\scratchdimen=\dimen306
-\scratchbox=\box122
-\nofMPsegments=\count325
-\nofMParguments=\count326
-\everyMPshowfont=\toks44
-\MPscratchCnt=\count327
-\MPscratchDim=\dimen307
-\MPnumerator=\count328
-\makeMPintoPDFobject=\count329
-\everyMPtoPDFconversion=\toks45
+\scratchcounter=\count336
+\scratchdimen=\dimen313
+\scratchbox=\box127
+\nofMPsegments=\count337
+\nofMParguments=\count338
+\everyMPshowfont=\toks60
+\MPscratchCnt=\count339
+\MPscratchDim=\dimen314
+\MPnumerator=\count340
+\makeMPintoPDFobject=\count341
+\everyMPtoPDFconversion=\toks61
 ) (/usr/local/texlive/2022/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
@@ -777,40 +947,115 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 47
+\c@lstlisting=\count342
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 57
 .
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-LaTeX Font Info:    Trying to load font information for U+stmry on input line 4
+LaTeX Font Info:    Trying to load font information for U+stmry on input line 5
 7.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/stmaryrd/Ustmry.fd)
-No file template.bbl.
-[1
+LaTeX Font Info:    Trying to load font information for U+msa on input line 57.
+
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 57.
+
+
+(/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./template.aux) ) 
+
+Package natbib Warning: Citation `HubersM23' on page 2 undefined on input line 
+164.
+
+[2] [3]
+Overfull \vbox (28.60603pt too high) has occurred while \output is active []
+
+
+[4]
+\openout4 = `bu.aux'.
+
+ (./Mix.bbl)
+Overfull \hbox (10.36736pt too wide) detected at line 272
+[]
+ []
+
+
+Overfull \hbox (34.12436pt too wide) detected at line 303
+[]
+ []
+
+
+Overfull \hbox (107.29535pt too wide) detected at line 376
+[]
+ []
+
+[5]
+Overfull \hbox (112.62144pt too wide) detected at line 459
+[]
+ []
+
+[6]
+Overfull \hbox (123.61252pt too wide) detected at line 580
+[]
+ []
+
+[7]
+Overfull \hbox (51.1076pt too wide) detected at line 664
+[]
+ []
+
+[8]
+
+Package natbib Warning: There were undefined citations.
+
+[9] (./Mix.aux (./bu.aux))
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 18407 strings out of 478040
- 373620 string characters out of 5839127
- 646450 words of memory out of 5000000
- 36516 multiletter control sequences out of 15000+600000
- 480652 words of font info for 71 fonts, out of 8000000 for 9000
+ 23657 strings out of 478040
+ 466172 string characters out of 5839127
+ 929754 words of memory out of 5000000
+ 41642 multiletter control sequences out of 15000+600000
+ 494508 words of font info for 126 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 114i,6n,118p,501b,196s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr17.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmti12.pfb>
-Output written on template.pdf (1 page, 52755 bytes).
+ 114i,20n,118p,496b,382s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
+></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
+/usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></u
+sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
+/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/l
+ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/loc
+al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/
+texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
+live/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texl
+ive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texli
+ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
+/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/
+2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/20
+22/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/202
+2/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2022
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/2022/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
+mf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on Mix.pdf (9 pages, 238593 bytes).
 PDF statistics:
- 36 PDF objects out of 1000 (max. 8388607)
- 22 compressed objects within 1 object stream
+ 137 PDF objects out of 1000 (max. 8388607)
+ 85 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

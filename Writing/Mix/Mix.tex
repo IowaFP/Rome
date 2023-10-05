@@ -1,0 +1,669 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1.5in]{geometry}
+
+\usepackage{
+  % AH> I don't know how much of these are used, and for what.
+  %     (needs untangling.) 
+  enumitem,
+  xspace,
+  mathtools,
+  multicol,
+  tikz-cd,
+  parskip,
+  mathrsfs,
+  stmaryrd,
+  tikz,
+  float,
+  titlecaps,
+  soul,
+  upgreek,
+  caption,
+  graphicx,
+  array,
+  subcaption,
+  amsmath,
+  amsthm,
+  amssymb,
+  bibentry,
+  bibunits,
+  ../sty/mathwidth,
+  ../sty/sectsty,
+%  ./sty/commands,
+  ../sty/infer,
+  ../sty/commands,
+  ../sty/higher
+}
+
+\usepackage{natbib}
+
+% tikz
+\usepackage{tikz}
+\usepackage{tikz-cd}
+
+\newcommand\secfig[2]{Figure \ref{fig:#2}, \S\ref{sec:#1}}
+\newcommand\Nat{\mathrm{Nat}}
+\newcommand\Zero{\mathrm{Zero}}
+\newcommand\Suc{\mathrm{Suc}}
+\newcommand\Ix{\mathrm{Ix}}
+\newcommand\MuIx{\ensuremath{\mu\Ix}}
+
+\title{The Recursive Index Calculus and Its Translation From \RO}
+
+\author{AH \& JGM}
+
+
+\begin{document}
+
+\maketitle
+
+\section{\MuIx, The Recursive Index Calculus}
+\label{sec:MuIx}
+\subsection{Syntax}
+\label{sec:Syntax}
+
+\begin{figure}[H]
+\begin{smalle}
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+  \text{Term variables} & x & \text{Type variables} & \alpha 
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Kinds}} & \kappa & ::= & \Nat \mid \TypeK \mid \kappa \to \kappa \\
+  \text{Types} & \mcr{\tau, \upsilon} & ::= & \top \mid \alpha \mid (\to) \mid \forall \alpha\co\kappa. \tau \mid  \exists \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
+  \mcl{\text{Terms}} & M, N & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \mid ... \\
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau
+\end{doublesyntaxarray}
+\end{gather*}
+\end{smalle}
+\caption{Syntax}
+\label{fig:syntax}
+\end{figure}
+
+\subsection{Kinding}
+\label{sec:Kinding}
+
+Presume a set of type-level constants $C$ containing at least the following:
+
+
+\begin{align*}
+  (\to) \; &::= \; {\TypeK \to \TypeK \to \TypeK} \\
+  \Zero \; &::= \; \Nat \\
+  \Suc \;  &::= \; \Nat \to \Nat
+\end{align*}
+\begin{figure}[H]
+\small
+\begin{gather*}
+\fbox{$\EnvJ \Gamma$}
+\\
+\ib{\irule[\crule{emp}]{ };{\EnvJ \varepsilon}}
+\rsp
+\ib{\irule[\crule{tvar}]
+          {\EnvJ \Gamma};
+          {\EnvJ {\Gamma, \alpha : \kappa}}}
+\rsp
+\ib{\irule[\crule{var}]
+          {\EnvJ \Gamma}
+          {\KindJ \Gamma \tau \TypeK};
+          {\EnvJ {\Gamma, x : \tau}}}
+\end{gather*}
+\begin{gather*}
+\fbox{$\KindJ \Gamma \tau \kappa$}
+\\
+\ib{\irule[\krule{$\top$}]
+          {\EnvJ \Gamma};
+          {\Gamma \vdash \top : \TypeK}}
+\rsp
+\ib{\irule[\krule{var}]
+          {\EnvJ \Gamma}
+          {\alpha : \kappa \in \Gamma};
+          {\Gamma \vdash \alpha : \kappa}}
+\\
+\ib{\irule[\krule{$\forall$}]
+          {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
+          {\KindJ \Gamma {\forall \alpha\co\kappa. \tau} \TypeK}}
+\rsp
+\ib{\irule[\krule{$\exists$}]
+          {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
+          {\KindJ \Gamma {\exists \alpha\co\kappa. \tau} \TypeK}}
+\\
+\ib{\irule[\krule{$\I\to$}]
+          {\KindJ {\Gamma, \alpha : \kappa_1} \tau \kappa_2};
+          {\KindJ \Gamma {\lambda \alpha \co \kappa_1. \tau} {\kappa_1 \to \kappa_2}}}
+\rsp
+\ib{\irule[\krule{$\E\to$}]
+          {\KindJ \Gamma {\tau_1} {\kappa_1 \to \kappa_2}}
+          {\KindJ \Gamma {\tau_2} {\kappa_1}};
+          {\KindJ \Gamma {\tau_1 \, \tau_2} {\kappa_2}}}
+\\
+\ib{\irule[\krule{$\sim$}]
+         {\KindJ \Gamma {\tau_1} \star} {\KindJ \Gamma {\tau_2} \star};
+         {\KindJ \Gamma {\tau_1 \sim \tau_2} \star}}
+\ib{\irule[\krule{Ix}]
+          {\KindJ \Gamma {\tau} {\Nat}};
+          {\KindJ \Gamma {\Ix \, \tau} {\TypeK}}}
+\\
+{\ib{\irule[\krule{$\mu$}]
+          {\KindJ \Gamma \tau {\TypeK \to \TypeK}};
+          {\KindJ \Gamma {\mu \tau} {\TypeK}}}}
+\rsp
+{\ib{\irule[\krule{$\nu$}]
+          {\KindJ \Gamma \tau {\TypeK \to \TypeK}};
+          {\KindJ \Gamma {\nu \tau} {\TypeK}}}}
+\end{gather*}
+\caption{Contexts and kinding.}
+\label{fig:kinding}
+\end{figure}
+
+
+\subsection{Typing}
+\label{sec:Typing}
+
+\section{Adding Recursion to \RO}
+
+The static semantics of \RO, as defined in \cite{HubersM23}, are given in Appendix \ref{app:RO} for reference. We define only the syntax and rules necessary for least- and greatest-fixed points with general term-level recursion, which are routine.
+
+\begin{figure}[H]
+\begin{gather*}
+\fbox{$\KindJ \Gamma \tau \kappa$} 
+\\
+{\ib{\irule
+          {\KindJ \Gamma \tau {\TypeK \to \TypeK}};
+          {\KindJ \Gamma {\mu \tau} {\TypeK}}}}
+\rsp
+{\ib{\irule
+          {\KindJ \Gamma \tau {\TypeK \to \TypeK}};
+          {\KindJ \Gamma {\nu \tau} {\TypeK}}}}
+\\
+\fbox{$\TypeJ \Gamma M \tau$} \\
+...
+\vspace{5em}
+\end{gather*}
+\end{figure}
+
+\section{Translating \MuIx{} from \RO}
+\label{sec:Translation}
+
+Rules for the System $F_{\omega}$ fragment of \RO have a trivial correspondence to the $F_{\omega}$ fragment of \MuIx{} and are omitted. The syntax and typing judgments on the left are that of \RO (see Appendix \ref{app:RO}); on the right are \MuIx.
+
+\begin{figure}[H]
+\begin{align*}
+\fbox{$\Sem{\kappa}$} \\
+\vspace{5em}
+\Sem{\TypeK} &= \TypeK \\
+\Sem{\LabK} &= \TypeK \\
+\Sem{\kappa_1 \to \kappa_2} &= \Sem{\kappa_1} \to \Sem{\kappa_2} \\
+\Sem{\RowK \kappa} &= \Nat \to \Sem{\kappa} \\
+\end{align*}
+\begin{align*}
+\fbox{$\Sem{\KindJ \Gamma \tau \kappa}$} \\
+\vspace{5em}
+\Sem{\ib{\irule
+          {\KindJ \Gamma \rho {\RowK \kappa}};
+          {\KindJ \Gamma {\Pi\rho} \kappa}}} &= {\forall n \co \Nat. Ix \, n \to \Sem{\rho} \, n} \\
+\Sem{\ib{\irule
+          {\KindJ \Gamma \rho {\RowK \kappa}};
+          {\KindJ \Gamma {\Sigma\rho} \kappa}}} &= {\exists n \co \Nat. \Sem{\rho} \, n} \\
+\Sem{\ib{\irule
+          {\EnvJ \Gamma};
+          {\KindJ \Gamma \ell \LabK}}} &= \top \\
+\Sem{\ib{\irule
+          {\KindJ \Gamma \xi \LabK};
+          {\KindJ \Gamma {\Sing\xi} \TypeK}}} &= \top \\
+\Sem{\ib{\irule
+          {\KindJ \Gamma \xi \LabK}
+          {\KindJ \Gamma \tau \kappa};
+          {\KindJ \Gamma {\LabTy \xi \tau} \kappa}}} &= \Sem{\KindJ \Gamma {\tau} \kappa} \\
+\Sem{\ib{\irule
+          {\KindJ \Gamma \rho {\RowK{\kappa_1 \to \kappa_2}}}
+          {\KindJ \Gamma \tau {\kappa_1}};
+          {\KindJ \Gamma {\rho\,\tau} {\RowK{\kappa_2}}}}} &= \lambda n \co \Nat. \Sem{\KindJ \Gamma \rho {\RowK{\kappa_1 \to \kappa_2}}} \, n \, \Sem{{\KindJ \Gamma \tau {\kappa_1}}} \\
+\Sem{\ib{\irule
+          {\KindJ \Gamma \phi {\kappa_1 \to \kappa_2}}
+          {\KindJ \Gamma \rho {\RowK{\kappa_1}}};
+          {\KindJ \Gamma {\phi\,\rho} {\RowK{\kappa_2}}}}} &= \lambda n \co \Nat. \Sem{{\KindJ \Gamma \phi {\kappa_1 \to \kappa_2}}} \, n \, \Sem{{\KindJ \Gamma \rho {\RowK{\kappa_1}}}} \\
+\Sem{\ib{\irule
+          {\KindJS \Thy \Gamma {\Row {\overline {\LabTy \xi \tau}}} {\RowK \kappa}};
+          {\KindJ \Gamma {\Row{\overline {\LabTy \xi \tau}}} {\RowK\kappa}}}} &= \Sem{\KindJS \Thy \Gamma {\Row {\overline {\LabTy \xi \tau}}} {\RowK \kappa}} \\
+\Sem{\ib{\irule
+          {\PredJ \Gamma \pi}
+          {\KindJ {\Gamma, \pi} \tau \TypeK};
+          {\KindJ \Gamma {\pi \then \tau} \TypeK}}} &= \Sem{\pi} \to \Sem{\tau}
+\end{align*}
+\begin{align*}
+\fbox{$\Sem{\PredJ \Gamma \pi}$} \\
+\vspace{5em}
+...
+\end{align*}
+\caption{A compositional translation of \RO to \MuIx{}}
+\label{fig:translation}
+\end{figure}
+
+\bibliographystyle{plainnat}
+\bibliography{Mix}
+
+\appendix
+
+\section{The static semantics of \RO}
+\label{app:RO}
+
+\subsection{Syntax}
+\label{sec:ro-syntax}
+
+The syntax of \RO [\Thy] is given in \cref{fig:syntax}.  
+
+\begin{figure}[H]
+\begin{smalle}
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+  \text{Term variables} & x & \text{Type variables} & \alpha & \text{Labels} & \ell & \text{Directions} & d \in \Set {\Left, \Right}
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Kinds}} & \kappa & ::= & \TypeK \mid \LabK \mid \RowK \kappa \mid \kappa \to \kappa \\
+  \mcl{\text{Predicates}} & \pi, \psi & ::= & \Leqp [d] \rho \rho \mid \RowPlusP \rho \rho \rho \\
+  \text{Types} & \mcr{\phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid (\to) \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
+  & & & \mid & \ell \mid \Sing \xi \mid \LabTy \xi \tau \mid \Row {\tau_1, \dots, \tau_n} \mid \Pi \rho \mid \Sigma \rho \\
+  \mcl{\text{Terms}} & M, N & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \\
+  & & & \mid & \ell \mid \LabTerm M M \mid \Unlabel M M \mid \Prj [d] M \mid M \Concat M \mid \Inj [d] M \mid M \Branch M \\
+  & & & \mid & \Syn [\phi] \, M \mid \Ana [\phi]\, M \mid \FoldP \, M \, M \, M \, M \\
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau \mid \Gamma, \pi
+\end{doublesyntaxarray}
+\end{gather*}
+\end{smalle}
+\caption{Syntax}
+\label{fig:syntax}
+\end{figure}
+
+\subsection{Types and Kinds}
+\label{sec:ro-types}
+ 
+\cref{fig:kinding} gives rules for context formation ($\EnvJ \Gamma$), kinding ($\KindJ \Gamma \tau \kappa$), and predicate formation ($\PredJ \Gamma \pi$), parameterized by row theory $\Thy$.
+
+\begin{figure}[H]
+\small
+\begin{gather*}
+\fbox{$\EnvJ \Gamma$}
+\\
+\ib{\irule[\crule{emp}]{ };{\EnvJ \varepsilon}}
+\rsp
+\ib{\irule[\crule{tvar}]
+          {\EnvJ \Gamma};
+          {\EnvJ {\Gamma, \alpha : \kappa}}}
+\rsp
+\ib{\irule[\crule{var}]
+          {\EnvJ \Gamma}
+          {\KindJ \Gamma \tau \TypeK};
+          {\EnvJ {\Gamma, x : \tau}}}
+\rsp
+\ib{\irule[\crule{pred}]
+          {\EnvJ \Gamma}
+          {\PredJ \Gamma \pi};
+          {\EnvJ {\Gamma, \pi}}}
+\end{gather*}
+\begin{gather*}
+\fbox{$\KindJ \Gamma \tau \kappa$} \; \fbox{$\PredJ \Gamma \pi$}
+\\
+\ib{\irule[\krule{var}]
+          {\EnvJ \Gamma}
+          {\alpha : \kappa \in \Gamma};
+          {\Gamma \vdash \alpha : \kappa}}
+\rsp
+\ib{\irule[\krule{$(\to)$}]
+          {\EnvJ \Gamma};
+          {\KindJ \Gamma {(\to)} {\TypeK \to \TypeK \to \TypeK}}}
+\rsp
+\ib{\irule[\krule{$\then$}]
+          {\PredJ \Gamma \pi}
+          {\KindJ {\Gamma, \pi} \tau \TypeK};
+          {\KindJ \Gamma {\pi \then \tau} \TypeK}}
+\\
+\ib{\irule[\krule{$\forall$}]
+          {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
+          {\KindJ \Gamma {\forall \alpha\co\kappa. \tau} \TypeK}}
+\rsp
+\ib{\irule[\krule{$\I\to$}]
+          {\KindJ {\Gamma, \alpha : \kappa_1} \tau \kappa_2};
+          {\KindJ \Gamma {\lambda \alpha \co \kappa_1. \tau} {\kappa_1 \to \kappa_2}}}
+\rsp
+\ib{\irule[\krule{$\E\to$}]
+          {\KindJ \Gamma {\tau_1} {\kappa_1 \to \kappa_2}}
+          {\KindJ \Gamma {\tau_2} {\kappa_1}};
+          {\KindJ \Gamma {\tau_1 \, \tau_2} {\kappa_2}}}
+\\
+\ib{\irule[\krule{lab}]
+          {\EnvJ \Gamma};
+          {\KindJ \Gamma \ell \LabK}}
+\rsp
+\ib{\irule[\krule{sing}]
+          {\KindJ \Gamma \xi \LabK};
+          {\KindJ \Gamma {\Sing\xi} \TypeK}}
+\rsp
+\ib{\irule[\krule{lty}]
+          {\KindJ \Gamma \xi \LabK}
+          {\KindJ \Gamma \tau \kappa};
+          {\KindJ \Gamma {\LabTy \xi \tau} \kappa}}
+\rsp
+\ib{\irule[\krule{row}]
+          {\KindJS \Thy \Gamma {\Row {\overline {\LabTy \xi \tau}}} {\RowK \kappa}};
+          {\KindJ \Gamma {\Row{\overline {\LabTy \xi \tau}}} {\RowK\kappa}}}
+\\
+\ib{\irule[\krule{$\Pi$}]
+          {\KindJ \Gamma \rho {\RowK \kappa}};
+          {\KindJ \Gamma {\Pi\rho} \kappa}}
+\rsp
+\ib{\irule[\krule{$\Sigma$}]
+          {\KindJ \Gamma \rho {\RowK \kappa}};
+          {\KindJ \Gamma {\Sigma\rho} \kappa}}
+\rsp
+\ib{\irule[\krule{lift$_1$}]
+          {\KindJ \Gamma \rho {\RowK{\kappa_1 \to \kappa_2}}}
+          {\KindJ \Gamma \tau {\kappa_1}};
+          {\KindJ \Gamma {\rho\,\tau} {\RowK{\kappa_2}}}}
+\\
+\ib{\irule[\krule{lift$_2$}]
+          {\KindJ \Gamma \phi {\kappa_1 \to \kappa_2}}
+          {\KindJ \Gamma \rho {\RowK{\kappa_1}}};
+          {\KindJ \Gamma {\phi\,\rho} {\RowK{\kappa_2}}}}
+\rsp          
+\ib{\irule[\krule{$\lesssim_{d}$}]
+          {\KindJ \Gamma {\rho_i} {\RowK \kappa}};
+          {\PredJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}}}
+\rsp
+\ib{\irule[\krule{$\odot$}]
+          {\KindJ \Gamma {\rho_i} {\RowK \kappa}};
+          {\PredJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}}}
+\end{gather*}
+\caption{Contexts and kinding.}
+\label{fig:kinding}
+\end{figure}
+
+\begin{figure}[H]
+\begin{gather*}
+\fbox{$\EqvJ \tau \tau$} \; \fbox{$\EqvJ \pi \pi$}
+\\
+\ib{\irule[\erule{refl}]
+          { };
+          {\EqvJ \tau \tau}}
+\rsp
+\ib{\irule[\erule{sym}]
+          {\EqvJ {\tau_1} {\tau_2}};
+          {\EqvJ {\tau_2} {\tau_1}}}
+\rsp
+\ib{\irule[\erule{trans}]
+          {\EqvJ {\tau_1} {\tau_2}}
+          {\EqvJ {\tau_2} {\tau_3}};
+          {\EqvJ {\tau_1} {\tau_3}}}
+\rsp
+\ib{\irule[\erule{$\beta$}]
+          { };
+          {\EqvJ {(\lambda \alpha\co\kappa. \tau)\,\upsilon} {\tau[\upsilon/\alpha]}}}
+\\
+\ib{\irule[\erulec {\then}]
+          {\EqvJ {\pi_1} {\pi_2}}
+          {\EqvJ {\tau_1} {\tau_2}};
+          {\EqvJ {\pi_1 \then \tau_1} {\pi_2 \then \tau_2}}}
+\rsp
+\ib{\irule[\erulec{\forall}]
+          {\EqvJ {\tau[\gamma/\alpha]} {\upsilon[\gamma/\beta]}};
+          {\EqvJ {\forall\alpha\co\kappa.\tau} {\forall\beta\co\kappa.\upsilon}}!
+          {\gamma\not\in fv(\tau, \upsilon)}}
+\rsp
+\ib{\irule[\erulec{\text{\textsc{app}}}]
+          {\EqvJ {\tau_i} {\upsilon_i}};
+          {\EqvJ {\tau_1\,\tau_2} {\upsilon_1\,\upsilon_2}}}
+\\
+\ib{\irule[\erulec{\triangleright}]
+          {\EqvJ {\xi_1} {\xi_2}}
+          {\EqvJ {\tau_1} {\tau_2}};
+          {\EqvJ {\LabTy {\xi_1} {\tau_1}} {\LabTy {\xi_2} {\tau_2}}}}
+\rsp
+\ib{\irule[\erule{row}]
+          {\EqvJS \Thy {\Row {\overline {\LabTy {\xi_i} {\tau_i}}}} {\Row {\overline {\LabTy {\xi'_j} {\tau'_j}}}}};
+          {\EqvJ {\Row {\overline {\LabTy {\xi_i} {\tau_i}}}} {\Row {\overline {\LabTy {\xi'_j} {\tau'_j}}}}}}
+\rsp
+\ib{\irule[\erulec{\Sing\cdot}]
+          {\EqvJ {\xi_1} {\xi_2}};
+          {\EqvJ {\Sing{\xi_1}} {\Sing{\xi_2}}}}
+\\
+\ib{\irule[\erule{lift$_1$}]
+          { };
+          {\EqvJ {\Row{\LabTy \xi \phi } \, \tau} {\Row{\LabTy {\xi} {\phi\,\tau}}}}}
+\rsp
+\ib{\irule[\erule{lift$_2$}]
+          { };
+          {\EqvJ {\phi \, \Row{\LabTy {\xi} {\tau}}} {\Row{\LabTy {\xi} {\phi\,\tau}}}}}
+\rsp
+\\
+\ib{\irule[\erulec{\Pi\Sigma}]
+          {\EqvJ {\rho_1} {\rho_2}};
+          {\EqvJ {K \rho_1} {K \rho_2}}}
+\rsp
+\ib{\irule[\erule{lift$_3$}]
+          { };
+          {\EqvJ {(K \rho) \, \tau} {K (\rho \, \tau)}}}
+\rsp
+\ib{\irule[\erule{sing}]
+          { };
+          {\EqvJ {K \Row{\LabTy \xi \tau}} {\LabTy \xi \tau}}}
+\rsp
+(K \in \Set {\Pi, \Sigma})
+\\
+\ib{\irule[\erulec{\lesssim_{d}}]
+          {\EqvJ {\tau_i} {\upsilon_i}};
+          {\EqvJ {\Leqp [d] {\tau_1} {\tau_2}} {\Leqp [d] {\upsilon_1} {\upsilon_2}}}}
+\rsp
+\ib{\irule[\erulec{\odot}]
+          {\EqvJ {\tau_i} {\upsilon_i}};
+          {\EqvJ {\RowPlusP {\tau_1} {\tau_2} {\tau_3}} {\RowPlusP {\upsilon_1} {\upsilon_2} {\upsilon_3}}}}
+\end{gather*}
+\caption{Type and predicate equivalence}
+\label{fig:type-equiv}
+\end{figure}
+
+
+\subsection{Terms}
+\label{sec:ro-terms}
+
+\renewcommand\EntJ[2]{\EntJS \Thy #1 #2}
+\begin{figure}[H]
+\small  
+\begin{gather*}
+\fbox{$\TypeJ \Gamma M \tau$}
+\\
+\ib{\irule[\trule{var}]
+          {\EnvJ \Gamma}
+          {x : \tau \in \Gamma};
+          {\TypeJ \Gamma x \tau}}
+\rsp
+\ib{\irule[\trule{$\I\to$}]
+          {\KindJ \Gamma {\tau_1} {\TypeK}}
+          {\TypeJ {\Gamma, x : \tau_1} M {\tau_2}};
+          {\TypeJ \Gamma {\lambda x : \tau_1. M} {\tau_1 \to \tau_2}}}
+\rsp          
+\ib{\irule[\trule{$\E\to$}]
+          {\TypeJ \Gamma {M_1} {\tau_1 \to \tau_2}}
+          {\TypeJ \Gamma {M_2} {\tau_1}};
+          {\TypeJ \Gamma {M_1 \, M_2} {\tau_2}}}
+\\
+\ib{\irule[\trule{$\equiv$}]
+          {\TypeJ \Gamma M \tau}
+          {\EqvJ \tau \upsilon};
+          {\TypeJ \Gamma M \upsilon}}
+\rsp
+\ib{\irule[\trule{$\I\then$}]
+          {\PredJ \Gamma \pi}
+          {\TypeJ {\Gamma, \pi} M \tau};
+          {\TypeJ \Gamma M {\pi \then \tau}}}
+\rsp
+\ib{\irule[\trule{$\E\then$}]
+          {\TypeJ \Gamma M {\pi \then \tau}}
+          {\EntJ \Gamma \pi};
+          {\TypeJ \Gamma M \tau}}
+\\
+\ib{\irule[\trule{$\I\forall$}]
+          {\TypeJ {\Gamma, \alpha : \kappa} M \tau};
+          {\TypeJ \Gamma {\Lambda \alpha \co \kappa. M} {\forall \alpha\co\kappa. \tau}}}
+\rsp
+\ib{\irule[\trule{$\E\forall$}]
+          {\TypeJ \Gamma M {\forall \alpha\co\kappa. \tau}}
+          {\KindJ \Gamma \upsilon \kappa};
+          {\TypeJ \Gamma {\AppT M \upsilon} {\tau[\upsilon/\alpha]}}}
+\\
+\ib{\irule[\trule{sing}]
+          {\EnvJ \Gamma};
+          {\TypeJ \Gamma \ell {\Sing \ell}}}
+\rsp
+\ib{\irule[\trule{$\I\triangleright$}]
+          {\TypeJ \Gamma {M_1} {\Sing \ell}}
+          {\TypeJ \Gamma {M_2} \tau};
+          {\TypeJ \Gamma {\LabTerm {M_1} {M_2}} {\LabTy \ell \tau}}}
+\rsp
+\ib{\irule[\trule{$\E\triangleright$}]
+          {\TypeJ \Gamma {M_1} {\LabTy \ell \tau}}
+          {\TypeJ \Gamma {M_2} {\Sing \ell}};
+          {\TypeJ \Gamma {\Unlabel {M_1} {M_2}} \tau}}
+\\
+\ib{\irule[\trule{$\E\Pi$}]
+          {\TypeJ \Gamma M {\Pi \rho_1}}
+          {\EntJ \Gamma {\Leqp [d] {\rho_2} {\rho_1}}};
+          {\TypeJ \Gamma {\Prj [d] M} {\Pi \rho_2}}}
+\rsp
+\ib{\irule[\trule{$\I\Pi$}]
+          {\TypeJ \Gamma {M_1} {\Pi \rho_1}}
+          {\TypeJ \Gamma {M_2} {\Pi \rho_2}}
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\TypeJ \Gamma {M_1 \Concat M_2} {\Pi \rho_3}}}
+\\
+\ib{\irule[\trule{$\I\Sigma$}]
+          {\TypeJ \Gamma M {\Sigma \rho_1}}
+          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}};
+          {\TypeJ \Gamma {\Inj [d] M} {\Sigma \rho_2}}}
+\rsp
+\ib{\irule[\trule{$\E\Sigma$}]
+          {\TypeJ \Gamma {M_1} {\Sigma \rho_1 \to \tau}}
+          {\TypeJ \Gamma {M_2} {\Sigma \rho_2 \to \tau}}
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\TypeJ \Gamma {M_1 \Branch M_2} {\Sigma \rho_3 \to \tau}}}
+\\
+\ib{\irule[\trule{$\Ana$}]
+          {\begin{array}{@{}c@{}}
+             {\KindJ \Gamma \rho {\RowK \kappa}}
+             \isp
+             {\KindJ \Gamma \phi {\kappa \to \TypeK}}
+             \\
+             {\TypeJ \Gamma M {\forall l \co \LabK, u \co \kappa, y_1, z, y_2 \co \RowK \kappa. \, (\RowPlusP {y_1} {\Row {\LabTy l u}} z, \RowPlusP z {y_2} \rho) \then \Sing l \to \phi \, u \to \tau}}
+           \end{array}};
+          {\TypeJ \Gamma {\Ana [\phi] \, M} {\Sigma (\phi \, \rho) \to \tau}}}
+\\          
+\ib{\irule[\trule{$\Syn$}]
+          {\begin{array}{@{}c@{}}
+             {\KindJ \Gamma \rho {\RowK \kappa}}
+             \isp
+             {\KindJ \Gamma \phi {\kappa \to \TypeK}}
+             \\
+             {\TypeJ \Gamma M {\forall l \co \LabK, u \co \kappa, y_1, z, y_2 \co \RowK \kappa. \, (\RowPlusP {y_1} {\Row {\LabTy l u}} z, \RowPlusP z {y_2} \rho) \then \Sing l \to \phi \, u}}
+           \end{array}};
+          {\TypeJ \Gamma {\Syn [\phi] \, M} {\Pi (\phi \, \rho)}}}
+\\
+\ib{\irule[\trule{$\FoldP$}]
+          {\begin{array}{@{}c@{}}
+             {M_1 : \forall l \co \LabK, t \co \TypeK, y_1, z, y_2 \co \RowK \kappa. \, (\RowPlusP {y_1} {\Row {\LabTy l u}} z, \RowPlusP z {y_2} \rho) \then \Sing l \to t \to \upsilon}
+             \\
+             {\TypeJ \Gamma {M_2} {\upsilon \to \upsilon \to \upsilon}}
+             \isp
+             {\TypeJ \Gamma {M_3} \upsilon}
+             \isp
+             {\TypeJ \Gamma N {\Pi \rho}}
+           \end{array}};
+          {\TypeJ \Gamma {\FoldP \, M_1 \, M_2 \, M_3 \, N} \upsilon}}
+\end{gather*}
+\caption{Typing}
+\label{fig:typing}
+\end{figure}
+\renewcommand\EntJ[2]{#1 \Vdash #2}
+
+{Minimal Rows}
+\label{sec:ro-minimal}
+
+\cref{fig:minimal} gives the minimal row theory $\mathcal M$.
+
+\begin{figure}[H]
+\renewcommand\EntJ[2]{\EntJS \Mty {#1} {#2}}
+\small
+\begin{gather*}
+\fbox{$\KindJS \Mty \Gamma \rho \kappa$} \; \fbox{$\vphantom\Gamma \EqvJS \Mty \rho \rho$}
+\\
+% \ib{\irule[\krule{munit}]
+%           { };
+%           {\KindJS \Mty \Gamma {\Row {}} {\RowK \kappa}}}
+% \rsp          
+\ib{\irule[\krule{mrow}]
+          {\KindJ \Gamma \xi \LabK}
+          {\KindJ \Gamma \tau \kappa};
+          {\KindJS \Mty \Gamma {\Row {\LabTy \xi \tau}} {\RowK \kappa}}}
+\rsp
+% \ib{\irule[\erule{munit}]
+%           { };
+%           {\EqvJS \Mty {\Row {}} {\Row {}}}}
+% \rsp
+\ib{\irule[\erule{mrow}]
+          {\EqvJ \xi {\xi'}}
+          {\EqvJ \tau {\tau'}};
+          {\EqvJS \Mty {\Row {\LabTy \xi \tau}} {\Row {\LabTy {\xi'} {\tau'}}}}}
+\\          
+\fbox{$\EntJ \Gamma \pi$}
+\\
+\ib{\irule[\entrule{ax}]
+          {\pi \in \Gamma};
+          {\EntJ {\Gamma} \pi}}
+\rsp
+\ib{\irule[\entrule{refl}]
+          { };
+          {\EntJ \Gamma {\Leqp [d] \rho \rho}}}
+\rsp
+\ib{\irule[\entrule{trans}]
+          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}}
+          {\EntJ \Gamma {\Leqp [d] {\rho_2} {\rho_3}}};
+          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_3}}}}
+\\
+\ib{\irule[\entrule{$\equiv$}]
+          {\EntJ \Gamma {\pi_1}}
+          {\pi_1 \equiv \pi_2};
+          {\EntJ \Gamma {\pi_2}}}
+\rsp
+\ib{\irule[\entrule{$\lesssim$lift$_1$}]
+          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}};
+          {\EntJ \Gamma {\Leqp [d] {\phi\,\rho_1} {\phi\,\rho_2}}}}
+\rsp
+\ib{\irule[\entrule{$\lesssim$lift$_2$}]
+          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}};
+          {\EntJ \Gamma {\Leqp [d] {\rho_1\,\tau} {\rho_2\,\tau}}}}
+\\
+\ib{\irule[\entrule{$\odot$lift$_1$}]
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\EntJ \Gamma {\RowPlusP {\rho_1 \, \tau} {\rho_2 \, \tau} {\rho_3 \, \tau}}}}
+\rsp
+\ib{\irule[\entrule{$\odot$lift$_2$}]
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\EntJ \Gamma {\RowPlusP {\phi\,\rho_1} {\phi\,\rho_2} {\phi\,\rho_3}}}}
+\\
+\ib{\irule[\entrule{${\odot}{\lesssim_\Left}$}]
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\EntJ \Gamma {\Leqp [\Left] {\rho_1} {\rho_3}}}}
+\rsp
+\ib{\irule[\entrule{${\odot}{\lesssim_\Right}$}]
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\EntJ \Gamma {\Leqp [\Right] {\rho_2} {\rho_3}}}}
+% \ruleNvm{
+%   \ib{\irule[\entrule{$\sqcup$}]
+%     {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}}
+%     {\EntJ \Gamma {\Leqp {\rho_1} {\rho} }}
+%     {\EntJ \Gamma {\Leqp {\rho_2} {\rho} }};
+%     {\EntJ {\Gamma} {\Leqp {\rho_3} {\rho}}}}}
+\end{gather*}
+\caption{Minimal row theory $\mathcal M = \langle \vdash_\Mty, \equiv_\Mty, \Vdash_{\Mty} \rangle$}
+\label{fig:minimal}
+\end{figure}
+\end{document}
+
