@@ -56,19 +56,22 @@ data Type : KEnv → Kind → Set where
 -- ----------------------------------------
 -- recursive fragment.
   μ     : Type Δ (★ `→ ★) → Type Δ ★
-  υ     : Type Δ (★ `→ ★) → Type Δ ★
+  ν     : Type Δ (★ `→ ★) → Type Δ ★
 
 
 postulate
   weaken : Type Δ κ → Type (Δ , κ') κ
 
 --------------------------------------------------------------------------------
--- Semantics Rωμ.
+-- Translating Rome to Mix (Semantics).
 
 module Rμ where
  open import Rome.Kinds.Syntax public
  open import Rome.Types.Syntax public
- 
+
+-- Constructors (and only constructors) may overlap in name.  Opening the Rμ
+-- constructors below lets us use Rμ constructors on the LHS and Mix
+-- constructors on the RHS.
 open Rμ.Kind
 open Rμ.KEnv
 open Rμ.Type
@@ -82,19 +85,25 @@ open Rμ.TVar
 
 
 ⟦_⟧Δ : Rμ.KEnv → KEnv
-⟦_⟧v : ∀ {Δ} {κ} → Rμ.TVar Δ κ → TVar ⟦ Δ ⟧Δ ⟦ κ ⟧κ
-⟦ Z ⟧v   = {!Z!} -- Z
-⟦ S n ⟧v = {!!} -- S ⟦ n ⟧v
-
 ⟦ ε ⟧Δ = ε
 ⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , ⟦ κ ⟧κ
+
+⟦_⟧v : ∀ {Δ} {κ} → Rμ.TVar Δ κ → TVar ⟦ Δ ⟧Δ ⟦ κ ⟧κ
+⟦ Z ⟧v   = Z
+⟦ S n ⟧v = S ⟦ n ⟧v 
+
 ⟦_⟧τ : ∀ {Δ} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧Δ ⟦ κ ⟧κ
+-- Row business.
 ⟦ Rμ.Π ρ ⟧τ = `∀ Nat (Ix (tvar Z) `→ (weaken ⟦ ρ ⟧τ ·[ tvar Z ]))
 ⟦ Rμ.Σ ρ ⟧τ = `∃ Nat (weaken ⟦ ρ ⟧τ ·[ tvar Z ])
-⟦ ε ⟧τ = `λ Nat ((Ix Zero) `→ ⊤) --  `λ Nat ⊤ -- Needa think...
-⟦ l Rμ.R▹ τ ⟧τ = `λ Nat (weaken ⟦ τ ⟧τ )
-⟦ τ Rμ.·⌈ τ₁ ⌉ ⟧τ = {!!}
-⟦ Rμ.⌈ τ ⌉· τ₁ ⟧τ = {!!}
+⟦ ε ⟧τ = `λ Nat ((Ix Zero) `→ ⊤)
+⟦ l R▹ τ ⟧τ = `λ Nat (weaken ⟦ τ ⟧τ )
+⟦ τ ·⌈ υ ⌉ ⟧τ = `λ Nat (weaken ⟦ τ ⟧τ ·[ tvar Z ] ·[ weaken ⟦ υ ⟧τ ])
+⟦ ⌈ τ ⌉· υ ⟧τ = `λ Nat ((weaken ⟦ τ ⟧τ) ·[ ((weaken ⟦ υ ⟧τ) ·[ (tvar Z) ]) ])
+⟦ lab l ⟧τ = ⊤
+⟦ l Rμ.▹ τ ⟧τ = ⟦ τ ⟧τ
+⟦ Rμ.⌊_⌋ τ ⟧τ = ⊤
+-- Fω
 ⟦ U ⟧τ = ⊤
 ⟦ tvar n ⟧τ = tvar ⟦ n ⟧v 
 ⟦ τ₁ `→ τ₂ ⟧τ = ⟦ τ₁ ⟧τ `→ ⟦ τ₂ ⟧τ
@@ -102,8 +111,8 @@ open Rμ.TVar
 ⟦ `λ {Δ} κ τ ⟧τ = `λ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
 ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ ·[ ⟦ τ₂ ⟧τ ]
 ⟦ μ τ ⟧τ = μ ⟦ τ ⟧τ
-⟦ Rμ.ν τ ⟧τ = {!ν ⟦ τ ⟧τ!}
-⟦ π' Rμ.⇒ τ ⟧τ = {!!} -- <-- tricker.
-⟦ Rμ.lab l ⟧τ = ⊤
-⟦ l Rμ.▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ Rμ.⌊_⌋ τ ⟧τ = ⊤
+-- μ business
+⟦ ν τ ⟧τ = ν ⟦ τ ⟧τ
+-- Qualified types
+⟦ π ⇒ τ ⟧τ = {!!} -- <-- trickier.
+

@@ -36,7 +36,7 @@ data Type : KEnv → Kind → Set where
           Type (Δ , κ) ★ → Type Δ ★
   _∼_   : Type Δ ★ → Type Δ ★ → Type Δ ★
   μ     : Type Δ (★ `→ ★) → Type Δ ★
-  υ     : Type Δ (★ `→ ★) → Type Δ ★
+  νR     : Type Δ (★ `→ ★) → Type Δ ★
 -- ----------------------------------------
   Ix    :  (n : Type Δ Nat) → Type Δ ★
   Zero  : Type Δ Nat
