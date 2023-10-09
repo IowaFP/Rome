@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  5 OCT 2023 11:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  9 OCT 2023 10:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -971,12 +971,22 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 57.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
+)
+Overfull \hbox (20.75934pt too wide) detected at line 78
+[]
+ []
+
+
+Overfull \hbox (28.5822pt too wide) detected at line 114
+[]
+ []
+
+[1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
 Package natbib Warning: Citation `HubersM23' on page 2 undefined on input line 
-164.
+169.
 
 [2] [3]
 Overfull \vbox (28.60603pt too high) has occurred while \output is active []
@@ -986,32 +996,32 @@ Overfull \vbox (28.60603pt too high) has occurred while \output is active []
 \openout4 = `bu.aux'.
 
  (./Mix.bbl)
-Overfull \hbox (10.36736pt too wide) detected at line 272
+Overfull \hbox (10.36736pt too wide) detected at line 277
 []
  []
 
 
-Overfull \hbox (34.12436pt too wide) detected at line 303
+Overfull \hbox (34.12436pt too wide) detected at line 308
 []
  []
 
 
-Overfull \hbox (107.29535pt too wide) detected at line 376
+Overfull \hbox (107.29535pt too wide) detected at line 381
 []
  []
 
 [5]
-Overfull \hbox (112.62144pt too wide) detected at line 459
+Overfull \hbox (112.62144pt too wide) detected at line 464
 []
  []
 
 [6]
-Overfull \hbox (123.61252pt too wide) detected at line 580
+Overfull \hbox (123.61252pt too wide) detected at line 585
 []
  []
 
 [7]
-Overfull \hbox (51.1076pt too wide) detected at line 664
+Overfull \hbox (51.1076pt too wide) detected at line 669
 []
  []
 
@@ -1052,7 +1062,7 @@ ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/2022/t
 exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
 mf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Mix.pdf (9 pages, 238591 bytes).
+Output written on Mix.pdf (9 pages, 238834 bytes).
 PDF statistics:
  137 PDF objects out of 1000 (max. 8388607)
  85 compressed objects within 1 object stream

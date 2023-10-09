@@ -44,8 +44,8 @@
 \newcommand\Nat{\mathrm{Nat}}
 \newcommand\Zero{\mathrm{Zero}}
 \newcommand\Suc{\mathrm{Suc}}
-\newcommand\Ix{\mathrm{Ix}}
-\newcommand\MuIx{\ensuremath{\mu\Ix}}
+\newcommand\Ix[1]{\mathrm{Ix} \, #1}
+\newcommand\MuIx{\ensuremath{\mu}Ix}
 
 \title{The Recursive Index Calculus and Its Translation From \RO}
 
@@ -65,14 +65,15 @@
 \begin{smalle}
 \begin{gather*}
 \begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
-  \text{Term variables} & x & \text{Type variables} & \alpha 
+  \text{Term variables} & x & \text{Type variables} & \alpha & \text{Nat variables} & n
 \end{array}
 \\[5px]
 \begin{doublesyntaxarray}
-  \mcl{\text{Kinds}} & \kappa & ::= & \Nat \mid \TypeK \mid \kappa \to \kappa \\
-  \text{Types} & \mcr{\tau, \upsilon} & ::= & \top \mid \alpha \mid (\to) \mid \forall \alpha\co\kappa. \tau \mid  \exists \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
+  \mcl{\text{Nat}} & N & ::= & n \mid \Zero \mid \Suc \, N \\
+  \mcl{\text{Kinds}} & \kappa & ::= & \Nat \mid \Ix{N} \mid  \TypeK \mid \kappa \to \kappa \\
+  \text{Types} & \mcr{\tau, \upsilon} & ::= & \Nat \mid \Ix{N} \mid \top \mid \alpha \mid (\to) \mid \forall \alpha\co\kappa. \tau \mid  \exists \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
   \mcl{\text{Terms}} & M, N & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \mid ... \\
-  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, n : N \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau
 \end{doublesyntaxarray}
 \end{gather*}
 \end{smalle}
@@ -83,20 +84,24 @@
 \subsection{Kinding}
 \label{sec:Kinding}
 
-Presume a set of type-level constants $C$ containing at least the following:
+% Presume a set of type-level constants $C$ containing at least the following:
 
 
-\begin{align*}
-  (\to) \; &::= \; {\TypeK \to \TypeK \to \TypeK} \\
-  \Zero \; &::= \; \Nat \\
-  \Suc \;  &::= \; \Nat \to \Nat
-\end{align*}
+% \begin{align*}
+%   (\to) \; &::= \; {\TypeK \to \TypeK \to \TypeK} \\
+%   \Zero \; &::= \; \Nat \\
+%   \Suc \;  &::= \; \Nat \to \Nat
+% \end{align*}
 \begin{figure}[H]
 \small
 \begin{gather*}
 \fbox{$\EnvJ \Gamma$}
 \\
 \ib{\irule[\crule{emp}]{ };{\EnvJ \varepsilon}}
+\rsp
+\ib{\irule[\crule{nat}]
+          {\EnvJ \Gamma};
+          {\EnvJ {\Gamma, n : \Nat}}}
 \rsp
 \ib{\irule[\crule{tvar}]
           {\EnvJ \Gamma};

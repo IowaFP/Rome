@@ -14,11 +14,11 @@
     "tikz"
     "tikz-cd")
    (TeX-add-symbols
+    '("Ix" 1)
     '("secfig" 2)
     "Nat"
     "Zero"
     "Suc"
-    "Ix"
     "MuIx")
    (LaTeX-add-labels
     "sec:MuIx"
