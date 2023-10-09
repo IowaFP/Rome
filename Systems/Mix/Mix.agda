@@ -20,9 +20,17 @@ open import Data.Nat using (_⊔_)
 -- means "an index of size 1" while
 --  `ix (var 1)`
 -- means an index of size i, where i is the debruijn index at position 1.   
-data INat : ℕ → Set where
-  nat : ∀ {n : ℕ} → (m : ℕ) → INat n
-  var : (n : ℕ) → INat n
+
+-- N.B. Something is deeply afuck here...
+data INat : ∀ {n} → Fin n → Set where
+  nat : ∀ {n : ℕ} {i : Fin n} → (m : ℕ) → INat i
+  var : {n : ℕ} (i : Fin n) → INat i
+
+↑ : ∀ {n}{i : Fin n} → INat {1} fzero → INat {n} i
+↑ {n} {i} (nat m) = nat m
+↑ {n} {i} (var .fzero) = var i
+
+
 
 IEnv : ℕ → Set
 IEnv = Fin
@@ -30,7 +38,7 @@ IEnv = Fin
 data Kind : ∀ {n} → IEnv n → Set where
   ★      : ∀ {n} {Ξ : IEnv n} → Kind Ξ
   _`→_  : ∀ {n} {Ξ : IEnv n} → Kind Ξ → Kind Ξ → Kind Ξ
-  Ix     : ∀ {n} {Ξ : IEnv n} → (i : INat n) → Kind Ξ
+  Ix     : ∀ {n} {Ξ : IEnv n} → (i : INat Ξ) → Kind Ξ
   `∀ⁱ    : ∀ {n} {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
   `∃ⁱ    : ∀ {n} {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
 
@@ -41,7 +49,7 @@ private
     κ κ' κ₁ κ₂ : Kind Ξ
 
 data KEnv : ∀ {n} → IEnv n → Set where
-  ε : KEnv {1} fzero
+  ε : ∀ {n} {Ξ} → KEnv {n} Ξ
   _,_ : KEnv Ξ → Kind Ξ → KEnv Ξ
 
 -- --------------------------------------------------------------------------------
@@ -56,13 +64,13 @@ data Var : KEnv Ξ → Kind Ξ → Set where
     S : Var Δ κ → Var (Δ , κ') κ
 
 postulate
-  subst-κ : Kind Ξ → Kind (fsuc Ξ)
-  rename : KEnv Ξ → KEnv (fsuc Ξ)
+  subst-κ : Kind Ξ → Kind  (fsuc Ξ)
+  rename-Ξ : KEnv Ξ → KEnv (fsuc Ξ)
 
 data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
 -- ----------------------------------------
 -- Indices.
-  Ix    : ∀  {m} {Ξ : IEnv m}{Δ : KEnv Ξ} (i : INat m) → Type Ξ Δ (Ix i)
+  Ix    : ∀  {m} {Ξ : IEnv m}{Δ : KEnv Ξ} (i : INat Ξ) → Type Ξ Δ (Ix i)
 -- ----------------------------------------
 -- Run o' the mill Fω.
   ⊤     : Type Ξ Δ ★
@@ -74,7 +82,7 @@ data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
   `∀    : ∀ {Δ} (κ : Kind Ξ) →
           Type Ξ (Δ , κ) ★ → Type Ξ Δ ★
   `∀ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} (κ : Kind Ξ) →
-          Type (fsuc Ξ) (rename Δ) (`∀ⁱ ★) → Type Ξ Δ (`∀ⁱ ★)
+          Type (fsuc Ξ) (rename-Ξ Δ) (`∀ⁱ ★) → Type Ξ Δ (`∀ⁱ ★)
   `∃    : ∀ {Δ} (κ : Kind Ξ) →
           Type Ξ (Δ , κ) ★ → Type Ξ Δ (`∃ⁱ ★)
 -- -------------------------------------------
@@ -86,9 +94,10 @@ data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
   ν     : Type Ξ Δ (★ `→ ★) → Type Ξ Δ ★
 
 
--- postulate
---   weakenΔ : Type Ξ Δ κ → Type Ξ (Δ , κ') κ
---   weakenΞ : Type Ξ Δ κ → Type (fsuc Ξ) Δ (subst-κ κ)
+postulate
+  weakenΔ : Type Ξ Δ κ → Type Ξ (Δ , κ') κ
+  weakenΞ : Type Ξ Δ κ → Type Ξ (Δ , κ') κ
+  renameΞ  : Type Ξ Δ κ → Type (fsuc Ξ) (rename-Ξ Δ) (subst-κ κ)
 
 -- --------------------------------------------------------------------------------
 -- -- Translating Rome to Mix (Semantics).
@@ -115,8 +124,10 @@ open Rμ.TVar
 ⟦ ★ ⟧κ = 1 , (fzero , ★)
 ⟦ L ⟧κ = 1 , fzero , ★
 ⟦ R[ κ ] ⟧κ with ⟦ κ ⟧κ 
-... | ( n , (Ξ , k)) = (suc n) , ((fsuc Ξ) , (`∃ⁱ ((Ix (var {!Z!})) `→ {!!})))
-⟦ κ₁ `→ κ₂ ⟧κ = {!!}
+... | ( n , (Ξ , k)) = n , ( Ξ , `∃ⁱ (Ix (↑ (var fzero)) `→ subst-κ k ))
+-- PFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFT
+⟦ κ₁ `→ κ₂ ⟧κ with ⟦ κ₁ ⟧κ | ⟦ κ₂ ⟧κ
+... | ( n , (Ξ , k)) | ( m , (_ , q)) = {!!} , ({!!} , (k `→ {!q!}))
 -- ⟦ ★ ⟧κ = (fzero {1} , ★)
 -- ⟦ L ⟧κ = (fzero {1} , ★)
 -- ⟦ κ₁ `→ κ₂ ⟧κ with ⟦ κ₁ ⟧κ | ⟦ κ₂ ⟧κ 
