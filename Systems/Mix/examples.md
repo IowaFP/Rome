@@ -36,7 +36,7 @@ in z₁ and z₂ to z₃. Then:
 
 
 Then we have the term:
-  concat = λⁱ m n n. 
+  concat = λⁱ m n l. 
            Λ (z₁ : Ix m  → ★). Λ (z₂ : Ix n → ★). Λ (z₃ : Ix l → ★).
 	       λ p : ⟦ z₁ · z₂ ~ z₃ ⟧. 
      	   λ (r : (∀ (i : Ix m) → z₁ i)). 
