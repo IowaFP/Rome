@@ -14,34 +14,38 @@ concat = Λ z₁ z₂ z₃ : R[ ★ ].
 ↝
 
 ```agda
-concat : ∀ n : ℕ. ∀ (z₁ z₂ z₃ : Σ[ n ∈ ℕ ](Fin n → Type)).
-	     (∀ (i : Fin n) → 
-		 (can inject from left to right) × (can inject from right to left)
-	    (
-		 
+with kind:
+  concat : ∀ⁱ n. ★
+and type:
+  concat : ∀ⁱ m n l. 
+           ∀ (z₁ : Ix m  → ★) ∀ (z₂ : Ix n → ★).∀ (z₃ : Ix l → ★).
+             ⟦ z₁ · z₂ ~ z₃ ⟧ → 
+             (∀ (i : Ix m) → z₁ i)
+             (∀ (i : Ix n) → z₂ i)
+             ∀ (i : Ix l).   z₃ i
+For less writing, let's assume we are working in a row theory
+in which the meaning of row concatenation is a map from indices 
+in z₁ and z₂ to z₃. Then:
+
+  ⟦ z₁ · z₂ ~ z₃ ⟧ = 
+  ∀ i : Ix l.
+  ∃ j : Ix m. (z₁ j = z₃ i)
+   Or
+  ∃ j : Ix n. (z₂ j = z₃ i)	
+  
+
+
+Then we have the term:
+  concat = λⁱ m n n. 
+           Λ (z₁ : Ix m  → ★). Λ (z₂ : Ix n → ★). Λ (z₃ : Ix l → ★).
+	       λ p : ⟦ z₁ · z₂ ~ z₃ ⟧. 
+     	   λ (r : (∀ (i : Ix m) → z₁ i)). 
+		   λ (v : (∀ (i : Ix n) → z₂ i)).
+		   Λ (i : Ix l).
+		   -- (N.b. need term level discrimination on existential types.)
+		   case p i of        
+		     -- Need J eliminator *that can write eq : z₁ i = z₃ i.
+		     left  (j , eq) → J (r j) eq
+			 right (j , eq) → J (v j) eq
+		   
 ```
-
-A thing to note: Rωμ will have types. μix will have types. Rows, in μix, are finite mappings
-to types. To which types do we denote, here?
-
-```
-
-Kinds  κ  ::= Type ∣ Fin n | ...
-Types τ υ ::= α ∣ (→) ∣ λα:κ. τ ∣ τ υ | ⊤
-            ∣ ∀α:κ. τ 
-			∣ ∀ (i : Fin n). τ   -- Quantification over finite indices.
-			∣ ∃ (i : Fin n). τ
-			| τ ≡ υ 
-terms M N ::= x ∣ λ x : τ. M ∣ M N ∣ Λ α : κ. M ∣ M 			
-
-```
-
-
-		 
-
-## Wand's Problem
-
-Consider, in Rω:
-
-w : ∀ (z₁ z₂ z₃ : R[★]) (t : ★) (l : L)
-      z₁ + z₂ ~ z₃ , {l ▹ t} ≲ z₃ ⇒

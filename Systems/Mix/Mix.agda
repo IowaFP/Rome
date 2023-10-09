@@ -13,15 +13,20 @@ open import Data.List
 data KEnv : Set
 data Kind : Set
 
+data Nat : Set where
+  ivar : ℕ → Nat
+  Zero : Nat
+  Suc : Nat → Nat
+
 data Kind where
   ★     : Kind
   _`→_ : Kind → Kind → Kind
-  Nat   : Kind
   `∀i   : Kind → Kind
-  Ix    : Kind → Kind
-  Zero : Kind
-  Suc  : Kind → Kind
-  ivar : ℕ   → Kind
+  `∃i   : Kind → Kind
+  Ix    : Nat → Kind
+  Zero  : Kind
+  Suc   : Kind → Kind
+  ivar  : ℕ   → Kind
  
 IEnv : ℕ → Set
 IEnv = Fin
@@ -39,35 +44,35 @@ data WfKind : ∀ {n} → IEnv n → Kind → Set where
   ivar   : ∀ {n} {N : IEnv n} → IVar N → WfKind N (ivar n)
   `∀i    : ∀ {n} {N : IEnv n} {κ} → WfKind (fsuc N) κ → WfKind N (`∀i κ)
 
-private 
-  variable
-    κ κ' κ₁ κ₂ : Kind
-    n : ℕ
-    N : IEnv n
-    Κ : WfKind N κ
-    Κ' : WfKind N κ'
+-- private 
+--   variable
+--     κ κ' κ₁ κ₂ : Kind
+--     n : ℕ
+--     N : IEnv n
+--     Κ : WfKind N κ
+--     Κ' : WfKind N κ'
 
-data KEnv where
-  ε : KEnv
-  _,_ : KEnv → WfKind N κ → KEnv
+-- data KEnv where
+--   ε : KEnv
+--   _,_ : KEnv → WfKind N κ → KEnv
 
---------------------------------------------------------------------------------
--- Types.
+-- --------------------------------------------------------------------------------
+-- -- Types.
 
-private
-  variable
-    Δ Δ₁ Δ₂ : KEnv
+-- private
+--   variable
+--     Δ Δ₁ Δ₂ : KEnv
 
-data Var : KEnv → WfKind N κ → Set where
-    Z : ∀ {Κ : WfKind N κ} → Var (Δ , Κ) Κ
-    S : Var Δ Κ → Var (Δ , Κ') Κ
+-- data Var : KEnv → WfKind N κ → Set where
+--     Z : ∀ {Κ : WfKind N κ} → Var (Δ , Κ) Κ
+--     S : Var Δ Κ → Var (Δ , Κ') Κ
 
-data Type : KEnv → WfKind N κ → Set where
--- ----------------------------------------
--- Indices.
-  Ix    :  (n : Type Δ Nat) → Type Δ ★
-  Zero  : Type Δ Nat
-  Suc  : Type Δ Nat
+-- data Type : KEnv → WfKind N κ → Set where
+-- -- ----------------------------------------
+-- -- Indices.
+--   Ix    :  (n : Type Δ Nat) → Type Δ ★
+--   Zero  : Type Δ Nat
+--   Suc  : Type Δ Nat
 -- -- ----------------------------------------
 -- -- Run o' the mill Fω.
 --   ⊤     : Type Δ ★
