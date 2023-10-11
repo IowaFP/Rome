@@ -64,11 +64,13 @@ data Var : KEnv Ξ → Kind Ξ → Set where
 postulate
   subst-κ : Kind Ξ → Kind  (fsuc Ξ)
   rename-Ξ : KEnv Ξ → KEnv (fsuc Ξ)
+  weaken-κ : Kind {1} fzero → Kind Ξ
+  weaken-Ξ : KEnv {1} fzero → KEnv Ξ
 
 data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
 -- ----------------------------------------
 -- Indices.
-  Ix    : ∀  {m} {Ξ : IEnv m}{Δ : KEnv Ξ} (i : INat Ξ) → Type Ξ Δ (Ix i)
+  Ix    : ∀  {m} {Ξ : IEnv m}{Δ : KEnv Ξ} (i : INat Ξ) → Type Ξ Δ ★
 -- ----------------------------------------
 -- Run o' the mill Fω.
   ⊤     : Type Ξ Δ ★
@@ -79,10 +81,12 @@ data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
           Type Ξ Δ κ₂
   `∀    : ∀ {Δ} (κ : Kind Ξ) →
           Type Ξ (Δ , κ) ★ → Type Ξ Δ ★
-  `∀ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} (κ : Kind Ξ) →
-          Type (fsuc Ξ) (rename-Ξ Δ) (`∀ⁱ ★) → Type Ξ Δ (`∀ⁱ ★)
-  `∃    : ∀ {Δ} (κ : Kind Ξ) →
-          Type Ξ (Δ , κ) ★ → Type Ξ Δ (`∃ⁱ ★)
+  `∀ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} →
+          Type (fsuc Ξ) (rename-Ξ Δ , Ix (var (fsuc Ξ))) ★ → Type Ξ Δ ★
+  -- `∃    : ∀ {Δ} (κ : Kind Ξ) →
+  --         Type Ξ (Δ , κ) ★ → Type Ξ Δ (
+  `∃ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} (κ : Kind Ξ) →
+          Type (fsuc Ξ) (rename-Ξ Δ , Ix (var (fsuc Ξ))) ★ → Type Ξ Δ ★
 -- -------------------------------------------
 -- -- Equality.
   _∼_   : Type Ξ Δ ★ → Type Ξ Δ ★ → Type Ξ Δ ★
@@ -96,6 +100,9 @@ postulate
   weakenΔ : Type Ξ Δ κ → Type Ξ (Δ , κ') κ
   weakenΞ : Type Ξ Δ κ → Type Ξ (Δ , κ') κ
   renameΞ  : Type Ξ Δ κ → Type (fsuc Ξ) (rename-Ξ Δ) (subst-κ κ)
+  -- weakening *is* lifting... Need a lot of garbage lemmas.
+  lift-τ : ∀ {n} {Ξ : IEnv n} {κ : Kind {1} fzero} {Δ : KEnv fzero} → Type fzero Δ κ → Type Ξ (weaken-Ξ ε) (weaken-κ κ)
+
 
 -- --------------------------------------------------------------------------------
 -- -- Translating Rome to Mix (Semantics).
@@ -119,7 +126,7 @@ open Rμ.TVar
 
 -- check : ∀ {n} {Ξ : IEnv n} → Rμ.Kind →
 
-⟦_⟧κ : Rμ.Kind →  Kind fzero
+⟦_⟧κ : ∀ {n} {Ξ} → Rμ.Kind →  Kind {n} Ξ
 -- Are there implicit existentials?
 ⟦ ★ ⟧κ = ★
 ⟦ L ⟧κ = ★
@@ -133,35 +140,37 @@ open Rμ.TVar
 -- level (`∀ⁱ κ) = suc (level κ)
 -- level (`∃ⁱ κ) = suc (level κ)
 
--- ⟦_⟧Δ : Rμ.KEnv → KEnv
--- ⟦ ε ⟧Δ = ε
--- ⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , {!!}
+⟦_⟧Δ : ∀ {n} {Δ} → Rμ.KEnv → KEnv {n} Δ
+⟦ ε ⟧Δ = ε
+⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , ⟦ κ ⟧κ
 
--- -- ⟦_⟧v : ∀ {Δ} {κ} → Rμ.TVar Δ κ → Var ⟦ Δ ⟧Δ ⟦ κ ⟧κ
--- -- ⟦ Z ⟧v   = Z
--- -- ⟦ S n ⟧v = S ⟦ n ⟧v 
+-- ⟦_⟧v : ∀ {Δ} {κ} → Rμ.TVar Δ κ → Var ⟦ Δ ⟧Δ ⟦ κ ⟧κ
+-- ⟦ Z ⟧v   = Z
+-- ⟦ S n ⟧v = S ⟦ n ⟧v 
 
--- -- ⟦_⟧τ : ∀ {Δ} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧Δ ⟦ κ ⟧κ
--- -- -- Row business.
--- -- ⟦ Rμ.Π ρ ⟧τ = `∀ Nat (Ix (tvar Z) `→ (weaken ⟦ ρ ⟧τ ·[ tvar Z ]))
--- -- ⟦ Rμ.Σ ρ ⟧τ = `∃ Nat (weaken ⟦ ρ ⟧τ ·[ tvar Z ])
--- -- ⟦ ε ⟧τ = `λ Nat ((Ix Zero) `→ ⊤)
--- -- ⟦ l R▹ τ ⟧τ = `λ Nat (weaken ⟦ τ ⟧τ )
--- -- ⟦ τ ·⌈ υ ⌉ ⟧τ = `λ Nat (weaken ⟦ τ ⟧τ ·[ tvar Z ] ·[ weaken ⟦ υ ⟧τ ])
--- -- ⟦ ⌈ τ ⌉· υ ⟧τ = `λ Nat ((weaken ⟦ τ ⟧τ) ·[ ((weaken ⟦ υ ⟧τ) ·[ (tvar Z) ]) ])
--- -- ⟦ lab l ⟧τ = ⊤
--- -- ⟦ l Rμ.▹ τ ⟧τ = ⟦ τ ⟧τ
--- -- ⟦ Rμ.⌊_⌋ τ ⟧τ = ⊤
--- -- -- Fω
--- -- ⟦ U ⟧τ = ⊤
--- -- ⟦ tvar n ⟧τ = tvar ⟦ n ⟧v 
--- -- ⟦ τ₁ `→ τ₂ ⟧τ = ⟦ τ₁ ⟧τ `→ ⟦ τ₂ ⟧τ
--- -- ⟦ `∀ {Δ} κ τ ⟧τ = `∀ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
--- -- ⟦ `λ {Δ} κ τ ⟧τ = `λ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
--- -- ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ ·[ ⟦ τ₂ ⟧τ ]
--- -- ⟦ μ τ ⟧τ = μ ⟦ τ ⟧τ
--- -- -- μ business
--- -- ⟦ ν τ ⟧τ = ν ⟦ τ ⟧τ
--- -- -- Qualified types
--- -- ⟦ π ⇒ τ ⟧τ = {!!} -- <-- trickier.
+⟦_⟧τ : ∀ {κ} {Δ} → Rμ.Type Δ κ → Type {1} fzero ⟦ Δ ⟧Δ ⟦ κ ⟧κ -- Type ⟦ Δ ⟧Δ ⟦ κ ⟧κ
+-- -- Row business.
+-- The following fails to go through because of stuck computation---need to show
+-- that result of lifting ivars in τ is from 0 to 1 is same as renaming (which it is).
+⟦ Rμ.Π ρ ⟧τ = `∀ⁱ (Ix (↑ (var fzero)) `→ (lift-τ ⟦ ρ ⟧τ) ·[ (tvar Z) ]) -- ⟦ ρ ⟧τ ·[ {! `∃ⁱ!} ] -- `∀ {!Nat!} {!!} -- `∀ Nat (Ix (tvar Z) `→ (weaken ⟦ ρ ⟧τ ·[ tvar Z ]))
+⟦ Rμ.Σ ρ ⟧τ = {!!} -- `∃ Nat (weaken ⟦ ρ ⟧τ ·[ tvar Z ])
+⟦ ε ⟧τ = {!!} -- `λ Nat ((Ix Zero) `→ ⊤)
+⟦ l R▹ τ ⟧τ = {!!} -- `λ Nat (weaken ⟦ τ ⟧τ )
+⟦ τ ·⌈ υ ⌉ ⟧τ = {!!} -- `λ Nat (weaken ⟦ τ ⟧τ ·[ tvar Z ] ·[ weaken ⟦ υ ⟧τ ])
+⟦ ⌈ τ ⌉· υ ⟧τ = {!!} -- `λ Nat ((weaken ⟦ τ ⟧τ) ·[ ((weaken ⟦ υ ⟧τ) ·[ (tvar Z) ]) ])
+⟦ lab l ⟧τ = ⊤
+⟦ l Rμ.▹ τ ⟧τ = ⟦ τ ⟧τ
+⟦ Rμ.⌊_⌋ τ ⟧τ = ⊤
+-- Fω
+⟦ U ⟧τ = ⊤
+⟦ tvar n ⟧τ = {!!} -- tvar ⟦ n ⟧v 
+⟦ τ₁ `→ τ₂ ⟧τ = ⟦ τ₁ ⟧τ `→ ⟦ τ₂ ⟧τ
+⟦ `∀ {Δ} κ τ ⟧τ = {!!} -- `∀ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
+⟦ `λ {Δ} κ τ ⟧τ = {!!} -- `λ ⟦ κ ⟧κ (⟦_⟧τ {Δ , κ} τ)
+⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ ·[ ⟦ τ₂ ⟧τ ]
+⟦ μ τ ⟧τ = μ ⟦ τ ⟧τ
+-- μ business
+⟦ ν τ ⟧τ = ν ⟦ τ ⟧τ
+-- Qualified types
+⟦ π ⇒ τ ⟧τ = {!!} -- <-- trickier.
 

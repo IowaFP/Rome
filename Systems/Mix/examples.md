@@ -1,9 +1,10 @@
-Let's consider some example translations.
+\Let's consider some example translations.
 
 ## Primitives
 ### Concatenation
 
 ```agda
+concat : ★
 concat : ∀ (z₁ z₂ z₃ : R[★]). z₁ · z₂ ~ z₃ ⇒ Π z₁ → Π z₂ → Π z₃
 concat = Λ z₁ z₂ z₃ : R[ ★ ]. 
 	     ƛ p : z₁ · z₂ ~ z₃.
@@ -15,7 +16,7 @@ concat = Λ z₁ z₂ z₃ : R[ ★ ].
 
 ```agda
 with kind:
-  concat : ∀ⁱ n. ★
+  concat : ★
 and type:
   concat : ∀ⁱ m n l. 
            ∀ (z₁ : Ix m  → ★) ∀ (z₂ : Ix n → ★).∀ (z₃ : Ix l → ★).
