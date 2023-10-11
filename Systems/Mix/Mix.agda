@@ -81,12 +81,13 @@ data Type : ∀ {n} (Ξ : IEnv n) → KEnv Ξ → Kind Ξ → Set where
           Type Ξ Δ κ₂
   `∀    : ∀ {Δ} (κ : Kind Ξ) →
           Type Ξ (Δ , κ) ★ → Type Ξ Δ ★
-  `∀ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} →
+  `λⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} →
           Type (fsuc Ξ) (rename-Ξ Δ , Ix (var (fsuc Ξ))) ★ → Type Ξ Δ ★
   -- `∃    : ∀ {Δ} (κ : Kind Ξ) →
   --         Type Ξ (Δ , κ) ★ → Type Ξ Δ (
+  
   `∃ⁱ    : ∀ {n} {Ξ : IEnv n} {Δ : KEnv Ξ} (κ : Kind Ξ) →
-          Type (fsuc Ξ) (rename-Ξ Δ , Ix (var (fsuc Ξ))) ★ → Type Ξ Δ ★
+          INat Ξ → Type Ξ Δ (`∀ⁱ ★) → Type Ξ Δ (`∀ⁱ ★)
 -- -------------------------------------------
 -- -- Equality.
   _∼_   : Type Ξ Δ ★ → Type Ξ Δ ★ → Type Ξ Δ ★
@@ -152,7 +153,7 @@ open Rμ.TVar
 -- -- Row business.
 -- The following fails to go through because of stuck computation---need to show
 -- that result of lifting ivars in τ is from 0 to 1 is same as renaming (which it is).
-⟦ Rμ.Π ρ ⟧τ = `∀ⁱ (Ix (↑ (var fzero)) `→ (lift-τ ⟦ ρ ⟧τ) ·[ (tvar Z) ]) -- ⟦ ρ ⟧τ ·[ {! `∃ⁱ!} ] -- `∀ {!Nat!} {!!} -- `∀ Nat (Ix (tvar Z) `→ (weaken ⟦ ρ ⟧τ ·[ tvar Z ]))
+⟦ Rμ.Π ρ ⟧τ = `λⁱ {!⟦ ρ ⟧τ!} -- `∀ⁱ (Ix (↑ (var fzero)) `→ {!⟦ ρ ⟧τ!} ·[ (tvar Z) ])
 ⟦ Rμ.Σ ρ ⟧τ = {!!} -- `∃ Nat (weaken ⟦ ρ ⟧τ ·[ tvar Z ])
 ⟦ ε ⟧τ = {!!} -- `λ Nat ((Ix Zero) `→ ⊤)
 ⟦ l R▹ τ ⟧τ = {!!} -- `λ Nat (weaken ⟦ τ ⟧τ )
