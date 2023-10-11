@@ -30,8 +30,6 @@ data INat : ∀ {n} → Fin n → Set where
 ↑ {n} {i} (nat m) = nat m
 ↑ {n} {i} (var .fzero) = var i
 
-
-
 IEnv : ℕ → Set
 IEnv = Fin
 
@@ -39,8 +37,8 @@ data Kind : ∀ {n} → IEnv n → Set where
   ★      : ∀ {n} {Ξ : IEnv n} → Kind Ξ
   _`→_  : ∀ {n} {Ξ : IEnv n} → Kind Ξ → Kind Ξ → Kind Ξ
   Ix     : ∀ {n} {Ξ : IEnv n} → (i : INat Ξ) → Kind Ξ
-  `∀ⁱ    : ∀ {n} {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
-  `∃ⁱ    : ∀ {n} {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
+  `∀ⁱ    : ∀ {n}  {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
+  `∃ⁱ    : ∀ {n}  {Ξ : IEnv n} → Kind (fsuc Ξ) → Kind Ξ
 
 private 
   variable
@@ -119,20 +117,14 @@ open Rμ.TVar
 
 -- syntax Σⁱ-syntax (λ Ξ → B) = Σⁱ[ Ξ ] B
 
-⟦_⟧κ : Rμ.Kind →  Σ[ n ∈ ℕ ] (Σ[ Ξ ∈ IEnv n ] (Kind Ξ))
+-- check : ∀ {n} {Ξ : IEnv n} → Rμ.Kind →
+
+⟦_⟧κ : Rμ.Kind →  Kind fzero
 -- Are there implicit existentials?
-⟦ ★ ⟧κ = 1 , (fzero , ★)
-⟦ L ⟧κ = 1 , fzero , ★
-⟦ R[ κ ] ⟧κ with ⟦ κ ⟧κ 
-... | ( n , (Ξ , k)) = n , ( Ξ , `∃ⁱ (Ix (↑ (var fzero)) `→ subst-κ k ))
--- PFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFT
-⟦ κ₁ `→ κ₂ ⟧κ with ⟦ κ₁ ⟧κ | ⟦ κ₂ ⟧κ
-... | ( n , (Ξ , k)) | ( m , (_ , q)) = {!!} , ({!!} , (k `→ {!q!}))
--- ⟦ ★ ⟧κ = (fzero {1} , ★)
--- ⟦ L ⟧κ = (fzero {1} , ★)
--- ⟦ κ₁ `→ κ₂ ⟧κ with ⟦ κ₁ ⟧κ | ⟦ κ₂ ⟧κ 
--- ... | (n , k) | (m , q) = {!n ⊔ m!} , (k `→ {!q!}) 
--- ⟦ R[ κ ] ⟧κ = {!!} -- `∃ⁱ ((Ix (var 0)) `→ ⟦ κ ⟧κ)
+⟦ ★ ⟧κ = ★
+⟦ L ⟧κ = ★
+⟦ R[ κ ] ⟧κ = `∃ⁱ (Ix (↑ (var fzero))) `→ ⟦ κ ⟧κ 
+⟦ κ₁ `→ κ₂ ⟧κ = ⟦ κ₁ ⟧κ `→ ⟦ κ₂ ⟧κ
 
 -- level : Kind → ℕ
 -- level ★ = 0
