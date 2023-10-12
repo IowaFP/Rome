@@ -1,6 +1,6 @@
 module Rome.Types.Semantics where
 
-import Mix.Mix as M
+import (Mix.Mix as M
 
 open import Rome.Kinds.Syntax
 open import Rome.Types.Syntax
