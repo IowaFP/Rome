@@ -168,9 +168,9 @@ data Term : ∀ (Δ : KEnv) → PEnv Δ  → Env Δ → Type Δ ★ → Set wher
 
   -- The empty record.
   -- (Not a part of pen-and-paper calculus.)
-  ∅ : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ} →
-         -----------
-        Term Δ Φ Γ ∅
+  -- ∅ : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ} →
+  --        -----------
+  --       Term Δ Φ Γ ∅
 
   -- record introduction.
   _⊹_ : ∀ {Δ : KEnv} {Γ : Env Δ} {Φ : PEnv Δ}
