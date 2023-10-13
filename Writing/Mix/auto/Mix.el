@@ -14,6 +14,7 @@
     "tikz"
     "tikz-cd")
    (TeX-add-symbols
+    '("FormJ" 2)
     '("Ix" 1)
     '("secfig" 2)
     "Nat"

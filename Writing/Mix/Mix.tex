@@ -46,6 +46,8 @@
 \newcommand\Suc{\mathrm{Suc}}
 \newcommand\Ix[1]{\mathrm{Ix} \, #1}
 \newcommand\MuIx{\ensuremath{\mu}Ix}
+\renewcommand\Type{\mathrm{Type}}
+\newcommand\FormJ[2]{\ensuremath{#1 \vdash #2 \, \Type}}
 
 \title{The Recursive Index Calculus and Its Translation From \RO}
 
@@ -65,15 +67,18 @@
 \begin{smalle}
 \begin{gather*}
 \begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
-  \text{Term variables} & x & \text{Type variables} & \alpha & \text{Nat variables} & n
+  \text{Term variables} & x & \text{Type variables} & \alpha & \text{Index variables} & i
 \end{array}
 \\[5px]
 \begin{doublesyntaxarray}
-  \mcl{\text{Nat}} & N & ::= & n \mid \Zero \mid \Suc \, N \\
-  \mcl{\text{Kinds}} & \kappa & ::= & \Nat \mid \Ix{N} \mid  \TypeK \mid \kappa \to \kappa \\
-  \text{Types} & \mcr{\tau, \upsilon} & ::= & \Nat \mid \Ix{N} \mid \top \mid \alpha \mid (\to) \mid \forall \alpha\co\kappa. \tau \mid  \exists \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
-  \mcl{\text{Terms}} & M, N & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \mid ... \\
-  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, n : N \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau
+  \mcl{\text{Index Sorts}} & \gamma & ::= & \Nat \mid \Ix \, \iota \\
+  \mcl{\text{Index Objects}} & \iota & ::= & i \mid \Zero \mid \Suc \, \iota \\
+  % \mcl{\text{Nat}} & N & ::= & n \mid \Zero \mid \Suc \, N \\
+  % \mcl{\text{Kinds}} & \kappa & ::= & \Nat \mid \Ix{N} \mid  \TypeK \mid \kappa \to \kappa \\
+  \text{Types} & \mcr{\tau, \upsilon} & ::= & \gamma \mid \iota \mid \star \mid \alpha \mid \top \mid \Pi i \co \tau. \upsilon \mid \Sigma i \co \tau. \upsilon \\
+               &            &  \phantom{} &  & \tau \, \upsilon \mid \tau \sim \upsilon \\
+  \mcl{\text{Terms}} & M, N & ::= & x \mid () \mid \lambda x \co \tau. M \mid M \, N \mid (M , N) \mid M.1 \mid M.2 \\ 
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, x : \tau
 \end{doublesyntaxarray}
 \end{gather*}
 \end{smalle}
@@ -81,7 +86,7 @@
 \label{fig:syntax}
 \end{figure}
 
-\subsection{Kinding}
+\subsection{Typing}
 \label{sec:Kinding}
 
 % Presume a set of type-level constants $C$ containing at least the following:
@@ -95,40 +100,73 @@
 \begin{figure}[H]
 \small
 \begin{gather*}
+\fbox{$\KindJ \Gamma \iota \gamma$}
+\\
+\ib{\irule
+          {\EnvJ \Gamma}
+          {i : \gamma \in \Gamma};
+          {\Gamma \vdash i : \gamma}}
+\\
+\ib{\irule
+          {\EnvJ \Gamma};
+          {\KindJ \Gamma \Zero \Nat}}
+\rsp
+\ib{\irule
+          {\KindJ \Gamma \iota \Nat};
+          {\KindJ \Gamma {\Suc \, \iota} \Nat}}
+\\
+\ib{\irule
+          {\EnvJ \Gamma};
+          {\KindJ \Gamma \Zero {\Ix 1}}}
+\rsp
+\ib{\irule
+          {\KindJ \Gamma n \Nat}{\KindJ \Gamma \iota {\Ix n}};
+          {\KindJ \Gamma {\Suc \, \iota} {\Ix (\Suc \, n)}}}
+\rsp
+\ib{\irule
+          {\KindJ \Gamma n \Nat} {\KindJ \Gamma \iota {\Ix n}};
+          {\KindJ \Gamma \iota {\Ix {(\Suc \, n)}}}
+}
+\end{gather*}
+\begin{gather*}
 \fbox{$\EnvJ \Gamma$}
 \\
 \ib{\irule[\crule{emp}]{ };{\EnvJ \varepsilon}}
 \rsp
-\ib{\irule[\crule{nat}]
-          {\EnvJ \Gamma};
-          {\EnvJ {\Gamma, n : \Nat}}}
-\rsp
-\ib{\irule[\crule{tvar}]
-          {\EnvJ \Gamma};
-          {\EnvJ {\Gamma, \alpha : \kappa}}}
-\rsp
 \ib{\irule[\crule{var}]
           {\EnvJ \Gamma}
-          {\KindJ \Gamma \tau \TypeK};
+          {\FormJ \Gamma \tau};
           {\EnvJ {\Gamma, x : \tau}}}
 \end{gather*}
 \begin{gather*}
-\fbox{$\KindJ \Gamma \tau \kappa$}
+\fbox{$\KindJ \Gamma \tau \upsilon$}
 \\
+\ib{\irule[\krule{$\TypeK$-in-$\TypeK$}]
+          {\EnvJ \Gamma};
+          {\Gamma \vdash \TypeK : \TypeK}}
+\rsp
 \ib{\irule[\krule{$\top$}]
           {\EnvJ \Gamma};
           {\Gamma \vdash \top : \TypeK}}
 \rsp
 \ib{\irule[\krule{var}]
           {\EnvJ \Gamma}
-          {\alpha : \kappa \in \Gamma};
-          {\Gamma \vdash \alpha : \kappa}}
+          {x : \tau \in \Gamma};
+          {\Gamma \vdash x : \tau}}
 \\
 \ib{\irule[\krule{$\forall$}]
           {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
           {\KindJ \Gamma {\forall \alpha\co\kappa. \tau} \TypeK}}
 \rsp
 \ib{\irule[\krule{$\exists$}]
+          {\KindJ {\Gamma, \alpha : \tau} \upsilon \TypeK};
+          {\KindJ \Gamma {\exists \alpha \co \tau. \upsilon} \TypeK}}
+\\
+\ib{\irule[\krule{$\Pi$}]
+          {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
+          {\KindJ \Gamma {\forall \alpha\co\kappa. \tau} \TypeK}}
+\rsp
+\ib{\irule[\krule{$\Sigma$}]
           {\KindJ {\Gamma, \alpha : \kappa} \tau \TypeK};
           {\KindJ \Gamma {\exists \alpha\co\kappa. \tau} \TypeK}}
 \\

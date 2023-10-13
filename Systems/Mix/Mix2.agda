@@ -103,9 +103,11 @@ data Term : (Ξ : IContext) → (Δ : Env Ξ) → Type Ξ → Set where
   ⟨⟩   : Term Ξ Δ ⊤
   ⟨_,_⟩ : Term Ξ Δ (τ₁ * τ₂)
   -- Terms depending on terms.
-  `λ   : ∀ (τ₁ : Type Ξ) → {τ₂ : Type Ξ} (M : Term Ξ (Δ , τ₁) τ₂) → Term Ξ Δ (τ₁ `→ τ₂)
+  `λ   : ∀ (τ₁ : Type Ξ) → {τ₂ : Type Ξ} 
+         (M : Term Ξ (Δ , τ₁) τ₂) → Term Ξ Δ (τ₁ `→ τ₂)
   -- Terms depending on sorts.
-  `λⁱ   : ∀ {Ξ} (i : ISort) {Δ : Env Ξ} → (τ₂ : Type (Ξ , i)) (M : Term (Ξ , i) (Δ ,' i) τ₂) → Term Ξ Δ (Π i τ₂)
+  `λⁱ   : ∀ {Ξ} (i : ISort) {Δ : Env Ξ} → 
+           (τ₂ : Type (Ξ , i)) (M : Term (Ξ , i) (Δ ,' i) τ₂) → Term Ξ Δ (Π i τ₂)
   
 --------------------------------------------------------------------------------
 -- Let's look at our real needs: the translation of terms...
