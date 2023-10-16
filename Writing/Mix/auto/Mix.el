@@ -20,9 +20,9 @@
     "Nat"
     "Zero"
     "Suc"
+    "Fin"
     "MuIx")
    (LaTeX-add-labels
-    "sec:MuIx"
     "sec:Syntax"
     "fig:syntax"
     "sec:Kinding"

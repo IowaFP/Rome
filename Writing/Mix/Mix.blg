@@ -4,44 +4,48 @@ The top-level auxiliary file: Mix.aux
 The style file: plainnat.bst
 A level-1 auxiliary file: bu.aux
 Database file #1: Mix.bib
-You've used 1 entry,
+A bad cross reference---entry "XiP99"
+refers to entry "DBLP:conf/popl/1999", which doesn't exist
+Warning--I didn't find a database entry for "DBLP:conf/popl/1999"
+You've used 2 entries,
             2773 wiz_defined-function locations,
-            601 strings with 5062 characters,
-and the built_in function-call counts, 428 in all, are:
-= -- 39
-> -- 21
-< -- 1
-+ -- 7
-- -- 6
-* -- 30
-:= -- 75
-add.period$ -- 5
-call.type$ -- 1
-change.case$ -- 5
-chr.to.int$ -- 1
-cite$ -- 2
-duplicate$ -- 19
-empty$ -- 31
-format.name$ -- 9
-if$ -- 84
+            612 strings with 5398 characters,
+and the built_in function-call counts, 1018 in all, are:
+= -- 98
+> -- 42
+< -- 3
++ -- 14
+- -- 12
+* -- 68
+:= -- 154
+add.period$ -- 10
+call.type$ -- 2
+change.case$ -- 10
+chr.to.int$ -- 2
+cite$ -- 4
+duplicate$ -- 51
+empty$ -- 84
+format.name$ -- 18
+if$ -- 223
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 15
-num.names$ -- 4
-pop$ -- 6
+missing$ -- 2
+newline$ -- 22
+num.names$ -- 8
+pop$ -- 17
 preamble$ -- 1
-purify$ -- 4
+purify$ -- 8
 quote$ -- 0
-skip$ -- 18
+skip$ -- 47
 stack$ -- 0
-substring$ -- 2
-swap$ -- 1
-text.length$ -- 0
+substring$ -- 32
+swap$ -- 12
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 11
+type$ -- 22
 warning$ -- 0
-while$ -- 3
+while$ -- 8
 width$ -- 0
-write$ -- 24
+write$ -- 41
+(There was 1 error message)
