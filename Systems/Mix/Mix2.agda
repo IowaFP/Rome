@@ -6,49 +6,17 @@ open import Preludes.Relation
 open import Data.Nat using (_⊔_)
 
 ----------------------------------------------------------------------------------
--- following Xi & Pfenning 99.
-
-
---------------------------------------------------------------------------------
--- Index sorts.
-
--- data ISort : Set where
---   Nat : ISort
---   ⊤ : ISort
---   _*_ : ISort → ISort → ISort
-
--- --------------------------------------------------------------------------------
--- -- 
-
--- data IContext : Set where
---   ε : IContext
---   _,_ : IContext → ISort → IContext
-
--- private
---   variable
---     Ξ : IContext
-
--- data IObject : IContext → Set where
---   ivar : ℕ → IObject Ξ 
---   ⊤    : IObject Ξ
---   ⟨_,_⟩ : IObject Ξ → IObject Ξ → IObject Ξ
-
--- data ISort : Set
--- data IObject : ISort
-
--- data ISort where
---   Nat : ISort
---   Ix  : 
 data Context : Set
 data Type : Context → Set 
 
 data Context where
   ε : Context
-  _,_ : (Ξ : Context) → Type Ξ → Context
+  _,_ : (Δ : Context) → Type Δ → Context
 
 private
   variable
     Δ : Context
+
 data Type where
   -- "sorts"
   ★    : Type Δ
@@ -67,29 +35,32 @@ data Type where
 
 data Typed : (Δ : Context) → Type Δ → Set where
   ★    : Typed Δ ★
-  Nat  : Typed Δ ★
-  Ix   : Typed Δ Nat → Typed Δ ★
+  tvar : ∀ {υ} → ℕ → Typed Δ υ
+  -- 
+  Ix    : Typed Δ Nat → Typed Δ ★
+  FZero : Typed Δ (Ix (Suc Zero))
+  FSuc  : (n : Type Δ) → Typed Δ (Ix n) → Typed Δ (Suc (Ix n)) -- hmm....
+  -- ... (Need Ix elim.)
   --
+  Nat  : Typed Δ ★
   Zero : Typed Δ Nat
   Suc  : Typed Δ Nat → Typed Δ Nat
-  tvar : ∀ {υ} → ℕ → Typed Δ υ
   --
   ⊤ : Typed Δ ★
+  tt : Typed Δ ⊤
+  --
   Π : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ τ → Typed (Δ , τ) υ → Typed Δ ★
-  Σ : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ τ → Typed (Δ , τ) υ → Typed Δ ★
-  _·_ : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ (Π τ υ) → Typed Δ τ → Typed (Δ , τ) ★
+  ‵λ : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ τ → Typed (Δ , τ) υ → Typed Δ (Π τ υ)
+  _·_ : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ (Π τ υ) → Typed Δ τ → Typed (Δ , τ) υ  
+  --
+  Σ    : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ τ → Typed (Δ , τ) υ → Typed Δ ★
+  ⟨_,_⟩ : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ τ → Typed (Δ , τ) υ → Typed Δ (Σ τ υ) 
+  fst : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ (Σ τ υ) → Typed Δ τ
+  snd : {τ : Type Δ} {υ : Type (Δ , τ)} → Typed Δ (Σ τ υ) → Typed (Δ , τ) υ
+  --
   _~_ : ∀ {τ υ : Type Δ} → Typed Δ τ → Typed Δ υ → Typed Δ ★
-  
-  -- Ix     : IObject Ξ → Type Ξ
-  -- ⊤     : Type Ξ
-  -- _*_   : Type Ξ → Type Ξ → Type Ξ
-  -- _`→_ : Type Ξ → Type Ξ → Type Ξ
-  -- Π     : (i : ISort) → Type (Ξ , i) → Type Ξ
-  -- `∀    : Type Ξ  → Type Ξ → Type Ξ
-  -- _·_   : Type Ξ  → Type Ξ → Type Ξ
-  -- Σ     : (i : ISort) → Type (Ξ , i) → Type Ξ
-  -- `∃     : Type Ξ → Type Ξ → Type Ξ
-
+  refl : ∀ {t : Type Δ} {τ : Typed Δ t} → Typed Δ (t ~ t)
+  J    : Typed Δ ★ -- (I forgot this one.)
 -- --------------------------------------------------------------------------------
 -- -- Interpretation of type level.
 
@@ -131,9 +102,13 @@ postulate
 ⟦_⟧Δ = {!!}
 
 ⟦ U ⟧τ = ⊤
-⟦ tvar x ⟧τ = {!!}
 ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weakened ⟦ τ₂ ⟧τ )
-⟦ `∀ κ τ ⟧τ = {!!}
+⟦ ε ⟧τ = {!!}
+⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧τ)) ★ -- (Because ρ : R[★] in Rω if Π ρ : ★).
+⟦ Σ ρ ⟧τ = Σ (Ix ((fst ⟦ ρ ⟧τ))) ★
+⟦ τ ·⌈ τ₁ ⌉ ⟧τ = {!!}
+⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
+⟦_⟧τ (`∀ {Δ} κ τ) = Π {!⟦ !} {!!}
 ⟦ `λ κ₁ τ ⟧τ = {!!}
 ⟦ τ ·[ τ₁ ] ⟧τ = {!!}
 ⟦ μ τ ⟧τ = {!!}
@@ -143,11 +118,7 @@ postulate
 ⟦ τ ▹ τ₁ ⟧τ = {!!}
 ⟦ τ R▹ τ₁ ⟧τ = {!!}
 ⟦ ⌊ τ ⌋ ⟧τ = {!!}
-⟦ ε ⟧τ = {!!}
-⟦ Π τ ⟧τ = {!!}
-⟦ Σ τ ⟧τ = {!!}
-⟦ τ ·⌈ τ₁ ⌉ ⟧τ = {!!}
-⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
+⟦ tvar x ⟧τ = {!!}
 
 -- ⟦ ε ⟧τ = Σ Nat ((Ix (ivar 0)) `→ ⊤)
 -- ⟦ Π ρ ⟧τ = ∃ Nat (`∀ (Ix (ivar 0)) (⟦ ρ ⟧τ · tvar 0))
