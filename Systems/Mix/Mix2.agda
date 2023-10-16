@@ -101,6 +101,8 @@ postulate
 ⟦_⟧τ : ∀ {Δ}{κ} → Rμ.Type Δ κ → Typed ⟦ Δ ⟧Δ (⟦ κ ⟧κ Δ)
 ⟦_⟧Δ = {!!}
 
+-- N.B. --- just steal from here.
+-- https://github.com/mr-ohman/logrel-mltt/blob/master/Definition/Typed.agda
 ⟦ U ⟧τ = ⊤
 ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weakened ⟦ τ₂ ⟧τ )
 ⟦ ε ⟧τ = {!!}
