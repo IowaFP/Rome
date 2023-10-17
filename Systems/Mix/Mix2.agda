@@ -97,6 +97,7 @@ Row τ = Σ Nat (Π (Ix (tvar 0)) (weaken (weaken τ)))
 ⟦_⟧τ : ∀ {Δ}{κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧Δ
 ⟦_⟧ρ : ∀ {Δ}{κ} → Rμ.Type Δ (R[ κ ])  → Term ⟦ Δ ⟧Δ (Row (⟦ κ ⟧κ Δ))
 ⟦_⟧P : ∀ {Δ}{κ} → Rμ.Pred Δ κ  → Type ⟦ Δ ⟧Δ
+⟦_⟧π : ∀ {Δ}{κ}{Φ : Rμ.PEnv Δ}{π : Rμ.Pred Δ κ} → Rμ.Ent Δ Φ π  → Term ⟦ Δ ⟧Δ ⟦ π ⟧P
 ⟦_⟧ : ∀ {Δ}{Φ : Rμ.PEnv Δ}{Γ : Rμ.Env Δ} {τ : Rμ.Type Δ ★} → Rμ.Term Δ Φ Γ τ  → Term ⟦ Δ ⟧Δ ⟦ τ ⟧τ
 
 ⟦ tvar x ⟧ρ = {!!}
@@ -110,12 +111,14 @@ Row τ = Σ Nat (Π (Ix (tvar 0)) (weaken (weaken τ)))
 ⟦ ρ₁ Rμ.≲ ρ₂ ⟧P      = {!!}
 ⟦ ρ₁ Rμ.· ρ₂ ~ ρ₃ ⟧P = {!!}
 
+⟦ π ⟧π = {!!} 
+
 --------------------------------------------------------------------------------
 -- Translation of kinds to types.
 ⟦ ★ ⟧κ _ =  ★
 ⟦ L ⟧κ _ = ⊤
 ⟦ R[ κ ] ⟧κ Δ = Row (⟦ κ ⟧κ Δ)
-⟦ κ₁ `→ κ₂ ⟧κ Δ = Π (⟦ κ₁ ⟧κ Δ ) (weaken (⟦ κ₂ ⟧κ Δ))
+⟦ κ₁ `→ κ₂ ⟧κ Δ = Π (⟦ κ₁ ⟧κ Δ) (weaken (⟦ κ₂ ⟧κ Δ))
 
 --------------------------------------------------------------------------------
 -- Translation of (kinding) environments.
@@ -133,7 +136,7 @@ Row τ = Σ Nat (Π (Ix (tvar 0)) (weaken (weaken τ)))
 ⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧ρ)) ★
 ⟦ Σ ρ ⟧τ = Σ (Ix (fst ⟦ ρ ⟧ρ)) ★ 
 ⟦ ℓ ▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ ℓ R▹ τ ⟧τ = {!!} -- (Not sure here). inst (Row ⟦ τ ⟧τ) ⟪ (Suc Zero) , (`λ (Ix (tvar zero)) {!!}) ⟫ -- <-- need Ix discrimination.
+⟦ ℓ R▹ τ ⟧τ = inst (Row ★) ⟪ Zero , `λ (Ix (tvar zero)) {!⟦ τ ⟧τ!} ⟫ -- Might be wrong, but maybe the right idea. Still needs ix discrimination.
 ⟦ ε ⟧τ = inst (Row ★) ⟦ ε ⟧ρ
 ⟦ _·⌈_⌉ {Δ} {κ₂ = κ₂} τ₁ τ₂ ⟧τ = {!⟦ τ₁ ⟧ρ!} -- inst (Row {!inst ⟦ τ₁ ⟧ ?!}) {!!} -- Need Row (⟦ κ₂ ⟧κ Δ) 
 ⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
