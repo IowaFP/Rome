@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  16 OCT 2023 10:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  17 OCT 2023 09:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -974,8 +974,27 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
- [4] [5]
-[6]
+
+Overfull \hbox (19.36603pt too wide) in paragraph at lines 147--147
+[]\OT1/cmr/bx/n/14.4 Consistency in im-pred-ica-tive MLTT (and workarounds
+ []
+
+Runaway argument?
+{ 
+./Mix.tex:150: Paragraph ended before \@citex was complete.
+<to be read again> 
+                   \par 
+l.150 
+      
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+
+Package natbib Warning: Citation `MonnierN19' on page 4 undefined on input line
+ 151.
+
+[4] [5] [6]
 Overfull \vbox (28.60603pt too high) has occurred while \output is active []
 
 
@@ -983,40 +1002,48 @@ Overfull \vbox (28.60603pt too high) has occurred while \output is active []
 \openout4 = `bu.aux'.
 
  (./Mix.bbl)
-Overfull \hbox (10.36736pt too wide) detected at line 402
+Overfull \hbox (10.36736pt too wide) detected at line 406
 []
  []
 
 
-Overfull \hbox (34.12436pt too wide) detected at line 433
+Overfull \hbox (34.12436pt too wide) detected at line 437
 []
  []
 
 
-Overfull \hbox (107.29535pt too wide) detected at line 506
+Overfull \hbox (107.29535pt too wide) detected at line 510
 []
  []
 
 [8]
-Overfull \hbox (112.62144pt too wide) detected at line 589
+Overfull \hbox (112.62144pt too wide) detected at line 593
 []
  []
 
 [9]
-Overfull \hbox (123.61252pt too wide) detected at line 710
+Overfull \hbox (123.61252pt too wide) detected at line 714
 []
  []
 
 [10]
-Overfull \hbox (51.1076pt too wide) detected at line 794
+Overfull \hbox (51.1076pt too wide) detected at line 798
 []
  []
 
-[11] [12] (./Mix.aux (./bu.aux))
+[11]
+
+Package natbib Warning: There were undefined citations.
+
+[12] (./Mix.aux (./bu.aux))
 
 LaTeX Warning: There were multiply-defined labels.
 
- ) 
+ )
+(\end occurred inside a group at level 1)
+
+### semi simple group (level 1) entered at line 149 (\begingroup)
+### bottom level 
 Here is how much of TeX's memory you used:
  23680 strings out of 478040
  466421 string characters out of 5839127
@@ -1024,29 +1051,29 @@ Here is how much of TeX's memory you used:
  41659 multiletter control sequences out of 15000+600000
  496958 words of font info for 137 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 114i,20n,118p,810b,382s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
-></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
-></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
-</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
-/usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></u
-sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
-/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/l
-ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/loc
-al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/
-texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
-live/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texl
-ive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texli
-ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
-/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/
-2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/20
-22/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/202
-2/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2022
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/2022/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2022/texm
-f-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Mix.pdf (12 pages, 268555 bytes).
+ 114i,20n,118p,810b,476s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmcsc10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmmi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmi8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17
+.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pf
+b></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><
+/usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></
+usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></u
+sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr
+/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/
+local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/lo
+cal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/loc
+al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/loca
+l/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/
+texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/te
+xlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/tex
+live/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on Mix.pdf (12 pages, 270001 bytes).
 PDF statistics:
  151 PDF objects out of 1000 (max. 8388607)
  94 compressed objects within 1 object stream

@@ -1,4 +1,5 @@
-\Let's consider some example translations.
+Let's consider some example translations of Rω types and terms to (what we
+imagine will be) the recursive index calculus.
 
 ## Primitives
 ### Concatenation
@@ -12,41 +13,38 @@ concat = Λ z₁ z₂ z₃ : R[ ★ ].
 		 r ++ v.
 ```		 
 
-↝
+And, to Mix:
 
 ```agda
-with kind:
-  concat : ★
-and type:
-  concat : ∀ⁱ m n l. 
-           ∀ (z₁ : Ix m  → ★) ∀ (z₂ : Ix n → ★).∀ (z₃ : Ix l → ★).
+  concat : Π (z₁ : (Σ m : Nat. Ix m → ★)).
+           Π (z₂ : (Σ n : Nat. Ix n → ★)).
+           Π (z₃ : (Σ l : Nat. Ix l → ★)).
              ⟦ z₁ · z₂ ~ z₃ ⟧ → 
-             (∀ (i : Ix m) → z₁ i)
-             (∀ (i : Ix n) → z₂ i)
-             ∀ (i : Ix l).   z₃ i
-For less writing, let's assume we are working in a row theory
-in which the meaning of row concatenation is a map from indices 
-in z₁ and z₂ to z₃. Then:
+             (∀ (i : Ix z₁.1) → z₁.2 i)
+             (∀ (i : Ix z₂.1) → z₂.2 i)
+             ∀ (i : Ix z₃.1).   z₃.2 i
+```			 
 
+where 
+```
   ⟦ z₁ · z₂ ~ z₃ ⟧ = 
-  ∀ i : Ix l.
-  ∃ j : Ix m. (z₁ j = z₃ i)
+  ∀ i : Ix z₃.1.
+  ∃ j : Ix z₃.1. (z₁.2 j = z₃.2 i)
    Or
-  ∃ j : Ix n. (z₂ j = z₃ i)	
-  
+  ∃ j : Ix z₂.1. (z₂.2 j = z₃.2 i)	
+```
 
 
 Then we have the term:
-  concat = λⁱ m n l. 
-           Λ (z₁ : Ix m  → ★). Λ (z₂ : Ix n → ★). Λ (z₃ : Ix l → ★).
-	       λ p : ⟦ z₁ · z₂ ~ z₃ ⟧. 
-     	   λ (r : (∀ (i : Ix m) → z₁ i)). 
-		   λ (v : (∀ (i : Ix n) → z₂ i)).
-		   Λ (i : Ix l).
-		   -- (N.b. need term level discrimination on existential types.)
-		   case p i of        
-		     -- Need J eliminator *that can write eq : z₁ i = z₃ i.
-		     left  (j , eq) → J (r j) eq
+```
+  concat = λ z₁ : (Σ m : Nat. Ix m → ★)).
+           λ z₂ : (Σ n : Nat. Ix n → ★)).
+           λ z₃ : (Σ l : Nat. Ix l → ★)).
+		   λ P : ⟦ z₁ · z₂ ~ z₃ ⟧.
+		   λ r : (Π (i : Ix z₁.1) → z₁.2 i).
+		   λ v : (Π (i : Ix z₂.1) → z₂.2 i).
+		   λ i : Ix z₃.1.
+           case P i of
+	         left  (j , eq) → J (r j) eq
 			 right (j , eq) → J (v j) eq
-		   
 ```

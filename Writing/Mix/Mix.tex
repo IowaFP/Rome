@@ -140,11 +140,15 @@ This (hypothetically) translates to (the sketch I have in my head of) the \MuIx\
 
 Let $\forall^{i}$ denote the quantification of indices in types and $\Sem{z_{1} \cdot z_{2} \sim z_{3}}$ denote the (yet-undefined) translation of $\RO$ predicates to \MuIx{} types. The glaring incompatibility of \cite{XiP99} is that \RO is higher-order. So, it is not clear what the quantification of $z_1$ over $(\Fin\, m \to \TypeK)$ means. Is $(\Fin\, m \to \TypeK)$ a kind? \cite{XiP99} permits only the quantification over indices, and the use of those indices in types. The authors do not permit $F\omega$ (or just System F)-style quantification over type variables. And it is not clear how to lift their calculus to higher-order; I suspect, also, nontrivial.
 
-\subsection{Let types quantify types}
-
 A lot of our problems go away when committing to an impredicative, dependent, term-and-type-stratified type theory. So, this is what I suggest we do. Firstly, the higher-order nature of $F\omega$ is given for free, as there are no more kinds and thus all type-level quantification is over types. W.r.t. mechanizational ease, we substantially reduce the overlap in ASTs. 
 
-What we are left with is more less MLTT with (built-in) finite naturals. Call it $\lambda^{\Pi,\Sigma}$ for now. It is described formally in the next section (but it has nothing in and of itself novel.)
+What we are left with is more less MLTT with (built-in) finite naturals. Call it $\lambda^{\Pi,\Sigma}$ for now.
+
+\subsection{Consistency in impredicative MLTT (and workarounds thereof)}
+
+Martin L\:{o}f Type Theory is well known to be inconsistent without a predicative universe hierarchy \citet{Hurkens95, MonnierN19, Coquand92}.
+
+\citet{MonnierN19}
 
 \section{The formalized index calculus}
 \subsection{Syntax}
@@ -370,7 +374,7 @@ Rules for the System $F_{\omega}$ fragment of \RO have a trivial correspondence 
 \end{figure}
 
 \bibliographystyle{plainnat}
-\bibliography{Mix}
+\bibliography{/home/alex/Dropbox/HubersPhD/bibliography/ann-bib}
 
 \appendix
 

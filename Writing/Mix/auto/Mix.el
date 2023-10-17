@@ -38,6 +38,7 @@
     "fig:typing"
     "sec:ro-minimal"
     "fig:minimal")
-   (LaTeX-add-bibliographies))
+   (LaTeX-add-bibliographies
+    "/home/alex/Dropbox/HubersPhD/bibliography/ann-bib"))
  :latex)
 
