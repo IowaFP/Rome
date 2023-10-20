@@ -3,49 +3,52 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: Mix.aux
 The style file: plainnat.bst
 A level-1 auxiliary file: bu.aux
-Database file #1: Mix.bib
+Database file #1: /home/alex/Dropbox/HubersPhD/bibliography/ann-bib.bib
 A bad cross reference---entry "XiP99"
 refers to entry "DBLP:conf/popl/1999", which doesn't exist
+A bad cross reference---entry "Hurkens95"
+refers to entry "DBLP:conf/tlca/1995", which doesn't exist
+Warning--I didn't find a database entry for "DBLP:conf/tlca/1995"
 Warning--I didn't find a database entry for "DBLP:conf/popl/1999"
-You've used 2 entries,
+You've used 5 entries,
             2773 wiz_defined-function locations,
-            612 strings with 5398 characters,
-and the built_in function-call counts, 1018 in all, are:
-= -- 98
-> -- 42
-< -- 3
-+ -- 14
-- -- 12
-* -- 68
-:= -- 154
-add.period$ -- 10
-call.type$ -- 2
-change.case$ -- 10
-chr.to.int$ -- 2
-cite$ -- 4
-duplicate$ -- 51
-empty$ -- 84
-format.name$ -- 18
-if$ -- 223
+            652 strings with 6414 characters,
+and the built_in function-call counts, 2630 in all, are:
+= -- 263
+> -- 91
+< -- 9
++ -- 31
+- -- 26
+* -- 182
+:= -- 384
+add.period$ -- 27
+call.type$ -- 5
+change.case$ -- 23
+chr.to.int$ -- 5
+cite$ -- 10
+duplicate$ -- 136
+empty$ -- 231
+format.name$ -- 37
+if$ -- 591
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 2
-newline$ -- 22
-num.names$ -- 8
-pop$ -- 17
+missing$ -- 5
+newline$ -- 44
+num.names$ -- 22
+pop$ -- 40
 preamble$ -- 1
-purify$ -- 8
+purify$ -- 18
 quote$ -- 0
-skip$ -- 47
+skip$ -- 115
 stack$ -- 0
-substring$ -- 32
-swap$ -- 12
-text.length$ -- 1
+substring$ -- 116
+swap$ -- 37
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 22
+type$ -- 55
 warning$ -- 0
-while$ -- 8
+while$ -- 24
 width$ -- 0
-write$ -- 41
-(There was 1 error message)
+write$ -- 96
+(There were 2 error messages)

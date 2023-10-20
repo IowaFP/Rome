@@ -148,7 +148,48 @@ What we are left with is more less MLTT with (built-in) finite naturals. Call it
 
 Martin L\:{o}f Type Theory is well known to be inconsistent without a predicative universe hierarchy \citet{Hurkens95, MonnierN19, Coquand92}.
 
-\citet{MonnierN19}
+\section{An informal translation of \RO to \MuIx}
+
+For the purposes of investigation, consider a translation of the term-language
+of \RO into \MuIx. (\MuIx is, of course, yet undefined---this translation will
+inform such a definition.)
+
+One observation to make of \RO is that much of what you may see in a type
+does not have kind $\star$. In particular, rows do not. Further, rows
+effectively behave like terms in the type language. So it might be necessary to
+stratify rows and types apart, so that rows may behave as they wish in the type
+language and terms may do similarly in the term language, which (I postulate)
+should avoid the necessity of $\star$ having type $\star$, which is known to be
+unsound in (most? all?) dependent type theories.\footnote{There must be, of
+  course, ways around this---e.g., \Tt{Pred} is impredicative in \Tt{Coq}---but
+  I think it's best to use this sort of machinery as a last resort.}
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{ |c|c|c|c| } 
+ \hline
+  $\TypeJ \Gamma \tau \kappa$ & $\Sem{\TypeJ \Gamma \tau \kappa}$ & \MuIx{} Type & \MuIx{} Kind \\
+ \hline
+  $\Sem{\TypeJ \Gamma \ell {\Sing \ell}}$ & \Tt{tt} & $\top$ & $\TypeK$ \\
+  $\Sem{\TypeJ \Gamma {\LabTerm {M_1} {M_2}} {\LabTy \ell \tau}}$ & $\Sem{M_2}$ & $\Sem{\tau}$ & $\TypeK$ \\
+  $\Sem{\TypeJ \Gamma {\Unlabel {M_1} {M_2}} \tau}$ & $\Sem{M_1}$ & $\Sem{\tau}$ & $\TypeK$ \\
+  $\Sem{\TypeJ \Gamma {\Prj [] M} {\Pi \rho_2}}$ & & $\Pi (i : \Ix{\Sem{\rho_{2}}.1}). \, \Ix{\Sem{\rho_{2}}.2} \, i$ & \\
+  $\Sem{\TypeJ \Gamma {M_1 \Concat M_2} {\Pi \rho_3}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\Inj [] M} {\Sigma \rho_2}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {M_1 \Branch M_2} {\Sigma \rho_3 \to \tau}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\Ana [\phi] \, M} {\Sigma (\phi \, \rho) \to \tau}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\Syn [\phi] \, M} {\Pi (\phi \, \rho)}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\FoldP \, M_1 \, M_2 \, M_3 \, N} \upsilon}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\lambda x : \tau_1. M} {\tau_1 \to \tau_2}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {M_1 \, M_2} {\tau_2}}$ & & & \\
+  $\Sem{\TypeJ \Gamma M {\pi \then \tau}}$ & & & \\
+  $\Sem{\TypeJ \Gamma M \tau}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\Lambda \alpha \co \kappa. M} {\forall \alpha\co\kappa. \tau}}$ & & & \\
+  $\Sem{\TypeJ \Gamma {\AppT M \upsilon} {\tau[\upsilon/\alpha]}}$ & & & \\
+ \hline
+\end{tabular}
+\end{center}
+\end{figure}
 
 \section{The formalized index calculus}
 \subsection{Syntax}
@@ -671,8 +712,8 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \\
 \ib{\irule[\trule{$\I\Sigma$}]
           {\TypeJ \Gamma M {\Sigma \rho_1}}
-          {\EntJ \Gamma {\Leqp [d] {\rho_1} {\rho_2}}};
-          {\TypeJ \Gamma {\Inj [d] M} {\Sigma \rho_2}}}
+          {\EntJ \Gamma {\Leqp [] {\rho_1} {\rho_2}}};
+          {\TypeJ \Gamma {\Inj [] M} {\Sigma \rho_2}}}
 \rsp
 \ib{\irule[\trule{$\E\Sigma$}]
           {\TypeJ \Gamma {M_1} {\Sigma \rho_1 \to \tau}}
