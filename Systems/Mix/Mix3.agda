@@ -27,7 +27,7 @@ data Context where
   ε : Context
   _,_ : ∀ (Δ : Context){s : Sort} → Type Δ s → Context  
 
--- "types", i.e., formation rules.
+-- There is no point in having a term/type distinction, atm.
 data Type where
   ★ : Type Δ 𝓤₁
   -- 
@@ -37,13 +37,14 @@ data Type where
   ⊤ : Type Δ σ
   Π : (τ : Type Δ σ) → Type (Δ , τ) σ → Type Δ σ
   Σ : (τ : Type Δ σ) → Type (Δ , τ) σ → Type Δ σ
-  _·_ : Type Δ σ →  Type Δ σ → Type Δ σ
   _Or_ : Type Δ  σ → Type Δ σ → Type Δ σ
   _~_ : Type Δ σ → Type Δ σ → Type Δ σ
   -- As ★ : ★, all terms are also well-formed types.
   inst : (τ : Type Δ σ) → Term Δ τ → Type Δ σ
 
--- data _⊢_⦂_ : (Δ : Context) → 
+data _⊢_⦂_ : {σ σ' : Sort} (Δ : Context) → Type Δ σ → Type Δ σ' → Set where
+  ★ : Δ ⊢ ★ 
+
 
 
 postulate
@@ -53,7 +54,7 @@ postulate
 
 data Term where
   -- vars.
-  tvar : ∀ {υ} → ℕ → Term Δ υ
+  var : ∀ {υ} → ℕ → Term Δ υ
   -- Nat intro/elim.
   Zero : Term Δ Nat
   Suc  : Term Δ Nat → Term Δ Nat
@@ -98,35 +99,29 @@ postulate
   weakenTerm : ∀ {τ υ : Type Δ σ} → Term Δ υ → Term (Δ , τ) (weaken υ)
 
 row  : (Type Δ σ) → Type Δ σ
-row τ = Σ Nat (Π (Ix (tvar 0)) (weaken (weaken τ)))
+row τ = Σ Nat (Π (Ix (var 0)) (weaken (weaken τ)))
   
 ⟦_⟧Δ : Rμ.KEnv → Context
 ⟦_⟧κ : (κ : Rμ.Kind) →  Type Δ 𝓤₁
 ⟦_⟧τ : ∀ {Δ}{κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧Δ 𝓤₀
 ⟦_⟧ρ : ∀ {Δ}{κ} → Rμ.Type Δ (R[ κ ])  → Term ⟦ Δ ⟧Δ (⟦ R[ κ ] ⟧κ)
+⟦ tvar x ⟧ρ = {!!}
+⟦ ρ ·[ ρ₁ ] ⟧ρ = {!!}
+⟦ ρ ▹ ρ₁ ⟧ρ = {!!}
+⟦ ρ R▹ ρ₁ ⟧ρ = {!!}
+⟦ ε ⟧ρ = {!!}
+⟦ ρ ·⌈ ρ₁ ⌉ ⟧ρ = {!!}
+⟦ ⌈ ρ ⌉· ρ₁ ⟧ρ = {!!}
 -- ⟦_⟧P : ∀ {Δ}{κ} → Rμ.Pred Δ κ  → Type ⟦ Δ ⟧Δ
 -- ⟦_⟧π : ∀ {Δ}{κ}{Φ : Rμ.PEnv Δ}{π : Rμ.Pred Δ κ} → Rμ.Ent Δ Φ π  → Term ⟦ Δ ⟧Δ ⟦ π ⟧P
 -- ⟦_⟧ : ∀ {Δ}{Φ : Rμ.PEnv Δ}{Γ : Rμ.Env Δ} {τ : Rμ.Type Δ ★} → Rμ.Term Δ Φ Γ τ  → Term ⟦ Δ ⟧Δ ⟦ τ ⟧τ
 
--- ⟦ tvar x ⟧ρ = {!!}
--- ⟦ τ ·[ τ₁ ] ⟧ρ = {!!}
--- ⟦ _ ▹ τ ⟧ρ = ⟦ τ ⟧ρ
--- ⟦ _ R▹ τ ⟧ρ = ⟪ (Suc Zero) , `λ (Ix (tvar zero)) {!!} ⟫ -- <-- Need ix elimination & substitution...
--- ⟦ ε ⟧ρ = {!!}
--- ⟦ τ ·⌈ τ₁ ⌉ ⟧ρ = {!!}
--- ⟦ ⌈ τ ⌉· τ₁ ⟧ρ = {!!}
-
--- -- ⟦ ρ₁ Rμ.≲ ρ₂ ⟧P      = {!!}
--- -- ⟦ ρ₁ Rμ.· ρ₂ ~ ρ₃ ⟧P = {!!}
-
--- -- ⟦ π ⟧π = {!!} 
-
 --------------------------------------------------------------------------------
--- Translation of kinds to sorts.
+-- Translation of kinds to (higher-sorted) types.
 
 ⟦ ★ ⟧κ        = ★
 ⟦ L ⟧κ        = ⊤ 
-⟦ R[ κ ] ⟧κ   = Σ Nat (Π (Ix (tvar 0)) ⟦ κ ⟧κ)
+⟦ R[ κ ] ⟧κ   = Σ Nat (Π (Ix (var 0)) ⟦ κ ⟧κ)
 ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ ⟦ κ₂ ⟧κ
 
 
@@ -144,7 +139,7 @@ row τ = Σ Nat (Π (Ix (tvar 0)) (weaken (weaken τ)))
 ⟦ ⌊ τ ⌋ ⟧τ = ⊤
 ⟦ lab l ⟧τ = ⊤
 -- Row bits.
-⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧ρ)) (inst _ ({!snd ⟦ ρ ⟧ρ!} · {!!}))
+⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧ρ)) {!!}
 ⟦ Σ ρ ⟧τ = {!!} -- Σ (Ix (fst ⟦ ρ ⟧ρ)) ★ 
 ⟦ ℓ ▹ τ ⟧τ = ⟦ τ ⟧τ
 ⟦ ℓ R▹ τ ⟧τ = {!!} -- inst (Row ★) ⟪ Zero , `λ (Ix (tvar zero)) {!⟦ τ ⟧τ!} ⟫ -- Might be wrong, but maybe the right idea. Still needs ix discrimination.
