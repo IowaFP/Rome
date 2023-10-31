@@ -9,9 +9,6 @@ open import Data.Nat using (_⊔_)
 ----------------------------------------------------------------------------------
 --
 
-data Sort : Set where
-  𝓤₁    : Sort
-  𝓤₀    : Sort
 
 -- postulate
 --   weaken   : ∀ {τ : Type Δ σ} → Type Δ σ → Type (Δ , τ) σ
@@ -21,6 +18,7 @@ data Sort : Set where
 -- There is no point in having a term/type distinction, atm.
 data Symbol : Set where
   𝓤₀ : Symbol
+  𝓤₁ : Symbol
   -- 
   Nat  : Symbol
   Zero : Symbol
@@ -35,7 +33,6 @@ data Symbol : Set where
   -- 
   Π : Symbol → Symbol → Symbol
   `λ : Symbol → Symbol → Symbol
-  -- `λ : Symbol → Symbol (Δ , τ) → Symbol (τ : Type Δ) {υ : Type (Δ , τ)} → (u : Symbol (Δ , τ) υ) → Symbol (Π τ υ)
   _·_ : Symbol → Symbol → Symbol
   --
   Σ : (τ : Symbol) → Symbol → Symbol
@@ -61,7 +58,6 @@ data Symbol : Set where
 -- (Formation rules.)
 
 data Context : Set
-data _⊢ₛ_⦂_ : Context → Symbol → Sort → Set 
 data _⊢_⦂_ : Context → Symbol → Symbol → Set
 
 data Context where
@@ -71,15 +67,51 @@ data Context where
 private
   variable
     Δ : Context 
-data _⊢ₛ_⦂_ where
-  𝓤 : Δ ⊢ₛ 𝓤₀ ⦂ 𝓤₁
-  ⊤ : Δ ⊢ₛ ⊤ ⦂ 𝓤₀
-  Nat : Δ ⊢ₛ Nat ⦂ 𝓤₀
-  Ix  : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ₛ Ix n ⦂ 𝓤₀
-  Π   : ∀ {M}{s} → (τ : Δ ⊢ M ⦂ τ) → (Δ , τ) ⊢ₛ M ⦂ s
-  
-  
+
+data Sort : Symbol → Set where
+  𝓤₀ : Sort 𝓤₀
+  𝓤₁ : Sort 𝓤₁
+
+
 data _⊢_⦂_ where
+  𝓤₀ : Δ ⊢ 𝓤₀ ⦂ 𝓤₁
+  --
+  ⊤₀ : Δ ⊢ ⊤ ⦂ 𝓤₀
+  tt : Δ ⊢ tt ⦂ ⊤
+  --
+  Nat : Δ ⊢ Nat ⦂ 𝓤₀
+  Zero : Δ ⊢ Zero ⦂ Nat
+  Suc : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Suc n ⦂ Nat
+  --
+  Ix  : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Ix n ⦂ 𝓤₀
+  FZero : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓤₀ → Δ ⊢ FZero ⦂ Ix n
+  FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓤₀ → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
+  --
+  Π : ∀ {τ υ σ} → (t : Δ ⊢ τ ⦂ σ) → Sort σ → (Δ , t) ⊢ υ ⦂ σ → Δ ⊢ (Π τ υ) ⦂ σ
+  `λ : ∀ {τ υ σ M} → (t : Δ ⊢ τ ⦂ σ) → (Δ , t) ⊢ M ⦂ υ  → Δ ⊢ `λ τ M ⦂ Π τ υ 
+  --
+  Σ : ∀ {τ υ σ} → (t : Δ ⊢ τ ⦂ σ) → (Δ , t) ⊢ υ ⦂ σ → Δ ⊢ (Σ τ υ) ⦂ σ
+
+  -- Π   : ∀ {M}{s} → (τ : Δ ⊢ M ⦂ τ) → (Δ , τ) ⊢ M ⦂ s
+  
+  
+pfft : Δ ⊢ Nat ⦂ 𝓤₀
+pfft = Nat
+
+next : Δ ⊢ Π Nat Nat ⦂ 𝓤₀
+next = Π Nat 𝓤₀ Nat
+
+type : Δ ⊢ Π 𝓤₀ 𝓤₀ ⦂ 𝓤₁
+type = Π 𝓤₀ 𝓤₁ 𝓤₀
+
+term : Δ ⊢ `λ Nat Zero ⦂ Π Nat Nat
+term = `λ Nat Zero
+
+
+
+
+
+-- data _⊢_⦂_ where
 
 
 -- Judgement that a term has the type
