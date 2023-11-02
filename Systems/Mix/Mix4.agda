@@ -3,22 +3,20 @@ module Mix.Mix4 where
 open import Preludes.Data
 open import Data.List
 open import Preludes.Relation
+
 open import Data.Nat using (_⊔_)
 
 
-----------------------------------------------------------------------------------
---
+-- =============================================================================
+-- Symbols, i.e., the untyped syntax.
+-- (There is no point in having a term/type distinction.)
+-- =============================================================================
 
-
--- postulate
---   weaken   : ∀ {τ : Type Δ σ} → Type Δ σ → Type (Δ , τ) σ
-  -- subst-τ   : ∀ {τ υ : Type Δ} → Type (Δ , υ) → Type (Δ , τ)
-  -- subst   : ∀ {τ υ : Type Δ σ} → Term (Δ , υ) (weaken τ) → Term Δ υ → Term Δ τ
-
--- There is no point in having a term/type distinction, atm.
 data Symbol : Set where
-  𝓤₀ : Symbol
-  𝓤₁ : Symbol
+  𝓟 : Symbol
+  𝓣 : Symbol
+  --
+  var : ℕ → Symbol
   -- 
   Nat  : Symbol
   Zero : Symbol
@@ -49,186 +47,237 @@ data Symbol : Set where
   refl : Symbol
   Sub : Symbol → Symbol → Symbol
 
+-- =============================================================================
+-- Formation and typing rules. 
+-- =============================================================================
+-- 
+-- ... are the same judgement.
+--     Δ ⊢ τ ⦂ σ
+-- is a kinding judgment when the predicate `Sort σ` holds;
+--         Δ ⊢ M ⦂ τ
+-- is is the translation of a typing judgement otherwise.
 
--- private
---   variable
---     Δ : Context
-
--- ⊢ τ ⦂ σ asserts that τ is a type at sort σ.
--- (Formation rules.)
-
+--------------------------------------------------------------------------------
+-- Declare contexts and judgements.
+-- (mutually recursive.)
 data Context : Set
 data _⊢_⦂_ : Context → Symbol → Symbol → Set
 
 data Context where
   ε : Context
   _,_ : ∀ {M}{τ} → (Δ : Context) → Δ ⊢ M ⦂ τ → Context  
-
 private
   variable
     Δ : Context 
 
-data Sort : Symbol → Set where
-  𝓤₀ : Sort 𝓤₀
-  𝓤₁ : Sort 𝓤₁
+--------------------------------------------------------------------------------
+-- Sorts (and decision procedure).
 
+data Sort : Symbol → Set where
+  𝓟 : Sort 𝓟
+  𝓣 : Sort 𝓣
+
+-- (Wish this were less verbose, but I believe we are forced to discriminate in
+-- each case.)
+sort? : (s : Symbol) → Dec (Sort s)
+sort? 𝓟 = yes 𝓟
+sort? 𝓣 = yes 𝓣
+sort? (var x) = no (λ ())
+sort? Nat = no (λ ())
+sort? Zero = no (λ ())
+sort? (Suc s) = no (λ ())
+sort? (Ix s) = no (λ ())
+sort? FZero = no (λ ())
+sort? (FSuc s) = no (λ ())
+sort? ⊤ = no (λ ())
+sort? tt = no (λ ())
+sort? (Π s s₁) = no (λ ())
+sort? (`λ s s₁) = no (λ ())
+sort? (s · s₁) = no (λ ())
+sort? (Σ s s₁) = no (λ ())
+sort? ⟪ s , s₁ ⟫ = no (λ ())
+sort? (fst s) = no (λ ())
+sort? (snd s) = no (λ ())
+sort? (s Or s₁) = no (λ ())
+sort? (left s) = no (λ ())
+sort? (right s) = no (λ ())
+sort? case s of[ s₁ ]or[ s₂ ] = no (λ ())
+sort? (s ~ s₁) = no (λ ())
+sort? refl = no (λ ())
+sort? (Sub s s₁) = no (λ ())
+
+--------------------------------------------------------------------------------
+-- Typing judgements.
 
 data _⊢_⦂_ where
-  𝓤₀ : Δ ⊢ 𝓤₀ ⦂ 𝓤₁
+  𝓟 : Δ ⊢ 𝓟 ⦂ 𝓣
   --
-  ⊤₀ : Δ ⊢ ⊤ ⦂ 𝓤₀
+  ⊤ : ∀ {σ} → Δ ⊢ ⊤ ⦂ σ
   tt : Δ ⊢ tt ⦂ ⊤
   --
-  Nat : Δ ⊢ Nat ⦂ 𝓤₀
+  -- (This is blatantly wrong; will do proper var nonsense later.)
+  var : ∀ {τ} (n : ℕ) → Δ ⊢ var n ⦂ τ
+  --
+  Nat : ∀ {σ} → Δ ⊢ Nat ⦂ σ
   Zero : Δ ⊢ Zero ⦂ Nat
   Suc : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Suc n ⦂ Nat
   --
-  Ix  : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Ix n ⦂ 𝓤₀
-  FZero : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓤₀ → Δ ⊢ FZero ⦂ Ix n
-  FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓤₀ → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
+  Ix  : ∀ {σ}{n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Ix n ⦂ σ
   --
-  Π : ∀ {τ υ σ} → (t : Δ ⊢ τ ⦂ σ) → Sort σ → (Δ , t) ⊢ υ ⦂ σ → Δ ⊢ (Π τ υ) ⦂ σ
+  FZero : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FZero ⦂ Ix n
+  FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
+  --
+  Π : ∀ {τ υ σ σ'} → (t : Δ ⊢ τ ⦂ σ) → {_ : True (sort? σ)} {_ : True (sort? σ')} → (Δ , t) ⊢ υ ⦂ σ' → Δ ⊢ (Π τ υ) ⦂ σ'
   `λ : ∀ {τ υ σ M} → (t : Δ ⊢ τ ⦂ σ) → (Δ , t) ⊢ M ⦂ υ  → Δ ⊢ `λ τ M ⦂ Π τ υ 
   _·_ : ∀ {τ υ M N} → Δ ⊢ M ⦂ Π τ υ → Δ ⊢ N ⦂ τ  → Δ ⊢ M · N ⦂ υ
   --
-  Σ : ∀ {τ υ σ} → (t : Δ ⊢ τ ⦂ σ) → (Δ , t) ⊢ υ ⦂ σ → Δ ⊢ (Σ τ υ) ⦂ σ
+  Σ : ∀ {τ υ σ σ'} → (t : Δ ⊢ τ ⦂ σ) → {_ : True (sort? σ)} {_ : True (sort? σ')} → (Δ , t) ⊢ υ ⦂ σ' → Δ ⊢ (Σ τ υ) ⦂ σ'
+  ⟪_,_⟫ : ∀ {τ υ σ σ'} → (t : Δ ⊢ τ ⦂ σ) → (Δ , t) ⊢ υ ⦂ σ' → Δ ⊢ ⟪ τ , υ ⟫ ⦂ Σ τ σ'
+  fst : ∀ {τ M σ} → Δ ⊢ M ⦂ Σ τ σ → Δ ⊢ (fst M) ⦂ τ
+  snd : ∀ {τ M σ} → (s : Δ ⊢ M ⦂ Σ τ σ) → (Δ , fst s) ⊢ (snd M) ⦂ σ
 
-  -- Π   : ∀ {M}{s} → (τ : Δ ⊢ M ⦂ τ) → (Δ , τ) ⊢ M ⦂ s
-  
-  
-pfft : Δ ⊢ Nat ⦂ 𝓤₀
-pfft = Nat
+postulate
+  weaken : ∀ {Δ} {τ υ} {κ₁ κ₂} → {u : Δ ⊢ υ ⦂ κ₁} → Δ ⊢ τ ⦂ κ₂ →  (Δ , u) ⊢ τ ⦂ κ₂
 
-next : Δ ⊢ Π Nat Nat ⦂ 𝓤₀
-next = Π Nat 𝓤₀ Nat
+-- =============================================================================
+-- Translating Rω.  
+-- =============================================================================
 
-type : Δ ⊢ Π 𝓤₀ 𝓤₀ ⦂ 𝓤₁
-type = Π 𝓤₀ 𝓤₁ 𝓤₀
+module Rμ where
+ open import Rome.Kinds.Syntax public
+ open import Rome.Types.Syntax public
+ open import Rome.Terms.Syntax public
+ open import Rome.Entailment.Syntax public
 
-term : Δ ⊢ `λ Nat Zero ⦂ Π Nat Nat
-term = `λ Nat Zero
+open Rμ.Kind
+open Rμ.KEnv
+open Rμ.Type
+open Rμ.TVar
+open Rμ.Term
 
-_ : Δ ⊢ (`λ Nat Zero) · Zero ⦂ Nat
-_ = (`λ Nat Zero) · Zero
+Row : Symbol → Symbol
+Row s = Σ Nat (Π (Ix (var 0)) s)
 
+--------------------------------------------------------------------------------
+-- Translating typed Rω to untyped Mix.
+--
+-- These "flat" translations become indices to the translation of typed Rω to typed
+-- Mix terms.
 
+module Sym where
 
+  -- read as "the translation of κ *has sort* ⟦ κ ⟧σ"
+  ⟦_⟧σ : (κ : Rμ.Kind) → Symbol
+  ⟦ ★ ⟧σ = 𝓣
+  ⟦ L ⟧σ = 𝓟
+  ⟦ R[ κ ] ⟧σ = 𝓣
+  ⟦ κ `→ κ₁ ⟧σ = 𝓟
 
+  -- read as "the translation of κ to type ⟦ κ ⟧κ"
+  ⟦_⟧κ : (κ : Rμ.Kind) →  Symbol
+  ⟦ ★ ⟧κ = 𝓟
+  ⟦ L ⟧κ = ⊤
+  ⟦ R[ κ ] ⟧κ = Row ⟦ κ ⟧κ
+  ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ ⟦ κ₂ ⟧κ
 
--- data _⊢_⦂_ where
+  ⟦_⟧ρ : ∀ {Δ}{κ} → Rμ.Type Δ (R[ κ ])  → Symbol
+  ⟦ ε ⟧ρ = ⟪ (Suc Zero) , ⊤ ⟫
+  ⟦ tvar x ⟧ρ = 𝓟
+  ⟦ ρ ·[ ρ₁ ] ⟧ρ = 𝓟
+  ⟦ ρ ▹ ρ₁ ⟧ρ = ⟦ ρ₁ ⟧ρ
+  ⟦ ρ R▹ ρ₁ ⟧ρ = 𝓟
+  ⟦ ρ ·⌈ ρ₁ ⌉ ⟧ρ = ⟦ ρ ⟧ρ
+  ⟦ ⌈ ρ ⌉· ρ₁ ⟧ρ = ⟦ ρ₁ ⟧ρ
 
+  ⟦_⟧τ : ∀ {Δ}{κ} → Rμ.Type Δ κ → Symbol
+  ⟦ U ⟧τ = ⊤
+  ⟦ tvar x ⟧τ = 𝓟
+  --
+  ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ ⟦ τ₂ ⟧τ
+  ⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
+  ⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ ⟦ τ ⟧τ
+  ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
+  --
+  ⟦ lab l ⟧τ = tt
+  ⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
+  ⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) , ⟦ τ ⟧τ ⟫
+  ⟦ ⌊ τ ⌋ ⟧τ = tt
+  ⟦_⟧τ {Δ} ε = ⟦_⟧ρ {Δ} ε
+  ⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧ρ)) ((snd ⟦ ρ ⟧ρ) · (var 0))
+  ⟦ Σ ρ ⟧τ = Σ (Ix (fst ⟦ ρ ⟧ρ)) ((snd ⟦ ρ ⟧ρ) · (var 0))
+  ⟦ τ ·⌈ τ₁ ⌉ ⟧τ = ⟦ τ₁ ⟧τ
+  ⟦ ⌈ τ ⌉· τ₁ ⟧τ = ⟦ τ₁ ⟧τ
+  --
+  ⟦ π ⇒ τ ⟧τ = ⟦ τ ⟧τ
+  --
+  ⟦ μ τ ⟧τ = ⟦ τ ⟧τ
+  ⟦ ν τ ⟧τ = ⟦ τ ⟧τ
 
--- Judgement that a term has the type
--- data _⊢_⦂_ : {σ σ' : Sort} (Δ : Context) → Type Δ σ → Type Δ σ' → Set where
---   ★ : Δ ⊢ ★ 
+  ⟦_⟧ : ∀ {Δ}{Γ}{Φ}{τ} → Rμ.Term Δ Γ Φ τ → Symbol
+  ⟦ M ⟧ = {!!}
 
--- data Term where
---   -- vars.
---   var : ∀ {υ} → ℕ → Term υ
---   -- Nat intro/elim.
---   Zero : Term Nat
---   Suc  : Term Nat → Term Nat
---   -- Ix intro/elim.
---   FZero : Term (Ix (Suc Zero))
---   FSuc  : (n : Term Nat) → Term (Ix n) → Term (Ix (Suc n)) 
---   -- ⊤ intro.
---   tt : Term ⊤
---   -- Π intro/elim.
---   `λ : (τ : Type Δ 𝓤₀) {υ : Type (Δ , τ) 𝓤₀} → (u : Term (Δ , τ) υ) → Term (Π τ υ)
---   _·_ : {τ : Type Δ 𝓤₀} {υ : Type (Δ , τ) 𝓤₀} → Term (Π τ υ) → Term τ → Term (Δ , τ) υ    
---   -- Σ intro/elim.
---   ⟪_,_⟫ : {τ : Type Δ σ} {υ : Type (Δ , τ) σ} → Term τ → Term (Δ , τ) υ → Term (Σ τ υ) 
---   fst : {τ : Type Δ σ} {υ : Type (Δ , τ) σ} → Term (Σ τ υ) → Term τ
---   snd : {τ : Type Δ σ} {υ : Type (Δ , τ) σ} → Term (Σ τ υ) → Term (Δ , τ) υ
---   -- Coproducts intro/elim.
---   left : {τ υ : Type Δ σ} → Term τ → Term (τ Or υ)
---   right : {τ υ : Type Δ σ} → Term υ → Term (τ Or υ)
---   case_of[_]or[_] : {τ υ A : Type Δ σ} →
---                     Term (τ Or υ) →  Term (Δ , τ) (weaken A) → Term (Δ , υ) (weaken A) →
---                     Term A
---   -- Eq intro/elim.
---   refl : ∀ {t : Type Δ σ} {τ : Term t} → Term (t ~ t)
---   -- N.b... This *is not* eq elimination---but do we need it?
---   Sub    : ∀ {τ υ : Type Δ σ} → Term τ → Term (τ ~ υ) → Term υ
--- -- -- --------------------------------------------------------------------------------
--- -- -- -- Semantics.
+--------------------------------------------------------------------------------
+-- Typed translation of kinds.
 
--- module Rμ where
---  open import Rome.Kinds.Syntax public
---  open import Rome.Types.Syntax public
---  open import Rome.Terms.Syntax public
---  open import Rome.Entailment.Syntax public
+⟦_⟧κ : ∀ {Δ} → (κ : Rμ.Kind) → Δ ⊢ Sym.⟦ κ ⟧κ ⦂ 𝓣
+⟦ ★ ⟧κ = 𝓟
+⟦ L ⟧κ = ⊤ -- ⊤₁
+-- Σ (n : Nat). Π (i : Ix n). 𝓟
+-- Σ (n : Nat). Π (i : Ix n). Π (p : 𝓟). 𝓟
 
--- open Rμ.Kind
--- open Rμ.KEnv
--- open Rμ.Type
--- open Rμ.TVar
--- open Rμ.Term
-
--- postulate
---   weakenTerm : ∀ {τ υ : Type Δ σ} → Term υ → Term (Δ , τ) (weaken υ)
-
--- row  : (Type Δ σ) → Type Δ σ
--- row τ = Σ Nat (Π (Ix (var 0)) (weaken (weaken τ)))
-  
--- ⟦_⟧Δ : Rμ.KEnv → Context
--- ⟦_⟧κ : (κ : Rμ.Kind) →  Type Δ 𝓤₁
--- ⟦_⟧τ : ∀ {Δ}{κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧Δ 𝓤₀
--- ⟦_⟧ρ : ∀ {Δ}{κ} → Rμ.Type Δ (R[ κ ])  → Term ⟦ Δ ⟧Δ (⟦ R[ κ ] ⟧κ)
--- ⟦ tvar x ⟧ρ = {!!}
--- ⟦ ρ ·[ ρ₁ ] ⟧ρ = {!!}
--- ⟦ ρ ▹ ρ₁ ⟧ρ = {!!}
--- ⟦ ρ R▹ ρ₁ ⟧ρ = {!!}
--- ⟦ ε ⟧ρ = {!!}
--- ⟦ ρ ·⌈ ρ₁ ⌉ ⟧ρ = {!!}
--- ⟦ ⌈ ρ ⌉· ρ₁ ⟧ρ = {!!}
--- -- ⟦_⟧P : ∀ {Δ}{κ} → Rμ.Pred Δ κ  → Type ⟦ Δ ⟧Δ
--- -- ⟦_⟧π : ∀ {Δ}{κ}{Φ : Rμ.PEnv Δ}{π : Rμ.Pred Δ κ} → Rμ.Ent Δ Φ π  → Term ⟦ Δ ⟧Δ ⟦ π ⟧P
--- -- ⟦_⟧ : ∀ {Δ}{Φ : Rμ.PEnv Δ}{Γ : Rμ.Env Δ} {τ : Rμ.Type Δ ★} → Rμ.Term Φ Γ τ  → Term ⟦ Δ ⟧Δ ⟦ τ ⟧τ
+⟦ R[ κ ] ⟧κ = Σ (Nat {σ = 𝓟}) (Π (Ix {σ = 𝓟} (var 0)) ⟦ κ ⟧κ)
+⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ (weaken ⟦ κ₂ ⟧κ) -- 
 
 -- --------------------------------------------------------------------------------
--- -- Translation of kinds to (higher-sorted) types.
+-- -- Typed translation of contexts.
+⟦_⟧Δ : Rμ.KEnv → Context
+⟦ ε ⟧Δ = ε
+⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , ⟦ κ ⟧κ
 
--- ⟦ ★ ⟧κ        = ★
--- ⟦ L ⟧κ        = ⊤ 
--- ⟦ R[ κ ] ⟧κ   = Σ Nat (Π (Ix (var 0)) ⟦ κ ⟧κ)
--- ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ ⟦ κ₂ ⟧κ
+-- --------------------------------------------------------------------------------
+-- -- Typed translation of types.
+
+⟦_⟧τ : ∀ {Δ}{κ} → (τ : Rμ.Type Δ κ) → ⟦ Δ ⟧Δ ⊢ Sym.⟦ τ ⟧τ  ⦂ Sym.⟦ κ ⟧κ
+
+⟦ U ⟧τ = ⊤
+⟦ tvar x ⟧τ = {!!}
+⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weaken ⟦ τ₂ ⟧τ)
+⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
+⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ ⟦ τ ⟧τ
+⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
+--
+⟦ lab l ⟧τ = tt
+⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
+⟦ _ R▹ τ ⟧τ = {!⟪_,_ !}
+⟦ ⌊ τ ⌋ ⟧τ = {!!}
+⟦ ε ⟧τ = {!!}
+⟦ Π τ ⟧τ = Π {!!} ({!!} · (var 0))
+⟦ Σ τ ⟧τ = Σ {!!} ({!!} · (var 0))
+⟦ τ ·⌈ τ₁ ⌉ ⟧τ = {!!}
+⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
+--
+⟦ μ τ ⟧τ = {!!}
+⟦ ν τ ⟧τ = {!!}
+--
+⟦ π ⇒ τ ⟧τ = {!!}
+
+-- --------------------------------------------------------------------------------
+-- -- Examples.
+  
+-- pfft : Δ ⊢ Nat ⦂ 𝓟
+-- pfft = Nat₀
+
+-- next : Δ ⊢ Π Nat Nat ⦂ 𝓟
+-- next = Π Nat₀ Nat₀
+
+-- type : Δ ⊢ Π 𝓟 𝓟 ⦂ 𝓣
+-- type = Π 𝓟 𝓟
+
+-- term : Δ ⊢ `λ Nat Zero ⦂ Π Nat Nat
+-- term = `λ Nat₀ Zero
+
+-- _ : Δ ⊢ (`λ Nat Zero) · Zero ⦂ Nat
+-- _ = (`λ Nat₀ Zero) · Zero
 
 
 
--- -- -- --------------------------------------------------------------------------------
--- -- -- -- Translation of (kinding) environments.
--- ⟦ ε ⟧Δ     = ε
--- ⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , ⟦ κ ⟧κ
-
--- -- --------------------------------------------------------------------------------
--- -- -- Translation of types to types.
-
--- -- -- units and labels.
--- ⟦ U ⟧τ = ⊤
--- ⟦ ⌊ τ ⌋ ⟧τ = ⊤
--- ⟦ lab l ⟧τ = ⊤
--- -- Row bits.
--- ⟦ Π ρ ⟧τ = Π (Ix (fst ⟦ ρ ⟧ρ)) {!!}
--- ⟦ Σ ρ ⟧τ = {!!} -- Σ (Ix (fst ⟦ ρ ⟧ρ)) ★ 
--- ⟦ ℓ ▹ τ ⟧τ = ⟦ τ ⟧τ
--- ⟦ ℓ R▹ τ ⟧τ = {!!} -- inst (Row ★) ⟪ Zero , `λ (Ix (tvar zero)) {!⟦ τ ⟧τ!} ⟫ -- Might be wrong, but maybe the right idea. Still needs ix discrimination.
--- ⟦ ε ⟧τ = {!!} -- inst (Row ★) ⟦ ε ⟧ρ
--- ⟦ _·⌈_⌉ {Δ} {κ₂ = κ₂} τ₁ τ₂ ⟧τ = {!⟦ τ₁ ⟧ρ!} -- inst (Row {!inst ⟦ τ₁ ⟧ ?!}) {!!} -- Need Row (⟦ κ₂ ⟧κ Δ) 
--- ⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
--- -- Fω bits.
--- ⟦ tvar x ⟧τ = {!!}
--- ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weaken ⟦ τ₂ ⟧τ)
--- ⟦_⟧τ (`∀ {Δ} κ τ) = {!!} -- Π (⟦ κ ⟧κ Δ) ⟦ τ ⟧τ 
--- ⟦_⟧τ (`λ {Δ} κ τ) = {!!} --  Π (⟦ κ ⟧κ Δ) ⟦ τ ⟧τ
--- ⟦ τ ·[ υ ] ⟧τ = {!subst-τ τ υ!}
--- -- qualified types.
--- ⟦ π ⇒ τ ⟧τ = {!!} -- Π ⟦ π ⟧P (weaken ⟦ τ ⟧τ)
--- -- recursive bits.
--- ⟦ μ τ ⟧τ = {!!}
--- ⟦ ν τ ⟧τ = {!!}
-
-
--- -- -- -- Translation of Terms to terms.
--- -- -- -- (Is this a mess?)
--- -- -- ⟦ M ⟧ = {!!}
