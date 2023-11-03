@@ -75,6 +75,30 @@ rename refl = refl
 rename (Sub s s₁) = Sub (rename s) (rename s₁)
 rename Nat = Nat
 
+-- =============================================================================
+-- Formation and typing rules. 
+-- =============================================================================
+-- 
+-- ... are the same judgement.
+--     Δ ⊢ τ ⦂ σ
+-- is a kinding judgment when the predicate `Sort σ` holds;
+--         Δ ⊢ M ⦂ τ
+-- is is the translation of a typing judgement otherwise.
+
+--------------------------------------------------------------------------------
+-- Declare contexts and judgements.
+-- (mutually recursive.)
+data Context : Set
+data _⊢_⦂_ : Context → Symbol → Symbol → Set
+
+data Context where
+  ε : Context
+  _,_ : ∀ {M}{τ} → (Δ : Context) → Δ ⊢ M ⦂ τ → Context
+
+private
+  variable
+    Δ : Context 
+
 --------------------------------------------------------------------------------
 -- Sorts (and decision procedure).
 
@@ -111,38 +135,13 @@ sort? (s ~ s₁) = no (λ ())
 sort? refl = no (λ ())
 sort? (Sub s s₁) = no (λ ())
 
--- =============================================================================
--- Formation and typing rules. 
--- =============================================================================
--- 
--- ... are the same judgement.
---     Δ ⊢ τ ⦂ σ
--- is a kinding judgment when the predicate `Sort σ` holds;
---         Δ ⊢ M ⦂ τ
--- is is the translation of a typing judgement otherwise.
-
---------------------------------------------------------------------------------
--- Declare contexts and judgements.
--- (mutually recursive.)
-data Context : Set
-data _⊢_⦂_ : Context → Symbol → Symbol → Set
-
-data Context where
-  ε : Context
-  _,_ : ∀ {τ}{σ} → (Δ : Context) → 
-        {_ : True (sort? σ)} →
-        Δ ⊢ τ ⦂ σ → Context
-
-private
-  variable
-    Δ : Context 
 
 --------------------------------------------------------------------------------
 -- Typing judgements.
 
-data Var : ∀ {σ τ} → (Δ : Context) → Δ ⊢ τ ⦂ σ → Set where
-  Z : ∀ {Δ} {τ σ}{⊢τ : Δ ⊢ τ ⦂ σ} {_ : True (sort? σ)} →
-        Var (Δ , ⊢τ) {!⊢τ!}
+data Var : ∀ {Δ' σ τ} → (Δ : Context) → Δ' ⊢ τ ⦂ σ → Set where
+  Z : ∀ {Δ} {τ σ}{⊢τ : Δ ⊢ τ ⦂ σ} →
+        Var (Δ , ⊢τ) ⊢τ
 
   -- S : ∀ {Δ Δ'} {τ υ} →
   --     Var {Δ'} Δ τ → Var (Δ , υ) τ
@@ -153,8 +152,6 @@ data _⊢_⦂_ where
   ⊤ : ∀ {σ} → Sort σ →  Δ ⊢ ⊤ ⦂ σ
   tt : Δ ⊢ tt ⦂ ⊤
   --
-  -- 
-    --
   varZ : ∀ {τ σ} {⊢τ : Δ ⊢ τ ⦂ σ}  → (Δ , ⊢τ) ⊢ (var 0) ⦂ τ
   -- varS : ∀ {τ σ υ}{n} {⊢υ : Δ ⊢ υ ⦂ σ} →
   --           Δ ⊢ (var n) ⦂ τ
@@ -169,7 +166,7 @@ data _⊢_⦂_ where
   FZero : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FZero ⦂ Ix n
   FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
   --
-  Π : ∀ {τ υ σ σ'} → {s? : True (sort? σ)} →
+  Π : ∀ {τ υ σ σ'} → -- {_ : True (sort? σ)}
         (t : Δ ⊢ τ ⦂ σ)   →   (Δ , t) ⊢ υ ⦂ σ' →
         -------------------------------------------
         Δ ⊢ (Π τ υ) ⦂ σ'
@@ -284,12 +281,12 @@ module Sym where
 ⟦ tvar x ⟧τ = ⟦ x ⟧v
 ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weaken ⟦ τ₂ ⟧τ)
 ⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
-⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ {!!} -- ⟦ τ ⟧τ
+⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ ? -- ⟦ τ ⟧τ
 ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
 --
 ⟦ lab l ⟧τ = tt
 ⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , (`λ (Ix varZ) {!!}) ⟫ -- ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) (weaken (weaken ⟦ τ ⟧τ)) ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
+⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) (weaken (weaken ⟦ τ ⟧τ)) ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
 ⟦ ⌊ τ ⌋ ⟧τ = ⊤ 𝓟
 -- I need to actually do substitution.
 ⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix varZ) (⊤ 𝓟) ⟫
