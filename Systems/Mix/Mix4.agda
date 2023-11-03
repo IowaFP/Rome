@@ -13,8 +13,8 @@ open import Data.Nat using (_⊔_)
 -- =============================================================================
 
 data Symbol : Set where
-  𝓟 : Symbol
-  𝓣 : Symbol
+  ★ : Symbol
+  𝓤 : Symbol
   --
   var : ℕ → Symbol
   -- 
@@ -49,8 +49,8 @@ data Symbol : Set where
 
 -- TD: don't use s for var names here
 rename : Symbol → Symbol
-rename 𝓟 = 𝓟
-rename 𝓣 = 𝓣
+rename ★ = ★
+rename 𝓤 = 𝓤
 rename (var x) = var (suc x)
 rename Zero = Zero
 rename (Suc s) = Suc (rename s)
@@ -103,14 +103,14 @@ private
 -- Sorts (and decision procedure).
 
 data Sort : Symbol → Set where
-  𝓟 : Sort 𝓟
-  𝓣 : Sort 𝓣
+  ★ : Sort ★
+  𝓤 : Sort 𝓤
 
 -- (Wish this were less verbose, but I believe we are forced to discriminate in
 -- each case.)
 sort? : (s : Symbol) → Dec (Sort s)
-sort? 𝓟 = yes 𝓟
-sort? 𝓣 = yes 𝓣
+sort? ★ = yes ★
+sort? 𝓤 = yes 𝓤
 sort? (var x) = no (λ ())
 sort? Nat = no (λ ())
 sort? Zero = no (λ ())
@@ -147,7 +147,7 @@ data Var : ∀ {Δ' σ τ} → (Δ : Context) → Δ' ⊢ τ ⦂ σ → Set wher
   --     Var {Δ'} Δ τ → Var (Δ , υ) τ
 
 data _⊢_⦂_ where
-  𝓟 : Δ ⊢ 𝓟 ⦂ 𝓣
+  ★ : Δ ⊢ ★ ⦂ 𝓤
   --
   ⊤ : ∀ {σ} → Sort σ →  Δ ⊢ ⊤ ⦂ σ
   tt : Δ ⊢ tt ⦂ ⊤
@@ -157,14 +157,14 @@ data _⊢_⦂_ where
   --           Δ ⊢ (var n) ⦂ τ
   --        → (Δ , ⊢υ) ⊢ (var (suc n)) ⦂ τ
   --
-  Nat : Δ ⊢ Nat ⦂ 𝓟
+  Nat : Δ ⊢ Nat ⦂ ★
   Zero : Δ ⊢ Zero ⦂ Nat
   Suc : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Suc n ⦂ Nat
   --
-  Ix  : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Ix n ⦂ 𝓟
+  Ix  : ∀ {n} → Δ ⊢ n ⦂ Nat → Δ ⊢ Ix n ⦂ ★
   --
-  FZero : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FZero ⦂ Ix n
-  FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ 𝓟 → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
+  FZero : ∀ {n} → Δ ⊢ Ix n ⦂ ★ → Δ ⊢ FZero ⦂ Ix n
+  FSuc  : ∀ {n} → Δ ⊢ Ix n ⦂ ★ → Δ ⊢ FSuc n ⦂ Ix (Suc n) 
   --
   Π : ∀ {τ υ σ σ'} → -- {_ : True (sort? σ)}
         (t : Δ ⊢ τ ⦂ σ)   →   (Δ , t) ⊢ υ ⦂ σ' →
@@ -213,14 +213,14 @@ module Sym where
 
   -- read as "the translation of κ *has sort* ⟦ κ ⟧σ"
   ⟦_⟧σ : (κ : Rμ.Kind) → Symbol
-  ⟦ ★ ⟧σ = 𝓣
-  ⟦ L ⟧σ = 𝓟
-  ⟦ R[ κ ] ⟧σ = 𝓣
-  ⟦ κ `→ κ₁ ⟧σ = 𝓟
+  ⟦ ★ ⟧σ = 𝓤
+  ⟦ L ⟧σ = ★
+  ⟦ R[ κ ] ⟧σ = 𝓤
+  ⟦ κ `→ κ₁ ⟧σ = ★
 
   -- read as "the translation of κ to type ⟦ κ ⟧κ"
   ⟦_⟧κ : (κ : Rμ.Kind) →  Symbol
-  ⟦ ★ ⟧κ = 𝓟
+  ⟦ ★ ⟧κ = ★
   ⟦ L ⟧κ = ⊤
   ⟦ R[ κ ] ⟧κ = Row ⟦ κ ⟧κ
   ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ ⟦ κ₂ ⟧κ
@@ -256,9 +256,9 @@ module Sym where
 --------------------------------------------------------------------------------
 -- Typed translation of kinds.
 
-⟦_⟧κ : ∀ {Δ} → (κ : Rμ.Kind) → Δ ⊢ Sym.⟦ κ ⟧κ ⦂ 𝓣
-⟦ ★ ⟧κ = 𝓟
-⟦ L ⟧κ = ⊤ 𝓣
+⟦_⟧κ : ∀ {Δ} → (κ : Rμ.Kind) → Δ ⊢ Sym.⟦ κ ⟧κ ⦂ 𝓤
+⟦ ★ ⟧κ = ★
+⟦ L ⟧κ = ⊤ 𝓤
 ⟦ R[ κ ] ⟧κ = Σ Nat (Π (Ix varZ) ⟦ κ ⟧κ) 
 ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ (weaken ⟦ κ₂ ⟧κ) 
 
@@ -277,19 +277,19 @@ module Sym where
 
 ⟦_⟧τ : ∀ {Δ}{κ} → (τ : Rμ.Type Δ κ) → ⟦ Δ ⟧Δ ⊢ Sym.⟦ τ ⟧τ  ⦂ Sym.⟦ κ ⟧κ
 
-⟦ U ⟧τ = ⊤ 𝓟
+⟦ U ⟧τ = ⊤ ★
 ⟦ tvar x ⟧τ = ⟦ x ⟧v
 ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ (weaken ⟦ τ₂ ⟧τ)
 ⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
-⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ ? -- ⟦ τ ⟧τ
+⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ {!!} -- ⟦ τ ⟧τ
 ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
 --
 ⟦ lab l ⟧τ = tt
 ⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) (weaken (weaken ⟦ τ ⟧τ)) ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
-⟦ ⌊ τ ⌋ ⟧τ = ⊤ 𝓟
+⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) (weaken (weaken {!!})) ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
+⟦ ⌊ τ ⌋ ⟧τ = ⊤ ★
 -- I need to actually do substitution.
-⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix varZ) (⊤ 𝓟) ⟫
+⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix varZ) (⊤ ★) ⟫
 -- I need renaming in symbol expressions.
 ⟦ Π τ ⟧τ = Π (Ix (fst ⟦ τ ⟧τ)) (snd (weaken (⟦ τ ⟧τ)) · {!varZ!})
 ⟦ Σ τ ⟧τ = Σ {!!} ({!!} · {!!})
@@ -304,14 +304,14 @@ module Sym where
 --------------------------------------------------------------------------------
 -- Examples.
   
--- pfft : Δ ⊢ Nat ⦂ 𝓟
+-- pfft : Δ ⊢ Nat ⦂ ★
 -- pfft = Nat₀
 
--- next : Δ ⊢ Π Nat Nat ⦂ 𝓟
+-- next : Δ ⊢ Π Nat Nat ⦂ ★
 -- next = Π Nat₀ Nat₀
 
--- type : Δ ⊢ Π 𝓟 𝓟 ⦂ 𝓣
--- type = Π 𝓟 𝓟
+-- type : Δ ⊢ Π ★ ★ ⦂ 𝓤
+-- type = Π ★ ★
 
 -- term : Δ ⊢ `λ Nat Zero ⦂ Π Nat Nat
 -- term = `λ Nat₀ Zero
