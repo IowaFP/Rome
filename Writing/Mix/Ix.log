@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  3 NOV 2023 11:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  3 NOV 2023 12:44
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**Hix.tex
-(./Hix.tex
+**Ix.tex
+(./Ix.tex
 LaTeX2e <2022-06-01> pre-release-0 (develop 2022-6-16 branch)
 L3 programming layer <2022-06-02>
 (/usr/local/texlive/2022/texmf-dist/tex/latex/base/article.cls
@@ -849,33 +849,40 @@ LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count334
 )
 
-Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 60.
+Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 68.
 
 
-Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 60.
+Package amsthm Warning: Unknown theoremstyle `acmplain' on input line 68.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2022-04-20 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count335
 \l__pdf_internal_box=\box126
 )
-(./Hix.aux)
-\openout1 = `Hix.aux'.
+(./Ix.aux
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 60.
-LaTeX Font Info:    ... okay on input line 60.
+LaTeX Warning: Label `fig:syntax' multiply defined.
+
+
+LaTeX Warning: Label `fig:syntax@cref' multiply defined.
+
+)
+\openout1 = `Ix.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 68.
+LaTeX Font Info:    ... okay on input line 68.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -937,92 +944,109 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count342
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 62
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 70
 .
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-LaTeX Font Info:    Trying to load font information for U+stmry on input line 6
-2.
+LaTeX Font Info:    Trying to load font information for U+stmry on input line 7
+0.
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/stmaryrd/Ustmry.fd)
-LaTeX Font Info:    Trying to load font information for U+msa on input line 62.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 70.
 
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 62.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 70.
 
 
 (/usr/local/texlive/2022/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [1
+)
+
+LaTeX Font Warning: Font shape `OT1/cmr/bx/sc' undefined
+(Font)              using `OT1/cmr/bx/n' instead on input line 72.
+
+
+Overfull \hbox (38.8092pt too wide) detected at line 94
+[]
+ []
+
+[1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (10.36736pt too wide) detected at line 146
-[]
- []
-
-
-Overfull \hbox (34.12436pt too wide) detected at line 177
-[]
- []
-
-
-Overfull \hbox (107.29535pt too wide) detected at line 250
+Overfull \hbox (10.36736pt too wide) detected at line 178
 []
  []
 
 [2]
-Overfull \hbox (112.62144pt too wide) detected at line 333
+Overfull \hbox (34.12436pt too wide) detected at line 209
+[]
+ []
+
+
+Overfull \hbox (107.29535pt too wide) detected at line 282
 []
  []
 
 [3]
-Overfull \hbox (123.61252pt too wide) detected at line 454
+Overfull \hbox (112.62144pt too wide) detected at line 365
 []
  []
 
 [4]
-Overfull \hbox (51.1076pt too wide) detected at line 538
+Overfull \hbox (123.61252pt too wide) detected at line 486
 []
  []
 
-[5] [6] (./Hix.aux) ) 
+[5]
+Overfull \hbox (51.1076pt too wide) detected at line 570
+[]
+ []
+
+[6] [7] (./Ix.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 23643 strings out of 478040
- 465953 string characters out of 5839127
- 929754 words of memory out of 5000000
+ 23644 strings out of 478040
+ 465935 string characters out of 5839127
+ 929753 words of memory out of 5000000
  41636 multiletter control sequences out of 15000+600000
- 494809 words of font info for 127 fonts, out of 8000000 for 9000
+ 494094 words of font info for 126 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 114i,20n,118p,496b,366s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2022/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmcsc10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmmi10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmr17.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-r6.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.
-pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.p
-fb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pf
-b></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb>
-</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><
-/usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></u
-sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></us
-r/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr
-/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/l
-ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/loc
-al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Hix.pdf (6 pages, 230294 bytes).
+ 114i,20n,118p,495b,411s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb
+></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
+/usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></u
+sr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
+/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/l
+ocal/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/loc
+al/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/
+texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
+live/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texl
+ive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texliv
+e/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive
+/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2
+022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/20
+22/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/202
+2/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/2022/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/tex
+mf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on Ix.pdf (7 pages, 232600 bytes).
 PDF statistics:
- 126 PDF objects out of 1000 (max. 8388607)
- 77 compressed objects within 1 object stream
+ 131 PDF objects out of 1000 (max. 8388607)
+ 81 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
