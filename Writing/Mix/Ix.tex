@@ -133,7 +133,11 @@
 \fbox{$\TypeJ \Gamma M N$} \\
 \ib{\irule{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
 \rsp
-\ib{\irule{};{\TypeJ \Gamma {\tt} \top}}
+\ib{\irule{};{\TypeJ \Gamma {\tt} \top}} \\
+\ib{\irule
+  {\SortJ \Gamma T \sigma}
+  {\TypeJ {\Gamma , x \co T} {M} {N}};
+  {\TypeJ \Gamma {\lambda x \co T. M} {\Pi (x \co T). N}}}
 \end{gather*}
 \end{figure}
 
@@ -144,9 +148,26 @@
 
 \subsection{Example translations of \RO terms and types}
 
-\subsection{Formal specification}
+\paragraph{Record selection.}
+In \RO,
 
-\section{Recursion}
+\[
+\forall \rho : \RowK \star, \, \ell : \LabK, \, \tau : \TypeK. \Leqp {\Row {\LabTy \ell \tau}} {\rho} \then {\Sing \ell} \to {\Pi \rho} \to \tau
+\]
+
+translates to
+
+\[
+\Pi (\rho : \mathrm{Row }\, \star). \Pi (\ell : \top). \Pi (\tau : \star). \Sem{\Leqp {\Row {\LabTy \ell \tau}} {\rho}}. \Pi (\_ : \top). \Pi (i : \Ix {\rho.1}). \, \rho.2 \, i 
+\]
+
+where
+
+\begin{align*}
+\mathrm{Row } \kappa :&= \Sigma (n : \Nat). \Pi (i : \Ix n). \kappa \\
+\Sem{\Leqp {\Row {\LabTy \ell \tau}} {\rho}} &= \Pi (i : \Ix \Sem{\Row {\LabTy \ell \tau}}.1). \Sigma (j : \Ix {\rho.1}). \Sem{\Row {\LabTy \ell \tau}}.1 \; i \equiv {\rho}.2 \; j \\
+\Sem{\Row {\LabTy \ell \tau}} &= (\Suc \, \Zero : \Nat, \lambda (i : \Ix {(\Suc \, \Zero)}). \Sem{\tau})
+\end{align*}
 
 \appendix
 
