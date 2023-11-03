@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  3 NOV 2023 13:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  3 NOV 2023 14:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -971,7 +971,12 @@ LaTeX Font Warning: Font shape `OT1/cmr/bx/sc' undefined
 (Font)              using `OT1/cmr/bx/n' instead on input line 72.
 
 
-Overfull \hbox (38.8092pt too wide) detected at line 94
+Overfull \hbox (52.96806pt too wide) detected at line 94
+[]
+ []
+
+
+Overfull \hbox (16.2958pt too wide) detected at line 168
 []
  []
 
@@ -979,36 +984,36 @@ Overfull \hbox (38.8092pt too wide) detected at line 94
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 [2]
-Overfull \hbox (10.36736pt too wide) detected at line 199
-[]
- []
-
-
-Overfull \hbox (34.12436pt too wide) detected at line 230
-[]
- []
-
-
-Overfull \hbox (107.29535pt too wide) detected at line 303
+Overfull \hbox (10.36736pt too wide) detected at line 254
 []
  []
 
 [3]
-Overfull \hbox (112.62144pt too wide) detected at line 386
+Overfull \hbox (34.12436pt too wide) detected at line 285
+[]
+ []
+
+
+Overfull \hbox (107.29535pt too wide) detected at line 358
 []
  []
 
 [4]
-Overfull \hbox (123.61252pt too wide) detected at line 507
+Overfull \hbox (112.62144pt too wide) detected at line 441
 []
  []
 
 [5]
-Overfull \hbox (51.1076pt too wide) detected at line 591
+Overfull \hbox (123.61252pt too wide) detected at line 562
 []
  []
 
-[6] [7] (./Ix.aux)
+[6]
+Overfull \hbox (51.1076pt too wide) detected at line 646
+[]
+ []
+
+[7] [8] (./Ix.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -1045,10 +1050,10 @@ ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
 exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/texm
 f-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Ix.pdf (7 pages, 243264 bytes).
+Output written on Ix.pdf (8 pages, 245257 bytes).
 PDF statistics:
- 136 PDF objects out of 1000 (max. 8388607)
- 84 compressed objects within 1 object stream
+ 139 PDF objects out of 1000 (max. 8388607)
+ 86 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

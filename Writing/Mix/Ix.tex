@@ -82,14 +82,14 @@
 \\[5px]
 \begin{doublesyntaxarray}
   \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
-  \mcl{\text{Terms}} & M, N & ::= & x \mid \star \mid \Nat \mid \Zero \mid \Suc \, M \mid \\
+  \mcl{\text{Terms}} & M, N, T & ::= & x \mid \star \mid \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
   & & & &  \top \mid \tt \mid \\
-  & & & &  \Pi \alpha \co M. N \mid \lambda x \co M. N \mid M \, N \mid \\
-  & & & &  \Sigma \alpha \co M. M \mid (\alpha \co M , M) \mid M.1 \mid M.2  \\
+  & & & &  \Pi \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
+  & & & &  \Sigma \alpha \co T. M \mid (\alpha \co T , M) \mid M.1 \mid M.2  \\
   & & & &  M + N \mid \left\, M \mid \right\, M \mid \Case M M M \\
   & & & &  M \equiv N \mid \Refl \mid ... \\
-  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : M
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : T
 \end{doublesyntaxarray}
 \end{gather*}
 \end{smalle}
@@ -129,15 +129,42 @@
 \ib{\irule{\SortJ \Gamma {M_1} {N_1}}{\SortJ \Gamma {N_1} {\sigma_1}}{\SortJ \Gamma {M_2} {N_2}}{\SortJ \Gamma {N_2} {\sigma_2}};{\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
 \end{gather*}
 
+% \ib{\irule{};{}}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M N$} \\
 \ib{\irule{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
 \rsp
-\ib{\irule{};{\TypeJ \Gamma {\tt} \top}} \\
+\ib{\irule{};{\TypeJ \Gamma {\tt} \top}} 
+\\
+\ib{\irule{};{\TypeJ \Gamma \Zero \Nat}} 
+\rsp
+\ib{\irule{\TypeJ \Gamma n \Nat};{\TypeJ \Gamma {\Suc \, n} \Nat}} 
+\rsp
+\ib{\irule{{\TypeJ \Gamma n \Nat}};{\TypeJ \Gamma \FZero {\Ix (\Suc \, n)}}} 
+\rsp
+\ib{\irule{\TypeJ \Gamma n \Nat}{\TypeJ \Gamma i {\Ix n}};{\TypeJ \Gamma {\FSuc \, i} {\Ix {(\Suc \, n)}}}} 
+\\
 \ib{\irule
   {\SortJ \Gamma T \sigma}
   {\TypeJ {\Gamma , x \co T} {M} {N}};
   {\TypeJ \Gamma {\lambda x \co T. M} {\Pi (x \co T). N}}}
+\rsp
+\ib{\irule
+    {\TypeJ \Gamma M {\Pi(x \co T_1). T_2}} {\TypeJ \Gamma N {T_1}};
+    {\TypeJ \Gamma {M \, N} T_2[N/x]}}
+\\
+ \ib{\irule
+      {\TypeJ {\Gamma}{M}{T_1}}
+      {\TypeJ {\Gamma} {N} {T_2[M/x]}};
+      {\TypeJ \Gamma {(M \co T_1, N)} {\Sigma (x \co T_1). T_2}}}
+\rsp
+ \ib{\irule 
+     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
+     {\TypeJ \Gamma {M.1} T_1}}
+\rsp
+ \ib{\irule 
+     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
+     {\TypeJ \Gamma {M.2} T_2[M.1/x]}}
 \end{gather*}
 \end{figure}
 
@@ -167,6 +194,34 @@ where
 \mathrm{Row } \kappa :&= \Sigma (n : \Nat). \Pi (i : \Ix n). \kappa \\
 \Sem{\Leqp {\Row {\LabTy \ell \tau}} {\rho}} &= \Pi (i : \Ix \Sem{\Row {\LabTy \ell \tau}}.1). \Sigma (j : \Ix {\rho.1}). \Sem{\Row {\LabTy \ell \tau}}.1 \; i \equiv {\rho}.2 \; j \\
 \Sem{\Row {\LabTy \ell \tau}} &= (\Suc \, \Zero : \Nat, \lambda (i : \Ix {(\Suc \, \Zero)}). \Sem{\tau})
+\end{align*}
+
+Putting this all together:
+
+\begin{align*}
+&\Pi (\rho : (\Sigma (n : \Nat). \Pi (i : \Ix n). \star)).\\ 
+&\Pi (\ell : \top). \\
+&\Pi (\tau : \star). \\
+&\Pi (P :      \\
+&\quad \Pi (i : \Ix (\Suc \, \Zero : \Nat, \lambda (i : \Ix {(\Suc \, \Zero)}). \Sem{\tau}).1). \\
+&\quad      \Sigma (j : \Ix {\rho.1}).  \\
+&\quad      (\Suc \, \Zero : \Nat, \lambda (i : \Ix {(\Suc \, \Zero)}). \Sem{\tau}).2 \; i \equiv {\rho}.2 \; j) \\
+&\Pi (\_ : \top). \\
+&\Pi (i : \Ix {\rho.1}). \, \rho.2 \, i 
+\end{align*}
+
+which should normalize to
+
+\begin{align*}
+&\Pi (\rho : (\Sigma (n : \Nat). \Pi (i : \Ix n). \star)).\\ 
+&\Pi (\ell : \top). \\
+&\Pi (\tau : \star). \\
+&\Pi (P :      \\
+&\quad \Pi (i : \Ix 1). \\
+&\quad      \Sigma (j : \Ix {\rho.1}).  \\
+&\quad       \Sem{\tau} \equiv {\rho}.2 \; j). \\
+&\Pi (\_ : \top). \\
+&\Pi (i : \Ix {\rho.1}). \, \rho.2 \, i 
 \end{align*}
 
 \appendix
