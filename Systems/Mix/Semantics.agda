@@ -4,6 +4,7 @@ module Mix.Semantics where
 open import Mix.Pre.Terms
 import Mix.Pre.Semantics as Pre
 open import Mix.Terms
+open import Mix.Substitution
 
 open import Preludes.Data
 open import Data.List
@@ -24,10 +25,6 @@ open Rμ.Type
 open Rμ.TVar
 open Rμ.Term
 
-postulate
-  weaken : ∀ {Δ} {τ υ} {κ₁ κ₂} 
-           {u : Δ ⊢ υ ⦂ κ₁} → Δ ⊢ τ ⦂ κ₂   →
-           (Δ , u) ⊢ (rename τ) ⦂ κ₂
 --------------------------------------------------------------------------------
 -- Typed translation of kinds.
 
@@ -35,7 +32,7 @@ postulate
 ⟦ ★ ⟧κ = ★
 ⟦ L ⟧κ = ⊤ 𝓤
 ⟦ R[ κ ] ⟧κ = Σ Nat (Π (Ix varZ) ⟦ κ ⟧κ) 
-⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ {!!} -- (weaken ⟦ κ₂ ⟧κ) 
+⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ {!weaken!} -- (weaken ⟦ κ₂ ⟧κ) 
 
 -- --------------------------------------------------------------------------------
 -- -- Typed translation of contexts.
