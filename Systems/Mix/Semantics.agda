@@ -35,10 +35,11 @@ open Rμ.Term
 ⟦ κ₁ `→ κ₂ ⟧κ = Π ⟦ κ₁ ⟧κ {!weaken!} -- (weaken ⟦ κ₂ ⟧κ) 
 
 -- --------------------------------------------------------------------------------
--- -- Typed translation of contexts.
+-- -- ~~Typed~~ translation of contexts.
+
 ⟦_⟧Δ : Rμ.KEnv → Context
 ⟦ ε ⟧Δ = ε
-⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , ⟦ κ ⟧κ
+⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , Pre.⟦ κ ⟧κ
 
 -- --------------------------------------------------------------------------------
 -- -- Typed translation of types.
@@ -57,10 +58,10 @@ open Rμ.Term
 --
 ⟦ lab l ⟧τ = tt
 ⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ _ R▹ τ ⟧τ = {!!} -- ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) ? --  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
+⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) {!⟦ τ ⟧τ!}  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) ? --  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
 ⟦ ⌊ τ ⌋ ⟧τ = ⊤ ★
 -- I need to actually do substitution.
-⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix varZ) (⊤ ★) ⟫
+⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix {!!}) (⊤ ★) ⟫
 -- I need renaming in symbol expressions.
 ⟦ Π τ ⟧τ = {!!} -- Π (Ix (fst ⟦ τ ⟧τ)) (snd (weaken (⟦ τ ⟧τ)) · {!varZ!})
 ⟦ Σ τ ⟧τ = Σ {!!} ({!!} · {!!})
