@@ -31,6 +31,7 @@
     "Refl")
    (LaTeX-add-labels
     "fig:syntax"
+    "fig:translation"
     "app:RO"
     "sec:ro-syntax"
     "sec:ro-types"

@@ -164,7 +164,8 @@
 \rsp
  \ib{\irule 
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {M.2} T_2[M.1/x]}}
+     {\TypeJ \Gamma {M.2} T_2[M.1/x]}} \\
+...
 \end{gather*}
 \end{figure}
 
@@ -172,6 +173,59 @@
 
 
 \section{Translation From \RO}
+
+\subsection{Untyped Translation}
+
+\begin{figure}[H]
+\begin{align*}
+\fbox{$\Sem{\kappa}$} \\
+\vspace{5em}
+\Sem{\TypeK} &= \TypeK \\
+\Sem{\LabK} &= \TypeK \\
+\Sem{\kappa_1 \to \kappa_2} &= ... \\
+\Sem{\RowK \kappa} &= ... \\
+\end{align*}
+\begin{align*}
+\fbox{$\Sem{\tau}$} \\
+\vspace{5em}
+...
+\end{align*}
+\begin{align*}
+\fbox{$\Sem{M}$} \\
+\vspace{5em}
+...
+\end{align*} \\
+\begin{align*}
+\fbox{$\Sem{\pi}$} \\
+\vspace{5em}
+...
+\end{align*}
+\caption{A compositional translation of \RO to \MuIx{}}
+\label{fig:translation}
+\end{figure}
+
+
+\subsection{Typed translation}
+
+\begin{figure}[H]
+\small
+\begin{gather*}
+\fbox{$\Delta \vdash \tau : \kappa \leadsto \Sem{\Gamma} \vdash \upsilon : \sigma$}
+\\
+\ib{\irule[\crule{foo}]{A};{B}} \\
+\fbox{$\Delta \vdash M : \tau \leadsto \Gamma \vdash N : \upsilon$}
+\\
+\ib{\irule[\crule{foo}]{A};{B}} \\
+\fbox{${\EntJ \Delta \pi} \leadsto \Gamma \vdash N : \upsilon$}
+\\
+\ib{\irule[\crule{foo}]{A};{B}}  \\
+\fbox{${\tau \equiv \upsilon} \leadsto \Sem{\Delta} \vdash P : \Sem{\tau} \sim \Sem{\upsilon}$}
+\\
+\ib{\irule[\crule{foo}]{A};{B}} 
+\end{gather*}
+\end{figure}
+
+
 
 \subsection{Example translations of \RO terms and types}
 

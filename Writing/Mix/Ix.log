@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  3 NOV 2023 14:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  8 NOV 2023 10:35
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -976,44 +976,44 @@ Overfull \hbox (52.96806pt too wide) detected at line 94
  []
 
 
-Overfull \hbox (16.2958pt too wide) detected at line 168
+Overfull \hbox (16.2958pt too wide) detected at line 169
 []
  []
 
 [1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-[2]
-Overfull \hbox (10.36736pt too wide) detected at line 254
-[]
- []
-
-[3]
-Overfull \hbox (34.12436pt too wide) detected at line 285
-[]
- []
-
-
-Overfull \hbox (107.29535pt too wide) detected at line 358
-[]
- []
-
-[4]
-Overfull \hbox (112.62144pt too wide) detected at line 441
+[2] [3] [4]
+Overfull \hbox (10.36736pt too wide) detected at line 303
 []
  []
 
 [5]
-Overfull \hbox (123.61252pt too wide) detected at line 562
+Overfull \hbox (34.12436pt too wide) detected at line 334
+[]
+ []
+
+
+Overfull \hbox (107.29535pt too wide) detected at line 407
 []
  []
 
 [6]
-Overfull \hbox (51.1076pt too wide) detected at line 646
+Overfull \hbox (112.62144pt too wide) detected at line 490
 []
  []
 
-[7] [8] (./Ix.aux)
+[7]
+Overfull \hbox (123.61252pt too wide) detected at line 611
+[]
+ []
+
+[8]
+Overfull \hbox (51.1076pt too wide) detected at line 695
+[]
+ []
+
+[9] [10] (./Ix.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -1022,11 +1022,11 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 23649 strings out of 478040
- 466007 string characters out of 5839127
+ 23653 strings out of 478040
+ 466077 string characters out of 5839127
  929753 words of memory out of 5000000
- 41640 multiletter control sequences out of 15000+600000
- 495012 words of font info for 129 fonts, out of 8000000 for 9000
+ 41644 multiletter control sequences out of 15000+600000
+ 495619 words of font info for 131 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  114i,20n,118p,495b,411s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
@@ -1050,10 +1050,10 @@ ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
 exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/texm
 f-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Ix.pdf (8 pages, 245244 bytes).
+Output written on Ix.pdf (10 pages, 249242 bytes).
 PDF statistics:
- 139 PDF objects out of 1000 (max. 8388607)
- 86 compressed objects within 1 object stream
+ 145 PDF objects out of 1000 (max. 8388607)
+ 90 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
