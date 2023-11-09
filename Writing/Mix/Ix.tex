@@ -210,16 +210,16 @@
 \begin{figure}[H]
 \small
 \begin{gather*}
-\fbox{$\Delta \vdash \tau : \kappa \leadsto \Sem{\Gamma} \vdash \upsilon : \sigma$}
+\fbox{$\Delta \vdash \tau \leadsto \upsilon : \kappa$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}} \\
-\fbox{$\Delta \vdash M : \tau \leadsto \Gamma \vdash N : \upsilon$}
+\fbox{$\Delta \vdash M \leadsto N : \tau$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}} \\
-\fbox{${\EntJ \Delta \pi} \leadsto \Gamma \vdash N : \upsilon$}
+\fbox{${\EntJ \Delta \pi} \leadsto N$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}}  \\
-\fbox{${\tau \equiv \upsilon} \leadsto \Sem{\Delta} \vdash P : \Sem{\tau} \sim \Sem{\upsilon}$}
+\fbox{${\tau \equiv \upsilon} \leadsto P$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}} 
 \end{gather*}

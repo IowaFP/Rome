@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  8 NOV 2023 10:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  8 NOV 2023 11:26
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -983,33 +983,37 @@ Overfull \hbox (16.2958pt too wide) detected at line 169
 [1
 
 {/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 197--198
+
+ []
+
 [2] [3] [4]
-Overfull \hbox (10.36736pt too wide) detected at line 303
+Overfull \hbox (10.36736pt too wide) detected at line 308
 []
  []
 
 [5]
-Overfull \hbox (34.12436pt too wide) detected at line 334
+Overfull \hbox (34.12436pt too wide) detected at line 339
 []
  []
 
 
-Overfull \hbox (107.29535pt too wide) detected at line 407
+Overfull \hbox (107.29535pt too wide) detected at line 412
 []
  []
 
 [6]
-Overfull \hbox (112.62144pt too wide) detected at line 490
+Overfull \hbox (112.62144pt too wide) detected at line 495
 []
  []
 
 [7]
-Overfull \hbox (123.61252pt too wide) detected at line 611
+Overfull \hbox (123.61252pt too wide) detected at line 616
 []
  []
 
 [8]
-Overfull \hbox (51.1076pt too wide) detected at line 695
+Overfull \hbox (51.1076pt too wide) detected at line 700
 []
  []
 
@@ -1050,7 +1054,7 @@ ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive
 exmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2022/tex
 mf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2022/texm
 f-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on Ix.pdf (10 pages, 249242 bytes).
+Output written on Ix.pdf (10 pages, 249220 bytes).
 PDF statistics:
  145 PDF objects out of 1000 (max. 8388607)
  90 compressed objects within 1 object stream
