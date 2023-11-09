@@ -240,7 +240,19 @@
 
 Actually, I am now starting to wonder if I can give an inductive definition of the translation and then an operational semantics over translations. One could then define an erasure to both \RO and \IX{} terms. A preservation theorem would now be like a bisimulation argument---that well-typed pairs of \RO and \IX{} terms step to well-typed pairs of \RO and \IX{} terms. Doing this this way gets rid of the untyped translation and obligation to prove translational soundness.
 
+To do this, you would really need \emph{strong} bisimulation; I doubt that \RO steps and \IX{} steps are 1-to-1. So you may have cases where an $\RO$ term ``steps'' to itself while the \IX term steps. Maybe actually this is a bad idea.
 
+Actually... I should be able to mimic the approach of MorrisM19, which is a mix of the two.
+\begin{enumerate}
+\item Give a translation of types, predicates, and typing environments, e.g., $\Sem{\tau}$. (In MorrisM19, this is $(\tau)^{\bullet}$).
+\item Give a typed translation $\Gamma \vdash M \leadsto N : \tau$, etc.
+\item Prove soundness separately. That is, if $\Gamma \vdash M \leadsto N : \tau$ then $(\Gamma)^{\bullet} \vdash N : \tau^{\bullet}$.
+\end{enumerate}
+
+I like this approach because I am not obligated to specify the (untyped) translation of $M$ to $N$, which means mechanizing things like substitution in the untyped syntax.
+
+
+Most of these notes need to be erased. These are stream of consciousness notes.
 
 \subsection{Example translations of \RO terms and types}
 
