@@ -118,6 +118,8 @@
 \rsp
 \ib{\irule {} ; {\SortJ \Gamma \top \star}}
 \rsp
+\ib{\irule {} ; {\SortJ \Gamma \top \U}}
+\\
 \ib{\irule {} ; {\SortJ \Gamma \Nat \star}}
 \rsp
 \ib{\irule {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
@@ -177,19 +179,24 @@
 \subsection{Untyped Translation}
 
 \begin{figure}[H]
-\begin{align*}
+
+\begin{gather*}
 \fbox{$\Sem{\kappa}$} \\
+\begin{align*}
 \vspace{5em}
 \Sem{\TypeK} &= \TypeK \\
-\Sem{\LabK} &= \TypeK \\
-\Sem{\kappa_1 \to \kappa_2} &= ... \\
-\Sem{\RowK \kappa} &= ... \\
+\Sem{\LabK} &= \top \\
+\Sem{\kappa_1 \to \kappa_2} &= \Pi (\alpha : \Sem{\kappa_1}). \Sem{\kappa_2} \\
+\Sem{\RowK \kappa} &= \Sigma(n : \Nat). \Pi (j : \Ix  n). \Sem{\kappa} \\
 \end{align*}
-\begin{align*}
+\end{gather*}
+\begin{gather*}
 \fbox{$\Sem{\tau}$} \\
 \vspace{5em}
+\begin{align*}
 ...
 \end{align*}
+\end{gather*}
 \begin{align*}
 \fbox{$\Sem{M}$} \\
 \vspace{5em}
@@ -200,7 +207,7 @@
 \vspace{5em}
 ...
 \end{align*}
-\caption{A compositional translation of \RO to \MuIx{}}
+\caption{A compositional translation of \RO judgments to (untyped) \IX{} terms}
 \label{fig:translation}
 \end{figure}
 
@@ -223,7 +230,15 @@
 \\
 \ib{\irule[\crule{foo}]{A};{B}} 
 \end{gather*}
+\caption{Translation of \RO derivations to \IX{} derivations}
 \end{figure}
+
+\begin{itemize}
+\item $\Delta \vdash \tau \leadsto \upsilon : \kappa$ denotes the translation of judgment $\Delta \vdash \tau : \kappa$ to term $\Sem{\Delta} \vdash \Sem{\tau} : \Sem{\kappa}$.
+\item 
+\end{itemize}
+
+Actually, I am now starting to wonder if I can give an inductive definition of the translation and then an operational semantics over translations. One could then define an erasure to both \RO and \IX{} terms. A preservation theorem would now be like a bisimulation argument---that well-typed pairs of \RO and \IX{} terms step to well-typed pairs of \RO and \IX{} terms. Doing this this way gets rid of the untyped translation and obligation to prove translational soundness.
 
 
 
