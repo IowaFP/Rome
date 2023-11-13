@@ -42,33 +42,37 @@ open Rμ.Term
 ⟦ Δ , κ ⟧Δ = ⟦ Δ ⟧Δ , Pre.⟦ κ ⟧κ
 
 -- --------------------------------------------------------------------------------
--- -- Typed translation of types.
+-- -- Inductive translation of Rω derivations to Mix terms.
 
-⟦_⟧v : ∀ {Δ}{κ} → (v : Rμ.TVar Δ κ) → ⟦ Δ ⟧Δ ⊢ Pre.⟦ (tvar v) ⟧τ ⦂ Pre.⟦ κ ⟧κ
-⟦ Z ⟧v = varZ
-⟦ S v ⟧v = varS ⟦ v ⟧v
+data Translation : ∀ {Δ}{κ} → Rμ.Type Δ κ → Set where
+  
 
-⟦_⟧τ : ∀ {Δ}{κ} → (τ : Rμ.Type Δ κ) → ⟦ Δ ⟧Δ ⊢ Pre.⟦ τ ⟧τ ⦂ Pre.⟦ κ ⟧κ
-⟦ U ⟧τ = ⊤ ★
-⟦ tvar x ⟧τ = ⟦ x ⟧v
-⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ {!!} -- (weaken ⟦ τ₂ ⟧τ)
-⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
-⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ {!⟦ τ ⟧τ!} -- ⟦ τ ⟧τ
-⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
---
-⟦ lab l ⟧τ = tt
-⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
-⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) {!⟦ τ ⟧τ!}  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) ? --  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
-⟦ ⌊ τ ⌋ ⟧τ = ⊤ ★
--- I need to actually do substitution.
-⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix {!!}) (⊤ ★) ⟫
--- I need renaming in symbol expressions.
-⟦ Π τ ⟧τ = {!!} -- Π (Ix (fst ⟦ τ ⟧τ)) (snd (weaken (⟦ τ ⟧τ)) · {!varZ!})
-⟦ Σ τ ⟧τ = Σ {!!} ({!!} · {!!})
-⟦ τ ·⌈ τ₁ ⌉ ⟧τ = {!!}
-⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
 
-⟦ μ τ ⟧τ = {!!}
-⟦ ν τ ⟧τ = {!!}
+-- ⟦_⟧v : ∀ {Δ}{κ} → (v : Rμ.TVar Δ κ) → ⟦ Δ ⟧Δ ⊢ Pre.⟦ (tvar v) ⟧τ ⦂ Pre.⟦ κ ⟧κ
+-- ⟦ Z ⟧v = varZ
+-- ⟦ S v ⟧v = varS ⟦ v ⟧v
 
-⟦ π ⇒ τ ⟧τ = {!!}
+-- ⟦_⟧τ : ∀ {Δ}{κ} → (τ : Rμ.Type Δ κ) → ⟦ Δ ⟧Δ ⊢ Pre.⟦ τ ⟧τ ⦂ Pre.⟦ κ ⟧κ
+-- ⟦ U ⟧τ = ⊤ ★
+-- ⟦ tvar x ⟧τ = ⟦ x ⟧v
+-- ⟦ τ₁ `→ τ₂ ⟧τ = Π ⟦ τ₁ ⟧τ {!!} -- (weaken ⟦ τ₂ ⟧τ)
+-- ⟦ `∀ κ τ ⟧τ = Π ⟦ κ ⟧κ ⟦ τ ⟧τ
+-- ⟦ `λ κ τ ⟧τ = `λ ⟦ κ ⟧κ {!⟦ τ ⟧τ!} -- ⟦ τ ⟧τ
+-- ⟦ τ₁ ·[ τ₂ ] ⟧τ = ⟦ τ₁ ⟧τ · ⟦ τ₂ ⟧τ
+-- --
+-- ⟦ lab l ⟧τ = tt
+-- ⟦ _ ▹ τ ⟧τ = ⟦ τ ⟧τ
+-- ⟦ _ R▹ τ ⟧τ = ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) {!⟦ τ ⟧τ!}  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , `λ (Ix varZ) ? --  ⟫ -- ⟪ (Suc Zero) ⦂ Nat , (Π (Ix varZ) {!⟦ τ ⟧τ!}) ⟫ 
+-- ⟦ ⌊ τ ⌋ ⟧τ = ⊤ ★
+-- -- I need to actually do substitution.
+-- ⟦ ε ⟧τ = ⟪ Zero ⦂ Nat , `λ (Ix {!!}) (⊤ ★) ⟫
+-- -- I need renaming in symbol expressions.
+-- ⟦ Π τ ⟧τ = {!!} -- Π (Ix (fst ⟦ τ ⟧τ)) (snd (weaken (⟦ τ ⟧τ)) · {!varZ!})
+-- ⟦ Σ τ ⟧τ = Σ {!!} ({!!} · {!!})
+-- ⟦ τ ·⌈ τ₁ ⌉ ⟧τ = {!!}
+-- ⟦ ⌈ τ ⌉· τ₁ ⟧τ = {!!}
+
+-- ⟦ μ τ ⟧τ = {!!}
+-- ⟦ ν τ ⟧τ = {!!}
+
+-- ⟦ π ⇒ τ ⟧τ = {!!}

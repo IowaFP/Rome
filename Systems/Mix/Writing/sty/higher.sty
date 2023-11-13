@@ -1,0 +1,301 @@
+\usepackage{amsmath,amsthm,centernot,ifthen,../tex-libs/infer,../tex-libs/mathwidth,mathrsfs,mathtools,multicol,stmaryrd,tensor,xspace,thmtools}
+
+\usepackage[normalem]{ulem}
+
+\newif\ifcomments\commentstrue
+% \commentstrue
+
+\newcommand\ib[1]{\infbox{#1}}
+\newcommand\isp{\hspace{\infskip}}
+\newcommand\rsp{\hspace{1.5\infskip}}
+\newcommand\trule[1]{\textsc{(#1)}}
+\newcommand\strule[1]{\textsc{(#1$^\mathrm{s}$)}}
+\newcommand\mrule[1]{\textsc{(#1$^\text{\textsc{m}}$)}}
+\newcommand{\I}[1]{\ensuremath{\mathord{#1}}\!~I}
+\newcommand{\E}[1]{\ensuremath{\mathord{#1}}\!~E}
+\newcommand\Set[1]{\ensuremath{\{#1\}}}
+\newcommand\Tuple[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand\pto{\ensuremath{\rightharpoonup}}
+
+% \usepackage{float}
+% \floatstyle{boxed}
+% \restylefloat{figure}
+
+\usepackage[capitalize,noabbrev]{cleveref}
+\crefformat{section}{(\S#2#1#3)}
+\crefformat{subsection}{(\S#2#1#3)}
+\crefformat{subsubsection}{(\S#2#1#3)}
+\crefmultiformat{section}{(\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3)}
+\crefmultiformat{subsection}{(\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3)}
+\crefmultiformat{subsubsection}{(\S\S#2#1#3}{ and~#2#1#3}{, #2#1#3}{, and~#2#1#3)}
+\newcommand\appref[1]{Appendix~\ref{#1}}
+
+\usepackage{enumitem}
+\setlist[enumerate]{nosep}
+
+% \usepackage{prettyref}
+% \newcommand{\pref}[1]{\prettyref{#1}}
+% \newrefformat{assn}{Assumption~\ref{#1}}
+% \newrefformat{prop}{Proposition~\ref{#1}}
+% \newrefformat{fig}{Figure~\ref{#1}}
+% \newrefformat{sec}{(\S\ref{#1})}
+% \newrefformat{eqn}{(\ref{#1})}
+
+% \ifdefined\theorem \else
+%   \newtheorem{theorem}{Theorem}
+% \fi
+% \newtheorem{assumption}[theorem]{Assumption}
+% \newtheorem{prop}[theorem]{Proposition}
+% \newtheorem{claim}[theorem]{Claim}
+% \theoremstyle{definition}
+% \newtheorem{defn}[theorem]{Definition}
+% \ifdefined\example \else
+%   \newtheorem{example}[theorem]{Example}
+% \fi
+% \theoremstyle{remark}
+% \newtheorem*{remark}{Remark}
+
+
+\AtEndPreamble{%
+  \theoremstyle{acmplain}
+  %\newtheorem{theorem}{Theorem}
+  \newtheorem*{theorem*}{Theorem}}
+
+%%% JHM: more notation
+%%% I think terms with definitional force, either in running text, or definitions,
+%%% should toggle \emph status to draw attention to themselves...
+\newcommand{\defemph}[1]{\emph{#1}}%%%{{#1}} for status quo ante behaviour
+
+%% Syntax - judgments
+
+\newcommand{\trto}{\rightsquigarrow}
+\newcommand{\tr}[1]{(#1)^\bullet}
+\newcommand\trnp[1]{#1^\bullet}
+
+%% Syntax - types
+
+\def\circleit#1{{\setbox0=\hbox{$\bigcirc$}\setbox1=\hbox{#1}%
+    \dimen10=\wd0 \advance\dimen10 by \wd1\divide\dimen10 by 2
+    \dimen12=\ht0 \advance\dimen12 by \dp0
+    \advance\dimen12 by-\ht1 \advance\dimen12 by-\dp1
+    \divide\dimen12 by 2 \advance\dimen12 by-\dp0 \advance\dimen12 by \dp1
+    \hbox to \wd0{\lower\dimen12\copy0\kern-\dimen10\copy1\hss}}}
+\newcommand\oleq{\circleit{$\leq$}}
+
+\newcommand{\then}{\Rightarrow}
+\newcommand{\Leqp}[3][]{\ifthenelse{\equal{#1}{}}{#2 \lesssim #3}{#2 \mathbin{\lesssim_{#1}} #3}}
+\newcommand{\RowPlusP}[3]{#1 \odot #2 \sim #3}
+\newcommand{\RowPlus}[2]{#1 \odot #2}
+\newcommand{\Row}[1]{\{#1\}}
+\newcommand\Rowlr[1]{\left\{#1\right\}}
+\newcommand{\Lab}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\LabTy}[2]{\Lab{#1} \triangleright #2}
+\newcommand\EllTy[2]{\LabTy {\mathit{\ell_{#1}}} {#2}}
+
+%% Syntax - terms
+
+\newcommand{\App}{\,}
+\newcommand{\Let}[3]{\mathsf{let}\;#1 = #2\;\mathsf{in}\;#3}
+\newcommand{\LabTerm}[2]{\Lab{#1} \triangleright #2}
+\newcommand{\Unlabel}[2]{#1 / \Lab{#2}}
+\newcommand{\Prj}[2][]{\ifthenelse{\equal{#1}{}}{\mathsf{prj}\,#2}{\mathsf{prj}_{#1}\,#2}}
+\newcommand{\PrjS}[2][]{\mathsf{prj}_{\triangleright}}
+\newcommand{\Dir}{d}
+\newcommand{\Left}{\mathsf{L}}
+\newcommand{\Right}{\mathsf{R}}
+\newcommand{\Concat}{\mathbin{\star}}
+\newcommand{\Inj}[2][]{\ifthenelse{\equal{#1}{}}{\mathsf{inj}\,#2}{\mathsf{inj}_{#1}\,#2}}
+\newcommand{\InjS}{\mathsf{inj}_{\triangleright}}
+\newcommand{\Branch}{\mathbin{\triangledown}}
+\newcommand{\Fork}{\mathbin{\triangle}}
+
+
+%% Target language syntax
+
+\newcommand\TLang{\ensuremath{\mathrm{F}^{\otimes\oplus}}\xspace}
+\newcommand{\FPrj}[2]{\mathsf{\pi}_{#1}\,#2}
+\newcommand{\FInj}[2]{\mathsf{\iota}_{#1}\,#2}
+\newcommand{\FCase}[2]{\mathsf{case}\,#1\,\{#2\}}
+\newcommand{\IsType}[1]{#1\;\mathsf{type}}
+\newcommand\Hole{\boxempty}
+\newcommand\Inst[2]{#1[#2]}
+
+% Haskell listings
+\usepackage{listings}
+\lstloadlanguages{Haskell}
+\lstset{
+  xleftmargin=\parindent,
+  basicstyle=\ttfamily\small,
+  keepspaces=true,
+  keywordstyle=\underbar,
+  numberstyle=\tiny,
+  flexiblecolumns=false,
+  basewidth={0.5em,0.45em},
+  morekeywords={instance, class, if, where, data, then, else, type, case, of, require, linear, primitive},
+  morecomment=[l]{--},
+  mathescape=true,
+  literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+    {/=}{{$\not=$}}2
+    {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+    {\\\\}{{\char`\\\char`\\}}1 {\\"}{{\char`\\"}}2
+    {->}{{$\to$}}2 {-@}{{$\lto$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+    {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+    {\ .\ }{{$\circ$}}3
+    {>>}{{>>}}2 {>>=}{{>>=}}2
+    {|}{{$\mid$}}1
+    {...}{{$\dots$}}3
+    {@}{{$@$}}1 {@!}{{$@^!$}}1 {-!>}{{$\uto$}}2 {:+:}{{$\oplus$}}1
+    {.<.}{{$\sqsubseteq$}}1 {//}{{$\div$}}1
+}
+\lstnewenvironment{code}{}{}
+\lstnewenvironment{codef}{\lstset{basicstyle=\ttfamily\small,xleftmargin=1.5em}}{}
+
+\newcommand\Rose{\textsc{Rose}\xspace}
+\newcommand{\Remy}{R\'emy\xspace}
+
+
+
+\newenvironment{syntaxarray}%
+{\begin{array}[t]{@{}lr@{\hspace{5px}}r@{\hspace{5px}}l@{}}}%
+{\end{array}\ignorespacesafterend}
+
+\newenvironment{syntax}%
+{\[\begin{syntaxarray}}%
+{\end{syntaxarray}\]\ignorespacesafterend}
+
+\newenvironment{doublesyntaxarray}%
+  {\begin{array}{l@{}lr@{\hspace{5px}}c@{\hspace{5px}}l@{\hspace{15px}}lr@{\hspace{5px}}c@{\hspace{5px}}l}}%
+  {\end{array}\ignorespacesafterend}
+
+\newenvironment{doublesyntax}%
+  {\[\begin{doublesyntaxarray}}
+  {\end{doublesyntaxarray}\]\ignorespacesafterend}
+
+
+\newcommand\mcl[1]{\multicolumn{2}{l}{#1}}
+\newcommand\mcr[1]{\multicolumn{2}{r}{#1}}
+
+%%% grey shading
+%% SL: this needs to be quite dark to show up at all on a printer
+\definecolor{shade}{RGB}{191,191,191}
+\newcommand\shade[1]{\setlength{\fboxsep}{0pt}\colorbox{shade}{\ensuremath{#1}}}
+
+\newcommand{\commentbox}[3]{{\ifcomments \par\noindent\small\color{#1} \framebox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{#2:} #3}} \fi}}
+\newcommand{\todo}[1]{\commentbox{RoyalPurple}{TODO}{#1}}
+\newcommand{\todoitems}[1]{\todo{\begin{itemize}#1\end{itemize}}}
+\newcommand{\JGM}[1]{\commentbox{OliveGreen}{JGM}{#1}}
+\newcommand{\JHM}[1]{\commentbox{RawSienna}{JHM}{#1}}
+\newcommand{\ADE}[1]{\commentbox{DarkSalmon}{ADE}{#1}}
+\newcommand{\RA}[1]{\commentbox{Red}{Reviewer A}{\emph{#1}}}
+\newcommand{\RB}[1]{\commentbox{Red}{Reviewer B}{\emph{#1}}}
+\newcommand{\RC}[1]{\commentbox{Red}{Reviewer C}{\emph{#1}}}
+\newcommand{\RD}[1]{\commentbox{Red}{Reviewer D}{\emph{#1}}}
+\newcommand{\AH}[1]{\commentbox{SteelBlue}{AH}{#1}}
+\newcommand{\AHRev}[1]{{\color{SteelBlue} #1}}
+\newcommand{\AHFN}[1]{\footnote{\AHRev{#1}}}
+\newcommand{\citeme}{{\color{RoyalPurple}[\textbf{TODO}]}}
+\newcommand{\todots}{{\color{RoyalPurple}\large\dots}}
+\newcommand\fixme[1]{\textcolor{red}{#1}}
+
+% Colors for *Created* and *Updated* and updated changes, resp.
+\newcommand\ColorC{\ifcomments Blue\else black\fi}
+\newcommand\ColorU{\ifcomments Purple\else black\fi}
+\newcommand\ColorNvm{\ifcomments Orange\else black\fi}
+\newcommand\ruleAdded[1]{{\color{\ColorC} #1}}
+\newcommand\ruleUpdated[1]{{\color{\ColorU} #1}}
+\newcommand\ruleNvm[1]{{\color{\ColorNvm} #1}}
+
+\long\def\dontshow#1{} %%%
+
+\newcommand\RO[1][]{\textrm{R$\omega\ifthenelse{\equal{#1}{}}{}{(#1)}$}\xspace}
+\newcommand\ROmu{\textrm{R$^{\mu}_{\omega}$}\xspace}
+\newcommand\FO{\textrm{F$\omega$}\xspace}
+\newcommand\SF{\textrm{SF{$_2$}}\xspace}
+
+\newcommand\co{\mathbin{:}}
+\newcommand\kay{k}   % Sort out script k
+\newcommand\Disjoint{\mathrel{\#}}
+\newcommand\Deriv[1][]{\ifthenelse{\equal{#1}{}}{\mathcal{D}}{\mathcal{D}_{#1}}}
+
+%% Syntax
+
+\renewcommand\I[1]{\ensuremath{\mathord{#1}}\!\!~I}
+\renewcommand\E[1]{\ensuremath{\mathord{#1}}\!\!~E}
+
+\newcommand\TypeK[1][]{\star_{#1}}
+\newcommand\LabK{\mathsf{L}}
+\newcommand\RowK[1]{\mathsf{R}^{#1}}
+
+\newcommand\Sing[1]{\lfloor #1 \rfloor}
+\newcommand\TyC[1]{\mathrm{#1}}
+\newcommand\ExC[1]{\mathrm{#1}}
+\renewcommand\LabTy[2]{#1 \triangleright #2}
+
+\newcommand\Bool{\TyC{Bool}}
+\newcommand\Int{\TyC{Int}}
+\newcommand\Double{\TyC{Double}}
+\newcommand\List{\TyC{List}}
+
+\newcommand\AppT[2]{#1 \, [#2]}
+\renewcommand\LabTerm[2]{#1 \triangleright #2}
+\renewcommand\Unlabel[2]{#1 / #2}
+\newcommand\Lam[3]{\lambda {#1} : {#2}. {#3}}
+\newcommand\TLam[3]{\Lambda {#1} : {#2}. {#3}}
+
+\renewcommand\Concat{\mathbin{+\!\!+}}
+\newcommand\Ana[1][]{\mathsf{ana}_{#1}}
+\newcommand\Syn[1][]{\mathsf{syn}_{#1}}
+
+
+\newcommand\Map{\ExC{map}}
+\newcommand\Fold{\mathsf{fold}}
+\newcommand\Iter{\TyC{Iter}}
+\newcommand\IterM{\Iter_{\Map}}
+\newcommand\IterF{\Iter_{\Fold}}
+\newcommand\MapP{\Map_\Pi}
+\newcommand\MapS{\Map_\Sigma}
+\newcommand\FoldP{\Fold}
+%\newcommand\FoldS{\Fold_\Sigma}
+
+\newcommand\labrule[2]{(\textsc{#1-#2})}
+\newcommand\crule[1]{\labrule c {#1}}
+\newcommand\krule[1]{\labrule k {#1}}
+\newcommand\prule[1]{\labrule p {#1}}
+\newcommand\eqrule[1]{\labrule e {#1}}
+\newcommand\entrule[1]{\labrule n {#1}}
+\newcommand\entsrule[2]{\labrule {n$_{#1}$} {#2}}
+\renewcommand\trule[1]{\labrule t {#1}}
+\newcommand\erule[1]{\labrule e {#1}}
+\newcommand\erulec[1]{\erule{$\xi_{#1}$}}
+\newcommand\esrule[2]{\labrule {e$_{#1}$} {#2}}
+
+\newcommand\EntJ[2]{#1 \Vdash #2}
+\newcommand\EntJS[3]{#2 \Vdash_{#1} #3}
+\newcommand\EnvJ[1]{\vdash #1}
+\newcommand\KindJ[3]{#1 \vdash #2 : #3}
+\newcommand\KindJS[4]{#2 \vdash_{#1} #3 : #4}
+\newcommand\PredJ[2]{#1 \vdash #2}
+\newcommand\TypeJ[3]{#1 \vdash #2 : #3}
+\newcommand\EqvJ[2]{#1 \equiv #2}
+\newcommand\EqvJS[3]{#2 \equiv_{#1} #3}
+\newcommand\Thy{\mathcal{T}}
+\newcommand\Mty{\mathsf{m}}
+\newcommand\Sty{\mathsf{s}}
+\newcommand\Cty{\mathsf{c}}
+
+\newcommand\rrule[1]{[\textsc{#1}]}
+\newcommand\Red{\longrightarrow}
+\newcommand\Reds{\longrightarrow^\star}
+\newcommand\Crash{\mbox{\blitza}}
+\newcommand\Or{\curlyvee}
+
+% Alex
+\newcommand\Case[2]{\paragraph{Case #1} We have a derivation of the form: #2}
+\newcommand\Ni{\noindent}
+\newcommand\Sem[1]{[\![ #1 ]\!]}
+
+\newenvironment{smalle}
+  {\begingroup\small}
+  {\endgroup\ignorespacesafterend}
+
+\newcommand\KFam[2]{#1^{(#2)}}

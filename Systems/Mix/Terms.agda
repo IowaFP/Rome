@@ -68,8 +68,9 @@ data Type where
         Type Δ σ'
   Σ : ∀ {σ σ'} → -- {_ : True (sort? σ)} 
         (τ : Type Δ σ)   →   Type (Δ , τ) σ' → 
-        
+        -------------------------------------------        
         Type Δ σ'
+
 data Term where
   var : ∀ {σ}{τ} → σ ∈ Δ → Term Δ {σ} τ
   --
@@ -83,9 +84,9 @@ data Term where
          Term Δ τ   →   Term (Δ , τ) υ  → 
          ---------------------------------------------------
          Term Δ (Π τ υ)
-  _·_ : ∀ {τ υ} → 
-        Term Δ (Π τ υ) → Term Δ τ  → 
-        Term Δ {!Need to substitute over υ[0 ↦ new term]!}
+  -- _·_ : ∀ {τ υ} → 
+  --       Term Δ (Π τ υ) → Term Δ τ  → 
+  --       Term Δ {!Need to substitute over υ[0 ↦ new term]!}
   -- --
   -- ⟪_⦂_,_⟫ : ∀ {τ υ σ σ₁ σ₂} → 
   --           (Δ ⊢ τ ⦂ σ₁)   →   (t : Δ ⊢ σ₁ ⦂ σ₂)   →   (Δ , σ₁) ⊢ υ ⦂ σ → 

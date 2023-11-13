@@ -1,0 +1,70 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{2}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Hubers and Morris(2023)]%
+        {HubersM23}
+\bibfield{author}{\bibinfo{person}{Alex Hubers} {and}
+  \bibinfo{person}{J.~Garrett Morris}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Generic Programming with Extensible Data Types; Or,
+  Making Ad Hoc Extensible Data Types Less Ad Hoc}.
+\newblock \bibinfo{journal}{\emph{CoRR}}  \bibinfo{volume}{abs/2307.08759}
+  (\bibinfo{year}{2023}).
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.48550/arXiv.2307.08759}
+\showDOI{\tempurl}
+\showeprint[arXiv]{2307.08759}
+
+
+\bibitem[Morris and McKinna(2019)]%
+        {MorrisM19}
+\bibfield{author}{\bibinfo{person}{J.~Garrett Morris} {and}
+  \bibinfo{person}{James McKinna}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Abstracting extensible data types: or, rows by any
+  other name}.
+\newblock \bibinfo{journal}{\emph{Proc. {ACM} Program. Lang.}}
+  \bibinfo{volume}{3}, \bibinfo{number}{{POPL}} (\bibinfo{year}{2019}),
+  \bibinfo{pages}{12:1--12:28}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3290325}
+\showDOI{\tempurl}
+
+
+\end{thebibliography}
