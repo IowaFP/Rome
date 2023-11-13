@@ -8,3 +8,9 @@ html/*
 *.html
 *.zip
 *.qcow
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
