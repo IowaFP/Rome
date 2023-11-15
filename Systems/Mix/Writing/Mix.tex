@@ -6,6 +6,7 @@
 \usepackage{
   % AH> I don't know how much of these are used, and for what.
   %     (needs untangling.) 
+  relsize,
   enumitem,
   xspace,
   mathtools,
@@ -48,10 +49,12 @@
 \author{AH \& JGM}
 
 \newcommand\U{\mathcal{U}}
+\newcommand\J[4]{\mathcal{J} \, #1 \, #2 \, #3 \, #4}
 \newcommand\Refl{\mathrm{refl}}
 \renewcommand\left{\mathrm{left}}
 \renewcommand\right{\mathrm{right}}
-\renewcommand\Case[3]{\mathrm{case} \; #1 \; \mathrm{of} \; \{ \left \mapsto #2 ; \textrm{right} \mapsto #3 \}}
+\renewcommand\Case[3]{\mathrm{case} \; #1 \; #2 \; #3}
+\newcommand\Rule[1]{(\textsc{#1})}
 \begin{document}
 
 \maketitle
@@ -101,7 +104,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
   \mcl{\text{Predicates}} & \pi, \psi & ::= & \Leqp [d] \rho \rho \mid \RowPlusP \rho \rho \rho \\
   \text{Types} & \mcr{\phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid (\to) \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
   & & & \mid & \ell \mid \Sing \xi \mid \LabTy \xi \tau \mid \Row {\tau_1, \dots, \tau_n} \mid \Pi \rho \mid \Sigma \rho \\
-  \mcl{\text{Terms}} & M, N & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \\
+  \mcl{\text{Terms}} & H, M, N, P & ::= & x \mid \lambda x \co \tau. M \mid M \, N \mid \Lambda \alpha \co \kappa. M \mid \AppT M \tau \\
   & & & \mid & \ell \mid \LabTerm M M \mid \Unlabel M M \mid \Prj [d] M \mid M \Concat M \mid \Inj [d] M \mid M \Branch M \\
   & & & \mid & \Syn [\phi] \, M \mid \Ana [\phi]\, M \mid \FoldP \, M \, M \, M \, M \\
   \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : \kappa \mid \Gamma, x : \tau \mid \Gamma, \pi
@@ -533,7 +536,6 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 
 
 \subsection{Typing}
-
 \begin{figure}[H]
 \small
 \begin{gather*}
@@ -548,61 +550,94 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \end{gather*}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M \sigma$} \\
-\ib{\irule[\trule{$\star$}]{};{\SortJ \Gamma \star \U}} 
+\ib{\irule[\Rule{$\star$}]{};{\SortJ \Gamma \star \U}} 
 \rsp
-\ib{\irule {} ; {\SortJ \Gamma \top \star}}
+\ib{\irule[\Rule{$\top_{\star}$}] {} ; {\SortJ \Gamma \top \star}}
 \rsp
-\ib{\irule {} ; {\SortJ \Gamma \top \U}}
+\ib{\irule[\Rule{$\top_{\U}$}] {} ; {\SortJ \Gamma \top \U}}
 \\
-\ib{\irule {} ; {\SortJ \Gamma \Nat \star}}
+\ib{\irule[\Rule{Nat}] {} ; {\SortJ \Gamma \Nat \star}}
 \rsp
-\ib{\irule {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
-\ib{\irule{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Pi \alpha \co M. N} \star }}
+\ib{\irule[\Rule{Ix}] {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
+\ib{\irule[\Rule{$\Pi$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Pi \alpha \co M. N} \star }}
 \rsp
-\ib{\irule{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Sigma \alpha \co M. N} \star }} \\
-\ib{\irule{\SortJ \Gamma M \star}{\SortJ \Gamma N \star};{\SortJ \Gamma {M + N} {\star}}}
+\ib{\irule[\Rule{$\Sigma$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Sigma \alpha \co M. N} \star }} \\
+\ib{\irule[\Rule{$+$}]{\SortJ \Gamma M \star}{\SortJ \Gamma N \star};{\SortJ \Gamma {M + N} {\star}}}
 \rsp
-\ib{\irule{\SortJ \Gamma {M_1} {N_1}}{\SortJ \Gamma {N_1} {\sigma}}{\SortJ \Gamma {M_2} {N_2}}{\SortJ \Gamma {N_2} {\sigma}};{\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
+\ib{\irule[\Rule{$\equiv$}]{\SortJ \Gamma {M_1} {N_1}} {\SortJ \Gamma {M_2} {N_2}} ; {\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
 \end{gather*}
 
 % \ib{\irule{};{}}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M N$} \\
-\ib{\irule{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
+\ib{\irule[\Rule{$x$}]{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
 \rsp
-\ib{\irule{};{\TypeJ \Gamma {\tt} \top}} 
+\ib{\irule[\Rule{$\tt$}]{};{\TypeJ \Gamma {\tt} \top}} 
 \\
-\ib{\irule{};{\TypeJ \Gamma \Zero \Nat}} 
+\ib{\irule[\Rule{$\Zero$}]{};{\TypeJ \Gamma \Zero \Nat}} 
 \rsp
-\ib{\irule{\TypeJ \Gamma n \Nat};{\TypeJ \Gamma {\Suc \, n} \Nat}} 
+\ib{\irule[\Rule{$\Suc{}$}]{\TypeJ \Gamma n \Nat};{\TypeJ \Gamma {\Suc \, n} \Nat}} 
 \rsp
-\ib{\irule{{\TypeJ \Gamma n \Nat}};{\TypeJ \Gamma \FZero {\Ix (\Suc \, n)}}} 
-\rsp
-\ib{\irule{\TypeJ \Gamma n \Nat}{\TypeJ \Gamma i {\Ix n}};{\TypeJ \Gamma {\FSuc \, i} {\Ix {(\Suc \, n)}}}} 
 \\
-\ib{\irule
+\ib{\irule[\Rule{$\FZero$}]{{\TypeJ \Gamma n \Nat}};{\TypeJ \Gamma \FZero {\Ix (\Suc \, n)}}} 
+\rsp
+\ib{\irule[\Rule{$\FSuc{}$}]{\TypeJ \Gamma n \Nat}{\TypeJ \Gamma i {\Ix n}};{\TypeJ \Gamma {\FSuc \, i} {\Ix {(\Suc \, n)}}}} 
+\\
+\ib{\irule[\Rule{$\I\Pi$}]
   {\SortJ \Gamma T \sigma}
   {\TypeJ {\Gamma , x \co T} {M} {N}};
   {\TypeJ \Gamma {\lambda x \co T. M} {\Pi (x \co T). N}}}
 \rsp
-\ib{\irule
+\ib{\irule[\Rule{$\E\Pi$}]
     {\TypeJ \Gamma M {\Pi(x \co T_1). T_2}} {\TypeJ \Gamma N {T_1}};
     {\TypeJ \Gamma {M \, N} T_2[N/x]}}
 \\
- \ib{\irule
+ \ib{\irule[\Rule{$\I\Sigma$}]
       {\TypeJ {\Gamma}{M}{T_1}}
       {\TypeJ {\Gamma} {N} {T_2[M/x]}};
       {\TypeJ \Gamma {(M \co T_1, N)} {\Sigma (x \co T_1). T_2}}}
 \rsp
- \ib{\irule 
+ \ib{\irule [\Rule{$\E\Sigma_{1}$}]
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
      {\TypeJ \Gamma {M.1} T_1}}
 \rsp
- \ib{\irule 
+ \ib{\irule [\Rule{$\E\Sigma_{2}$}]
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {M.2} T_2[M.1/x]}} \\
-\Todo{...}
+     {\TypeJ \Gamma {M.2} T_2[M.1/x]}}
+\\
+\ib{
+  \irule [\Rule{$\I\equiv$}]
+  {\TypeJ \Gamma M \sigma};
+  {\TypeJ \Gamma {\Refl} {M \equiv M}}}
+\rsp
+\ib{
+  \irule [\Rule{conv}]
+  {\TypeJ \Gamma M T_1}{\TypeJ \Gamma {T_1 = T_2} {\sigma}};
+  {\TypeJ \Gamma M T_2}}
+\\
+\ib{
+  \irule [\Rule{$\E\equiv$}]
+      {\mathlarger{\mathlarger{\mathlarger{\substack{ 
+        {\TypeJ \Gamma {T_1} {\star}} \\
+        {\Gamma \vdash M : T_1} \\
+        {\Gamma \vdash N : T_1} \\
+        {\TypeJ {\Gamma, x \co T_1, y \co T_1, p \co x \equiv y} {T_2} {\star}} \\
+        {\TypeJ {\Gamma , z \co T_1} H {T_2[z/x, z/y, \Refl/p]} }}}}}}
+  ;
+  {\TypeJ \Gamma {\J H M N P} {T_2[M/x,N/y,P/p]}}}
 \end{gather*}
+\caption{Context formation and typing rules for \IX{} terms}
+\label{fig:IxRules}
+\end{figure}
+
+
+\begin{figure}[H]
+\small
+\begin{gather*}
+\fbox{$\TypeJ \Gamma {M = N}{\sigma}$} \\
+\end{gather*}
+\caption{Definitional equality of \IX{} terms}
+\label{fig:IxDefnEq}
 \end{figure}
 
 
@@ -612,8 +647,9 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 
 \subsection{Untyped Translation}
 
-\begin{figure}[H]
+We follow the approach of \cite{MorrisM19} and give both typed and untyped translations of \RO types. \cref{fig:translation} describe the untyped translation, which is used to show translational soundness of the typed translation.
 
+\begin{figure}[H]
 \begin{gather*}
 \fbox{$\Ixed{\kappa}$} \\
 \begin{align*}
@@ -624,13 +660,18 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \Ixed{\RowK \kappa} &= \Sigma(n : \Nat). \Pi (j : \Ix  n). \Ixed{\kappa} \\
 \end{align*}
 \end{gather*}
+
 \begin{gather*}
 \fbox{$\Ixed{\tau}$} \\
-\vspace{5em}
 \begin{align*}
-...
+\vspace{5em}
+\Ixed{\alpha} &= \alpha \\
+\Ixed{\tau_1 \to \tau_2} &= \Pi (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
+\Ixed{\forall \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\lambda \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
 \end{align*}
 \end{gather*}
+
 \begin{align*}
 \fbox{$\Ixed{M}$} \\
 \vspace{5em}
@@ -673,6 +714,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
   if $\TypeJ \Gamma \tau \kappa$ such that $\Gamma \vdash \tau \leadsto \upsilon \co \kappa$ then $\SortJ {\Ixed{\Gamma}} \upsilon {\Ixed{\kappa}}$.
 \end{theorem}
 
+\Todo{The following is bullshit w.r.t. definitional equality.}
 \begin{theorem}[Translational Soundness (Type Equivalence)]
   if $\Gamma \vdash \tau_{1} \leadsto \upsilon_{1} \co \kappa_{1}$ and $\Gamma \vdash \tau_{2} \leadsto \upsilon_{2} \co \kappa_{2}$ such that $\tau_{1} \equiv \tau_{2}$ is derivable in \RO, then $\Ixed{\Gamma} \vdash \upsilon_{1} \equiv \upsilon_{2}$.
 \end{theorem}
