@@ -541,9 +541,9 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \begin{gather*}
 \fbox{$\EnvJ \Gamma$}
 \\
-\ib{\irule[\crule{emp}]{ };{\EnvJ \varepsilon}}
+\ib{\irule[\Rule{emp}]{ };{\EnvJ \varepsilon}}
 \rsp
-\ib{\irule[\crule{var}]
+\ib{\irule[\Rule{var}]
           {\EnvJ \Gamma}
           {\SortJ \Gamma M \sigma};
           {\EnvJ {\Gamma, x : M}}}
@@ -556,6 +556,8 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \rsp
 \ib{\irule[\Rule{$\top_{\U}$}] {} ; {\SortJ \Gamma \top \U}}
 \\
+\ib{\irule[\Rule{$Var$}]{\alpha \co \sigma \in \Gamma} ; {\TypeJ \Gamma \alpha \sigma}}
+\rsp
 \ib{\irule[\Rule{Nat}] {} ; {\SortJ \Gamma \Nat \star}}
 \rsp
 \ib{\irule[\Rule{Ix}] {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
@@ -564,13 +566,13 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \ib{\irule[\Rule{$\Sigma$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Sigma \alpha \co M. N} \star }} \\
 \ib{\irule[\Rule{$+$}]{\SortJ \Gamma M \star}{\SortJ \Gamma N \star};{\SortJ \Gamma {M + N} {\star}}}
 \rsp
-\ib{\irule[\Rule{$\equiv$}]{\SortJ \Gamma {M_1} {N_1}} {\SortJ \Gamma {M_2} {N_2}} ; {\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
+\ib{\irule[\Rule{$\equiv$}]{\SortJ \Gamma {M_1} {N_1}} {\SortJ \Gamma {N_1} {\star}} {\SortJ \Gamma {M_2} {N_2}} {\SortJ \Gamma {N_2} {\star}} ; {\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
 \end{gather*}
 
 % \ib{\irule{};{}}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M N$} \\
-\ib{\irule[\Rule{$x$}]{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
+\ib{\irule[\Rule{$Var$}]{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
 \rsp
 \ib{\irule[\Rule{$\tt$}]{};{\TypeJ \Gamma {\tt} \top}} 
 \\
@@ -618,25 +620,63 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \ib{
   \irule [\Rule{$\E\equiv$}]
       {\mathlarger{\mathlarger{\mathlarger{\substack{ 
-        {\TypeJ \Gamma {T_1} {\star}} \\
+        {\TypeJ \Gamma {P} {T_1 \equiv T_2}} \\
         {\Gamma \vdash M : T_1} \\
         {\Gamma \vdash N : T_1} \\
-        {\TypeJ {\Gamma, x \co T_1, y \co T_1, p \co x \equiv y} {T_2} {\star}} \\
-        {\TypeJ {\Gamma , z \co T_1} H {T_2[z/x, z/y, \Refl/p]} }}}}}}
+        {\TypeJ {\Gamma, x \co T_1, y \co T_1, p \co x \equiv y} {T} {\star}} \\
+        {\TypeJ {\Gamma , z \co T_1} H {T[z/x, z/y, \Refl/p]} }}}}}}
   ;
-  {\TypeJ \Gamma {\J H M N P} {T_2[M/x,N/y,P/p]}}}
+  {\TypeJ \Gamma {\J H M N P} {T[M/x,N/y,P/p]}}}
 \end{gather*}
 \caption{Context formation and typing rules for \IX{} terms}
 \label{fig:IxRules}
 \end{figure}
 
+ Let the meta-syntax $\tau$ denote both sort and term.
 
 \begin{figure}[H]
 \small
 \begin{gather*}
-\fbox{$\TypeJ \Gamma {M = N}{\sigma}$} \\
+\fbox{$\TypeJ \Gamma {M = N} \sigma$} \\
+\ib{
+  \irule[\erule{refl}]
+  {\TypeJ \Gamma M \sigma} 
+  ;
+  {\TypeJ \Gamma {M = M} \sigma}}
+\rsp
+\ib{
+  \irule[\erule{sym}]
+  {\TypeJ \Gamma {N = M} \sigma} 
+  ;
+  {\TypeJ \Gamma {M = N} \sigma}}
+\rsp
+\ib{
+  \irule[\erule{trans}]
+  {\TypeJ \Gamma {M = P} \sigma} {{\TypeJ \Gamma {P = N} \sigma}}
+  ;
+  {\TypeJ \Gamma {M = N} \sigma}}
 \end{gather*}
-\caption{Definitional equality of \IX{} terms}
+\begin{gather*}
+\fbox{$\TypeJ \Gamma {M = N} T$} \\
+\ib{
+  \irule[\crule{refl}]
+  {\TypeJ \Gamma M T} 
+  ;
+  {\TypeJ \Gamma {M = M} T}}
+\rsp
+\ib{
+  \irule[\crule{sym}]
+  {\TypeJ \Gamma {N = M} T} 
+  ;
+  {\TypeJ \Gamma {M = N} T}}
+\rsp
+\ib{
+  \irule[\crule{trans}]
+  {\TypeJ \Gamma {M = P} T} {{\TypeJ \Gamma {P = N} T}}
+  ;
+  {\TypeJ \Gamma {M = N} T}}
+\end{gather*}
+\caption{Definitional equality \& computational laws}
 \label{fig:IxDefnEq}
 \end{figure}
 
@@ -662,7 +702,7 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \end{gather*}
 
 \begin{gather*}
-\fbox{$\Ixed{\tau}$} \\
+\fbox{$\Ixed{\sigma}$} \\
 \begin{align*}
 \vspace{5em}
 \Ixed{\alpha} &= \alpha \\
