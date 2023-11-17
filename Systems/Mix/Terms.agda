@@ -13,7 +13,7 @@ open Pre using (Sort ; sort?)
 
 data Context : Set
 data Type : Context → Pre.Term → Set
-data Term : (Γ : Context) → {τ : Pre.Term} → Type Γ τ  → Set
+data Term : {Δ : Context} (Γ : Context) → {τ : Pre.Term} → Type Δ τ  → Set
 
 open Pre.Term
 
@@ -51,26 +51,40 @@ data _∋_ : ∀ {σ} → (Γ : Context) → Type Δ σ → Set where
 data Type where
   ★ : Type Γ 𝓤
   --
-  ⊤★ : Type Γ ★
-  tt : Type Γ ⊤
-  --
-  Nat : Type Γ ★
-  --
-  Ix  : Term Γ Nat → Type Γ ★
-  --
-  Π : ∀ {σ} →
-        (τ : Type Γ σ)   →   Type (Γ , τ) ★ →
-        -------------------------------------------
+  var : ∀ {σ}
+        {T : Type Γ σ}  →  Γ ∋ T →
+        ---------------------------
         Type Γ σ
-  Σ : ∀ {σ} →
-        (τ : Type Γ σ)   →   Type (Γ , τ) ★ → 
+  --
+  ⊤★ : Type Γ ★
+  --
+  Nat : (Γ : Context) → Type Γ ★
+  --
+  Ix  : Term Γ (Nat Γ) → Type Γ ★
+  --
+  Π : ∀ {σ σ'} →
+        (τ : Type Γ σ)   →   Type (Γ , τ) σ' → 
         -------------------------------------------        
-        Type Γ ★
+        Type Γ σ'
+  Σ : ∀ {σ σ'} →
+        (τ : Type Γ σ)   →   Type (Γ , τ) σ' → 
+        -------------------------------------------        
+        Type Γ σ'
   -- 
-  up : Term Γ ★ → Type Γ ★
+  -- up : Term Γ ★ → Type Γ ★
+
+--------------------------------------------------------------------------------
+-- Sanity-checking
+
+nat : Type ε 𝓤
+nat = Π ★ (var {!Z!})
+
+--------------------------------------------------------------------------------
+-- Terms.
 
 postulate
-  WellSorted : ∀ {σ} → Type Δ σ → Sort σ
+  weakenType : ∀ {σ} {T : Type Γ σ} → Type Γ σ → Type (Γ , T) σ
+  WellSorted : ∀ {σ} → Type ε σ → Sort σ
   WellSortedEnv : ∀ {σ}{Γ : Context} {T : Type Γ σ} →
                   Γ ∋ T → Sort σ
 
@@ -83,8 +97,10 @@ data Term where
         ---------------------------
         Term Γ {σ} T
   --
-  Zero : Term Γ Nat
-  Suc : Term Γ Nat → Term Γ Nat
+  tt : Term Γ ⊤★
+  --
+  Zero : Term Γ (Nat Γ)
+  Suc : Term Γ (Nat Γ) → Term Γ (Nat Γ)
   --
   FZero : ∀ {n} → Term Γ (Ix n)
   FSuc  : ∀ {n} → Term Γ (Ix n) → Term Γ (Ix (Suc n))
@@ -104,17 +120,22 @@ data Term where
   -- fst : ∀ {τ M σ} → Γ ⊢ M ⦂ Σ τ σ → Γ ⊢ (fst M) ⦂ τ
   -- snd : ∀ {τ M σ} → (s : Γ ⊢ M ⦂ Σ τ σ) → Γ ⊢ (snd M) ⦂ σ
 
+-- postulate
+--   weakenTerm : ∀ {σ σ'} {T₁ : Type Γ σ} {T₂ : Type Γ σ'} → Term Γ T₂ → Term (Γ , T₁) (weakenType T₂)
 -- --------------------------------------------------------------------------------
 -- -- Sanity checking
 
-term-Nat : Term ε Nat
+term-Nat : Term ε (Nat ε)
 term-Nat = Zero
 
-term-Nat₁ : Term ε Nat
+term-Nat₁ : Term ε (Nat ε)
 term-Nat₁ = Suc Zero
 
-wut : (ε , Nat) ∋ Nat
-wut = Z
+-- wut : (ε , Nat ε) ∋ Nat ε
+-- wut = Z
 
-term-var₁ : Term (_,_ {Δ = ε} ε Nat ) (Nat {ε , Nat})
-term-var₁ = var {ε , Nat {ε}} {★} {Nat {ε , Nat}} {!!}
+wut : Term (ε , Nat ε) (Nat (ε , Nat ε))
+wut = {!!}
+
+term-var₁ : Term (ε , Nat ε) (Nat (ε , Nat ε))
+term-var₁ = var {!Z!}
