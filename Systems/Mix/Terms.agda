@@ -13,83 +13,108 @@ open Pre using (Sort ; sort?)
 
 data Context : Set
 data Type : Context → Pre.Term → Set
-data Term : (Δ : Context) → {τ : Pre.Term} → Type Δ τ  → Set
+data Term : (Γ : Context) → {τ : Pre.Term} → Type Γ τ  → Set
 
 open Pre.Term
 
+-- Context house assumptions 
 data Context where
   ε : Context
-  _,_ : ∀ {τ} → (Δ : Context) → Type Δ τ  → Context
-
---------------------------------------------------------------------------------
--- Lookup 
-infix 4 _∈_
-
-data _∈_ : Pre.Term → Context → Set where
-
-  Z : ∀ {σ} {Δ : Context} {A : Type Δ σ}
-      ------------------
-    → σ ∈ (Δ , A)
-
-  S : ∀ {σ σ'} {Δ} {B : Type Δ σ'}
-    → σ ∈ Δ
-      ------------------
-    → σ ∈ (Δ , B)
+  _,_ : ∀ {Δ}{σ} → (Γ : Context) → Type Δ σ → Context
 
 private
   variable
-    Δ : Context 
+    Γ Δ Δ' : Context
 
 --------------------------------------------------------------------------------
--- Typing judgements.
+-- Lookup 
+infix 4 _∋_
+
+-- N.b.: don't need type-level vars, but do need
+-- "cascading" environments.
+data _∋_ : ∀ {σ} → (Γ : Context) → Type Δ σ → Set where
+
+  -- Z {★} {T = Nat : Type ε ★} → (ε , Nat : Type ε ★) ∋ (Nat : Type ε ★)
+  Z : ∀ {σ} {T : Type Γ σ} →
+
+      -----------
+      (Γ , T) ∋ T
+
+  -- S : ∀ {σ σ'} {A : Type Δ σ} {T : Type (Δ , T) σ'}
+  --     → Δ ∋ A
+  --     ------------------
+  --   → (Γ , T) ∋ A
+
+-- --------------------------------------------------------------------------------
+-- -- Typing judgements.
 
 data Type where
-  ★ : Type Δ 𝓤
+  ★ : Type Γ 𝓤
   --
-  -- (The Sort σ) predicate simply states that
-  -- σ ∈ {★ , 𝓤}
-  ⊤ : ∀ {σ} → Sort σ →  Type Δ σ
-  tt : Type Δ ⊤
+  ⊤★ : Type Γ ★
+  tt : Type Γ ⊤
   --
-  var : ∀ {σ} → σ ∈ Δ → Type Δ σ
+  Nat : Type Γ ★
   --
-  Nat : Type Δ ★
+  Ix  : Term Γ Nat → Type Γ ★
   --
-  Ix  : Term Δ Nat → Type Δ ★
-  --
-  Π : ∀ {σ σ'} → -- {_ : True (sort? σ)}
-        (τ : Type Δ σ)   →   Type (Δ , τ) σ' →
+  Π : ∀ {σ} →
+        (τ : Type Γ σ)   →   Type (Γ , τ) ★ →
         -------------------------------------------
-        Type Δ σ'
-  Σ : ∀ {σ σ'} → -- {_ : True (sort? σ)} 
-        (τ : Type Δ σ)   →   Type (Δ , τ) σ' → 
+        Type Γ σ
+  Σ : ∀ {σ} →
+        (τ : Type Γ σ)   →   Type (Γ , τ) ★ → 
         -------------------------------------------        
-        Type Δ σ'
+        Type Γ ★
+  -- 
+  up : Term Γ ★ → Type Γ ★
 
 postulate
+  WellSorted : ∀ {σ} → Type Δ σ → Sort σ
+  WellSortedEnv : ∀ {σ}{Γ : Context} {T : Type Γ σ} →
+                  Γ ∋ T → Sort σ
+
   -- (beta-)substitution of terms over types
-  _β[_]ₜ : ∀ {τ υ}{T₁ : Type Δ τ} → Type (Δ , T₁) υ → Term Δ T₁ → Type Δ υ
+  _β[_]ₜ : ∀ {τ υ}{T₁ : Type Γ τ} → Type (Γ , T₁) υ → Term Γ T₁ → Type Γ υ
 
 data Term where
-  var : ∀ {σ}{τ} → σ ∈ Δ → Term Δ {σ} τ
+  var : ∀ {σ}
+        {T : Type Γ σ}  →  Γ ∋ T →
+        ---------------------------
+        Term Γ {σ} T
   --
-  Zero : Term Δ Nat
-  Suc : Term Δ Nat → Term Δ Nat
+  Zero : Term Γ Nat
+  Suc : Term Γ Nat → Term Γ Nat
   --
-  FZero : ∀ {n} → Term Δ (Ix n)
-  FSuc  : ∀ {n} → Term Δ (Ix n) → Term Δ (Ix (Suc n))
+  FZero : ∀ {n} → Term Γ (Ix n)
+  FSuc  : ∀ {n} → Term Γ (Ix n) → Term Γ (Ix (Suc n))
   --
-  `λ : ∀ {σ σ'}{τ : Type Δ σ} {υ : Type (Δ , τ) σ'} → 
-         Term Δ τ   →   Term (Δ , τ) υ  → 
-         ---------------------------------------------------
-         Term Δ (Π τ υ)
-  _·_ : ∀ {τ υ : Pre.Term}{T₁ : Type Δ τ}{T₂ : Type (Δ , T₁) υ} → 
-        Term Δ (Π T₁ T₂) → (N : Term Δ T₁) → 
-        Term Δ (T₂ β[ N ]ₜ)
+  `λ : ∀ {σ} → 
+         (T : Type Γ σ)   → {N : Type (Γ , T) ★} →  (M : Term (Γ , T) ★)  → 
+         ---------------------------------------------------------------------
+         Term Γ (Π T N)
+  _·_ : ∀ {τ υ : Pre.Term}{T₁ : Type Γ τ}{T₂ : Type (Γ , T₁) ★} → 
+        Term Γ (Π T₁ T₂) → (N : Term Γ T₁) → 
+        Term Γ (T₂ β[ N ]ₜ)
   -- -- Use custon syntax to switch this to ⟪_⦂_,_⟫
-  Sum : ∀ {τ υ}{T₂ : Type (Δ , T₁) υ} → 
-            (T₁ : Type Δ τ) → (Term Δ T₁) → (v : Term (Δ , T₁) T₂) → 
-            ----------------------------------------------------------------
-            Term Δ (Σ T₁ v)
-  -- fst : ∀ {τ M σ} → Δ ⊢ M ⦂ Σ τ σ → Δ ⊢ (fst M) ⦂ τ
-  -- snd : ∀ {τ M σ} → (s : Δ ⊢ M ⦂ Σ τ σ) → Δ ⊢ (snd M) ⦂ σ
+  -- Sum : ∀ {τ υ}{T₂ : Type (Γ , T₁) υ} → 
+  --           (T₁ : Type Γ τ) → (Term Γ T₁) → (v : Term (Γ , T₁) T₂) → 
+  --           ----------------------------------------------------------------
+  --           Term Γ (Σ T₁ v)
+  -- fst : ∀ {τ M σ} → Γ ⊢ M ⦂ Σ τ σ → Γ ⊢ (fst M) ⦂ τ
+  -- snd : ∀ {τ M σ} → (s : Γ ⊢ M ⦂ Σ τ σ) → Γ ⊢ (snd M) ⦂ σ
+
+-- --------------------------------------------------------------------------------
+-- -- Sanity checking
+
+term-Nat : Term ε Nat
+term-Nat = Zero
+
+term-Nat₁ : Term ε Nat
+term-Nat₁ = Suc Zero
+
+wut : (ε , Nat) ∋ Nat
+wut = Z
+
+term-var₁ : Term (_,_ {Δ = ε} ε Nat ) (Nat {ε , Nat})
+term-var₁ = var {ε , Nat {ε}} {★} {Nat {ε , Nat}} {!!}
