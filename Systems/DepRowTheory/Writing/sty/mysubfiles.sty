@@ -1,0 +1,10 @@
+% mysubfiles.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mysubfiles}
+
+\newcommand\subfile[1]{%
+  \begingroup
+  \renewcommand{\documentclass}[2][subfiles]{}%
+  \renewenvironment{document}{\let\document\@onlypreamble}{}%
+  \input{#1}%
+  \endgroup}
