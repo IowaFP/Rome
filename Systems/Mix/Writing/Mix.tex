@@ -548,7 +548,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 
 \subsection{Typing}
 
-\cref{fig:IxRules} gives the rules for three judgments: $\vdash \Gamma$, which states that typing environment $\Gamma$ is well-formed; $\Gamma \vdash M : \sigma$, which states that $M$ is a type with sort $\sigma$; and $\Gamma \vdash M : N$, which states that $M$ has type $N$. You may observe that one could merge the judgments $\Gamma \vdash M : \sigma$ and $\Gamma \vdash M : N$ by incorporating the syntax of $\sigma$ into the term language. (This is not a crazy thing to do in dependent type theory.) I find it is helpful to separate them for two reasons:
+\cref{fig:IxRules} gives the rules for three judgments: $\vdash \Gamma$, which states that typing environment $\Gamma$ is well-formed; $\Gamma \vdash M : \sigma$, which states that $M$ is a type with sort $\sigma$; and $\Gamma \vdash M : N$, which states that $M$ has type $N$. You may observe that one could merge the judgments $\Gamma \vdash M : \sigma$ and $\Gamma \vdash M : N$ by incorporating the syntax of $\sigma$ into the term language. (This is not a crazy thing to do in dependent type theory.) I find it is helpful to separate them.
 
 \begin{enumerate}
 \item The judgment $\Gamma \vdash M : \sigma$ is not actually analogous to a typing judgment, but rather to the judgment $\Gamma \vdash M \; \text{type}$ one would see in MLTT/CoC. We are asserting that $M$ is a type with sort $\sigma$.
@@ -564,7 +564,8 @@ Defining terms and types as one AST (indexed by two \Tt{Pre.Term}s) means that \
 data Term : (d : Context) → Pre.Term → Pre.Term → Set
 \end{verbatim}
 
-There is a lot of funny business one can do with induction-induction and induction-recursion, but to my knowledge you may not \emph{index} a type by itself in Agda.
+There is a lot of funny business one can do with induction-induction and induction-recursion, but to my knowledge you may not \emph{index} a type by itself in Agda. Note, also, that the development in \cite{AbelOV18} uses a tagless representation of terms.
+
 \end{enumerate}
 
 
