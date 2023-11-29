@@ -48,6 +48,8 @@
 
 \author{AH \& JGM}
 
+\newcommand\Fst{\mathrm{fst}}
+\newcommand\Snd{\mathrm{snd}}
 \newcommand\U{\mathcal{U}}
 \newcommand\Pointed[1]{\ensuremath{#1_{\bot}}}
 \newcommand\PointedT{\Pointed{\star}}
@@ -527,7 +529,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
   & & & &  \top \mid \tt \mid \bot \\
   & & & &  \Pi \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
-  & & & &  \Sigma \alpha \co T. M \mid (\alpha \co T , M) \mid M.1 \mid M.2 \mid  \\
+  & & & &  \Sigma \alpha \co T. M \mid (\alpha \co T , M) \mid \Fst \, M \mid \Snd \, M \mid  \\
   & & & &  M + N \mid \left\, M \mid \right\, M \mid \Case M M M \mid \\
   & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
   & & & &  \mu \alpha \co T. M \\
@@ -538,6 +540,8 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \caption{Syntax}
 \label{fig:syntax}
 \end{figure}
+
+Let $0,1,2,...$ denote (as meta-syntax) object-level natural numbers in the intuitive fashion and let $i_{n}$ denote finite natural obtained by $n$ applications of $\FSuc$ to $\FZero$.
 
 \subsection{Typing}
 
@@ -628,11 +632,11 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \rsp
  \ib{\irule [\Rule{$\E\Sigma_{1}$}]
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {M.1} T_1}}
+     {\TypeJ \Gamma {\Fst \, M} T_1}}
 \rsp
  \ib{\irule [\Rule{$\E\Sigma_{2}$}]
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {M.2} T_2[M.1/x]}}
+     {\TypeJ \Gamma {\Snd\, M} T_2[(\Fst \, M)/x]}}
 \\
 \ib{
   \irule [\Rule{$\I\equiv$}]
@@ -660,8 +664,6 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \caption{Context formation and typing rules for \IX{} terms}
 \label{fig:IxRules}
 \end{figure}
-
- Let the meta-syntax $\tau$ denote both sort and term.
 
 \begin{figure}[H]
 \small
@@ -718,6 +720,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 
 We follow the approach of \cite{MorrisM19} and give both typed and untyped translations of \RO types. \cref{fig:translation} describe the untyped translation, which is used to show translational soundness of the typed translation.
 
+
 \begin{figure}[H]
 \begin{gather*}
 \fbox{$\Ixed{\kappa}$} \\
@@ -729,25 +732,36 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \Ixed{\RowK \kappa} &= \Sigma(n : \Nat). \Pi (j : \Ix  n). \Ixed{\kappa} \\
 \end{align*}
 \end{gather*}
-
 \begin{gather*}
-\fbox{$\Ixed{\sigma}$} \\
+\fbox{$\Ixed{\KindJ \Gamma \tau \kappa}$} \\
 \begin{align*}
 \vspace{5em}
 \Ixed{\alpha} &= \alpha \\
 \Ixed{\tau_1 \to \tau_2} &= \Pi (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
 \Ixed{\forall \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
 \Ixed{\lambda \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\pi \then \tau} &= \Pi (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
+\Ixed{\tau \, \upsilon} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
+\Ixed{\ell} &= \top  \\
+\Ixed{\Sing \xi} &= \top  \\
+\Ixed{\LabTy \xi \tau}&= (1, \, \lambda (i : \Ix{1}). \Ixed{\tau} )  \\
+\Ixed{\Pi \rho}&=  \Pi(i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
+\Ixed{\Sigma \rho}&= \Sigma (i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
 \end{align*}
 \end{gather*}
 
 \begin{align*}
-\fbox{$\Ixed{M}$} \\
+\fbox{$\Ixed{\Gamma \vdash \pi : \kappa}$} \\
 \vspace{5em}
 ...
 \end{align*} \\
 \begin{align*}
-\fbox{$\Ixed{\pi}$} \\
+\fbox{$\Ixed{\Gamma \Vdash \pi}$} \\
+\vspace{5em}
+...
+\end{align*} \\
+\begin{align*}
+\fbox{$\Ixed{\TypeJ \Gamma M \tau}$} \\
 \vspace{5em}
 ...
 \end{align*}
@@ -779,29 +793,30 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 
 \subsection{Properties of Translation}
 
+Presume an \RO instantiation of the simple row theory. A lot of this is likely bullshit.
+
 \begin{theorem}[Translational Soundness (Types)]
   if $\TypeJ \Gamma \tau \kappa$ such that $\Gamma \vdash \tau \leadsto \upsilon \co \kappa$ then $\SortJ {\Ixed{\Gamma}} \upsilon {\Ixed{\kappa}}$.
 \end{theorem}
 
-\Todo{The following is bullshit w.r.t. definitional equality.}
 \begin{theorem}[Translational Soundness (Type Equivalence)]
-  if $\Gamma \vdash \tau_{1} \leadsto \upsilon_{1} \co \kappa_{1}$ and $\Gamma \vdash \tau_{2} \leadsto \upsilon_{2} \co \kappa_{2}$ such that $\tau_{1} \equiv \tau_{2}$ is derivable in \RO, then $\Ixed{\Gamma} \vdash \upsilon_{1} \equiv \upsilon_{2}$.
+  if
+  \begin{enumerate}
+  \item $\Gamma \vdash \tau_{1} \leadsto \upsilon_{1} \co \kappa_{1}$;
+  \item $\Gamma \vdash \tau_{2} \leadsto \upsilon_{2} \co \kappa_{2}$; and
+  \item $\tau_{1} \equiv \tau_{2} \leadsto P$,
+  \end{enumerate}
+ then $\Ixed{\Gamma} \vdash P : \upsilon_{1} \equiv \upsilon_{2}$.
 \end{theorem}
 
-The next theorems presume an \RO instantiation of the simple row theory.
-
-\begin{theorem}[Translational Soundness (Row combination)]
-  if $\Gamma \Vdash \rho_{1} \cdot \rho_{2} \sim \rho_{3} \leadsto N$ then $\Ixed{\Gamma} \vdash N : foobar$.
-\end{theorem}
-
-\begin{theorem}[Translational Soundness (Row containment)]
-  if $\Gamma \Vdash \rho_{1} \lesssim \rho_{2} \leadsto N$ then $\Ixed{\Gamma} \vdash N : foobar$.
+\begin{theorem}[Translational Soundness (Of Predicates)]
+  if $\Gamma \Vdash \pi$ such that $\Gamma \Vdash \pi \leadsto N$ then $\Ixed{\Gamma} \vdash N : \Ixed{\pi}$.
 \end{theorem}
 
 Finally,
 
 \begin{theorem}[Translational Soundness]
-  if $\TypeJ \Gamma M \tau$ such that $\Gamma \vdash M \leadsto N \co \tau$ then $\SortJ {\Ixed{\Gamma}} M {\Ixed{\tau}}$.
+  if $\TypeJ \Gamma M \tau$ such that $\Gamma \vdash M \leadsto N \co \tau$ then $\SortJ {\Ixed{\Gamma}} N {\Ixed{\tau}}$.
 \end{theorem}
 
 \section{Operational semantics of \IX{}}

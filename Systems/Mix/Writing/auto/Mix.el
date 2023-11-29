@@ -16,6 +16,8 @@
     '("Rule" 1)
     '("J" 4)
     '("Pointed" 1)
+    "Fst"
+    "Snd"
     "U"
     "PointedT"
     "PointedU"
