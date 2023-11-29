@@ -11,9 +11,14 @@
     "tikz"
     "tikz-cd")
    (TeX-add-symbols
+    '("SafeJ" 2)
+    '("Safe" 1)
     '("Rule" 1)
     '("J" 4)
+    '("Pointed" 1)
     "U"
+    "PointedT"
+    "PointedU"
     "Refl")
    (LaTeX-add-labels
     "app:RO"

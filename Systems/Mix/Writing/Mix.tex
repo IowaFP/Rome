@@ -49,12 +49,18 @@
 \author{AH \& JGM}
 
 \newcommand\U{\mathcal{U}}
+\newcommand\Pointed[1]{\ensuremath{#1_{\bot}}}
+\newcommand\PointedT{\Pointed{\star}}
+\newcommand\PointedU{\Pointed{\U}}
 \newcommand\J[4]{\mathcal{J} \, #1 \, #2 \, #3 \, #4}
 \newcommand\Refl{\mathrm{refl}}
 \renewcommand\left{\mathrm{left}}
 \renewcommand\right{\mathrm{right}}
 \renewcommand\Case[3]{\mathrm{case} \; #1 \; #2 \; #3}
 \newcommand\Rule[1]{(\textsc{#1})}
+\newcommand\Safe[1]{\ensuremath{#1 \; \mathrm{Safe}}}
+\newcommand\SafeJ[2]{\ensuremath{#1 \vdash #2 \; \mathrm{Safe}}}
+
 \begin{document}
 
 \maketitle
@@ -80,8 +86,6 @@
 
 \section{\RO---higher ordered rows}
 \label{app:RO}
-
-Recursive types have a well known semantics as the least fixed-points of type-level operators. \RO is the only row calculus (to our knowledge) to include an (explicit) type-level $\lambda$ operator. Like with $F\omega$, this necessarily sacrifices desirable metatheoretic properties, such as principality of types; hence, like $F\omega$, $\RO$ may serve as a highly expressive intermediate or target language. Correspondingly, we perceive the addition of recursive terms and types to \RO to aid the adoption of recursion in surface languages.
 
 We review the relevant syntax and typing of \RO now.
 
@@ -518,14 +522,15 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \end{array}
 \\[5px]
 \begin{doublesyntaxarray}
-  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
+  \mcl{\text{Sorts}} & \sigma & ::= & \TypeK \mid \PointedT \mid \U \mid \U_\bot\\
   \mcl{\text{Terms}} & M, N, T & ::= & x \mid \star \mid \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
-  & & & &  \top \mid \tt \mid \\
+  & & & &  \top \mid \tt \mid \bot \\
   & & & &  \Pi \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
-  & & & &  \Sigma \alpha \co T. M \mid (\alpha \co T , M) \mid M.1 \mid M.2  \\
-  & & & &  M + N \mid \left\, M \mid \right\, M \mid \Case M M M \\
-  & & & &  M \equiv N \mid \Refl \mid \Todo{...} \\
+  & & & &  \Sigma \alpha \co T. M \mid (\alpha \co T , M) \mid M.1 \mid M.2 \mid  \\
+  & & & &  M + N \mid \left\, M \mid \right\, M \mid \Case M M M \mid \\
+  & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
+  & & & &  \mu \alpha \co T. M \\
   \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : T
 \end{doublesyntaxarray}
 \end{gather*}
@@ -534,39 +539,7 @@ The syntax of \RO [\Thy] is given in \cref{fig:syntax}.
 \label{fig:syntax}
 \end{figure}
 
-\paragraph{Universes.} \IX{} is stratified by two universes: $\star$, the type of types, and $\mathcal{U}$, the type of $\star$. This is analogous to e.g. Coq/CoC, in which both \Tt{Set} and \Tt{Prop} are impredicative and have type \Tt{Type}.
-
-% https://q.uiver.app/#q=WzAsMyxbMSwwLCJcXHRleHR0dHtUeXBlfSJdLFswLDEsIlxcdGV4dHR0e1NldH0iXSxbMiwxLCJcXHRleHR0dHtQcm9wfSJdLFsxLDBdLFsyLDBdXQ==
-\[\begin{tikzcd}
-	& {\texttt{Type}} \\
-	{\texttt{Set}} && {\texttt{Prop}}
-	\arrow[from=2-1, to=1-2]
-	\arrow[from=2-3, to=1-2]
-\end{tikzcd}\]
-
-\IX{} is exactly the same modulo renaming and without a need for (the proof-irrelevant universe of) \Tt{Prop}.
-
 \subsection{Typing}
-
-\cref{fig:IxRules} gives the rules for three judgments: $\vdash \Gamma$, which states that typing environment $\Gamma$ is well-formed; $\Gamma \vdash M : \sigma$, which states that $M$ is a type with sort $\sigma$; and $\Gamma \vdash M : N$, which states that $M$ has type $N$. You may observe that one could merge the judgments $\Gamma \vdash M : \sigma$ and $\Gamma \vdash M : N$ by incorporating the syntax of $\sigma$ into the term language. (This is not a crazy thing to do in dependent type theory.) I find it is helpful to separate them.
-
-\begin{enumerate}
-\item The judgment $\Gamma \vdash M : \sigma$ is not actually analogous to a typing judgment, but rather to the judgment $\Gamma \vdash M \; \text{type}$ one would see in MLTT/CoC. We are asserting that $M$ is a type with sort $\sigma$.
-\item Definitional equality is different for the two judgments. Definitional equality of types, e.g. $\Gamma \vdash \Pi M_{1} N_{1} = \Pi M_{2} N_{2} : \sigma$, for example, holds if the components are equal; that is to say, definitional equality of types is mostly congruence rules. Definitional equality of terms are \emph{computational laws}, e.g., the computational law for (left) projection of dependent sums is given by $\Gamma \vdash (x \co A , M ).1 = x : A$.
-\item Separating the two in the mechanization allows me to index \emph{terms} by \emph{types}:
-\begin{verbatim}
-data Type : Context → Pre.Term → Set
-data Term : (d : Context) → {t : Pre.Term} → Type d t  → Set
-\end{verbatim}
-
-Defining terms and types as one AST (indexed by two \Tt{Pre.Term}s) means that \emph{terms can not be intrinsically typed}, as we are forced to define
-\begin{verbatim}
-data Term : (d : Context) → Pre.Term → Pre.Term → Set
-\end{verbatim}
-
-There is a lot of funny business one can do with induction-induction and induction-recursion, but to my knowledge you may not \emph{index} a type by itself in Agda. Note, also, that the development in \cite{AbelOV18} uses a tagless representation of terms.
-
-\end{enumerate}
 
 
 \begin{figure}[H]
@@ -582,24 +555,45 @@ There is a lot of funny business one can do with induction-induction and inducti
           {\EnvJ {\Gamma, x : M}}}
 \end{gather*}
 \begin{gather*}
+\fbox{$\Safe \sigma$} \; \fbox{$\SafeJ \Gamma M$}
+\\
+\fbox{\Todo{(I am not sure these two rules are necessary.)}}
+\\
+\ib{\irule[]{};{{\Safe \U}}}
+\rsp
+\ib{\irule[]{\Safe \sigma}{\SortJ \Gamma M \sigma};{{\SafeJ \Gamma M}}}
+\end{gather*}
+
+\begin{gather*}
 \fbox{$\TypeJ \Gamma M \sigma$} \\
 \ib{\irule[\Rule{$\star$}]{};{\SortJ \Gamma \star \U}} 
 \rsp
-\ib{\irule[\Rule{$\top_{\star}$}] {} ; {\SortJ \Gamma \top \star}}
-\rsp
-\ib{\irule[\Rule{$\top_{\U}$}] {} ; {\SortJ \Gamma \top \U}}
+\ib{\irule[\Rule{cum}]{{\SortJ \Gamma T \star}};{\SortJ \Gamma T \U}} 
 \\
-\ib{\irule[\Rule{$Var$}]{\alpha \co \sigma \in \Gamma} ; {\TypeJ \Gamma \alpha \sigma}}
+\ib{\irule[\Rule{$\PointedT$}]{};{\SortJ \Gamma \PointedT \U_\bot}} 
+\rsp
+\ib{\irule[\Rule{why-not}] {\SortJ \Gamma T \U} ; {\SortJ \Gamma T \U_\bot}}
+\\
+\ib{\irule[\Rule{$\top$}] {} ; {\SortJ \Gamma \top \sigma}}
+\rsp
+\ib{\irule[\Rule{$\bot$}] {} ; {\SortJ \Gamma \bot \star_\bot}}
+\\
+\ib{\irule[\Rule{Var}]{\alpha \co \sigma \in \Gamma} ; {\TypeJ \Gamma \alpha \sigma}}
 \rsp
 \ib{\irule[\Rule{Nat}] {} ; {\SortJ \Gamma \Nat \star}}
 \rsp
 \ib{\irule[\Rule{Ix}] {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
-\ib{\irule[\Rule{$\Pi$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Pi \alpha \co M. N} \star }}
+\ib{\irule[\Rule{$\Pi$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\sigma}};{\SortJ \Gamma {\Pi \alpha \co M. N} \sigma }}
 \rsp
-\ib{\irule[\Rule{$\Sigma$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\star}};{\SortJ \Gamma {\Sigma \alpha \co M. N} \star }} \\
-\ib{\irule[\Rule{$+$}]{\SortJ \Gamma M \star}{\SortJ \Gamma N \star};{\SortJ \Gamma {M + N} {\star}}}
+\ib{\irule[\Rule{$\Sigma$}]{\SortJ \Gamma M \sigma} {\SortJ {\Gamma, \alpha \co M}{N}{\sigma}};{\SortJ \Gamma {\Sigma \alpha \co M. N} \sigma }} \\
+\ib{\irule[\Rule{$+$}]{\SortJ \Gamma M \sigma}{\SortJ \Gamma N \sigma};{\SortJ \Gamma {M + N} {\sigma}}}
 \rsp
-\ib{\irule[\Rule{$\equiv$}]{\SortJ \Gamma {M_1} {N_1}} {\SortJ \Gamma {N_1} {\star}} {\SortJ \Gamma {M_2} {N_2}} {\SortJ \Gamma {N_2} {\star}} ; {\SortJ \Gamma {{M_1} \equiv {M_2}} {\star}}}
+\ib{
+  \irule[\Rule{$\equiv$}]
+  {\SortJ \Gamma {M} {\sigma}}
+  {\SortJ \Gamma {N} {\sigma}}
+  {\Safe \sigma}; 
+  {\SortJ \Gamma {{M} \equiv {N}} {\sigma}}}
 \end{gather*}
 
 % \ib{\irule{};{}}
@@ -647,7 +641,9 @@ There is a lot of funny business one can do with induction-induction and inducti
 \rsp
 \ib{
   \irule [\Rule{conv}]
-  {\TypeJ \Gamma M T_1}{\TypeJ \Gamma {T_1 = T_2} {\sigma}};
+  {\TypeJ \Gamma M T_1}
+  {\TypeJ \Gamma {T_1 = T_2} {\sigma}}
+  {\Safe \sigma};
   {\TypeJ \Gamma M T_2}}
 \\
 \ib{
@@ -713,7 +709,7 @@ There is a lot of funny business one can do with induction-induction and inducti
 \label{fig:IxDefnEq}
 \end{figure}
 
-
+\subsection{A Comparison to $\lambda^{\Pi\mathcal{U}\mathbb{N}}$ \cite{AbelOV18}}
 
 
 \section{Translation From \RO}
