@@ -1,5 +1,5 @@
 (TeX-add-style-hook
- "Mix"
+ "RO"
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-class-options
                      '(("acmart" "authoryear" "acmsmall" "screen")))
@@ -12,14 +12,9 @@
     "tikz-cd")
    (TeX-add-symbols
     '("New" 1)
-    '("Felim" 1)
     '("SafeJ" 2)
     '("Safe" 1)
     '("Rule" 1)
-    '("CaseS" 5)
-    '("CaseP" 3)
-    '("CaseF" 4)
-    '("CaseN" 4)
     '("J" 4)
     '("Pointed" 1)
     "Fst"
@@ -29,12 +24,15 @@
     "PointedU"
     "Refl")
    (LaTeX-add-labels
+    "app:RO"
+    "sec:ro-syntax"
     "fig:syntax"
-    "fig:formation"
-    "fig:IxRules"
-    "fig:IxDefnEq"
-    "fig:translation")
-   (LaTeX-add-bibliographies
-    "MIx"))
+    "sec:ro-types"
+    "fig:kinding"
+    "fig:type-equiv"
+    "sec:ro-terms"
+    "fig:typing"
+    "sec:ro-minimal"
+    "fig:minimal"))
  :latex)
 
