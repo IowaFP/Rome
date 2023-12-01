@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  1 DEC 2023 11:57
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  1 DEC 2023 14:16
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1371,14 +1371,20 @@ File: l3backend-pdftex.def 2022-04-20 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count366
 \l__pdf_internal_box=\box131
 )
-(./Mix.aux (./bu.aux))
+(./Mix.aux
+
+LaTeX Warning: Label `fig:translation' multiply defined.
+
+
+LaTeX Warning: Label `fig:translation@cref' multiply defined.
+
+(./bu.aux))
 \openout1 = `Mix.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/nxlmi/m/it on input line 74.
 LaTeX Font Info:    Trying to load font information for OML+nxlmi on input line
  74.
-
-(/usr/local/texlive/2022/texmf-dist/tex/latex/newtx/omlnxlmi.fd
+ (/usr/local/texlive/2022/texmf-dist/tex/latex/newtx/omlnxlmi.fd
 File: omlnxlmi.fd 2013/11/19 Fontinst v1.933 font definitions for OML/nxlmi.
 )
 LaTeX Font Info:    ... okay on input line 74.
@@ -1681,711 +1687,800 @@ LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
 
 Class acmart Warning: A possible image without description on input line 111.
 
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 9.0pt on input line 127.
-
-Class acmart Warning: A possible image without description on input line 152.
-
 [1.1{/usr/local/texlive/2022/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (40.00447pt too wide) detected at line 122
+\LMS/ntxsy/m/n/10 f  f\T1/LinuxLibertineT-TLF/m/it/10 M[]\OML/nxlmi/m/it/10 ; :
+::; \T1/LinuxLibertineT-TLF/m/it/10 M[]\LMS/ntxsy/m/n/10 g  g \U/ntxmia/m/it/10
+ =[] \OML/nxlmi/m/it/10 ^^U\LMS/ntxsy/m/n/10 ¹\T1/LinuxLibertineT-TLF/m/it/10 x
+ \OT1/LinuxLibertineT-TLF/m/n/10 : [] \T1/LinuxLibertineT-TLF/m/it/10 n\LMS/ntx
+sy/m/n/10 º\OML/nxlmi/m/it/10 :[][] \T1/LinuxLibertineT-TLF/m/it/10 x []\LMS/nt
+xsy/m/n/10 f[] 7! \T1/LinuxLibertineT-TLF/m/it/10 M[]\OT1/LinuxLibertineT-TLF/m
+/n/10 ; [] \T1/LinuxLibertineT-TLF/m/it/10 x \LMS/ntxsy/m/n/10 7! [][] \T1/Linu
+xLibertineT-TLF/m/it/10 x []\LMS/ntxsy/m/n/10 f[] 7! \T1/LinuxLibertineT-TLF/m/
+it/10 M[]\OT1/LinuxLibertineT-TLF/m/n/10 ; [] \T1/LinuxLibertineT-TLF/m/it/10 b
+ \LMS/ntxsy/m/n/10 7! \T1/LinuxLibertineT-TLF/m/it/10 u\LMS/ntxsy/m/n/10 g\T1/L
+inuxLibertineT-TLF/m/it/10 tts\LMS/ntxsy/m/n/10 g|
+ []
+
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
+(Font)              scaled to size 9.0pt on input line 138.
+
+Class acmart Warning: A possible image without description on input line 163.
+
 
 LaTeX Font Warning: Font shape `T1/zi4/m/sc' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 216.
+(Font)              using `T1/zi4/m/n' instead on input line 227.
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 7.3pt on input line 216.
+(Font)              scaled to size 7.3pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 5.5pt on input line 216.
+(Font)              scaled to size 5.5pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 10.95pt on input line 216.
+(Font)              scaled to size 10.95pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 6.1pt on input line 216.
+(Font)              scaled to size 6.1pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 10.95pt on input line 216.
+(Font)              scaled to size 10.95pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 6.1pt on input line 216.
+(Font)              scaled to size 6.1pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 12.0pt on input line 216.
+(Font)              scaled to size 12.0pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 13.13995pt on input line 216.
-LaTeX Font Info:    Calculating math sizes for size <13.13995> on input line 21
-6.
+(Font)              scaled to size 13.13995pt on input line 227.
+LaTeX Font Info:    Calculating math sizes for size <13.13995> on input line 22
+7.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 13.13995pt on input line 216.
+(Font)              scaled to size 13.13995pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 9.5921pt on input line 216.
+(Font)              scaled to size 9.5921pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 7.227pt on input line 216.
+(Font)              scaled to size 7.227pt on input line 227.
 
 LaTeX Font Warning: Font shape `U/rsfs/m/n' in size <13.13995> not available
-(Font)              size <12> substituted on input line 216.
+(Font)              size <12> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/rsfs/m/n' in size <9.5921> not available
-(Font)              size <10> substituted on input line 216.
+(Font)              size <10> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/stmry/m/n' in size <13.13995> not available
-(Font)              size <12> substituted on input line 216.
+(Font)              size <12> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/stmry/m/n' in size <9.5921> not available
-(Font)              size <10> substituted on input line 216.
+(Font)              size <10> substituted on input line 227.
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 13.13995pt on input line 216.
+(Font)              scaled to size 13.13995pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 9.5921pt on input line 216.
+(Font)              scaled to size 9.5921pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 7.227pt on input line 216.
+(Font)              scaled to size 7.227pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 15.76788pt on input line 216.
-LaTeX Font Info:    Calculating math sizes for size <15.76788> on input line 21
-6.
+(Font)              scaled to size 15.76788pt on input line 227.
+LaTeX Font Info:    Calculating math sizes for size <15.76788> on input line 22
+7.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 15.76788pt on input line 216.
+(Font)              scaled to size 15.76788pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 11.51048pt on input line 216.
+(Font)              scaled to size 11.51048pt on input line 227.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 8.67238pt on input line 216.
+(Font)              scaled to size 8.67238pt on input line 227.
 
 LaTeX Font Warning: Font shape `U/rsfs/m/n' in size <15.76788> not available
-(Font)              size <14.4> substituted on input line 216.
+(Font)              size <14.4> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/rsfs/m/n' in size <11.51048> not available
-(Font)              size <12> substituted on input line 216.
+(Font)              size <12> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/stmry/m/n' in size <15.76788> not available
-(Font)              size <14.4> substituted on input line 216.
+(Font)              size <14.4> substituted on input line 227.
 
 
 LaTeX Font Warning: Font shape `U/stmry/m/n' in size <11.51048> not available
-(Font)              size <12> substituted on input line 216.
+(Font)              size <12> substituted on input line 227.
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 15.76788pt on input line 216.
+(Font)              scaled to size 15.76788pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 11.51048pt on input line 216.
+(Font)              scaled to size 11.51048pt on input line 227.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
-(Font)              scaled to size 8.67238pt on input line 216.
+(Font)              scaled to size 8.67238pt on input line 227.
 
-Class acmart Warning: A possible image without description on input line 219.
-
-
-Class acmart Warning: A possible image without description on input line 265.
-
-
-Underfull \vbox (badness 1048) has occurred while \output is active []
-
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 8.0pt on input line 266.
- [2.2]
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\lambda' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `superscript' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\Pi' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `math shift' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\begingroup' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\let' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\<let>-command' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\NAT@ctype' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\z@' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\let' on input line 267.
-
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\new@ifnextchar' on input line 267.
-
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
-(Font)              scaled to size 10.0pt on input line 270.
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\RO' on input line 270.
-
-LaTeX Font Info:    Freeze math alphabet allocation in version hask.
-(Font)              Allocated math groups: 14 (local: 2) on input line 287.
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 287.
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 5.5pt on input line 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
- 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 287.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 306.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 312.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 317.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 322.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 323.
-LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/sc' will be
-(Font)              scaled to size 9.0pt on input line 323.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 323.
-
-Class acmart Warning: A possible image without description on input line 325.
+Class acmart Warning: A possible image without description on input line 230.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [3.3]
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 345.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 346.
-LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 346.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 8.0pt on input line 231.
+ [2.2]
+
+Class acmart Warning: A possible image without description on input line 276.
 
 
-Class acmart Warning: A possible image without description on input line 347.
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\lambda' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `superscript' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\Pi' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\begingroup' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\let' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\<let>-command' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\NAT@ctype' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\z@' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\let' on input line 278.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\new@ifnextchar' on input line 278.
+
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 10.0pt on input line 281.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\RO' on input line 281.
+
+LaTeX Font Info:    Freeze math alphabet allocation in version hask.
+(Font)              Allocated math groups: 14 (local: 2) on input line 298.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 7.3pt on input line 298.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 5.5pt on input line 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 298.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+<<ot1tt.cmap>>
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmtt' (encoding: OT1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
+
+LaTeX Font Warning: Font shape `OT1/cmtt/m/n' in size <5.5> not available
+(Font)              size <5> substituted on input line 320.
+
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
+ 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 320.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 326.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 327.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/sc' will be
+(Font)              scaled to size 9.0pt on input line 327.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 327.
+
+Class acmart Warning: A possible image without description on input line 329.
+
+[3.3]
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 336.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 341.
+
+
+Class acmart Warning: A possible image without description on input line 344.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [4.4]
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 351.
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 10.0pt on input line 353.
-Package hyperref Info: bookmark level for unknown theorem defaults to 0 on inpu
-t line 353.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 354.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 354.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 354.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 360.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 361.
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 362.
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 363.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
 e 364.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 368.
+e 364.
+
+
+Class acmart Warning: A possible image without description on input line 365.
+
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 368.
+e 369.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
+(Font)              scaled to size 10.0pt on input line 371.
+Package hyperref Info: bookmark level for unknown theorem defaults to 0 on inpu
+t line 371.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 368.
+e 372.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 374.
+e 372.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 374.
+e 372.
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
-e 374.
+e 378.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 379.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 380.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 382.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 386.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 386.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 386.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 392.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 392.
+LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
+e 392.
+[5.5]
 \openout5 = `bu.aux'.
 
-
-(./Mix.bbl
+ (./Mix.bbl
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
 e 53.
 LaTeX Info: Redefining \tempurl on input line 66.
@@ -2410,7 +2505,7 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
-[5.5] (./Mix.aux (./bu.aux))
+[6.6] (./Mix.aux (./bu.aux))
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.36789pt have occurred.
@@ -2418,15 +2513,18 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: There were multiply-defined labels.
+
 Package rerunfilecheck Info: File `Mix.out' has not changed.
-(rerunfilecheck)             Checksum: 91CBE8FDFB07F84DC061AEF807806B21;1585.
+(rerunfilecheck)             Checksum: 3C32E1597B96705611DB2B0EF480B7AF;1585.
  ) 
 Here is how much of TeX's memory you used:
- 38768 strings out of 478040
- 721466 string characters out of 5839127
- 1186312 words of memory out of 5000000
- 55746 multiletter control sequences out of 15000+600000
- 792717 words of font info for 504 fonts, out of 8000000 for 9000
+ 38809 strings out of 478040
+ 722242 string characters out of 5839127
+ 1188331 words of memory out of 5000000
+ 55761 multiletter control sequences out of 15000+600000
+ 795057 words of font info for 518 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
  98i,32n,131p,1000b,700s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/libertine/lbtn_omcwp2.enc
@@ -2454,10 +2552,10 @@ tx/txmiaX.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/tx
 sya.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/txsyb.pf
 b></usr/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/txsyc.pfb></us
 r/local/texlive/2022/texmf-dist/fonts/type1/public/newtx/txsys.pfb>
-Output written on Mix.pdf (5 pages, 419570 bytes).
+Output written on Mix.pdf (6 pages, 423385 bytes).
 PDF statistics:
- 217 PDF objects out of 1000 (max. 8388607)
- 170 compressed objects within 2 object streams
- 36 named destinations out of 1000 (max. 500000)
- 169581 words of extra memory for PDF output out of 184870 (max. 10000000)
+ 226 PDF objects out of 1000 (max. 8388607)
+ 177 compressed objects within 2 object streams
+ 38 named destinations out of 1000 (max. 500000)
+ 173169 words of extra memory for PDF output out of 184870 (max. 10000000)
 

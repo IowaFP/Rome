@@ -110,6 +110,17 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
 \label{fig:syntax}
 \end{figure}
 
+The syntax $\Felim {M_1,...,M_n}$ is syntactic sugar for the large elimination of finite naturals on a known number of cases, defined recursively: (fix this later... multiple routes. Technically the absurd pattern has in its context an absurd assumption (that 1 == 2).) But maybe can just fix this with typing rules.
+
+Actually it will be better to just introduce a singleton elimination form.
+
+\begin{align*}
+  \Felim {M} = \lambda x : \Ix 1. \CaseF x M \bot \bot
+\end{align*}
+\[
+\Felim {M_1,...,M_n} =_{def} \lambda (x : \Ix n). \CaseF x {M_{1}} x {\CaseF x {M_{2}} butts}
+\]
+
 \subsection{Typing}
 
 
@@ -214,7 +225,7 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
   ;
   {\TypeJ \Gamma {\J H M N P} {T[M/x,N/y,P/p]}}}
 \end{gather*}
-\caption{Typing rules}
+\caption{Typing rules. \Todo{Missing nat, fin, and sum elimination. Fin elimination should have special case for $\Ix 1$.}}
 \label{fig:IxRules}
 \end{figure}
 
@@ -289,19 +300,22 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \fbox{$\Ixed{\KindJ \Gamma \tau \kappa}$} \\
 \begin{align*}
 \vspace{5em}
+&\fbox{(When $\kappa$ not row-kinded.)} \\
 \Ixed{\alpha} &= \alpha \\
 \Ixed{\tau_1 \to \tau_2} &= \forall (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
 \Ixed{\forall \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
 \Ixed{\lambda \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
 \Ixed{\pi \then \tau} &= \forall (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
 \Ixed{\tau \, \upsilon} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
-\Ixed{\rho \, \Lift{\upsilon}} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). (\Snd \, \Ixed{\rho}) \Ixed{\upsilon})\\
-\Ixed{\Lift{\tau} \, \rho} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). \Ixed{\tau} \, (\Snd \, \Ixed{\rho}))\\
 \Ixed{\ell} &= \top  \\
 \Ixed{\Sing \xi} &= \top  \\
-\Ixed{\LabTy \xi \tau}&= (1, \, \lambda (i : \Ix{1}). \Ixed{\tau} )  \\
+\Ixed{\LabTy \xi \tau}&= \Ixed{\tau}  \\
 \Ixed{\Pi \rho}&=  \forall(i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
 \Ixed{\Sigma \rho}&= \exists (i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
+&\fbox{(When $\kappa$ row-kinded.)} \\
+\Ixed{\rho \, \Lift{\upsilon}} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). (\Snd \, \Ixed{\rho}) \Ixed{\upsilon})\\
+\Ixed{\Lift{\tau} \, \rho} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). \Ixed{\tau} \, (\Snd \, \Ixed{\rho}))\\
+\Ixed{\LabRow \xi \tau}&= (1, \, \Felim{\Ixed{\tau}} )  \\
 \end{align*}
 \end{gather*}
 
@@ -309,7 +323,12 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \fbox{$\Ixed{\Gamma \vdash \pi : \kappa}$} \\
 \vspace{5em}
 ...
-\end{align*} \\
+\end{align*}
+\caption{A compositional translation of typed \RO kinds and predicates to untyped \IX{} terms}
+\label{fig:translation}
+\end{figure}
+
+\begin{figure}[H]
 \begin{align*}
 \fbox{$\Ixed{\Gamma \Vdash \pi}$} \\
 \vspace{5em}
@@ -320,10 +339,9 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \vspace{5em}
 ...
 \end{align*}
-\caption{A compositional translation of \RO judgments to (untyped) \IX{} terms}
+\caption{Translating predicates and terms}
 \label{fig:translation}
 \end{figure}
-
 
 \subsection{Typed translation}
 
