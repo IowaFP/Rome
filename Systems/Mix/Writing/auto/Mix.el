@@ -22,6 +22,7 @@
     '("CaseN" 4)
     '("J" 4)
     '("Pointed" 1)
+    '("Lift" 1)
     "Fst"
     "Snd"
     "U"

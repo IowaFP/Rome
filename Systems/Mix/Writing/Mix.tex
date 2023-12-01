@@ -48,6 +48,7 @@
 
 \author{AH \& JGM}
 
+\newcommand\Lift[1]{\ensuremath{\lceil #1 \rceil}}
 \newcommand\Fst{\mathrm{fst}}
 \newcommand\Snd{\mathrm{snd}}
 \newcommand\U{\mathcal{U}}
@@ -98,7 +99,6 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
   & & & &  \top \mid \tt \mid \\
   & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
   & & & &  \exists \alpha \co T. M \mid (\alpha \co T , M) \mid \\
-  & & & & \CaseP x y M \mid \\
   & & & &  M + N \mid \left\, M \mid \right\, M \mid \\
   & & & & \CaseS {M} x {N_1} y {N_2} \mid \\
   & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
@@ -183,9 +183,13 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
       {\TypeJ {\Gamma} {N} {T_2[M/x]}};
       {\TypeJ \Gamma {(M \co T_1, N)} {\exists (x \co T_1). T_2}}}
 \rsp
- \ib{\irule [\Rule{$\E\exists$}]
+ \ib{\irule [\Rule{$\E\exists_{1}$}]
      {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
      {\TypeJ \Gamma {\Fst \, M} T_1}}
+\rsp
+ \ib{\irule [\Rule{$\E\exists_{2}$}]
+     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
+     {\TypeJ \Gamma {\Snd \, M} T_1[\Fst \, M/x]}}
 \\
 \ib{
   \irule [\Rule{$\I\equiv$}]
@@ -277,8 +281,8 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \vspace{5em}
 \Ixed{\TypeK} &= \TypeK \\
 \Ixed{\LabK} &= \top \\
-\Ixed{\kappa_1 \to \kappa_2} &= \Pi (\alpha : \Ixed{\kappa_1}). \Ixed{\kappa_2} \\
-\Ixed{\RowK \kappa} &= \Sigma(n : \Nat). \Pi (j : \Ix  n). \Ixed{\kappa} \\
+\Ixed{\kappa_1 \to \kappa_2} &= \forall (\alpha : \Ixed{\kappa_1}). \Ixed{\kappa_2} \\
+\Ixed{\RowK \kappa} &= \exists(n : \Nat). \forall (j : \Ix  n). \Ixed{\kappa} \\
 \end{align*}
 \end{gather*}
 \begin{gather*}
@@ -286,16 +290,18 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \begin{align*}
 \vspace{5em}
 \Ixed{\alpha} &= \alpha \\
-\Ixed{\tau_1 \to \tau_2} &= \Pi (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
-\Ixed{\forall \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\lambda \alpha \co \kappa. \tau} &= \Pi (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\pi \then \tau} &= \Pi (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
+\Ixed{\tau_1 \to \tau_2} &= \forall (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
+\Ixed{\forall \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\lambda \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\pi \then \tau} &= \forall (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
 \Ixed{\tau \, \upsilon} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
+\Ixed{\rho \, \Lift{\upsilon}} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). (\Snd \, \Ixed{\rho}) \Ixed{\upsilon})\\
+\Ixed{\Lift{\tau} \, \rho} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). \Ixed{\tau} \, (\Snd \, \Ixed{\rho}))\\
 \Ixed{\ell} &= \top  \\
 \Ixed{\Sing \xi} &= \top  \\
 \Ixed{\LabTy \xi \tau}&= (1, \, \lambda (i : \Ix{1}). \Ixed{\tau} )  \\
-\Ixed{\Pi \rho}&=  \Pi(i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
-\Ixed{\Sigma \rho}&= \Sigma (i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
+\Ixed{\Pi \rho}&=  \forall(i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
+\Ixed{\Sigma \rho}&= \exists (i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
 \end{align*}
 \end{gather*}
 
