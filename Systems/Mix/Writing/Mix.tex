@@ -49,11 +49,12 @@
 \author{AH \& JGM}
 
 \newcommand\Todo[1]{{\color{red} #1}}
+\newcommand\Absurd{\ensuremath{\lambdabar\mathrm{\Tt{()}}}}
 \newcommand\SortJ[3]{\TypeJ {#1} {#2} {#3}}
 \newcommand\IX{\textsc{Ix}}
 \newcommand\Hix{\textsc{HIx}}
 \newcommand\secfig[2]{Figure \ref{fig:#2}, \S\ref{sec:#1}}
-\newcommand\Nat{\mathrm{Nat}}
+\newcommand\Nat{\mathbb{N}}
 \newcommand\Zero{Z}
 \newcommand\FZero{\mathsf{I_0}}
 \newcommand\Suc{\mathrm{S}}
@@ -85,9 +86,9 @@
 % \newcommand\CaseP[3]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, \mathrm{of} \{ (#1, #2) \mapsto #3 \} }}
 % \newcommand\CaseS[5]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, \mathrm{of} \, \{ \left \, #2 \mapsto #3 ; \right \, #4 \mapsto #5 \} }}
 \newcommand\CaseN[3]{\ensuremath{\Case_{\Nat} \, #1 \, #2 \, #3}}
-\newcommand\CaseFZ[2]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, #2 }}
+\newcommand\CaseFZ[2]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 }}
+\newcommand\CaseFS[3]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 \, #3 }}
 \newcommand\CaseP[2]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, #2 }}
-\newcommand\CaseFS[3]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, #2 \, #3 }}
 \newcommand\CaseS[3]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, #2 \, #3}}
 \newcommand\Rule[1]{(\textsc{#1})}
 \newcommand\Safe[1]{\ensuremath{#1 \; \mathrm{Safe}}}
@@ -118,8 +119,8 @@
   & & & & \CaseN M N T \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
   & & & & \CaseFZ M N \mid \CaseFS M N T \mid \\
-  & & & & \Felim {M_1,...,M_n} \mid \\
-  & & & &  \top \mid \tt \mid \bot \mid \\
+  & & & & \Felim {M_1,...,M_n} \mid \Absurd \mid \\
+  & & & &  \top \mid \tt \mid \\
   & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
   & & & &  \exists \alpha \co T. M \mid \TyPair \alpha T M \mid \CaseP M N \mid \\
   & & & &  M + N \mid \left\, M \mid \right\, M \mid \\
@@ -137,7 +138,8 @@
 
 Let
 \begin{enumerate}
-\item $\tau \to \upsilon$ denote the unnamed quantification $\forall (\_ : \tau). \upsilon$;
+\item $\tau \to \upsilon$ denote the non-dependent universal quantification $\forall (\_ : \tau). \upsilon$;
+\item $\tau \times \upsilon$ denote the non-dependent existential quantification $\exists (\_ : \tau). \upsilon$;
 \item $0,1,2,...$ denote object-level natural numbers in the intuitive fashion; \item $i_{n}$ denote the index obtained by $n$ applications of $\FSuc$ to $\FZero$; and
 \item the syntax 
 
@@ -149,7 +151,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 
 \begin{align*}
   \Felim{M_{1}} &:= \lambda (i : \Ix{1}). \CaseFZ i M_{1} \\
-  \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseFS i {M_{n}} \Felim{M_{1},...,M_{n-1}}
+  \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseFS i {M_{1}} \Felim{M_{2},...,M_{n}}
 \end{align*}
 
 
@@ -175,11 +177,11 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M \sigma$} 
 \\
-\ib{\irule[\Rule{$\star$}] ; {\TypeJ \Gamma \star \U}} 
+\ib{\irule[\Rule{$\star$}] {\EnvJ \Gamma} ; {\TypeJ \Gamma \star \U}} 
 \rsp
-\ib{\irule[\Rule{$\top$}] {} ; {\SortJ \Gamma \top \sigma}}
+\ib{\irule[\Rule{$\top$}] {\EnvJ \Gamma} ; {\SortJ \Gamma \top \sigma}}
 \rsp
-\ib{\irule[\Rule{Nat}] {} ; {\SortJ \Gamma \Nat \star}}
+\ib{\irule[\Rule{Nat}] {\EnvJ \Gamma} ; {\SortJ \Gamma \Nat \star}}
 \rsp
 \ib{\irule[\Rule{Ix}] {\SortJ \Gamma n \Nat} ; {\SortJ \Gamma {\Ix n} \star}} \\
 \ib{\irule[\Rule{$\forall$}]{\SortJ \Gamma M \sigma_1} {\SortJ {\Gamma, \alpha \co M}{N}{\sigma_2}};{\SortJ \Gamma {\forall \alpha \co M. N} \sigma_2}}
@@ -193,13 +195,12 @@ denote the large elimination of a known, finite quantity of indices to types $M_
   {\SortJ \Gamma {N} {\sigma}};
   {\SortJ \Gamma {{M} \equiv {N}} {\sigma}}}
 \end{gather*}
-\caption{Context and type formation rules}
+\caption{Context and type well-formedness}
 \label{fig:formation}
 \end{figure}
 
 \begin{figure}[H]
 \small
-% \ib{\irule{};{}}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M N$} \\
 \ib{\irule[\Rule{Var}] {\EnvJ \Gamma}{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
@@ -210,15 +211,28 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \rsp
 \ib{\irule[\Rule{$\Suc{}$}]{\TypeJ \Gamma n \Nat};{\TypeJ \Gamma {\Suc \, n} \Nat}} 
 \rsp
+\ib{\irule[\Rule{$\E\Nat$}]
+  {\TypeJ \Gamma A \sigma}
+  {\TypeJ \Gamma M \Nat}
+  {\TypeJ \Gamma N {A}}
+  {\TypeJ \Gamma P {\Nat \to A}};
+  {\TypeJ \Gamma {\CaseN M N P} A}}
 \\
 \ib{\irule[\Rule{$\FZero$}]{{\TypeJ \Gamma n \Nat}};{\TypeJ \Gamma \FZero {\Ix (\Suc \, n)}}} 
 \rsp
 \ib{\irule[\Rule{$\FSuc{}$}]{\TypeJ \Gamma n \Nat}{\TypeJ \Gamma i {\Ix n}};{\TypeJ \Gamma {\FSuc \, i} {\Ix {(\Suc \, n)}}}} 
 \rsp
-\ib{\irule{};{\TypeJ \Gamma }}
+\ib{\irule[\Rule{$\Absurd$}]{\TypeJ \Gamma A \sigma};{\TypeJ \Gamma \Absurd {\Ix 0 \to A}}}
+\\
+\ib{\irule[\Rule{$\E\FSuc{}$}]
+  {\TypeJ \Gamma A \sigma}
+  {\TypeJ \Gamma M {\Ix {(\Suc \, n)}}}
+  {\TypeJ \Gamma N A}
+  {\TypeJ \Gamma P {\Ix n \to A}};
+  {\TypeJ \Gamma {\CaseFS M N P} A}}
 \\
 \ib{\irule[\Rule{$\I\forall$}]
-  {\SortJ \Gamma T \star}
+  {\SortJ \Gamma T \sigma}
   {\TypeJ {\Gamma , x \co T} {M} {N}};
   {\TypeJ \Gamma {\lambda x \co T. M} {\forall (x \co T). N}}}
 \rsp
@@ -227,17 +241,27 @@ denote the large elimination of a known, finite quantity of indices to types $M_
     {\TypeJ \Gamma {M \, N} T_2[N/x]}}
 \\
  \ib{\irule[\Rule{$\I\exists$}]
+      {\TypeJ {\Gamma}{T_{1}}{\sigma}}
       {\TypeJ {\Gamma}{M}{T_1}}
       {\TypeJ {\Gamma} {N} {T_2[M/x]}};
-      {\TypeJ \Gamma {(M \co T_1, N)} {\exists (x \co T_1). T_2}}}
+      {\TypeJ \Gamma {\TyPair M {T_1} N} {\exists (x \co T_1). T_2}}}
+\\
+ \ib{\irule [\Rule{$\E\exists$}]
+     {\TypeJ \Gamma A \sigma}
+     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}
+     {\TypeJ \Gamma N {\forall (x : T_{1}). T_{2} \to A}};
+     {\TypeJ \Gamma {\CaseP M N} {A}}}
+\\
+\ib{\irule[\Rule{$\I{+_{1}}$}]{\TypeJ \Gamma M A};{\TypeJ \Gamma {\left \, M} {A + B}}}
 \rsp
- \ib{\irule [\Rule{$\E\exists_{1}$}]
-     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {\Fst \, M} T_1}}
-\rsp
- \ib{\irule [\Rule{$\E\exists_{2}$}]
-     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}; 
-     {\TypeJ \Gamma {\Snd \, M} T_1[\Fst \, M/x]}}
+\ib{\irule[\Rule{$\I{+_{2}}$}]{\TypeJ \Gamma N B};{\TypeJ \Gamma {\right \, N} {A + B}}}
+\\
+\ib{\irule[\Rule{$\E+$}]
+  {\SortJ \Gamma C \sigma}
+  {\TypeJ \Gamma M {A + B}}
+  {\TypeJ \Gamma N {A \to C}}
+  {\TypeJ \Gamma P {B \to C}};
+  {\TypeJ \Gamma {\CaseS M N P} C}}
 \\
 \ib{
   \irule [\Rule{$\I\equiv$}]
@@ -247,8 +271,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \ib{
   \irule [\Rule{conv}]
   {\TypeJ \Gamma M T_1}
-  {\TypeJ \Gamma {T_1 = T_2} {\sigma}}
-  {\Safe \sigma};
+  {\TypeJ \Gamma {T_1 = T_2} {\sigma}};
   {\TypeJ \Gamma M T_2}}
 \\
 \ib{
@@ -262,7 +285,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
   ;
   {\TypeJ \Gamma {\J H M N P} {T[M/x,N/y,P/p]}}}
 \end{gather*}
-\caption{Typing rules. \Todo{Missing nat, fin, and sum elimination. Fin elimination should have special case for $\Ix 1$.}}
+\caption{Typing \IX{} terms}
 \label{fig:IxRules}
 \end{figure}
 
@@ -312,7 +335,13 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \label{fig:IxDefnEq}
 \end{figure}
 
-\subsection{A Comparison to $\lambda^{\Pi\mathcal{U}\mathbb{N}}$ \cite{AbelOV18}}
+\subsection{Properties}
+
+\begin{theorem}[Well-sortedness]
+  if $\TypeJ \Gamma M N$ then $\EnvJ \Gamma$ and there exists $\sigma$ such that $\SortJ \Gamma N \sigma$.
+\end{theorem}
+
+
 
 
 \section{Translation From \RO}
@@ -345,37 +374,37 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \Ixed{\TypeJ \Gamma {\tau \, \upsilon} \kappa} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
 \Ixed{\TypeJ \Gamma \ell {\LabK}} &= \top  \\
 \Ixed{\TypeJ \Gamma {\Sing \xi} \star} &= \top  \\
-\Ixed{\TypeJ \Gamma {\LabTy \xi \tau} \kappa}&= \Ixed{\tau}  \\
+\Ixed{\TypeJ \Gamma {(\LabTy \xi \tau)} \kappa}&= \Ixed{\tau}  \\
 \Ixed{\TypeJ \Gamma {\Pi \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \forall (i : \Ix{n}). P \, i)}\\
 \Ixed{\TypeJ \Gamma {\Sigma \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \exists (i : {\Ix n}). P \, i)}\\
-\Ixed{\TypeJ \Gamma \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \bot \\
+\Ixed{\TypeJ \Gamma \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \Absurd \\
 \Ixed{\TypeJ \Gamma {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\tau} })} \\
 \Ixed{\TypeJ \Gamma {\Lift{\tau} \, \rho} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). \Sem{\tau} (P \, j) })} \\
-\Ixed{\TypeJ \Gamma {\LabRow \xi \tau} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}  \\
+\Ixed{\TypeJ \Gamma {(\LabRow \xi \tau)} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}
 \end{align*}
 \end{gather*}
-
 \begin{align*}
-\fbox{$\Ixed{\Gamma \vdash \pi : \kappa}$} \\
+\fbox{$\Ixed{\Gamma \vdash \pi : \kappa}$ (Predicate well-formedness)} \\
 \vspace{5em}
-...
+\Ixed{\TypeJ \Gamma {\Leqp {\rho_{1}} {\rho_{2}}} \kappa} &=
+  \begin{aligned}
+              &\Case\, {\Ixed{\rho_{1}}} (\lambda n : \Nat. \lambda (P : \Ix n \to \Ixed{\kappa}).  \\
+              &\Case\, {\Ixed{\rho_{2}}} (\lambda m : \Nat. \lambda (Q : \Ix m \to \Ixed{\kappa}). \\                               
+              &\forall (i : \Ix n). \exists (j : \Ix m). P \, i \equiv Q \, j))
+  \end{aligned} \\ \\
+\Ixed{\TypeJ \Gamma {\RowPlusP {\rho_{1}} {\rho_{2}} {\rho_{3}}} \kappa} &= 
+  \begin{aligned}                                           
+              &\Case\, {\Ixed{\rho_{1}}} (\lambda n : \Nat. \lambda (P : \Ix n \to \Ixed{\kappa}).  \\
+              &\Case\, {\Ixed{\rho_{2}}} (\lambda m : \Nat. \lambda (Q : \Ix m \to \Ixed{\kappa}). \\                               
+              &\Case\, {\Ixed{\rho_{3}}} (\lambda l : \Nat. \lambda (R : \Ix l \to \Ixed{\kappa}). \\                               
+              &(\forall (i : \Ix n). \exists (k : \Ix l). P \, i \equiv R \, k) \\ 
+              \times \, &(\forall (j : \Ix m). \exists (k : \Ix l). Q \, j \equiv R \, k) \\
+              \times \, &(\forall (k : \Ix l). \\
+                &(\exists (i : \Ix n). P \, i \equiv R\, k) \\
+                +\, &(\exists (j : \Ix m). Q \, j \equiv R\, k)))))
+  \end{aligned}                                           
 \end{align*}
 \caption{A compositional translation of typed \RO kinds and predicates to untyped \IX{} terms}
-\label{fig:translation}
-\end{figure}
-
-\begin{figure}[H]
-\begin{align*}
-\fbox{$\Ixed{\Gamma \Vdash \pi}$} \\
-\vspace{5em}
-...
-\end{align*} \\
-\begin{align*}
-\fbox{$\Ixed{\TypeJ \Gamma M \tau}$} \\
-\vspace{5em}
-...
-\end{align*}
-\caption{Translating predicates and terms}
 \label{fig:translation}
 \end{figure}
 
@@ -418,7 +447,7 @@ Presume an \RO instantiation of the simple row theory. A lot of this is likely b
  then $\Ixed{\Gamma} \vdash P : \upsilon_{1} \equiv \upsilon_{2}$.
 \end{theorem}
 
-\begin{theorem}[Translational Soundness (Of Predicates)]
+\begin{theorem}[Translational Soundness (Predicates)]
   if $\Gamma \Vdash \pi$ such that $\Gamma \Vdash \pi \leadsto N$ then $\Ixed{\Gamma} \vdash N : \Ixed{\pi}$.
 \end{theorem}
 

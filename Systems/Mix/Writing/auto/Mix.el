@@ -17,8 +17,8 @@
     '("Safe" 1)
     '("Rule" 1)
     '("CaseS" 3)
-    '("CaseFS" 3)
     '("CaseP" 2)
+    '("CaseFS" 3)
     '("CaseFZ" 2)
     '("CaseN" 3)
     '("J" 4)
@@ -31,6 +31,7 @@
     '("secfig" 2)
     '("SortJ" 3)
     '("Todo" 1)
+    "Absurd"
     "IX"
     "Hix"
     "Nat"
