@@ -248,7 +248,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \\
  \ib{\irule [\Rule{$\E\exists$}]
      {\TypeJ \Gamma A \sigma}
-     {\TypeJ \Gamma M {\Sigma (x \co T_1). T_2}}
+     {\TypeJ \Gamma M {\exists (x \co T_1). T_2}}
      {\TypeJ \Gamma N {\forall (x : T_{1}). T_{2} \to A}};
      {\TypeJ \Gamma {\CaseP M N} {A}}}
 \\
@@ -370,7 +370,7 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \Ixed{\TypeJ \Gamma {\tau_1 \to \tau_2} \star} &= \Ixed{\tau_1} \to \Ixed{\tau_2} \\
 \Ixed{\TypeJ \Gamma {\forall \alpha \co \kappa. \tau} \star} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
 \Ixed{\TypeJ \Gamma {\lambda \alpha \co \kappa. \tau} {\kappa \to \kappa'}} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\TypeJ \Gamma {\pi \then \tau} \kappa} &= \forall (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
+\Ixed{\TypeJ \Gamma {\pi \then \tau} \kappa} &= \Ixed{\pi} \to \Ixed{\tau} \\
 \Ixed{\TypeJ \Gamma {\tau \, \upsilon} \kappa} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
 \Ixed{\TypeJ \Gamma \ell {\LabK}} &= \top  \\
 \Ixed{\TypeJ \Gamma {\Sing \xi} \star} &= \top  \\
