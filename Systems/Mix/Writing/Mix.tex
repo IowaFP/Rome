@@ -48,6 +48,26 @@
 
 \author{AH \& JGM}
 
+\newcommand\Todo[1]{{\color{red} #1}}
+\newcommand\SortJ[3]{\TypeJ {#1} {#2} {#3}}
+\newcommand\IX{\textsc{Ix}}
+\newcommand\Hix{\textsc{HIx}}
+\newcommand\secfig[2]{Figure \ref{fig:#2}, \S\ref{sec:#1}}
+\newcommand\Nat{\mathrm{Nat}}
+\newcommand\Zero{Z}
+\newcommand\FZero{\mathsf{I_0}}
+\newcommand\Suc{\mathrm{S}}
+\newcommand\FSuc{\mathsf{I_{\Suc}}}
+\newcommand\Fin{\mathrm{Fin}}
+\newcommand\Ix[1]{\mathrm{Ix} \, #1}
+\newcommand\MuIx{\ensuremath{\mu}Ix}
+\newcommand\Type{\mathrm{Type}}
+\newcommand\FormJ[2]{\ensuremath{#1 \vdash #2 \, \Type}}
+\renewcommand\tt{\Tt{tt}}
+% \newcommand\Ixed[1]{\ensuremath{(#1)^{\bullet}}}
+\newcommand\Ixed[1]{\ensuremath{\Sem{#1}}}
+\newcommand\TyPair[3]{\ensuremath{\langle\!\langle #1 \co #2 , #3 \rangle\!\rangle}}
+
 \newcommand\Lift[1]{\ensuremath{\lceil #1 \rceil}}
 \newcommand\Fst{\mathrm{fst}}
 \newcommand\Snd{\mathrm{snd}}
@@ -60,10 +80,15 @@
 \renewcommand\left{\mathrm{left}}
 \renewcommand\right{\mathrm{right}}
 \renewcommand\Case{\mathrm{case}}
-\newcommand\CaseN[4]{\ensuremath{\Case_{\mathbb{N}} \, #1 \, \mathrm{of} \{ \Zero \mapsto #2; \Suc\, #3 \mapsto #4 \}}}
-\newcommand\CaseF[4]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, \mathrm{of} \{ \FZero \mapsto #2; \FSuc\, #3 \mapsto #4 \}}}
-\newcommand\CaseP[3]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, \mathrm{of} \{ (#1, #2) \mapsto #3 \} }}
-\newcommand\CaseS[5]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, \mathrm{of} \, \{ \left \, #2 \mapsto #3 ; \right \, #4 \mapsto #5 \} }}
+%\newcommand\CaseN[4]{\ensuremath{\Case_{\mathbb{N}} \, #1 \, \mathrm{of} \{ \Zero \mapsto #2; \Suc\, #3 \mapsto #4 \}}}
+% \newcommand\CaseF[4]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, \mathrm{of} \{ \FZero \mapsto #2; \FSuc\, #3 \mapsto #4 \}}}
+% \newcommand\CaseP[3]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, \mathrm{of} \{ (#1, #2) \mapsto #3 \} }}
+% \newcommand\CaseS[5]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, \mathrm{of} \, \{ \left \, #2 \mapsto #3 ; \right \, #4 \mapsto #5 \} }}
+\newcommand\CaseN[3]{\ensuremath{\Case_{\Nat} \, #1 \, #2 \, #3}}
+\newcommand\CaseFZ[2]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, #2 }}
+\newcommand\CaseP[2]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, #2 }}
+\newcommand\CaseFS[3]{\ensuremath{\Case_{\mathrm{Fin}} \, #1 \, #2 \, #3 }}
+\newcommand\CaseS[3]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, #2 \, #3}}
 \newcommand\Rule[1]{(\textsc{#1})}
 \newcommand\Safe[1]{\ensuremath{#1 \; \mathrm{Safe}}}
 \newcommand\SafeJ[2]{\ensuremath{#1 \vdash #2 \; \mathrm{Safe}}}
@@ -79,8 +104,6 @@
 
 \subsection{Syntax}
 
-Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and let $i_{n}$ be the finite natural obtained by $n$ applications of $\FSuc$ to $\FZero$.
-
 \begin{figure}[H]
 \begin{smalle}
 \begin{gather*}
@@ -90,17 +113,17 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
 \\[5px]
 \begin{doublesyntaxarray}
   \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
-  \mcl{\text{Terms}} & A, B, M, N, T & ::= & \star \mid x \mid \\
+  \mcl{\text{Terms}} & M, N, T & ::= & \star \mid x \mid \\
   & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
-  & & & & \CaseN M {N_1} x {N_2} \mid \\
+  & & & & \CaseN M N T \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
-  & & & & \CaseF M {N_1} x {N_2} \mid \\
+  & & & & \CaseFZ M N \mid \CaseFS M N T \mid \\
   & & & & \Felim {M_1,...,M_n} \mid \\
-  & & & &  \top \mid \tt \mid \\
+  & & & &  \top \mid \tt \mid \bot \mid \\
   & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
-  & & & &  \exists \alpha \co T. M \mid (\alpha \co T , M) \mid \\
+  & & & &  \exists \alpha \co T. M \mid \TyPair \alpha T M \mid \CaseP M N \mid \\
   & & & &  M + N \mid \left\, M \mid \right\, M \mid \\
-  & & & & \CaseS {M} x {N_1} y {N_2} \mid \\
+  & & & & \CaseS M N T \mid \\
   & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
   \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : T
 \end{doublesyntaxarray}
@@ -110,19 +133,31 @@ Let $0,1,2,...$ denote object-level natural numbers in the intuitive fashion and
 \label{fig:syntax}
 \end{figure}
 
-The syntax $\Felim {M_1,...,M_n}$ is syntactic sugar for the large elimination of finite naturals on a known number of cases, defined recursively: (fix this later... multiple routes. Technically the absurd pattern has in its context an absurd assumption (that 1 == 2).) But maybe can just fix this with typing rules.
+\subsubsection{Meta-syntax \& syntactic sugar}
 
-Actually it will be better to just introduce a singleton elimination form.
+Let
+\begin{enumerate}
+\item $\tau \to \upsilon$ denote the unnamed quantification $\forall (\_ : \tau). \upsilon$;
+\item $0,1,2,...$ denote object-level natural numbers in the intuitive fashion; \item $i_{n}$ denote the index obtained by $n$ applications of $\FSuc$ to $\FZero$; and
+\item the syntax 
+
+\[
+\Felim {M_1,...,M_n}
+\]
+
+denote the large elimination of a known, finite quantity of indices to types $M_{1},...,M_{n}$, elaborated by the equations:
 
 \begin{align*}
-  \Felim {M} = \lambda x : \Ix 1. \CaseF x M \bot \bot
+  \Felim{M_{1}} &:= \lambda (i : \Ix{1}). \CaseFZ i M_{1} \\
+  \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseFS i {M_{n}} \Felim{M_{1},...,M_{n-1}}
 \end{align*}
-\[
-\Felim {M_1,...,M_n} =_{def} \lambda (x : \Ix n). \CaseF x {M_{1}} x {\CaseF x {M_{2}} butts}
-\]
+
+
+\end{enumerate}
 
 \subsection{Typing}
 
+\Todo{Many of these are fucked or in need of repair; refer to the translation as the SSOT.}
 
 \begin{figure}[H]
 \small
@@ -167,11 +202,11 @@ Actually it will be better to just introduce a singleton elimination form.
 % \ib{\irule{};{}}
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M N$} \\
-\ib{\irule[\Rule{Var}]{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
+\ib{\irule[\Rule{Var}] {\EnvJ \Gamma}{x \co M \in \Gamma} ; {\TypeJ \Gamma x M}} 
 \rsp
-\ib{\irule[\Rule{$\tt$}]{};{\TypeJ \Gamma {\tt} \top}} 
+\ib{\irule[\Rule{$\tt$}]{\EnvJ \Gamma};{\TypeJ \Gamma {\tt} \top}} 
 \\
-\ib{\irule[\Rule{$\Zero$}]{};{\TypeJ \Gamma \Zero \Nat}} 
+\ib{\irule[\Rule{$\Zero$}]{\EnvJ \Gamma};{\TypeJ \Gamma \Zero \Nat}} 
 \rsp
 \ib{\irule[\Rule{$\Suc{}$}]{\TypeJ \Gamma n \Nat};{\TypeJ \Gamma {\Suc \, n} \Nat}} 
 \rsp
@@ -179,6 +214,8 @@ Actually it will be better to just introduce a singleton elimination form.
 \ib{\irule[\Rule{$\FZero$}]{{\TypeJ \Gamma n \Nat}};{\TypeJ \Gamma \FZero {\Ix (\Suc \, n)}}} 
 \rsp
 \ib{\irule[\Rule{$\FSuc{}$}]{\TypeJ \Gamma n \Nat}{\TypeJ \Gamma i {\Ix n}};{\TypeJ \Gamma {\FSuc \, i} {\Ix {(\Suc \, n)}}}} 
+\rsp
+\ib{\irule{};{\TypeJ \Gamma }}
 \\
 \ib{\irule[\Rule{$\I\forall$}]
   {\SortJ \Gamma T \star}
@@ -292,30 +329,29 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \vspace{5em}
 \Ixed{\TypeK} &= \TypeK \\
 \Ixed{\LabK} &= \top \\
-\Ixed{\kappa_1 \to \kappa_2} &= \forall (\alpha : \Ixed{\kappa_1}). \Ixed{\kappa_2} \\
-\Ixed{\RowK \kappa} &= \exists(n : \Nat). \forall (j : \Ix  n). \Ixed{\kappa} \\
+\Ixed{\kappa_1 \to \kappa_2} &= \Ixed{\kappa_1} \to \Ixed{\kappa_2} \\
+\Ixed{\RowK \kappa} &= \exists(n : \Nat). \Ix  n \to \Ixed{\kappa} \\
 \end{align*}
 \end{gather*}
 \begin{gather*}
 \fbox{$\Ixed{\KindJ \Gamma \tau \kappa}$} \\
 \begin{align*}
 \vspace{5em}
-&\fbox{(When $\kappa$ not row-kinded.)} \\
-\Ixed{\alpha} &= \alpha \\
-\Ixed{\tau_1 \to \tau_2} &= \forall (\alpha : \Ixed{\tau_1}).\Ixed{\tau_2} \\
-\Ixed{\forall \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\lambda \alpha \co \kappa. \tau} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\pi \then \tau} &= \forall (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
-\Ixed{\tau \, \upsilon} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
-\Ixed{\ell} &= \top  \\
-\Ixed{\Sing \xi} &= \top  \\
-\Ixed{\LabTy \xi \tau}&= \Ixed{\tau}  \\
-\Ixed{\Pi \rho}&=  \forall(i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
-\Ixed{\Sigma \rho}&= \exists (i : \Ix{(\Fst \, \Ixed{\rho})}). (\Snd \, \Ixed{\rho}) \, i\\
-&\fbox{(When $\kappa$ row-kinded.)} \\
-\Ixed{\rho \, \Lift{\upsilon}} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). (\Snd \, \Ixed{\rho}) \Ixed{\upsilon})\\
-\Ixed{\Lift{\tau} \, \rho} &= (\Fst \, \Ixed{\rho} : \Nat, \lambda (j : \Ix (\Fst \, \Ixed{\rho})). \Ixed{\tau} \, (\Snd \, \Ixed{\rho}))\\
-\Ixed{\LabRow \xi \tau}&= (1, \, \Felim{\Ixed{\tau}} )  \\
+\Ixed{\TypeJ \Gamma \alpha \kappa} &= \alpha \\
+\Ixed{\TypeJ \Gamma {\tau_1 \to \tau_2} \star} &= \Ixed{\tau_1} \to \Ixed{\tau_2} \\
+\Ixed{\TypeJ \Gamma {\forall \alpha \co \kappa. \tau} \star} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\TypeJ \Gamma {\lambda \alpha \co \kappa. \tau} {\kappa \to \kappa'}} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\TypeJ \Gamma {\pi \then \tau} \kappa} &= \forall (\alpha : \Ixed{\pi}). \Ixed{\tau} \\
+\Ixed{\TypeJ \Gamma {\tau \, \upsilon} \kappa} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
+\Ixed{\TypeJ \Gamma \ell {\LabK}} &= \top  \\
+\Ixed{\TypeJ \Gamma {\Sing \xi} \star} &= \top  \\
+\Ixed{\TypeJ \Gamma {\LabTy \xi \tau} \kappa}&= \Ixed{\tau}  \\
+\Ixed{\TypeJ \Gamma {\Pi \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \forall (i : \Ix{n}). P \, i)}\\
+\Ixed{\TypeJ \Gamma {\Sigma \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \exists (i : {\Ix n}). P \, i)}\\
+\Ixed{\TypeJ \Gamma \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \bot \\
+\Ixed{\TypeJ \Gamma {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\tau} })} \\
+\Ixed{\TypeJ \Gamma {\Lift{\tau} \, \rho} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). \Sem{\tau} (P \, j) })} \\
+\Ixed{\TypeJ \Gamma {\LabRow \xi \tau} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}  \\
 \end{align*}
 \end{gather*}
 

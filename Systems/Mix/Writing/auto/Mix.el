@@ -16,13 +16,31 @@
     '("SafeJ" 2)
     '("Safe" 1)
     '("Rule" 1)
-    '("CaseS" 5)
-    '("CaseP" 3)
-    '("CaseF" 4)
-    '("CaseN" 4)
+    '("CaseS" 3)
+    '("CaseFS" 3)
+    '("CaseP" 2)
+    '("CaseFZ" 2)
+    '("CaseN" 3)
     '("J" 4)
     '("Pointed" 1)
     '("Lift" 1)
+    '("TyPair" 3)
+    '("Ixed" 1)
+    '("FormJ" 2)
+    '("Ix" 1)
+    '("secfig" 2)
+    '("SortJ" 3)
+    '("Todo" 1)
+    "IX"
+    "Hix"
+    "Nat"
+    "Zero"
+    "FZero"
+    "Suc"
+    "FSuc"
+    "Fin"
+    "MuIx"
+    "Type"
     "Fst"
     "Snd"
     "U"
