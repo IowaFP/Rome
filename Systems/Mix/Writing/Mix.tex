@@ -534,9 +534,13 @@ There is some subtlety in mechanizing environments. Environments in $\RO$ store 
   {\TransTerm \Delta {\ell} {\tt} {\Sing \ell}}}
 \rsp
 \ib{
-  \irule[\trule{foo}]
-  {A};
-  {B}}
+  \irule[\trule{\I\triangleright}]
+  {\TransTerm \Delta {N} {E} {\tau}};
+  {\TransTerm \Delta {\LabTy M N} {E} {\LabTy \ell \tau}}}
+\ib{
+  \irule[\trule{\E\triangleright}]
+  {\TransTerm \Delta {M} {E} {\tau}}{\TransTerm \Delta {N} {\tt} {\Sing \ell}};
+  {\TransTerm \Delta {\Unlabel M N} {E} {\LabTy \ell \tau}}}
 \\
 %% Row of Rules ----------------------------------------------------------------
 \ib{
