@@ -11,6 +11,10 @@
     "tikz"
     "tikz-cd")
    (TeX-add-symbols
+    '("TransEq" 3)
+    '("TransEnt" 3)
+    '("TransTerm" 4)
+    '("TransEnv" 2)
     '("New" 1)
     '("Felim" 1)
     '("SafeJ" 2)
@@ -47,7 +51,8 @@
     "U"
     "PointedT"
     "PointedU"
-    "Refl")
+    "Refl"
+    "Fresh")
    (LaTeX-add-labels
     "fig:syntax"
     "fig:formation"

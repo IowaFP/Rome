@@ -153,13 +153,11 @@ denote the large elimination of a known, finite quantity of indices to types $M_
   \Felim{M_{1}} &:= \lambda (i : \Ix{1}). \CaseFZ i M_{1} \\
   \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseFS i {M_{1}} \Felim{M_{2},...,M_{n}}
 \end{align*}
-
-
 \end{enumerate}
 
-\subsection{Typing}
 
-\Todo{Many of these are fucked or in need of repair; refer to the translation as the SSOT.}
+
+\subsection{Typing}
 
 \begin{figure}[H]
 \small
@@ -344,6 +342,53 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 
 
 
+
+
+\subsection{Elaborating \IX{} to the CoC + \Tt{Fin}}
+Following the above, I believe \IX{} to a smaller calculus with the syntax below. This is effectively the calculus of constructions with primitive naturals and finite indices.
+
+\begin{figure}[H]
+\begin{smalle}
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+%  \text{Term variables} & x \; \alpha % & \text{sort variables} & \alpha %% & & \text{Labels} & \ell & \text{Directions} & d \in \Set {\Left, \Right}
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
+  \mcl{\text{Terms}} & M, N, T & ::= & \star \mid x \mid \\
+  & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
+  & & & & \CaseN M N T \mid \\
+  & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
+  & & & & \CaseFS M N T \mid \\
+  & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
+  & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
+  \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : T
+\end{doublesyntaxarray}
+\end{gather*}
+\end{smalle}
+\caption{Syntax}
+\label{fig:syntax}
+\end{figure}
+
+Elaboration is given below. One would also expect a rule for bot elimination---or you could simply encode $\Ix 0$ as $\forall X \co \star. X$.
+
+
+\begin{align*}
+  \top &\leadsto \Ix 1 \\
+  \tt &\leadsto  \FZero \\
+  \bot &\leadsto \Ix 0 \\
+  A \to B &\leadsto \forall (x : A). B \\
+  \exists(x : A). B &\leadsto \forall (C : \U).(\forall (x : A). B \to C) \to C \\
+  \TyPair M T N &\leadsto \lambda (C : \U). \lambda (f : (\forall (x : A). B \to C)). f \, M \, N \\
+  A + B &\leadsto \exists (i : \Ix 2). \Felim {A,B} \, i \\
+  \left\, M &\ \TyPair {i_0} {\Ix 2} {M} \\
+  \right\, N &\ \TyPair {i_1} {\Ix 2} {N} \\
+  A \times B &\leadsto \exists (x : A). B
+\end{align*}
+
+One could also translate naturals away using your favorite functional encoding. (I imagine there are encodings for \Tt{Fin}, too.)
+
 \section{Translation From \RO}
 
 \subsection{Untyped Translation}
@@ -363,36 +408,41 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \end{align*}
 \end{gather*}
 \begin{gather*}
-\fbox{$\Ixed{\KindJ \Gamma \tau \kappa}$} \\
+\fbox{$\Ixed{\KindJ \Delta \tau \kappa}$} \\
 \begin{align*}
 \vspace{5em}
-\Ixed{\TypeJ \Gamma \alpha \kappa} &= \alpha \\
-\Ixed{\TypeJ \Gamma {\tau_1 \to \tau_2} \star} &= \Ixed{\tau_1} \to \Ixed{\tau_2} \\
-\Ixed{\TypeJ \Gamma {\forall \alpha \co \kappa. \tau} \star} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\TypeJ \Gamma {\lambda \alpha \co \kappa. \tau} {\kappa \to \kappa'}} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
-\Ixed{\TypeJ \Gamma {\pi \then \tau} \kappa} &= \Ixed{\pi} \to \Ixed{\tau} \\
-\Ixed{\TypeJ \Gamma {\tau \, \upsilon} \kappa} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
-\Ixed{\TypeJ \Gamma \ell {\LabK}} &= \top  \\
-\Ixed{\TypeJ \Gamma {\Sing \xi} \star} &= \top  \\
-\Ixed{\TypeJ \Gamma {(\LabTy \xi \tau)} \kappa}&= \Ixed{\tau}  \\
-\Ixed{\TypeJ \Gamma {\Pi \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \forall (i : \Ix{n}). P \, i)}\\
-\Ixed{\TypeJ \Gamma {\Sigma \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \exists (i : {\Ix n}). P \, i)}\\
-\Ixed{\TypeJ \Gamma \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \Absurd \\
-\Ixed{\TypeJ \Gamma {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\tau} })} \\
-\Ixed{\TypeJ \Gamma {\Lift{\tau} \, \rho} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). \Sem{\tau} (P \, j) })} \\
-\Ixed{\TypeJ \Gamma {(\LabRow \xi \tau)} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}
+\Ixed{\TypeJ \Delta \alpha \kappa} &= \alpha \\
+\Ixed{\TypeJ \Delta {\tau_1 \to \tau_2} \star} &= \Ixed{\tau_1} \to \Ixed{\tau_2} \\
+\Ixed{\TypeJ \Delta {\forall \alpha \co \kappa. \tau} \star} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\TypeJ \Delta {\lambda \alpha \co \kappa. \tau} {\kappa \to \kappa'}} &= \forall (\alpha : \Ixed{\kappa}).\Ixed{\tau} \\
+\Ixed{\TypeJ \Delta {\pi \then \tau} \kappa} &= \Ixed{\pi} \to \Ixed{\tau} \\
+\Ixed{\TypeJ \Delta {\tau \, \upsilon} \kappa} &= \Ixed{\tau} \, \Ixed{\upsilon} \\
+\Ixed{\TypeJ \Delta \ell {\LabK}} &= \top  \\
+\Ixed{\TypeJ \Delta {\Sing \xi} \star} &= \top  \\
+\Ixed{\TypeJ \Delta {(\LabTy \xi \tau)} \kappa}&= \Ixed{\tau}  \\
+\Ixed{\TypeJ \Delta {\Pi \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \forall (i : \Ix{n}). P \, i)}\\
+\Ixed{\TypeJ \Delta {\Sigma \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \exists (i : {\Ix n}). P \, i)}\\
+\Ixed{\TypeJ \Delta \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \Absurd \\
+\Ixed{\TypeJ \Delta {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\tau} })} \\
+\Ixed{\TypeJ \Delta {\Lift{\tau} \, \rho} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). \Sem{\tau} (P \, j) })} \\
+\Ixed{\TypeJ \Delta {(\LabRow \xi \tau)} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}
 \end{align*}
 \end{gather*}
+\caption{Translating kinding derivations to untyped \IX{} terms}
+\label{fig:translation}
+\end{figure}
+
+\begin{figure}[H]
 \begin{align*}
-\fbox{$\Ixed{\Gamma \vdash \pi : \kappa}$ (Predicate well-formedness)} \\
+\fbox{$\Ixed{\Delta \vdash \pi : \kappa}$} \\
 \vspace{5em}
-\Ixed{\TypeJ \Gamma {\Leqp {\rho_{1}} {\rho_{2}}} \kappa} &=
+\Ixed{\TypeJ \Delta {\Leqp {\rho_{1}} {\rho_{2}}} \kappa} &=
   \begin{aligned}
               &\Case\, {\Ixed{\rho_{1}}} (\lambda n : \Nat. \lambda (P : \Ix n \to \Ixed{\kappa}).  \\
               &\Case\, {\Ixed{\rho_{2}}} (\lambda m : \Nat. \lambda (Q : \Ix m \to \Ixed{\kappa}). \\                               
               &\forall (i : \Ix n). \exists (j : \Ix m). P \, i \equiv Q \, j))
   \end{aligned} \\ \\
-\Ixed{\TypeJ \Gamma {\RowPlusP {\rho_{1}} {\rho_{2}} {\rho_{3}}} \kappa} &= 
+\Ixed{\TypeJ \Delta {\RowPlusP {\rho_{1}} {\rho_{2}} {\rho_{3}}} \kappa} &= 
   \begin{aligned}                                           
               &\Case\, {\Ixed{\rho_{1}}} (\lambda n : \Nat. \lambda (P : \Ix n \to \Ixed{\kappa}).  \\
               &\Case\, {\Ixed{\rho_{2}}} (\lambda m : \Nat. \lambda (Q : \Ix m \to \Ixed{\kappa}). \\                               
@@ -404,25 +454,118 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
                 +\, &(\exists (j : \Ix m). Q \, j \equiv R\, k)))))
   \end{aligned}                                           
 \end{align*}
-\caption{A compositional translation of typed \RO kinds and predicates to untyped \IX{} terms}
+\caption{Translating predicate well-formedness judgments}
 \label{fig:translation}
 \end{figure}
 
 \subsection{Typed translation}
+\newcommand\Fresh{\mathrm{fresh}}
+\newcommand\TransEnv[2]{\ensuremath{\vdash #1 \leadsto #2}}
+\newcommand\TransTerm[4]{\ensuremath{#1 \vdash #2 \leadsto #3 : #4}}
+\newcommand\TransEnt[3]{\ensuremath{\EntJ #1 #2 \leadsto #3}}
+\newcommand\TransEq[3]{\ensuremath{{#1 \equiv #2} \leadsto #3}}
+
+There is some subtlety in mechanizing environments. Environments in $\RO$ store kinds, \emph{typing derivations}, and \emph{predicate well-formedness derivations}. If we are to simply translate derivations to untyped syntax, we are losing a bit of information. I am not sure, however, it is possible to translate derivations (in $\RO$) to derivations (in $\IX$) without a de facto type checker for $\IX$. I think we will have to perform the former: let derivations in $\RO$ environments translate to untyped types and sorts in $\IX$ environments. Then, argue as metatheory that $\TransEnv \Delta \Gamma$ implies $\EnvJ \Gamma$.
 
 \begin{figure}[H]
 \small
 \begin{gather*}
-\fbox{$\Gamma \vdash \tau \leadsto \upsilon : \kappa$}
+\fbox{$\TransEnv \Delta \Gamma$} \\
+\ib{
+  \irule[\crule{$\varepsilon$}]
+  {};
+  {\TransEnv \epsilon \epsilon}}
+\rsp
+\ib{
+  \irule[\crule{tvar}]
+  {\TransEnv \Delta \Gamma};
+  {\TransEnv {\Delta, \alpha : \kappa} {\Gamma, \alpha : \Ixed{\kappa}}}}
 \\
-\ib{\irule[\crule{foo}]{A};{B}} \\
-\fbox{$\Gamma \vdash M \leadsto N : \tau$}
+\ib{
+  \irule[\crule{var}]
+  {\TransEnv \Delta \Gamma};
+  {\TransEnv {\Delta, x : \tau} {\Gamma, x : \Ixed{\tau}}}}
+\rsp
+\ib{
+  \irule[\crule{pred}]
+  {\TransEnv \Delta \Gamma};
+  {\TransEnv {\Delta, \pi : \kappa} {\Gamma, p : \Ixed{\pi}}}!{p \, \Fresh}}
+\\ \\
+\fbox{$\TransTerm \Delta M N \tau$}
 \\
+\ib{
+  \irule[\trule{var}]
+  {x : \tau \in \Delta};
+  {\TransTerm \Delta x x \tau}}
+\\
+\ib{
+  \irule[\trule{$\I\to$}]
+  {\TransTerm {\Delta, x: \tau} M N \upsilon};
+  {\TransTerm \Delta {\lambda x : \tau. M} {\lambda x : \Ixed{\tau}. N} {\tau \to \upsilon}}}
+\rsp
+\ib{
+  \irule[\trule{$\I\to$}]
+  {\TransTerm {\Delta} M F {\tau \to \upsilon}} {\TransTerm {\Delta} N E {\tau}};
+  {\TransTerm \Delta {M \, N} {F \, E} {\upsilon}}}
+\\
+\ib{
+  \irule[\trule{$\I\then$}]
+  {\TransTerm {\Delta, \pi} {M} {N} {\tau}};
+  {\TransTerm \Delta {M} {\lambda (p : \Ixed{\pi}). N} {\pi \then \tau}}}
+\rsp
+\ib{
+  \irule[\trule{$\E\then$}]
+  {\TransTerm \Delta M F {\pi \then \tau}}{\TransEnt \Delta \pi E};
+  {\TransTerm \Delta M {F \, E} \tau}}
+\\
+\ib{
+  \irule[\trule{$\I\forall$}]
+  {\TransTerm \Delta {M} {N} \tau};
+  {\TransTerm \Delta {\Lambda \alpha : \kappa. M} {\lambda (\alpha : \Ixed{\kappa}). N} {\forall \alpha : \kappa. \tau}}}
+\rsp
+\ib{
+  \irule[\trule{$\E\forall$}]
+  {\TransTerm \Delta M {N} {\forall \alpha : \kappa. \tau}};
+  {\TransTerm \Delta {M [\upsilon]} {N \, \Ixed{\upsilon}} {\tau[\upsilon/\alpha]}}}
+\\
+\ib{
+  \irule[\trule{sing}]
+  {};
+  {\TransTerm \Delta {\ell} {\tt} {\Sing \ell}}}
+\rsp
+\ib{
+  \irule[\trule{foo}]
+  {A};
+  {B}}
+\\
+%% Row of Rules ----------------------------------------------------------------
+\ib{
+  \irule[\crule{foo}]
+  {A};
+  {B}}
+\rsp
+\ib{
+  \irule[\crule{foo}]
+  {A};
+  {B}}
+\rsp
+\ib{
+  \irule[\crule{foo}]
+  {A};
+  {B}}\\
+%% End. ------------------------------------------------------------------------
+\end{gather*}
+\caption{Translation of \RO environments and typing derivations}
+\end{figure}
+
+\begin{figure}[H]
+\small
+\begin{gather*}
 \ib{\irule[\crule{foo}]{A};{B}} \\
-\fbox{${\EntJ \Gamma \pi} \leadsto N$}
+\fbox{$\TransEnt \Delta \pi N$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}}  \\
-\fbox{${\tau \equiv \upsilon} \leadsto P$}
+\fbox{$\TransEq \tau \upsilon P$}
 \\
 \ib{\irule[\crule{foo}]{A};{B}} 
 \end{gather*}
@@ -431,10 +574,12 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 
 \subsection{Properties of Translation}
 
-Presume an \RO instantiation of the simple row theory. A lot of this is likely bullshit.
+\begin{theorem}[Translational Soundness (Environments)]
+  if $\TransEnv \Delta \Gamma$ then $\EnvJ \Gamma$.
+\end{theorem}
 
 \begin{theorem}[Translational Soundness (Types)]
-  if $\TypeJ \Gamma \tau \kappa$ such that $\Gamma \vdash \tau \leadsto \upsilon \co \kappa$ then $\SortJ {\Ixed{\Gamma}} \upsilon {\Ixed{\kappa}}$.
+  if $\TypeJ \Delta \tau \kappa$ and $\TransEnv \Delta \Gamma$ then $\SortJ \Gamma {\Ixed \tau} {\Ixed{\kappa}}$.
 \end{theorem}
 
 \begin{theorem}[Translational Soundness (Type Equivalence)]
