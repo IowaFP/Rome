@@ -85,8 +85,7 @@
 % \newcommand\CaseP[3]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, \mathrm{of} \{ (#1, #2) \mapsto #3 \} }}
 % \newcommand\CaseS[5]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, \mathrm{of} \, \{ \left \, #2 \mapsto #3 ; \right \, #4 \mapsto #5 \} }}
 \newcommand\CaseN[3]{\ensuremath{\Case_{\Nat} \, #1 \, #2 \, #3}}
-\newcommand\CaseFZ[2]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 }}
-\newcommand\CaseFS[3]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 \, #3 }}
+\newcommand\CaseIx[3]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 \, #3 }}
 \newcommand\CaseP[2]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, #2 }}
 \newcommand\CaseS[3]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, #2 \, #3}}
 \newcommand\Rule[1]{(\textsc{#1})}
@@ -117,8 +116,7 @@
   & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \CaseN M N T \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
-  & & & & \CaseFZ M N \mid \CaseFS M N T \mid \\
-  & & & & \Felim {M_1,...,M_n} \mid \Absurd \mid \\
+  & & & & \CaseIx M N T \mid \Felim {M_1,...,M_n} \mid \Absurd \mid \\
   & & & &  \top \mid \tt \mid \\
   & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
   & & & &  \exists \alpha \co T. M \mid \TyPair \alpha T M \mid \CaseP M N \mid \\
@@ -149,8 +147,8 @@ Let
 denote the large elimination of a known, finite quantity of indices to types $M_{1},...,M_{n}$, elaborated by the equations:
 
 \begin{align*}
-  \Felim{M_{1}} &:= \lambda (i : \Ix{1}). \CaseFZ i M_{1} \\
-  \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseFS i {M_{1}} \Felim{M_{2},...,M_{n}}
+  \Felim{M_{1}} &:= \lambda (i : \Ix{1}). \CaseIx i M_{1} \Absurd \\
+  \Felim{M_{1},...,M_{n}} &:= \lambda (i : \Ix{n}). \CaseIx i {M_{1}} \Felim{M_{2},...,M_{n}}
 \end{align*}
 \end{enumerate}
 
@@ -226,7 +224,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
   {\TypeJ \Gamma M {\Ix {(\Suc \, n)}}}
   {\TypeJ \Gamma N A}
   {\TypeJ \Gamma P {\Ix n \to A}};
-  {\TypeJ \Gamma {\CaseFS M N P} A}}
+  {\TypeJ \Gamma {\CaseIx M N P} A}}
 \\
 \ib{\irule[\Rule{$\I\forall$}]
   {\SortJ \Gamma T \sigma}
@@ -359,7 +357,7 @@ Following the above, I believe \IX{} to a smaller calculus with the syntax below
   & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \CaseN M N T \mid \\
   & & & & \Ix{M} \mid \FZero \mid \FSuc \; M \mid \\
-  & & & & \CaseFS M N T \mid \\
+  & & & & \CaseIx M N T \mid \\
   & & & &  \forall \alpha \co T. N \mid \lambda x \co T. N \mid M \, N \mid \\
   & & & &  M \equiv N \mid \Refl \, T \, M \, N \mid \\
   \mcl{\text{Environments}} & \Gamma & ::= & \varepsilon \mid \Gamma, \alpha : T
