@@ -48,7 +48,6 @@
     "Type"
     "Fst"
     "Snd"
-    "U"
     "PointedT"
     "PointedU"
     "Refl"

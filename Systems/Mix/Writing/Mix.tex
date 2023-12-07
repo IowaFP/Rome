@@ -72,10 +72,9 @@
 \newcommand\Lift[1]{\ensuremath{\lceil #1 \rceil}}
 \newcommand\Fst{\mathrm{fst}}
 \newcommand\Snd{\mathrm{snd}}
-\newcommand\U{\mathcal{U}}
 \newcommand\Pointed[1]{\ensuremath{#1_{\bot}}}
 \newcommand\PointedT{\Pointed{\star}}
-\newcommand\PointedU{\Pointed{\U}}
+\newcommand\PointedU{\Pointed{\Box}}
 \newcommand\J[4]{\mathcal{J} \, #1 \, #2 \, #3 \, #4}
 \newcommand\Refl{\mathrm{refl}}
 \renewcommand\left{\mathrm{left}}
@@ -113,7 +112,7 @@
 \end{array}
 \\[5px]
 \begin{doublesyntaxarray}
-  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
+  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \Box \\
   \mcl{\text{Terms}} & M, N, T & ::= & \star \mid x \mid \\
   & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \CaseN M N T \mid \\
@@ -175,7 +174,7 @@ denote the large elimination of a known, finite quantity of indices to types $M_
 \begin{gather*}
 \fbox{$\TypeJ \Gamma M \sigma$} 
 \\
-\ib{\irule[\Rule{$\star$}] {\EnvJ \Gamma} ; {\TypeJ \Gamma \star \U}} 
+\ib{\irule[\Rule{$\star$}] {\EnvJ \Gamma} ; {\TypeJ \Gamma \star \Box}} 
 \rsp
 \ib{\irule[\Rule{$\top$}] {\EnvJ \Gamma} ; {\SortJ \Gamma \top \sigma}}
 \rsp
@@ -355,7 +354,7 @@ Following the above, I believe \IX{} to a smaller calculus with the syntax below
 \end{array}
 \\[5px]
 \begin{doublesyntaxarray}
-  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \U \\
+  \mcl{\text{Sorts}} & \sigma & ::= & \star \mid \Box \\
   \mcl{\text{Terms}} & M, N, T & ::= & \star \mid x \mid \\
   & & & & \Nat \mid \Zero \mid \Suc \, M \mid \\
   & & & & \CaseN M N T \mid \\
@@ -379,8 +378,8 @@ Elaboration is given below. One would also expect a rule for bot elimination---o
   \tt &\leadsto  \FZero \\
   \bot &\leadsto \Ix 0 \\
   A \to B &\leadsto \forall (x : A). B \\
-  \exists(x : A). B &\leadsto \forall (C : \U).(\forall (x : A). B \to C) \to C \\
-  \TyPair M T N &\leadsto \lambda (C : \U). \lambda (f : (\forall (x : A). B \to C)). f \, M \, N \\
+  \exists(x : A). B &\leadsto \forall (C : \Box).(\forall (x : A). B \to C) \to C \\
+  \TyPair M T N &\leadsto \lambda (C : \Box). \lambda (f : (\forall (x : A). B \to C)). f \, M \, N \\
   A + B &\leadsto \exists (i : \Ix 2). \Felim {A,B} \, i \\
   \left\, M &\ \TyPair {i_0} {\Ix 2} {M} \\
   \right\, N &\ \TyPair {i_1} {\Ix 2} {N} \\
