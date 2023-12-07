@@ -1,0 +1,215 @@
+\documentclass[authoryear,acmsmall,screen]{acmart}
+\citestyle{acmauthoryear}
+
+\overfullrule=1mm
+
+\usepackage{
+  % AH> I don't know how much of these are used, and for what.
+  %     (needs untangling.) 
+  relsize,
+  enumitem,
+  xspace,
+  mathtools,
+  multicol,
+  tikz-cd,
+  parskip,
+  mathrsfs,
+  stmaryrd,
+  tikz,
+  float,
+  titlecaps,
+  soul,
+  upgreek,
+  caption,
+  graphicx,
+  array,
+  subcaption,
+  % amsmath,
+  % amsthm,
+  % amssymb,
+  bibentry,
+  bibunits,
+  ./sty/mathwidth,
+%  ../sty/sectsty,
+  ./sty/commands,
+  ./sty/infer,
+  ./sty/commands,
+  ./sty/higher,
+  ./sty/mymath
+}
+
+\usepackage{natbib}
+
+% tikz
+\usepackage{tikz}
+\usepackage{tikz-cd}
+
+\title{Recursive \RO: A case for SFP}
+
+\author{AH}
+
+\newcommand\Todo[1]{{\color{red} #1}}
+\newcommand\Absurd{\ensuremath{\lambdabar\mathrm{\Tt{()}}}}
+\newcommand\SortJ[3]{\TypeJ {#1} {#2} {#3}}
+\newcommand\IX{\textsc{Ix}}
+\newcommand\Hix{\textsc{HIx}}
+\newcommand\secfig[2]{Figure \ref{fig:#2}, \S\ref{sec:#1}}
+\newcommand\Nat{\mathbb{N}}
+\newcommand\Zero{Z}
+\newcommand\FZero{\mathsf{I_0}}
+\newcommand\Suc{\mathrm{S}}
+\newcommand\FSuc{\mathsf{I_{\Suc}}}
+\newcommand\Fin{\mathrm{Fin}}
+\newcommand\Ix[1]{\mathrm{Ix} \, #1}
+\newcommand\MuIx{\ensuremath{\mu}Ix}
+\newcommand\Type{\mathrm{Type}}
+\newcommand\FormJ[2]{\ensuremath{#1 \vdash #2 \, \Type}}
+\renewcommand\tt{\Tt{tt}}
+% \newcommand\Ixed[1]{\ensuremath{(#1)^{\bullet}}}
+\newcommand\Ixed[1]{\ensuremath{\Sem{#1}}}
+\newcommand\TyPair[3]{\ensuremath{\langle\!\langle #1 \co #2 , #3 \rangle\!\rangle}}
+
+\newcommand\Lift[1]{\ensuremath{\lceil #1 \rceil}}
+\newcommand\Fst{\mathrm{fst}}
+\newcommand\Snd{\mathrm{snd}}
+\newcommand\U{\mathcal{U}}
+\newcommand\Pointed[1]{\ensuremath{#1_{\bot}}}
+\newcommand\PointedT{\Pointed{\star}}
+\newcommand\PointedU{\Pointed{\U}}
+\newcommand\J[4]{\mathcal{J} \, #1 \, #2 \, #3 \, #4}
+\newcommand\Refl{\mathrm{refl}}
+\renewcommand\left{\mathrm{left}}
+\renewcommand\right{\mathrm{right}}
+\renewcommand\Case{\mathrm{case}}
+\newcommand\CaseN[3]{\ensuremath{\Case_{\Nat} \, #1 \, #2 \, #3}}
+\newcommand\CaseFZ[2]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 }}
+\newcommand\CaseFS[3]{\ensuremath{\Case_{\mathrm{\IX{}}} \, #1 \, #2 \, #3 }}
+\newcommand\CaseP[2]{\ensuremath{\Case_{\mathrm{\exists}} \, #1 \, #2 }}
+\newcommand\CaseS[3]{\ensuremath{\Case_{\mathrm{+}} \, #1 \, #2 \, #3}}
+\newcommand\Rule[1]{(\textsc{#1})}
+\newcommand\Safe[1]{\ensuremath{#1 \; \mathrm{Safe}}}
+\newcommand\SafeJ[2]{\ensuremath{#1 \vdash #2 \; \mathrm{Safe}}}
+\newcommand\Felim[1]{\{\!\!\{#1\}\!\!\}}
+
+\newcommand\New[1]{{\color{blue}#1}}
+
+\begin{document}
+
+\maketitle
+
+\section{Type Recursion in \RO}
+
+Recall the rules, in $\RO$, for variant introduction and elimination,
+
+\begin{gather*}
+  \ib{\irule[\trule{$\I\Sigma$}]
+          {\TypeJ \Gamma M {\Sigma \rho_1}}
+          {\EntJ \Gamma {\Leqp [] {\rho_1} {\rho_2}}};
+          {\TypeJ \Gamma {\Inj [] M} {\Sigma \rho_2}}}
+\\
+\ib{\irule[\trule{$\E\Sigma$}]
+          {\TypeJ \Gamma {M_1} {\Sigma \rho_1 \to \tau}}
+          {\TypeJ \Gamma {M_2} {\Sigma \rho_2 \to \tau}}
+          {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+          {\TypeJ \Gamma {M_1 \Branch M_2} {\Sigma \rho_3 \to \tau}}}
+\end{gather*}
+
+
+which state, resp.,
+\begin{enumerate}
+\item smaller variants may be injected into larger ones; and
+\item variant eliminators are combined by $\Branch$, the variant eliminator.
+\end{enumerate}
+
+Further, recall that rows larger than singletons are posited to be the sum of smaller rows within type qualification. For example, booleans would be defined as:
+
+\[
+\mathbb{B} := \forall (\rho : \RowK \star). \RowPlusP {(\LabTy {\mathrm{true}} \top)} {(\LabTy {\mathrm{false}} \top)} \rho \then \Sigma \rho
+\]
+
+This makes sense, as the rule for variant introduction is circular---to build the variant $\Inj [] M$, we first need $M$ to itself be a variant! This is okay, as the types $\LabTy \ell \tau$, $\Sigma(\LabTy \ell \tau)$, and $\Pi (\LabTy \ell \tau)$ are equivalent. So we may convert singletons to and from variants/records at will.
+
+\begin{gather*}
+\ib{\irule[\erule{sing}]
+          { };
+          {\EqvJ {K \Row{\LabTy \xi \tau}} {\LabTy \xi \tau}}!{K \in \Set {\Pi, \Sigma}}}
+\end{gather*}
+
+And so the magic really happens in the singletons. Recall their rules, too.
+
+\begin{gather*}
+    \ib{\irule[\trule{$\I\triangleright$}]
+          {\TypeJ \Gamma {M_1} {\Sing \ell}}
+          {\TypeJ \Gamma {M_2} \tau};
+          {\TypeJ \Gamma {\LabTerm {M_1} {M_2}} {\LabTy \ell \tau}}}
+\rsp
+\ib{\irule[\trule{$\E\triangleright$}]
+          {\TypeJ \Gamma {M_1} {\LabTy \ell \tau}}
+          {\TypeJ \Gamma {M_2} {\Sing \ell}};
+          {\TypeJ \Gamma {\Unlabel {M_1} {M_2}} \tau}}
+\end{gather*}
+
+We now ask how to throw recursion into the mix. To make things simple, suppose we add a kind for recursive-subdata---call it $\star_{\mu}$. Actually, to make things very, very simple, suppose constant $X : \star_{\mu}$ is the sole inhabitant of $\star_{\mu}$. (The particular representation of recursive type variables is a valid concern, but orthogonal to the point; this representation, of course, would actually break normalization guarantees, but let's ignore for now.) We may define naturals as:
+
+\[
+\Nat := \forall (\rho : \RowK \star). \forall (X : \star_{\mu}).\RowPlusP {(\LabTy \Zero \top)} {(\LabTy \Suc{} X)} \rho \then \Sigma \rho
+\]
+
+Terms in $\Nat$ may be defined recursively as:
+
+\begin{align*}
+  0 &:= \Inj [] (\LabTy \Zero \Tt{()}) \\
+  1 &:= \Inj [] (\LabTy \Suc{} 1) \\
+  2 &:= \Inj [] (\LabTy \Suc{} 2) \\
+\end{align*}
+
+The interesting question to recursive types lies in defining their eliminators. So, how do we extend $\RO$ branching to recursive variants? How about:
+
+\[
+\ib{\irule[\trule{$\E\Sigma$}]
+  {\TypeJ {\Gamma} {M_1} {(X \to \tau) \to \Sigma \rho_1 \to \tau}}
+  {\TypeJ {\Gamma} {M_2} {(X \to \tau) \to \Sigma \rho_2 \to \tau}}
+  {\EntJ \Gamma {\RowPlusP {\rho_1} {\rho_2} {\rho_3}}};
+  {\TypeJ \Gamma {M_1 \Branch M_2} {\Sigma \rho_3 \to \tau}}}
+\]
+
+Then the identity function on $\Nat$ might be composed as:
+
+\newcommand\Rec{\mathrm{rec}}
+\begin{align*}
+&(\lambda (\Rec : X \to \Nat). \lambda (v : \Sigma (\LabTy \Zero \top)). \Inj [] v) \\
+&\Branch \\
+&(\lambda (\Rec : X \to \Nat). \lambda (v : \Sigma (\LabTy \Suc{} X)). \Inj [] (\LabTy {\Suc{}} {f (\Unlabel v \Suc{})})  
+\end{align*}
+
+
+You should see immediately the trick, here: the ``Mendler style'' of terminating recursion has snuck in quite naturally to variant elimination. Further, we have already a representation of records and extensibility! So the ``recursion universe'' could instead be a record of combinators, e.g.,
+
+\[
+\Pi (\LabTy \Rec {X \to \tau}, \LabTy {\mathrm{reveal}} {X \to \Sigma \rho_{1}}, ...)
+\]
+
+\section{A case for SFP}
+
+in \citet{HubersM23}, \RO is given a semantics by way of shallow embedding into Agda. This makes things tricky when one toys with recursion, and so we instead decided to formalize a smaller fragment of Agda---what we call \IX---as a translation target with an operational semantics. This also lets us strip away predicativity and level-stratification nonsense.
+
+\IX{} is more or less the calculus of constructions with propositional equality and finite naturals. Rows are translated as the large elimination of finite naturals to types. Here is how we might translate, for example, the predicate $\rho_{1} \lesssim \rho_{2}$:
+
+\begin{align*} 
+\Ixed{\TypeJ \Delta {\Leqp {\rho_{1}} {\rho_{2}}} \kappa} &=
+  \begin{aligned}
+              &\Case\, {\Ixed{\rho_{1}}} (\lambda n : \Nat. \lambda (P : \Ix n \to \Ixed{\kappa}).  \\
+              &\Case\, {\Ixed{\rho_{2}}} (\lambda m : \Nat. \lambda (Q : \Ix m \to \Ixed{\kappa}). \\                               
+              &\forall (i : \Ix n). \exists (j : \Ix m). P \, i \equiv Q \, j))
+  \end{aligned}
+\end{align*}
+
+Sorry for omitting too many details. The gist of this translation says that $\rho_{1}$ is ``included in'' $\rho_{2}$ if, for all indices $i$ in $\rho_{1}$, I may give an index $j$ in $\rho_{2}$ such that the type at index $i$ in $\rho_{1}$ equals the type at index $j$ in $\rho_{2}$. So, the use of propositional equality is crucial to the calculus. 
+
+I actually think it may be sane to let terms diverge in $\RO$ and $\IX$ so long as we may ensure \emph{translational soundness}. In other words, we permit garbage in to be garbage out. But I also have hopes some day using this machinery to give a row-theoretic account of inductive data (as an alternative to CIC).
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{Mix}
+\end{document}
+
