@@ -420,7 +420,7 @@ We follow the approach of \cite{MorrisM19} and give both typed and untyped trans
 \Ixed{\TypeJ \Delta {\Pi \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \forall (i : \Ix{n}). P \, i)}\\
 \Ixed{\TypeJ \Delta {\Sigma \rho} \star}&= \CaseP {\Ixed{\rho}} {(\lambda n : \Nat. \lambda P : \Ix{n} \to \star. \exists (i : {\Ix n}). P \, i)}\\
 \Ixed{\TypeJ \Delta \epsilon {\RowK \kappa}} &= \TyPair 0 \Nat \Absurd \\
-\Ixed{\TypeJ \Delta {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\tau} })} \\
+\Ixed{\TypeJ \Delta {\rho \, \Lift{\upsilon}} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}} \to \Sem{\kappa_{2}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). (P \, j) \Sem{\upsilon} })} \\
 \Ixed{\TypeJ \Delta {\Lift{\tau} \, \rho} {\RowK {\kappa_{2}}}} &= \CaseP {\Ixed \rho} {(\lambda n : \Nat. \lambda (P : \Ix n \to \Sem{\kappa_{1}}).  \TyPair {n} {\Nat} {\lambda (j : \Ix n). \Sem{\tau} (P \, j) })} \\
 \Ixed{\TypeJ \Delta {(\LabRow \xi \tau)} {\RowK \kappa}}&= \TyPair {1} {\Nat} {\Felim{\Sem{\tau}}}
 \end{align*}

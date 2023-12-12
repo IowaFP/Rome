@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  7 DEC 2023 12:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.6.16)  12 DEC 2023 08:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -4927,7 +4927,7 @@ LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
 e 427.
 
-Overfull \hbox (1.32396pt too wide) detected at line 427
+Overfull \hbox (1.29897pt too wide) detected at line 427
 []|
  []
 
@@ -5068,14 +5068,14 @@ LaTeX Font Info:    Undo math alphabet allocation in version hask on input line
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
 e 427.
 
-Overfull \hbox (1.32396pt too wide) detected at line 427
+Overfull \hbox (1.29897pt too wide) detected at line 427
 []|
  []
 
 LaTeX Font Info:    No math alphabet change to frozen version hask on input lin
 e 427.
 
-Overfull \hbox (1.32396pt too wide) detected at line 427
+Overfull \hbox (1.29897pt too wide) detected at line 427
 []|
  []
 
@@ -5694,7 +5694,7 @@ blic/newtx/txmiaX.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/tx
 fonts/txsya.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/
 txsyb.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/txfonts/txsyc.
 pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/newtx/txsys.pfb>
-Output written on Mix.pdf (8 pages, 488651 bytes).
+Output written on Mix.pdf (8 pages, 488652 bytes).
 PDF statistics:
  267 PDF objects out of 1000 (max. 8388607)
  208 compressed objects within 3 object streams
