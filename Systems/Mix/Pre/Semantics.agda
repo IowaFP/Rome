@@ -82,12 +82,40 @@ Row s = `∃ Nat (Ix varZ `→ s)
 
 -- This doesn't work. P and Q need to be weakened.
 ⟪_,_⟫In⟪_,_⟫ : Term → Term → Term → Term → Term 
-⟪ n , P ⟫In⟪ m , Q ⟫ = `∀ (Ix n) (`∃ (Ix m) (P · x₁) ~ (Q · x₀))
+⟪ n , P ⟫In⟪ m , Q ⟫ = `∀ (Ix n) (`∃ (Ix m) (varS (varS P) · x₁) ~ (varS (varS Q) · x₀))
 
-⟦_⟧p {κ = κ} (ρ₁ Rμ.≲ ρ₂) = ρ-elim κ ρ₁ (ρ-elim κ ρ₂ ⟪ x₃  , x₂ ⟫In⟪ x₁ , x₀ ⟫)
+-- N.b. I am actually weakening x₂ ↦ x₄ and x₀ ↦ x₂.
+-- This is all sorts of a fucking mess. Should write a
+⟦_⟧p {κ = κ} (ρ₁ Rμ.≲ ρ₂) = ρ-elim κ ρ₁ (ρ-elim κ ρ₂ ⟪ x₃  , varS (varS x₂) ⟫In⟪ x₁ , varS (varS x₀) ⟫)
 ⟦_⟧p {κ = κ} (ρ₁ Rμ.· ρ₂ ~ ρ₃) = 
   ρ-elim κ ρ₁  -- intr. ⟪ x₅ : Nat , x₄ ⟫
   (ρ-elim κ ρ₂ -- intr. ⟪ x₃ , x₂ ⟫
   (ρ-elim κ ρ₃ -- intr. ⟪ x₁ , x₀ ⟫
-  (⟪ x₅ ,  x₄ ⟫In⟪ {!x₁!} , {!!} ⟫ `× {!!})))
+  injL `× injR))
+  where
+  injL = (⟪ n ,  P ⟫In⟪ l , R ⟫ `× ⟪ m ,  Q ⟫In⟪ l , R ⟫)
+    where
+      n = x₅
+      P = x₄
+      m = x₃
+      Q = x₂
+      l = x₁
+      R = x₀
+  injR = 
+    `∀ (Ix x₁) -- forall k : Ix l
+    (`∃ (Ix (varS x₅))  -- exists i : Ix n
+    ((P · i) ~ (R · k)))
+    Or 
+    (`∃ (Ix (varS x₃)) -- exists i : Ix m
+    ((Q · i) ~ (R · k)))
+    where
+      n = varS x₅
+      P = varS x₅
+      m = varS x₄
+      Q = varS x₃
+      l = varS x₂
+      R = varS x₁
+      k = x₁
+      i = x₀
+  
 
