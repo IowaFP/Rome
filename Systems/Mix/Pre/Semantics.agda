@@ -86,11 +86,14 @@ Row s = `∃ Nat (Ix varZ `→ s)
 
 -- N.b. I am actually weakening x₂ ↦ x₄ and x₀ ↦ x₂.
 -- This is all sorts of a fucking mess. Should write a
-⟦_⟧p {κ = κ} (ρ₁ Rμ.≲ ρ₂) = ρ-elim κ ρ₁ (ρ-elim κ ρ₂ ⟪ x₃  , varS (varS x₂) ⟫In⟪ x₁ , varS (varS x₀) ⟫)
+⟦_⟧p {κ = κ} (ρ₁ Rμ.≲ ρ₂) = ρ-elim κ ρ₁ 
+  (ρ-elim κ ρ₂ 
+    ⟪ x₃  , varS (varS x₂) ⟫In⟪ x₁ , varS (varS x₀) ⟫)
+
 ⟦_⟧p {κ = κ} (ρ₁ Rμ.· ρ₂ ~ ρ₃) = 
-  ρ-elim κ ρ₁  -- intr. ⟪ x₅ : Nat , x₄ ⟫
-  (ρ-elim κ ρ₂ -- intr. ⟪ x₃ , x₂ ⟫
-  (ρ-elim κ ρ₃ -- intr. ⟪ x₁ , x₀ ⟫
+  ρ-elim κ ρ₁  
+  (ρ-elim κ ρ₂ 
+  (ρ-elim κ ρ₃
   injL `× injR))
   where
   injL = (⟪ n ,  P ⟫In⟪ l , R ⟫ `× ⟪ m ,  Q ⟫In⟪ l , R ⟫)

@@ -11,20 +11,25 @@ open Pre using (Sort ; sort?)
 -- Declare contexts and judgements.
 -- (mutually recursive.)
 
+private
+  variable
+    M N T : Pre.Term
+
 data Context : Set
-data Type : Context → Pre.Term → Set
-data Term : {Δ : Context} (Γ : Context) → {τ : Pre.Term} → Type Δ τ  → Set
+data Type : {M : Pre.Term} → Context → Sort M → Set
+data Term : (Γ : Context) {σ : Sort T} → Type Γ σ  → Set
 
 open Pre.Term
+open Pre.Sort
 
 -- Context house assumptions 
 data Context where
   ε : Context
-  _,_ : Context → Pre.Term → Context
+  _,_ : (Γ : Context) {σ : Sort T} → Type Γ σ → Context
 
--- private
---   variable
---     Γ Δ Δ' : Context
+private
+  variable
+    Γ Δ Δ' : Context
 
 -- --------------------------------------------------------------------------------
 -- -- Lookup 
@@ -48,30 +53,38 @@ data Context where
 -- -- --------------------------------------------------------------------------------
 -- -- -- Typing judgements.
 
--- data Type where
---   ★ : (Γ : Context) → Type Γ 𝓤
+data Type where
+  ★ : (Γ : Context) → Type Γ □
 --   --
 --   var : ∀ {σ}
 --         {T : Type Γ σ}  →  T ∈ Γ →
 --         ---------------------------
 --         Type Γ σ
 --   --
---   ⊤★ : Type Γ ★
+  ⊤ : (σ : Sort M) → Type Γ σ
 --   --
---   Nat : (Γ : Context) → Type Γ ★
+  Nat : {Γ : Context} → Type Γ ★
 --   --
---   Ix  : Term Γ (Nat Γ) → Type Γ ★
+  Ix  : Term Γ Nat → Type Γ ★
 --   --
---   Π : ∀ {σ σ'} →
---         (τ : Type Γ σ)   →   Type (Γ , τ) σ' → 
---         -------------------------------------------        
---         Type Γ σ'
---   Σ : ∀ {σ σ'} →
---         (τ : Type Γ σ)   →   Type (Γ , τ) σ' → 
---         -------------------------------------------        
---         Type Γ σ'
---   -- 
---   -- up : Term Γ ★ → Type Γ ★
+  `∀ : ∀ {σ₁ : Sort M} {σ₂ : Sort N} →
+        (τ : Type Γ σ₁)   →   Type (Γ , τ) σ₂ → 
+        -------------------------------------------        
+        Type Γ σ₂
+  `∃ : ∀ {σ₁ : Sort M} {σ₂ : Sort N} →
+        (τ : Type Γ σ₁)   →   Type (Γ , τ) σ₂ → 
+        -------------------------------------------        
+        Type Γ σ₂
+
+  _Or_ : ∀ {σ : Sort M} →
+        Type Γ σ   →   Type Γ σ → 
+        ---------------------------
+        Type Γ σ
+
+  _~_  : ∀ {σ : Sort M} →
+        Type Γ σ → Type Γ σ → 
+        -----------------------
+        Type Γ σ
 
 -- --------------------------------------------------------------------------------
 -- -- Sanity-checking
@@ -91,7 +104,7 @@ data Context where
 -- --   -- (beta-)substitution of terms over types
 -- --   _β[_]ₜ : ∀ {τ υ}{T₁ : Type Γ τ} → Type (Γ , T₁) υ → Term Γ T₁ → Type Γ υ
 
--- -- data Term where
+data Term where
 -- --   var : ∀ {σ}
 -- --         {T : Type Γ σ}  →  Γ ∋ T →
 -- --         ---------------------------
