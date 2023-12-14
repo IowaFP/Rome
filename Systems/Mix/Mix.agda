@@ -1,4 +1,4 @@
-module Mix.Terms where
+module Mix.Mix where
 
 open import Preludes.Data
 open import Data.List
@@ -233,6 +233,12 @@ module Rμ where
  open import Rome.Terms.Syntax public
  open import Rome.Entailment.Syntax public
 
+⟦_⟧σ : (κ : Rμ.Kind) → Sort
+⟦ Rμ.★ ⟧σ = ★
+⟦ Rμ.L ⟧σ = □
+⟦ Rμ.R[ κ ] ⟧σ =  □
+⟦ _ Rμ.`→ κ ⟧σ =  ⟦ κ ⟧σ
+
 ⟦_⟧κ : (κ : Rμ.Kind) → Type Γ □
 ⟦ Rμ.★ ⟧κ = ★
 ⟦ Rμ.L ⟧κ = ⊤ □
@@ -243,12 +249,42 @@ module Rμ where
 -- into one might make life a fucking nightmare.
 ⟦_∣_∣_⟧ : (Δ : Rμ.KEnv) → Rμ.PEnv Δ → Rμ.Env Δ → Context
 
-⟦_⟧τ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ★
+⟦_⟧τ-L : ∀ {Δ : Rμ.KEnv} → Rμ.Type Δ Rμ.L →  Type ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ★
+⟦_⟧τ-★ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ κ → Rμ.Star κ →  Type ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ★
+⟦_⟧τ-ρ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ Rμ.R[ κ ] →  Term ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ⟦ κ ⟧κ
+⟦_⟧p : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Pred Δ κ → Type ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ⟦ κ ⟧σ
+
+⟦ Rμ.tvar x ⟧τ-L = {!!}
+⟦ τ Rμ.·[ υ ] ⟧τ-L = {!!}
+⟦ Rμ.lab l ⟧τ-L = ⊤ ★
+⟦ _ Rμ.▹ τ ⟧τ-L = ⟦ τ ⟧τ-L
 
 ⟦ Δ ∣ Φ ∣ Γ ⟧ = {!!}
-⟦_⟧τ = {!!}
+⟦ Rμ.U ⟧τ-★ s = ⊤ ★
+⟦ Rμ.tvar x ⟧τ-★ s = {!!}
+⟦ τ Rμ.`→ υ ⟧τ-★ s = ⟦ τ ⟧τ-★ Rμ.★ `→ ⟦ υ ⟧τ-★ Rμ.★
+⟦ Rμ.`∀ κ τ ⟧τ-★ s = {!!}
+⟦ Rμ.`λ κ₁ τ ⟧τ-★ s = {!!}
+⟦ τ Rμ.·[ τ₁ ] ⟧τ-★ s = {!!}
+⟦ Rμ.μ τ ⟧τ-★ s = {!!}
+⟦ Rμ.ν τ ⟧τ-★ s = {!!}
+⟦ π Rμ.⇒ τ ⟧τ-★ s = ⟦ π ⟧p `→ (⟦ τ ⟧τ-★ Rμ.★)
+⟦ τ Rμ.▹ τ₁ ⟧τ-★ s = {!!}
+⟦ Rμ.⌊ τ ⌋ ⟧τ-★ s = {!!}
+⟦ Rμ.Π τ ⟧τ-★ s = {!!}
+⟦ Rμ.Σ τ ⟧τ-★ s = {!!}
 
-⟦_⟧ : ∀ {Δ : Rμ.KEnv} {Φ : Rμ.PEnv Δ} {Γ : Rμ.Env Δ} {τ : Rμ.Type Δ Rμ.★} → 
-        Rμ.Term Δ Φ Γ τ → Term ⟦ Δ ∣ Φ ∣ Γ ⟧ ⟦ τ ⟧τ
-⟦ M ⟧ = {!!}
+⟦ Rμ.tvar x ⟧τ-ρ = {!!}
+⟦ τ Rμ.·[ τ₁ ] ⟧τ-ρ = {!!}
+⟦ τ Rμ.▹ τ₁ ⟧τ-ρ = {!!}
+⟦ τ Rμ.R▹ τ₁ ⟧τ-ρ = {!!}
+⟦ Rμ.ε ⟧τ-ρ = {!!}
+⟦ τ Rμ.·⌈ τ₁ ⌉ ⟧τ-ρ = {!!}
+⟦ Rμ.⌈ τ ⌉· τ₁ ⟧τ-ρ = {!!}
+
+⟦_⟧p = {!!} 
+
+-- ⟦_⟧ : ∀ {Δ : Rμ.KEnv} {Φ : Rμ.PEnv Δ} {Γ : Rμ.Env Δ} {τ : Rμ.Type Δ Rμ.★} → 
+--         Rμ.Term Δ Φ Γ τ → Term ⟦ Δ ∣ Φ ∣ Γ ⟧ ⟦ τ ⟧τ
+-- ⟦ M ⟧ = {!!}
 
