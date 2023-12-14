@@ -236,18 +236,19 @@ module Rμ where
 ⟦_⟧κ : (κ : Rμ.Kind) → Type Γ □
 ⟦ Rμ.★ ⟧κ = ★
 ⟦ Rμ.L ⟧κ = ⊤ □
-⟦ Rμ.R[ κ ] ⟧κ = `∃ Nat (`∀ (Ix (var Z)) ⟦ κ ⟧κ) -- Σ Nat (Π (Ix varZ) ⟦ κ ⟧κ) 
+⟦ Rμ.R[ κ ] ⟧κ = `∃ Nat (`∀ (Ix (var Z)) ⟦ κ ⟧κ) 
 ⟦ κ₁ Rμ.`→ κ₂ ⟧κ = ⟦ κ₁ ⟧κ `→ ⟦ κ₂ ⟧κ
 
-⟦_⟧ke : Rμ.KEnv → Context
-⟦_⟧ke = {!!}
+-- My spidey senses are tell me that the collapse of these envs
+-- into one might make life a fucking nightmare.
+⟦_∣_∣_⟧ : (Δ : Rμ.KEnv) → Rμ.PEnv Δ → Rμ.Env Δ → Context
 
-⟦_,_,_⟧ : (Δ : Rμ.KEnv) → Rμ.PEnv Δ → Rμ.Env Δ → Context
-⟦_,_,_⟧ = {!!}
+⟦_⟧τ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ∣ Rμ.PEnv.ε ∣ Rμ.Env.ε ⟧ ★
 
-⟦_⟧τ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧ke ★
+⟦ Δ ∣ Φ ∣ Γ ⟧ = {!!}
 ⟦_⟧τ = {!!}
 
 ⟦_⟧ : ∀ {Δ : Rμ.KEnv} {Φ : Rμ.PEnv Δ} {Γ : Rμ.Env Δ} {τ : Rμ.Type Δ Rμ.★} → 
-        Rμ.Term Δ Φ Γ τ → Term ⟦ Δ , Φ , Γ ⟧ ⟦ τ ⟧τ
-⟦_⟧ = {!!}
+        Rμ.Term Δ Φ Γ τ → Term ⟦ Δ ∣ Φ ∣ Γ ⟧ ⟦ τ ⟧τ
+⟦ M ⟧ = {!!}
+
