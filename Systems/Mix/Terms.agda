@@ -13,11 +13,14 @@ open Pre using (Sort ; sort?)
 
 private
   variable
+    -- Todo: establish a better meta-naming convention to distinguish
+    -- pre-terms denoting terms, pre-terms denoting types,
+    -- intrinsic types, and intrinsic terms.
     M N T : Pre.Term
 
 data Context : Set
-data Type : {M : Pre.Term} → Context → Sort M → Set
-data Term : (Γ : Context) {σ : Sort T} → Type Γ σ  → Set
+data Type : Context → Sort M → Set
+data Term : (Γ : Context) {σ : Sort M} → Type Γ σ  → Set
 
 open Pre.Term
 open Pre.Sort
@@ -29,37 +32,42 @@ data Context where
 
 private
   variable
-    Γ Δ Δ' : Context
+    Γ Γ' : Context
 
--- --------------------------------------------------------------------------------
--- -- Lookup 
--- infix 4 _∋_
+weaken : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} → 
+         Type Γ σ₂ → Type (Γ , A) σ₂
+_β[_]t : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} → 
+         Type (Γ , A) σ₂ → Term Γ A → Type Γ σ₂
 
--- -- N.b.: don't need type-level vars, but do need
--- -- "cascading" environments.
--- data _∈_ : ∀ {σ} → Type Δ σ → Context → Set where
 
---   -- Z {★} {T = Nat : Type ε ★} → (ε , Nat : Type ε ★) ∋ (Nat : Type ε ★)
---   Z : ∀ {σ} {T : Type Γ σ} →
+--------------------------------------------------------------------------------
+-- Lookup 
+infix 4 _∋_
 
---       -----------
---       T ∈ (Γ , T)
+-- N.b.: don't need type-level vars, but do need
+-- "cascading" environments.
+data _∋_ : ∀ {σ : Sort M} → (Δ : Context) → Type Δ σ → Set where
 
---   -- S : ∀ {σ σ'} {A : Type Δ σ} {T : Type (Δ , T) σ'}
---   --     → Δ ∋ A
---   --     ------------------
---   --   → (Γ , T) ∋ A
+  Z : ∀ {σ : Sort M} {A : Type Γ σ} →
+
+      -----------
+      (Γ , A) ∋ (weaken A)
+
+  S : ∀ {σ : Sort M} {σ' : Sort N} {A : Type Γ σ} {B : Type Γ σ'}
+      → Γ ∋ A
+      ------------------
+    → (Γ , B) ∋ (weaken A)
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Typing judgements.
 
 data Type where
-  ★ : (Γ : Context) → Type Γ □
+  ★ : Type Γ □
 --   --
---   var : ∀ {σ}
---         {T : Type Γ σ}  →  T ∈ Γ →
---         ---------------------------
---         Type Γ σ
+  var : ∀ {σ : Sort M}
+        {A : Type Γ σ}  →  Γ ∋ A →
+        ---------------------------
+        Type Γ σ
 --   --
   ⊤ : (σ : Sort M) → Type Γ σ
 --   --
@@ -68,11 +76,11 @@ data Type where
   Ix  : Term Γ Nat → Type Γ ★
 --   --
   `∀ : ∀ {σ₁ : Sort M} {σ₂ : Sort N} →
-        (τ : Type Γ σ₁)   →   Type (Γ , τ) σ₂ → 
+        (A : Type Γ σ₁)   →   Type (Γ , A) σ₂ → 
         -------------------------------------------        
         Type Γ σ₂
   `∃ : ∀ {σ₁ : Sort M} {σ₂ : Sort N} →
-        (τ : Type Γ σ₁)   →   Type (Γ , τ) σ₂ → 
+        (A : Type Γ σ₁)   →   Type (Γ , A) σ₂ → 
         -------------------------------------------        
         Type Γ σ₂
 
@@ -86,11 +94,17 @@ data Type where
         -----------------------
         Type Γ σ
 
+_`→_ : ∀ {σ : Sort M} {σ' : Sort N} → Type Γ σ → Type Γ σ' → Type Γ σ'
+A `→ B = `∀ A (weaken B)
+
+_`×_ : ∀ {σ : Sort M} {σ' : Sort N} → Type Γ σ → Type Γ σ' → Type Γ σ'
+A `× B = `∃ A (weaken B)
+
 -- --------------------------------------------------------------------------------
 -- -- Sanity-checking
 
--- nat : Type ε 𝓤
--- nat = Π (★ {!!}) (var {{!!}}{{!!}} {★ {!!}} {!Z!})
+idF : Type ε □
+idF = `∀ ★ (var Z)
 
 -- --------------------------------------------------------------------------------
 -- -- Terms.
@@ -105,50 +119,58 @@ data Type where
 -- --   _β[_]ₜ : ∀ {τ υ}{T₁ : Type Γ τ} → Type (Γ , T₁) υ → Term Γ T₁ → Type Γ υ
 
 data Term where
--- --   var : ∀ {σ}
--- --         {T : Type Γ σ}  →  Γ ∋ T →
--- --         ---------------------------
--- --         Term Γ {σ} T
--- --   --
--- --   tt : Term Γ ⊤★
--- --   --
--- --   Zero : Term Γ (Nat Γ)
--- --   Suc : Term Γ (Nat Γ) → Term Γ (Nat Γ)
--- --   --
--- --   FZero : ∀ {n} → Term Γ (Ix n)
--- --   FSuc  : ∀ {n} → Term Γ (Ix n) → Term Γ (Ix (Suc n))
--- --   --
--- --   `λ : ∀ {σ} → 
--- --          (T : Type Γ σ)   → {N : Type (Γ , T) ★} →  (M : Term (Γ , T) ★)  → 
--- --          ---------------------------------------------------------------------
--- --          Term Γ (Π T N)
--- --   _·_ : ∀ {τ υ : Pre.Term}{T₁ : Type Γ τ}{T₂ : Type (Γ , T₁) ★} → 
--- --         Term Γ (Π T₁ T₂) → (N : Term Γ T₁) → 
--- --         Term Γ (T₂ β[ N ]ₜ)
--- --   -- -- Use custon syntax to switch this to ⟪_⦂_,_⟫
--- --   -- Sum : ∀ {τ υ}{T₂ : Type (Γ , T₁) υ} → 
--- --   --           (T₁ : Type Γ τ) → (Term Γ T₁) → (v : Term (Γ , T₁) T₂) → 
--- --   --           ----------------------------------------------------------------
--- --   --           Term Γ (Σ T₁ v)
--- --   -- fst : ∀ {τ M σ} → Γ ⊢ M ⦂ Σ τ σ → Γ ⊢ (fst M) ⦂ τ
--- --   -- snd : ∀ {τ M σ} → (s : Γ ⊢ M ⦂ Σ τ σ) → Γ ⊢ (snd M) ⦂ σ
+  -- Variables.
+  var : ∀ {σ : Sort M}
+        {A : Type Γ σ}  →  Γ ∋ A →
+        ---------------------------
+        Term Γ A
+  -- The unit.
+  tt : ∀ {σ : Sort M} → Term Γ (⊤ σ)
+  -- ℕ. (todo: natelim)
+  Zero : Term Γ Nat
+  Suc : Term Γ Nat → Term Γ Nat
+  -- Ix. (todo IxElim)
+  FZero : ∀ {n} → Term Γ (Ix n)
+  FSuc  : ∀ {n} → Term Γ (Ix n) → Term Γ (Ix (Suc n))
+  ƛ⦅⦆   : ∀ { σ : Sort M} → 
+          (A : Type Γ σ) → 
+          Term Γ ((Ix Zero) `→ A)
+  -- `∀.
+  `λ : ∀ {σ : Sort N} {σ' : Sort T} → 
+         (A : Type Γ σ)   →   {B : Type (Γ , A) σ'}   →   (M : Term (Γ , A) B) →
+         ------------------------------------------------------------------------
+         Term Γ (`∀ A B)
 
--- -- -- postulate
--- -- --   weakenTerm : ∀ {σ σ'} {T₁ : Type Γ σ} {T₂ : Type Γ σ'} → Term Γ T₂ → Term (Γ , T₁) (weakenType T₂)
--- -- -- --------------------------------------------------------------------------------
--- -- -- -- Sanity checking
+  _·_ : ∀ {σ : Sort M}{σ' : Sort N} 
+        {A : Type Γ σ}{B : Type (Γ , A) σ'} → 
+        Term Γ (`∀ A B)   →   (N : Term Γ A) → 
+        ---------------------------------------
+        Term Γ (B β[ N ]t)
+  -- ∃.
+  ⟪_,_⟫ : ∀ {σ : Sort M}{σ' : Sort N}
+            {A : Type Γ σ} → (m : Term Γ A) → {B : Type (Γ , A) σ'} → Term Γ (B β[ m ]t) →
+            -------------------------------------------------------------------------------
+            Term Γ (`∃ A B)
+  Case_of⟪_⟫ : ∀ {σ₁ : Sort M}   {σ₂ : Sort N}   {σ₃ : Sort T}
+                 {A : Type Γ σ₁} {B : Type (Γ , A) σ₂} {C : Type Γ σ₃} →
+               Term Γ (`∃ A B) → Term Γ (`∀ A (B `→ (weaken C))) → 
+               -----------------------------------------------------
+               Term Γ C
 
--- -- term-Nat : Term ε (Nat ε)
--- -- term-Nat = Zero
+  -- Sums. todo elim.
+  left : ∀ {σ : Sort M} {A : Type Γ σ} {B : Type Γ σ} → 
+         Term Γ A → 
+         ---------------
+         Term Γ (A Or B)
+  right : ∀ {σ : Sort M} {A : Type Γ σ} {B : Type Γ σ} → 
+         Term Γ B → 
+         --------------
+         Term Γ (A Or B)
+  -- Identity. Todo elim.
+  Refl : ∀ {σ : Sort M} {A : Type Γ σ} → 
+         Term Γ (A ~ A)
 
--- -- term-Nat₁ : Term ε (Nat ε)
--- -- term-Nat₁ = Suc Zero
-
--- -- -- wut : (ε , Nat ε) ∋ Nat ε
--- -- -- wut = Z
-
--- -- wut : Term (ε , Nat ε) (Nat (ε , Nat ε))
--- -- wut = {!!}
-
--- -- term-var₁ : Term (ε , Nat ε) (Nat (ε , Nat ε))
--- -- term-var₁ = var {!Z!}
+--------------------------------------------------------------------------------
+--
+weaken = {!!}
+τ β[ M ]t = {!!}
