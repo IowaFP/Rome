@@ -223,3 +223,31 @@ Ix x β[ m ]t = Ix {!!}
 (A ~ B) β[ m ]t = (A β[ m ]t) ~ (B β[ m ]t)
 
 _β[_] = {!!}
+
+--------------------------------------------------------------------------------
+-- Translation.
+
+module Rμ where
+ open import Rome.Kinds.Syntax public
+ open import Rome.Types.Syntax public
+ open import Rome.Terms.Syntax public
+ open import Rome.Entailment.Syntax public
+
+⟦_⟧κ : (κ : Rμ.Kind) → Type Γ □
+⟦ Rμ.★ ⟧κ = ★
+⟦ Rμ.L ⟧κ = ⊤ □
+⟦ Rμ.R[ κ ] ⟧κ = `∃ Nat (`∀ (Ix (var Z)) ⟦ κ ⟧κ) -- Σ Nat (Π (Ix varZ) ⟦ κ ⟧κ) 
+⟦ κ₁ Rμ.`→ κ₂ ⟧κ = ⟦ κ₁ ⟧κ `→ ⟦ κ₂ ⟧κ
+
+⟦_⟧ke : Rμ.KEnv → Context
+⟦_⟧ke = {!!}
+
+⟦_,_,_⟧ : (Δ : Rμ.KEnv) → Rμ.PEnv Δ → Rμ.Env Δ → Context
+⟦_,_,_⟧ = {!!}
+
+⟦_⟧τ : ∀ {Δ : Rμ.KEnv} {κ} → Rμ.Type Δ κ → Type ⟦ Δ ⟧ke ★
+⟦_⟧τ = {!!}
+
+⟦_⟧ : ∀ {Δ : Rμ.KEnv} {Φ : Rμ.PEnv Δ} {Γ : Rμ.Env Δ} {τ : Rμ.Type Δ Rμ.★} → 
+        Rμ.Term Δ Φ Γ τ → Term ⟦ Δ , Φ , Γ ⟧ ⟦ τ ⟧τ
+⟦_⟧ = {!!}
