@@ -34,11 +34,15 @@ private
   variable
     Γ Γ' : Context
 
-weaken : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} → 
+weaken : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} {B : Type Γ σ₂} → 
+         Term Γ A → Term (Γ , B) (weakenTy A)
+weakenTy : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} → 
          Type Γ σ₂ → Type (Γ , A) σ₂
+
 _β[_]t : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} → 
          Type (Γ , A) σ₂ → Term Γ A → Type Γ σ₂
-
+_β[_] : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} {B : Type Γ σ₂} → 
+          Term (Γ , A) (weakenTy B) → Term Γ A → Term Γ B
 
 --------------------------------------------------------------------------------
 -- Lookup 
@@ -51,12 +55,12 @@ data _∋_ : ∀ {σ : Sort M} → (Δ : Context) → Type Δ σ → Set where
   Z : ∀ {σ : Sort M} {A : Type Γ σ} →
 
       -----------
-      (Γ , A) ∋ (weaken A)
+      (Γ , A) ∋ (weakenTy A)
 
   S : ∀ {σ : Sort M} {σ' : Sort N} {A : Type Γ σ} {B : Type Γ σ'}
       → Γ ∋ A
       ------------------
-    → (Γ , B) ∋ (weaken A)
+    → (Γ , B) ∋ (weakenTy A)
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Typing judgements.
@@ -95,10 +99,10 @@ data Type where
         Type Γ σ
 
 _`→_ : ∀ {σ : Sort M} {σ' : Sort N} → Type Γ σ → Type Γ σ' → Type Γ σ'
-A `→ B = `∀ A (weaken B)
+A `→ B = `∀ A (weakenTy B)
 
 _`×_ : ∀ {σ : Sort M} {σ' : Sort N} → Type Γ σ → Type Γ σ' → Type Γ σ'
-A `× B = `∃ A (weaken B)
+A `× B = `∃ A (weakenTy B)
 
 -- --------------------------------------------------------------------------------
 -- -- Sanity-checking
@@ -124,17 +128,21 @@ data Term where
         {A : Type Γ σ}  →  Γ ∋ A →
         ---------------------------
         Term Γ A
+
   -- The unit.
   tt : ∀ {σ : Sort M} → Term Γ (⊤ σ)
+
   -- ℕ. (todo: natelim)
   Zero : Term Γ Nat
   Suc : Term Γ Nat → Term Γ Nat
+
   -- Ix. (todo IxElim)
   FZero : ∀ {n} → Term Γ (Ix n)
   FSuc  : ∀ {n} → Term Γ (Ix n) → Term Γ (Ix (Suc n))
   ƛ⦅⦆   : ∀ { σ : Sort M} → 
           (A : Type Γ σ) → 
           Term Γ ((Ix Zero) `→ A)
+
   -- `∀.
   `λ : ∀ {σ : Sort N} {σ' : Sort T} → 
          (A : Type Γ σ)   →   {B : Type (Γ , A) σ'}   →   (M : Term (Γ , A) B) →
@@ -146,6 +154,7 @@ data Term where
         Term Γ (`∀ A B)   →   (N : Term Γ A) → 
         ---------------------------------------
         Term Γ (B β[ N ]t)
+
   -- ∃.
   ⟪_,_⟫ : ∀ {σ : Sort M}{σ' : Sort N}
             {A : Type Γ σ} → (m : Term Γ A) → {B : Type (Γ , A) σ'} → Term Γ (B β[ m ]t) →
@@ -153,7 +162,7 @@ data Term where
             Term Γ (`∃ A B)
   Case_of⟪_⟫ : ∀ {σ₁ : Sort M}   {σ₂ : Sort N}   {σ₃ : Sort T}
                  {A : Type Γ σ₁} {B : Type (Γ , A) σ₂} {C : Type Γ σ₃} →
-               Term Γ (`∃ A B) → Term Γ (`∀ A (B `→ (weaken C))) → 
+               Term Γ (`∃ A B) → Term Γ (`∀ A (B `→ (weakenTy C))) → 
                -----------------------------------------------------
                Term Γ C
 
@@ -166,11 +175,38 @@ data Term where
          Term Γ B → 
          --------------
          Term Γ (A Or B)
+
   -- Identity. Todo elim.
   Refl : ∀ {σ : Sort M} {A : Type Γ σ} → 
          Term Γ (A ~ A)
 
 --------------------------------------------------------------------------------
---
-weaken = {!!}
-τ β[ M ]t = {!!}
+-- Weakening & substitution.
+weaken : ∀ {σ₁ : Sort M} {σ₂ : Sort N} {A : Type Γ σ₁} {B : Type Γ σ₂} → 
+         Term Γ A → Term (Γ , B) (weakenTy A)
+weakenTy ★ = ★
+weakenTy (var x) = {!!}
+weakenTy (⊤ _) = ⊤ _
+weakenTy Nat = Nat
+weakenTy (Ix x) = Ix (weaken x)
+weakenTy (`∀ A B) = {!!}
+weakenTy (`∃ A B) = {!!}
+weakenTy (A Or B) = weakenTy A Or weakenTy B
+weakenTy (A ~ B) = weakenTy A ~ weakenTy B
+
+weaken m = {!!}
+
+--------------------------------------------------------------------------------
+-- Substitution.
+
+★ β[ m ]t = ★
+var x β[ m ]t = {!!}
+⊤ σ β[ m ]t = ⊤ σ
+Nat β[ m ]t = Nat
+Ix x β[ m ]t = Ix {!!}
+`∀ τ τ₁ β[ m ]t = {!!}
+`∃ τ τ₁ β[ m ]t = {!!}
+(A Or B) β[ m ]t = (A β[ m ]t) Or (B β[ m ]t) 
+(A ~ B) β[ m ]t = (A β[ m ]t) ~ (B β[ m ]t)
+
+_β[_] = {!!}
