@@ -34,8 +34,18 @@ import IndexCalculus as Ix
 --------------------------------------------------------------------------------
 -- The meaning of environments.
 
-⟦_⟧e : ∀ {ℓΔ} {ℓΓ} {Δ : KEnv ℓΔ} →
-       Env Δ ℓΓ → ⟦ Δ ⟧ke → Set ℓΓ
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
+    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    κ κ' : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+⟦_⟧e : Env Δ ℓΓ → ⟦ Δ ⟧ke → Set ℓΓ
 ⟦ ε ⟧e H = ⊤
 ⟦ Γ , τ ⟧e H = ⟦ Γ ⟧e H × ⟦ τ ⟧t H
 
@@ -56,7 +66,7 @@ weaken⟦_⟧e : ∀ {ℓΔ ℓΓ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
              (X : ⟦ κ ⟧k) →
                ⟦ weakΓ Γ ⟧e (H , X)
 weaken⟦ ε ⟧e H ⟦Γ⟧ X = tt
-weaken⟦_⟧e {Δ = Δ} {κ = κ} (_,_ {ℓκ = ℓκ} Γ τ) H (⟦Γ⟧ , ⟦τ⟧) X
+weaken⟦_⟧e {Δ = Δ} {κ = κ} (_,_ Γ τ) H (⟦Γ⟧ , ⟦τ⟧) X
   rewrite τ-preservation Δ (Δ , κ) H (H , X) S (λ _ → refl) τ = weaken⟦ Γ ⟧e H ⟦Γ⟧ X , ⟦τ⟧
 
 weaken⟦_⟧pe : ∀ {ℓΔ ℓΦ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
@@ -76,18 +86,15 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 
 module TermSemantics
-  (Ent : 
-    ∀ {ℓΔ ℓΦ ℓκ}
-      {κ : Kind ℓκ}
-      (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set)
-  (⟦_⟧n : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+  (Ent : ∀ {ℓκ} {κ : Kind ℓκ} → (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set)
+  (⟦_⟧n : ∀ {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} {π : Pred Δ κ} →
          Ent Δ Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H)
   where
   
   open TermSyntax Ent
 
-  ⟦_⟧ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓΓ ℓτ} {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
-          {τ : Type Δ (★ ℓτ)} →
+  ⟦_⟧ : ∀ {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
+          {τ : Type Δ (★ ℓ)} →
           Term Δ Φ Γ τ →
           (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → ⟦ τ ⟧t H
   ⟦ var x ⟧ H φ η = ⟦ x ⟧v H η
@@ -146,13 +153,13 @@ module TermSemantics
   ⟦ Σ⁻¹ v ⟧ H φ η with ⟦ v ⟧ H φ η
   ... | fzero , M = M
   
-  ⟦ fold {ℓκ = ℓκ} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ H φ η with 
+  ⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ H φ η with 
     ⟦ M₁ ⟧ H φ η | ⟦ M₂ ⟧ H φ η | ⟦ M₃ ⟧ H φ η | ⟦ N ⟧ H φ η
   ... | op | _+_ | e | r = Ix.fold ⟦ρ⟧ f _+_ e r
     where
       ⟦ρ⟧ = ⟦ ρ ⟧t H
       ⟦υ⟧ = ⟦ υ ⟧t H
-      f : ∀ (τ : Set ℓκ) (y : Row {lsuc ℓκ} (Set ℓκ)) →
+      f : ∀ (τ : Set ℓ₁) (y : Row {lsuc ℓ₁} (Set ℓ₁)) →
                    (Ix._·_~_ (sing τ) y ⟦ρ⟧) → τ → ⟦υ⟧
       f τ y ev t rewrite Weakening₃ υ H tt τ y =
         op tt τ y (≡-elim weak-ev≡ev ev) tt t 
