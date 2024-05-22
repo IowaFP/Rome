@@ -11,39 +11,56 @@ open import ROmega.Equivalence.Syntax
 open import ROmega.Entailment.Syntax
 
 --------------------------------------------------------------------------------
+-- Generalized vars.
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
+    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    -- The types below "depend" on levels above.
+    -- In practice, Agda does not respect this dependency.
+    -- E.g., if you use κ below, then κ will have type "Kind κ.ℓκ".
+    -- In other words, Agda will instantiate a fresh variable κ.ℓκ, and,
+    -- most importantly, ℓκ ≠ κ.ℓκ.
+    -- (Heed this note wisely. It is very easy to make this mistake.)
+    κ κ' : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+--------------------------------------------------------------------------------
 -- Environments.
 
-data Env : {ℓ : Level} → KEnv ℓ → Level → Set where
-  ε : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
-        Env Δ lzero
-  _,_ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΓ ℓκ} →
-          Env Δ ℓΓ → Type Δ (★ ℓκ) → Env Δ (ℓΓ ⊔ ℓκ)
+data Env : KEnv ℓ → Level → Set where
+  ε : Env Δ lzero
+  _,_ : Env Δ ℓΓ → Type Δ (★ ℓ) → Env Δ (ℓΓ ⊔ ℓ)
 
 -- Weakening of the kinding env.
-weakΓ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΓ ℓκ} {κ : Kind ℓκ} →
-        Env Δ ℓΓ → Env (Δ , κ) ℓΓ
+weakΓ : Env Δ ℓΓ → Env (Δ , κ) ℓΓ
 weakΓ ε = ε
 weakΓ (Γ , τ) = weakΓ Γ , rename S τ
+
+private
+  variable
+    Γ : Env Δ ℓΓ
 
 --------------------------------------------------------------------------------
 -- Variables.
 
-data Var : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΓ ℓκ} {κ : Kind ℓκ} →
-           Env Δ ℓΓ → Type Δ κ → Set where
-  Z : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΓ}
-        {Γ : Env Δ ℓΓ} {ℓτ} {τ : Type Δ (★ ℓτ)} →
-        Var (Γ , τ) τ
-  S : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΓ} {Γ : Env Δ ℓΓ}
-        {ℓυ ℓτ} {τ : Type Δ (★ ℓτ)} {υ : Type Δ (★ ℓυ)} →
+data Var : Env Δ ℓΓ → Type Δ κ → Set where
+  Z : ∀ {Γ : Env Δ ℓΓ} {τ : Type Δ (★ ℓ)} → 
+      Var (Γ , τ) τ
+  S : ∀ {Γ : Env Δ ℓΓ}
+        {τ : Type Δ (★ ℓ)} {υ : Type Δ (★ ι)} →
          Var Γ υ → Var (Γ , τ) υ        
 
 --------------------------------------------------------------------------------
 -- Synonyms, used later.
 
-SynT : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} →
-       (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ]) →
+SynT : (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ]) →
        (φ : Type Δ (κ `→ ★ ℓκ)) → Type Δ (★ (lsuc ℓκ))
-SynT {ℓΔ} {ℓκ} κ ρ φ =
+SynT κ ρ φ =
   `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
     (⌊_⌋ {ι = lzero} l `→ φ' ·[ u ]))))
     where
@@ -53,11 +70,10 @@ SynT {ℓΔ} {ℓκ} κ ρ φ =
       u = tvar (S Z)
       l = tvar (S (S Z))
 
-AnaT : ∀ {ℓΔ ℓκ ℓτ} {Δ : KEnv ℓΔ} →
-       (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ])
-       (φ : Type Δ (κ `→ ★ ℓκ)) (τ : Type Δ (★ ℓτ)) →
-       Type Δ (★ (ℓτ ⊔ lsuc ℓκ))
-AnaT {ℓΔ} {ℓκ} {ℓτ} κ ρ φ τ =
+AnaT : (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ])
+       (φ : Type Δ (κ `→ ★ ℓκ)) (τ : Type Δ (★ ℓ)) →
+       Type Δ (★ (ℓ ⊔ lsuc ℓκ))
+AnaT  κ ρ φ τ =
   `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
     ⌊_⌋ {ι = lzero} l `→ φ' ·[ u ] `→ τ')))
     where
@@ -68,9 +84,8 @@ AnaT {ℓΔ} {ℓκ} {ℓτ} κ ρ φ τ =
       u = tvar (S Z)
       l = tvar (S (S Z))
 
-FoldT : ∀ {ℓΔ ℓκ ℓυ} {Δ : KEnv ℓΔ} →
-       (ρ : Type Δ R[ ★ ℓκ ])(υ : Type Δ (★ ℓυ)) →
-       Type Δ (★ (ℓυ ⊔ lsuc ℓκ))
+FoldT : (ρ : Type Δ R[ ★ ℓκ ]) (υ : Type Δ (★ ℓ)) →
+       Type Δ (★ (ℓ ⊔ lsuc ℓκ))
 FoldT {ℓκ = ℓκ} ρ υ =
   `∀ (L lzero) (`∀ (★ ℓκ) (`∀ R[ ★ ℓκ ] ((l R▹ t) · y ~ ρ' ⇒
     ⌊_⌋ {ι = lzero} l `→ t `→ υ')))
