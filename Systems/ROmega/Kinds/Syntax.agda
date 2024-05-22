@@ -6,12 +6,15 @@ open import Level
 
 --------------------------------------------------------------------------------
 -- Kinds.
+private
+  variable
+    ℓ ℓ₁ ℓ₂ : Level
 
 data Kind : Level → Set where
   ★ : (ℓ : Level) → Kind ℓ
-  _`→_ : ∀ {ℓ₁ ℓ₂} → Kind ℓ₁ → Kind ℓ₂ → Kind (ℓ₁ ⊔ ℓ₂)
-  L : ∀ {ℓ} → Kind ℓ
-  R[_] : ∀ {ℓ} → Kind ℓ → Kind ℓ
+  _`→_ : Kind ℓ₁ → Kind ℓ₂ → Kind (ℓ₁ ⊔ ℓ₂)
+  L : Kind ℓ
+  R[_] : Kind ℓ → Kind ℓ
 
 -- type synonyms
 lone ltwo lthree : Level
@@ -28,4 +31,4 @@ lthree = lsuc ltwo
 
 data KEnv : Level → Set where
   ε    : KEnv lzero
-  _,_  : ∀ {ℓ ι} → KEnv ℓ → Kind ι → KEnv (ℓ ⊔ ι)
+  _,_  : KEnv ℓ₁ → Kind ℓ₂ → KEnv (ℓ₁ ⊔ ℓ₂)

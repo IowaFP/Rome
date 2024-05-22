@@ -11,9 +11,16 @@ open import IndexCalculus using (Row)
 open import ROmega.Kinds.Syntax
 
 --------------------------------------------------------------------------------
+-- Var dump.
+
+private
+  variable
+    ℓ : Level
+
+--------------------------------------------------------------------------------
 -- The meaning of kinds.
 
-⟦_⟧k : ∀ {ℓ} → Kind ℓ → Set (lsuc ℓ)
+⟦_⟧k : Kind ℓ → Set (lsuc ℓ)
 ⟦ ★ ℓ ⟧k = Set ℓ
 ⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
 ⟦ L ⟧k = ⊤
@@ -22,6 +29,6 @@ open import ROmega.Kinds.Syntax
 --------------------------------------------------------------------------------
 -- The meaning of kinding envs.
 
-⟦_⟧ke : ∀ {ℓ} → KEnv ℓ → Set (lsuc ℓ)
+⟦_⟧ke : KEnv ℓ → Set (lsuc ℓ)
 ⟦ ε ⟧ke = ⊤
 ⟦ Δ , κ ⟧ke =  ⟦ Δ ⟧ke × ⟦ κ ⟧k
