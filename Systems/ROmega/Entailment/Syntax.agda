@@ -13,48 +13,51 @@ open import ROmega.Types.Substitution
 open import ROmega.Equivalence.Syntax
 
 --------------------------------------------------------------------------------
+-- Generalized vars.
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
+    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    κ κ' : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+--------------------------------------------------------------------------------
 -- Environments & weakening.
 
-data PEnv : {ℓ : Level} → KEnv ℓ → Level → Set where
-  ε : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
-        PEnv Δ lzero
-  _,_ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-          PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
+data PEnv : KEnv ℓ → Level → Set where
+  ε : PEnv Δ lzero
+  _,_ : {κ : Kind ℓκ} →
+        PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
 
 
-weakΦ : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-          PEnv Δ ℓΦ → PEnv (Δ , κ) ℓΦ
+weakΦ : PEnv Δ ℓΦ → PEnv (Δ , κ) ℓΦ
 weakΦ ε = ε
 weakΦ (Φ , π) = weakΦ Φ , renamePred S π
 
 --------------------------------------------------------------------------------
 -- Predicate variables.
 
-data PVar : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {κ : Kind ℓκ} →
-              PEnv Δ ℓΦ → Pred Δ κ → Set where
-  Z : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΓ}
-        {Φ : PEnv Δ ℓΓ} {ℓκ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
+  Z : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
         PVar (Φ , π) π
-  S : ∀ {ℓΔ : Level} {Δ : KEnv ℓΔ} {ℓΦ} {Φ : PEnv Δ ℓΦ}
-        {ℓι ℓκ} {ι : Kind ℓι} {κ : Kind ℓκ}
-        {π : Pred Δ ι} {ψ : Pred Δ κ} →
-        PVar Φ π → PVar (Φ , ψ) π
+
+  S : ∀ {Φ : PEnv Δ ℓΦ}
+        {π : Pred Δ κ₁} {ϕ : Pred Δ κ₂} →
+        PVar Φ π → PVar (Φ , ϕ) π
 
 --------------------------------------------------------------------------------
 -- Entailment in the "Simple Rows" theory.
 
-private
-  variable
-    ℓΔ ℓΦ ℓκ : Level
-    Δ : KEnv ℓΔ
-    Φ : PEnv Δ ℓΦ
-    κ : Kind ℓκ
-    π : Pred Δ κ
 
 module SimpleRowSyntax where
-  data Ent : (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set where
+
+  data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
   
-    n-var : ∀  {π : Pred Δ κ} →
+    n-var : ∀ {π : Pred Δ κ} →
   
              PVar Φ π →
              -------------
@@ -77,33 +80,30 @@ module SimpleRowSyntax where
           ------------------------
           Ent Δ Φ π₂
   
-    n-≲lift₁ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ : Type Δ R[ κ `→ κ' ]}
-               {τ : Type Δ κ} →
+    n-≲lift₁ : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ `→ κ₂ ]}
+               {τ : Type Δ κ₁} →
     
                Ent Δ Φ (ρ₁ ≲ ρ₂) →
                ---------------------
                Ent Δ Φ (( ρ₁ ·⌈ τ ⌉) ≲ (ρ₂ ·⌈ τ ⌉))
     
-    n-≲lift₂ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ : Type Δ R[ κ ]}
-               {τ : Type Δ (κ `→ κ')} →
+    n-≲lift₂ : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
+                 {τ : Type Δ (κ₁ `→ κ₂)} →
     
                Ent Δ Φ (ρ₁ ≲ ρ₂) →
                ---------------------
                Ent Δ Φ ((⌈ τ ⌉· ρ₁) ≲ (⌈ τ ⌉· ρ₂))
   
-    n-·lift₁ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ `→ κ' ]}
-               {τ : Type Δ κ} →
+    n-·lift₁ : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ `→ κ₂ ]}
+                 {τ : Type Δ κ₁} →
     
                Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
                ---------------------
                Ent Δ Φ ((ρ₁ ·⌈ τ ⌉) · (ρ₂ ·⌈ τ ⌉) ~ (ρ₃ ·⌈ τ ⌉))
   
-    n-·lift₂ : ∀  {κ' : Kind ℓκ}
-               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]}
-               {τ : Type Δ (κ `→ κ')} →
+    n-·lift₂ : ∀  {κ₁ : Kind ℓκ}
+               {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
+               {τ : Type Δ (κ₁ `→ κ₂)} →
     
                Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
                ---------------------
@@ -116,7 +116,7 @@ module SimpleRowSyntax where
           Ent Δ Φ (ρ₁ ≲ ρ₃)
           
   
-    n-·≲R : ∀  {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]} →
+    n-·≲R : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]} →
   
           Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
           ---------------------

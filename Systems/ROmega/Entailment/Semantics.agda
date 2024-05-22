@@ -22,17 +22,30 @@ open import ROmega.Terms.Syntax
 open import ROmega.Entailment.Syntax
 
 --------------------------------------------------------------------------------
+-- Generalized vars.
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
+    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    κ κ' : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+
+--------------------------------------------------------------------------------
 -- The meaning of predicate environments.
 
-⟦_⟧pe : ∀ {ℓΔ} {ℓΦ} {Δ : KEnv ℓΔ} →
-          PEnv Δ ℓΦ → ⟦ Δ ⟧ke → Set (lsuc ℓΦ)
+⟦_⟧pe : PEnv Δ ℓΦ → ⟦ Δ ⟧ke → Set (lsuc ℓΦ)
 ⟦ ε ⟧pe H = ⊤
 ⟦ Φ , π ⟧pe H = ⟦ Φ ⟧pe H × ⟦ π ⟧p H
 
 --------------------------------------------------------------------------------
 -- The meaning of predicate variables.
 
-⟦_⟧pv : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ} {Φ : PEnv Δ ℓΦ} {ℓκ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+⟦_⟧pv : {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
           PVar Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H
 ⟦ Z ⟧pv H (φ , x) = x
 ⟦ S v ⟧pv H (φ , x) = ⟦ v ⟧pv H φ
@@ -44,7 +57,7 @@ open import ROmega.Entailment.Syntax
 module SimpleRowSemantics where
   open SimpleRowSyntax
 
-  ⟦_⟧n : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΦ ℓκ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+  ⟦_⟧n : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
            Ent Δ Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H
   ⟦ n-var x ⟧n H φ =  ⟦ x ⟧pv H φ
   ⟦ n-refl ⟧n H φ = λ i → i , refl
