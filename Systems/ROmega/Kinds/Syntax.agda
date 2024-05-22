@@ -13,7 +13,7 @@ private
 data Kind : Level → Set where
   ★ : (ℓ : Level) → Kind ℓ
   _`→_ : Kind ℓ₁ → Kind ℓ₂ → Kind (ℓ₁ ⊔ ℓ₂)
-  L : Kind ℓ
+  L : (ℓ : Level) → Kind ℓ
   R[_] : Kind ℓ → Kind ℓ
 
 -- type synonyms

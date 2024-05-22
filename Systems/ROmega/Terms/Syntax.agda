@@ -44,7 +44,7 @@ SynT : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} →
        (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ]) →
        (φ : Type Δ (κ `→ ★ ℓκ)) → Type Δ (★ (lsuc ℓκ))
 SynT {ℓΔ} {ℓκ} κ ρ φ =
-  `∀ (L {lzero}) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
+  `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
     (⌊_⌋ {ι = lzero} l `→ φ' ·[ u ]))))
     where
       ρ' = weaken (weaken (weaken ρ))
@@ -58,7 +58,7 @@ AnaT : ∀ {ℓΔ ℓκ ℓτ} {Δ : KEnv ℓΔ} →
        (φ : Type Δ (κ `→ ★ ℓκ)) (τ : Type Δ (★ ℓτ)) →
        Type Δ (★ (ℓτ ⊔ lsuc ℓκ))
 AnaT {ℓΔ} {ℓκ} {ℓτ} κ ρ φ τ =
-  `∀ (L {lzero}) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
+  `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
     ⌊_⌋ {ι = lzero} l `→ φ' ·[ u ] `→ τ')))
     where
       ρ' = weaken (weaken (weaken ρ))
@@ -72,7 +72,7 @@ FoldT : ∀ {ℓΔ ℓκ ℓυ} {Δ : KEnv ℓΔ} →
        (ρ : Type Δ R[ ★ ℓκ ])(υ : Type Δ (★ ℓυ)) →
        Type Δ (★ (ℓυ ⊔ lsuc ℓκ))
 FoldT {ℓκ = ℓκ} ρ υ =
-  `∀ (L {lzero}) (`∀ (★ ℓκ) (`∀ R[ ★ ℓκ ] ((l R▹ t) · y ~ ρ' ⇒
+  `∀ (L lzero) (`∀ (★ ℓκ) (`∀ R[ ★ ℓκ ] ((l R▹ t) · y ~ ρ' ⇒
     ⌊_⌋ {ι = lzero} l `→ t `→ υ')))
     where
       ρ' = weaken (weaken (weaken ρ))
@@ -148,31 +148,31 @@ module TermSyntax
   
     -- labels.
     lab : ∀ {ℓΔ ℓΓ ℓΦ ℓL ι} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-            (l : Type Δ (L {ℓL})) →
+            (l : Type Δ (L ℓL)) →
             ----------------------------------------
             Term Δ Φ Γ (⌊_⌋ {ι = ι} l)
     
   
     -- singleton introduction.
     _▹_ : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ ι} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-            {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+            {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
             (M₁ : Term Δ Φ Γ (⌊_⌋ {ι = ι} τ)) (M₂ : Term Δ Φ Γ υ) →
             ----------------------------------------
             Term Δ Φ Γ (τ ▹ υ)          
   
     -- singleton elimination.
     _/_ : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ ι} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-            {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+            {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
             (M₁ : Term Δ Φ Γ (τ ▹ υ)) (M₂ : Term Δ Φ Γ (⌊_⌋ {ι = ι} τ)) →
             ----------------------------------------
             Term Δ Φ Γ υ
   
     -- The empty record.
     -- (Not a part of pen-and-paper calculus.)
-    ∅ : ∀ {ℓΔ ℓΓ ℓΦ ι} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
+    ∅ : ∀ {ℓΔ ℓΓ ℓΦ ℓ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
 
           -----------
-          Term Δ Φ Γ (∅ {ι = ι})
+          Term Δ Φ Γ (∅ {ℓ = ℓ})
   
     -- record introduction.
     _⊹_ : ∀ {ℓΔ ℓΓ ℓΦ ℓρ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
@@ -193,7 +193,7 @@ module TermSyntax
   
     -- Singleton → Singleton Record.
     Π : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-          {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+          {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
           
             Term Δ Φ Γ (τ ▹ υ) →
             ---------------------
@@ -201,7 +201,7 @@ module TermSyntax
   
     -- Singleton Record → Singleton.
     Π⁻¹ : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-          {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+          {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
           
             (M : Term Δ Φ Γ (Π (τ R▹ υ))) →
             ----------------------------------------
@@ -225,7 +225,7 @@ module TermSyntax
   
     -- Singleton Record → Singleton.
     Σ : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-          {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+          {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
           
             Term Δ Φ Γ (τ ▹ υ) →
             ---------------------
@@ -233,7 +233,7 @@ module TermSyntax
             
     -- Singleton Variant → Singleton.
     Σ⁻¹ : ∀ {ℓΔ ℓΓ ℓΦ ℓL ℓκ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-          {τ : Type Δ (L {ℓL})} {υ : Type Δ (★ ℓκ)} →
+          {τ : Type Δ (L ℓL)} {υ : Type Δ (★ ℓκ)} →
           
             (M : Term Δ Φ Γ (Σ (τ R▹ υ))) →
             ----------------------------------------
@@ -281,25 +281,25 @@ module TermSyntax
   --------------------------------------------------------------------------------
   -- admissable rules.
   
-  private
-    variable
-      ℓΔ ℓΓ ℓΦ ℓκ ℓτ : Level
-      Δ : KEnv ℓΔ
-      Γ : Env Δ ℓΓ
-      Φ : PEnv Δ ℓΦ
-      κ : Kind ℓκ
-      Ł : Type Δ L
-      τ : Type Δ κ
+  -- private
+  --   variable
+  --     ℓΔ ℓΓ ℓΦ ℓκ ℓτ : Level
+  --     Δ : KEnv ℓΔ
+  --     Γ : Env Δ ℓΓ
+  --     Φ : PEnv Δ ℓΦ
+  --     κ : Kind ℓκ
+  --     Ł : Type Δ L
+  --     τ : Type Δ κ
   
-  prj▹ : {ρ : Type Δ R[ ★ ℓκ ]} →          
-          Term Δ Φ Γ (Π ρ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
-          ------------------------------------------
-          Term Δ Φ Γ (Ł ▹ τ)
-  prj▹ r e = Π⁻¹ (prj r e)          
+  -- prj▹ : {ρ : Type Δ R[ ★ ℓκ ]} →          
+  --         Term Δ Φ Γ (Π ρ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
+  --         ------------------------------------------
+  --         Term Δ Φ Γ (Ł ▹ τ)
+  -- prj▹ r e = Π⁻¹ (prj r e)          
   
-  inj▹ : {ρ : Type Δ R[ ★ ℓκ ]} →          
-          Term Δ Φ Γ (Ł ▹ τ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
-          ---------------------------------------------
-          Term Δ Φ Γ (Σ ρ)
-  inj▹ s e = inj (Σ s) e
+  -- inj▹ : {ρ : Type Δ R[ ★ ℓκ ]} →          
+  --         Term Δ Φ Γ (Ł ▹ τ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
+  --         ---------------------------------------------
+  --         Term Δ Φ Γ (Σ ρ)
+  -- inj▹ s e = inj (Σ s) e
   

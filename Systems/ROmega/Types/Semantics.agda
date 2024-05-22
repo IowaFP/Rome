@@ -18,21 +18,31 @@ open import IndexCalculus using (Row)
 import IndexCalculus as Ix
 
 --------------------------------------------------------------------------------
+--
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    κ κ' : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+--------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
 
 
-⟦_⟧t : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} {κ : Kind ι} →
-      Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 
-⟦_⟧p : ∀ {ℓ ι} {Δ : KEnv ℓ} {κ : Kind ι} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ι)
+⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
 ⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
 
 --------------------------------------------------------------------------------
 -- The meaning of type vars.
 
-⟦_⟧tv : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} {κ : Kind ι}
-        → TVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+⟦_⟧tv : TVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 ⟦ Z ⟧tv (_ , t) = t
 ⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
 

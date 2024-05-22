@@ -26,6 +26,19 @@ Label : Set
 Label = String
 
 --------------------------------------------------------------------------------
+-- Private vars.
+
+private
+  variable
+    ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+    κ : Kind ℓκ
+    κ₁ : Kind ℓκ₁
+    κ₂ : Kind ℓκ₂
+    κ₃ : Kind ℓκ₃
+    Δ : KEnv ℓΔ
+
+
+--------------------------------------------------------------------------------
 -- Kinding Environments, types, and predicates.
 --
 -- Kinding Environments, types, and predicates are tied up together, like so:
@@ -33,8 +46,8 @@ Label = String
 --   - Type   references KEnv
 --   - KEnv references Pred
 
-data Type : {ℓ ι : Level} → KEnv ℓ → Kind ι →  Set
-data Pred {ℓ ι : Level} (Δ : KEnv ℓ) (κ : Kind ι) : Set
+data Type : KEnv ℓ → Kind ι →  Set
+data Pred (Δ : KEnv ℓ) (κ : Kind ι) : Set
 
 data Pred Δ κ where
   _≲_ : (ρ₁ : Type Δ R[ κ ]) →
@@ -49,11 +62,16 @@ data Pred Δ κ where
 
 --------------------------------------------------------------------------------
 -- Type vars.
-data TVar : ∀ {ℓ ι} → KEnv ℓ → Kind ι → Set where
-  Z : ∀ {ℓ₁ ℓ₂} {Δ : KEnv ℓ₁} {κ : Kind ℓ₂}
-      → TVar (Δ , κ) κ
-  S : ∀ {ℓ₁ ℓ₂ ℓ₃} {Δ : KEnv ℓ₁} {κ : Kind ℓ₂} {κ' : Kind ℓ₃}
-      → TVar Δ κ → TVar (Δ , κ') κ
+data TVar : KEnv ℓ → Kind ι → Set where
+  Z : TVar (Δ , κ) κ
+  S : TVar Δ κ₁ → TVar (Δ , κ₂) κ₁
+
+--------------------------------------------------------------------------------
+-- 
+-- private
+--   variable
+--     Φ : PEnv Δ ℓΦ
+--     π : Pred Δ κ
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -63,103 +81,102 @@ data Type where
   -- Base types (for mechanization).
 
   -- Unit (Mechanization.)
-  U : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
+  U : 
 
          --------------
-         Type Δ (★ ι)
+         Type Δ (★ ℓ)
 
   ------------------------------------------------------------
   -- System Fω.
 
-  tvar : ∀ {ℓ₁ ℓ₂ : Level} {Δ : KEnv ℓ₁} {κ : Kind ℓ₂} →
+  tvar : 
 
          TVar Δ κ →
          -----------
          Type Δ κ
 
-  _`→_ : ∀ {ℓ₁ ℓ₂ ℓ₃ : Level} {Δ : KEnv ℓ₁} →
-          Type Δ (★ ℓ₂) → Type Δ (★ ℓ₃) →
+  _`→_ :
+          Type Δ (★ ℓ₁) → Type Δ (★ ℓ₂) →
           -----------------------------------
-          Type Δ (★ (ℓ₂ ⊔ ℓ₃))
+          Type Δ (★ (ℓ₁ ⊔ ℓ₂))
 
-  `∀ :  ∀ {ℓ₁ ℓ₂ ℓ₃ : Level} {Δ : KEnv ℓ₁} →
-          (κ : Kind ℓ₃) → Type (Δ , κ) (★ ℓ₂) →
+  `∀ :  
+          (κ : Kind ℓκ) → Type (Δ , κ) (★ ℓ) →
           -------------------------------------
-          Type Δ (★ (ℓ₂ ⊔ (lsuc ℓ₃)))
+          Type Δ (★ (ℓ ⊔ (lsuc ℓκ)))
 
-  `λ :  ∀ {ℓ₁ ℓ₂ ℓ₃ : Level} {Δ : KEnv ℓ₁} (κ₁ : Kind ℓ₂) {κ₂ : Kind ℓ₃} →
-          Type (Δ , κ₁) κ₂ →
+  `λ :  
+          (κ₁ : Kind ℓκ₁) → Type (Δ , κ₁) κ₂ →
           -----------------------------------------
           Type Δ (κ₁ `→ κ₂)
 
-  _·[_] : ∀ {ℓ₁ ℓ₂ ℓ₃ : Level} {Δ : KEnv ℓ₁} {κ₁ : Kind ℓ₂} {κ₂ : Kind ℓ₃} →
+  _·[_] : 
           Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
           -----------------------------
           Type Δ κ₂
+
   ------------------------------------------------------------
   -- Qualified types.
 
-  _⇒_ : ∀ {ℓ ℓκ ℓτ} {κ : Kind ℓκ} {Δ : KEnv ℓ}
-          → (π : Pred Δ κ) → Type Δ (★ ℓτ) →
+  _⇒_ : ∀ {κ : Kind ℓκ} →
+         (π : Pred Δ κ) → Type Δ (★ ℓ) →
          --------------------------------
-         Type Δ (★ (lsuc ℓκ ⊔ ℓτ))
+         Type Δ (★ (lsuc ℓκ ⊔ ℓ))
 
   ------------------------------------------------------------
   -- System Rω.
 
   -- Labels.
-  lab : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
+  lab : 
         Label →
         ----------
-        Type Δ (L {ι})
+        Type Δ (L ℓ)
 
   -- singleton formation.
-  _▹_ : ∀ {ℓΔ ℓκ ℓL : Level} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-        Type Δ (L {ℓL}) → Type Δ κ →
+  _▹_ :
+        Type Δ (L ℓ) → Type Δ κ →
         -------------------
         Type Δ κ
 
   -- Row singleton formation.
-  _R▹_ : ∀ {ℓΔ ℓκ ℓL : Level} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-         Type Δ (L {ℓL}) → Type Δ κ →
+  _R▹_ : 
+         Type Δ (L ℓ) → Type Δ κ →
          -------------------
          Type Δ R[ κ ]
 
   -- label constant formation.
-  ⌊_⌋ : ∀ {ℓΔ ℓL ι : Level} {Δ : KEnv ℓΔ} →
-        Type Δ (L {ℓL}) →
+  ⌊_⌋ : 
+        Type Δ (L ℓ) →
         ----------
         Type Δ (★ ι)
 
   -- The empty record (mechanization only.)
-  ∅ : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
+  ∅ : 
   
       --------------
-      Type Δ (★ ι)
+      Type Δ (★ ℓ)
 
   -- Record formation.
-  Π : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
-      Type Δ R[ ★ ι ] →
+  Π : 
+      Type Δ R[ ★ ℓ ] →
       -------------
-      Type Δ (★ ι)
+      Type Δ (★ ℓ)
 
   -- Variant formation.
-  Σ : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
-      Type Δ R[ ★ ι ] →
+  Σ : 
+      Type Δ R[ ★ ℓ ] →
       -------------
-      Type Δ (★ ι)
+      Type Δ (★ ℓ)
 
   -- lift₁ (lifting a function argument to row kind).
-  _·⌈_⌉ : ∀ {ℓ ι} {Δ : KEnv ℓ}
-            {κ₁ κ₂ : Kind ι} →
-          Type Δ R[ κ₁ `→ κ₂ ] → Type Δ κ₁ →
+  _·⌈_⌉ : ∀ {κ κ' : Kind ℓκ} → 
+          Type Δ R[ κ `→ κ' ] → Type Δ κ →
           --------------------------------
-          Type Δ R[ κ₂ ]
+          Type Δ R[ κ' ]
 
   -- lift₂ (lifting a function to row kind.)
-  ⌈_⌉·_ : ∀ {ℓ ι} {Δ : KEnv ℓ}
-            {κ₁ κ₂ : Kind ι} →
-          Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] →
+  ⌈_⌉·_ : ∀ {κ κ' : Kind ℓκ} →
+          Type Δ (κ `→ κ') → Type Δ R[ κ ] →
           --------------------------------
-          Type Δ R[ κ₂ ]
+          Type Δ R[ κ' ]
 
