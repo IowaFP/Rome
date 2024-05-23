@@ -99,7 +99,7 @@ FoldT {ℓκ = ℓκ} ρ υ =
 --------------------------------------------------------------------------------
 -- Terms.
 module TermSyntax 
-  (Ent : ∀ {ℓκ} {κ : Kind ℓκ} → (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set) where
+  (Ent : ∀ {ℓκ ℓΔ ℓΦ} {κ : Kind ℓκ} → (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set) where
 
   data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) → Set where
     ------------------------------------------------------------
@@ -179,14 +179,8 @@ module TermSyntax
             ----------------------------------------
             Term Δ Φ Γ υ
   
-  --   -- The empty record.
-  --   -- (Not a part of pen-and-paper calculus.)
-    ∅ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
-
-          -----------
-          Term Δ Φ Γ (∅ {ℓ = ℓ})
   
-  --   -- record introduction.
+    -- record introduction.
     _⊹_ : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {ρ₁ ρ₂ ρ₃ : Type Δ (R[ ★ ℓ ])} →
         
@@ -195,7 +189,7 @@ module TermSyntax
             ------------------------------
             Term Δ Φ Γ (Π ρ₃)
     
-  --   -- record "elimination".
+    -- record "elimination".
     prj : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {ρ₁ ρ₂ : Type Δ (R[ ★ ℓ ])} →
           

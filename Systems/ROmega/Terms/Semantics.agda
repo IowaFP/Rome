@@ -86,14 +86,14 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 
 module TermSemantics
-  (Ent : ∀ {ℓκ} {κ : Kind ℓκ} → (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set)
-  (⟦_⟧n : ∀ {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+  (Ent : ∀ {ℓκ ℓΔ ℓΦ} {κ : Kind ℓκ} → (Δ : KEnv ℓΔ) → PEnv Δ ℓΦ → Pred Δ κ → Set)
+  (⟦_⟧n : ∀ {ℓκ ℓΔ ℓΦ} {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} {π : Pred Δ κ} →
          Ent Δ Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H)
   where
   
   open TermSyntax Ent
 
-  ⟦_⟧ : ∀ {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
+  ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
           {τ : Type Δ (★ ℓ)} →
           Term Δ Φ Γ τ →
           (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → ⟦ τ ⟧t H
@@ -110,13 +110,12 @@ module TermSemantics
   ... | c , _ | r | r' with c i
   ... | left (n , eq) rewrite (sym eq) = r n
   ... | right (n , eq) rewrite (sym eq) = r' n
-  ⟦ ∅ ⟧ H φ η ()
   ⟦ lab s ⟧ H φ η  = tt
   ⟦ prj r π ⟧ H φ η i with ⟦ r ⟧ H φ η | ⟦ π ⟧n H φ i
   ... | r' | n , eq rewrite eq = r' n
   ⟦ M ▹ N ⟧ H φ η = ⟦ N ⟧ H φ η
   ⟦ M / N ⟧ H φ η = ⟦ M ⟧ H φ η
-  ⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η -- (to (bi (⟦ τ≡υ ⟧eq H))) (⟦ M ⟧ H φ η)
+  ⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η
   ⟦ inj M π ⟧ H φ η with ⟦ M ⟧ H φ η 
   ... | n , τ with ⟦ π ⟧n H φ n
   ...   | m , eq rewrite eq = m , τ

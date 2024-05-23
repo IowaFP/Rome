@@ -11,7 +11,7 @@ open import ROmega.Entailment.Reasoning
 open import ROmega.Equivalence -- extensionality
 
 -- Examples.
-open import ROmega.Examples.Section-3 -- extensionality
+-- open import ROmega.Examples.Section-3 -- extensionality
 
 -- Terms.
 open import ROmega.Terms as Terms -- extensionality
