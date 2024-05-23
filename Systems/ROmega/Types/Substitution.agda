@@ -68,7 +68,6 @@ rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
 rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename ρ τ
 rename ρ (r ·⌈ τ ⌉) =  (rename ρ r)  ·⌈ (rename ρ τ) ⌉
 rename ρ (⌈ τ ⌉· r) = ⌈ (rename ρ τ) ⌉· (rename ρ r)
-rename ρ ∅ = ∅
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
@@ -124,7 +123,6 @@ subst θ (Type.Σ r) = Type.Σ (subst θ r)
 subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
 subst θ ( r ·⌈ τ ⌉) = (subst θ r) ·⌈ (subst θ τ) ⌉
 subst θ ( ⌈ τ ⌉· r) = ⌈ (subst θ τ) ⌉· (subst θ r)
-subst _ ∅ = ∅
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
 substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃

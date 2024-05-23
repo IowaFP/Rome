@@ -150,12 +150,6 @@ data Type where
         ----------
         Type Δ (★ ι)
 
-  -- The empty record (mechanization only.)
-  ∅ : 
-  
-      --------------
-      Type Δ (★ ℓ)
-
   -- Record formation.
   Π : 
       Type Δ R[ ★ ℓ ] →

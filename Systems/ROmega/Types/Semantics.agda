@@ -64,4 +64,3 @@ private
 ⟦ ρ ·⌈ τ ⌉ ⟧t H =  Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
-⟦ ∅ ⟧t  H = Ix.Π (0 , (λ x → ⊥))
