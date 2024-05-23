@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
 module ROmega.Entailment.Reasoning where
 
-open import Agda.Primitive
+open import Preludes.Level
 
 open import Function using (id)
 

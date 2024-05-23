@@ -1,16 +1,7 @@
 module ROmega.Equivalence.Semantics where
 
-open import Agda.Primitive
-open import Level
-
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂ ; cong-app)
-import Relation.Binary.PropositionalEquality as Eq
-
-open import Data.Product
-  renaming (proj₁ to fst; proj₂ to snd)
-  hiding (Σ)
-
-open import Data.Fin renaming (suc to fsuc; zero to fzero)
+open import Prelude
+open import Preludes.Level
 
 open import Shared.Postulates.FunExt
 
@@ -19,16 +10,7 @@ open import ROmega.Types
 open import ROmega.Types.Substitution
 open import ROmega.Types.Substitution.Properties -- extensionality
 open import ROmega.Equivalence.Syntax
-
-private
-  variable
-    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
-    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
-    κ κ' : Kind ℓκ
-    κ₁ : Kind ℓκ₁
-    κ₂ : Kind ℓκ₂
-    κ₃ : Kind ℓκ₃
-    Δ : KEnv ℓΔ
+open import ROmega.GVars.Kinds
 
 --------------------------------------------------------------------------------
 -- Predicate & type equivalence.

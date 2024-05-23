@@ -1,11 +1,7 @@
 module ROmega.Types.Substitution.Properties where
 
-
-open import Agda.Primitive
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong-app)
-
-open import Data.Product
-  renaming (proj₁ to fst; proj₂ to snd)
+open import Preludes.Level
+open import Prelude
 
 open import ROmega.Kinds
 open import ROmega.Types
@@ -147,6 +143,7 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (π ⇒ τ)
   rewrite π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres π
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ε = refl
 
 π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ₁ ≲ ρ₂)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₁
@@ -243,6 +240,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ( ρ ·⌈ τ ⌉)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ  |
           σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ = refl
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ε = refl
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁

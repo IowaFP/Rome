@@ -1,7 +1,7 @@
 module Prelude where
 
 --------------------------------------------------------------------------------
--- Re-export Syntax & Semantics
+-- Re-export
 
 open import Preludes.Data public
 open import Preludes.Relation public

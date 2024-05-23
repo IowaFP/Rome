@@ -1,21 +1,15 @@
 {-# OPTIONS --safe #-}
 module ROmega.Kinds.Semantics where
 
-open import Agda.Primitive
-open import Level
 
-open import Data.Unit.Polymorphic
-open import Data.Product using (_×_)
+open import Preludes.Level
+open import Preludes.Data
+
 
 open import IndexCalculus using (Row)
+
+open import ROmega.GVars.Levels
 open import ROmega.Kinds.Syntax
-
---------------------------------------------------------------------------------
--- Var dump.
-
-private
-  variable
-    ℓ : Level
 
 --------------------------------------------------------------------------------
 -- The meaning of kinds.

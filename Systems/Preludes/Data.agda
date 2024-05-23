@@ -2,9 +2,11 @@
 module Preludes.Data where
 
 --------------------------------------------------------------------------------
--- Data.Nat imports.
+-- Data imports.
 
-open import Data.Product using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_) public
+open import Data.Product 
+  using (∃ ; ∃-syntax; Σ-syntax; _×_; _,_ )
+  renaming (proj₁ to fst ; proj₂ to snd) public
 open import Data.Sum
   renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
   hiding (map) public
@@ -15,4 +17,5 @@ open import Data.Fin
   renaming 
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 
   public
+open import Data.Unit.Polymorphic using (⊤ ; tt) public
 

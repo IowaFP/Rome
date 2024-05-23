@@ -1,33 +1,16 @@
 {-# OPTIONS --safe #-}
 module ROmega.Types.Semantics where
 
-open import Agda.Primitive
-open import Level
+open import Preludes.Level
+open import Preludes.Data
 
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
-
-open import Data.Product
-  renaming (proj₁ to fst; proj₂ to snd)
-  hiding (Σ)
-open import Data.Unit.Polymorphic
-open import Data.Empty.Polymorphic
+open import ROmega.GVars.Kinds
 
 open import ROmega.Kinds
 open import ROmega.Types.Syntax
+
 open import IndexCalculus using (Row)
 import IndexCalculus as Ix
-
---------------------------------------------------------------------------------
---
-
-private
-  variable
-    ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
-    κ κ' : Kind ℓκ
-    κ₁ : Kind ℓκ₁
-    κ₂ : Kind ℓκ₂
-    κ₃ : Kind ℓκ₃
-    Δ : KEnv ℓΔ
 
 --------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
@@ -64,3 +47,4 @@ private
 ⟦ ρ ·⌈ τ ⌉ ⟧t H =  Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
+⟦ ε ⟧t H = Ix.emptyRow

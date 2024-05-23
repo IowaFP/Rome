@@ -1,14 +1,11 @@
 {-# OPTIONS --safe #-}
 module ROmega.Kinds.Syntax where
 
-open import Agda.Primitive
-open import Level
+open import Preludes.Level
+open import ROmega.GVars.Levels
 
 --------------------------------------------------------------------------------
 -- Kinds.
-private
-  variable
-    ℓ ℓ₁ ℓ₂ : Level
 
 data Kind : Level → Set where
   ★ : (ℓ : Level) → Kind ℓ

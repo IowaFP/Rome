@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
 module ROmega.Types.Syntax where
 
-open import Agda.Primitive
-open import Level
+open import Preludes.Level
+open import Preludes.Data
 
-open import Data.String
-
+open import ROmega.GVars.Kinds
 open import ROmega.Kinds.Syntax
+
 
 --------------------------------------------------------------------------------
 -- infix OOP.
@@ -24,19 +24,6 @@ infixl 11 _·[_]
 
 Label : Set
 Label = String
-
---------------------------------------------------------------------------------
--- Private vars.
-
-private
-  variable
-    ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
-    κ : Kind ℓκ
-    κ₁ : Kind ℓκ₁
-    κ₂ : Kind ℓκ₂
-    κ₃ : Kind ℓκ₃
-    Δ : KEnv ℓΔ
-
 
 --------------------------------------------------------------------------------
 -- Kinding Environments, types, and predicates.
@@ -65,13 +52,6 @@ data Pred Δ κ where
 data TVar : KEnv ℓ → Kind ι → Set where
   Z : TVar (Δ , κ) κ
   S : TVar Δ κ₁ → TVar (Δ , κ₂) κ₁
-
---------------------------------------------------------------------------------
--- 
--- private
---   variable
---     Φ : PEnv Δ ℓΦ
---     π : Pred Δ κ
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -126,6 +106,8 @@ data Type where
   ------------------------------------------------------------
   -- System Rω.
 
+  ε : Type Δ R[ κ ]
+
   -- Labels.
   lab : 
         Label →
@@ -173,4 +155,3 @@ data Type where
           Type Δ (κ `→ κ') → Type Δ R[ κ ] →
           --------------------------------
           Type Δ R[ κ' ]
-

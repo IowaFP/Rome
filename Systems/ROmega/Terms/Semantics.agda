@@ -1,20 +1,7 @@
 module ROmega.Terms.Semantics where
 
-open import Agda.Primitive
-
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; trans; sym; cong; cong₂; cong-app; subst)
-
-open import Data.Unit.Polymorphic
-open import Data.Product
-  using (_×_; Σ-syntax; _,_)
-  renaming (proj₁ to fst; proj₂ to snd)
-
-open import Data.Sum
-  renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
-open import Data.Fin
-  renaming (zero to fzero; suc to fsuc)
-  hiding (fold)
+open import Preludes.Level
+open import Prelude
 
 open import Shared.Lib.Equality
 

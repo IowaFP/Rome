@@ -1,39 +1,15 @@
 module ROmega.Entailment.Semantics where
 
-open import Agda.Primitive
-
-import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; trans; sym; cong; cong₂; cong-app; subst)
-
-open import Data.Unit.Polymorphic
-open import Data.Product
-  using (_×_; Σ-syntax; _,_)
-  renaming (proj₁ to fst; proj₂ to snd)
-
-open import Data.Sum
-  renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
-open import Data.Fin
-  renaming (zero to fzero; suc to fsuc)
+open import Prelude
+open import Preludes.Level
+open import Data.Product as DP
 
 open import ROmega.Kinds
 open import ROmega.Types
 open import ROmega.Equivalence -- extensionality
 open import ROmega.Terms.Syntax
 open import ROmega.Entailment.Syntax
-
---------------------------------------------------------------------------------
--- Generalized vars.
-
-private
-  variable
-    ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
-    ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
-    κ κ' : Kind ℓκ
-    κ₁ : Kind ℓκ₁
-    κ₂ : Kind ℓκ₂
-    κ₃ : Kind ℓκ₃
-    Δ : KEnv ℓΔ
-
+open import ROmega.GVars.Kinds
 
 --------------------------------------------------------------------------------
 -- The meaning of predicate environments.
@@ -77,22 +53,22 @@ module SimpleRowSemantics where
   ... | ρ₃≲ρ₁·ρ₂ , ρ₁≲ρ₃ , ρ₂≲ρ₃ = ρ₃τ≲ρ₁τ·ρ₂τ , ρ₁τ≲ρ₃τ , ρ₂τ≲ρ₃τ
     where
       ρ₃τ≲ρ₁τ·ρ₂τ : (i : Fin (fst (⟦ ρ₃ ⟧t H))) →
-                    Data.Product.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
+                    DP.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
                     (λ j → snd (⟦ ρ₁ ⟧t H) j (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) i (⟦ τ ⟧t H))
                     or
-                    Data.Product.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
+                    DP.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
                     (λ j → snd (⟦ ρ₂ ⟧t H) j (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) i (⟦ τ ⟧t H))
       ρ₃τ≲ρ₁τ·ρ₂τ i with ρ₃≲ρ₁·ρ₂ i
       ... | left (j , P) = left (j , cong-app P (⟦ τ ⟧t H))
       ... | right (j , P) = right (j , cong-app P (⟦ τ ⟧t H))
       ρ₁τ≲ρ₃τ : (i : Fin (fst (⟦ ρ₁ ⟧t H))) →
-                Data.Product.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
+                DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
                 (λ j → snd (⟦ ρ₁ ⟧t H) i (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) j (⟦ τ ⟧t H))
       ρ₁τ≲ρ₃τ i with ρ₁≲ρ₃ i
       ... | j , P = j , cong-app P (⟦ τ ⟧t H)
   
       ρ₂τ≲ρ₃τ : (i : Fin (fst (⟦ ρ₂ ⟧t H))) →
-                Data.Product.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
+                DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
                 (λ j → snd (⟦ ρ₂ ⟧t H) i (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) j (⟦ τ ⟧t H))
       ρ₂τ≲ρ₃τ i with ρ₂≲ρ₃ i
       ... | j , P = j , cong-app P (⟦ τ ⟧t H)
@@ -100,23 +76,23 @@ module SimpleRowSemantics where
   ... | ρ₃≲ρ₁·ρ₂ , ρ₁≲ρ₃ , ρ₂≲ρ₃ = τρ₃≲τρ₁·τρ₂ , τρ₁≲τρ₃ , τρ₂τ≲τρ₃
     where
       τρ₃≲τρ₁·τρ₂ : (i : Fin (fst (⟦ ρ₃ ⟧t H))) →
-                    Data.Product.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
+                    DP.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
                     (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₁ ⟧t H) j)  ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) i))
                     or
-                    Data.Product.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
+                    DP.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
                     (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₂ ⟧t H) j) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) i))
       τρ₃≲τρ₁·τρ₂ i with ρ₃≲ρ₁·ρ₂ i
       ... | left (j , P) = left (j , cong (⟦ τ ⟧t H) P)
       ... | right (j , P) = right (j , cong (⟦ τ ⟧t H) P)
       
       τρ₁≲τρ₃ : (i : Fin (fst (⟦ ρ₁ ⟧t H))) →
-                Data.Product.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
+                DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
                 (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₁ ⟧t H) i) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) j))
       τρ₁≲τρ₃ i with ρ₁≲ρ₃ i
       ... | j , P = j , cong (⟦ τ ⟧t H) P
   
       τρ₂τ≲τρ₃ : (i : Fin (fst (⟦ ρ₂ ⟧t H))) →
-                Data.Product.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
+                DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
                 (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₂ ⟧t H) i) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) j))
       τρ₂τ≲τρ₃ i with ρ₂≲ρ₃ i
       ... | j , P = j , cong (⟦ τ ⟧t H) P
