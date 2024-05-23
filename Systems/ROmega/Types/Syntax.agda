@@ -57,14 +57,6 @@ data TVar : KEnv ℓ → Kind ι → Set where
 -- Types.
 
 data Type where
-  ------------------------------------------------------------
-  -- Base types (for mechanization).
-
-  -- Unit (Mechanization.)
-  U : 
-
-         --------------
-         Type Δ (★ ℓ)
 
   ------------------------------------------------------------
   -- System Fω.
@@ -130,7 +122,7 @@ data Type where
   ⌊_⌋ : 
         Type Δ (L ℓ) →
         ----------
-        Type Δ (★ ι)
+        Type Δ (★ ℓ)
 
   -- Record formation.
   Π : 

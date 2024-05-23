@@ -22,8 +22,6 @@ private
     κ : Kind ℓκ
     π : Pred Δ κ
 
-open SimpleRowSyntax
-
 _⊩⟨_⟩_ : ∀ {κ₁ κ₂ κ₃ : Kind ℓκ} {π₂ : Pred Δ κ₂}  {π₃ : Pred Δ κ₃} 
          (π₁ : Pred Δ κ₁) →
          (Ent Δ Φ π₁ → Ent Δ Φ π₂) →

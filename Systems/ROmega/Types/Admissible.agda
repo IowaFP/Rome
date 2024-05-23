@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module ROmega.Types.Permissable where
+module ROmega.Types.Admissible where
 
 open import Preludes.Level
 open import Preludes.Data
@@ -10,6 +10,10 @@ open import ROmega.Types.Syntax
 
 --------------------------------------------------------------------------------
 -- Permissable types.
+
+-- The unit type.
+U : ∀ {ℓ} → Type Δ (★ ℓ)
+U = ⌊ lab "unit" ⌋
 
 -- The empty record.
 ∅ : Type Δ (★ ℓ)

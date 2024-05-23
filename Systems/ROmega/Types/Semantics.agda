@@ -32,7 +32,7 @@ import IndexCalculus as Ix
 --------------------------------------------------------------------------------
 -- The meaning of types.
 
-⟦ U ⟧t           H = ⊤
+-- ⟦ U ⟧t           H = ⊤
 ⟦ lab l ⟧t       H = tt
 ⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H

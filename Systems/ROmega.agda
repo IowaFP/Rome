@@ -19,4 +19,4 @@ open import ROmega.Types.Substitution
 open import ROmega.Types.Substitution.Properties -- extensionality
 
 -- Examples.
--- open import ROmega.Examples.Section-3 -- extensionality
+open import ROmega.Examples.Section-3 -- extensionality

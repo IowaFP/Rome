@@ -9,7 +9,7 @@ open import ROmega.Kinds.Syntax
 
 variable
   ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
-  ℓΔ ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+  ℓΔ ℓL ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
   -- The types below "depend" on levels above.
   -- In practice, Agda does not respect this dependency.
   -- E.g., if you use κ below, then κ will have type "Kind κ.ℓκ".
