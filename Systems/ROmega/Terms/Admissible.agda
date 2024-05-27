@@ -28,8 +28,7 @@ inj▹ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {Ł : Type Δ (L ℓ)}
         Term Δ Φ Γ (Σ ρ)
 inj▹ s e = inj (Σ s) e
 
-u : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {Ł : Type Δ (L ℓL)} 
-       {τ : Type Δ κ} {ρ : Type Δ R[ ★ ℓκ ]} → 
-    Term {ℓ = ℓ} Δ Φ Γ U
+u : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}  → 
+    Term Δ Φ Γ (U {ℓ = ℓ})
 u = lab (lab "unit")
   
