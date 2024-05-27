@@ -18,8 +18,8 @@ open import IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Variants say: "Of the types in this row, I can give you exactly one."
-Σ : ∀ {ℓ} → Row (Set ℓ) → Set ℓ
-Σ (n , P) = Σ[ i ∈ Fin n ] (P i)
+Σ : ∀ {ℓ} → Row (Set ℓ) → (Set ℓ)
+Σ (n , P) =  Σ[ i ∈ Fin n ] (P i)
 
 --------------------------------------------------------------------------------
 -- injection.

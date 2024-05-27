@@ -40,11 +40,12 @@ import IndexCalculus as Ix
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
 ⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
-⟦ _R▹_ {ℓ} {ι} {_} {κ} _ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
+⟦ _ R▹ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
 ⟦ Π ρ ⟧t H = Ix.Π (⟦ ρ ⟧t H)
 ⟦ Σ ρ ⟧t H = Ix.Σ (⟦ ρ ⟧t H)
-⟦ ρ ·⌈ τ ⌉ ⟧t H =  Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
+⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
 ⟦ ε ⟧t H = Ix.emptyRow
+⟦ μ F ⟧t H =  Ix.Mu (⟦ F ⟧t H)
