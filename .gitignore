@@ -14,3 +14,4 @@ html/*
 *.log
 *.out
 *.synctex.gz
+*.DS_Store
