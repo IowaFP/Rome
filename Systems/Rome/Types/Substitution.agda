@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+
 module Rome.Types.Substitution where
 
 open import Preludes.Level

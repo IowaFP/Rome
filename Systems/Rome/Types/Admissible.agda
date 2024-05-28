@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+
 module Rome.Types.Admissible where
 
 open import Preludes.Level

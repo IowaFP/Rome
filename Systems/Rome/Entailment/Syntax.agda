@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Entailment.Syntax where
 
 open import Agda.Primitive

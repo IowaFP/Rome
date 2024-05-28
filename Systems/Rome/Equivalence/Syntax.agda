@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+
 module Rome.Equivalence.Syntax where
 
 open import Preludes.Level

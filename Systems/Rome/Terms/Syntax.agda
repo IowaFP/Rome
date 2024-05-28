@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms.Syntax where
 
 open import Preludes.Level
@@ -76,6 +76,14 @@ FoldT {ℓκ = ℓκ} ρ υ =
       y = tvar Z
       t = tvar (S Z)
       l = tvar (S (S Z))
+
+MAlg : (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ℓ)) →
+       Type Δ (★ (lsuc ℓ))
+MAlg {ℓ = ℓ} ρ τ =
+  `∀ R[ ★ ℓ `→ ★ ℓ ]
+    (`∀ R[ ★ ℓ `→ ★ ℓ ]
+      ((weaken (weaken ρ) · tvar Z ~ tvar (S Z)) ⇒
+        ((Σ (weaken (weaken ρ))) ·[ μ (Σ (tvar (S Z))) ] `→ (((μ (Σ (tvar (S Z)))) `→ (weaken (weaken τ))) `→ (weaken (weaken τ))))))
 
 --------------------------------------------------------------------------------
 -- Terms.
@@ -264,13 +272,15 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
   ------------------------------------------------------------
   -- System Rωμ.
-
-  -- This won't type until
-  -- - Σ ρ is well-typed for ρ : κ for κ ≠ ★
-  -- - μ 
   
-  -- In : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-  --        {ρ : Type Δ R[ ★ ℓ₁ → ⋆ ℓ₁ ]} →
-  --        Term Δ Φ Γ (Σ (ρ ·⌈ μ (Σ ρ) ⌉) →
-  --        -----------------------------
-  --        Term Δ Φ Γ (μ (Σ ρ))
+  In : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
+         {ϕ : Type Δ ((★ ℓ) `→ (★ ℓ))} →
+         Term Δ Φ Γ (ϕ ·[ (μ ϕ) ]) →
+         -----------------------------
+         Term Δ Φ Γ (μ ϕ)
+
+  recΣ : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
+           {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
+         Term Δ Φ Γ (MAlg ρ τ) →
+         Term Δ Φ Γ (μ (Σ ρ) `→ τ)
+         
