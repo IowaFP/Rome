@@ -145,5 +145,5 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             ≡
             Ix._·_~_ (sing τ) y (⟦ (weaken (weaken (weaken ρ))) ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
-      
+⟦ In ϕ ⟧ H φ η = ?      
   
