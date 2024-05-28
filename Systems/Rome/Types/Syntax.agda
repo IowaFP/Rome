@@ -132,9 +132,9 @@ data Type where
 
   -- Variant formation.
   Σ : 
-      Type Δ R[ ★ ℓ ] →
+      Type Δ R[ κ ] →
       -------------
-      Type Δ (★ ℓ)
+      Type Δ κ
 
   -- lift₁ (lifting a function argument to row kind).
   _·⌈_⌉ : ∀ {κ κ' : Kind ℓκ} → 
