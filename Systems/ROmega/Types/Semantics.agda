@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module ROmega.Types.Semantics where
 
 open import Preludes.Level
@@ -32,7 +31,13 @@ import IndexCalculus as Ix
 --------------------------------------------------------------------------------
 -- The meaning of types.
 
--- ⟦ U ⟧t           H = ⊤
+buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
+buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
+buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i X)
+buildΣ (L _) ⟦ρ⟧ = tt
+buildΣ R[ κ ] ⟦ρ⟧ = 0 , λ ()  -- ask dumb questions, get dumb answers
+
+⟦ ∅ ⟧t           H = ⊤
 ⟦ lab l ⟧t       H = tt
 ⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H
@@ -43,7 +48,7 @@ import IndexCalculus as Ix
 ⟦ _R▹_ {ℓ} {ι} {_} {κ} _ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
 ⟦ Π ρ ⟧t H = Ix.Π (⟦ ρ ⟧t H)
-⟦ Σ ρ ⟧t H = Ix.Σ (⟦ ρ ⟧t H)
+⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
 ⟦ ρ ·⌈ τ ⌉ ⟧t H =  Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H

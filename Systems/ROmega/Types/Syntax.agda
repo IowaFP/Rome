@@ -61,7 +61,7 @@ data Type where
   ------------------------------------------------------------
   -- System Fω.
 
-  tvar : 
+  tvar :
 
          TVar Δ κ →
          -----------
@@ -72,17 +72,17 @@ data Type where
           -----------------------------------
           Type Δ (★ (ℓ₁ ⊔ ℓ₂))
 
-  `∀ :  
+  `∀ :
           (κ : Kind ℓκ) → Type (Δ , κ) (★ ℓ) →
           -------------------------------------
           Type Δ (★ (ℓ ⊔ (lsuc ℓκ)))
 
-  `λ :  
+  `λ :
           (κ₁ : Kind ℓκ₁) → Type (Δ , κ₁) κ₂ →
           -----------------------------------------
           Type Δ (κ₁ `→ κ₂)
 
-  _·[_] : 
+  _·[_] :
           Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
           -----------------------------
           Type Δ κ₂
@@ -101,7 +101,7 @@ data Type where
   ε : Type Δ R[ κ ]
 
   -- Labels.
-  lab : 
+  lab :
         Label →
         ----------
         Type Δ (L ℓ)
@@ -113,31 +113,36 @@ data Type where
         Type Δ κ
 
   -- Row singleton formation.
-  _R▹_ : 
+  _R▹_ :
          Type Δ (L ℓ) → Type Δ κ →
          -------------------
          Type Δ R[ κ ]
 
   -- label constant formation.
-  ⌊_⌋ : 
+  ⌊_⌋ :
         Type Δ (L ℓ) →
         ----------
         Type Δ (★ ℓ)
 
+  -- The empty record (mechanization only.)
+  ∅ : ∀ {ℓ ι : Level} {Δ : KEnv ℓ} →
+
+      --------------
+      Type Δ (★ ι)
   -- Record formation.
-  Π : 
+  Π :
       Type Δ R[ ★ ℓ ] →
       -------------
       Type Δ (★ ℓ)
 
   -- Variant formation.
-  Σ : 
-      Type Δ R[ ★ ℓ ] →
+  Σ :
+      Type Δ R[ κ ] →
       -------------
-      Type Δ (★ ℓ)
+      Type Δ κ
 
   -- lift₁ (lifting a function argument to row kind).
-  _·⌈_⌉ : ∀ {κ κ' : Kind ℓκ} → 
+  _·⌈_⌉ : ∀ {κ κ' : Kind ℓκ} →
           Type Δ R[ κ `→ κ' ] → Type Δ κ →
           --------------------------------
           Type Δ R[ κ' ]
