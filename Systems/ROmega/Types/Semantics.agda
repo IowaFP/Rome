@@ -35,7 +35,7 @@ buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
 buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
 buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i X)
 buildΣ (L _) ⟦ρ⟧ = tt
-buildΣ R[ κ ] ⟦ρ⟧ = 0 , λ ()  -- ask dumb questions, get dumb answers
+buildΣ R[ κ ] (n , f) = n , λ i → buildΣ κ (f i)
 
 ⟦ ∅ ⟧t           H = ⊤
 ⟦ lab l ⟧t       H = tt
