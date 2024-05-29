@@ -1,5 +1,5 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms where
-
 --------------------------------------------------------------------------------
 -- Re-export Syntax & Semantics
 

@@ -133,3 +133,15 @@ lift₁ {A = A} {B = B} (n , P) a = (n , (λ m → P m a))
 lift₂ : ∀ {ℓ} {A B : Set ℓ} → (A → B) → Row {ℓ} A → Row {ℓ} B
 lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))
 
+--------------------------------------------------------------------------------
+-- LFP of Rows.
+
+data Mu {ℓ} (N : Set ℓ → Set ℓ)  : Set ℓ where
+  In : Row (Mu N) → Mu N
+
+-- NatT 
+
+-- rec : ∀ {ℓ} {A : Set} → 
+--       (F : Set ℓ → Set ℓ) → 
+--       ((s : ℕ) → (ts : Fin n → Mu F) → 
+--       Mu F → A

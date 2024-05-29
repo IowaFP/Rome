@@ -23,6 +23,3 @@ U = ⌊ lab "unit" ⌋
 -- The impossible variant.
 ⊥ : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ ℓ)
 ⊥ = Σ ε
-
-Σ₂ : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (R[ ★ ℓ `→ ★ ℓ ]) → Type Δ (★ ℓ `→ ★ ℓ)
-Σ₂ {ℓ = ℓ} ρ = `λ (★ ℓ) (Σ ((K ρ) ·⌈ tvar Z ⌉))

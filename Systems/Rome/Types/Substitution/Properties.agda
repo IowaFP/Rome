@@ -144,6 +144,8 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
   rewrite π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres π
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ε = refl
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F) 
+  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl
 
 π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ₁ ≲ ρ₂)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₁
@@ -241,6 +243,8 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ  |
           σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ε = refl
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (μ F)
+  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁

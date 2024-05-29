@@ -21,12 +21,6 @@ open import IndexCalculus.Rows
 Σ : ∀ {ℓ} → Row (Set ℓ) → (Set ℓ)
 Σ (n , P) =  Σ[ i ∈ Fin n ] (P i)
 
-Σ² : ∀ {ℓ ι} → Row (Set ℓ → Set ι) → (Set ℓ) → Set ι
-Σ² (n , P) X =  Σ[ i ∈ Fin n ] (P i X)
-
-Σ* : ∀ {ℓ} → (A : Set ℓ) → Row A → A
-Σ* A (n , P) = {!!}
-
 
 --------------------------------------------------------------------------------
 -- injection.

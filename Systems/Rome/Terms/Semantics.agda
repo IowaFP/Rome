@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms.Semantics where
 
 open import Preludes.Level
@@ -145,5 +146,6 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             ≡
             Ix._·_~_ (sing τ) y (⟦ (weaken (weaken (weaken ρ))) ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
-⟦ In ϕ ⟧ H φ η = ?      
+⟦ In {ϕ = ϕ} M ⟧ H φ η = {!⟦ M ⟧ H φ η!}
+⟦ recΣ c ⟧ H φ η = {!!}
   

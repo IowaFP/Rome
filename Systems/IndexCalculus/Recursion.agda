@@ -7,8 +7,8 @@ open import IndexCalculus.Rows
 open import IndexCalculus.Variants
 
 
-data Mu {ℓ} : (Set ℓ → Set ℓ) → Set ℓ where
-  In : (F : (Set ℓ → Set ℓ))  → Mu F
+-- data Mu {ℓ} : (Set ℓ → Set ℓ) → Set ℓ where
+--   In : (F : (Set ℓ → Set ℓ))  → Mu F
 
 -- data Mu {ℓ} (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
 --   In : ∀ (R : Set ℓ) → (R → Mu F) → F R → Mu F

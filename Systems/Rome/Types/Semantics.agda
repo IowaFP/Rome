@@ -32,7 +32,18 @@ import IndexCalculus as Ix
 --------------------------------------------------------------------------------
 -- The meaning of types.
 
--- ⟦ U ⟧t           H = ⊤
+buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
+buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
+buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i X)
+buildΣ (L _) ⟦ρ⟧ = tt
+buildΣ R[ κ ] ⟦ρ⟧ = 0 , λ () 
+
+buildΠ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
+buildΠ (★ _) ⟦ρ⟧ = Ix.Π ⟦ρ⟧
+buildΠ (κ₁ `→ κ₂) (n , f) = λ X → buildΠ κ₂ (n , λ i → f i X)
+buildΠ (L _) ⟦ρ⟧ = tt
+buildΠ R[ κ ] ⟦ρ⟧ = 0 , (λ ())
+
 ⟦ lab l ⟧t       H = tt
 ⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H
@@ -42,13 +53,13 @@ import IndexCalculus as Ix
 ⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
 ⟦ _ R▹ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
-⟦ Π ρ ⟧t H = Ix.Π (⟦ ρ ⟧t H)
-⟦ Σ ρ ⟧t H = Ix.Σ (⟦ ρ ⟧t H)
+⟦ Π {κ = κ} ρ ⟧t H = buildΠ κ (⟦ ρ ⟧t H)
+⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
 ⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
 ⟦ ε ⟧t H = Ix.emptyRow
-⟦ μ F ⟧t H =  Ix.Mu (⟦ F ⟧t H)
+⟦ μ F ⟧t H =  ⟦ F ⟧t H (Ix.Mu (⟦ F ⟧t H)) -- Ix.Mu (⟦ F ⟧t H)
 
 
 --------------------------------------------------------------------------------
