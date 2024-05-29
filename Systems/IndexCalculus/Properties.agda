@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Properties where
 
 

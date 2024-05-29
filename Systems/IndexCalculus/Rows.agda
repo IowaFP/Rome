@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Rows where
 
 open import Agda.Primitive
@@ -27,6 +27,10 @@ infix  5 _·_~_
 -- Rows are maps from indices to types.
 Row : ∀ {ℓ : Level} (A : Set ℓ) → Set ℓ
 Row A = Σ[ n ∈ ℕ ] (Fin n → A)
+
+pfft : ∀ {ℓ} → Row (Set ℓ → Set ℓ)
+pfft = {!!}
+
 
 -- An index in a Row.
 Ix : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Set

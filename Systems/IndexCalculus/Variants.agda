@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Variants where
 
 open import Agda.Primitive

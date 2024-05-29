@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Recursion where
 
 open import Preludes.Level
