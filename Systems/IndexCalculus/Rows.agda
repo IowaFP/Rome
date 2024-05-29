@@ -28,10 +28,6 @@ infix  5 _·_~_
 Row : ∀ {ℓ : Level} (A : Set ℓ) → Set ℓ
 Row A = Σ[ n ∈ ℕ ] (Fin n → A)
 
-pfft : ∀ {ℓ} → Row (Set ℓ → Set ℓ)
-pfft = {!!}
-
-
 -- An index in a Row.
 Ix : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Set
 Ix (n , _) = Fin n
@@ -127,21 +123,8 @@ _delete_ {ℓ} {A} (suc n , f) i = n , (λ j → f (punchIn i j))
 --------------------------------------------------------------------------------
 -- Lifting functions (and arguments) to rows.
 
-lift₁ : ∀ {ℓ} {A B : Set ℓ} → Row {ℓ} (A → B) → A → Row {ℓ} B
+lift₁ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → Row {ℓ ⊔ ι} (A → B) → A → Row {ι} B
 lift₁ {A = A} {B = B} (n , P) a = (n , (λ m → P m a))
 
 lift₂ : ∀ {ℓ} {A B : Set ℓ} → (A → B) → Row {ℓ} A → Row {ℓ} B
 lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))
-
---------------------------------------------------------------------------------
--- LFP of Rows.
-
-data Mu {ℓ} (N : Set ℓ → Set ℓ)  : Set ℓ where
-  In : Row (Mu N) → Mu N
-
--- NatT 
-
--- rec : ∀ {ℓ} {A : Set} → 
---       (F : Set ℓ → Set ℓ) → 
---       ((s : ℕ) → (ts : Fin n → Mu F) → 
---       Mu F → A

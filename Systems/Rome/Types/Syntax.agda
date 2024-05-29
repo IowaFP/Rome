@@ -137,10 +137,10 @@ data Type where
       Type Δ κ
 
   -- lift₁ (lifting a function argument to row kind).
-  _·⌈_⌉ : ∀ {κ κ' : Kind ℓκ} → 
-          Type Δ R[ κ `→ κ' ] → Type Δ κ →
+  _·⌈_⌉ : ∀ {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} → 
+          Type Δ R[ κ₁ `→ κ₂ ] → Type Δ κ₁ →
           --------------------------------
-          Type Δ R[ κ' ]
+          Type Δ R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
   ⌈_⌉·_ : ∀ {κ κ' : Kind ℓκ} →
@@ -150,7 +150,7 @@ data Type where
 
   ------------------------------------------------------------
   -- System Rωμ.
-  μ : 
-      (τ : Type Δ ((★ ℓ) `→ (★ ℓ))) →
+  μ : ∀ {ℓ} →
+      (τ : Type Δ R[ (★ ℓ) `→ (★ ℓ) ]) →
       --------------------------------
-      Type Δ (★ ℓ)
+      Type Δ (★ (lsuc ℓ))
