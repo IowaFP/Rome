@@ -5,7 +5,7 @@ open import Preludes.Level
 open import Preludes.Relation
 
 open import Rome.Kinds
-open import Rome.Types
+open import Rome.Types.Syntax
 
 --------------------------------------------------------------------------------
 -- Defs.
@@ -80,6 +80,22 @@ renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ r
 weaken : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
            τ-map Δ (Δ , κ)
 weaken = rename S
+
+--------------------------------------------------------------------------------
+-- Repeated weakening (helpers)
+K = weaken
+K¹ = weaken
+K² : ∀ {ℓΔ ℓ₁ ℓ₂} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
+           τ-map Δ ((Δ , κ₁) , κ₂)
+K² = λ x → weaken (weaken x)
+
+K³ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} →
+           τ-map Δ (((Δ , κ₁) , κ₂) , κ₃)
+K³ = λ x → K¹ (K² x)
+
+K⁴ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃ ℓ₄} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} {κ₄ : Kind ℓ₄} →
+           τ-map Δ ((((Δ , κ₁) , κ₂) , κ₃) , κ₄)
+K⁴ = λ x → K² (K² x)
            
 --------------------------------------------------------------------------------
 -- Simultaneous Substitution.
@@ -144,12 +160,3 @@ Z↦ τ (S x) = tvar x
 _β[_] : ∀ {ℓΔ ℓκ ℓι} {Δ : KEnv ℓΔ} {κ : Kind ℓκ}{ι : Kind ℓι}
          → Type (Δ , ι) κ → Type Δ ι → Type Δ κ
 τ β[ υ ] = subst (Z↦ υ) τ
-
---------------------------------------------------------------------------------
--- examples, to move elsewhere
-
-t0 : Type (ε , ★ lzero) (★ lzero)
-t0 = tvar Z `→ tvar Z
-
-_ : subst (Z↦ U) t0 ≡ U `→ U
-_ = refl

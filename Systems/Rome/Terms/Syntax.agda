@@ -77,13 +77,14 @@ FoldT {ℓκ = ℓκ} ρ υ =
       t = tvar (S Z)
       l = tvar (S (S Z))
 
+
 MAlg : (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ℓ)) →
        Type Δ (★ (lsuc ℓ))
-MAlg {ℓ = ℓ} ρ τ =
+MAlg {ℓ = ℓ} ρ τ = 
   `∀ R[ ★ ℓ `→ ★ ℓ ]
     (`∀ R[ ★ ℓ `→ ★ ℓ ]
-      ((weaken (weaken ρ) · tvar Z ~ tvar (S Z)) ⇒
-        ((Σ (weaken (weaken ρ))) ·[ μ (Σ (tvar (S Z))) ] `→ (((μ (Σ (tvar (S Z)))) `→ (weaken (weaken τ))) `→ (weaken (weaken τ))))))
+      ((K² ρ · tvar Z ~ tvar (S Z)) ⇒
+        ((Σ₂ (K² ρ)) ·[ μ (Σ₂ (tvar (S Z))) ] `→ (((μ (Σ₂ (tvar (S Z)))) `→ K² τ) `→ K² τ))))
 
 --------------------------------------------------------------------------------
 -- Terms.
@@ -282,5 +283,5 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   recΣ : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
            {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
            Term Δ Φ Γ (MAlg ρ τ) →
-           Term Δ Φ Γ (μ (Σ ρ) `→ τ)
+           Term Δ Φ Γ (μ (Σ₂ ρ) `→ τ)
          

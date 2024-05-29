@@ -43,25 +43,31 @@ import IndexCalculus as Ix
 ⟦ _ R▹ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
 ⟦ Π ρ ⟧t H = Ix.Π (⟦ ρ ⟧t H)
-⟦_⟧t {κ = ★ _} (Σ ρ) H = Ix.Σ (⟦ ρ ⟧t H)
-⟦_⟧t {κ = ★ _ `→ ★ _} (Σ ρ) H = Ix.Σ² (⟦ ρ ⟧t H)
-⟦_⟧t {κ = κ₁ `→ κ₂} (Σ ρ) H with (⟦ ρ ⟧t H)
--- Goal: ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
--- ————————————————————————————————————————————————————————————
--- P    : Fin n → ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
--- n    : ℕ
---
--- The problem is we would like to introduce a ∃ (i : Fin n),
--- which we can do when the goal is (Set ℓ), but we cannot do here.
--- We do not know if
---   (∃ (i : Fin n). P i) : ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
--- One way or another we need to reduce the goal to Set ι for some ι.
-... | n , P = {!∃!}
-⟦_⟧t {κ = L _} (Σ ρ) H = tt
-⟦_⟧t {κ = R[ κ ]} (Σ ρ) H with ⟦ ρ ⟧t H
-... | n , P = n , λ i → {!P i!}
+⟦ Σ ρ ⟧t H = Ix.Σ (⟦ ρ ⟧t H)
 ⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
 ⟦ ε ⟧t H = Ix.emptyRow
 ⟦ μ F ⟧t H =  Ix.Mu (⟦ F ⟧t H)
+
+
+--------------------------------------------------------------------------------
+-- Problems with Σ κ for arbitrary κ:
+--
+-- ⟦_⟧t {κ = ★ _} (Σ ρ) H = Ix.Σ (⟦ ρ ⟧t H)
+-- ⟦_⟧t {κ = ★ _ `→ ★ _} (Σ ρ) H = Ix.Σ² (⟦ ρ ⟧t H)
+-- ⟦_⟧t {κ = κ₁ `→ κ₂} (Σ ρ) H with (⟦ ρ ⟧t H)
+-- -- Goal: ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
+-- -- ————————————————————————————————————————————————————————————
+-- -- P    : Fin n → ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
+-- -- n    : ℕ
+-- --
+-- -- The problem is we would like to introduce a ∃ (i : Fin n),
+-- -- which we can do when the goal is (Set ℓ), but we cannot do here.
+-- -- We do not know if
+-- --   (∃ (i : Fin n). P i) : ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
+-- -- One way or another we need to reduce the goal to Set ι for some ι.
+-- ... | n , P = {!∃!}
+-- ⟦_⟧t {κ = L _} (Σ ρ) H = tt
+-- ⟦_⟧t {κ = R[ κ ]} (Σ ρ) H with ⟦ ρ ⟧t H
+-- ... | n , P = n , λ i → {!P i!}
