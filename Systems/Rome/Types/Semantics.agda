@@ -36,13 +36,13 @@ buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
 buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
 buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i X)
 buildΣ (L _) ⟦ρ⟧ = tt
-buildΣ R[ κ ] ⟦ρ⟧ = 0 , λ () 
+buildΣ R[ κ ] (n , f) = n , λ i → buildΣ κ (f i)
 
 buildΠ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
 buildΠ (★ _) ⟦ρ⟧ = Ix.Π ⟦ρ⟧
 buildΠ (κ₁ `→ κ₂) (n , f) = λ X → buildΠ κ₂ (n , λ i → f i X)
 buildΠ (L _) ⟦ρ⟧ = tt
-buildΠ R[ κ ] ⟦ρ⟧ = 0 , (λ ())
+buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 
 ⟦ lab l ⟧t       H = tt
 ⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
