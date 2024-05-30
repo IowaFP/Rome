@@ -56,6 +56,17 @@ fmap (F ⊗ G) f (x , y) = (fmap F f x) , fmap G f y
 FAlg : (F : Functor) (A : Set) → Set
 FAlg F A = [ F ] A → A
 
+π₁ : {F G : Functor} {A : Set} → FAlg (F ⊕ G) A → FAlg F A
+π₁ ϕ = {!!}
+
+π₂ : {F G : Functor} {A : Set} → FAlg (F ⊕ G) A → FAlg G A
+π₂ ϕ = {!!}
+
+MAlg : (F : Functor) (A : Set) → Set₁
+MAlg F A = (∀ (R : Set) → (R → A) → [ F ] R → A)
+
+
+
 --------------------------------------------------------------------------------
 -- LFP 
 
@@ -63,12 +74,22 @@ data μ_ (F : Functor) : Set where
   In : [ F ] (μ F) → μ F
 
 --------------------------------------------------------------------------------
--- Catamorphisms won't work---AFAICT, Schwaab & Siek instead define a step
--- relation (i.e., an operational semantics) on the functorialized data types?
--- That's the gist I get from skimming.
+-- 
 
 cata : ∀ {F : Functor} {A : Set} → FAlg F A → μ F → A
-cata {F} ϕ (In x) = ϕ ((fmap F (cata ϕ)) x)
+cata {Id} ϕ (In x) = cata ϕ x
+cata {Const B} ϕ (In x) = ϕ x
+-- Need to establish Algebra fusion laws?
+cata {F ⊕ G} ϕ (In (left x)) = {!!}
+cata {F ⊕ G} ϕ (In (right y)) = {!!}
+cata {F ⊗ G} ϕ (In (x , y)) = {!!}
+
+-- mcata : ∀ {F : Functor} {A : Set} → MAlg F A → μ F → A
+-- mcata {Id} ϕ (In x) = mcata ϕ x
+-- mcata {Const B} ϕ (In x) = {!!}
+-- mcata {F ⊕ G} ϕ (In x) = {!!}
+-- mcata {F ⊗ G} ϕ (In x) = {!!}
+
 
 -- Keuchel & Schrijvers instead invent the Strictly-Positive Functor (SPF) typeclass,
 -- which has fold *as a field*:
