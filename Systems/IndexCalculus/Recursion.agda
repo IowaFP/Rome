@@ -6,12 +6,21 @@ open import Preludes.Data
 open import IndexCalculus.Rows
 open import IndexCalculus.Variants
 
+--------------------------------------------------------------------------------
+-- Denoting recursive types.
 
--- data Mu {ℓ} : (Set ℓ → Set ℓ) → Set ℓ where
---   In : (F : (Set ℓ → Set ℓ))  → Mu F
+Functor = λ ℓ → Set ℓ → Set ℓ
 
--- data Mu {ℓ} (F : Set ℓ → Set ℓ) : Set (lsuc ℓ) where
---   In : ∀ (R : Set ℓ) → (R → Mu F) → F R → Mu F
+{-# NO_POSITIVITY_CHECK #-}
+data  Mu {ℓ} (F : Functor ℓ) : Set ℓ where
+  In : F (Mu F) → Mu F
 
--- initAlg : ∀ {ℓ} → (F : ∀ {ℓ} → Set ℓ → Set ℓ) → F {lsuc ℓ} (Mu F) → Mu {ℓ} F
--- initAlg {ℓ} F d = In {!!} {!λ x → x!} {!!}
+--------------------------------------------------------------------------------
+-- Eliminators.
+
+MAlg : ∀ {ℓ} (F : Functor ℓ) (A : Set ℓ) → Set (lsuc ℓ)
+MAlg {ℓ} F A = (∀ (R : Set ℓ) → (R → A) → F R → A)
+
+{-# TERMINATING #-}
+mcata : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} → MAlg F A → Mu F → A
+mcata {ℓ} {F} φ (In x) = φ (Mu F) (mcata φ) x 

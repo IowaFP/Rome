@@ -55,36 +55,3 @@ _▿_Using_ :
   Σ z → C
 
 (E-Σx ▿ E-Σy Using x·y~z) = (_▿_) {x·y~z = x·y~z} E-Σx E-Σy
-
---------------------------------------------------------------------------------
---
-
---------------------------------------------------------------------------------
--- LFP of Rows.
-
--- Agda.Builtin.Sigma.Σ (Fin n) (λ m₁ → P m₁ (Mu (n , P)))
--- f : ∀ {ℓ} → Row (Set ℓ → Set ℓ) → Set ℓ
-
-data Mu {ℓ} (N : Row (Set ℓ → Set ℓ))  : Set ℓ where
-
--- f F@(n , P) = {!∀ X → (n , λ i → ?)!}
-
--- fmap : ∀ {ℓ} {A B : Set ℓ} → (A → B) → Row {ℓ} A → Row {ℓ} B
--- fmap f (n , P) = n , λ i → f (P i)
-
--- -- app : Row (A → B) → 
-
--- elimT : ∀ {ℓ} → (N : Row (Set ℓ → Set ℓ)) (T : Set ℓ) →
---         Set ℓ
-
--- elimT {ℓ} N@(n , P) T =  (∀ (i : Fin n) → P i T → T) → Mu N → T
-
--- elim :  ∀ {ℓ} → (N : Row (Set ℓ → Set ℓ)) (T : Set ℓ) → elimT N T
--- elim N@(n , P) T f (In (._ , ._)) = {!!}
-
--- NatT 
-
--- rec : ∀ {ℓ} {A : Set} → 
---       (F : Set ℓ → Set ℓ) → 
---       ((s : ℕ) → (ts : Fin n → Mu F) → 
---       Mu F → A

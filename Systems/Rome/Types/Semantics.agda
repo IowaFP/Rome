@@ -59,5 +59,4 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
 ⟦ ε ⟧t H = Ix.emptyRow
-⟦ μ {ℓ = ℓ} F ⟧t H with ⟦ F ⟧t H
-... | n , P = (X : Set ℓ) → Σ[ i ∈ Fin n ] P i X
+⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H)

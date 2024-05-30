@@ -77,12 +77,14 @@ data μ_ (F : Functor) : Set where
 -- 
 
 cata : ∀ {F : Functor} {A : Set} → FAlg F A → μ F → A
-cata {Id} ϕ (In x) = cata ϕ x
-cata {Const B} ϕ (In x) = ϕ x
--- Need to establish Algebra fusion laws?
-cata {F ⊕ G} ϕ (In (left x)) = {!!}
-cata {F ⊕ G} ϕ (In (right y)) = {!!}
-cata {F ⊗ G} ϕ (In (x , y)) = {!!}
+-- Communicate to Agda that fmap is size preserving.
+cata {F} φ (In x) = φ (fmap F (cata φ) x) 
+-- cata {Id} ϕ (In x) = cata ϕ x
+-- cata {Const B} ϕ (In x) = ϕ x
+-- -- Need to establish Algebra fusion laws?
+-- cata {F ⊕ G} ϕ (In (left x)) = {!!}
+-- cata {F ⊕ G} ϕ (In (right y)) = {!!}
+-- cata {F ⊗ G} ϕ (In (x , y)) = {!!}
 
 -- mcata : ∀ {F : Functor} {A : Set} → MAlg F A → μ F → A
 -- mcata {Id} ϕ (In x) = mcata ϕ x

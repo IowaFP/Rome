@@ -32,3 +32,4 @@ u : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}  →
     Term Δ Φ Γ (U {ℓ = ℓ})
 u = lab (lab "unit")
   
+
