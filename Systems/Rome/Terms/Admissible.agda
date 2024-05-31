@@ -5,6 +5,7 @@ open import Preludes.Level
 
 open import Rome.Kinds
 open import Rome.Types
+import Rome.Types.Syntax as Types
 open import Rome.Terms.Syntax
 open import Rome.Types.Substitution
 open import Rome.Equivalence.Syntax
@@ -79,12 +80,16 @@ injμ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
                (Π (⌈ Functor ⌉· tvar (S Z))) `→ 
                  μΣ (tvar (S Z)) `→ μΣ (tvar Z))))
 injμ {ℓ = ℓ} = 
-  `Λ R[ (★ ℓ) `→ (★ ℓ) ]           -- y 
- (`Λ R[ (★ ℓ) `→ (★ ℓ) ]           -- z
+  `Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- y (TVar)
+ (`Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- z (TVar)
  (`ƛ ((tvar (S Z) ≲ tvar Z)) 
- (`λ ((Π (⌈ Functor ⌉· tvar (S Z)))) -- d 
+ (`λ ((Π (⌈ Functor ⌉· tvar (S Z))))                 -- d (Var)
    (recΣ 
-   (`Λ R[ ★ ℓ `→ ★ ℓ ]             -- w
-   (`Λ R[ ★ ℓ `→ ★ ℓ ]             -- y
-   (`ƛ ({!!} · (tvar Z) ~ (tvar (S Z))) 
-   {!!})))))))
+   (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- w  (TVar)
+   (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- y' (TVar)
+   (`ƛ (tvar (Types.S³ Z) · (tvar Z) ~ (tvar (S Z))) 
+   (`λ ((Σ (K² (tvar (S Z))) ·[ μΣ (tvar (S Z)) ])) -- v (Var)
+   (`λ ((μΣ (tvar (S Z)) `→ K² (μΣ (tvar Z))))     -- r (Var)
+       (In (t-≡ 
+         (inj {! !} {!!}) 
+         (teq-sym teq-lift₃))))))))))))

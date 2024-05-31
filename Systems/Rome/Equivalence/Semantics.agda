@@ -44,6 +44,7 @@ open import Rome.GVars.Kinds
 ⟦ teq-sing t t₁ ⟧eq H rewrite ⟦ t₁ ⟧eq H = refl
 ⟦ teq-lift₁ ⟧eq H = cong (λ f → 1 , f) (extensionality {ℓ = lzero} (λ { fzero → refl ; (fsuc ()) }))
 ⟦ teq-lift₂ ⟧eq H = cong (λ f → 1 , f) (extensionality {ℓ = lzero} (λ { fzero → refl ; (fsuc ()) }))
+⟦ teq-lift₃ ⟧eq H = refl
 ⟦ teq-⌊⌋ t ⟧eq H = refl
 ⟦ teq-Π t ⟧eq H rewrite ⟦ t ⟧eq H = refl
 ⟦ teq-Σ t ⟧eq H rewrite ⟦ t ⟧eq H = refl

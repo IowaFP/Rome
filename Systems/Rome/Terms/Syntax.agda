@@ -5,6 +5,7 @@ open import Preludes.Level
 
 open import Rome.Kinds
 open import Rome.Types
+import Rome.Types as Types
 open import Rome.Types.Substitution
 open import Rome.Equivalence.Syntax
 open import Rome.Entailment.Syntax
@@ -15,12 +16,13 @@ open import Rome.GVars.Kinds
 
 data Env : KEnv ℓ → Level → Set where
   ε : Env Δ lzero
-  _,_ : Env Δ ℓΓ → Type Δ (★ ℓ) → Env Δ (ℓΓ ⊔ ℓ)
+  _،_ : Env Δ ℓΓ → Type Δ (★ ℓ) → Env Δ (ℓΓ ⊔ ℓ)
 
+infixl 5 _،_
 -- Weakening of the kinding env.
 weakΓ : Env Δ ℓΓ → Env (Δ ، κ) ℓΓ
 weakΓ ε = ε
-weakΓ (Γ , τ) = weakΓ Γ , rename S τ
+weakΓ (Γ ، τ) = weakΓ Γ ، rename S τ
 
 private
   variable
@@ -31,10 +33,29 @@ private
 
 data Var : Env Δ ℓΓ → Type Δ κ → Set where
   Z : ∀ {Γ : Env Δ ℓΓ} {τ : Type Δ (★ ℓ)} → 
-      Var (Γ , τ) τ
+      Var (Γ ، τ) τ
   S : ∀ {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} {υ : Type Δ (★ ι)} →
-         Var Γ υ → Var (Γ , τ) υ        
+         Var Γ υ → Var (Γ ، τ) υ        
+private
+  variable
+    τ : Type Δ (★ ℓ)
+    τ₁ : Type Δ (★ ℓ)
+    τ₂ : Type Δ (★ ℓ)
+    τ₃ : Type Δ (★ ℓ)
+    τ₄ : Type Δ (★ ℓ)
+    τ₅ : Type Δ (★ ℓ)
+
+S² : Var Γ τ → Var (Γ ، τ₁ ، τ₂) τ
+S³ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃) τ
+S⁴ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃ ، τ₄) τ
+S⁵ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃ ، τ₄ ، τ₅) τ
+
+S² x = S (S x) 
+S³ x = S (S² x)
+S⁴ x = S (S³ x)
+S⁵ x = S (S⁴ x)
+
 
 --------------------------------------------------------------------------------
 -- Synonyms, used later.
@@ -101,7 +122,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
   `λ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ} {υ : Type Δ (★ ℓ₁)}
 
-           (τ : Type Δ (★ ℓ₂)) → Term Δ Φ (Γ , τ) υ →
+           (τ : Type Δ (★ ℓ₂)) → Term Δ Φ (Γ ، τ) υ →
            -------------------------------------
            Term Δ Φ Γ (τ `→ υ)
 
