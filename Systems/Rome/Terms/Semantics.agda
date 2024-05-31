@@ -1,9 +1,10 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --allow-unsolved-metas --guardedness --copatterns #-}
 module Rome.Terms.Semantics where
-
+ 
 open import Preludes.Level
 open import Prelude
-
+ 
+open import Preludes.Partiality
 open import Shared.Lib.Equality
 
 open import Rome.Kinds
@@ -35,7 +36,7 @@ private
 
 ⟦_⟧e : Env Δ ℓΓ → ⟦ Δ ⟧ke → Set ℓΓ
 ⟦ ε ⟧e H = ⊤
-⟦ Γ , τ ⟧e H = ⟦ Γ ⟧e H × ⟦ τ ⟧t H
+⟦ Γ ، τ ⟧e H = ⟦ Γ ⟧e H × ⟦ τ ⟧t H
 
 --------------------------------------------------------------------------------
 -- The meaning of variables.
@@ -54,7 +55,7 @@ weaken⟦_⟧e : ∀ {ℓΔ ℓΓ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
              (X : ⟦ κ ⟧k) →
                ⟦ weakΓ Γ ⟧e (H , X)
 weaken⟦ ε ⟧e H ⟦Γ⟧ X = tt
-weaken⟦_⟧e {Δ = Δ} {κ = κ} (_,_ Γ τ) H (⟦Γ⟧ , ⟦τ⟧) X
+weaken⟦_⟧e {Δ = Δ} {κ = κ}  (Γ ، τ) H (⟦Γ⟧ , ⟦τ⟧) X
   rewrite τ-preservation Δ (Δ ، κ) H (H , X) S (λ _ → refl) τ = weaken⟦ Γ ⟧e H ⟦Γ⟧ X , ⟦τ⟧
 
 weaken⟦_⟧pe : ∀ {ℓΔ ℓΦ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
@@ -70,6 +71,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 -- open _↔_
 -- open _≃_
+
 
 ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} →
@@ -146,6 +148,27 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             ≡
             Ix._·_~_ (sing τ) y (⟦ K³ ρ ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
-⟦ In F ⟧ H φ η      = {!!}
-⟦ recΣ d ⟧ H φ η    = {!!}
+⟦ In F ⟧ H φ η      = In (⟦ F ⟧ H φ η)
+⟦ recΣ f ⟧ H φ η    = {!⟦ f ⟧ H φ η!}
 ⟦ ▿μ d d₁ x ⟧ H φ η = {!!}
+
+--------------------------------------------------------------------------------
+--
+module Partial (Pℓ : Level) where
+
+  open RawMonad {Pℓ} monad public
+
+  ⟦_⟧⊥ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
+         {τ : Type Δ (★ Pℓ)} →
+          Term Δ Φ Γ τ →
+          (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → _⊥ (⟦ τ ⟧t H)
+  ⟦ In F ⟧⊥ H φ η      = return (In (⟦ F ⟧ H φ η))
+  ⟦ recΣ {ρ = ρ} f ⟧⊥ H φ η    = do
+    let ⟦f⟧ = ⟦ f ⟧ H φ η
+    let rc = later (♯ (⟦ recΣ f ⟧⊥ H φ η))
+    r ← rc
+    -- (λ { (In e) → {!⟦f⟧ e rc  !} })
+    now (λ { (In e) → {!⟦f⟧ e rc!} })
+  ⟦ ▿μ d d₁ x ⟧⊥ H φ η = {!!}
+  ⟦ c ⟧⊥ H φ η = return (⟦ c ⟧ H φ η)
+  
