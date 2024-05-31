@@ -28,6 +28,6 @@ lthree = lsuc ltwo
 
 data KEnv : Level → Set where
   ε    : KEnv lzero
-  _,_  : KEnv ℓ₁ → Kind ℓ₂ → KEnv (ℓ₁ ⊔ ℓ₂)
+  _،_  : KEnv ℓ₁ → Kind ℓ₂ → KEnv (ℓ₁ ⊔ ℓ₂)
 
-infixl 5 _,_
+infixl 5 _،_

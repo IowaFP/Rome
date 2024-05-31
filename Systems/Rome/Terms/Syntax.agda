@@ -18,7 +18,7 @@ data Env : KEnv ℓ → Level → Set where
   _,_ : Env Δ ℓΓ → Type Δ (★ ℓ) → Env Δ (ℓΓ ⊔ ℓ)
 
 -- Weakening of the kinding env.
-weakΓ : Env Δ ℓΓ → Env (Δ , κ) ℓΓ
+weakΓ : Env Δ ℓΓ → Env (Δ ، κ) ℓΓ
 weakΓ ε = ε
 weakΓ (Γ , τ) = weakΓ Γ , rename S τ
 
@@ -113,15 +113,15 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
           Term Δ Φ Γ υ
 
   `Λ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
-         (κ : Kind ℓκ) {τ : Type (Δ , κ) (★ ℓ)} →
+         (κ : Kind ℓκ) {τ : Type (Δ ، κ) (★ ℓ)} →
 
-         Term (Δ , κ) (weakΦ Φ) (weakΓ Γ) τ →
+         Term (Δ ، κ) (weakΦ Φ) (weakΓ Γ) τ →
          ----------------------------------------------------
          Term Δ Φ Γ (`∀ κ τ)
 
 
   _·[_] : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
-            {κ : Kind ℓκ} {τ : Type (Δ , κ) (★ ℓ)} →
+            {κ : Kind ℓκ} {τ : Type (Δ ، κ) (★ ℓ)} →
 
             Term Δ Φ Γ (`∀ κ τ) → (υ : Type Δ κ) →
             ----------------------------------

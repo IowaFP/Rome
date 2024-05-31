@@ -25,4 +25,4 @@ open import Rome.Kinds.Syntax
 
 ⟦_⟧ke : KEnv ℓ → Set (lsuc ℓ)
 ⟦ ε ⟧ke = ⊤
-⟦ Δ , κ ⟧ke =  ⟦ Δ ⟧ke × ⟦ κ ⟧k
+⟦ Δ ، κ ⟧ke =  ⟦ Δ ⟧ke × ⟦ κ ⟧k

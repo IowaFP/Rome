@@ -36,14 +36,14 @@ Context Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → Type
 
 ext : ∀ {ℓ₁ ℓ₂ ℓ₃} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} {ι : Kind ℓ₃} →
          Δ-map Δ₁ Δ₂ →
-         Δ-map (Δ₁ , ι) (Δ₂ , ι)
+         Δ-map (Δ₁ ، ι) (Δ₂ ، ι)
 ext ρ Z = Z
 ext ρ (S x) = S (ρ x)
 
 --------------------------------------------------------------------------------
 -- Renaming.
 --
--- Renaming is a necessary prelude to substitution, enabling us to “rebase” a
+-- Renaming is a necessary prelude to substitution، enabling us to “rebase” a
 -- type from one Context to another.
 
 rename : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
@@ -78,7 +78,7 @@ renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ r
 -- Weakening (of a typing derivation.)
 
 weaken : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-           τ-map Δ (Δ , κ)
+           τ-map Δ (Δ ، κ)
 weaken = rename S
 
 --------------------------------------------------------------------------------
@@ -86,15 +86,15 @@ weaken = rename S
 K = weaken
 K¹ = weaken
 K² : ∀ {ℓΔ ℓ₁ ℓ₂} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
-           τ-map Δ ((Δ , κ₁) , κ₂)
+           τ-map Δ (Δ ، κ₁ ، κ₂)
 K² = λ x → weaken (weaken x)
 
 K³ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} →
-           τ-map Δ (((Δ , κ₁) , κ₂) , κ₃)
+           τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃)
 K³ = λ x → K¹ (K² x)
 
 K⁴ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃ ℓ₄} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} {κ₄ : Kind ℓ₄} →
-           τ-map Δ ((((Δ , κ₁) , κ₂) , κ₃) , κ₄)
+           τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄)
 K⁴ = λ x → K² (K² x)
            
 --------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
          {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
          {ι : Kind ℓ₃} →
          Context Δ₁ Δ₂ →
-         Context (Δ₁ , ι) (Δ₂ , ι) 
+         Context (Δ₁ ، ι) (Δ₂ ، ι) 
 exts θ Z = tvar Z
 exts θ (S x) = rename S (θ x)
 
@@ -152,11 +152,11 @@ substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subs
 
 -- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
 Z↦ : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-        Type Δ κ → Context (Δ , κ) Δ
+        Type Δ κ → Context (Δ ، κ) Δ
 Z↦ τ Z = τ
 Z↦ τ (S x) = tvar x
 
 -- Regular ol' substitution.
 _β[_] : ∀ {ℓΔ ℓκ ℓι} {Δ : KEnv ℓΔ} {κ : Kind ℓκ}{ι : Kind ℓι}
-         → Type (Δ , ι) κ → Type Δ ι → Type Δ κ
+         → Type (Δ ، ι) κ → Type Δ ι → Type Δ κ
 τ β[ υ ] = subst (Z↦ υ) τ

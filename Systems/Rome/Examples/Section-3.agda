@@ -142,7 +142,7 @@ Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
 Tru = lab "True"
 Fls = lab "False"
 
-BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ , R[ ★ ℓ ]) (★ ℓ)
+BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
 BoolP = (Tru R▹ ∅) · Fls R▹ ∅ ~ tvar Z
 
 Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →

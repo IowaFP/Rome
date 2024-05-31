@@ -21,7 +21,7 @@ data PEnv : KEnv ℓ → Level → Set where
         PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
 
 
-weakΦ : PEnv Δ ℓΦ → PEnv (Δ , κ) ℓΦ
+weakΦ : PEnv Δ ℓΦ → PEnv (Δ ، κ) ℓΦ
 weakΦ ε = ε
 weakΦ (Φ , π) = weakΦ Φ , renamePred S π
 

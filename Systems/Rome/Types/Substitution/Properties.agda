@@ -65,7 +65,7 @@ ext-pres : ∀ {ℓ₁ ℓ₂ ℓ₃}
            {κ : Kind ℓ₃} →
            (f : Δ-map Δ₁ Δ₂) →
            (Δ-pres : Δ-map-preservation Δ₁ Δ₂ H₁ H₂ f) →
-           ∀ (X : ⟦ κ ⟧k) → Δ-map-preservation (Δ₁ , κ) (Δ₂ , κ) (H₁ , X) (H₂ , X) (ext f)
+           ∀ (X : ⟦ κ ⟧k) → Δ-map-preservation (Δ₁ ، κ) (Δ₂ ، κ) (H₁ , X) (H₂ , X) (ext f)
 
 ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X Z = refl
 ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
@@ -99,7 +99,7 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ rename (ext f) τ ⟧t (H₂ , x)
       τ-pres x = τ-preservation
-                 (Δ₁ , κ) (Δ₂ , κ)
+                 (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (ext f)
                  (ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres x)
@@ -108,7 +108,7 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ rename (ext f) τ ⟧t (H₂ , x)
       τ-pres x = τ-preservation
-                 (Δ₁ , κ) (Δ₂ , κ)
+                 (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (ext f)
                  (ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres x)
@@ -165,10 +165,10 @@ exts-pres : ∀ {ℓ₁ ℓ₂ ℓ₃}
            {κ : Kind ℓ₃} →
            (f : Context Δ₁ Δ₂) →
            (Δ-pres : Context-preservation Δ₁ Δ₂ H₁ H₂ f) →
-           ∀ (X : ⟦ κ ⟧k) → Context-preservation (Δ₁ , κ) (Δ₂ , κ) (H₁ , X) (H₂ , X) (exts f)
+           ∀ (X : ⟦ κ ⟧k) → Context-preservation (Δ₁ ، κ) (Δ₂ ، κ) (H₁ , X) (H₂ , X) (exts f)
 exts-pres Δ₁ Δ₂ H₁ H₂ f σ-pres X Z = refl
 exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
-  rewrite sym (τ-preservation Δ₂ (Δ₂ , κ) H₂ (H₂ , X)  S (λ _ → refl) (f c))
+  rewrite sym (τ-preservation Δ₂ (Δ₂ ، κ) H₂ (H₂ , X)  S (λ _ → refl) (f c))
   |       sym (σ-pres c) = refl
 
 --------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ subst (exts f) τ ⟧t (H₂ , x)
       τ-pres x = σ/τ-preservation
-                 (Δ₁ , κ) (Δ₂ , κ)
+                 (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (exts f)
                  (exts-pres Δ₁ Δ₂ H₁ H₂ f σ-pres x)
@@ -207,7 +207,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ subst (exts f) τ ⟧t (H₂ , x)
       τ-pres x = σ/τ-preservation
-                 (Δ₁ , κ) (Δ₂ , κ)
+                 (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (exts f)
                  (exts-pres Δ₁ Δ₂ H₁ H₂ f σ-pres x)
@@ -258,12 +258,12 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 -- Substitution Lemma.
 
 Substitution : ∀ {ℓΔ ℓκ ℓκ'} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {κ' : Kind ℓκ'}
-               (τ : Type (Δ , κ') κ) (υ : Type Δ κ') H →
+               (τ : Type (Δ ، κ') κ) (υ : Type Δ κ') H →
                ⟦ τ ⟧t (H , ⟦ υ ⟧t H) ≡ ⟦ subst (Z↦ υ) τ ⟧t H
 Substitution {ℓΔ} {ℓκ} {ℓκ'} {Δ = Δ} {κ' = κ'} τ υ H = σ/τ-preservation
-  (Δ , κ') Δ ((H , ⟦ υ ⟧t H)) H (Z↦ υ) ctx-pres τ
+  (Δ ، κ') Δ ((H , ⟦ υ ⟧t H)) H (Z↦ υ) ctx-pres τ
     where
-      ctx-pres : Context-preservation (Δ , κ') Δ (H , ⟦ υ ⟧t H) H (Z↦ υ)
+      ctx-pres : Context-preservation (Δ ، κ') Δ (H , ⟦ υ ⟧t H) H (Z↦ υ)
       ctx-pres Z = refl
       ctx-pres (S x) = refl
 
@@ -274,7 +274,7 @@ Weakening : ∀ {ℓΔ ℓκ ℓκ'} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {κ' : 
              (τ : Type Δ κ) (H : ⟦ Δ ⟧ke) (X : ⟦ κ' ⟧k)  →
              ⟦ τ ⟧t H ≡ ⟦ weaken τ ⟧t (H , X)
 Weakening {Δ = Δ} {κ' = κ'} τ H X = 
-  τ-preservation Δ (Δ , κ') H (H , X) S (λ _ → refl) τ
+  τ-preservation Δ (Δ ، κ') H (H , X) S (λ _ → refl) τ
 
 Weakening₂ : ∀ {ℓΔ ℓκ ℓκA ℓκB} {Δ : KEnv ℓΔ}
                {κ : Kind ℓκ} {κA : Kind ℓκA} {κB : Kind ℓκB} →
