@@ -126,5 +126,5 @@ _delete_ {ℓ} {A} (suc n , f) i = n , (λ j → f (punchIn i j))
 lift₁ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → Row {ℓ ⊔ ι} (A → B) → A → Row {ι} B
 lift₁ {A = A} {B = B} (n , P) a = (n , (λ m → P m a))
 
-lift₂ : ∀ {ℓ} {A B : Set ℓ} → (A → B) → Row {ℓ} A → Row {ℓ} B
+lift₂ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → (A → B) → Row {ℓ₁} A → Row {ℓ₂} B
 lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))

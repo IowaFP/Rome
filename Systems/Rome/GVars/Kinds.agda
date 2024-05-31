@@ -9,7 +9,7 @@ open import Rome.Kinds.Syntax
 
 variable
   ℓ ℓ₁ ℓ₂ ℓ₃ ι : Level
-  ℓΔ ℓL ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+  ℓΔ ℓL ℓΓ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ ℓκ₄ ℓκ₅ : Level
   -- The types below "depend" on levels above.
   -- In practice, Agda does not respect this dependency.
   -- E.g., if you use κ below, then κ will have type "Kind κ.ℓκ".
@@ -20,4 +20,6 @@ variable
   κ₁ : Kind ℓκ₁
   κ₂ : Kind ℓκ₂
   κ₃ : Kind ℓκ₃
+  κ₄ : Kind ℓκ₄
+  κ₅ : Kind ℓκ₅
   Δ : KEnv ℓΔ

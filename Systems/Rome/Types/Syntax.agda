@@ -53,6 +53,16 @@ data TVar : KEnv ℓ → Kind ι → Set where
   Z : TVar (Δ , κ) κ
   S : TVar Δ κ₁ → TVar (Δ , κ₂) κ₁
 
+S² : TVar Δ κ → TVar (Δ , κ₁ , κ₂) κ
+S³ : TVar Δ κ → TVar (Δ , κ₁ , κ₂ , κ₃) κ
+S⁴ : TVar Δ κ → TVar (Δ , κ₁ , κ₂ , κ₃ , κ₄) κ
+S⁵ : TVar Δ κ → TVar (Δ , κ₁ , κ₂ , κ₃ , κ₄ , κ₅) κ
+
+S² x = S (S x) 
+S³ x = S (S² x)
+S⁴ x = S (S³ x)
+S⁵ x = S (S⁴ x)
+
 --------------------------------------------------------------------------------
 -- Types.
 
@@ -143,10 +153,10 @@ data Type where
           Type Δ R[ κ₂ ]
 
   -- lift₂ (lifting a function to row kind.)
-  ⌈_⌉·_ : ∀ {κ κ' : Kind ℓκ} →
-          Type Δ (κ `→ κ') → Type Δ R[ κ ] →
+  ⌈_⌉·_ : ∀ {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
+          Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] →
           --------------------------------
-          Type Δ R[ κ' ]
+          Type Δ R[ κ₂ ]
 
   ------------------------------------------------------------
   -- System Rωμ.
