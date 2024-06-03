@@ -154,21 +154,21 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 --------------------------------------------------------------------------------
 --
-module Partial (Pℓ : Level) where
+-- module Partial (Pℓ : Level) where
 
-  open RawMonad {Pℓ} monad public
+--   open RawMonad {Pℓ} monad public
 
-  ⟦_⟧⊥ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
-         {τ : Type Δ (★ Pℓ)} →
-          Term Δ Φ Γ τ →
-          (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → _⊥ (⟦ τ ⟧t H)
-  ⟦ In F ⟧⊥ H φ η      = return (In (⟦ F ⟧ H φ η))
-  ⟦ recΣ {ρ = ρ} f ⟧⊥ H φ η    = do
-    let ⟦f⟧ = ⟦ f ⟧ H φ η
-    let rc = later (♯ (⟦ recΣ f ⟧⊥ H φ η))
-    r ← rc
-    -- (λ { (In e) → {!⟦f⟧ e rc  !} })
-    now (λ { (In e) → {!⟦f⟧ e rc!} })
-  ⟦ ▿μ d d₁ x ⟧⊥ H φ η = {!!}
-  ⟦ c ⟧⊥ H φ η = return (⟦ c ⟧ H φ η)
+--   ⟦_⟧⊥ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
+--          {τ : Type Δ (★ Pℓ)} →
+--           Term Δ Φ Γ τ →
+--           (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → _⊥ (⟦ τ ⟧t H)
+--   ⟦ In F ⟧⊥ H φ η      = return (In (⟦ F ⟧ H φ η))
+--   ⟦ recΣ {ρ = ρ} f ⟧⊥ H φ η    = do
+--     let ⟦f⟧ = ⟦ f ⟧ H φ η
+--     let rc = later (♯ (⟦ recΣ f ⟧⊥ H φ η))
+--     r ← rc
+--     -- (λ { (In e) → {!⟦f⟧ e rc  !} })
+--     now (λ { (In e) → {!⟦f⟧ e rc!} })
+--   ⟦ ▿μ d d₁ x ⟧⊥ H φ η = {!!}
+--   ⟦ c ⟧⊥ H φ η = return (⟦ c ⟧ H φ η)
   

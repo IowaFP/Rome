@@ -34,18 +34,24 @@ Label = String
 --   - KEnv references Pred
 
 data Type : KEnv ℓ → Kind ι →  Set
-data Pred (Δ : KEnv ℓ) (κ : Kind ι) : Set
+data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
 
-data Pred Δ κ where
-  _≲_ : (ρ₁ : Type Δ R[ κ ]) →
-        (ρ₂ : Type Δ R[ κ ]) →
-        Pred Δ κ
-
-  _·_~_ : (ρ₁ : Type Δ R[ κ ]) →
+data Pred Δ where
+  _≲_ : ∀ {κ : Kind ι} → 
+          (ρ₁ : Type Δ R[ κ ]) →
           (ρ₂ : Type Δ R[ κ ]) →
-          (ρ₃ : Type Δ R[ κ ]) →
           Pred Δ κ
 
+  _·_~_ : ∀ {κ : Kind ι} → 
+            (ρ₁ : Type Δ R[ κ ]) →
+            (ρ₂ : Type Δ R[ κ ]) →
+            (ρ₃ : Type Δ R[ κ ]) →
+            Pred Δ κ
+
+  Positive : (τ : Type Δ (★ ℓ `→ ★ ℓ)) → 
+             Pred Δ (★ ℓ `→ ★ ℓ)
+  PositiveR : (τ : Type Δ R[ (★ ℓ `→ ★ ℓ) ]) → 
+             Pred Δ (R[ (★ ℓ `→ ★ ℓ) ])
 
 --------------------------------------------------------------------------------
 -- Type vars.
@@ -161,7 +167,7 @@ data Type where
   ------------------------------------------------------------
   -- System Rωμ.
   μ : ∀ {ℓ} →
-      (τ : Type Δ ((★ ℓ) `→ (★ ℓ) )) →
+      (τ : Type Δ ((★ ℓ) `→ (★ ℓ) )) → -- Ent Δ (Positive τ) →
       --------------------------------
       Type Δ (★ ℓ)
 
