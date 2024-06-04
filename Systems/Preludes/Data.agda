@@ -19,3 +19,8 @@ open import Data.Fin
   public
 open import Data.Unit.Polymorphic using (⊤ ; tt) public
 
+--------------------------------------------------------------------------------
+--
+
+Potatoes = ℕ
+
