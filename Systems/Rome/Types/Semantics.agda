@@ -61,7 +61,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ⌈ τ ⌉· ρ ⟧t H n = Ix.lift₂ (⟦ τ ⟧t H n) (⟦ ρ ⟧t H n)
 ⟦ π ⇒ τ ⟧t H n = ⟦ π ⟧p H n → ⟦ τ ⟧t H n
 ⟦ ε ⟧t H n = Ix.emptyRow
-⟦ μ {ℓ = ℓ} F ⟧t H n = Ix.mu (⟦ F ⟧t H n) n
+⟦ μ F ⟧t H n = Ix.mu (⟦ F ⟧t H n) n
 
 
 --------------------------------------------------------------------------------
