@@ -48,11 +48,6 @@ data Pred Δ where
             (ρ₃ : Type Δ R[ κ ]) →
             Pred Δ κ
 
-  Positive : (τ : Type Δ (★ ℓ `→ ★ ℓ)) → 
-             Pred Δ (★ ℓ `→ ★ ℓ)
-  PositiveR : (τ : Type Δ R[ (★ ℓ `→ ★ ℓ) ]) → 
-             Pred Δ (R[ (★ ℓ `→ ★ ℓ) ])
-
 --------------------------------------------------------------------------------
 -- Type vars.
 data TVar : KEnv ℓ → Kind ι → Set where
@@ -167,32 +162,6 @@ data Type where
   ------------------------------------------------------------
   -- System Rωμ.
   μ : ∀ {ℓ} →
-      (τ : Type Δ ((★ ℓ) `→ (★ ℓ) )) → -- Ent Δ (Positive τ) →
+      (τ : Type Δ ((★ ℓ) `→ (★ ℓ) )) →
       --------------------------------
       Type Δ (★ ℓ)
-
---------------------------------------------------------------------------------
--- Positivity check.
-
--- data Polarity : Set where
---   ⁺ : Polarity
---   ⁻ : Polarity
-
--- -- data _∈ₚ_ : TVar Δ (★ ℓ) → Polarity → Type Δ κ → Set
--- -- _∈⁺_ : TVar Δ (★ ℓ) → Type Δ κ → Set
--- -- _∈⁻_ : TVar Δ (★ ℓ) → Type Δ κ → Set
-
--- -- v ∈⁺ τ = (v ∈ₚ ⁺) τ
--- -- v ∈⁻ τ = (v ∈ₚ ⁻) τ
-
--- -- data _∈ₚ_ where
--- --   tvar : (v : TVar Δ κ) → v ∈⁺ (tvar v)
-
-
--- -- polarity : Type Δ ((★ ℓ) `→ (★ ℓ)) → Polarity
--- -- polarity (tvar x) = {!!}
--- -- polarity (`λ .(★ _) τ) = {!!}
--- -- polarity (τ ·[ υ ]) = {!!}
--- -- polarity (ℓ ▹ τ) = {!!}
--- -- polarity (Π ρ) = {!!}
--- -- polarity (Σ ρ) = {!!}

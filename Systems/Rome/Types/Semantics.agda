@@ -21,8 +21,6 @@ import IndexCalculus as Ix
 ⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
 ⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
-⟦ Positive τ ⟧p H = Ix.PolyFunctor
-⟦ PositiveR τ ⟧p H = Row Ix.PolyFunctor
 
 --------------------------------------------------------------------------------
 -- The meaning of type vars.
@@ -61,7 +59,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
 ⟦ ε ⟧t H = Ix.emptyRow
-⟦ μ {ℓ = ℓ} F ⟧t H = {!!}
+⟦ μ {ℓ = ℓ} F ⟧t H = Σ[ n ∈ ℕ ] (Ix.mu (⟦ F ⟧t H) n)
 
 
 --------------------------------------------------------------------------------

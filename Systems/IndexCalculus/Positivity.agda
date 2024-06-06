@@ -5,11 +5,6 @@ open import Preludes.Level
 open import Preludes.Data
 open import IndexCalculus.Rows
 open import IndexCalculus.Variants
--- open import Preludes.Partiality
 
 --------------------------------------------------------------------------------
 -- Denoting recursive types.
-
-mu : ∀ {ℓ} (F : Set ℓ → Set ℓ) → ℕ → Set ℓ
-mu F ℕ.zero = ⊤
-mu F (ℕ.suc n) = F (mu F n)
