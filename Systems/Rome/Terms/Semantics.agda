@@ -149,10 +149,11 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             Ix._·_~_ (sing τ) y (⟦ K³ ρ ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
 ⟦ In M ⟧ H φ η = In (⟦ M ⟧ H φ η)
-⟦ recΣ {ρ = ρ} {τ = τ} f ⟧ H φ η (In (n , P)) 
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η Q with
+  ⟦ f ⟧ H φ η | ⟦ recΣ f ⟧ H φ η 
+... | ⟦f⟧ | rc 
   rewrite Weakening₂ τ H (⟦ ρ ⟧t H) ((⟦ ρ ⟧t H)) = 
-  ⟦ f ⟧ H φ η (⟦ ρ ⟧t H) (⟦ ρ ⟧t H) {!!} (≡-elim (cong fst (cong Fin {!(Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ρ ⟧t H))!}) ) n  , {!!}) {!!}     
-  
+  ⟦f⟧ (⟦ ρ ⟧t H) ((⟦ ρ ⟧t H)) {!!} {!!} rc 
 ⟦ ▿μ d d₁ x ⟧ H φ η = {!!}
 
 --------------------------------------------------------------------------------

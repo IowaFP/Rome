@@ -11,7 +11,7 @@ open import IndexCalculus.Variants
 -- Denoting recursive types.
 
 {-# NO_POSITIVITY_CHECK #-}
-data Mu {ℓ} (F : Set ℓ → Set ℓ)  : Set ℓ where
+data Mu {ℓ} (F : Set ℓ → Set ℓ) : Set ℓ where
   In : F (Mu F) → Mu F
 
 out : ∀ {ℓ} {F : Set ℓ → Set ℓ} → Mu F → F (Mu F)
