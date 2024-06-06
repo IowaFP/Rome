@@ -16,14 +16,14 @@ open import IndexCalculus.Variants
 -- mu F (ℕ.suc n) = F (mu F n)
 
 
-data Mu {ℓ} (i : Size) (F : Set ℓ → Set ℓ)    : Set ℓ
+-- data Mu {ℓ} (i : Size) (F : Set ℓ → Set ℓ)    : Set ℓ
 record ∞Mu {ℓ} (i : Size) (F : Set ℓ → Set ℓ) : Set ℓ
 
-data Mu {ℓ} i F where
-  In : F (∞Mu i F) → Mu i F
+-- data Mu {ℓ} i F where
+--   In : F (∞Mu i F) → Mu i F
 
 record ∞Mu {ℓ} i F where
   coinductive
   field
-    force : {j : Size< i} → Mu j F
+    force : {j : Size< i} → F (∞Mu j F)
 
