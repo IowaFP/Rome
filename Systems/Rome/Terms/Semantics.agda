@@ -148,7 +148,8 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             ≡
             Ix._·_~_ (sing τ) y (⟦ K³ ρ ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
-⟦ In F ⟧ H φ η      = In (⟦ F ⟧ H φ η)
+⟦ In M ⟧ H φ η      with ⟦ M ⟧ H φ η
+... | c = {!!}
 ⟦ recΣ f ⟧ H φ η    = {!⟦ f ⟧ H φ η!}
 ⟦ ▿μ d d₁ x ⟧ H φ η = {!!}
 
