@@ -267,15 +267,15 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f n σ-pres X (S c)
 -- --------------------------------------------------------------------------------
 -- -- Substitution Lemma.
 
-Substitution : ∀ {ℓΔ ℓκ ℓκ'} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {κ' : Kind ℓκ'}
-               (τ : Type (Δ ، κ') κ) (υ : Type Δ κ') (H : _) (n : Potatoes) →
-               ⟦ τ ⟧t (H , ⟦ υ ⟧t H n) n ≡ ⟦ subst (Z↦ υ) τ ⟧t H n
-Substitution {ℓΔ} {ℓκ} {ℓκ'} {Δ = Δ} {κ' = κ'} τ υ H n = 
-  σ/τ-preservation (Δ ، κ') Δ ((H , ⟦ υ ⟧t H n)) H (Z↦ υ) n ctx-pres τ
-    where
-      ctx-pres : Context-preservation (Δ ، κ') Δ (H , ⟦ υ ⟧t H n) H  (Z↦ υ) n
-      ctx-pres Z  = refl -- refl
-      ctx-pres (S x) = refl -- refl
+-- Substitution : ∀ {ℓΔ ℓκ ℓκ'} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {κ' : Kind ℓκ'}
+--                (τ : Type (Δ ، κ') κ) (υ : Type Δ κ') (H : _) (n : Potatoes) →
+--                ⟦ τ ⟧t (H , ⟦ υ ⟧t H n) n ≡ ⟦ subst (Z↦ υ) τ ⟧t H n
+-- Substitution {ℓΔ} {ℓκ} {ℓκ'} {Δ = Δ} {κ' = κ'} τ υ H n = 
+--   σ/τ-preservation (Δ ، κ') Δ ((H , ⟦ υ ⟧t H n)) H (Z↦ υ) n ctx-pres τ
+--     where
+--       ctx-pres : Context-preservation (Δ ، κ') Δ (H , ⟦ υ ⟧t H n) n H (Z↦ υ)
+--       ctx-pres Z  = {!!} -- refl
+--       ctx-pres (S x) = {!!} -- refl
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening of typing judgments preserves meaning.
