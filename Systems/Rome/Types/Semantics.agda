@@ -15,11 +15,14 @@ import IndexCalculus as Ix
 --------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
 
-⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → Potatoes → ⟦ κ ⟧k
 
-⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Potatoes → Set (lsuc ℓκ)
-⟦ ρ₁ ≲ ρ₂ ⟧p H n      = ⟦ ρ₁ ⟧t H n Ix.≲ ⟦ ρ₂ ⟧t H n
-⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H n = Ix._·_~_ (⟦ ρ₁ ⟧t H n) (⟦ ρ₂ ⟧t H n) (⟦ ρ₃ ⟧t H n)
+⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+
+⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
+⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
+⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
+⟦ Positive τ ⟧p H = Ix.PolyFunctor
+⟦ PositiveR τ ⟧p H = Row Ix.PolyFunctor
 
 --------------------------------------------------------------------------------
 -- The meaning of type vars.
@@ -43,25 +46,22 @@ buildΠ (κ₁ `→ κ₂) (n , f) = λ X → buildΠ κ₂ (n , λ i → f i X)
 buildΠ (L _) ⟦ρ⟧ = tt
 buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 
---------------------------------------------------------------------------------
---
-
-⟦ lab l ⟧t       H n = tt
-⟦ tvar v ⟧t      H n = ⟦ v ⟧tv H
-⟦ (t₁ `→ t₂) ⟧t H n = ⟦ t₁ ⟧t H n → ⟦ t₂ ⟧t H n
-⟦ `∀ κ v ⟧t      H n = (s : ⟦ κ ⟧k) → ⟦ v ⟧t  (H , s) n
-⟦ t₁ ·[ t₂ ] ⟧t  H n = (⟦ t₁ ⟧t H n) (⟦ t₂ ⟧t H n)
-⟦ `λ κ v ⟧t     H n =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s) n
-⟦ _ ▹ v ⟧t       H n = ⟦ v ⟧t H n
-⟦ _ R▹ τ ⟧t H n = Ix.sing (⟦ τ ⟧t H n)
-⟦ ⌊ τ ⌋ ⟧t H n      = ⊤
-⟦ Π {κ = κ} ρ ⟧t H n = buildΠ κ (⟦ ρ ⟧t H n)
-⟦ Σ {κ = κ} ρ ⟧t H n = buildΣ κ (⟦ ρ ⟧t H n)
-⟦ ρ ·⌈ τ ⌉ ⟧t H n = Ix.lift₁ (⟦ ρ ⟧t H n) (⟦ τ ⟧t H n)
-⟦ ⌈ τ ⌉· ρ ⟧t H n = Ix.lift₂ (⟦ τ ⟧t H n) (⟦ ρ ⟧t H n)
-⟦ π ⇒ τ ⟧t H n = ⟦ π ⟧p H n → ⟦ τ ⟧t H n
-⟦ ε ⟧t H n = Ix.emptyRow
-⟦ μ {ℓ = ℓ} F ⟧t H n = Ix.mu (⟦ F ⟧t H n) n
+⟦ lab l ⟧t       H = tt
+⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
+⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H
+⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → ⟦ v ⟧t  (H , s)
+⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
+⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
+⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
+⟦ _ R▹ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
+⟦ ⌊ τ ⌋ ⟧t H       = ⊤
+⟦ Π {κ = κ} ρ ⟧t H = buildΠ κ (⟦ ρ ⟧t H)
+⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
+⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
+⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
+⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
+⟦ ε ⟧t H = Ix.emptyRow
+⟦ μ {ℓ = ℓ} F ⟧t H = {!!}
 
 
 --------------------------------------------------------------------------------
