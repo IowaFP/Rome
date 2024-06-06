@@ -1,6 +1,7 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --allow-unsolved-metas  --sized-types #-}
 module IndexCalculus.Recursion where
 
+open import Agda.Builtin.Size
 open import Preludes.Level
 open import Preludes.Data
 open import IndexCalculus.Rows
@@ -10,6 +11,6 @@ open import IndexCalculus.Variants
 --------------------------------------------------------------------------------
 -- Denoting recursive types.
 
-mu : ∀ {ℓ} (F : Set ℓ → Set ℓ) → ℕ → Set ℓ
-mu F ℕ.zero = ⊤
-mu F (ℕ.suc n) = F (mu F n)
+{-# NO_POSITIVITY_CHECK #-}
+data Mu {ℓ} (F : Set ℓ → Set ℓ)  : Set ℓ where
+  In : F (Mu F) → Mu F

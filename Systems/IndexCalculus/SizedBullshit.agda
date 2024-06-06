@@ -1,0 +1,29 @@
+{-# OPTIONS --allow-unsolved-metas  --sized-types #-}
+module IndexCalculus.SizedBullshit where
+
+open import Agda.Builtin.Size
+open import Preludes.Level
+open import Preludes.Data
+open import IndexCalculus.Rows
+open import IndexCalculus.Variants
+-- open import Preludes.Partiality
+
+--------------------------------------------------------------------------------
+-- Denoting recursive types.
+
+-- mu : ∀ {ℓ} (F : Set ℓ → Set ℓ) → ℕ → Set ℓ
+-- mu F ℕ.zero = ⊤
+-- mu F (ℕ.suc n) = F (mu F n)
+
+
+data Mu {ℓ} (i : Size) (F : Set ℓ → Set ℓ)    : Set ℓ
+record ∞Mu {ℓ} (i : Size) (F : Set ℓ → Set ℓ) : Set ℓ
+
+data Mu {ℓ} i F where
+  In : F (∞Mu i F) → Mu i F
+
+record ∞Mu {ℓ} i F where
+  coinductive
+  field
+    force : {j : Size< i} → Mu j F
+
