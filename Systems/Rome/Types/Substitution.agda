@@ -73,8 +73,6 @@ rename ρ (μ X) = μ (rename ρ X)
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
-renamePred ρ (Functor F) = Functor (rename ρ F)
-renamePred ρ (Functor-ρ F) = Functor-ρ (rename ρ F)
 
 --------------------------------------------------------------------------------
 -- Weakening (of a typing derivation.)
@@ -148,8 +146,6 @@ subst ρ (μ X) = μ (subst ρ X)
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
 substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃
-substPred θ (Functor F) = Functor (subst θ F)
-substPred θ (Functor-ρ F) = Functor-ρ (subst θ F)
 
 --------------------------------------------------------------------------------
 -- Single substitution.

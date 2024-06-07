@@ -154,10 +154,6 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
     rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₁
   |         τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₂
   |         τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₃ = refl
-π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Functor F)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl
-π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Functor-ρ F)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl
 
 
 --------------------------------------------------------------------------------
@@ -258,10 +254,6 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₃ = refl
-σ/π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Functor F)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl
-σ/π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Functor-ρ F)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl
 
 --------------------------------------------------------------------------------
 -- Substitution Lemma.
