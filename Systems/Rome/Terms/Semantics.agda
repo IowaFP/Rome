@@ -1,10 +1,9 @@
-{-# OPTIONS --allow-unsolved-metas --guardedness --copatterns #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms.Semantics where
  
 open import Preludes.Level
 open import Prelude
  
-open import Preludes.Partiality
 open import Shared.Lib.Equality
 
 open import Rome.Kinds

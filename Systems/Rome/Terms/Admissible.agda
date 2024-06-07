@@ -46,50 +46,50 @@ u = lab (lab "unit")
 --------------------------------------------------------------------------------
 -- Defining 
 
-Functor : Type Δ (((★ ℓ) `→ (★ ℓ)) `→ ★ (lsuc ℓ))
-Functor {ℓ = ℓ} = `λ ((★ ℓ) `→ (★ ℓ)) -- F
-                  (`∀ (★ ℓ)            -- t
-                  (`∀ (★ ℓ)            -- s
-                      ((t `→ s) `→ (F ·[ t ]) `→  F ·[ s ])))
-      where
-        F = tvar (S (S Z))
-        t = tvar (S Z)
-        s = tvar Z
+-- Functor : Type Δ (((★ ℓ) `→ (★ ℓ)) `→ ★ (lsuc ℓ))
+-- Functor {ℓ = ℓ} = `λ ((★ ℓ) `→ (★ ℓ)) -- F
+--                   (`∀ (★ ℓ)            -- t
+--                   (`∀ (★ ℓ)            -- s
+--                       ((t `→ s) `→ (F ·[ t ]) `→  F ·[ s ])))
+--       where
+--         F = tvar (S (S Z))
+--         t = tvar (S Z)
+--         s = tvar Z
 
-fmapΣ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → 
-        Term Δ Φ Γ (`∀ (R[ ★ ℓ `→ ★ ℓ ]) 
-          (Π (⌈ K Functor ⌉· tvar Z) `→ (K Functor) ·[ (Σ (tvar Z)) ]))
-fmapΣ {ℓ = ℓ} = `Λ ((R[ ★ ℓ `→ ★ ℓ ])) 
-                (`λ (Π (⌈ K Functor ⌉· tvar Z)) 
-                (t-≡ 
-                  (`Λ (★ ℓ) 
-                  (`Λ (★ ℓ) 
-                  (`λ {!!} 
-                  (`λ {!!} {!!})))) (teq-sym teq-β)))
+-- fmapΣ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → 
+--         Term Δ Φ Γ (`∀ (R[ ★ ℓ `→ ★ ℓ ]) 
+--           (Π (⌈ K Functor ⌉· tvar Z) `→ (K Functor) ·[ (Σ (tvar Z)) ]))
+-- fmapΣ {ℓ = ℓ} = `Λ ((R[ ★ ℓ `→ ★ ℓ ])) 
+--                 (`λ (Π (⌈ K Functor ⌉· tvar Z)) 
+--                 (t-≡ 
+--                   (`Λ (★ ℓ) 
+--                   (`Λ (★ ℓ) 
+--                   (`λ {!!} 
+--                   (`λ {!!} {!!})))) (teq-sym teq-β)))
 
   
 
 --------------------------------------------------------------------------------
 -- Recursive injection.
 
-injμ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
-       Term Δ Φ Γ 
-         (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- y
-           (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- z
-             ((tvar (S Z) ≲ tvar Z) ⇒ 
-               (Π (⌈ Functor ⌉· tvar (S Z))) `→ 
-                 μΣ (tvar (S Z)) `→ μΣ (tvar Z))))
-injμ {ℓ = ℓ} = 
-  `Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- y (TVar)
- (`Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- z (TVar)
- (`ƛ ((tvar (S Z) ≲ tvar Z)) 
- (`λ ((Π (⌈ Functor ⌉· tvar (S Z))))                 -- d (Var)
-   (recΣ 
-   (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- w  (TVar)
-   (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- y' (TVar)
-   (`ƛ (tvar (Types.S³ Z) · (tvar Z) ~ (tvar (S Z))) 
-   (`λ ((Σ (K² (tvar (S Z))) ·[ μΣ (tvar (S Z)) ])) -- v (Var)
-   (`λ ((μΣ (tvar (S Z)) `→ K² (μΣ (tvar Z))))     -- r (Var)
-       (In (t-≡ 
-         (inj {! !} {!!}) 
-         (teq-sym teq-lift₃))))))))))))
+-- injμ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
+--        Term Δ Φ Γ 
+--          (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- y
+--            (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- z
+--              ((tvar (S Z) ≲ tvar Z) ⇒ 
+--                (Π (⌈ Functor ⌉· tvar (S Z))) `→ 
+--                  μΣ (tvar (S Z)) `→ μΣ (tvar Z))))
+-- injμ {ℓ = ℓ} = 
+--   `Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- y (TVar)
+--  (`Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- z (TVar)
+--  (`ƛ ((tvar (S Z) ≲ tvar Z)) 
+--  (`λ ((Π (⌈ Functor ⌉· tvar (S Z))))                 -- d (Var)
+--    (recΣ 
+--    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- w  (TVar)
+--    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- y' (TVar)
+--    (`ƛ (tvar (Types.S³ Z) · (tvar Z) ~ (tvar (S Z))) 
+--    (`λ ((Σ (K² (tvar (S Z))) ·[ μΣ (tvar (S Z)) ])) -- v (Var)
+--    (`λ ((μΣ (tvar (S Z)) `→ K² (μΣ (tvar Z))))     -- r (Var)
+--        (In (t-≡ 
+--          (inj {! !} {!!}) 
+--          (teq-sym teq-lift₃))))))))))))

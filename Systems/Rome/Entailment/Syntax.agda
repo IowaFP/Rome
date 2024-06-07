@@ -43,7 +43,7 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
 
   n-var : ∀ {π : Pred Δ κ} →
            PVar Φ π →
-           -------------
+           -----------
            Ent Δ Φ π
 
   n-refl : ∀  {τ : Type Δ R[ κ ]}  →
@@ -104,3 +104,34 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
         Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         Ent Δ Φ (ρ₂ ≲ ρ₃)
+
+  ----------------------------------------
+  -- Functor business.
+
+  n-Functor : 
+    
+       (F : Type Δ (★ ℓ `→ ★ ℓ)) → Positive F →
+       ------------------------------------------
+       Ent Δ Φ (Functor F)
+
+  n-·Functor : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} →
+       Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
+       Ent Δ Φ (Functor-ρ ρ₁)   →
+       Ent Δ Φ (Functor-ρ ρ₂)   →
+       --------------------------
+       Ent Δ Φ (Functor-ρ ρ₃)
+
+  n-≲Functor : ∀ {ρ₁ ρ₂ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} →
+       Ent Δ Φ (ρ₁ ≲ ρ₂) →
+       Ent Δ Φ (Functor-ρ ρ₂)   →
+       --------------------------
+       Ent Δ Φ (Functor-ρ ρ₁)
+
+  n-sing-Functor : 
+    ∀ {l : Type Δ (L ℓL)} {F : Type Δ (★ ℓ `→ ★ ℓ)}
+      {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} →
+
+      Ent Δ Φ (Functor-ρ ρ) →
+      Ent Δ Φ ((l R▹ F) ≲ ρ) →
+      -------------------------
+      Ent Δ Φ (Functor F)

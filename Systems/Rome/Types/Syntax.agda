@@ -33,8 +33,10 @@ Label = String
 --   - Type   references KEnv
 --   - KEnv references Pred
 
+
 data Type : KEnv ℓ → Kind ι →  Set
 data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
+data Positive (F : Type Δ (★ ℓ `→ ★ ℓ)) : Set
 
 data Pred Δ where
   _≲_ : ∀ {κ : Kind ι} → 
@@ -47,6 +49,12 @@ data Pred Δ where
             (ρ₂ : Type Δ R[ κ ]) →
             (ρ₃ : Type Δ R[ κ ]) →
             Pred Δ κ
+
+  Functor : (F : Type Δ (★ ℓ `→ ★ ℓ)) →
+            Pred Δ (★ ℓ `→ ★ ℓ)
+
+  Functor-ρ : (ζ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) →
+              Pred Δ (R[ ★ ℓ `→ ★ ℓ ])
 
 --------------------------------------------------------------------------------
 -- Type vars.
@@ -161,7 +169,15 @@ data Type where
 
   ------------------------------------------------------------
   -- System Rωμ.
+
+  -- μ formation.
   μ : ∀ {ℓ} →
-      (τ : Type Δ ((★ ℓ) `→ (★ ℓ) )) →
-      --------------------------------
+      (τ : Type Δ ((★ ℓ) `→ (★ ℓ))) → Positive τ →
+      -----------------------------------------------
       Type Δ (★ ℓ)
+
+--------------------------------------------------------------------------------
+-- Positive functors
+
+data Positive F where
+--   `λ⁺ : (M : Type (Δ ، ★ ℓ) (★ ℓ)) → Positive M → Positive (`λ (★ ℓ) M)
