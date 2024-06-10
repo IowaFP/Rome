@@ -147,11 +147,18 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             ≡
             Ix._·_~_ (sing τ) y (⟦ K³ ρ ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
+-- Recursive Terms.
+------------------
 ⟦ In M fmap ⟧ H φ η = In (⟦ M ⟧ H φ η)
 ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η (In e) with
   ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H | ⟦ f ⟧ H φ η (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) 
 ... | ⟦ε⟧ | ⟦f⟧ rewrite 
   sym (Weakening₂ τ H (⟦ ρ ⟧t H) ⟦ε⟧) | 
   (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) ⟦ε⟧)) = ⟦f⟧ ε-id-R e (⟦ recΣ f fmap ⟧ H φ η)
-⟦ (f ▿μ g) ⊩π fmap gmap ⟧ H φ η with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η
-... | ⟦f⟧ | ⟦g⟧ = {!⟦f⟧ Ix.▿ ⟦g⟧!}
+⟦ (f ▿μ g) π fmap gmap ⟧ H φ η (In (ρ₃-i , P)) with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η | ⟦ π ⟧n H φ
+... | ρ₁-elim | ρ₂-elim | (l , r)  with l ρ₃-i
+... | left  s@(ρ₁-i , eq) rewrite (sym eq) = 
+  ρ₁-elim (In (ρ₁-i , ⟦ fmap ⟧ H φ η ρ₁-i                -- I think this route works.
+                              _ _ 
+                              (λ { x → {!x!} }) P))
+... | right s@(ρ₂-i , eq) rewrite (sym eq) = ρ₂-elim {!!}
