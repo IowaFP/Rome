@@ -43,3 +43,36 @@ recombine {ℓ} {A} ρ i = evid ρ i , (pickedIn , deletedIn {i = i}) where
     with evid (suc n , λ x → f (fsuc x)) i j
   ... | left (fzero , g) = left (fzero , g)
   ... | right (i' , g)   = right ((raise 1 i') , g)
+--------------------------------------------------------------------------------
+-- x · y ~ z implies x≲z in our (commutative) row theory.
+
+·-to-≲L : ∀ {ℓ} {A : Set ℓ} → {ρ₁ ρ₂ ρ₃  : Row {ℓ} A} →
+         ρ₁ · ρ₂ ~ ρ₃ →
+         ρ₁ ≲ ρ₃
+·-to-≲L (_ , l , _) = l
+
+·-to-≲R : ∀ {ℓ} {A : Set ℓ} → {ρ₁ ρ₂ ρ₃  : Row {ℓ} A} →
+         ρ₁ · ρ₂ ~ ρ₃ →
+         ρ₂ ≲ ρ₃
+·-to-≲R (_ , _ , r) = r
+
+--------------------------------------------------------------------------------
+-- Expected results (monoid properties, etc)
+
+private
+  variable
+    ℓ : Level
+    A : Set ℓ
+    ρ : Row {ℓ} A
+
+≲-refl : ρ ≲ ρ
+≲-refl = λ i → i , refl
+
+ε-≲ : emptyRow ≲ ρ
+ε-≲ = λ { () }
+
+ε-id-R : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → ρ · emptyRow ~ ρ
+ε-id-R = (λ i → left ((i , refl))) , ≲-refl , ε-≲
+
+ε-id-L : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → emptyRow · ρ ~ ρ
+ε-id-L = (λ i → right ((i , refl))) , ε-≲ , ≲-refl

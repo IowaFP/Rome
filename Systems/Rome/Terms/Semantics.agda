@@ -148,30 +148,10 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
             Ix._·_~_ (sing τ) y (⟦ K³ ρ ⟧t (((H , tt) , τ) , y))
           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
 ⟦ In M fmap ⟧ H φ η = In (⟦ M ⟧ H φ η)
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η Q with
-  ⟦ f ⟧ H φ η | ⟦ recΣ f fmap ⟧ H φ η 
-... | ⟦f⟧ | rc 
-  rewrite Weakening₂ τ H (⟦ ρ ⟧t H) ((⟦ ρ ⟧t H)) = 
-  ⟦f⟧ (⟦ ρ ⟧t H) ((⟦ ρ ⟧t H)) {!!} {!!} rc 
-⟦ (f ▿μ g) E fmap gmap ⟧ H φ η = {!!}
-
---------------------------------------------------------------------------------
---
--- module Partial (Pℓ : Level) where
-
---   open RawMonad {Pℓ} monad public
-
---   ⟦_⟧⊥ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
---          {τ : Type Δ (★ Pℓ)} →
---           Term Δ Φ Γ τ →
---           (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → _⊥ (⟦ τ ⟧t H)
---   ⟦ In F ⟧⊥ H φ η      = return (In (⟦ F ⟧ H φ η))
---   ⟦ recΣ {ρ = ρ} f ⟧⊥ H φ η    = do
---     let ⟦f⟧ = ⟦ f ⟧ H φ η
---     let rc = later (♯ (⟦ recΣ f ⟧⊥ H φ η))
---     r ← rc
---     -- (λ { (In e) → {!⟦f⟧ e rc  !} })
---     now (λ { (In e) → {!⟦f⟧ e rc!} })
---   ⟦ ▿μ d d₁ x ⟧⊥ H φ η = {!!}
---   ⟦ c ⟧⊥ H φ η = return (⟦ c ⟧ H φ η)
-  
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η (In e) with
+  ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H | ⟦ f ⟧ H φ η (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) 
+... | ⟦ε⟧ | ⟦f⟧ rewrite 
+  sym (Weakening₂ τ H (⟦ ρ ⟧t H) ⟦ε⟧) | 
+  (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) ⟦ε⟧)) = ⟦f⟧ ε-id-R e (⟦ recΣ f fmap ⟧ H φ η)
+⟦ (f ▿μ g) ⊩π fmap gmap ⟧ H φ η with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η
+... | ⟦f⟧ | ⟦g⟧ = {!⟦f⟧ Ix.▿ ⟦g⟧!}
