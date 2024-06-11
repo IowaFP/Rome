@@ -26,3 +26,9 @@ data Mu {ℓ} (F : Functor ℓ) : Set ℓ where
 
 out : ∀ {ℓ} {F : Functor ℓ} → Mu F → F (Mu F)
 out (In x) = x
+
+--------------------------------------------------------------------------------
+-- Bifunctor combinators (for rows)
+
+-- _⊕_ : ∀ {ℓ} → (ρ₁ ρ₂ : Row (Functor ℓ)) → Row (Functor ℓ)
+-- (ρ₁ ⊕ ρ₂) = {!!}

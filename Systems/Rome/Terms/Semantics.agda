@@ -79,29 +79,24 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ var x ⟧ H φ η = ⟦ x ⟧v H η
 ⟦ `λ _ M ⟧ H φ η = λ x → ⟦ M ⟧ H φ (η , x)
 ⟦ M · N ⟧ H φ η = ⟦ M ⟧ H φ η (⟦ N ⟧ H φ η)
-⟦ (`Λ κ M) ⟧ H φ η = λ (X : ⟦ κ ⟧k) → ⟦ M ⟧ (H , X) (weaken⟦ _ ⟧pe H φ X) (weaken⟦ _ ⟧e H η X)
+⟦ (`Λ κ M) ⟧ H φ η = 
+  λ (X : ⟦ κ ⟧k) → ⟦ M ⟧ (H , X) (weaken⟦ _ ⟧pe H φ X) (weaken⟦ _ ⟧e H η X)
 ⟦ _·[_] {τ = τ} M υ ⟧ H φ η
   rewrite (sym (Substitution τ υ H)) = ⟦ M ⟧ H φ η (⟦ υ ⟧t H)
 ⟦ `ƛ _ M ⟧ H φ η = λ x → ⟦ M ⟧ H (φ , x) η
 ⟦ M ·⟨ D ⟩ ⟧ H φ η = ⟦ M ⟧ H φ η (⟦ D ⟧n H φ)
-⟦ (r₁ ⊹ r₂) π ⟧ H φ η i
-  with ⟦ π ⟧n H φ | ⟦ r₁ ⟧ H φ η | ⟦ r₂ ⟧ H φ η
-... | c , _ | r | r' with c i
-... | left (n , eq) rewrite (sym eq) = r n
-... | right (n , eq) rewrite (sym eq) = r' n
+⟦ (r₁ ⊹ r₂) π ⟧ H φ η = (⟦ r₁ ⟧ H φ η) Ix.⊹ (⟦ r₂ ⟧ H φ η) Using (⟦ π ⟧n H φ)
 ⟦ lab s ⟧ H φ η  = tt
 ⟦ prj r π ⟧ H φ η i with ⟦ r ⟧ H φ η | ⟦ π ⟧n H φ i
 ... | r' | n , eq rewrite eq = r' n
 ⟦ M ▹ N ⟧ H φ η = ⟦ N ⟧ H φ η
 ⟦ M / N ⟧ H φ η = ⟦ M ⟧ H φ η
-⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η
-⟦ inj M π ⟧ H φ η with ⟦ M ⟧ H φ η 
-... | n , τ with ⟦ π ⟧n H φ n
-...   | m , eq rewrite eq = m , τ
-⟦ (M ▿ N) π ⟧ H φ η (p₃-i , P) with ⟦ M ⟧ H φ η | ⟦ N ⟧ H φ η | ⟦ π ⟧n H φ
-... | ρ₁-elim | ρ₂-elim | (l , r)  with l p₃-i
-... | left  s@(ρ₁-i , eq) rewrite (sym eq) = ρ₁-elim (ρ₁-i , P)
-... | right s@(ρ₂-i , eq) rewrite (sym eq) = ρ₂-elim (ρ₂-i , P)
+⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η 
+  rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η
+⟦ inj M π ⟧ H φ η = Ix.inj (⟦ π ⟧n H φ) (⟦ M ⟧ H φ η)
+⟦ (M ▿ N) π ⟧ H φ η with ⟦ M ⟧ H φ η | ⟦ N ⟧ H φ η | ⟦ π ⟧n H φ
+... | ρ₁-elim | ρ₂-elim | ev = ρ₁-elim ▿ ρ₂-elim Using ev
+-- This logic should be moved to IndexCalculus.Records
 ⟦ syn {Δ = Δ} {κ = κ} ρ f M ⟧ H₀ φ η i = 
   ≡-elim (sym (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd ⟦ρ⟧ i)))
   (⟦ M ⟧ H₀ φ η tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i) evidence tt)
@@ -112,7 +107,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
       evidence : sing (snd ⟦ρ⟧ i) Ix.· ⟦ρ⟧ delete i ~
                  ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
       evidence rewrite sym ⟦ρ⟧≡⟦weaken³ρ⟧ =  recombine ⟦ρ⟧ i
-
+-- This logic should be moved to IndexCalculus.Variants
 ⟦ ana {Δ = Δ} {κ = κ} ρ f τ M ⟧ H₀ φ η (i , X) =
   ≡-elim (sym ⟦τ⟧≡⟦weaken³τ⟧)
   (⟦ M ⟧ H₀ φ η tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i) evidence tt (≡-elim (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd (⟦ ρ ⟧t H₀) i)) X))
@@ -130,7 +125,6 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ Term.Σ s ⟧ H φ η = fzero , (⟦ s ⟧ H φ η)
 ⟦ Σ⁻¹ v ⟧ H φ η with ⟦ v ⟧ H φ η
 ... | fzero , M = M
-
 ⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ H φ η with 
   ⟦ M₁ ⟧ H φ η | ⟦ M₂ ⟧ H φ η | ⟦ M₃ ⟧ H φ η | ⟦ N ⟧ H φ η
 ... | op | _+_ | e | r = Ix.fold ⟦ρ⟧ f _+_ e r
@@ -155,10 +149,5 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ... | ⟦ε⟧ | ⟦f⟧ rewrite 
   sym (Weakening₂ τ H (⟦ ρ ⟧t H) ⟦ε⟧) | 
   (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) ⟦ε⟧)) = ⟦f⟧ ε-id-R e (⟦ recΣ f fmap ⟧ H φ η)
-⟦ (f ▿μ g) π fmap gmap ⟧ H φ η (In (ρ₃-i , P)) with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η | ⟦ π ⟧n H φ
-... | ρ₁-elim | ρ₂-elim | (l , r)  with l ρ₃-i
-... | left  s@(ρ₁-i , eq) rewrite (sym eq) = 
-  ρ₁-elim (In (ρ₁-i , ⟦ fmap ⟧ H φ η ρ₁-i                -- I think this route works.
-                              _ _ 
-                              (λ { x → {!x!} }) P))
-... | right s@(ρ₂-i , eq) rewrite (sym eq) = ρ₂-elim {!!}
+⟦ (f ▿μ g) π fmap gmap ⟧ H φ η (In v) with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η | ⟦ π ⟧n H φ
+... | ρ₁-elim | ρ₂-elim | ev@(l , r) = {!!}

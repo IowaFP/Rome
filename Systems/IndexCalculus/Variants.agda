@@ -25,8 +25,8 @@ open import IndexCalculus.Rows
 --------------------------------------------------------------------------------
 -- injection.
 
-inj : ∀ {ℓ} (z y : Row {lsuc ℓ} (Set ℓ)) (w : z ≲ y) (s : Σ z) → Σ y
-inj {ℓ} z y w (n , P) with w n
+inj : ∀ {ℓ} {z y : Row {lsuc ℓ} (Set ℓ)} (w : z ≲ y) (s : Σ z) → Σ y
+inj w (n , P) with w n
 ... | m , Q rewrite Q = m , P
 
 --------------------------------------------------------------------------------
@@ -35,20 +35,20 @@ inj {ℓ} z y w (n , P) with w n
 infixl 5 _▿_
 infixl 5 _▿_Using_
 
-_▿_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)}
-        {C : Set}
+_▿_ : ∀ {ℓ ι} {x y z : Row {lsuc ℓ} (Set ℓ)}
+        {C : Set ι}
         {x·y~z : x · y ~ z}
         (E-Σx : Σ x → C)
         (E-Σy : Σ y → C) →
         Σ z → C
 
-_▿_ {ℓ} {x} {y} {z} {C} {x·y~z} E-Σx E-Σy (iz , Pz) with fst x·y~z iz
+_▿_ {ℓ} {ι} {x} {y} {z} {C} {x·y~z} E-Σx E-Σy (iz , Pz) with fst x·y~z iz
 ... | left (ix , Px) rewrite (sym Px) = E-Σx (ix , Pz)
 ... | right (iy , Py) rewrite (sym Py) = E-Σy (iy , Pz)
 
 _▿_Using_ :
-  ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)}
-  {C : Set}
+  ∀ {ι ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)}
+  {C : Set ι}
   (E-Σx : Σ x → C)
   (E-Σy : Σ y → C)
   (x·y~z : x · y ~ z) →
