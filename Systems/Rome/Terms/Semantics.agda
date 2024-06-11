@@ -149,5 +149,25 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ... | ⟦ε⟧ | ⟦f⟧ rewrite 
   sym (Weakening₂ τ H (⟦ ρ ⟧t H) ⟦ε⟧) | 
   (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) ⟦ε⟧)) = ⟦f⟧ ε-id-R e (⟦ recΣ f fmap ⟧ H φ η)
-⟦ (f ▿μ g) π fmap gmap ⟧ H φ η (In v) with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η | ⟦ π ⟧n H φ
-... | ρ₁-elim | ρ₂-elim | ev@(l , r) = {!!}
+
+-- Have:
+--   w , y , ρ : R[ ★ → ★ ]
+--   ev        : ρ · y ~ w
+--   M         : μ (Σ ρ) → τ
+--   r         : μ (Σ w) → τ
+--   v         : Σ ρ (μ (Σ w)) 
+-- Want:
+--   τ
+--
+-- If it were possible to write
+--   f : μ (Σ w) → μ (Σ ρ)
+-- then
+--   M  (In (fmap f v))
+-- would work. (But this is not possible.)
+-- I wonder if ana can come to the rescue?
+⟦ unrec {ρ = ρ} {τ = τ} M fmap ⟧ H φ η w y π v r
+  rewrite sym (Weakening₂ τ H w y)
+  | sym (Weakening₂ ρ H w y) = {!!}
+⟦ c ⟧ H φ η = {!!}
+-- ⟦ (f ▿μ g) π fmap gmap ⟧ H φ η (In v) with ⟦ f ⟧ H φ η | ⟦ g ⟧ H φ η | ⟦ π ⟧n H φ
+-- ... | ρ₁-elim | ρ₂-elim | ev@(l , r) = {!!}
