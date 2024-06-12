@@ -24,7 +24,7 @@ import IndexCalculus as Ix
 
 --------------------------------------------------------------------------------
 -- The meaning of type vars.
-
+  
 ⟦_⟧tv : TVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 ⟦ Z ⟧tv (_ , t) = t
 ⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
@@ -45,7 +45,7 @@ buildΠ (L _) ⟦ρ⟧ = tt
 buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 
 ⟦ lab l ⟧t       H = tt
-⟦ tvar v ⟧t      H = ⟦ v ⟧tv H
+⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → ⟦ t₂ ⟧t H
 ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → ⟦ v ⟧t  (H , s)
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
