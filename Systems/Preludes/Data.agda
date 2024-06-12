@@ -18,4 +18,11 @@ open import Data.Fin
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 
   public
 open import Data.Unit.Polymorphic using (⊤ ; tt) public
+open import Data.Maybe using (Maybe ; just ; nothing) public
 
+--------------------------------------------------------------------------------
+-- Synonyms.
+
+Potatoes = ℕ
+dud = 0
+spud = ℕ.suc

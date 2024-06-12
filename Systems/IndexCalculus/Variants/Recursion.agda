@@ -9,10 +9,17 @@ open import IndexCalculus.Recursion
 
 
 --------------------------------------------------------------------------------
--- Recursive branching.
+-- μ ∘ Σ
 
 μΣ : ∀ {ℓ} → Row (Functor ℓ) → Set ℓ
 μΣ ρ = Mu (λ X → Σ ( ρ  ·⌈ X ⌉))
+
+--------------------------------------------------------------------------------
+-- 
+
+unrec : ∀ {ℓ} {ρ y w : Row (Functor ℓ)} {τ : Set ℓ} →
+        ρ · y ~ w → (μΣ ρ → τ) → (μΣ w → τ) → Σ (ρ ·⌈ (μΣ w) ⌉) → τ
+unrec π f r v = {!!}
 
 -- -- This term isn't populatable...
 -- -- It needs to return 
