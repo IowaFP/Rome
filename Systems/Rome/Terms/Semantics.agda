@@ -70,7 +70,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 -- open _↔_
 -- open _≃_
--- open import Data.Maybe using (Maybe ; just ; nothing ; _>>=_) 
+open import Data.Maybe using (_>>=_) 
 
 join-Maybe : {A : Set ℓ} → Maybe (Maybe A) → Maybe A
 join-Maybe (just m) = m
@@ -96,27 +96,34 @@ return = just
         {τ : Type Δ (★ ℓ)} →
         Term Δ Φ Γ τ →
         (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → 
-        Potatoes → (⟦ τ ⟧t H)
-⟦ var x ⟧ H φ η n = ⟦ x ⟧v H η
-⟦ `λ _ M ⟧ H φ η n = {!!} -- just (λ x → {!⟦ M ⟧ H φ (η , x) n!}) -- λ x →  
-⟦ M · N ⟧ H φ η n = {!!} -- with (⟦ M ⟧ H φ η n)
--- ... | just x = {!!}
--- ... | nothing = {!join !}
+        Potatoes → Maybe (⟦ τ ⟧t H)
+⟦ var x ⟧ H φ η n = just (⟦ x ⟧v H η)
+⟦ `λ _ M ⟧ H φ η n = just (λ x → (⟦ M ⟧ H φ (η , x) n)) -- just (λ x → {!⟦ M ⟧ H φ (η , x) n!}) -- λ x →  
+⟦ M · N ⟧ H φ η n = do
+  m ← (⟦ M ⟧ H φ η n)
+  n ← (⟦ N ⟧ H φ η n) 
+  m n
 -- ⟦ (`Λ κ M) ⟧ H φ η n = 
 --   λ (X : ⟦ κ ⟧k) → ⟦ M ⟧ (H , X) (weaken⟦ _ ⟧pe H φ X) (weaken⟦ _ ⟧e H η X) n
--- ⟦ _·[_] {τ = τ} M υ ⟧ H φ η n
---   rewrite (sym (Substitution τ υ H)) = ⟦ M ⟧ H φ η n (⟦ υ ⟧t H)
+⟦ _·[_] {τ = τ} M υ ⟧ H φ η n
+  rewrite (sym (Substitution τ υ H)) = do
+  m ← ⟦ M ⟧ H φ η n
+  just (m (⟦ υ ⟧t H))
 -- ⟦ `ƛ _ M ⟧ H φ η n = λ x → ⟦ M ⟧ H (φ , x) η n
--- ⟦ M ·⟨ D ⟩ ⟧ H φ η n = ⟦ M ⟧ H φ η n (⟦ D ⟧n H φ)
+⟦ M ·⟨ D ⟩ ⟧ H φ η n = do
+  m ← (⟦ M ⟧ H φ η n)
+  just (m (⟦ D ⟧n H φ))
 -- ⟦ (r₁ ⊹ r₂) π ⟧ H φ η n = (⟦ r₁ ⟧ H φ η n) Ix.⊹ (⟦ r₂ ⟧ H φ η n) Using (⟦ π ⟧n H φ)
--- ⟦ lab s ⟧ H φ η n  = tt
--- ⟦ prj r π ⟧ H φ η n i with ⟦ r ⟧ H φ η n | ⟦ π ⟧n H φ i
+⟦ lab s ⟧ H φ η n  = just tt
+-- ⟦ prj r π ⟧ H φ η n with ⟦ r ⟧ H φ η n | ⟦ π ⟧n H φ i
 -- ... | r' | n , eq rewrite eq = r' n
--- ⟦ M ▹ N ⟧ H φ η n = ⟦ N ⟧ H φ η n
--- ⟦ M / N ⟧ H φ η n = ⟦ M ⟧ H φ η n
--- ⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η n 
---   rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η n
--- ⟦ inj M π ⟧ H φ η n = Ix.inj (⟦ π ⟧n H φ) (⟦ M ⟧ H φ η n)
+⟦ M ▹ N ⟧ H φ η n = ⟦ N ⟧ H φ η n
+⟦ M / N ⟧ H φ η n = ⟦ M ⟧ H φ η n
+⟦ t-≡ {τ = τ}{υ = υ} M τ≡υ ⟧ H φ η n 
+  rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η n
+⟦ inj M π ⟧ H φ η n = do 
+  m ← (⟦ M ⟧ H φ η n)
+  return (Ix.inj (⟦ π ⟧n H φ) m)
 -- ⟦ (M ▿ N) π ⟧ H φ η n with ⟦ M ⟧ H φ η n | ⟦ N ⟧ H φ η n | ⟦ π ⟧n H φ
 -- ... | ρ₁-elim | ρ₂-elim | ev = ρ₁-elim ▿ ρ₂-elim Using ev
 -- -- This logic should be moved to IndexCalculus.Records
@@ -144,10 +151,15 @@ return = just
 --       evidence rewrite sym ⟦ρ⟧≡⟦weaken³ρ⟧ =  recombine ⟦ρ⟧ i
 -- ⟦ Term.Π s ⟧ H φ η n fzero = ⟦ s ⟧ H φ η n
 -- ⟦ Term.Π s ⟧ H φ η n (fsuc ())
--- ⟦ Π⁻¹ r ⟧ H φ η n = ⟦ r ⟧ H φ η n fzero
--- ⟦ Term.Σ s ⟧ H φ η n = fzero , (⟦ s ⟧ H φ η n)
--- ⟦ Σ⁻¹ v ⟧ H φ η n with ⟦ v ⟧ H φ η n
--- ... | fzero , M = M
+⟦ Π⁻¹ r ⟧ H φ η n = do
+  ⟦r⟧ ←  ⟦ r ⟧ H φ η n
+  just (⟦r⟧ fzero)
+⟦ Term.Σ s ⟧ H φ η n = do
+  ⟦s⟧ ← (⟦ s ⟧ H φ η n)
+  just (fzero , ⟦s⟧)
+⟦ Σ⁻¹ v ⟧ H φ η n with ⟦ v ⟧ H φ η n
+... | just (fzero , M) = just M
+... | nothing = nothing
 -- ⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ H φ η n with 
 --   ⟦ M₁ ⟧ H φ η n | ⟦ M₂ ⟧ H φ η n | ⟦ M₃ ⟧ H φ η n | ⟦ N ⟧ H φ η n
 -- ... | op | _+_ | e | r = Ix.fold ⟦ρ⟧ f _+_ e r
@@ -166,7 +178,9 @@ return = just
 --           weak-ev≡ev rewrite Weakening₃ ρ H tt τ y = refl
 -- -- Recursive Terms.
 -- ------------------
--- ⟦ In M fmap ⟧ H φ η n = In (⟦ M ⟧ H φ η n)
+⟦ In M fmap ⟧ H φ η n = do 
+  m ← ⟦ M ⟧ H φ η n
+  just (In m)
 -- ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η n (In e) with
 --   ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H | ⟦ f ⟧ H φ η n (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) 
 -- ... | ⟦ε⟧ | ⟦f⟧ rewrite 
