@@ -2,6 +2,7 @@
 module Rome.Terms.Syntax where
 
 open import Preludes.Level
+open import Preludes.Relation
 
 open import Rome.Kinds
 open import Rome.Types
@@ -145,8 +146,9 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
             {κ : Kind ℓκ} {τ : Type (Δ ، κ) (★ ℓ)} →
 
             Term Δ Φ Γ (`∀ κ τ) → (υ : Type Δ κ) →
+            {ξ : Type Δ (★ ℓ)} → {eq : ξ ≡ τ β[ υ ]} →
             ----------------------------------
-            Term Δ Φ Γ (τ β[ υ ])
+            Term Δ Φ Γ ξ
 
 --   ------------------------------------------------------------
 --   -- Qualified types.
@@ -316,19 +318,36 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   recΣ : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
            {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
 
-           Term Δ Φ Γ (MAlg ρ τ) → Term Δ Φ Γ (Π (⌈ Functor ⌉· ρ)) →
+           Term Δ Φ Γ (MAlg ρ τ) →
            --------------------------------------------
-           Term Δ Φ Γ (μ (Σ ρ) `→ τ)
+           Term Δ Φ Γ (μ (Σ ρ) `↪ τ)
 
   _▿μ_   : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
            {ρ₁ ρ₂ ρ₃ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
          
-           Term Δ Φ Γ (μΣ ρ₁ `→ τ)  → 
-           Term Δ Φ Γ (μΣ ρ₂ `→ τ)  →
+           Term Δ Φ Γ (μΣ ρ₁ `↪ τ)  → 
+           Term Δ Φ Γ (μΣ ρ₂ `↪ τ)  →
            Ent Δ Φ    (ρ₁ · ρ₂ ~ ρ₃) →
-           Term Δ Φ Γ (Π (⌈ Functor ⌉· ρ₁))  →
-           Term Δ Φ Γ (Π (⌈ Functor ⌉· ρ₂))   →
            ---------------------------
-           Term Δ Φ Γ (μΣ ρ₃ `→ τ)
+           Term Δ Φ Γ (μΣ ρ₃ `↪ τ)
        
          
+--------------------------------------------------------------------------------
+--
+
+unrec : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
+          {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
+
+          Term Δ Φ Γ (μ (Σ ρ) `↪ τ) →
+          ---------------------------
+          Term Δ Φ Γ (MAlg ρ τ)
+
+unrec (var x) = {!!}
+unrec (f · f₁) = {!_β[_]!}
+unrec (f ·[ υ ]) = {!!}
+unrec (f ·⟨ x ⟩) = {!!}
+unrec (_/_ {τ = Ł} v l) = {!t-≡ v eq-▹!}
+unrec (t-≡ f x) = {!!}
+unrec (fold f f₁ f₂ f₃) = {!!}
+unrec (recΣ f) = f
+unrec ((f ▿μ f₁) x) = {!!}

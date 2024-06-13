@@ -81,7 +81,6 @@ join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} →
 join→k (just x) a = x a
 join→k nothing a = nothing
 
-import Data.Product as Product
 ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} →
         Term Δ Φ Γ τ →
@@ -96,7 +95,7 @@ import Data.Product as Product
 ⟦ _·[_] {τ = τ} M υ ⟧ H φ η n
   rewrite (sym (Substitution τ υ H)) = do
   m ← ⟦ M ⟧ H φ η n
-  m (⟦ υ ⟧t H) 
+  {!!} -- m (⟦ υ ⟧t H) 
 ⟦ `ƛ _ M ⟧ H φ η n = just (λ x → ⟦ M ⟧ H (φ , x) η n)
 ⟦ M ·⟨ D ⟩ ⟧ H φ η n = do
   m ← (⟦ M ⟧ H φ η n)
@@ -202,8 +201,8 @@ import Data.Product as Product
 ⟦ In M fmap ⟧ H φ η n = do 
   m ← ⟦ M ⟧ H φ η n
   just (In m)
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η zero = nothing
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f fmap ⟧ H φ η (suc n) = do
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η zero = nothing
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
   ⟦f⟧ ← ⟦ f ⟧ H φ η n 
   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
@@ -212,7 +211,7 @@ import Data.Product as Product
     (λ { (just (In e)) → do
        ⟦f⟧ ← eff ⟦f⟧ ε-id-R
        ⟦f⟧ ← ⟦f⟧ (just e)
-       ⟦f⟧ (⟦ recΣ f fmap ⟧ H φ η n)
+       ⟦f⟧ (⟦ recΣ f ⟧ H φ η n)
        ; nothing → nothing })
   where
     eff : (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)) IndexCalculus.·
@@ -259,4 +258,4 @@ import Data.Product as Product
 
     eff f rewrite (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))
           |       (sym (Weakening₂ τ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) = f
-⟦ (f ▿μ g) π fmap gmap ⟧ H φ η n = {!!}
+⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η n = {!!}
