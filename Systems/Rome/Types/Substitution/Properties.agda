@@ -89,21 +89,21 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
                  π-map-preservation Δ₁ Δ₂ H₁ H₂ (renamePred f)
 
 -- Interesting cases.
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (tvar x') = Δ-pres x' -- Δ-pres H H' x
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (tvar x') = Δ-pres x'
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (`∀ κ τ) =
   ∀-extensionality
     extensionality
-    (λ z → ⟦ τ ⟧t (H₁ , z))
-    (λ z → ⟦ rename (ext f) τ ⟧t (H₂ , z))
+    (λ z → Maybe (⟦ τ ⟧t (H₁ , z)))
+    (λ z → Maybe (⟦ rename (ext f) τ ⟧t (H₂ , z)))
     τ-pres
     where
-      τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ rename (ext f) τ ⟧t (H₂ , x)
-      τ-pres x = τ-preservation
+      τ-pres : (x : ⟦ κ ⟧k) → Maybe (⟦ τ ⟧t (H₁ , x)) ≡ Maybe (⟦ rename (ext f) τ ⟧t (H₂ , x))
+      τ-pres x = cong Maybe (τ-preservation
                  (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (ext f)
                  (ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres x)
-                 τ
+                τ)
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (`λ κ τ) = extensionality τ-pres
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ rename (ext f) τ ⟧t (H₂ , x)
@@ -190,20 +190,21 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
                    π-map-preservation Δ₁ Δ₂ H₁ H₂ (substPred f)
 
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (tvar x) = σ-pres x
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (`∀ κ τ) =
-  ∀-extensionality
-    extensionality
-    (λ z → ⟦ τ ⟧t (H₁ , z))
-    (λ z → ⟦ subst (exts f) τ ⟧t (H₂ , z))
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (`∀ κ τ) = 
+  ∀-extensionality 
+    extensionality 
+    (λ z → Maybe (⟦ τ ⟧t (H₁ , z))) 
+    (λ z → Maybe (⟦ subst (exts f) τ ⟧t (H₂ , z))) 
     τ-pres
     where
-      τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ subst (exts f) τ ⟧t (H₂ , x)
-      τ-pres x = σ/τ-preservation
+      τ-pres : (x : ⟦ κ ⟧k) → Maybe (⟦ τ ⟧t (H₁ , x)) ≡ Maybe (⟦ subst (exts f) τ ⟧t (H₂ , x))
+      τ-pres x = cong Maybe
+                 (σ/τ-preservation
                  (Δ₁ ، κ) (Δ₂ ، κ)
                  (H₁ , x) (H₂ , x)
                  (exts f)
                  (exts-pres Δ₁ Δ₂ H₁ H₂ f σ-pres x)
-                 τ
+                 τ)
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (`λ κ τ) = extensionality τ-pres
     where
       τ-pres : (x : ⟦ κ ⟧k) → ⟦ τ ⟧t (H₁ , x) ≡ ⟦ subst (exts f) τ ⟧t (H₂ , x)
@@ -217,7 +218,6 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   rewrite σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres π
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ = refl
 -- -- Uninteresting Cases.
--- σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres U = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (lab x) = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ `→ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁

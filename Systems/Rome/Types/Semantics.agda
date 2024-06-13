@@ -46,8 +46,8 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 
 ⟦ lab l ⟧t       H = tt
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
-⟦ (t₁ `→ t₂) ⟧t H = ⟦ t₁ ⟧t H → Maybe (⟦ t₂ ⟧t H)
-⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → ⟦ v ⟧t  (H , s)
+⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
+⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
 ⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
@@ -57,7 +57,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
 ⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
-⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → ⟦ τ ⟧t H
+⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
 ⟦ ε ⟧t H = Ix.emptyRow
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H)
 

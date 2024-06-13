@@ -15,6 +15,6 @@ open import Relation.Binary
   public
   
 open import Relation.Binary.PropositionalEquality
-  using (_≡_; refl; trans; sym; cong; cong-app)
+  using (_≡_; refl; trans; sym; cong; cong-app ; cong₂)
   renaming (subst to eq-subst)
   public

@@ -18,7 +18,18 @@ open import Data.Fin
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 
   public
 open import Data.Unit.Polymorphic using (⊤ ; tt) public
-open import Data.Maybe using (Maybe ; just ; nothing) public
+open import Data.Maybe using (Maybe ; just ; nothing ; _>>=_) public
+
+--------------------------------------------------------------------------------
+-- Maybe helpers.
+
+joinM : ∀ {ℓ} {A : Set ℓ} → Maybe (Maybe A) → Maybe A
+joinM (just m) = m
+joinM nothing = nothing
+
+return : ∀ {ℓ} {A : Set ℓ} → A → Maybe A
+return = just
+
 
 --------------------------------------------------------------------------------
 -- Synonyms.

@@ -23,8 +23,10 @@ open import IndexCalculus.Properties
 --------------------------------------------------------------------------------
 -- Records say: "If you give me an index in range, I can give you a type".
 
+open import Data.Maybe
+
 Π : ∀ {ℓ} → Row (Set ℓ) → Set ℓ
-Π (n , P) = ∀ (i : Fin n) → P i
+Π (n , P) = ∀ (i : Fin n) → Maybe (P i)
 
 --------------------------------------------------------------------------------
 -- Projection.
@@ -53,11 +55,10 @@ _⊹_Using_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} (Πx : Π x) (Πy : �
 fold : ∀ {ℓ ℓ'} {υ : Set ℓ'}
           (ρ : Row {lsuc ℓ} (Set ℓ))
           (f : ∀ (τ : Set ℓ) (y : Row {lsuc ℓ} (Set ℓ)) →
-            (sing {lsuc ℓ} τ) · y ~ ρ → τ  → υ) 
-         (_++_ : υ → υ → υ) →
-         (e : υ) →
+            (sing {lsuc ℓ} τ) · y ~ ρ → Maybe τ  → Maybe υ) 
+         (_++_ : Maybe υ → Maybe υ → Maybe υ) →
+         (e : Maybe υ) →
          (r  : Π ρ) →
-         υ
-fold ρ@(n , P) f _++_ e r =
-  foldr _++_ e (map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
+         Maybe υ
+fold ρ@(n , P) f _++_ e r = foldr _++_ e (Data.List.map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
     

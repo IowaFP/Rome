@@ -37,8 +37,9 @@ open import Rome.GVars.Kinds
 ⟦ teq-∀ {τ = τ} {υ} eq ⟧eq H =
   ∀-extensionality
     extensionality
-    (λ z → ⟦ τ ⟧t (H , z))
-    (λ z → ⟦ υ ⟧t (H , z)) (λ X →  ⟦ eq ⟧eq (H , X)) 
+    (λ z → Maybe (⟦ τ ⟧t (H , z)))
+    (λ z → Maybe (⟦ υ ⟧t (H , z))) 
+    (λ X →  cong Maybe (⟦ eq ⟧eq (H , X)))
 ⟦ teq-β {τ = τ} {υ} ⟧eq H = Substitution τ υ H
 ⟦ teq-· t t₁ ⟧eq H rewrite ⟦ t ⟧eq H | ⟦ t₁ ⟧eq H  =  refl
 ⟦ teq-sing t t₁ ⟧eq H rewrite ⟦ t₁ ⟧eq H = refl
