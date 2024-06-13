@@ -258,4 +258,7 @@ join→k nothing a = nothing
 
     eff f rewrite (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))
           |       (sym (Weakening₂ τ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) = f
-⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η n = {!!}
+⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η n = {!!} -- {!⟦ Rec ⟧!}
+  -- where
+  --   foo = λ X → ⟦ (`λ (μΣ ρ) (Rec (tvar Z)) ⟧
+    

@@ -8,13 +8,19 @@ open import Rome.GVars.Kinds
 
 open import Rome.Kinds
 open import Rome.Types.Syntax
+open import Rome.Types.Admissible
 
 open import IndexCalculus using (Row)
 import IndexCalculus as Ix
 
+open import Data.Empty.Polymorphic
+
+--------------------------------------------------------------------------------
+-- TODO---write the denotation (pleasantly) of algebras in IndexCalculus.Recursion.
+-- Then denote μ Σ ρ ↪ τ simply to this denotation.
+
 --------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
-
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 
@@ -47,7 +53,8 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ lab l ⟧t       H = tt
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
-⟦ (t₁ `↪ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
+-- ⟦ (μ (Σ ρ) `↪ τ) ⟧t H = Maybe (⟦ μ (Σ ρ) ⟧t H) →  Maybe (⟦ τ ⟧t H)
+⟦ _ `↪ τ          ⟧t H = ⊥
 ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
@@ -70,3 +77,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 -- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t 
 -- ε
 
+-- pfft : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ι)) →
+--        (⟦ Δ ⟧ke) →
+--        Set
+-- pfft ρ τ H  = {!⟦ MAlg ρ τ ⟧t H !}
