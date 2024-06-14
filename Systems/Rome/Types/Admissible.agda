@@ -4,6 +4,7 @@ module Rome.Types.Admissible where
 open import Preludes.Level
 open import Preludes.Data
 
+import IndexCalculus as Ix
 
 open import Rome.Kinds
 open import Rome.Types.Syntax
@@ -25,7 +26,7 @@ False : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ ℓ)
 False = Σ ε
 
 μΣ : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ R[ (★ ℓ) `→ (★ ℓ) ] → Type Δ (★ ℓ)
-μΣ ρ = μ (Σ ρ)
+μΣ {ℓ} ρ = μ (`λ (★ ℓ) (Σ ((K ρ) ·⌈ tvar Z ⌉)))
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s
@@ -48,10 +49,17 @@ Functor {ℓ = ℓ} = `λ (★ ℓ `→ ★ ℓ) -- F
 --------------------------------------------------------------------------------
 -- "Mendler" algebras.
 
-MAlg : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ι)) →
-       Type Δ (★ ((lsuc ℓ) ⊔ ι))
-MAlg {ℓ = ℓ} ρ τ = 
-  `∀ R[ ★ ℓ `→ ★ ℓ ]
-    (`∀ R[ ★ ℓ `→ ★ ℓ ]
-      ((K² ρ · tvar Z ~ tvar (S Z)) ⇒
-        ((Σ (K² ρ)) ·[ (μΣ (tvar (S Z))) ] `→ (((μΣ (tvar (S Z))) `→ K² τ) `→ K² τ))))
+MAlg : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} →
+       Type Δ (R[ ★ ℓ `→ ★ ℓ ] `→ ★ ι `→ ★ (lsuc ℓ ⊔ ι))
+MAlg {ℓ} {ι} = 
+  `λ R[ ★ ℓ `→ ★ ℓ ]   -- ρ
+  (`λ (★ ι)             -- τ
+  (`∀ R[ ★ ℓ `→ ★ ℓ ]  -- w
+  (`∀ R[ ★ ℓ `→ ★ ℓ ]  -- y
+    ((ρ · y ~ w) ⇒
+      ((Σ ρ) ·[ (μΣ w) ] `→ (((μΣ w) `→ τ) `→ τ))))))
+  where
+    y = tvar Z
+    w = tvar (S Z)
+    τ = tvar (S² Z)
+    ρ = tvar (S³ Z)

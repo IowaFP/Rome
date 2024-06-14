@@ -309,7 +309,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   recΣ : ∀ {ℓ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
            {ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]} {τ : Type Δ (★ ℓ)} →
 
-           Term Δ Φ Γ (MAlg ρ τ) →
+           Term Δ Φ Γ ((MAlg ·[ ρ ]) ·[ τ ]) →
            --------------------------
            Term Δ Φ Γ (ρ `↪ τ)
 

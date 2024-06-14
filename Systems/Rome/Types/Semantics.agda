@@ -2,7 +2,7 @@
 module Rome.Types.Semantics where
 
 open import Preludes.Level
-open import Preludes.Data
+open import Preludes.Data hiding (∃)
 open import Preludes.Relation
 
 open import Rome.GVars.Kinds
@@ -18,6 +18,7 @@ open import IndexCalculus using (Row)
 import IndexCalculus as Ix
 
 open import Data.Empty.Polymorphic
+open import Data.Product renaming (Σ to ∃) hiding (∃)
 
 --------------------------------------------------------------------------------
 -- TODO---write the denotation (pleasantly) of algebras in IndexCalculus.Recursion.
@@ -27,17 +28,41 @@ open import Data.Empty.Polymorphic
 -- The meaning of kinding environments and predicates (mutually recursive).
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
-Alg : Type Δ (R[ ★ ℓ `→ ★ ℓ ]) → Type Δ (★ ι) → ⟦ Δ ⟧ke → Set (lsuc ℓ ⊔ ι)
-Alg {ℓ = a} ρ τ H = 
-  (w : Row (Set a → Set a)) → 
-  Maybe ((y : Row (Set a → Set a)) → 
-  Maybe (⟦ ρ ⟧t H Ix.· y ~ w → 
-  Maybe 
-    (Maybe (Ix.Σ (((⟦ ρ ⟧t H) Ix.·⌈ (Ix.μΣ w) ⌉)) 
-      → Maybe (Ix.μΣ w 
-      → Maybe (⟦ τ ⟧t H)) 
-      → Maybe (⟦ τ ⟧t H)))))
+-- Alg : Type Δ (R[ ★ ℓ `→ ★ ℓ ]) → Type Δ (★ ι) → ⟦ Δ ⟧ke → Set (lsuc ℓ ⊔ ι)
+-- Alg {ℓ = a} ρ τ H = 
+--   (w : Row (Set a → Set a)) → 
+--   Maybe ((y : Row (Set a → Set a)) → 
+--   Maybe (⟦ ρ ⟧t H Ix.· y ~ w → 
+--   Maybe 
+--     (Maybe (Ix.Σ (((⟦ ρ ⟧t H) Ix.·⌈ (Ix.μΣ w) ⌉)) 
+--       → Maybe (Ix.μΣ w 
+--       → Maybe (⟦ τ ⟧t H)) 
+--       → Maybe (⟦ τ ⟧t H)))))
 
+Alg : ∀ {ℓ ι} → Row (Set ℓ → Set ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
+Alg {ℓ} = λ ρ τ → -- s s₁
+  (w -- s₂
+   : Row (Set ℓ → Set ℓ)) →
+  Maybe
+  ((y -- s₃
+    : Row (Set ℓ → Set ℓ)) →
+   Maybe
+   ((Ix._·_~_ ρ y w) →
+    Maybe
+    (Maybe
+     (∃ (Fin (fst ρ))
+      (λ i →
+         snd ρ i
+         (IndexCalculus.Mu
+          (λ s₄ →
+             ∃ (Fin (fst w)) (λ m → snd w m s₄))))) →
+     Maybe
+     (Maybe
+      (Maybe
+       (IndexCalculus.Mu
+        (λ s₄ → ∃ (Fin (fst w)) (λ m → snd w m s₄))) →
+       Maybe τ) →
+      Maybe τ))))
 
 ⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
@@ -68,7 +93,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ lab l ⟧t       H = tt
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
-⟦ ρ `↪ τ ⟧t H = Alg ρ τ H
+⟦ ρ `↪ τ ⟧t H = Alg (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
@@ -87,9 +112,8 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 --------------------------------------------------------------------------------
 -- Testing.
 
-alg-pres : ∀ (ρ : Type Δ (R[ ★ ℓ `→ ★ ℓ ])) → (τ : Type Δ (★ ι)) → (H : ⟦ Δ ⟧ke) → 
-    ⟦ MAlg ρ τ ⟧t H ≡ Maybe (Alg ρ τ H)
-alg-pres ρ τ H = {!cong Maybe!} -- cong Maybe (∀-extensionality extensionality {!!} {!!} {!!})
+
+-- alg-pres ρ τ H = {!cong Maybe!} -- cong Maybe (∀-extensionality extensionality {!!} {!!} {!!})
 
 -- t : ∀ (ℓ : Level) → _
 -- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t 
