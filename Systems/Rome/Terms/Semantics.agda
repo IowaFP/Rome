@@ -5,6 +5,7 @@ open import Preludes.Level
 open import Prelude
  
 open import Shared.Lib.Equality
+open import Shared.Postulates.FunExt
 
 open import Rome.Kinds
 open import Rome.Types
@@ -71,6 +72,8 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 -- open _↔_
 -- open _≃_
 
+
+
 join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
           Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
 join→ (just x) a = x a
@@ -92,10 +95,10 @@ join→k nothing a = nothing
   m ← (⟦ M ⟧ H φ η n)
   m (⟦ N ⟧ H φ η n) 
 ⟦ (`Λ κ M) ⟧ H φ η n = just (λ s → ⟦ M ⟧ (H , s) (weaken⟦ _ ⟧pe H φ s) (weaken⟦ _ ⟧e H η s) n)
-⟦ _·[_] {τ = τ} M υ ⟧ H φ η n
+⟦ _·[_] {τ = τ} M υ {eq = refl} ⟧ H φ η n 
   rewrite (sym (Substitution τ υ H)) = do
   m ← ⟦ M ⟧ H φ η n
-  {!!} -- m (⟦ υ ⟧t H) 
+  m (⟦ υ ⟧t H)
 ⟦ `ƛ _ M ⟧ H φ η n = just (λ x → ⟦ M ⟧ H (φ , x) η n)
 ⟦ M ·⟨ D ⟩ ⟧ H φ η n = do
   m ← (⟦ M ⟧ H φ η n)
@@ -201,64 +204,71 @@ join→k nothing a = nothing
 ⟦ In M fmap ⟧ H φ η n = do 
   m ← ⟦ M ⟧ H φ η n
   just (In m)
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η zero = nothing
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
+⟦ tie f ⟧ H φ η zero = nothing
+⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
   ⟦f⟧ ← ⟦ f ⟧ H φ η n 
   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
   ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
   just 
     (λ { (just (In e)) → do
-       ⟦f⟧ ← eff ⟦f⟧ ε-id-R
-       ⟦f⟧ ← ⟦f⟧ (just e)
-       ⟦f⟧ (⟦ recΣ f ⟧ H φ η n)
-       ; nothing → nothing })
-  where
-    eff : (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)) IndexCalculus.·
-      (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) ~ ⟦ ρ ⟧t H →
-      Maybe
-      (Maybe
-       (IndexCalculus.Σ
-        (fst (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) ,
-         (λ i →
-            snd (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) i
-            (Mu
-             (λ X →
-                IndexCalculus.Σ
-                (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
-       Maybe
-       (Maybe
-        (Maybe
-         (Mu
-          (λ X →
-             IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
-         Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))) →
-        Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))))) →
---      Output:
-        ⟦ ρ ⟧t H IndexCalculus.·
-      emptyRow ~ ⟦ ρ ⟧t H →
-      Maybe
-      (Maybe
-       (IndexCalculus.Σ
-        (fst (⟦ ρ ⟧t H) ,
-         (λ i →
-            snd (⟦ ρ ⟧t H) i
-            (Mu
-             (λ X →
-                IndexCalculus.Σ
-                (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
-       Maybe
-       (Maybe
-        (Maybe
-         (Mu
-          (λ X →
-             IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
-         Maybe (⟦ τ ⟧t H)) →
-        Maybe (⟦ τ ⟧t H)))
-
-    eff f rewrite (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))
-          |       (sym (Weakening₂ τ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) = f
-⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η n = {!!} -- {!⟦ Rec ⟧!}
+         ⟦f⟧ ← ⟦f⟧ ε-id-R
+         ⟦f⟧ ← ⟦f⟧
+         rec ← (⟦ tie f ⟧ H φ η n)
+         ⟦f⟧ e (just (λ { x → rec (just x)  }))
+         ; nothing → nothing })
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ H φ η n = {!⟦ f ⟧ H φ η n  !} -- {!⟦ f ⟧ H φ η n!}
+⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η zero       = nothing
+⟦ _▿μ_ {τ = τ} f g π ⟧ H φ η (suc n) = {!⟦ f ⟧ H φ η n!} -- ⟦ recΣ (`Λ R[ ★ _ `→ ★ _ ] (`Λ R[ ★ _ `→ ★ _ ] (`ƛ _ {!Term._▿_!}))) ⟧ H φ η n -- {!⟦ Rec ⟧!}
   -- where
   --   foo = λ X → ⟦ (`λ (μΣ ρ) (Rec (tvar Z)) ⟧
     
+
+--------------------------------------------------------------------------------
+-- May need again:
+
+--   where
+--     eff : (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)) IndexCalculus.·
+--       (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) ~ ⟦ ρ ⟧t H →
+--       Maybe
+--       (Maybe
+--        (IndexCalculus.Σ
+--         (fst (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) ,
+--          (λ i →
+--             snd (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) i
+--             (Mu
+--              (λ X →
+--                 IndexCalculus.Σ
+--                 (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
+--        Maybe
+--        (Maybe
+--         (Maybe
+--          (Mu
+--           (λ X →
+--              IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
+--          Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))) →
+--         Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))))) →
+-- --      Output:
+--         ⟦ ρ ⟧t H IndexCalculus.·
+--       emptyRow ~ ⟦ ρ ⟧t H →
+--       Maybe
+--       (Maybe
+--        (IndexCalculus.Σ
+--         (fst (⟦ ρ ⟧t H) ,
+--          (λ i →
+--             snd (⟦ ρ ⟧t H) i
+--             (Mu
+--              (λ X →
+--                 IndexCalculus.Σ
+--                 (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
+--        Maybe
+--        (Maybe
+--         (Maybe
+--          (Mu
+--           (λ X →
+--              IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
+--          Maybe (⟦ τ ⟧t H)) →
+--         Maybe (⟦ τ ⟧t H)))
+
+--     eff f rewrite (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))
+--           |       (sym (Weakening₂ τ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) = f

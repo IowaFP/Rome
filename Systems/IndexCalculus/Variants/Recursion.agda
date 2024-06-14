@@ -7,13 +7,6 @@ open import IndexCalculus.Variants
 open import IndexCalculus.Records
 open import IndexCalculus.Recursion
 
-
---------------------------------------------------------------------------------
--- μ ∘ Σ
-
-μΣ : ∀ {ℓ} → Row (Functor ℓ) → Set ℓ
-μΣ ρ = Mu (λ X → Σ ( ρ  ·⌈ X ⌉))
-
 --------------------------------------------------------------------------------
 -- 
 
