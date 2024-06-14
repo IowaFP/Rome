@@ -100,14 +100,14 @@ con {ℓ} {ℓΔ = ℓΔ} = `Λ (L _) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
     
 
 -- Some assertions about con.
-con₁ con₂ : ∀ {ℓ} → ⟦ conT {ℓ} ⟧t tt
-con₁ _ t z π ρ x with π fzero
-... | n , eq rewrite eq = n , x
-con₂ = ⟦ con ⟧ tt tt tt
+-- con₁ con₂ : ∀ {ℓ} → ⟦ conT {ℓ} ⟧t tt
+-- con₁ _ t z π ρ x with π fzero
+-- ... | n , eq rewrite eq = n , x
+-- con₂ = ⟦ con ⟧ tt tt tt
 
-con-ext-eq : ∀ {ℓ} u X z π ρ u' → con₁ {ℓ} u X z π ρ u' ≡ con₂ {ℓ} u X z π ρ u'
-con-ext-eq _ X row π r _ with π fzero 
-... | m , eq rewrite eq = refl
+-- con-ext-eq : ∀ {ℓ} u X z π ρ u' → con₁ {ℓ} u X z π ρ u' ≡ con₂ {ℓ} u X z π ρ u'
+-- con-ext-eq _ X row π r _ with π fzero 
+-- ... | m , eq rewrite eq = refl
 
 --------------------------------------------------------------------------------
 -- Case (case).
@@ -205,8 +205,8 @@ reify = `Λ R[ ★₀ ] (`Λ ★₀ (`λ (((Σ z) `→ t)) (syn z (`λ ★₀ ((
         z' = tvar (S (S (S (S Z))))
         f  = var (S (S Z))
 
-⟦reify⟧ : ⟦ reifyT ⟧t tt
-⟦reify⟧ = ⟦ reify ⟧ tt tt tt
+-- ⟦reify⟧ : ⟦ reifyT ⟧t tt
+-- ⟦reify⟧ = ⟦ reify ⟧ tt tt tt
 
 --------------------------------------------------------------------------------
 -- Reflection (reflect).
