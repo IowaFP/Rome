@@ -95,7 +95,7 @@ join→k nothing a = nothing
   m ← (⟦ M ⟧ H φ η n)
   m (⟦ N ⟧ H φ η n) 
 ⟦ (`Λ κ M) ⟧ H φ η n = just (λ s → ⟦ M ⟧ (H , s) (weaken⟦ _ ⟧pe H φ s) (weaken⟦ _ ⟧e H η s) n)
-⟦ _·[_] {τ = τ} M υ {eq = refl} ⟧ H φ η n 
+⟦ _·[_] {τ = τ} M υ ⟧ H φ η n 
   rewrite (sym (Substitution τ υ H)) = do
   m ← ⟦ M ⟧ H φ η n
   m (⟦ υ ⟧t H)

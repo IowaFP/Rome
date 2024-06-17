@@ -4,6 +4,8 @@ open import Prelude
 open import Preludes.Level
 open import Data.Product as DP
 
+open import IndexCalculus.Properties
+
 open import Rome.Kinds
 open import Rome.Types
 open import Rome.Equivalence -- extensionality
@@ -92,5 +94,6 @@ open import Rome.GVars.Kinds
               (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₂ ⟧t H) i) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) j))
     τρ₂τ≲τρ₃ i with ρ₂≲ρ₃ i
     ... | j , P = j , cong (⟦ τ ⟧t H) P
-  
+⟦ n-ε-R ⟧n H φ = ε-id-R
+⟦ n-ε-L ⟧n H φ = ε-id-L
   
