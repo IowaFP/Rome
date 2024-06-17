@@ -199,8 +199,8 @@ join→k nothing a = nothing
          cur y) 
        (just e) r
 
--- -- Recursive Terms.
--- ------------------
+-- Recursive Terms.
+------------------
 ⟦ In M fmap ⟧ H φ η n = do 
   m ← ⟦ M ⟧ H φ η n
   just (In m)
@@ -210,13 +210,14 @@ join→k nothing a = nothing
   ⟦f⟧ ← ⟦ f ⟧ H φ η n 
   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
   ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
+  ⟦f⟧ ← ⟦f⟧ ε-id-R
   just 
     (λ { (just (In e)) → do
-         ⟦f⟧ ← ⟦f⟧ ε-id-R
          ⟦f⟧ ← ⟦f⟧ (just e)
          ⟦f⟧ (⟦ tie f ⟧ H φ η n)
          ; nothing → nothing })
 ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ H φ η n = ⟦ f ⟧ H φ η n
+-- This rule is admissable.
 ⟦ _▿μ_ {τ = τ} M N π ⟧ H φ η n = 
   just λ w → 
   just (λ y → 
