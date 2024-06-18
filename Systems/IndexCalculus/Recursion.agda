@@ -50,6 +50,9 @@ cata {ℓ} {F} fmap ℕ.zero φ d = nothing
 cata {ℓ} {F} fmap (ℕ.suc n) φ d = (φ (fmap (cata fmap n φ) d)) -- φ (fmap (cata fmap n φ) d)
 
 -- TODO: Change this to use maybe fmap type so that it can be piped in thru term semantics.
+-- Also use
+--   join→ : Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
+-- to make fmap-Maybe type less garbage.
 Out : ∀ {ℓ} {F : Functor ℓ} → 
         (n : ℕ) (fmap : FmapT F) → 
         (return : ∀ {A} → A → F A) →
