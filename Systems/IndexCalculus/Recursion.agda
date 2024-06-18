@@ -44,13 +44,18 @@ In-Maybe {ℓ} {F} fmap (ℕ.suc n) d = do
   f₃ ← f₂ (just (In-Maybe {_} {F} fmap n))
   f₃ d
 
-Out : ∀ {ℓ} {F : Functor ℓ} → (n : ℕ) → Mu F (ℕ.suc n) → F (Mu F n)
-Out g xs = xs
-
 cata : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} → 
        (fmap : FmapT F) → (n : ℕ) → (F (Maybe A) → Maybe A) → Mu F n → Maybe A
 cata {ℓ} {F} fmap ℕ.zero φ d = nothing
-cata {ℓ} {F} fmap (ℕ.suc n) φ d = φ (fmap (cata fmap n φ) d)
+cata {ℓ} {F} fmap (ℕ.suc n) φ d = (φ (fmap (cata fmap n φ) d)) -- φ (fmap (cata fmap n φ) d)
+
+-- TODO: Change this to use maybe fmap type so that it can be piped in thru term semantics.
+Out : ∀ {ℓ} {F : Functor ℓ} → 
+        (n : ℕ) (fmap : FmapT F) → 
+        (return : ∀ {A} → A → F A) →
+        Mu F n → Mu F (ℕ.suc n)
+Out {_} {F} ℕ.zero fmap return xs = return xs
+Out {_} {F} (ℕ.suc n) fmap return xs = fmap (Out n fmap return) xs
 
 --------------------------------------------------------------------------------
 -- μ ∘ Σ

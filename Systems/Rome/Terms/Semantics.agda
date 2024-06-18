@@ -234,8 +234,7 @@ join→k nothing a = nothing
   m    ← ⟦ M ⟧ g h H φ η 
   fmap ← ⟦ fmap ⟧ g h H φ η 
   In-Maybe fmap g (just m)
-⟦ Term.Out {F = F} M ⟧ g ℕ.zero H φ η = nothing
-⟦ Term.Out {F = F} M ⟧ g (ℕ.suc h) H φ η = {!Ix.Out!}
+⟦ Term.Out {F = F} M ⟧ g h H φ η = IndexCalculus.Out g g _ _ (⟦ M ⟧ g h H φ η)
 ⟦ tie f ⟧ g h H φ η = nothing
 -- ⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ g h H φ η = do
 --   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t g H 
@@ -283,6 +282,9 @@ join→k nothing a = nothing
     --  2. Maybes make writing Ix.▿ a nightmare
     {!Ix._▿_!} 
   ))))
+
+-- foo : Term ε ε ε (Mu (`λ (★ ℓ) (tvar Z)))
+-- foo = In 
 
 --------------------------------------------------------------------------------
 -- May need again:
