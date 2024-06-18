@@ -1,14 +1,15 @@
-module Rome.Equivalence.Semantics where
-
 open import Prelude
 open import Preludes.Level
+
+module Rome.Equivalence.Semantics (g : Potatoes) where
 
 open import Shared.Postulates.FunExt
 
 open import Rome.Kinds
-open import Rome.Types
+open import Rome.Types.Syntax
 open import Rome.Types.Substitution
-open import Rome.Types.Substitution.Properties -- extensionality
+open import Rome.Types.Semantics g
+open import Rome.Types.Substitution.Properties g -- extensionality
 open import Rome.Equivalence.Syntax
 open import Rome.GVars.Kinds
 

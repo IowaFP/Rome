@@ -1,10 +1,11 @@
-module Rome.Types.Substitution.Properties where
-
 open import Preludes.Level
 open import Prelude
 
+module Rome.Types.Substitution.Properties (g : Potatoes) where
+
 open import Rome.Kinds
-open import Rome.Types
+open import Rome.Types.Syntax
+open import Rome.Types.Semantics g
 open import Rome.Types.Substitution
 open import Shared.Postulates.FunExt
 

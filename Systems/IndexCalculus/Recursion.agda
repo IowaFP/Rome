@@ -20,30 +20,50 @@ FmapT-ρ ρ = Π (lift₂ FmapT ρ)
 --------------------------------------------------------------------------------
 -- Denoting recursive types.
 
-{-# NO_POSITIVITY_CHECK #-}
-data Mu {ℓ} (F : Functor ℓ) : Set ℓ where
-  In : F (Mu F) → Mu F
+Mu : ∀ {ℓ} → (Functor ℓ) → (n : ℕ) → Set ℓ
+Mu F zero = ⊤
+Mu F (suc n) = F (Mu F n)
 
-out : ∀ {ℓ} {F : Functor ℓ} → Mu F → F (Mu F)
-out (In x) = x
+In : ∀ {ℓ} {F : Functor ℓ} → 
+           (fmap : FmapT {ℓ} F) → (n : ℕ) → F (Mu F n) → Mu F n
+In fmap zero xs = tt
+In {ℓ} {F} fmap (suc n) xs = fmap {F (Mu F n)} {Mu F n} (In {_} {F} fmap n) xs
+
+fmap-Maybe : ∀ {ℓ} → Functor ℓ → Set (lsuc ℓ)
+fmap-Maybe {ℓ} F = (A : Set ℓ) → Maybe
+             ((B : Set ℓ) → Maybe
+             (Maybe (Maybe A → Maybe B) →
+              Maybe (Maybe (F A) → Maybe (F B))))
+
+In-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
+           (fmap : fmap-Maybe F) → (n : ℕ) → Maybe (F (Mu F n)) → Maybe (Mu F n)
+In-Maybe fmap ℕ.zero d = just tt
+In-Maybe {ℓ} {F} fmap (ℕ.suc n) d = do
+  f₁ ← fmap (F (Mu F n))
+  f₂ ← f₁ (Mu F n)
+  f₃ ← f₂ (just (In-Maybe {_} {F} fmap n))
+  f₃ d
+
+Out : ∀ {ℓ} {F : Functor ℓ} → (n : ℕ) → Mu F (ℕ.suc n) → F (Mu F n)
+Out g xs = xs
 
 --------------------------------------------------------------------------------
 -- μ ∘ Σ
 
-μΣ : ∀ {ℓ} → Row (Functor ℓ) → Set ℓ
-μΣ ρ = Mu (λ X → Σ ( ρ  ·⌈ X ⌉))
+-- μΣ : ∀ {ℓ} → Row (Functor ℓ) → Set ℓ
+-- μΣ ρ = Mu (λ X → Σ ( ρ  ·⌈ X ⌉))
 
---------------------------------------------------------------------------------
--- Inclusion Algebras
+-- --------------------------------------------------------------------------------
+-- -- Inclusion Algebras
 
-Alg : ∀ {ℓ ι} → Row (Functor ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
-Alg {ℓ} ρ τ = 
-  (w : Row (Set ℓ → Set ℓ)) → 
-    Maybe (
-      (y : Row (Set ℓ → Set ℓ)) → Maybe (        
-       w · y ~ w → Maybe (
-         Maybe (Σ ((ρ ·⌈ (μΣ w) ⌉)) → Maybe (μΣ w → Maybe τ) → Maybe τ
-       ))))
+-- Alg : ∀ {ℓ ι} → Row (Functor ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
+-- Alg {ℓ} ρ τ = 
+--   (w : Row (Set ℓ → Set ℓ)) → 
+--     Maybe (
+--       (y : Row (Set ℓ → Set ℓ)) → Maybe (        
+--        w · y ~ w → Maybe (
+--          Maybe (Σ ((ρ ·⌈ (μΣ w) ⌉)) → Maybe (μΣ w → Maybe τ) → Maybe τ
+--        ))))
 
   --   w · y ~ w → 
   --   Σ (ρ ·⌈ (μΣ w) ⌉) → 

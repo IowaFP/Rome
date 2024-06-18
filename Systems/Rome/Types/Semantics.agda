@@ -1,8 +1,9 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Types.Semantics where
+open import Preludes.Data hiding (∃)
+
+module Rome.Types.Semantics (g : Potatoes) where
 
 open import Preludes.Level
-open import Preludes.Data hiding (∃)
 open import Preludes.Relation
 
 open import Rome.GVars.Kinds
@@ -39,8 +40,8 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 --       → Maybe (⟦ τ ⟧t H)) 
 --       → Maybe (⟦ τ ⟧t H)))))
 
-Alg : ∀ {ℓ ι} → Row (Set ℓ → Set ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
-Alg {ℓ} = λ ρ τ → -- s s₁
+Alg : ∀ {ℓ ι} → (n : Potatoes) → Row (Set ℓ → Set ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
+Alg {ℓ} n = λ ρ τ → -- s s₁
   (w -- s₂
    : Row (Set ℓ → Set ℓ)) →
   Maybe
@@ -53,14 +54,14 @@ Alg {ℓ} = λ ρ τ → -- s s₁
      (∃ (Fin (fst ρ))
       (λ i →
          snd ρ i
-         (IndexCalculus.Mu
+         (Ix.Mu
           (λ s₄ →
-             ∃ (Fin (fst w)) (λ m → snd w m s₄))))) →
+             ∃ (Fin (fst w)) (λ m → snd w m s₄)) n))) →
      Maybe
      (Maybe
       (Maybe
-       (IndexCalculus.Mu
-        (λ s₄ → ∃ (Fin (fst w)) (λ m → snd w m s₄))) →
+       (Ix.Mu
+        (λ s₄ → ∃ (Fin (fst w)) (λ m → snd w m s₄)) n) →
        Maybe τ) →
       Maybe τ))))
 
@@ -93,7 +94,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ lab l ⟧t       H = tt
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
-⟦ ρ `↪ τ ⟧t H = Alg (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
+⟦ ρ `↪ τ ⟧t H = Alg g (⟦ ρ ⟧t H) (⟦ τ ⟧t H) 
 ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
@@ -106,7 +107,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
 ⟦ ε ⟧t H = Ix.emptyRow
-⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H)
+⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
 
 
 --------------------------------------------------------------------------------

@@ -1,14 +1,16 @@
-module Rome.Entailment.Semantics where
-
 open import Prelude
 open import Preludes.Level
 open import Data.Product as DP
 
+module Rome.Entailment.Semantics (g : Potatoes) where
+
 open import IndexCalculus.Properties
 
 open import Rome.Kinds
-open import Rome.Types
-open import Rome.Equivalence -- extensionality
+open import Rome.Types.Syntax
+open import Rome.Types.Semantics g
+open import Rome.Equivalence.Syntax 
+open import Rome.Equivalence.Semantics g -- extensionality
 open import Rome.Terms.Syntax
 open import Rome.Entailment.Syntax
 open import Rome.GVars.Kinds

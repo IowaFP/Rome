@@ -1,28 +1,57 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Terms.Semantics where
- 
 open import Preludes.Level
 open import Prelude
+
+module Rome.Terms.Semantics where
  
 open import Shared.Lib.Equality
 open import Shared.Postulates.FunExt
 
 open import Rome.Kinds
-open import Rome.Types
+open import Rome.Types.Syntax
+import Rome.Types.Semantics as TypeSem
+open TypeSem hiding (⟦_⟧t ; ⟦_⟧p)
 open import Rome.Types.Substitution
 open import Rome.Types.Substitution.Properties -- extensionality
 open import Rome.Terms.Syntax
-open import Rome.Equivalence -- extensionality
-open import Rome.Entailment -- extensionality
+open import Rome.Equivalence.Syntax 
+import Rome.Equivalence.Semantics as EqSem
+open EqSem hiding (⟦_⟧eq ; ⟦_⟧eq-π) -- extensionality
+open import Rome.Entailment.Syntax 
+import Rome.Entailment.Semantics as EntSem
+open EntSem hiding (⟦_⟧pe ; ⟦_⟧n)
 
 open import IndexCalculus
 open import IndexCalculus.Properties
 import IndexCalculus as Ix
 
+--------------------------------------------------------------------------------
+-- These shenanigans should be moved to the top level export module of each folder.
+
+⟦_⟧t : ∀ {ℓ ℓκ} {Δ : KEnv ℓ} {κ : Kind ℓκ} → Type Δ κ → Potatoes → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+⟦_⟧t τ n H = TypeSem.⟦_⟧t n τ H
+
+⟦_⟧p : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} → Pred Δ κ → Potatoes → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
+⟦_⟧p π n H = TypeSem.⟦_⟧p n π H
+
+
+⟦_⟧pe : ∀ {ℓ ℓΦ} {Δ : KEnv ℓ} → PEnv Δ ℓΦ → Potatoes → ⟦ Δ ⟧ke → Set (lsuc ℓΦ)
+⟦ Φ ⟧pe g H = EntSem.⟦_⟧pe g Φ H
+
+⟦_⟧n : ∀ {ℓΔ ℓκ ℓΦ} {κ : Kind ℓκ} {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
+         Ent Δ Φ π → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe g H → ⟦ π ⟧p g H
+⟦ π ⟧n g H η = EntSem.⟦_⟧n g π H η
+
+⟦_⟧eq-π : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {π₁ π₂ : Pred Δ κ} →
+         π₁ ≡p π₂ → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ π₁ ⟧p g H ≡ ⟦ π₂ ⟧p g H
+⟦_⟧eq-π eq g H = EqSem.⟦_⟧eq-π g eq H
+        
+⟦_⟧eq : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {τ υ : Type Δ κ} →
+       τ ≡t υ → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ τ ⟧t g H ≡ ⟦ υ ⟧t g H
+⟦_⟧eq eq g H = EqSem.⟦_⟧eq g eq H
 
 --------------------------------------------------------------------------------
 -- The meaning of environments.
-
 
 private
   variable
@@ -34,45 +63,43 @@ private
     κ₃ : Kind ℓκ₃
     Δ : KEnv ℓΔ
 
-⟦_⟧e : Env Δ ℓΓ → ⟦ Δ ⟧ke → Set ℓΓ
-⟦ ε ⟧e H = ⊤
-⟦ Γ ، τ ⟧e H = ⟦ Γ ⟧e H × (Maybe (⟦ τ ⟧t H))
+⟦_⟧e : Env Δ ℓΓ → Potatoes → ⟦ Δ ⟧ke → Set ℓΓ
+⟦ ε ⟧e g H = ⊤
+⟦ Γ ، τ ⟧e g H = ⟦ Γ ⟧e g H × (Maybe (⟦ τ ⟧t g H))
 
 --------------------------------------------------------------------------------
 -- The meaning of variables.
 
 ⟦_⟧v : ∀ {ℓΔ} {Δ : KEnv ℓΔ} {ℓΓ} {Γ : Env Δ ℓΓ} {ℓτ} {τ : Type Δ (★ ℓτ)} →
-       Var Γ τ → (H : ⟦ Δ ⟧ke) → ⟦ Γ ⟧e H → Maybe (⟦ τ ⟧t H)
-⟦ Z ⟧v H (η , x) = x
-⟦ S v ⟧v H (η , x) = ⟦ v ⟧v H η
+       Var Γ τ → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ Γ ⟧e g H → Maybe (⟦ τ ⟧t g H)
+⟦ Z ⟧v n H (η , x) = x
+⟦ S v ⟧v n H (η , x) = ⟦ v ⟧v n H η
 
 
 --------------------------------------------------------------------------------
 -- Denotational Weakening Lemma.
 
 weaken⟦_⟧e : ∀ {ℓΔ ℓΓ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-             (Γ : Env Δ ℓΓ) → (H : ⟦ Δ ⟧ke) → (⟦Γ⟧ : ⟦ Γ ⟧e H) →
+             (Γ : Env Δ ℓΓ) → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → (⟦Γ⟧ : ⟦ Γ ⟧e g H) →
              (X : ⟦ κ ⟧k) →
-               ⟦ weakΓ Γ ⟧e (H , X)
-weaken⟦ ε ⟧e H ⟦Γ⟧ X = tt
-weaken⟦_⟧e {Δ = Δ} {κ = κ}  (Γ ، τ) H (⟦Γ⟧ , ⟦τ⟧) X
-  rewrite τ-preservation Δ (Δ ، κ) H (H , X) S (λ _ → refl) τ = weaken⟦ Γ ⟧e H ⟦Γ⟧ X , ⟦τ⟧
+               ⟦ weakΓ Γ ⟧e g (H , X)
+weaken⟦ ε ⟧e g H ⟦Γ⟧ X = tt
+weaken⟦_⟧e {Δ = Δ} {κ = κ}  (Γ ، τ) g H (⟦Γ⟧ , ⟦τ⟧) X
+  rewrite τ-preservation g Δ (Δ ، κ) H (H , X) S (λ _ → refl) τ = weaken⟦ Γ ⟧e g H ⟦Γ⟧ X , ⟦τ⟧
 
 weaken⟦_⟧pe : ∀ {ℓΔ ℓΦ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-             (Φ : PEnv Δ ℓΦ) → (H : ⟦ Δ ⟧ke) → (⟦Φ⟧ : ⟦ Φ ⟧pe H) →
+             (Φ : PEnv Δ ℓΦ) → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → (⟦Φ⟧ : ⟦ Φ ⟧pe g H) →
              (X : ⟦ κ ⟧k) →
-               ⟦ weakΦ Φ ⟧pe (H , X)
-weaken⟦ ε ⟧pe H ⟦Φ⟧ X = tt
-weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
-  rewrite π-preservation Δ (Δ ، κ) H (H , X) S (λ _ → refl) π = weaken⟦ Φ ⟧pe H ⟦Φ⟧ X , ⟦π⟧
+               ⟦ weakΦ Φ ⟧pe g (H , X)
+weaken⟦ ε ⟧pe g H ⟦Φ⟧ X = tt
+weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) g H (⟦Φ⟧ , ⟦π⟧) X
+  rewrite π-preservation g Δ (Δ ، κ) H (H , X) S (λ _ → refl) π = weaken⟦ Φ ⟧pe g H ⟦Φ⟧ X , ⟦π⟧
 
 --------------------------------------------------------------------------------
 -- -- The meaning of terms.
 
 -- open _↔_
 -- open _≃_
-
-
 
 join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
           Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
@@ -87,52 +114,54 @@ join→k nothing a = nothing
 ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} →
         Term Δ Φ Γ τ →
-        (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ Γ ⟧e H → 
-        Potatoes → Maybe (⟦ τ ⟧t H)
-⟦ var x ⟧ H φ η n = ⟦ x ⟧v H η
-⟦ `λ _ M ⟧ H φ η n = just (λ x → ⟦ M ⟧ H φ (η , x) n) 
-⟦ M · N ⟧ H φ η n = do
-  m ← (⟦ M ⟧ H φ η n)
-  m (⟦ N ⟧ H φ η n) 
-⟦ (`Λ κ M) ⟧ H φ η n = just (λ s → ⟦ M ⟧ (H , s) (weaken⟦ _ ⟧pe H φ s) (weaken⟦ _ ⟧e H η s) n)
-⟦ _·[_] {τ = τ} M υ ⟧ H φ η n 
-  rewrite (sym (Substitution τ υ H)) = do
-  m ← ⟦ M ⟧ H φ η n
-  m (⟦ υ ⟧t H)
-⟦ `ƛ _ M ⟧ H φ η n = just (λ x → ⟦ M ⟧ H (φ , x) η n)
-⟦ M ·⟨ D ⟩ ⟧ H φ η n = do
-  m ← (⟦ M ⟧ H φ η n)
-  m (⟦ D ⟧n H φ)
-⟦ (r₁ ⊹ r₂) π ⟧ H φ η n = do
-  r₁ ← (⟦ r₁ ⟧ H φ η n) 
-  r₂ ← (⟦ r₂ ⟧ H φ η n) 
-  just (r₁ Ix.⊹ r₂ Using (⟦ π ⟧n H φ))
-⟦ lab s ⟧ H φ η n  = just tt
-⟦ prj r π ⟧ H φ η n  = (⟦ r ⟧ H φ η n) >>= 
+        (g : Potatoes) →  -- Type gas
+        (h : Potatoes) →  -- Term Gas
+        (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe g H → ⟦ Γ ⟧e g H → 
+        Maybe (⟦ τ ⟧t g H)
+⟦ var x ⟧ g h H φ η = ⟦ x ⟧v g H η
+⟦ `λ _ M ⟧ g h H φ η = just (λ x → ⟦ M ⟧ g h H φ (η , x)) 
+⟦ M · N ⟧ g h H φ η = do
+  m ← (⟦ M ⟧ g h H φ η)
+  m (⟦ N ⟧ g h H φ η) 
+⟦ (`Λ κ M) ⟧ g h H φ η = just (λ s → ⟦ M ⟧ g h (H , s) (weaken⟦ _ ⟧pe g H φ s) (weaken⟦ _ ⟧e g H η s))
+⟦ _·[_] {τ = τ} M υ ⟧ g h H φ η 
+  rewrite (sym (Substitution g τ υ H)) = do
+  m ← ⟦ M ⟧ g h H φ η
+  m (⟦ υ ⟧t g H)
+⟦ `ƛ _ M ⟧ g h H φ η = just (λ x → ⟦ M ⟧ g h H (φ , x) η)
+⟦ M ·⟨ D ⟩ ⟧ g h H φ η = do
+  m ← (⟦ M ⟧ g h H φ η)
+  m (⟦ D ⟧n g H φ)
+⟦ (r₁ ⊹ r₂) π ⟧ g h H φ η = do
+  r₁ ← (⟦ r₁ ⟧ g h H φ η) 
+  r₂ ← (⟦ r₂ ⟧ g h H φ η) 
+  just (r₁ Ix.⊹ r₂ Using (⟦ π ⟧n g H φ))
+⟦ lab s ⟧ g h H φ η  = just tt
+⟦ prj r π ⟧ g h H φ η  = (⟦ r ⟧ g h H φ η) >>= 
   (λ r' → 
-    just (λ i → let n  = (fst (⟦ π ⟧n H φ i)) in
-                 let eq = (snd (⟦ π ⟧n H φ i)) in ≡-elim (sym (cong Maybe eq)) (r' n))) 
-⟦ M ▹ N ⟧ H φ η n = ⟦ N ⟧ H φ η n
-⟦ M / N ⟧ H φ η n = ⟦ M ⟧ H φ η n
-⟦ t-≡ {τ = τ}{υ = υ} τ≡υ M ⟧ H φ η n 
-  rewrite sym (⟦ τ≡υ ⟧eq H) = ⟦ M ⟧ H φ η n
-⟦ inj M π ⟧ H φ η n = do 
-  m ← (⟦ M ⟧ H φ η n)
-  return (Ix.inj (⟦ π ⟧n H φ) m)
-⟦ (M ▿ N) π ⟧ H φ η n = do
-    let ev = ⟦ π ⟧n H φ
-    ρ₁-elim ← ⟦ M ⟧ H φ η n 
-    ρ₂-elim ← ⟦ N ⟧ H φ η n
+    just (λ i → let n  = (fst (⟦ π ⟧n g H φ i)) in
+                 let eq = (snd (⟦ π ⟧n g H φ i)) in ≡-elim (sym (cong Maybe eq)) (r' n))) 
+⟦ M ▹ N ⟧ g h H φ η = ⟦ N ⟧ g h H φ η
+⟦ M / N ⟧ g h H φ η = ⟦ M ⟧ g h H φ η
+⟦ t-≡ {τ = τ}{υ = υ} τ≡υ M ⟧ g h H φ η 
+  rewrite sym (⟦ τ≡υ ⟧eq g H) = ⟦ M ⟧ g h H φ η
+⟦ inj M π ⟧ g h H φ η = do 
+  m ← (⟦ M ⟧ g h H φ η)
+  return (Ix.inj (⟦ π ⟧n g H φ) m)
+⟦ (M ▿ N) π ⟧ g h H φ η = do
+    let ev = ⟦ π ⟧n g H φ
+    ρ₁-elim ← ⟦ M ⟧ g h H φ η 
+    ρ₂-elim ← ⟦ N ⟧ g h H φ η
     just (λ { 
       (just (i , P)) → 
         [ (λ (j , eq) → ρ₁-elim (just (j , (≡-elim (sym eq) P)))) , 
           (λ (j , eq) → ρ₂-elim (just (j , (≡-elim (sym eq) P)))) ]′ (fst ev i) ; 
       nothing → nothing })      
-⟦ syn {Δ = Δ} {κ = κ} ρ f M ⟧ H₀ φ η n = just (λ i → do
-  let ⟦ρ⟧ = ⟦ ρ ⟧t H₀
-  let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-  let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-  ⟦M⟧ ← ⟦ M ⟧ H₀ φ η n
+⟦ syn {Δ = Δ} {κ = κ} ρ f M ⟧ g h H₀ φ η = just (λ i → do
+  let ⟦ρ⟧ = ⟦ ρ ⟧t g H₀
+  let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ g {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+  let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ g {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+  ⟦M⟧ ← ⟦ M ⟧ g h H₀ φ η
   ⟦M⟧ ← ⟦M⟧ tt
   ⟦M⟧ ← ⟦M⟧ (snd ⟦ρ⟧ i)
   ⟦M⟧ ← ⟦M⟧ (⟦ρ⟧ delete i)
@@ -141,47 +170,47 @@ join→k nothing a = nothing
   just (≡-elim (sym (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd ⟦ρ⟧ i))) ⟦M⟧)
   )
   where
-    ⟦ρ⟧ = ⟦ ρ ⟧t H₀
+    ⟦ρ⟧ = ⟦ ρ ⟧t g H₀
     evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.· ⟦ρ⟧ delete i ~
-               ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
-    evidence i rewrite sym (Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
+               ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t g (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
+    evidence i rewrite sym (Weakening₃ g {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
 
-⟦ ana {Δ = Δ} {κ = κ} ρ f τ M ⟧ H₀ φ η n = just 
+⟦ ana {Δ = Δ} {κ = κ} ρ f τ M ⟧ g h H₀ φ η = just 
   (λ { (just (i , P)) → do
-    let ⟦ρ⟧ = (⟦ ρ ⟧t H₀)
-    let ⟦τ⟧≡⟦weaken³τ⟧ = Weakening₃ {ℓκA = lzero} τ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-    let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-    let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-    ⟦M⟧ ← ⟦ M ⟧ H₀ φ η n
+    let ⟦ρ⟧ = (⟦ ρ ⟧t g H₀)
+    let ⟦τ⟧≡⟦weaken³τ⟧ = Weakening₃ g {ℓκA = lzero} τ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+    let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ g {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+    let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ g {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+    ⟦M⟧ ← ⟦ M ⟧ g h H₀ φ η
     ⟦M⟧ ← ⟦M⟧ tt
     ⟦M⟧ ← ⟦M⟧ (snd ⟦ρ⟧ i)
     ⟦M⟧ ← ⟦M⟧ (⟦ρ⟧ delete i)
     ⟦M⟧ ← ⟦M⟧ (evidence i)
     ⟦M⟧ ← ⟦M⟧ (just tt)
-    ⟦M⟧ ← ⟦M⟧ (just (≡-elim (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd (⟦ ρ ⟧t H₀) i)) P))
+    ⟦M⟧ ← ⟦M⟧ (just (≡-elim (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd (⟦ ρ ⟧t g H₀) i)) P))
     just (≡-elim (sym ⟦τ⟧≡⟦weaken³τ⟧) ⟦M⟧)
   ; nothing → nothing})
     where
-      ⟦ρ⟧ = ⟦ ρ ⟧t H₀
+      ⟦ρ⟧ = ⟦ ρ ⟧t g H₀
       evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.· ⟦ρ⟧ delete i ~
-                 ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
-      evidence i rewrite sym (Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
-⟦ Term.Π s ⟧ H φ η n = just (λ { fzero → ⟦ s ⟧ H φ η n })
-⟦ Π⁻¹ r ⟧ H φ η n = do
-  ⟦r⟧ ←  ⟦ r ⟧ H φ η n
+                 ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t g (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
+      evidence i rewrite sym (Weakening₃ g {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
+⟦ Term.Π s ⟧ g h H φ η = just (λ { fzero → ⟦ s ⟧ g h H φ η })
+⟦ Π⁻¹ r ⟧ g h H φ η = do
+  ⟦r⟧ ←  ⟦ r ⟧ g h H φ η
   ⟦r⟧ fzero
-⟦ Term.Σ s ⟧ H φ η n = do
-  ⟦s⟧ ← (⟦ s ⟧ H φ η n)
+⟦ Term.Σ s ⟧ g h H φ η = do
+  ⟦s⟧ ← (⟦ s ⟧ g h H φ η)
   just (fzero , ⟦s⟧)
-⟦ Σ⁻¹ v ⟧ H φ η n with ⟦ v ⟧ H φ η n
+⟦ Σ⁻¹ v ⟧ g h H φ η with ⟦ v ⟧ g h H φ η
 ... | just (fzero , M) = just M
 ... | nothing = nothing
-⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ H φ η n = do
-     op ← ⟦ M₁ ⟧ H φ η n 
-     _+_ ← ⟦ M₂ ⟧ H φ η n 
-     e ← ⟦ M₃ ⟧ H φ η n
-     r ← ⟦ N ⟧ H φ η n
-     Ix.fold (⟦ ρ ⟧t H) 
+⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ g h H φ η = do
+     op ← ⟦ M₁ ⟧ g h H φ η 
+     _+_ ← ⟦ M₂ ⟧ g h H φ η 
+     e ← ⟦ M₃ ⟧ g h H φ η
+     r ← ⟦ N ⟧ g h H φ η
+     Ix.fold (⟦ ρ ⟧t g H) 
        (λ τ y ev t → 
          op tt       >>= λ f → 
          f τ         >>= λ f → 
@@ -189,11 +218,11 @@ join→k nothing a = nothing
          f (≡-elim 
              (cong 
                (Ix._·_~_ (sing τ) y) 
-               (Weakening₃ ρ H tt τ y)) 
+               (Weakening₃ g ρ H tt τ y)) 
                ev)   >>= λ f → 
          f (just tt) >>= λ f → 
          f t         >>= λ d →
-         just (≡-elim (sym (Weakening₃ υ H tt τ y)) d) ) 
+         just (≡-elim (sym (Weakening₃ g υ H tt τ y)) d) ) 
        (λ x y → do 
          cur ← _+_ x
          cur y) 
@@ -201,33 +230,38 @@ join→k nothing a = nothing
 
 -- Recursive Terms.
 ------------------
-⟦ In M fmap ⟧ H φ η n = ⟦ M ⟧ H φ η n >>= λ m → just (In m)
-⟦ Out M ⟧ H φ η n = ⟦ M ⟧ H φ η n >>= λ m → just (out m)
-⟦ tie f ⟧ H φ η zero = nothing
-⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
-  let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
-  ⟦f⟧ ← ⟦ f ⟧ H φ η n 
-  ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
-  ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
-  ⟦f⟧ ← ⟦f⟧ ε-id-R
-  just 
-    (λ { (just (In e)) → do
-         ⟦f⟧ ← ⟦f⟧ (just e)
-         ⟦f⟧ (⟦ tie f ⟧ H φ η n)
-         ; nothing → nothing })
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ H φ η n = ⟦ f ⟧ H φ η n
+⟦ In M fmap ⟧ g h H φ η = do
+  m    ← ⟦ M ⟧ g h H φ η 
+  fmap ← ⟦ fmap ⟧ g h H φ η 
+  In-Maybe fmap g (just m)
+⟦ Term.Out {F = F} M ⟧ g ℕ.zero H φ η = nothing
+⟦ Term.Out {F = F} M ⟧ g (ℕ.suc h) H φ η = {!Ix.Out!}
+⟦ tie f ⟧ g h H φ η = nothing
+-- ⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ g h H φ η = do
+--   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t g H 
+--   ⟦f⟧ ← ⟦ f ⟧ (ℕ.suc g) H φ η 
+--   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t (ℕ.suc g) H) 
+--   ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t g H)
+--   ⟦f⟧ ← ⟦f⟧ ε-id-R
+--   {!!}
+  -- just 
+  --   (λ { (just e) → do
+  --        ⟦f⟧ ← ⟦f⟧ (just (IndexCalculus.Out {F = {!⟦ (Type.Σ ρ) ⟧t g H !}} g e))
+  --        ⟦f⟧ (⟦ tie f ⟧ (ℕ.suc g) H φ η)
+  --        ; nothing → nothing })
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ g h H φ η = ⟦ f ⟧ g h H φ η
 -- This rule is admissable.
-⟦ _▿μ_ {τ = τ} M N π ⟧ H φ η n = 
+⟦ _▿μ_ {τ = τ} M N π ⟧ g h H φ η = 
   just λ w → 
   just (λ y → 
   just (λ ev → 
   just (λ v → 
   just (λ r → do
-    f ← ⟦ M ⟧ H φ η n
+    f ← ⟦ M ⟧ g h H φ η
     f ← f w  -- Yes.
     f ← f y  -- Should be (ρ₂ · y)
     f ← f {!!}
-    g ← ⟦ M ⟧ H φ η n
+    g ← ⟦ M ⟧ g h H φ η
     g ← g w
     g ← g y  -- Should be (ρ₁ · y)
     g ← g {!!}
