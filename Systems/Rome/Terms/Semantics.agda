@@ -203,52 +203,52 @@ join→k nothing a = nothing
 ------------------
 ⟦ In M fmap ⟧ H φ η n = ⟦ M ⟧ H φ η n >>= λ m → just (In m)
 ⟦ Out M ⟧ H φ η n = ⟦ M ⟧ H φ η n >>= λ m → just (out m)
--- ⟦ tie f ⟧ H φ η zero = nothing
--- ⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
---   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
---   ⟦f⟧ ← ⟦ f ⟧ H φ η n 
---   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
---   ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
---   ⟦f⟧ ← ⟦f⟧ ε-id-R
---   just 
---     (λ { (just (In e)) → do
---          ⟦f⟧ ← ⟦f⟧ (just e)
---          ⟦f⟧ (⟦ tie f ⟧ H φ η n)
---          ; nothing → nothing })
--- ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ H φ η n = ⟦ f ⟧ H φ η n
--- -- This rule is admissable.
--- ⟦ _▿μ_ {τ = τ} M N π ⟧ H φ η n = 
---   just λ w → 
---   just (λ y → 
---   just (λ ev → 
---   just (λ v → 
---   just (λ r → do
---     f ← ⟦ M ⟧ H φ η n
---     f ← f w  -- Yes.
---     f ← f y  -- Should be (ρ₂ · y)
---     f ← f {!!}
---     g ← ⟦ M ⟧ H φ η n
---     g ← g w
---     g ← g y  -- Should be (ρ₁ · y)
---     g ← g {!!}
---     -- want to write (f Ix.▿ g) v r
---     -- but:
---     --  1. I suspect issues with evidence. We have in context
---     --       - _ : ρ₁ · ρ₂ ~ ρ₃
---     --       - _ : ρ₃ · y  ~ w
---     --       - v : Maybe (Σ ρ₃ (μ (Σ w)))
---     --       - r : Maybe (Maybe (μ (Σ w))) → Maybe τ
---     --     Which means
---     --       - f w (ρ₂ · y) : ρ₁ · (ρ₂ · y) ~ w ⇒ Maybe (Σ ρ₁ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
---     --       - g w (ρ₁ · y) : ρ₂ · (ρ₁ · y) ~ w ⇒ Maybe (Σ ρ₂ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
---     --       - (f w _ ▿ g w _) : (ρ₁ ⌈ (μ (Σ w)) ⌉) · (ρ₂ ⌈ (μ (Σ w)) ⌉) ~ (ρ₃ ⌈ (μ (Σ w)) ⌉) ⇒ 
---     --                            Σ ρ₃ (μ (Σ w)) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
---     --     Need to derive
---     --       - ρ₁ · (ρ₂ · y) ~ w
---     --       - ρ₂ · (ρ₁ · y) ~ w
---     --  2. Maybes make writing Ix.▿ a nightmare
---     {!Ix._▿_!} 
---   ))))
+⟦ tie f ⟧ H φ η zero = nothing
+⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ H φ η (suc n) = do
+  let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
+  ⟦f⟧ ← ⟦ f ⟧ H φ η n 
+  ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t H) 
+  ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
+  ⟦f⟧ ← ⟦f⟧ ε-id-R
+  just 
+    (λ { (just (In e)) → do
+         ⟦f⟧ ← ⟦f⟧ (just e)
+         ⟦f⟧ (⟦ tie f ⟧ H φ η n)
+         ; nothing → nothing })
+⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ H φ η n = ⟦ f ⟧ H φ η n
+-- This rule is admissable.
+⟦ _▿μ_ {τ = τ} M N π ⟧ H φ η n = 
+  just λ w → 
+  just (λ y → 
+  just (λ ev → 
+  just (λ v → 
+  just (λ r → do
+    f ← ⟦ M ⟧ H φ η n
+    f ← f w  -- Yes.
+    f ← f y  -- Should be (ρ₂ · y)
+    f ← f {!!}
+    g ← ⟦ M ⟧ H φ η n
+    g ← g w
+    g ← g y  -- Should be (ρ₁ · y)
+    g ← g {!!}
+    -- want to write (f Ix.▿ g) v r
+    -- but:
+    --  1. I suspect issues with evidence. We have in context
+    --       - _ : ρ₁ · ρ₂ ~ ρ₃
+    --       - _ : ρ₃ · y  ~ w
+    --       - v : Maybe (Σ ρ₃ (μ (Σ w)))
+    --       - r : Maybe (Maybe (μ (Σ w))) → Maybe τ
+    --     Which means
+    --       - f w (ρ₂ · y) : ρ₁ · (ρ₂ · y) ~ w ⇒ Maybe (Σ ρ₁ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
+    --       - g w (ρ₁ · y) : ρ₂ · (ρ₁ · y) ~ w ⇒ Maybe (Σ ρ₂ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
+    --       - (f w _ ▿ g w _) : (ρ₁ ⌈ (μ (Σ w)) ⌉) · (ρ₂ ⌈ (μ (Σ w)) ⌉) ~ (ρ₃ ⌈ (μ (Σ w)) ⌉) ⇒ 
+    --                            Σ ρ₃ (μ (Σ w)) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
+    --     Need to derive
+    --       - ρ₁ · (ρ₂ · y) ~ w
+    --       - ρ₂ · (ρ₁ · y) ~ w
+    --  2. Maybes make writing Ix.▿ a nightmare
+    {!Ix._▿_!} 
+  ))))
 
 --------------------------------------------------------------------------------
 -- May need again:

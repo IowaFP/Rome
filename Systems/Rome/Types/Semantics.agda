@@ -93,7 +93,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ lab l ⟧t       H = tt
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
 ⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
--- ⟦ ρ `↪ τ ⟧t H = Alg (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
+⟦ ρ `↪ τ ⟧t H = Alg (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
 ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
