@@ -302,7 +302,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   Out : ∀ {ℓμ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
          {F : Type Δ ((★ ℓμ) `→ (★ ℓμ))} →
 
-         Term Δ Φ Γ (μ F) →
+         Term Δ Φ Γ (μ F) → Term Δ Φ Γ (Functor ·[ F ]) →
          ----------------------
          Term Δ Φ Γ (F ·[ μ F ])
 

@@ -71,9 +71,9 @@ Fmap-MaybeT {ℓ} F =
     (Maybe A → Maybe B) →
     Maybe (F A) → Maybe (F B)
 
-fmap-Maybe : ∀ {ℓ} → (F : Functor ℓ) → Fmap-MaybeT-garbage F → 
+ungarbage : ∀ {ℓ} → {F : Functor ℓ} → Fmap-MaybeT-garbage F → 
              Fmap-MaybeT F
-fmap-Maybe F fmap {A} {B} φ fa = fmap A >>= λ f → f B >>= λ f → f (just φ) >>= λ f → f fa
+ungarbage {F} fmap {A} {B} φ fa = fmap A >>= λ f → f B >>= λ f → f (just φ) >>= λ f → f fa
 
 --------------------------------------------------------------------------------
 -- Maybe bullshit In, Out, and catamorphism.

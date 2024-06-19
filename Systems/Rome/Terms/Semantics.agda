@@ -223,8 +223,11 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) g H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ In M fmap ⟧ g h H φ η = do
   m    ← ⟦ M ⟧ g h H φ η 
   fmap ← ⟦ fmap ⟧ g h H φ η 
-  In-Maybe fmap g (just m)
-⟦ Term.Out {F = F} M ⟧ g h H φ η = IndexCalculus.Out g g _ _ (⟦ M ⟧ g h H φ η)
+  In-Maybe (Ix.ungarbage fmap) g (just m)
+⟦ Term.Out {F = F} M fmap ⟧ g h H φ η = do
+  m    ← ⟦ M ⟧ g h H φ η 
+  fmap ← ⟦ fmap ⟧ g h H φ η 
+  Out-Maybe g (Ix.ungarbage fmap) (λ _ → nothing) (just m)
 ⟦ tie f ⟧ g h H φ η = nothing
 -- ⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ g h H φ η = do
 --   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t g H 
