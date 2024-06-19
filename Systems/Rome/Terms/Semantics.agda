@@ -101,16 +101,6 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) g H (⟦Φ⟧ , ⟦π⟧) X
 -- open _↔_
 -- open _≃_
 
-join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
-          Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
-join→ (just x) a = x a
-join→ nothing a = nothing
-
-join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
-          Maybe (A → Maybe B) → A → Maybe B
-join→k (just x) a = x a
-join→k nothing a = nothing
-
 ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} →
         Term Δ Φ Γ τ →

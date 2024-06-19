@@ -29,36 +29,71 @@ In : ∀ {ℓ} {F : Functor ℓ} →
 In fmap zero xs = tt
 In {ℓ} {F} fmap (suc n) xs = fmap {F (Mu F n)} {Mu F n} (In {_} {F} fmap n) xs
 
-fmap-Maybe : ∀ {ℓ} → Functor ℓ → Set (lsuc ℓ)
-fmap-Maybe {ℓ} F = (A : Set ℓ) → Maybe
+cata : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} → 
+       (fmap : FmapT F) → 
+       (n : ℕ) → (F A → A) → A → Mu F n → A
+cata {ℓ} {F} fmap ℕ.zero φ a d = a
+cata {ℓ} {F} fmap (ℕ.suc n) φ a d = φ (fmap (cata fmap n φ a) d)
+
+Out : ∀ {ℓ} {F : Functor ℓ} → 
+        (n : ℕ) (fmap : FmapT F) → 
+        (return : ∀ {A} → A → F A) → 
+        Mu F n → Mu F (ℕ.suc n)
+Out {_} {F} n fmap return d = cata fmap n (fmap (In fmap n)) (return d) d
+
+
+--------------------------------------------------------------------------------
+-- Maybe bullshit helpers.
+
+join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
+          Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
+join→ (just x) a = x a
+join→ nothing a = nothing
+
+join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
+          Maybe (A → Maybe B) → A → Maybe B
+join→k (just x) a = x a
+join→k nothing a = nothing
+
+--------------------------------------------------------------------------------
+-- Maybe bullshit fmap.
+
+Fmap-MaybeT-garbage : ∀ {ℓ} → Functor ℓ → Set (lsuc ℓ)
+Fmap-MaybeT-garbage {ℓ} F = (A : Set ℓ) → Maybe
              ((B : Set ℓ) → Maybe
              (Maybe (Maybe A → Maybe B) →
               Maybe (Maybe (F A) → Maybe (F B))))
 
+Fmap-MaybeT : ∀ {ℓ} → Functor ℓ → Set (lsuc ℓ)
+Fmap-MaybeT {ℓ} F = 
+  ∀ {A : Set ℓ}
+    {B : Set ℓ} →
+    (Maybe A → Maybe B) →
+    Maybe (F A) → Maybe (F B)
+
+fmap-Maybe : ∀ {ℓ} → (F : Functor ℓ) → Fmap-MaybeT-garbage F → 
+             Fmap-MaybeT F
+fmap-Maybe F fmap {A} {B} φ fa = fmap A >>= λ f → f B >>= λ f → f (just φ) >>= λ f → f fa
+
+--------------------------------------------------------------------------------
+-- Maybe bullshit In, Out, and catamorphism.
+
 In-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
-           (fmap : fmap-Maybe F) → (n : ℕ) → Maybe (F (Mu F n)) → Maybe (Mu F n)
+           (fmap : Fmap-MaybeT F) → (n : ℕ) → Maybe (F (Mu F n)) → Maybe (Mu F n)
 In-Maybe fmap ℕ.zero d = just tt
-In-Maybe {ℓ} {F} fmap (ℕ.suc n) d = do
-  f₁ ← fmap (F (Mu F n))
-  f₂ ← f₁ (Mu F n)
-  f₃ ← f₂ (just (In-Maybe {_} {F} fmap n))
-  f₃ d
+In-Maybe {ℓ} {F} fmap (ℕ.suc n) d = fmap (In-Maybe {_} {F} fmap n) d
 
-cata : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} → 
-       (fmap : FmapT F) → (n : ℕ) → (F (Maybe A) → Maybe A) → Mu F n → Maybe A
-cata {ℓ} {F} fmap ℕ.zero φ d = nothing
-cata {ℓ} {F} fmap (ℕ.suc n) φ d = (φ (fmap (cata fmap n φ) d)) -- φ (fmap (cata fmap n φ) d)
+cata-Maybe : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} → 
+       (fmap : Fmap-MaybeT F) → 
+       (n : ℕ) → (Maybe (F A) → Maybe A) → Maybe A → Maybe (Mu F n) → Maybe A
+cata-Maybe {ℓ} {F} fmap ℕ.zero φ a d = a
+cata-Maybe {ℓ} {F} fmap (ℕ.suc n) φ a d =  φ (fmap (cata-Maybe fmap n φ a) d) -- φ (fmap (cata-Maybe fmap n φ a) d)
 
--- TODO: Change this to use maybe fmap type so that it can be piped in thru term semantics.
--- Also use
---   join→ : Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
--- to make fmap-Maybe type less garbage.
-Out : ∀ {ℓ} {F : Functor ℓ} → 
-        (n : ℕ) (fmap : FmapT F) → 
-        (return : ∀ {A} → A → F A) →
-        Mu F n → Mu F (ℕ.suc n)
-Out {_} {F} ℕ.zero fmap return xs = return xs
-Out {_} {F} (ℕ.suc n) fmap return xs = fmap (Out n fmap return) xs
+Out-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
+        (n : ℕ) (fmap : Fmap-MaybeT F) → 
+        (return : ∀ {A} → Maybe A → Maybe (F A)) → 
+        Maybe (Mu F n) → Maybe (F (Mu F n))
+Out-Maybe {_} {F} n fmap return d = cata-Maybe fmap n (fmap (In-Maybe fmap n)) (return d) d
 
 --------------------------------------------------------------------------------
 -- μ ∘ Σ
