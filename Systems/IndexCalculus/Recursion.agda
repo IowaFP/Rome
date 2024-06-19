@@ -98,6 +98,5 @@ cata-Maybe {ℓ} {F} fmap (ℕ.suc n) φ a d =  φ (fmap (cata-Maybe fmap n φ a
 
 Out-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
         (n : ℕ) (fmap : Fmap-MaybeT F) → 
-        (return : ∀ {A} → Maybe A → Maybe (F A)) → 
         Maybe (Mu F n) → Maybe (F (Mu F n))
-Out-Maybe {_} {F} n fmap return d = cata-Maybe fmap n (fmap (In-Maybe n fmap)) (return d) d
+Out-Maybe {_} {F} n fmap = cata-Maybe fmap n (fmap (In-Maybe n fmap)) nothing
