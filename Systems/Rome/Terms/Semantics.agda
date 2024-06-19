@@ -237,110 +237,11 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
   m    ← ⟦ M ⟧ g H φ η 
   fmap ← ⟦ fmap ⟧ g H φ η 
   Out-Maybe tytatos (Ix.ungarbage fmap) (λ _ → nothing) (just m)
-⟦ tie f ⟧ g H φ η = nothing
 ⟦ fix ⟧ zero H φ η = nothing
 ⟦ fix {τ = τ} ⟧ (ℕ.suc g) H φ η = do
   Fix ← (⟦ fix {τ = τ} ⟧ g H φ η)
   just (λ f → join→ f (Fix f))
-⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ g H φ η = ⟦ f ⟧ g H φ η
-⟦ _▿μ_ {τ = τ} M N π ⟧ g H φ η = {!!} 
-
---------------------------------------------------------------------------------
--- Trashed.
-
--- ⟦ tie {ℓ = ℓ} {ρ = ρ} {τ = τ} f ⟧ g H φ η = do
---   let ⟦ε⟧ = ⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H 
---   ⟦f⟧ ← ⟦ f ⟧ (ℕ.suc g) g H φ η 
---   ⟦f⟧ ← ⟦f⟧ (⟦ ρ ⟧t (ℕ.suc g) H) 
---   ⟦f⟧ ← ⟦f⟧ (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)
---   ⟦f⟧ ← ⟦f⟧ ε-id-R
---   {!!}
-  -- just 
-  --   (λ { (just e) → do
-  --        ⟦f⟧ ← ⟦f⟧ (just (IndexCalculus.Out {F = {!⟦ (Type.Σ ρ) ⟧t H !}} e))
-  --        ⟦f⟧ (⟦ tie f ⟧ (ℕ.suc g) g H φ η)
-  --        ; nothing → nothing })
--- This rule is admissable.
-  -- just λ w → 
-  -- just (λ y → 
-  -- just (λ ev → 
-  -- just (λ v → 
-  -- just (λ r → do
-  --   f ← ⟦ M ⟧ g H φ η
-  --   f ← f w  -- Yes.
-  --   f ← f y  -- Should be (ρ₂ · y)
-  --   f ← f {!!}
-  --   g ← ⟦ M ⟧ g H φ η
-  --   g ← w
-  --   g ← y  -- Should be (ρ₁ · y)
-  --   g ← {!!}
-  --   -- want to write (f Ix.▿ g) v r
-  --   -- but:
-  --   --  1. I suspect issues with evidence. We have in context
-  --   --       - _ : ρ₁ · ρ₂ ~ ρ₃
-  --   --       - _ : ρ₃ · y  ~ w
-  --   --       - v : Maybe (Σ ρ₃ (μ (Σ w)))
-  --   --       - r : Maybe (Maybe (μ (Σ w))) → Maybe τ
-  --   --     Which means
-  --   --       - f w (ρ₂ · y) : ρ₁ · (ρ₂ · y) ~ w ⇒ Maybe (Σ ρ₁ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
-  --   --       - w (ρ₁ · y) : ρ₂ · (ρ₁ · y) ~ w ⇒ Maybe (Σ ρ₂ (μ (Σ w))) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
-  --   --       - (f w _ ▿ w _) : (ρ₁ ⌈ (μ (Σ w)) ⌉) · (ρ₂ ⌈ (μ (Σ w)) ⌉) ~ (ρ₃ ⌈ (μ (Σ w)) ⌉) ⇒ 
-  --   --                            Σ ρ₃ (μ (Σ w)) → (Maybe (Maybe (μ (Σ w))) → Maybe τ) → Maybe τ
-  --   --     Need to derive
-  --   --       - ρ₁ · (ρ₂ · y) ~ w
-  --   --       - ρ₂ · (ρ₁ · y) ~ w
-  --   --  2. Maybes make writing Ix.▿ a nightmare
-  --   {!Ix._▿_!} 
-  -- ))))
-
--- foo : Term ε ε ε (Mu (`λ (★ ℓ) (tvar Z)))
--- foo = In 
-
---------------------------------------------------------------------------------
--- May need again:
-
---   where
---     eff : (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)) IndexCalculus.·
---       (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H) ~ ⟦ ρ ⟧t H →
---       Maybe
---       (Maybe
---        (IndexCalculus.Σ
---         (fst (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) ,
---          (λ i →
---             snd (⟦ K² ρ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) i
---             (Mu
---              (λ X →
---                 IndexCalculus.Σ
---                 (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
---        Maybe
---        (Maybe
---         (Maybe
---          (Mu
---           (λ X →
---              IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
---          Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))) →
---         Maybe (⟦ K² τ ⟧t ((H , ⟦ ρ ⟧t H) , (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))))) →
--- --      Output:
---         ⟦ ρ ⟧t H IndexCalculus.·
---       emptyRow ~ ⟦ ρ ⟧t H →
---       Maybe
---       (Maybe
---        (IndexCalculus.Σ
---         (fst (⟦ ρ ⟧t H) ,
---          (λ i →
---             snd (⟦ ρ ⟧t H) i
---             (Mu
---              (λ X →
---                 IndexCalculus.Σ
---                 (fst (⟦ ρ ⟧t H) , (λ i₁ → snd (⟦ ρ ⟧t H) i₁ X))))))) →
---        Maybe
---        (Maybe
---         (Maybe
---          (Mu
---           (λ X →
---              IndexCalculus.Σ (fst (⟦ ρ ⟧t H) , (λ i → snd (⟦ ρ ⟧t H) i X)))) →
---          Maybe (⟦ τ ⟧t H)) →
---         Maybe (⟦ τ ⟧t H)))
-
---     eff f rewrite (sym (Weakening₂ ρ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H)))
---           |       (sym (Weakening₂ τ H (⟦ ρ ⟧t H) (⟦ ε {κ = (★ ℓ `→ ★ ℓ)} ⟧t H))) = f
+-- Expect below to be admissable.
+-- ⟦ tie f ⟧ g H φ η = nothing
+-- ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ g H φ η = ⟦ f ⟧ g H φ η
+-- ⟦ _▿μ_ {τ = τ} M N π ⟧ g H φ η = {!!} 

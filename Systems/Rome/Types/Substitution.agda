@@ -55,7 +55,6 @@ renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
 
 rename ρ (tvar v) = tvar (ρ v)
 rename ρ (τ `→ υ) = rename ρ τ `→ rename ρ υ
-rename ρ (τ `↪ υ) = rename ρ τ `↪ rename ρ υ
 rename ρ (`∀ κ τ) = `∀ κ (rename (ext ρ) τ)
 rename ρ (`λ s τ) = `λ s (rename (ext ρ) τ)
 rename ρ (τ ·[ υ ]) = rename ρ τ ·[ rename ρ υ ]
@@ -128,7 +127,6 @@ substPred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
 
 subst θ (tvar x) = θ x
 subst θ (τ `→ υ) = subst θ τ `→ subst θ υ
-subst θ (τ `↪ υ) = subst θ τ `↪ subst θ υ
 subst θ (`∀ κ τ) = `∀ κ (subst (exts θ) τ)
 subst θ (`λ s τ) = `λ s (subst (exts θ) τ)
 subst θ (τ ·[ υ ]) = subst θ τ ·[ subst θ υ ]

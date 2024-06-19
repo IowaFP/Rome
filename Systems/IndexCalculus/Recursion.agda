@@ -42,14 +42,6 @@ Out : ∀ {ℓ} {F : Functor ℓ} →
         Mu F n → Mu F (ℕ.suc n)
 Out {_} {F} n fmap return d = cata fmap n (fmap (In n fmap)) (return d) d
 
-In∘Out : ∀ {ℓ} {F : Functor ℓ} → 
-        (n : ℕ) (fmap : FmapT F) → 
-        (return : ∀ {A} → A → F A) → 
-        (d : Mu F n) → 
-        In n fmap (Out n fmap return d) ≡ d
-In∘Out ℕ.zero fmap return d = refl
-In∘Out (ℕ.suc n) fmap return d = {!!}
-
 --------------------------------------------------------------------------------
 -- Maybe bullshit fmap.
 
@@ -89,49 +81,3 @@ Out-Maybe : ∀ {ℓ} {F : Functor ℓ} →
         (return : ∀ {A} → Maybe A → Maybe (F A)) → 
         Maybe (Mu F n) → Maybe (F (Mu F n))
 Out-Maybe {_} {F} n fmap return d = cata-Maybe fmap n (fmap (In-Maybe n fmap)) (return d) d
-
---------------------------------------------------------------------------------
--- μ ∘ Σ
-
--- μΣ : ∀ {ℓ} → Row (Functor ℓ) → Set ℓ
--- μΣ ρ = Mu (λ X → Σ ( ρ  ·⌈ X ⌉))
-
--- --------------------------------------------------------------------------------
--- -- Inclusion Algebras
-
--- Alg : ∀ {ℓ ι} → Row (Functor ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
--- Alg {ℓ} ρ τ = 
---   (w : Row (Set ℓ → Set ℓ)) → 
---     Maybe (
---       (y : Row (Set ℓ → Set ℓ)) → Maybe (        
---        w · y ~ w → Maybe (
---          Maybe (Σ ((ρ ·⌈ (μΣ w) ⌉)) → Maybe (μΣ w → Maybe τ) → Maybe τ
---        ))))
-
-  --   w · y ~ w → 
-  --   Σ (ρ ·⌈ (μΣ w) ⌉) → 
-  --   (μΣ w → τ ) → τ
-
-  -- ((w : Row (Set ℓ → Set ℓ)) →
-  --      Maybe
-  --      ((y : Row (Set ℓ → Set ℓ)) →
-  --       Maybe
-  --       (ρ IndexCalculus.· s₁ ~ s →
-  --        Maybe
-  --        (Maybe
-  --         (IndexCalculus.Σ
-  --          (fst (⟦ K² ρ ⟧t ((H , s) , s₁)) ,
-  --           (λ i →
-  --              snd (⟦ K² ρ ⟧t ((H , s) , s₁)) i
-  --              (Mu (λ X → IndexCalculus.Σ (fst s , (λ i₁ → snd s i₁ X))))))) →
-  --         Maybe
-  --         (Maybe
-  --          (Maybe (Mu (λ X → IndexCalculus.Σ (fst s , (λ i → snd s i X)))) →
-  --           Maybe (⟦ K² τ ⟧t ((H , s) , s₁))) →
-  --          Maybe (⟦ K² τ ⟧t ((H , s) , s₁)))))))
-
---------------------------------------------------------------------------------
--- Bifunctor combinators (for rows)
-
--- _⊕_ : ∀ {ℓ} → (ρ₁ ρ₂ : Row (Functor ℓ)) → Row (Functor ℓ)
--- (ρ₁ ⊕ ρ₂) = {!!}

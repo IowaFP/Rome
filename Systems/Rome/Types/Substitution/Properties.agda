@@ -120,9 +120,6 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (τ₁ `→ τ₂)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ₁
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ₂ = refl
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (τ₁ `↪ τ₂)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ₁
-  |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ₂ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (τ ·[ υ ])
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres υ = refl
@@ -224,9 +221,6 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 -- -- Uninteresting Cases.
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (lab x) = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ `→ τ₂)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
-  |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂ = refl
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ `↪ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂ = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ ·[ υ ])
