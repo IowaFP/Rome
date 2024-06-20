@@ -73,16 +73,48 @@ tie {ℓ₁} {Δ = Δ} {Φ = Φ} =
 --------------------------------------------------------------------------------
 -- Branching.
 
-_▿μ_   : ∀ {ℓl} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
-         {ρ₁ ρ₂ ρ₃ : Type Δ R[ ★ ℓl `→ ★ ℓl ]} {τ : Type Δ (★ ℓl)} →         
-         Term Δ Φ Γ (ρ₁ ↪ τ)  → 
-         Term Δ Φ Γ (ρ₂ ↪ τ)  →
-         Ent Δ Φ    (ρ₁ · ρ₂ ~ ρ₃) →
+_▿μ_   : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
          ---------------------------
-         Term Δ Φ Γ (ρ₃ ↪ τ)
+         Term Δ Φ Γ (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₁ (S³ Z)
+                    (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₂ (S² Z)
+                    (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₃ (S  Z)
+                    (`∀ (★ ℓ)            -- τ      Z
+                    ((tvar (Types.S³ Z)  ↪₂ tvar Z) `→ 
+                    (tvar (Types.S² Z) ↪₂ tvar Z) `→ 
+                    (tvar (Types.S³ Z)  · tvar (Types.S² Z) ~ tvar ((Types.S Z))) ⇒ 
+                    (tvar (S Z) ↪₂ tvar Z)))))) 
 
-_▿μ_ {ℓl} M N e = `Λ {!R[ ★ ℓl `→ ★ ℓl ] !} {!!} -- `Λ {!R[ ★ ℓl `→ ★ ℓl ]!} (`Λ {!!} {!!})
-
+_▿μ_ {ℓ = ℓ} = 
+  `Λ R[ ★ ℓ `→ ★ ℓ ] 
+  (`Λ R[ ★ ℓ `→ ★ ℓ ] 
+  (`Λ R[ ★ ℓ `→ ★ ℓ ] 
+  (`Λ ((★ ℓ)) 
+  (`λ (tvar (Types.S³ Z) ↪₂ tvar Z) 
+  (`λ (tvar (Types.S² Z) ↪₂ tvar Z)
+  (`ƛ (tvar (Types.S³ Z)  · tvar (Types.S² Z) ~ tvar ((Types.S Z))) 
+  (`Λ R[ ★ ℓ `→ ★ ℓ ]   
+  (`ƛ ((ρ₃ ≲ w)) 
+  (`λ ((Σ ρ₃) ·[ μΣ w ])
+  (`λ (μΣ w `→ τ) 
+  (((body · v') · r))))))))))))
+  where
+    ρ₁ = tvar (Types.S⁴ Z)
+    ρ₂ = tvar (Types.S³ Z)
+    ρ₃ = tvar (Types.S² Z)
+    τ = tvar (S Z)
+    w = tvar Z
+    v = var (S Z)
+    v' = t-≡ teq-lift₃ v
+    r = var Z
+    f' : Term _ _ _ (Σ (ρ₁ ·⌈ (μΣ w) ⌉) `→ (μΣ w `→ τ) `→ τ)
+    f' = `λ (Σ (ρ₁ ·⌈ (μΣ w) ⌉)) 
+         (`λ ((μΣ w `→ τ)) ((((var (S⁵ Z) ·[ w ]) ·⟨ n-trans (n-·≲L (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift₃) (var (S Z))) · var Z)) 
+    g' : Term _ _ _ (Σ (ρ₂ ·⌈ (μΣ w) ⌉) `→ (μΣ w `→ τ) `→ τ)
+    g' = `λ (Σ (ρ₂ ·⌈ (μΣ w) ⌉)) 
+         (`λ ((μΣ w `→ τ)) ((((var (S⁴ Z) ·[ w ]) ·⟨ n-trans (n-·≲R (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift₃) (var (S Z))) · var Z)) 
+    body : Term _ _ _ (Σ (ρ₃ ·⌈ (μΣ w) ⌉) `→ (μΣ w `→ τ) `→ τ)
+    body = (f' ▿ g') (n-·lift₁ (n-var (S Z)))
+  
 --------------------------------------------------------------------------------
 -- FmapΣ.
 
