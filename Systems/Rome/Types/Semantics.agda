@@ -30,14 +30,14 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 -- Alg : Type Δ (R[ ★ ℓ `→ ★ ℓ ]) → Type Δ (★ ι) → ⟦ Δ ⟧ke → Set (lsuc ℓ ⊔ ι)
--- Alg {ℓ = a} ρ τ H = 
---   (w : Row (Set a → Set a)) → 
---   Maybe ((y : Row (Set a → Set a)) → 
---   Maybe (⟦ ρ ⟧t H Ix.· y ~ w → 
---   Maybe 
---     (Maybe (Ix.Σ (((⟦ ρ ⟧t H) Ix.·⌈ (Ix.μΣ w) ⌉)) 
---       → Maybe (Ix.μΣ w 
---       → Maybe (⟦ τ ⟧t H)) 
+-- Alg {ℓ = a} ρ τ H =
+--   (w : Row (Set a → Set a)) →
+--   Maybe ((y : Row (Set a → Set a)) →
+--   Maybe (⟦ ρ ⟧t H Ix.· y ~ w →
+--   Maybe
+--     (Maybe (Ix.Σ (((⟦ ρ ⟧t H) Ix.·⌈ (Ix.μΣ w) ⌉))
+--       → Maybe (Ix.μΣ w
+--       → Maybe (⟦ τ ⟧t H))
 --       → Maybe (⟦ τ ⟧t H)))))
 
 Alg : ∀ {ℓ ι} → (n : Potatoes) → Row (Set ℓ → Set ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
@@ -71,7 +71,7 @@ Alg {ℓ} n = λ ρ τ → -- s s₁
 
 --------------------------------------------------------------------------------
 -- The meaning of type vars.
-  
+
 ⟦_⟧tv : TVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
 ⟦ Z ⟧tv (_ , t) = t
 ⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
@@ -102,8 +102,8 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
 ⟦ Π {κ = κ} ρ ⟧t H = buildΠ κ (⟦ ρ ⟧t H)
 ⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
-⟦ ρ ·⌈ τ ⌉ ⟧t H = Ix.lift₁ (⟦ ρ ⟧t H) (⟦ τ ⟧t H)
-⟦ ⌈ τ ⌉· ρ ⟧t H = Ix.lift₂ (⟦ τ ⟧t H) (⟦ ρ ⟧t H)
+⟦ ↑ ϕ ⟧t H = Ix.lift₁ (⟦ ϕ ⟧t H)
+⟦ ϕ ↑ ⟧t H = Ix.lift₂ (⟦ ϕ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
 ⟦ ε ⟧t H = Ix.emptyRow
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
@@ -116,7 +116,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 -- alg-pres ρ τ H = {!cong Maybe!} -- cong Maybe (∀-extensionality extensionality {!!} {!!} {!!})
 
 -- t : ∀ (ℓ : Level) → _
--- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t 
+-- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t
 -- ε
 
 -- pfft : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ι)) →

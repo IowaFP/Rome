@@ -65,8 +65,8 @@ rename ρ (t R▹ v) = rename ρ t R▹ rename ρ v
 rename ρ (Π r) = Π (rename ρ r)
 rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
 rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename ρ τ
-rename ρ (r ·⌈ τ ⌉) =  (rename ρ r)  ·⌈ (rename ρ τ) ⌉
-rename ρ (⌈ τ ⌉· r) = ⌈ (rename ρ τ) ⌉· (rename ρ r)
+rename ρ (↑ f) = ↑ rename ρ f
+rename ρ (f ↑) = rename ρ f ↑
 rename ρ ε = ε
 rename ρ (μ X) = μ (rename ρ X)
 
@@ -95,7 +95,7 @@ K³ = λ x → K¹ (K² x)
 K⁴ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃ ℓ₄} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} {κ₄ : Kind ℓ₄} →
            τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄)
 K⁴ = λ x → K² (K² x)
-           
+
 --------------------------------------------------------------------------------
 -- Simultaneous Substitution.
 --
@@ -109,7 +109,7 @@ exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
          {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
          {ι : Kind ℓ₃} →
          Context Δ₁ Δ₂ →
-         Context (Δ₁ ، ι) (Δ₂ ، ι) 
+         Context (Δ₁ ، ι) (Δ₂ ، ι)
 exts θ Z = tvar Z
 exts θ (S x) = rename S (θ x)
 
@@ -137,8 +137,8 @@ subst θ (t R▹ v) = subst θ t R▹ subst θ v
 subst θ (Π r) = Π (subst θ r)
 subst θ (Type.Σ r) = Type.Σ (subst θ r)
 subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
-subst θ ( r ·⌈ τ ⌉) = (subst θ r) ·⌈ (subst θ τ) ⌉
-subst θ ( ⌈ τ ⌉· r) = ⌈ (subst θ τ) ⌉· (subst θ r)
+subst θ (↑ f) = ↑ subst θ f
+subst θ (f ↑) = subst θ f ↑
 subst θ ε = ε
 subst ρ (μ X) = μ (subst ρ X)
 

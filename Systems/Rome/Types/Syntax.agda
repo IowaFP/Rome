@@ -19,6 +19,8 @@ infixr 10 _≲_
 infix 10 _·_~_
 infixl 11 _·[_]
 
+infix 12 ↑_ _↑
+
 --------------------------------------------------------------------------------
 -- Labels are Strings.
 
@@ -38,12 +40,12 @@ data Type : KEnv ℓ → Kind ι →  Set
 data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
 
 data Pred Δ where
-  _≲_ : ∀ {κ : Kind ι} → 
+  _≲_ : ∀ {κ : Kind ι} →
           (ρ₁ : Type Δ R[ κ ]) →
           (ρ₂ : Type Δ R[ κ ]) →
           Pred Δ κ
 
-  _·_~_ : ∀ {κ : Kind ι} → 
+  _·_~_ : ∀ {κ : Kind ι} →
             (ρ₁ : Type Δ R[ κ ]) →
             (ρ₂ : Type Δ R[ κ ]) →
             (ρ₃ : Type Δ R[ κ ]) →
@@ -60,7 +62,7 @@ S³ : TVar Δ κ → TVar (Δ ، κ₁ ، κ₂ ، κ₃) κ
 S⁴ : TVar Δ κ → TVar (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄) κ
 S⁵ : TVar Δ κ → TVar (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄ ، κ₅) κ
 
-S² x = S (S x) 
+S² x = S (S x)
 S³ x = S (S² x)
 S⁴ x = S (S³ x)
 S⁵ x = S (S⁴ x)
@@ -73,7 +75,7 @@ data Type where
   ------------------------------------------------------------
   -- System Fω.
 
-  tvar : 
+  tvar :
 
          TVar Δ κ →
          -----------
@@ -84,17 +86,17 @@ data Type where
           -----------------------------------
           Type Δ (★ (ℓ₁ ⊔ ℓ₂))
 
-  `∀ :  
+  `∀ :
           (κ : Kind ℓκ) → Type (Δ ، κ) (★ ℓ) →
           -------------------------------------
           Type Δ (★ (ℓ ⊔ (lsuc ℓκ)))
 
-  `λ :  
+  `λ :
           (κ₁ : Kind ℓκ₁) → Type (Δ ، κ₁) κ₂ →
           -----------------------------------------
           Type Δ (κ₁ `→ κ₂)
 
-  _·[_] : 
+  _·[_] :
           Type Δ (κ₁ `→ κ₂) → Type Δ κ₁ →
           -----------------------------
           Type Δ κ₂
@@ -113,7 +115,7 @@ data Type where
   ε : Type Δ R[ κ ]
 
   -- Labels.
-  lab : 
+  lab :
         Label →
         ----------
         Type Δ (L ℓ)
@@ -125,40 +127,43 @@ data Type where
         Type Δ κ
 
   -- Row singleton formation.
-  _R▹_ : 
+  _R▹_ :
          Type Δ (L ℓ) → Type Δ κ →
          -------------------
          Type Δ R[ κ ]
 
   -- label constant formation.
-  ⌊_⌋ : 
+  ⌊_⌋ :
         Type Δ (L ℓ) →
         ----------
         Type Δ (★ ℓ)
 
   -- Record formation.
-  Π : 
+  Π :
       Type Δ R[ κ ] →
       -------------
-      Type Δ  κ 
+      Type Δ  κ
 
   -- Variant formation.
-  Σ : 
+  Σ :
       Type Δ R[ κ ] →
       -------------
       Type Δ κ
 
-  -- lift₁ (lifting a function argument to row kind).
-  _·⌈_⌉ : ∀ {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} → 
-          Type Δ R[ κ₁ `→ κ₂ ] → Type Δ κ₁ →
-          --------------------------------
-          Type Δ R[ κ₂ ]
+  -- Lifting/mapping operations... I claim the kinds are at least
+  -- self-evident now, even if the placement of arrows is a little bit
+  -- arbitrary...
 
-  -- lift₂ (lifting a function to row kind.)
-  ⌈_⌉·_ : ∀ {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
-          Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] →
-          --------------------------------
-          Type Δ R[ κ₂ ]
+  ↑_ : {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
+       Type Δ R[ κ₁ `→ κ₂ ] →
+       ------------------------------
+       Type Δ (κ₁ `→ R[ κ₂ ])
+
+
+  _↑ : {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
+       Type Δ (κ₁ `→ κ₂) →
+       ------------------------------
+       Type Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
   ------------------------------------------------------------
   -- System Rωμ.
@@ -168,4 +173,3 @@ data Type where
       (τ : Type Δ ((★ ℓ) `→ (★ ℓ))) →
       -----------------------------------------------
       Type Δ (★ ℓ)
-

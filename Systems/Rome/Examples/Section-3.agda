@@ -177,7 +177,7 @@ ifte =
 -- Reification (reify).
 
 reifyT : Type ε ★₁
-reifyT = `∀ R[ ★₀ ] (`∀ ★₀ (((Σ z) `→ t) `→ Π (⌈ (`λ ★₀ ((tvar Z) `→ (tvar (S Z)))) ⌉· z)))
+reifyT = `∀ R[ ★₀ ] (`∀ ★₀ (((Σ z) `→ t) `→ Π ((`λ ★₀ ((tvar Z) `→ (tvar (S Z)))) ↑ ·[ z ])))
   where
     t = tvar Z
     z = tvar (S Z)
@@ -231,8 +231,8 @@ reify = `Λ R[ ★₀ ] (`Λ ★₀ (`λ (((Σ z) `→ t)) (syn z (`λ ★₀ ((
 
 reflectT :  ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (suc ℓ))
 reflectT {ℓ} = `∀ R[ (★ ℓ) ] (`∀ (★ ℓ)
-              (Π (⌈ (`λ (★ ℓ) ((tvar Z) `→ (tvar (S Z)))) ⌉· z) `→
-              ((Σ (⌈ idω ⌉· z)) `→ t)))
+              (Π ((`λ (★ ℓ) ((tvar Z) `→ (tvar (S Z)))) ↑ ·[ z ]) `→
+              ((Σ (idω ↑ ·[ z ])) `→ t)))
          where
            t = tvar Z
            z = tvar (S Z)
@@ -245,7 +245,7 @@ reflect =
 --     Λ T : ★.
      (`Λ ★₀
 --     λ r : Π (ζ → T).
-     (`λ (Π (⌈ (`λ ★₀ (tvar Z `→ tvar (S Z))) ⌉· (tvar (S Z))))
+     (`λ (Π ((`λ ★₀ (tvar Z `→ tvar (S Z))) ↑ ·[ tvar (S Z) ]))
       (ana (tvar (S Z)) idω (tvar Z) M)))
   where
     M =
@@ -271,7 +271,7 @@ reflect =
 --           ·[ ((λ X. X) U) → T ]
              ·[ idω ·[ tvar (S Z) ] `→ (tvar (S (S (S Z)))) ])
 --           ·[ lift₂ (λ (X : ★). X → T) ζ ]
-             ·[ (⌈ (`λ ★₀ (tvar Z `→ tvar (S (S (S (S Z)))))) ⌉· (tvar (S (S (S (S Z)))))) ])
+             ·[ ((`λ ★₀ (tvar Z `→ tvar (S (S (S (S Z)))))) ↑ ·[ (tvar (S (S (S (S Z))))) ]) ])
 --           ·⟨  evidence ⟩
             ·⟨ evidence ⟩)
 --           · r
@@ -288,7 +288,7 @@ reflect =
                Y = tvar Z
                ζ = tvar (S (S (S (S Z))))
 
-               evidence :  Ent _ _ ((Ł R▹ ((idω ·[ Uu ]) `→ T)) ≲ ⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· ζ)
+               evidence :  Ent _ _ ((Ł R▹ ((idω ·[ Uu ]) `→ T)) ≲ (`λ ★₀ (tvar Z `→ T')) ↑ ·[ ζ ])
                evidence =
                   (((Ł R▹ Uu) · Y ~ ζ)
                  ⊩⟨ n-·≲L ⟩
@@ -296,9 +296,9 @@ reflect =
                  ⊩⟨ n-≡ (peq-≲ (teq-sing teq-refl (teq-sym teq-β)) teq-refl) ⟩
                    ((Ł R▹ (idω ·[ Uu ])) ≲ ζ)
                  ⊩⟨ n-≲lift₂ ⟩
-                   ((⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· (Ł R▹ (idω ·[ Uu ])) ≲ ⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· ζ))
+                   (((`λ ★₀ (tvar Z `→ T')) ↑ ·[ Ł R▹ (idω ·[ Uu ]) ]) ≲ (`λ ★₀ (tvar Z `→ T')) ↑ ·[ ζ ])
                  ⊩⟨ n-≡ (peq-≲ teq-lift₂ teq-refl) ⟩
-                   (((Ł R▹ ((`λ ★₀ (tvar Z `→ T')) ·[ (idω ·[ Uu ]) ])) ≲ ⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· ζ))
+                   (((Ł R▹ ((`λ ★₀ (tvar Z `→ T')) ·[ (idω ·[ Uu ]) ])) ≲ (`λ ★₀ (tvar Z `→ T')) ↑ ·[ ζ ]))
                  ⊩⟨ n-≡ (peq-≲ (teq-sing teq-refl teq-β) teq-refl) ⟩
                    ∎)
                  (n-var Z)
@@ -336,7 +336,7 @@ map-ΠT : ∀ {Δ : KEnv lzero} →
          Type Δ ★₁
 map-ΠT κ =
   `∀ R[ κ ] (`∀ (κ `→ ★₀) (`∀ (κ `→ ★₀)
-  (Iter κ f g z `→ (Π (⌈ f ⌉· z)) `→ Π (⌈ g ⌉· z) )))
+  (Iter κ f g z `→ (Π (f ↑ ·[ z ])) `→ Π (g ↑ ·[ z ]) )))
   where
     g = tvar Z
     f = tvar (S Z)
@@ -350,7 +350,7 @@ map-Π κ =
   (`Λ {- f -} (κ `→ ★₀)
   (`Λ {- g -} (κ `→ ★₀)
   (`λ {- i -} (Iter κ (tvar (S Z)) (tvar Z) (tvar (S (S Z))))
-  (`λ {- r -} (Π (⌈ f ⌉· tvar (S (S Z))))
+  (`λ {- r -} (Π (f ↑ ·[ tvar (S (S Z)) ]))
       (syn (tvar (S (S Z))) (tvar Z)
        (`Λ {- Ł -} (L lzero)
        (`Λ {- U -} κ
@@ -380,7 +380,7 @@ map-Π κ =
        (((sel
        ·[ Ł ])
        ·[ f' ·[ U ] ])
-       ·[ (⌈ f' ⌉· z') ])
+       ·[ (f' ↑ ·[ z' ]) ])
       ·⟨ evidence ⟩
         where
           evidence : let
@@ -388,7 +388,7 @@ map-Π κ =
               U = tvar (S Z)
               z' = tvar (S (S (S (S (S Z)))))
               f' = tvar (S (S (S (S Z))))
-            in Ent _ _ ((Ł R▹ (f' ·[ U ]) ) ≲ (⌈ f' ⌉· z'))
+            in Ent _ _ ((Ł R▹ (f' ·[ U ]) ) ≲ (f' ↑ ·[ z' ]))
           evidence = let
               Ł = tvar (S (S Z))
               U = tvar (S Z)
@@ -400,7 +400,7 @@ map-Π κ =
               ⊩⟨ n-·≲L ⟩
                 ((Ł R▹ U) ≲ z'
               ⊩⟨ n-≲lift₂ ⟩
-                 ⌈ f' ⌉· (Ł R▹ U ) ≲ ⌈ f' ⌉· z'
+                 f' ↑ ·[ Ł R▹ U ] ≲  f' ↑ ·[ z' ]
               ⊩⟨ n-≡ (peq-≲ teq-lift₂ teq-refl) ⟩
               ∎)) (n-var Z))
 
@@ -412,7 +412,7 @@ map-ΣT : ∀ {Δ : KEnv lzero} →
          Type Δ ★₁
 map-ΣT κ =
   `∀ R[ κ ] (`∀ (κ `→ ★₀) (`∀ (κ `→ ★₀)
-  (Iter κ f g z `→ (Σ (⌈ f ⌉· z)) `→ Σ (⌈ g ⌉· z) )))
+  (Iter κ f g z `→ (Σ (f ↑ ·[ z ])) `→ Σ (g ↑ ·[ z ]) )))
   where
     g = tvar Z
     f = tvar (S Z)
@@ -426,8 +426,8 @@ map-Σ κ =
   (`Λ {- f -} (κ `→ ★₀)
   (`Λ {- g -} (κ `→ ★₀)
   (`λ {- i -} (Iter κ (tvar (S Z)) (tvar Z) (tvar (S (S Z))))
-  (`λ {- v -} (Σ (⌈ f ⌉· tvar (S (S Z))))
-      ((ana (tvar (S (S Z))) (tvar (S Z)) (Σ (⌈ tvar Z ⌉· (tvar (S (S Z)))))
+  (`λ {- v -} (Σ (f ↑ ·[ tvar (S (S Z)) ]))
+      ((ana (tvar (S (S Z))) (tvar (S Z)) (Σ (tvar Z ↑ ·[ tvar (S (S Z)) ]))
        (`Λ {- Ł -} (L lzero)
        (`Λ {- U -} κ
        (`Λ {- Y -} R[ κ ]
@@ -458,7 +458,7 @@ map-Σ κ =
       in (((con
         ·[ Ł ])
         ·[ g' ·[ U ] ])
-        ·[ ⌈ g' ⌉· z' ])
+        ·[ g' ↑ ·[ z' ] ])
         ·⟨ evidence ⟩
         where
           evidence : let
@@ -466,7 +466,7 @@ map-Σ κ =
               U = tvar (S Z)
               z' = tvar (S (S (S (S (S Z)))))
               g' = tvar (S (S (S Z)))
-            in Ent _ _ ((Ł R▹ (g' ·[ U ]) ) ≲ (⌈ g' ⌉· z'))
+            in Ent _ _ ((Ł R▹ (g' ·[ U ]) ) ≲ (g' ↑ ·[ z' ]))
           evidence = let
               Ł = tvar (S (S Z))
               U = tvar (S Z)
@@ -478,6 +478,6 @@ map-Σ κ =
               ⊩⟨ n-·≲L ⟩
                 ((Ł R▹ U) ≲ z'
               ⊩⟨ n-≲lift₂ ⟩
-                 ⌈ g' ⌉· (Ł R▹ U ) ≲ ⌈ g' ⌉· z'
+                 g' ↑ ·[ Ł R▹ U ] ≲ g' ↑ ·[ z' ]
               ⊩⟨ n-≡ (peq-≲ teq-lift₂ teq-refl) ⟩
               ∎)) (n-var Z))

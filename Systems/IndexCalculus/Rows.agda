@@ -15,7 +15,7 @@ open import Data.Product
   using (_×_; ∃; ∃-syntax; Σ-syntax; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
-  hiding (fold)  
+  hiding (fold)
 
 --------------------------------------------------------------------------------
 -- Syntax
@@ -89,12 +89,12 @@ _·_~_ : ∀ {ℓ} {A : Set ℓ} →
 _·_~_ {ℓ} (l , P) (m , Q) (n , R) =
 
   -- (i) Every index in z corresponds to an index in x _or_ y.
-  (∀ (i : Fin n) → 
-    _or_ {ℓ} {ℓ} 
-      (Σi[ j ≤ l ] (P j ≡ R i) at ℓ) 
-      (Σi[ j ≤ m ] (Q j ≡ R i) at ℓ)) 
+  (∀ (i : Fin n) →
+    _or_ {ℓ} {ℓ}
+      (Σi[ j ≤ l ] (P j ≡ R i) at ℓ)
+      (Σi[ j ≤ m ] (Q j ≡ R i) at ℓ))
   -- (ii) Every index in x corresponds to an index in z.
-  × (((l , P) ≲ (n , R)) 
+  × (((l , P) ≲ (n , R))
   -- (iii) Every index in y corresponds to an index in z.
   × ((m , Q) ≲ (n , R)))
 
@@ -109,6 +109,7 @@ _delete_ {ℓ} {A} (suc n , f) i = n , (λ j → f (punchIn i j))
 
 --------------------------------------------------------------------------------
 -- Lifting functions (and arguments) to rows.
+
 
 lift₁  _·⌈_⌉ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → Row {ℓ ⊔ ι} (A → B) → A → Row {ι} B
 lift₁ {A = A} {B = B} (n , P) a = (n , (λ m → P m a))

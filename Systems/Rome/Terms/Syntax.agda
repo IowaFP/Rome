@@ -33,11 +33,11 @@ private
 -- Variables.
 
 data Var : Env Δ ℓΓ → Type Δ κ → Set where
-  Z : ∀ {Γ : Env Δ ℓΓ} {τ : Type Δ (★ ℓ)} → 
+  Z : ∀ {Γ : Env Δ ℓΓ} {τ : Type Δ (★ ℓ)} →
       Var (Γ ، τ) τ
   S : ∀ {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} {υ : Type Δ (★ ι)} →
-         Var Γ υ → Var (Γ ، τ) υ        
+         Var Γ υ → Var (Γ ، τ) υ
 private
   variable
     τ : Type Δ (★ ℓ)
@@ -52,7 +52,7 @@ S³ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃) τ
 S⁴ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃ ، τ₄) τ
 S⁵ : Var Γ τ → Var (Γ ، τ₁ ، τ₂ ، τ₃ ، τ₄ ، τ₅) τ
 
-S² x = S (S x) 
+S² x = S (S x)
 S³ x = S (S² x)
 S⁴ x = S (S³ x)
 S⁵ x = S (S⁴ x)
@@ -118,7 +118,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
            -------------------------------------
            Term Δ Φ Γ (τ `→ υ)
 
-  _·_ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ} 
+  _·_ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
           {τ : Type Δ (★ ℓ₁)} {υ : Type Δ (★ ℓ₂)} →
 
           Term Δ Φ Γ (τ `→ υ) → Term Δ Φ Γ τ →
@@ -156,7 +156,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
          Term Δ Φ Γ (π ⇒ τ) → Ent Δ Φ π →
          ----------------------------------
          Term Δ Φ Γ τ
-              
+
 --   ------------------------------------------------------------
 --   -- System Rω.
 
@@ -166,14 +166,14 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
           (l : Type Δ (L ℓ)) →
           ----------------------------------------
           Term Δ Φ Γ (⌊_⌋ {ℓ = ℓ} l)
-  
+
 
 --   -- singleton introduction.
   _▹_ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {τ : Type Δ (L ℓ)} {υ : Type Δ (★ ℓκ)} →
           (M₁ : Term Δ Φ Γ (⌊_⌋ {ℓ = ℓ} τ)) (M₂ : Term Δ Φ Γ υ) →
           ----------------------------------------
-          Term Δ Φ Γ (τ ▹ υ)          
+          Term Δ Φ Γ (τ ▹ υ)
 
 --   -- singleton elimination.
   _/_ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
@@ -186,16 +186,16 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   -- record introduction.
   _⊹_ : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {ρ₁ ρ₂ ρ₃ : Type Δ (R[ ★ ℓ ])} →
-      
+
           (M : Term Δ Φ Γ (Π ρ₁)) (N : Term Δ Φ Γ (Π ρ₂)) →
           (π : Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃)) →
           ------------------------------
           Term Δ Φ Γ (Π ρ₃)
-  
+
   -- record "elimination".
   prj : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
         {ρ₁ ρ₂ : Type Δ (R[ ★ ℓ ])} →
-        
+
           (M : Term Δ Φ Γ (Π ρ₁)) → (π : Ent Δ Φ (ρ₂ ≲ ρ₁)) →
           ------------------------------
           Term Δ Φ Γ (Π ρ₂)
@@ -203,7 +203,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   -- Singleton → Singleton Record.
   Π : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
         {τ : Type Δ (L ℓ)} {υ : Type Δ (★ ℓκ)} →
-        
+
           Term Δ Φ Γ (τ ▹ υ) →
           ---------------------
           Term Δ Φ Γ (Π (τ R▹ υ))
@@ -211,11 +211,11 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   -- Singleton Record → Singleton.
   Π⁻¹ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {τ : Type Δ (L ℓ)} {υ : Type Δ (★ ℓκ)} →
-        
+
           (M : Term Δ Φ Γ (Π (τ R▹ υ))) →
           ----------------------------------------
           Term Δ Φ Γ (τ ▹ υ)
-          
+
   -- Subsumption.
   t-≡ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
           {τ υ : Type Δ (★ ℓ)}  →
@@ -227,7 +227,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   -- Variant introduction.
   inj : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
           {ρ₁ ρ₂ : Type Δ (R[ ★ ℓ ])} →
-      
+
           (M : Term Δ Φ Γ (Σ ρ₁)) → (Ent Δ Φ (ρ₁ ≲ ρ₂)) →
           ----------------------------------------------
           Term Δ Φ Γ (Σ ρ₂)
@@ -235,29 +235,29 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
   -- Singleton Record → Singleton.
   Σ : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
         {τ : Type Δ (L ℓ)} {υ : Type Δ (★ ℓκ)} →
-        
+
           Term Δ Φ Γ (τ ▹ υ) →
           ---------------------
           Term Δ Φ Γ (Σ (τ R▹ υ))
-          
+
   -- Singleton Variant → Singleton.
   Σ⁻¹ : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
         {τ : Type Δ (L ℓ)} {υ : Type Δ (★ ℓκ)} →
-        
+
           (M : Term Δ Φ Γ (Σ (τ R▹ υ))) →
           ----------------------------------------
           Term Δ Φ Γ (τ ▹ υ)
-           
+
   -- Variant elimination.
   _▿_ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
         {ρ₁ ρ₂ ρ₃ : Type Δ (R[ ★ ℓ ])} {τ : Type Δ (★ ℓκ)} →
-      
+
           Term Δ Φ Γ ((Σ ρ₁) `→ τ) →
           Term Δ Φ Γ ((Σ ρ₂) `→ τ) →
           Ent Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
           ------------------------------
           Term Δ Φ Γ ((Σ ρ₃) `→ τ)
-           
+
   -- Synthesis.
   syn : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ}
 
@@ -265,17 +265,17 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
           (φ : Type Δ (κ `→ ★ ℓκ)) →
           Term Δ Φ Γ (SynT κ ρ φ) →
           --------------------------
-          Term Δ Φ Γ (Π (⌈ φ ⌉· ρ))
+          Term Δ Φ Γ (Π (φ ↑ ·[ ρ ]))
 
   -- Analysis.
   ana : ∀ {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ}
-  
+
          (ρ : Type Δ R[ κ ]) →
          (φ : Type Δ (κ `→ ★ ℓκ)) →
          (τ : Type Δ (★ ℓ)) →
          Term Δ Φ Γ (AnaT κ ρ φ τ) →
          --------------------------
-         Term Δ Φ Γ (Σ (⌈ φ ⌉· ρ) `→ τ)
+         Term Δ Φ Γ (Σ (φ ↑ ·[ ρ ]) `→ τ)
 
   -- Fold.
   fold : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
@@ -290,7 +290,7 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
   ------------------------------------------------------------
   -- System Rωμ.
-  
+
   In : ∀ {ℓμ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}
          {F : Type Δ ((★ ℓμ) `→ (★ ℓμ))} →
 

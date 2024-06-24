@@ -135,17 +135,15 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Type.Σ τ)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (⌈ τ ⌉· ρ)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ
-  |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ = refl
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ ·⌈ τ ⌉)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ  |
-          τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ = refl
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (↑ ϕ)
+  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ϕ = refl
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ϕ ↑)
+  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ϕ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (π ⇒ τ)
   rewrite π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres π
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ε = refl
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F) 
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- refl
 
 π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ₁ ≲ ρ₂)
@@ -191,11 +189,11 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
                    π-map-preservation Δ₁ Δ₂ H₁ H₂ (substPred f)
 
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (tvar x) = σ-pres x
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (`∀ κ τ) = 
-  ∀-extensionality 
-    extensionality 
-    (λ z → Maybe (⟦ τ ⟧t (H₁ , z))) 
-    (λ z → Maybe (⟦ subst (exts f) τ ⟧t (H₂ , z))) 
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (`∀ κ τ) =
+  ∀-extensionality
+    extensionality
+    (λ z → Maybe (⟦ τ ⟧t (H₁ , z)))
+    (λ z → Maybe (⟦ subst (exts f) τ ⟧t (H₂ , z)))
     τ-pres
     where
       τ-pres : (x : ⟦ κ ⟧k) → Maybe (⟦ τ ⟧t (H₁ , x)) ≡ Maybe (⟦ subst (exts f) τ ⟧t (H₂ , x))
@@ -238,15 +236,13 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (Type.Σ τ)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ = refl
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (⌈ τ ⌉· ρ)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ
-  |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ = refl
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ( ρ ·⌈ τ ⌉)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ  |
-          σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ = refl
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (↑ ϕ)
+  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ϕ = refl
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (ϕ ↑)
+  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ϕ = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ε = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (μ F)
-  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl -- refl
+  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
@@ -275,7 +271,7 @@ Substitution {ℓΔ} {ℓκ} {ℓκ'} {Δ = Δ} {κ' = κ'} τ υ H = σ/τ-pres
 Weakening : ∀ {ℓΔ ℓκ ℓκ'} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {κ' : Kind ℓκ'} →
              (τ : Type Δ κ) (H : ⟦ Δ ⟧ke) (X : ⟦ κ' ⟧k)  →
              ⟦ τ ⟧t H ≡ ⟦ weaken τ ⟧t (H , X)
-Weakening {Δ = Δ} {κ' = κ'} τ H X = 
+Weakening {Δ = Δ} {κ' = κ'} τ H X =
   τ-preservation Δ (Δ ، κ') H (H , X) S (λ _ → refl) τ
 
 Weakening₂ : ∀ {ℓΔ ℓκ ℓκA ℓκB} {Δ : KEnv ℓΔ}
@@ -288,4 +284,4 @@ Weakening₃ : ∀ {ℓΔ ℓκ ℓκA ℓκB ℓκC} {Δ : KEnv ℓΔ}
                {κ : Kind ℓκ} {κA : Kind ℓκA} {κB : Kind ℓκB}  {κC : Kind ℓκC} →
              (τ : Type Δ κ) (H : ⟦ Δ ⟧ke) (A : ⟦ κA ⟧k) (B : ⟦ κB ⟧k) (C : ⟦ κC ⟧k)  →
              ⟦ τ ⟧t H ≡ ⟦ weaken (weaken (weaken τ)) ⟧t (((H , A) , B) , C)
-Weakening₃ τ H A B C =  trans (Weakening₂ τ H A B) (Weakening (weaken (weaken τ)) ((H , A) , B) C) 
+Weakening₃ τ H A B C =  trans (Weakening₂ τ H A B) (Weakening (weaken (weaken τ)) ((H , A) , B) C)
