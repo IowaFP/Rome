@@ -61,17 +61,17 @@ selT {ℓ} =
       ζ = tvar Z
       T = tvar (S Z)
       Ł = tvar (S (S Z))
- 
+
 
 sel : ∀ {ℓ ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → Term Δ φ Γ (selT {ℓ} {ℓΔ} {Δ})
-sel {ℓ} = 
+sel {ℓ} =
   `Λ (L ℓ) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
   (`ƛ ((Ł R▹ T) ≲ ζ) (`λ (Π ζ) (`λ ⌊ Ł ⌋ body)))))
   where
     ζ = tvar Z
     T = tvar (S Z)
     Ł = tvar (S (S Z))
-      
+
     body = (prj▹ (var (S Z)) (n-var Z)) / (var Z)
 
 --------------------------------------------------------------------------------
@@ -90,14 +90,14 @@ con : ∀ {ℓ ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : 
 con {ℓ} {ℓΔ = ℓΔ} = `Λ (L _) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
         (`ƛ ((l R▹ t) ≲ z) ((`λ (⌊ l ⌋) (`λ t Σz))))))
   where
-    z = tvar Z 
+    z = tvar Z
     t = tvar (S Z)
     l = tvar (S (S Z))
 
     x = var Z
     l'  = var (S Z)
     Σz = inj▹ (l' ▹ x) (n-var Z)
-    
+
 
 -- Some assertions about con.
 -- con₁ con₂ : ∀ {ℓ} → ⟦ conT {ℓ} ⟧t tt
@@ -106,7 +106,7 @@ con {ℓ} {ℓΔ = ℓΔ} = `Λ (L _) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
 -- con₂ = ⟦ con ⟧ tt tt tt
 
 -- con-ext-eq : ∀ {ℓ} u X z π ρ u' → con₁ {ℓ} u X z π ρ u' ≡ con₂ {ℓ} u X z π ρ u'
--- con-ext-eq _ X row π r _ with π fzero 
+-- con-ext-eq _ X row π r _ with π fzero
 -- ... | m , eq rewrite eq = refl
 
 --------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ ifte =
   ▿
   ((((((case ·[ Fls ]) ·[ ∅ ]) ·[ _ ]) · lab Fls) · `λ _ (var (S Z)))))
   (n-var Z) · (((var (S (S Z))) ·[ tvar Z ]) ·⟨ n-var Z ⟩)  ))))))
-    
+
 
 -- #############################################################################
 -- 3.2 The Duality of Records.
@@ -187,17 +187,18 @@ reify = `Λ R[ ★₀ ] (`Λ ★₀ (`λ (((Σ z) `→ t)) (syn z (`λ ★₀ ((
   where
     t = tvar Z
     z = tvar (S Z)
-        
+
     sbod = `Λ (L lzero) (`Λ ★₀ (`Λ R[ ★₀ ] (`ƛ ((l R▹ s) · y ~ z')
       (`λ ⌊ l ⌋
         (t-≡
+          (teq-sym teq-β)
           (`λ s
             (f ·
               ((((((con ·[ l ]) ·[ s ]) ·[ z' ])
               ·⟨ n-·≲L (n-var Z) ⟩)
               · (var (S Z)))
               · (var Z))))
-          (teq-sym teq-β))))))
+          )))))
       where
         y  = tvar Z
         s  = tvar (S Z)
@@ -214,7 +215,7 @@ reify = `Λ R[ ★₀ ] (`Λ ★₀ (`λ (((Σ z) `→ t)) (syn z (`λ ★₀ ((
 -- We have:
 --  ana :   (ρ : Row κ) (φ : κ → ★) (T : ★) →
 --          (∀ Ł : L, U : κ, Y : R[ κ ]. (Ł R▹ U) · Y ~ ρ ⇒ ⌊ Ł ⌋ → φ U → T) →
---          Σ ρ → T             
+--          Σ ρ → T
 --
 --  reflect : ∀ ζ : R[ ★ ], T : ★.
 --            Π (lift₂ (λ (X : ★). X → T) ζ) →
@@ -236,14 +237,14 @@ reflectT {ℓ} = `∀ R[ (★ ℓ) ] (`∀ (★ ℓ)
            t = tvar Z
            z = tvar (S Z)
 
-reflect :  ∀ {ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → 
+reflect :  ∀ {ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} →
            Term Δ φ Γ reflectT
 reflect =
 --     Λ ζ : R[ ★ ].
       `Λ R[ ★₀ ]
---     Λ T : ★.      
+--     Λ T : ★.
      (`Λ ★₀
---     λ r : Π (ζ → T).    
+--     λ r : Π (ζ → T).
      (`λ (Π (⌈ (`λ ★₀ (tvar Z `→ tvar (S Z))) ⌉· (tvar (S Z))))
       (ana (tvar (S Z)) idω (tvar Z) M)))
   where
@@ -252,7 +253,7 @@ reflect =
       `Λ (L lzero)
 --     Λ U : ★
      (`Λ ★₀
---     Λ Y : R[ κ ].     
+--     Λ Y : R[ κ ].
      (`Λ R[ ★₀ ]
 --     ƛ p : (Ł R▹ U) · Y ~ Ζ
      (`ƛ ((tvar (S (S Z)) R▹ tvar (S Z)) · (tvar Z) ~ (tvar (S (S (S (S Z))))))
@@ -267,12 +268,12 @@ reflect =
            ((((((sel
 --           ·[ Ł ]
              ·[ tvar (S (S Z)) ])
---           ·[ ((λ X. X) U) → T ] 
+--           ·[ ((λ X. X) U) → T ]
              ·[ idω ·[ tvar (S Z) ] `→ (tvar (S (S (S Z)))) ])
 --           ·[ lift₂ (λ (X : ★). X → T) ζ ]
              ·[ (⌈ (`λ ★₀ (tvar Z `→ tvar (S (S (S (S Z)))))) ⌉· (tvar (S (S (S (S Z)))))) ])
 --           ·⟨  evidence ⟩
-            ·⟨ evidence ⟩) 
+            ·⟨ evidence ⟩)
 --           · r
              · var (S (S Z)))
 --           · l
@@ -287,8 +288,8 @@ reflect =
                Y = tvar Z
                ζ = tvar (S (S (S (S Z))))
 
-               evidence :  Ent _ _ ((Ł R▹ ((idω ·[ Uu ]) `→ T)) ≲ ⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· ζ)               
-               evidence = 
+               evidence :  Ent _ _ ((Ł R▹ ((idω ·[ Uu ]) `→ T)) ≲ ⌈ (`λ ★₀ (tvar Z `→ T')) ⌉· ζ)
+               evidence =
                   (((Ł R▹ Uu) · Y ~ ζ)
                  ⊩⟨ n-·≲L ⟩
                    ((Ł R▹ Uu) ≲ ζ)
@@ -349,10 +350,10 @@ map-Π κ =
   (`Λ {- f -} (κ `→ ★₀)
   (`Λ {- g -} (κ `→ ★₀)
   (`λ {- i -} (Iter κ (tvar (S Z)) (tvar Z) (tvar (S (S Z))))
-  (`λ {- r -} (Π (⌈ f ⌉· tvar (S (S Z)))) 
+  (`λ {- r -} (Π (⌈ f ⌉· tvar (S (S Z))))
       (syn (tvar (S (S Z))) (tvar Z)
        (`Λ {- Ł -} (L lzero)
-       (`Λ {- U -} κ 
+       (`Λ {- U -} κ
        (`Λ {- Y -} R[ κ ]
        (`ƛ {- _ -} ((tvar (S (S Z)) R▹ tvar (S Z)) · (tvar Z) ~ tvar (S (S (S (S (S Z))))))
        (`λ {- l -} ⌊ tvar (S (S Z)) ⌋
@@ -425,10 +426,10 @@ map-Σ κ =
   (`Λ {- f -} (κ `→ ★₀)
   (`Λ {- g -} (κ `→ ★₀)
   (`λ {- i -} (Iter κ (tvar (S Z)) (tvar Z) (tvar (S (S Z))))
-  (`λ {- v -} (Σ (⌈ f ⌉· tvar (S (S Z)))) 
+  (`λ {- v -} (Σ (⌈ f ⌉· tvar (S (S Z))))
       ((ana (tvar (S (S Z))) (tvar (S Z)) (Σ (⌈ tvar Z ⌉· (tvar (S (S Z)))))
        (`Λ {- Ł -} (L lzero)
-       (`Λ {- U -} κ 
+       (`Λ {- U -} κ
        (`Λ {- Y -} R[ κ ]
        (`ƛ {- _ -} ((tvar (S (S Z)) R▹ tvar (S Z)) · (tvar Z) ~ tvar (S (S (S (S (S Z))))))
        (`λ {- l -} ⌊ tvar (S (S Z)) ⌋
@@ -445,7 +446,7 @@ map-Σ κ =
         U = tvar (S Z)
         Y = tvar Z
       in ((((var (S (S (S Z)))) ·[ Ł ]) ·[ U ]) ·[ Y ]) ·⟨ n-var Z ⟩
-    
+
     con' =
       let
 
@@ -453,7 +454,7 @@ map-Σ κ =
         U = tvar (S Z)
         -- Y = tvar Z
         z' = tvar (S (S (S (S (S Z)))))
-        g' = tvar (S (S (S Z)))        
+        g' = tvar (S (S (S Z)))
       in (((con
         ·[ Ł ])
         ·[ g' ·[ U ] ])
@@ -480,4 +481,3 @@ map-Σ κ =
                  ⌈ g' ⌉· (Ł R▹ U ) ≲ ⌈ g' ⌉· z'
               ⊩⟨ n-≡ (peq-≲ teq-lift₂ teq-refl) ⟩
               ∎)) (n-var Z))
-
