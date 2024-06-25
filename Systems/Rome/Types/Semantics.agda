@@ -29,43 +29,8 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 -- The meaning of kinding environments and predicates (mutually recursive).
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
--- Alg : Type Δ (R[ ★ ℓ `→ ★ ℓ ]) → Type Δ (★ ι) → ⟦ Δ ⟧ke → Set (lsuc ℓ ⊔ ι)
--- Alg {ℓ = a} ρ τ H =
---   (w : Row (Set a → Set a)) →
---   Maybe ((y : Row (Set a → Set a)) →
---   Maybe (⟦ ρ ⟧t H Ix.· y ~ w →
---   Maybe
---     (Maybe (Ix.Σ (((⟦ ρ ⟧t H) Ix.·⌈ (Ix.μΣ w) ⌉))
---       → Maybe (Ix.μΣ w
---       → Maybe (⟦ τ ⟧t H))
---       → Maybe (⟦ τ ⟧t H)))))
-
-Alg : ∀ {ℓ ι} → (n : Potatoes) → Row (Set ℓ → Set ℓ) → Set ι → Set (lsuc ℓ ⊔ ι)
-Alg {ℓ} n = λ ρ τ → -- s s₁
-  (w -- s₂
-   : Row (Set ℓ → Set ℓ)) →
-  Maybe
-  ((y -- s₃
-    : Row (Set ℓ → Set ℓ)) →
-   Maybe
-   ((Ix._·_~_ ρ y w) →
-    Maybe
-    (Maybe
-     (∃ (Fin (fst ρ))
-      (λ i →
-         snd ρ i
-         (Ix.Mu
-          (λ s₄ →
-             ∃ (Fin (fst w)) (λ m → snd w m s₄)) n))) →
-     Maybe
-     (Maybe
-      (Maybe
-       (Ix.Mu
-        (λ s₄ → ∃ (Fin (fst w)) (λ m → snd w m s₄)) n) →
-       Maybe τ) →
-      Maybe τ))))
-
 ⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
+
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
 ⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
 
