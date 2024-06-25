@@ -3,6 +3,7 @@ module Rome.Types.Syntax where
 
 open import Preludes.Level
 open import Preludes.Data
+open import Preludes.Relation
 
 open import Rome.GVars.Kinds
 open import Rome.Kinds.Syntax
@@ -28,31 +29,13 @@ Label : Set
 Label = String
 
 --------------------------------------------------------------------------------
--- Kinding Environments, types, and predicates.
---
--- Kinding Environments, types, and predicates are tied up together, like so:
---   - Pred references Ty, KEnv
---   - Type   references KEnv
---   - KEnv references Pred
+-- Types and type vars.
+
+data Pred : (Δ : KEnv ℓ) → (κ : Kind ι) → Set 
+data PEnv : KEnv ℓ → Level → Set 
+data Type : (Δ : KEnv ℓ) → Kind ι →  Set
 
 
-data Type : KEnv ℓ → Kind ι →  Set
-data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
-
-data Pred Δ where
-  _≲_ : ∀ {κ : Kind ι} →
-          (ρ₁ : Type Δ R[ κ ]) →
-          (ρ₂ : Type Δ R[ κ ]) →
-          Pred Δ κ
-
-  _·_~_ : ∀ {κ : Kind ι} →
-            (ρ₁ : Type Δ R[ κ ]) →
-            (ρ₂ : Type Δ R[ κ ]) →
-            (ρ₃ : Type Δ R[ κ ]) →
-            Pred Δ κ
-
---------------------------------------------------------------------------------
--- Type vars.
 data TVar : KEnv ℓ → Kind ι → Set where
   Z : TVar (Δ ، κ) κ
   S : TVar Δ κ₁ → TVar (Δ ، κ₂) κ₁
@@ -66,6 +49,43 @@ S² x = S (S x)
 S³ x = S (S² x)
 S⁴ x = S (S³ x)
 S⁵ x = S (S⁴ x)
+
+--------------------------------------------------------------------------------
+-- Predicates.
+
+data Pred where
+  _≲_ : ∀ {κ : Kind ι} →
+          (ρ₁ : Type Δ R[ κ ]) →
+          (ρ₂ : Type Δ R[ κ ]) →
+          Pred Δ κ
+
+  _·_~_ : ∀ {κ : Kind ι} →
+            (ρ₁ : Type Δ R[ κ ]) →
+            (ρ₂ : Type Δ R[ κ ]) →
+            (ρ₃ : Type Δ R[ κ ]) →
+            Pred Δ κ
+
+--------------------------------------
+-- Predicate Environments & weakening.
+
+data PEnv where
+  ε : PEnv Δ lzero
+  _,_ : {κ : Kind ℓκ} →
+        PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
+  _؛_  : {κ : Kind ℓκ} →
+         PEnv Δ ℓΦ → (κ : Kind ι) → PEnv (Δ ، κ) (ℓΦ ⊔ ℓκ)
+
+-----------------------
+-- Predicate variables.
+
+data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
+  Z : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
+        PVar (Φ , π) π
+
+  S : ∀ {Φ : PEnv Δ ℓΦ}
+        {π : Pred Δ κ₁} {ϕ : Pred Δ κ₂} →
+        PVar Φ π → PVar (Φ , ϕ) π
+
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -112,7 +132,15 @@ data Type where
   ------------------------------------------------------------
   -- System Rω.
 
+  -- The empty row.
   ε : Type Δ R[ κ ]
+
+  -- Row complement
+  _─_ : 
+        (ρ₂ : Type Δ R[ κ ]) → (ρ₁ : Type Δ R[ κ ]) →
+        ---------------------------------------------
+        Type Δ R[ κ ]
+
 
   -- Labels.
   lab :
@@ -129,7 +157,7 @@ data Type where
   -- Row singleton formation.
   _R▹_ :
          Type Δ (L ℓ) → Type Δ κ →
-         -------------------
+         ---------------------------
          Type Δ R[ κ ]
 
   -- label constant formation.

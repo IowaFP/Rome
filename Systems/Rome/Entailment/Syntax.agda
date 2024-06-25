@@ -13,28 +13,11 @@ open import Rome.Equivalence.Syntax
 open import Rome.GVars.Kinds
 
 --------------------------------------------------------------------------------
--- Environments & weakening.
-
-data PEnv : KEnv ℓ → Level → Set where
-  ε : PEnv Δ lzero
-  _,_ : {κ : Kind ℓκ} →
-        PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
-
+-- PEnv weakening.
 
 weakΦ : PEnv Δ ℓΦ → PEnv (Δ ، κ) ℓΦ
 weakΦ ε = ε
 weakΦ (Φ , π) = weakΦ Φ , renamePred S π
-
---------------------------------------------------------------------------------
--- Predicate variables.
-
-data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
-  Z : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
-        PVar (Φ , π) π
-
-  S : ∀ {Φ : PEnv Δ ℓΦ}
-        {π : Pred Δ κ₁} {ϕ : Pred Δ κ₂} →
-        PVar Φ π → PVar (Φ , ϕ) π
 
 --------------------------------------------------------------------------------
 -- Entailment in the "Simple Rows" theory.

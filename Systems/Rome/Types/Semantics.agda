@@ -22,10 +22,6 @@ open import Data.Empty.Polymorphic
 open import Data.Product renaming (Σ to ∃) hiding (∃)
 
 --------------------------------------------------------------------------------
--- TODO---write the denotation (pleasantly) of algebras in IndexCalculus.Recursion.
--- Then denote μ Σ ρ ↪ τ simply to this denotation.
-
---------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
@@ -71,20 +67,5 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ϕ ↑ ⟧t H = Ix.lift₂ (⟦ ϕ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
 ⟦ ε ⟧t H = Ix.emptyRow
+⟦ ρ₂ ─ ρ₁ ⟧t H = {!u!}
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
-
-
---------------------------------------------------------------------------------
--- Testing.
-
-
--- alg-pres ρ τ H = {!cong Maybe!} -- cong Maybe (∀-extensionality extensionality {!!} {!!} {!!})
-
--- t : ∀ (ℓ : Level) → _
--- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t
--- ε
-
--- pfft : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ι)) →
---        (⟦ Δ ⟧ke) →
---        Set
--- pfft ρ τ H  = {!⟦ MAlg ρ τ ⟧t H !}

@@ -1,4 +1,4 @@
-
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Types.Substitution where
 
 open import Preludes.Level
@@ -68,6 +68,7 @@ rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename ρ τ
 rename ρ (↑ f) = ↑ rename ρ f
 rename ρ (f ↑) = rename ρ f ↑
 rename ρ ε = ε
+rename ρ (τ ─ υ)  = _─_ (rename ρ τ) (rename ρ υ)
 rename ρ (μ X) = μ (rename ρ X)
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
@@ -140,6 +141,7 @@ subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
 subst θ (↑ f) = ↑ subst θ f
 subst θ (f ↑) = subst θ f ↑
 subst θ ε = ε
+subst θ ((τ ─ υ)) = _─_ (subst θ τ) (subst θ υ)
 subst ρ (μ X) = μ (subst ρ X)
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
