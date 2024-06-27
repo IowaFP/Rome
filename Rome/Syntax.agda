@@ -57,7 +57,8 @@ private
 data TVar where
   Z : TVar (Δ ، κ) κ
   S : TVar Δ κ₁ → TVar (Δ ، κ₂) κ₁
-  Sₜ : ∀ {κ : Kind ℓκ} → (Δ : Env ℓΔ) → {τ : Type Δ (★ ℓ)} →  TVar Δ κ → TVar (Δ ∶ τ) κ
+  Sₜ : ∀ {ℓκ'} {κ : Kind ℓκ} {κ' : Kind ℓκ'} → {Δ : Env ℓΔ} → {τ : Type Δ κ'} →  TVar Δ κ → TVar (Δ ∶ τ) κ
+  Sₚ : ∀ {ℓκ'} {κ : Kind ℓκ} {κ' : Kind ℓκ'} → {Δ : Env ℓΔ} → {π : Pred Δ κ'}    →  TVar Δ κ → TVar (Δ ؛ π) κ
 
 --------------------------------------------------------------------------------
 -- Predicates.
@@ -77,13 +78,26 @@ data Pred where
 -- -----------------------
 -- -- Predicate variables.
 
--- data PVar where
---   Z : ∀ {Δ} {π : Pred Δ κ} →
---         PVar (Δ ؛ π) π
+data PVar where
+  Z : ∀ {Δ} {π : Pred Δ κ} {π' : Pred (Δ ؛ π) κ} →
+        PVar (Δ ؛ π) π'
 
---   S : ∀ 
---         {π : Pred Δ κ₁} {ϕ : Pred Δ κ₂} →
---         PVar Δ π → PVar (Δ ؛ ϕ) π
+  S : ∀ 
+        {π : Pred Δ κ₁} {ϕ : Pred Δ κ₂} →
+        PVar Δ π → PVar (Δ ؛ ϕ) {!!}
+
+data Var where
+  Z : ∀ {Δ} {τ : Type Δ (★ ℓ)} {τ' : Type (Δ ∶ τ) (★ ℓ)} →
+      Var (Δ ∶ τ) τ'
+
+  S : ∀ {Δ}
+        {τ : Type Δ (★ ℓ)} {υ : Type Δ (★ ι)} {υ' : Type (Δ ∶ τ) (★ ι)} →
+         Var Δ υ → Var (Δ ∶ τ) υ'
+
+-- Sₜ
+-- Sₖ
+
+
 
 
 --------------------------------------------------------------------------------
@@ -202,4 +216,11 @@ data Type where
 
 
 ex : ∀ {ℓ} → Env ℓ
-ex {ℓ} = (((ε ∶ (lab "s")) ، R[ ★ ℓ ]) ؛ (tvar Z  ≲ tvar Z)) ؛ ({!!} ≲ {!!}) -- (tvar Z  ≲ tvar Z)
+ex {ℓ} = 
+  (((ε 
+  ، R[ ★ ℓ ]) 
+  ∶ (lab "s")) 
+  ؛ (tvar (Sₜ Z)  ≲ tvar (Sₜ Z))) 
+
+foo : ∀ {ℓ} → PVar (ex {ℓ}) (tvar (Sₚ (Sₜ Z)) ≲ tvar (Sₚ (Sₜ Z)))
+foo = Z

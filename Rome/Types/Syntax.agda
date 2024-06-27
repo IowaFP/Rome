@@ -72,8 +72,6 @@ data PEnv where
   ε : PEnv Δ lzero
   _,_ : {κ : Kind ℓκ} →
         PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
-  _؛_  : {κ : Kind ℓκ} →
-         PEnv Δ ℓΦ → (κ : Kind ι) → PEnv (Δ ، κ) (ℓΦ ⊔ ℓκ)
 
 -----------------------
 -- Predicate variables.

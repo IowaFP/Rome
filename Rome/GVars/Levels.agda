@@ -7,4 +7,4 @@ open import Preludes.Level
 -- Generalized Vars.
 
 variable
-  ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
+  ℓ ℓ₁ ℓ₂ ℓ₃ ι ℓΓ ℓΔ ℓΦ ℓκ ℓκ₁ ℓκ₂ ℓκ₃ : Level
