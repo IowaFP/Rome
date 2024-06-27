@@ -18,7 +18,7 @@ open import Rome.Kinds.Syntax
 ⟦ ★ ℓ ⟧k = Set ℓ
 ⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
 ⟦ L ℓ ⟧k = ⊤
-⟦_⟧k {ℓ} R[ k ] = Row ⟦ k ⟧k
+⟦ R[ k ] ⟧k = Row ⟦ k ⟧k
 
 --------------------------------------------------------------------------------
 -- The meaning of kinding envs.
