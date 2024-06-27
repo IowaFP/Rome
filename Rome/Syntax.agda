@@ -36,7 +36,7 @@ data Pred : Env ℓ → (κ : Kind ι) → Set
 data Type : (Δ : Env ℓ) → Kind ι →  Set
 
 
-data Ent  : {κ : Kind ℓ} → (Δ : Env ℓ) → Pred Δ κ → Set
+data Ent  : {κ : Kind ℓκ} → (Δ : Env ℓ) → Pred Δ κ → Set
 data _≡p_ : {κ : Kind ℓ} {Δ : Env ℓ} → (π₁ π₂ : Pred Δ κ) → Set
 data _≡t_ : ∀ {κ : Kind ℓ} {Δ₁ : Env ℓ₁}{Δ₂ : Env ℓ₂} → (τ : Type Δ₁ κ) → (υ : Type Δ₂ κ) → Set
 
@@ -59,6 +59,9 @@ private
     Δ : Env ℓ
     κ κ' κ₁ κ₂ κ₃ : Kind ℓκ
 
+wk-π  : ∀ {Δ : Env ℓ} {κ' : Kind ℓκ} {π : Pred Δ κ'} → Pred Δ κ → Pred (Δ ؛ π) κ
+wk-κ  : ∀ {κ' : Kind ℓκ} → Pred Δ κ → Pred (Δ ، κ') κ
+
 data TVar where
   Z : TVar (Δ ، κ) κ
   S : TVar Δ κ₁ → TVar (Δ ، κ₂) κ₁
@@ -68,9 +71,6 @@ data TVar where
 -- Predicates.
 
 data Pred where
-  Wk-π  : ∀ {κ' : Kind ℓκ} {π : Pred Δ κ'} → Pred Δ κ → Pred (Δ ؛ π) κ
-  Wk-κ  : ∀ {κ' : Kind ℓκ} → Pred Δ κ → Pred (Δ ، κ') κ
-
   _≲_ : ∀ {κ : Kind ι} →
           (ρ₁ : Type Δ R[ κ ]) →
           (ρ₂ : Type Δ R[ κ ]) →
@@ -91,10 +91,10 @@ data PVar where
 
   S : ∀ 
         {π : Pred Δ κ₁} {π' : Pred Δ κ₂} →
-        PVar Δ π → PVar (Δ ؛ π') (Wk-π π)
+        PVar Δ π → PVar (Δ ؛ π') (wk-π π)
   S-κ : ∀ 
         {π : Pred Δ κ₁} →
-        PVar Δ π → PVar (Δ ، κ) (Wk-κ π)
+        PVar Δ π → PVar (Δ ، κ) (wk-κ π)
 
 
 
@@ -144,7 +144,7 @@ data Type where
   ε : Type Δ R[ κ ]
 
   -- Row complement
-  _─_ : 
+  _─_ : ∀ {Δ : Env ℓΔ} {κ : Kind ℓκ} →
         (ρ₂ : Type Δ R[ κ ]) → (ρ₁ : Type Δ R[ κ ]) → Ent Δ (ρ₁ ≲ ρ₂) →
         ---------------------------------------------
         Type Δ R[ κ ]
@@ -437,6 +437,22 @@ renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} →
            Δ-map Δ₁ Δ₂ →
            π-map Δ₁ Δ₂
 
+ent≈renaming : ∀ {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} →
+               (f : Δ-map Δ₁ Δ₂) → (π : Pred Δ₁ κ) → Ent Δ₁ π → Ent Δ₂ (renamePred f π)
+ent≈renaming f π (n-var x) = {!!}
+ent≈renaming f .(_ ≲ _) n-refl = ? -- n-refl
+ent≈renaming f .(_ ≲ _) (n-trans ent ent₁) = {!!}
+ent≈renaming f π (n-≡ x ent) = {!!}
+ent≈renaming f .(↑ _ ·[ _ ] ≲ ↑ _ ·[ _ ]) (n-≲lift₁ ent) = {!!}
+ent≈renaming f .(_ ↑ ·[ _ ] ≲ _ ↑ ·[ _ ]) (n-≲lift₂ ent) = {!!}
+ent≈renaming f .(↑ _ ·[ _ ] · ↑ _ ·[ _ ] ~ ↑ _ ·[ _ ]) (n-·lift₁ ent) = {!!}
+ent≈renaming f .(_ ↑ ·[ _ ] · _ ↑ ·[ _ ] ~ _ ↑ ·[ _ ]) (n-·lift₂ ent) = {!!}
+ent≈renaming f .(_ ≲ _) (n-·≲L ent) = {!!}
+ent≈renaming f .(_ ≲ _) (n-·≲R ent) = {!!}
+ent≈renaming f .(_ · ε ~ _) n-ε-R = {!!}
+ent≈renaming f .(ε · _ ~ _) n-ε-L = {!!}
+
+
 rename ρ (tvar v) = tvar (ρ v)
 rename ρ (τ `→ υ) = rename ρ τ `→ rename ρ υ
 rename ρ (`∀ κ τ) = `∀ κ (rename (ext ρ) τ)
@@ -452,13 +468,11 @@ rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename (ext-π ρ) τ -- rename ρ 
 rename ρ (↑ f) = ↑ rename ρ f
 rename ρ (f ↑) = rename ρ f ↑
 rename ρ ε = ε
-rename ρ ((τ ─ υ) ev)  = {!!} -- _─_ (rename ρ τ) (rename ρ υ)
+rename ρ ((τ ─ υ) ev)  = (rename ρ τ ─ rename ρ υ) ((ent≈renaming ρ (υ ≲ τ) ev)) -- (ent≈renaming ρ (υ ≲ τ) ev) -- (ent≈renaming ρ _ ev) -- _─_ (rename ρ τ) (rename ρ υ)
 rename ρ (μ X) = μ (rename ρ X)
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
-renamePred ρ (Wk-π c) = {!!}
-renamePred ρ (Wk-κ c) = {!!}
 
 
 
