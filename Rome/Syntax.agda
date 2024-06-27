@@ -32,7 +32,7 @@ Label = String
 
 data Pred : (Δ : KEnv ℓ) → (κ : Kind ι) → Set 
 data PEnv : KEnv ℓ → Level → Set 
-
+data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set 
 
 data Type : (Δ : KEnv ℓ) → (Φ : PEnv Δ ℓΦ) → Kind ι →  Set
 data TVar : KEnv ℓ → Kind ι → Set
@@ -53,24 +53,25 @@ _β[_] : ∀ {ℓΔ ℓκ ℓι} {Δ : KEnv ℓΔ} {κ : Kind ℓκ}{ι : Kind �
 Δ-map Δ₁ Δ₂ =
   (∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → TVar Δ₂ κ)
 
-rebase-Φ : {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} → PEnv Δ₁ ℓ₁ → PEnv Δ₂ ℓ₂
+rebase-Φ : {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} → (M : Δ-map Δ₁ Δ₂) → PEnv Δ₁ ℓ → PEnv Δ₂ ι
 
 -- A mapping from types to types.
 π-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-τ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) (Φ : PEnv Δ₁ ℓ₁) → Set
-τ-map {ℓ₁} {ℓ₂} Δ₁ Δ₂ Φ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ Φ κ → Type Δ₂ (rebase-Φ Φ) κ)
+τ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) (M : Δ-map Δ₁ Δ₂) (Φ : PEnv Δ₁ ℓ₁) → Set
+τ-map {ℓ₁} {ℓ₂} Δ₁ Δ₂ M Φ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ Φ κ → Type Δ₂ (rebase-Φ M Φ) κ)
 
 -- A mapping from preds to preds.
 π-map Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → Pred Δ₁ κ → Pred Δ₂ κ
 
 -- A Context maps type vars to types.
 Context : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-Context {ℓ₁} Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} {Φ : PEnv Δ₁ ℓ₁} → TVar Δ₁ κ → Type Δ₂ (rebase-Φ Φ) κ
+Context {ℓ₁} Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} {Φ : PEnv Δ₁ ℓ₁} → (M : Δ-map Δ₁ Δ₂) → TVar Δ₁ κ → Type Δ₂ (rebase-Φ M Φ) κ
 
 
 subst : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} {Φ : PEnv Δ₁ ℓ₁} →
+          {M : Δ-map Δ₁ Δ₂} →
            Context Δ₁ Δ₂ →
-           τ-map Δ₁ Δ₂ Φ
+           τ-map Δ₁ Δ₂ M Φ
 
 substPred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
           Context Δ₁ Δ₂ →
@@ -112,16 +113,15 @@ data Pred where
 -- Predicate Environments & weakening.
 
 data PEnv where
-  ε : PEnv Δ lzero
+  ε : PEnv Δ ℓ
   _,_ : {κ : Kind ℓκ} →
         PEnv Δ ℓΦ → Pred Δ κ → PEnv Δ (ℓΦ ⊔ ℓκ)
-  _؛_ :  PEnv Δ ℓΦ → (κ : Kind ℓκ) → PEnv (Δ ، κ) (ℓΦ ⊔ ℓκ)
 
 
 -----------------------
 -- Predicate variables.
 
-data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
+data PVar where
   Z : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
         PVar (Φ , π) π
 
@@ -454,18 +454,19 @@ ext ρ (S x) = S (ρ x)
 -- type from one Context to another.
 
 rename : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} {Φ : PEnv Δ₁ ℓ₁} →
-           Δ-map Δ₁ Δ₂ →
-           τ-map Δ₁ Δ₂ Φ
+           (M : Δ-map Δ₁ Δ₂) →
+           τ-map Δ₁ Δ₂ M Φ
 renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
            Δ-map Δ₁ Δ₂ →
            π-map Δ₁ Δ₂
 
-rebase-Φ Φ = ?
+rebase-Φ M ε = ε
+rebase-Φ M (Φ , x) = rebase-Φ M Φ , renamePred M x
 
 rename ρ (tvar v) = tvar (ρ v)
 rename ρ (τ `→ υ) = rename ρ τ `→ rename ρ υ
-rename ρ (`∀ κ τ) = `∀ κ ? -- (rename (ext ρ) τ)
-rename ρ (`λ s τ) = `λ s ? -- (rename (ext ρ) τ)
+rename ρ (`∀ κ τ) = `∀ κ {!!} -- (rename (ext ρ) τ)
+rename ρ (`λ s τ) = `λ s {!!} -- (rename (ext ρ) τ)
 rename ρ (τ ·[ υ ]) = rename ρ τ ·[ rename ρ υ ]
 rename ρ (lab l) = lab l
 rename ρ (t ▹ v) = (rename ρ t) ▹ (rename ρ v)
@@ -473,92 +474,92 @@ rename ρ (⌊ t ⌋) = ⌊ rename ρ t ⌋
 rename ρ (t R▹ v) = rename ρ t R▹ rename ρ v
 rename ρ (Π r) = Π (rename ρ r)
 rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
-rename ρ (π ⇒ τ) = renamePred ρ π ⇒ ? -- rename ρ τ
+rename ρ (π ⇒ τ) = renamePred ρ π ⇒ {!!} -- rename ρ τ
 rename ρ (↑ f) = ↑ rename ρ f
 rename ρ (f ↑) = rename ρ f ↑
 rename ρ ε = ε
-rename ρ ((τ ─ υ) ent)  = _─_ (rename ρ τ) (rename ρ υ) ? -- ent
+rename ρ ((τ ─ υ) ent)  = _─_ (rename ρ τ) (rename ρ υ) {!!} -- ent
 rename ρ (μ X) = μ (rename ρ X)
 
-renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
-renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
+renamePred ρ (ρ₁ ≲ ρ₂) = {!rename ρ !} ≲ {!!} -- rename ρ ρ₁ ≲ rename ρ ρ₂
+renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = {!!} -- rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
 
---------------------------------------------------------------------------------
--- Weakening (of a typing derivation.)
+-- --------------------------------------------------------------------------------
+-- -- Weakening (of a typing derivation.)
 
-weaken : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-           τ-map Δ (Δ ، κ)
-weaken = rename S
+-- weaken : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
+--            τ-map Δ (Δ ، κ)
+-- weaken = rename S
 
---------------------------------------------------------------------------------
--- Repeated weakening (helpers)
-K = weaken
-K¹ = weaken
-K² : ∀ {ℓΔ ℓ₁ ℓ₂} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
-           τ-map Δ (Δ ، κ₁ ، κ₂)
-K² = λ x → weaken (weaken x)
+-- --------------------------------------------------------------------------------
+-- -- Repeated weakening (helpers)
+-- K = weaken
+-- K¹ = weaken
+-- K² : ∀ {ℓΔ ℓ₁ ℓ₂} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
+--            τ-map Δ (Δ ، κ₁ ، κ₂)
+-- K² = λ x → weaken (weaken x)
 
-K³ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} →
-           τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃)
-K³ = λ x → K¹ (K² x)
+-- K³ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} →
+--            τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃)
+-- K³ = λ x → K¹ (K² x)
 
-K⁴ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃ ℓ₄} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} {κ₄ : Kind ℓ₄} →
-           τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄)
-K⁴ = λ x → K² (K² x)
+-- K⁴ : ∀ {ℓΔ ℓ₁ ℓ₂ ℓ₃ ℓ₄} {Δ : KEnv ℓΔ} {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} {κ₃ : Kind ℓ₃} {κ₄ : Kind ℓ₄} →
+--            τ-map Δ (Δ ، κ₁ ، κ₂ ، κ₃ ، κ₄)
+-- K⁴ = λ x → K² (K² x)
 
---------------------------------------------------------------------------------
--- Simultaneous Substitution.
---
--- Instead of substituting a closed term for a single variable, we provide a
--- map that takes each free variable of the original type to another
--- tye. Further, the substituted terms are over an arbitrary Context, and need
--- not be closed.
+-- --------------------------------------------------------------------------------
+-- -- Simultaneous Substitution.
+-- --
+-- -- Instead of substituting a closed term for a single variable, we provide a
+-- -- map that takes each free variable of the original type to another
+-- -- tye. Further, the substituted terms are over an arbitrary Context, and need
+-- -- not be closed.
 
 
-exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
-         {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
-         {ι : Kind ℓ₃} →
-         Context Δ₁ Δ₂ →
-         Context (Δ₁ ، ι) (Δ₂ ، ι)
-exts θ Z = tvar Z
-exts θ (S x) = rename S (θ x)
+-- exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
+--          {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
+--          {ι : Kind ℓ₃} →
+--          Context Δ₁ Δ₂ →
+--          Context (Δ₁ ، ι) (Δ₂ ، ι)
+-- exts θ Z = tvar Z
+-- exts θ (S x) = rename S (θ x)
 
---------------------------------------------------------------------------------
--- Substitution.
---
+-- --------------------------------------------------------------------------------
+-- -- Substitution.
+-- --
 
-subst θ (tvar x) = θ x
-subst θ (τ `→ υ) = subst θ τ `→ subst θ υ
-subst θ (`∀ κ τ) = `∀ κ (subst (exts θ) τ)
-subst θ (`λ s τ) = `λ s (subst (exts θ) τ)
-subst θ (τ ·[ υ ]) = subst θ τ ·[ subst θ υ ]
-subst θ (lab l) = lab l
-subst θ (t ▹ v) = (subst θ t) ▹ (subst θ v)
-subst θ (⌊ t ⌋) = ⌊ subst θ t ⌋
-subst θ (t R▹ v) = subst θ t R▹ subst θ v
-subst θ (Π r) = Π (subst θ r)
-subst θ (Type.Σ r) = Type.Σ (subst θ r)
-subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
-subst θ (↑ f) = ↑ subst θ f
-subst θ (f ↑) = subst θ f ↑
-subst θ ε = ε
-subst θ ((τ ─ υ)) = _─_ (subst θ τ) (subst θ υ)
-subst ρ (μ X) = μ (subst ρ X)
+-- subst θ (tvar x) = θ x
+-- subst θ (τ `→ υ) = subst θ τ `→ subst θ υ
+-- subst θ (`∀ κ τ) = `∀ κ (subst (exts θ) τ)
+-- subst θ (`λ s τ) = `λ s (subst (exts θ) τ)
+-- subst θ (τ ·[ υ ]) = subst θ τ ·[ subst θ υ ]
+-- subst θ (lab l) = lab l
+-- subst θ (t ▹ v) = (subst θ t) ▹ (subst θ v)
+-- subst θ (⌊ t ⌋) = ⌊ subst θ t ⌋
+-- subst θ (t R▹ v) = subst θ t R▹ subst θ v
+-- subst θ (Π r) = Π (subst θ r)
+-- subst θ (Type.Σ r) = Type.Σ (subst θ r)
+-- subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
+-- subst θ (↑ f) = ↑ subst θ f
+-- subst θ (f ↑) = subst θ f ↑
+-- subst θ ε = ε
+-- subst θ ((τ ─ υ)) = _─_ (subst θ τ) (subst θ υ)
+-- subst ρ (μ X) = μ (subst ρ X)
 
-substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
-substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃
+-- substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
+-- substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃
 
---------------------------------------------------------------------------------
--- Single substitution.
+-- --------------------------------------------------------------------------------
+-- -- Single substitution.
 
--- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
-Z↦ : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
-        Type Δ Φ κ → Context (Δ ، κ) Δ
-Z↦ τ Z = τ
-Z↦ τ (S x) = tvar x
+-- -- (Z↦ υ) τ maps the 0th De Bruijn index in τ to υ.
+-- Z↦ : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} →
+--         Type Δ Φ κ → Context (Δ ، κ) Δ
+-- Z↦ τ Z = τ
+-- Z↦ τ (S x) = tvar x
 
--- Regular ol' substitution.
-τ β[ υ ] = subst (Z↦ υ) τ
+-- -- Regular ol' substitution.
+-- τ β[ υ ] = subst (Z↦ υ) τ
 
-weakΦ ε = ε
-weakΦ (Φ , π) = weakΦ Φ , renamePred S π
+-- weakΦ ε = ε
+-- weakΦ (Φ , π) = weakΦ Φ , renamePred S π
