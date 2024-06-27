@@ -4,7 +4,8 @@ open import Preludes.Level
 open import Preludes.Data
 open import Preludes.Relation
 
-open import Rome.Kinds
+open import Rome.Kinds.Syntax
+open import Rome.Kinds.Semantics hiding (⟦_⟧ke)
 open import Rome.GVars.Levels
 
 
@@ -144,7 +145,7 @@ data Type where
 
   -- Row complement
   _─_ : 
-        (ρ₂ : Type Δ R[ κ ]) → (ρ₁ : Type Δ R[ κ ]) →
+        (ρ₂ : Type Δ R[ κ ]) → (ρ₁ : Type Δ R[ κ ]) → Ent Δ (ρ₁ ≲ ρ₂) →
         ---------------------------------------------
         Type Δ R[ κ ]
 
@@ -385,6 +386,101 @@ data _≡t_ where
                 ---------------------------
                 Σ ρ₁ ·[ τ ] ≡t Σ ((↑ ρ₁) ·[ τ ])
 
+--------------------------------------------------------------------------------
+-- Defs.
+
+-- A Δ-map (renaming) maps type vars in environment Δ₁ to environment Δ₂.
+Δ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : Env ℓ₁) (Δ₂ : Env ℓ₂) → Set
+Δ-map Δ₁ Δ₂ =
+  (∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → TVar Δ₂ κ)
+
+-- A mapping from types to types.
+τ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : Env ℓ₁) (Δ₂ : Env ℓ₂) → Set
+τ-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ κ → Type Δ₂ κ)
+
+-- A mapping from preds to preds.
+π-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : Env ℓ₁) (Δ₂ : Env ℓ₂) → Set
+π-map Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → Pred Δ₁ κ → Pred Δ₂ κ
+
+-- A Context maps type vars to types.
+Context : ∀ {ℓ₁ ℓ₂} (Δ₁ : Env ℓ₁) (Δ₂ : Env ℓ₂) → Set
+Context Δ₁ Δ₂ = ∀ {ℓ₃} {κ : Kind ℓ₃} → TVar Δ₁ κ → Type Δ₂ κ
+
+--------------------------------------------------------------------------------
+-- Extension.
+--
+-- Given a map from variables in one Context to variables in another, extension
+-- yields a map from the first Context extended to the second Context similarly
+-- extended.
+
+ext : ∀ {ℓ₁ ℓ₂ ℓ₃} {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} {ι : Kind ℓ₃} →
+         Δ-map Δ₁ Δ₂ →
+         Δ-map (Δ₁ ، ι) (Δ₂ ، ι)
+ext ρ Z = Z
+ext ρ (S x) = S (ρ x)
+
+ext-π : ∀ {ℓ₁ ℓ₂ ℓ₃} {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} {Δ₃ : Env ℓ₃} {κ : Kind ℓ₃} {π : Pred Δ₁ κ} {π' : Pred Δ₂ κ} →
+         Δ-map Δ₁ Δ₂ →
+         Δ-map (Δ₁ ؛ π) (Δ₂ ؛ π')
+ext-π ρ (Sₚ c) = Sₚ (ρ c)
+
+--------------------------------------------------------------------------------
+-- Renaming.
+--
+-- Renaming is a necessary prelude to substitution، enabling us to “rebase” a
+-- type from one Context to another.
+
+rename : ∀ {ℓ₁ ℓ₂} {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} →
+           Δ-map Δ₁ Δ₂ →
+           τ-map Δ₁ Δ₂
+renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : Env ℓ₁} {Δ₂ : Env ℓ₂} →
+           Δ-map Δ₁ Δ₂ →
+           π-map Δ₁ Δ₂
+
+rename ρ (tvar v) = tvar (ρ v)
+rename ρ (τ `→ υ) = rename ρ τ `→ rename ρ υ
+rename ρ (`∀ κ τ) = `∀ κ (rename (ext ρ) τ)
+rename ρ (`λ s τ) = `λ s (rename (ext ρ) τ)
+rename ρ (τ ·[ υ ]) = rename ρ τ ·[ rename ρ υ ]
+rename ρ (lab l) = lab l
+rename ρ (t ▹ v) = (rename ρ t) ▹ (rename ρ v)
+rename ρ (⌊ t ⌋) = ⌊ rename ρ t ⌋
+rename ρ (t R▹ v) = rename ρ t R▹ rename ρ v
+rename ρ (Π r) = Π (rename ρ r)
+rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
+rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename (ext-π ρ) τ -- rename ρ τ
+rename ρ (↑ f) = ↑ rename ρ f
+rename ρ (f ↑) = rename ρ f ↑
+rename ρ ε = ε
+rename ρ ((τ ─ υ) ev)  = {!!} -- _─_ (rename ρ τ) (rename ρ υ)
+rename ρ (μ X) = μ (rename ρ X)
+
+renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
+renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
+renamePred ρ (Wk-π c) = {!!}
+renamePred ρ (Wk-κ c) = {!!}
+
+
+
+
+tvar Z β[ υ ] = υ
+tvar (S x) β[ υ ] = tvar x
+(τ `→ τ₁) β[ υ ] = (τ β[ υ ]) `→ (τ₁ β[ υ ])  
+`∀ κ τ β[ υ ] = `∀ κ {!_β[_] τ !}
+`λ κ₁ τ β[ υ ] = {!!}
+(τ ·[ τ₁ ]) β[ υ ] = {!!}
+(π ⇒ τ) β[ υ ] = {!!}
+ε β[ υ ] = {!!}
+((τ ─ τ₁) eq) β[ υ ] = {!!}
+lab x β[ υ ] = {!!}
+(τ ▹ τ₁) β[ υ ] = {!!}
+(l R▹ τ) β[ υ ] = {!!}
+⌊ τ ⌋ β[ υ ] = ⌊ τ β[ υ ] ⌋  
+Π τ β[ υ ] = Π (τ β[ υ ])
+Σ τ β[ υ ] = Σ (τ β[ υ ])
+(↑ τ) β[ υ ] = ↑ (τ β[ υ ])
+(τ ↑) β[ υ ] = (τ β[ υ ]) ↑ 
+μ τ β[ υ ] = μ (τ β[ υ ])
 
 -- ex : ∀ {ℓ} → Env ℓ
 -- ex {ℓ} = 
@@ -395,3 +491,62 @@ data _≡t_ where
 
 -- foo : ∀ {ℓ} → PVar (ex {ℓ}) (tvar (Sₚ (Sₜ Z)) ≲ tvar (Sₚ (Sₜ Z)))
 -- foo = Z
+
+--------------------------------------------------------------------------------
+-- Semantics.
+
+--------------------------------------------------------------------------------
+-- The meaning of kinding environments and predicates (mutually recursive).
+import IndexCalculus as Ix
+
+⟦_⟧E : (Δ : Env ℓ) → Set (lsuc ℓ)
+⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → Set (lsuc ℓκ)
+
+⟦ ε ⟧E = ⊤
+⟦ Δ ، κ ⟧E = ⟦ Δ ⟧E × ⟦ κ ⟧k
+⟦ Δ ؛ π ⟧E = ⟦ Δ ⟧E × ⟦ π ⟧p
+
+⟦_⟧t : Type Δ κ → ⟦ Δ ⟧E → ⟦ κ ⟧k
+
+-- ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
+-- ⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
+
+-- --------------------------------------------------------------------------------
+-- -- The meaning of type vars.
+
+-- ⟦_⟧tv : TVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+-- ⟦ Z ⟧tv (_ , t) = t
+-- ⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
+
+-- --------------------------------------------------------------------------------
+-- -- The meaning of types.
+
+-- buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
+-- buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
+-- buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i X)
+-- buildΣ (L _) ⟦ρ⟧ = tt
+-- buildΣ R[ κ ] (n , f) = n , λ i → buildΣ κ (f i)
+
+-- buildΠ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
+-- buildΠ (★ _) ⟦ρ⟧ = Ix.Π ⟦ρ⟧
+-- buildΠ (κ₁ `→ κ₂) (n , f) = λ X → buildΠ κ₂ (n , λ i → f i X)
+-- buildΠ (L _) ⟦ρ⟧ = tt
+-- buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
+
+-- ⟦ lab l ⟧t       H = tt
+-- ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
+-- ⟦ (t₁ `→ t₂) ⟧t H = Maybe (⟦ t₁ ⟧t H) → Maybe (⟦ t₂ ⟧t H)
+-- ⟦ `∀ κ v ⟧t      H = (s : ⟦ κ ⟧k) → Maybe (⟦ v ⟧t  (H , s))
+-- ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
+-- ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
+-- ⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
+-- ⟦ _ R▹ τ ⟧t H = Ix.sing (⟦ τ ⟧t H)
+-- ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
+-- ⟦ Π {κ = κ} ρ ⟧t H = buildΠ κ (⟦ ρ ⟧t H)
+-- ⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
+-- ⟦ ↑ ϕ ⟧t H = Ix.lift₁ (⟦ ϕ ⟧t H)
+-- ⟦ ϕ ↑ ⟧t H = Ix.lift₂ (⟦ ϕ ⟧t H)
+-- ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
+-- ⟦ ε ⟧t H = Ix.emptyRow
+-- ⟦ ρ₂ ─ ρ₁ ⟧t H = {!u!}
+-- ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) 
