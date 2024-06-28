@@ -6,7 +6,7 @@ open import Agda.Primitive
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)
 
-open import Data.Nat using (ℕ; zero; suc)
+open import Data.Nat using (ℕ; zero; suc ; _∸_)
 open import Data.List
 open import Data.Sum
   renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
@@ -14,7 +14,8 @@ open import Data.Sum
 open import Data.Product
   using (_×_; ∃; ∃-syntax; Σ-syntax; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
-open import Data.Fin  renaming (zero to fzero; suc to fsuc)
+import Data.Fin as Fin
+open Fin  renaming (zero to fzero; suc to fsuc)
   hiding (fold)
 
 --------------------------------------------------------------------------------
@@ -101,9 +102,11 @@ _·_~_ {ℓ} (l , P) (m , Q) (n , R) =
 --------------------------------------------------------------------------------
 -- Row Complement.
 
+-- Extremely dumb try.
 complement : ∀ {ℓ} {A : Set ℓ}{ρ₁ ρ₃ : Row A} →
-               ρ₁ ≲ ρ₃ → Σ[ ρ₂ ∈ Row A ] ( ρ₁ · ρ₂ ~ ρ₃)
-complement {_} {A} {ρ₁} {ρ₃} ev = {!!}
+               ρ₁ ≲ ρ₃ → Σ[ ρ₂ ∈ Row A ] (ρ₁ · ρ₂ ~ ρ₃)
+complement {_} {A} ρ₁@{n , P} ρ₃@{m , Q} ev = 
+  ρ₃ , (λ i → right (i , refl)) , ((λ i → ev i) , (λ i → i , refl))
 
 
 --------------------------------------------------------------------------------
