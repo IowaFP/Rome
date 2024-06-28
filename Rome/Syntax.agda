@@ -86,8 +86,8 @@ data Pred where
 -- -- Predicate variables.
 
 data PVar where
-  Z : ∀ {Δ : Env ℓΔ} {κ : Kind ℓκ} {π : Pred Δ κ} {π' : Pred (Δ ؛ π) κ} →
-        PVar (Δ ؛ π) π'
+  Z : ∀ {Δ : Env ℓΔ} {κ : Kind ℓκ} {π : Pred Δ κ} →
+        PVar (Δ ؛ π) (wk-π π)
 
   S : ∀ 
         {π : Pred Δ κ₁} {π' : Pred Δ κ₂} →
