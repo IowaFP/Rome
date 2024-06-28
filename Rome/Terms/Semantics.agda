@@ -131,6 +131,18 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ M ·⟨ D ⟩ ⟧ g H φ η = do
   m ← (⟦ M ⟧ g H φ η)
   m (⟦ D ⟧n H φ)
+⟦ rowCompl {ρ₁ = ρ₁} {ρ₂ = ρ₂} {τ = τ} ev M ⟧ g H φ η = do
+  m ← ⟦ M ⟧ g H φ η
+  m ← m y
+  m ← m P'
+  just (≡-elim (sym (Weakening τ H y)) m)
+  where
+    C = Ix.complement (⟦ ev ⟧n H φ)
+    y = fst C
+    P = snd C
+    P' : ⟦ K ρ₁ ⟧t (H , y) IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
+    P' rewrite sym (Weakening ρ₁ H y) | sym (Weakening ρ₂ H y)  = P 
+    
 ⟦ (r₁ ⊹ r₂) π ⟧ g H φ η = do
   r₁ ← (⟦ r₁ ⟧ g H φ η) 
   r₂ ← (⟦ r₂ ⟧ g H φ η) 
