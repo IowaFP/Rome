@@ -77,15 +77,11 @@ AnaT : (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ])
        (φ : Type Δ (κ `→ ★ ℓκ)) (τ : Type Δ (★ ℓ)) →
        Type Δ (★ (ℓ ⊔ lsuc ℓκ))
 AnaT  κ ρ φ τ =
-  `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
-    ⌊_⌋ {ℓ = lzero} l `→ φ' ·[ u ] `→ τ')))
+  `∀ (L lzero) (`∀ κ (((l R▹ u) ≲ K² ρ ⇒
+    ⌊_⌋ {ℓ = lzero} l `→ K² φ ·[ u ] `→ K² τ)))
     where
-      ρ' = weaken (weaken (weaken ρ))
-      φ' = weaken (weaken (weaken φ))
-      τ' = weaken (weaken (weaken τ))
-      y = tvar Z
-      u = tvar (S Z)
-      l = tvar (S (S Z))
+      u = tvar Z
+      l = tvar (S Z)
 
 FoldT : (ρ : Type Δ R[ ★ ℓκ ]) (υ : Type Δ (★ ℓ)) →
        Type Δ (★ (ℓ ⊔ lsuc ℓκ))

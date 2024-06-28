@@ -16,14 +16,6 @@ open import Rome.GVars.Kinds
 
 --------------------------------------------------------------------------------
 -- projection and injection of labeled types.
---
--- (The distinction is that
---   prj : (ℓ ▹ τ) ≲ ρ ⇒  Π ρ → Π (ℓ R▹ τ)
--- but
---   prj▹ :   (ℓ ▹ τ) ≲ ρ ⇒ Π ρ → (ℓ ▹ τ)
---
--- (And the dual holds for inj and inj▹).
-
 prj▹ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {Ł : Type Δ (L ℓ)}
        {τ : Type Δ (★ ℓκ)} {ρ : Type Δ R[ ★ ℓκ ]} →
         Term Δ Φ Γ (Π ρ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
@@ -44,6 +36,78 @@ inj▹ s e = inj (Σ s) e
 u : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}  →
     Term Δ Φ Γ (U {ℓ = ℓ})
 u = lab (lab "unit")
+
+--------------------------------------------------------------------------------
+-- Record selection (sel).
+selT : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (lsuc ℓ))
+selT {ℓ} =
+  `∀ (L ℓ) (`∀ (★ ℓ) (`∀ R[ ★ ℓ ]
+    ((Ł R▹ T) ≲ ζ ⇒ Π ζ `→ ⌊ Ł ⌋ `→ T)))
+    where
+      ζ = tvar Z
+      T = tvar (S Z)
+      Ł = tvar (S (S Z))
+
+
+sel : ∀ {ℓ ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → Term Δ φ Γ (selT {ℓ} {ℓΔ} {Δ})
+sel {ℓ} =
+  `Λ (L ℓ) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
+  (`ƛ ((Ł R▹ T) ≲ ζ) (`λ (Π ζ) (`λ ⌊ Ł ⌋ body)))))
+  where
+    ζ = tvar Z
+    T = tvar (S Z)
+    Ł = tvar (S (S Z))
+
+    body = (prj▹ (var (S Z)) (n-var Z)) / (var Z)
+
+--------------------------------------------------------------------------------
+-- Variant construct (con).
+
+conT : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (lsuc ℓ))
+conT {ℓ} =
+  `∀ (L lzero) (`∀ (★ ℓ) (`∀ R[ (★ ℓ) ]
+    ((l R▹ t) ≲ z ⇒ ⌊ l ⌋ `→ t `→ Σ z)))
+    where
+      z = tvar Z
+      t = tvar (S Z)
+      l = tvar (S (S Z))
+
+con : ∀ {ℓ ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → Term Δ φ Γ (conT {ℓ})
+con {ℓ} {ℓΔ = ℓΔ} = `Λ (L _) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
+        (`ƛ ((l R▹ t) ≲ z) ((`λ (⌊ l ⌋) (`λ t Σz))))))
+  where
+    z = tvar Z
+    t = tvar (S Z)
+    l = tvar (S (S Z))
+
+    x = var Z
+    l'  = var (S Z)
+    Σz = inj▹ (l' ▹ x) (n-var Z)
+
+--------------------------------------------------------------------------------
+-- Case (case).
+
+caseT : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (lsuc ℓ))
+caseT {ℓ} =
+  `∀ (L lzero) (`∀ (★ ℓ) (`∀ (★ ℓ)
+    (⌊ l ⌋ `→ (t `→ s) `→ Σ (l R▹ t) `→ s)))
+    where
+      l = tvar (S (S Z))
+      t = tvar (S Z)
+      s = tvar Z
+
+case : ∀ {ℓ ℓΔ ℓΦ ℓΓ} {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ}  {Γ : Env Δ ℓΓ} →
+       Term Δ Φ Γ (caseT {ℓ})
+case {ℓ} = `Λ (L lzero) (`Λ (★ ℓ) (`Λ (★ ℓ)
+       (`λ ⌊ Ł ⌋ (`λ (T `→ O) (`λ (Σ (Ł R▹ T)) (f · ((Σ⁻¹ x) / l)))))))
+  where
+    Ł = tvar (S (S Z))
+    T = tvar (S Z)
+    O = tvar Z
+
+    l = var (S (S Z))
+    f = var (S Z)
+    x = var Z
 
 --------------------------------------------------------------------------------
 -- tie.
@@ -116,6 +180,77 @@ _▿μ_ {ℓ = ℓ} =
     body = (f' ▿ g') (n-·lift₁ (n-var (S Z)))
 
 --------------------------------------------------------------------------------
+-- Encoding the boolean type.
+
+Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
+          Type Δ (L lzero)
+Tru = lab "True"
+Fls = lab "False"
+
+BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
+BoolP = (Tru R▹ U) · Fls R▹ U ~ tvar Z
+
+Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
+       Type Δ (★ (lsuc ℓ))
+Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
+
+true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
+true = `Λ _ (`ƛ _ (inj (Σ ((lab Tru) ▹ (lab _))) (n-·≲L (n-var Z))))
+
+false : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
+false = `Λ _ (`ƛ _ (inj (Σ ((lab Fls) ▹ (lab _))) (n-·≲R (n-var Z))))
+
+--------------------------------------------------------------------------------
+-- idω : ★ → ★ at all levels.
+
+idω : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ ((★ ℓ) `→ (★ ℓ))
+idω {ℓ} = `λ (★ ℓ) (tvar Z)
+
+--------------------------------------------------------------------------------
+-- EqΣ.
+-- ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
+
+Eq : Type Δ (★ ℓ `→ ★ (lsuc ℓ))
+Eq = `λ _ ((tvar Z) `→ ((tvar Z) `→ K Bool))
+
+eqΣT : Type Δ (★ (lsuc ℓ))
+eqΣT {ℓ = ℓ} = `∀ R[ ★ ℓ ] (Π (((Eq ↑) ·[ tvar Z ])) `→ (Σ (tvar Z) `→ Σ (tvar Z) `→ Bool {ℓ}))
+
+-- fucking llevelvelevlelslssss
+eqΣ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (eqΣT {ℓ})
+eqΣ {ℓ} = 
+  `Λ R[ ★ ℓ ]                   -- z
+  (`λ (Π (((Eq ↑) ·[ tvar Z ]))) -- d
+  (`λ (Σ (tvar Z))               -- v
+  (`λ (Σ (tvar Z))               -- w
+    ((ana (tvar Z) idω (Bool {ℓ}) 
+      (`Λ (L lzero)              -- ℓ
+      (`Λ (★ ℓ)                  -- u
+      (`ƛ ((tvar (S Z) R▹ tvar Z) ≲ tvar (Types.S² Z)) 
+      (`λ ⌊ (tvar (S Z)) ⌋       --  l : ⌊ ℓ ⌋ 
+      (`λ ((K² idω ·[ (tvar Z) ])) -- x : u
+        (rowCompl 
+          (n-var Z) 
+          (`Λ R[ ★ ℓ ]            -- y 
+          (`ƛ ((tvar (Types.S² Z) R▹ tvar (S Z)) · tvar Z ~ tvar (Types.S³ Z)) 
+          ((((((((((
+            case ·[ tvar (Types.S² Z) ]) ·[ {!tvar (S Z)!} ]) ·[ {!!} ]) · var (S Z)) · `λ {!!} {!!}))) 
+            ▿ `λ _ false) (n-var {!Z!}) · var (S² {!Z!}))))))))))) 
+      · t-≡ (teq-Σ pfft) (var Z) ))))) 
+      where
+        -- We need some equational law concering reduction over lifted functions.
+        -- It should be the case that 
+        --   (λ κ τ) ↑ ·[ υ ] ≡ τ β[ u ]
+        -- but this is ill-typed--- τ has kind κ on the LHS and R[ κ ] on the RHS.
+        -- So we would need to know what a "lifted body" looks like, e.g, some τ' : R[ κ ]
+        -- s.t. for (λ κ τ) ↑ we have τ ≡ τ'.
+        pfft : (tvar Z) ≡t (idω ↑) ·[ tvar Z ]
+        pfft = {!!}
+
+ -- 
+
+
+--------------------------------------------------------------------------------
 -- FmapΣ.
 
 -- fmapΣ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
@@ -156,22 +291,3 @@ _▿μ_ {ℓ = ℓ} =
 -- --          (inj {! !} {!!})
 -- --          (teq-sym teq-lift₃))))))))))))
 
---------------------------------------------------------------------------------
--- Helpers? Not sure I need these anymore.
-
-step : ∀ {ℓ ℓκ ℓΔ ℓΓ ℓΦ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {κ : Kind ℓκ} →
-         {M : Type (Δ ، κ) (★ (ℓ ⊔ ℓκ))} → {N : Type Δ κ} →
-      Term Δ Φ Γ ((`λ κ M) ·[ N ]) → Term Δ Φ Γ (M β[ N ])
-step m = t-≡ teq-β m
-
-step² : ∀ {ℓΔ ℓΓ ℓΦ} {Δ : KEnv ℓΔ} {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {κ₁ : Kind ℓκ₁} {κ₂ : Kind ℓκ₂} →
-         {M : Type (Δ ، κ₁ ، κ₂) (★ (ℓ ⊔ ℓκ₁ ⊔ ℓκ₂))} → {N₁ : Type Δ κ₁} → { N₂ : Type Δ  κ₂} →
-      Term Δ Φ Γ (((`λ κ₁ (`λ κ₂ M)) ·[ N₁ ]) ·[ N₂ ]) → Term Δ Φ Γ ((subst (exts (Z↦ N₁)) M) β[ N₂ ])
-step² {_} {κ₁ = κ₁} {κ₂} {M} {N₁} {N₂} m =
-  ((((`λ κ₁ (`λ κ₂ M)) ·[ N₁ ]) ·[ N₂ ])
- ⊩⟨ t-≡ (teq-· teq-β teq-refl) ⟩
-    ((`λ κ₂ (subst (exts (Z↦ N₁)) M)) ·[ N₂ ])
- ⊩⟨ t-≡ teq-β ⟩
-   (((subst (exts (Z↦ N₁)) M) β[ N₂ ])
- ⊩⟨ t-≡ teq-refl ⟩
-    (λ x → x))) m
