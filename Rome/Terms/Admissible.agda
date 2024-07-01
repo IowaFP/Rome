@@ -5,13 +5,14 @@ open import Preludes.Level
 
 open import Rome.Kinds
 open import Rome.Types
-import Rome.Types.Syntax as Types
+import Rome.Types.Syntax as Ty
 open import Rome.Terms.Syntax
 open import Rome.Terms.Semantics
 open import Rome.Terms.Reasoning
 open import Rome.Types.Substitution
 open import Rome.Equivalence.Syntax
 open import Rome.Entailment.Syntax
+open import Rome.Entailment.Reasoning
 open import Rome.GVars.Kinds
 
 --------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ inj▹ s e = inj (Σ s) e
 -- The unit term.
 
 u : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ}  →
-    Term Δ Φ Γ (U {ℓ = ℓ})
+    Term Δ Φ Γ (Unit {ℓ = ℓ})
 u = lab (lab "unit")
 
 --------------------------------------------------------------------------------
@@ -87,9 +88,9 @@ con {ℓ} {ℓΔ = ℓΔ} = `Λ (L _) (`Λ (★ ℓ) (`Λ R[ (★ ℓ) ]
 --------------------------------------------------------------------------------
 -- Case (case).
 
-caseT : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ (lsuc ℓ))
-caseT {ℓ} =
-  `∀ (L lzero) (`∀ (★ ℓ) (`∀ (★ ℓ)
+caseT : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ ((lsuc ℓ) ⊔ (lsuc ι)))
+caseT {ℓ} {ι} =
+  `∀ (L lzero) (`∀ (★ ℓ) (`∀ (★ ι)
     (⌊ l ⌋ `→ (t `→ s) `→ Σ (l R▹ t) `→ s)))
     where
       l = tvar (S (S Z))
@@ -143,9 +144,9 @@ _▿μ_   : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
                     (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₂ (S² Z)
                     (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₃ (S  Z)
                     (`∀ (★ ℓ)            -- τ      Z
-                    ((tvar (Types.S³ Z)  ↪₂ tvar Z) `→
-                    (tvar (Types.S² Z) ↪₂ tvar Z) `→
-                    (tvar (Types.S³ Z)  · tvar (Types.S² Z) ~ tvar ((Types.S Z))) ⇒
+                    ((tvar (Ty.S³ Z)  ↪₂ tvar Z) `→
+                    (tvar (Ty.S² Z) ↪₂ tvar Z) `→
+                    (tvar (Ty.S³ Z)  · tvar (Ty.S² Z) ~ tvar ((Ty.S Z))) ⇒
                     (tvar (S Z) ↪₂ tvar Z))))))
 
 _▿μ_ {ℓ = ℓ} =
@@ -153,46 +154,34 @@ _▿μ_ {ℓ = ℓ} =
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`Λ ((★ ℓ))
-  (`λ (tvar (Types.S³ Z) ↪₂ tvar Z)
-  (`λ (tvar (Types.S² Z) ↪₂ tvar Z)
-  (`ƛ (tvar (Types.S³ Z)  · tvar (Types.S² Z) ~ tvar ((Types.S Z)))
+  (`λ (tvar (Ty.S³ Z) ↪₂ tvar Z)
+  (`λ (tvar (Ty.S² Z) ↪₂ tvar Z)
+  (`ƛ (tvar (Ty.S³ Z)  · tvar (Ty.S² Z) ~ tvar ((Ty.S Z)))
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`ƛ ((ρ₃ ≲ w))
   (`λ ((Σ ρ₃) ·[ μΣ w ])
   (`λ (μΣ w `→ τ)
   (((body · v') · r))))))))))))
   where
-    ρ₁ = tvar (Types.S⁴ Z)
-    ρ₂ = tvar (Types.S³ Z)
-    ρ₃ = tvar (Types.S² Z)
+    ρ₁ = tvar (Ty.S⁴ Z)
+    ρ₂ = tvar (Ty.S³ Z)
+    ρ₃ = tvar (Ty.S² Z)
     τ = tvar (S Z)
     w = tvar Z
     v = var (S Z)
-    v' = t-≡ teq-lift₃ v
+    v' = t-≡ teq-lift-Σ v
     r = var Z
     f' : Term _ _ _ (Σ (↑ ρ₁ ·[ (μΣ w) ]) `→ (μΣ w `→ τ) `→ τ)
     f' = `λ (Σ (↑ ρ₁ ·[ (μΣ w) ]))
-         (`λ ((μΣ w `→ τ)) ((((var (S⁵ Z) ·[ w ]) ·⟨ n-trans (n-·≲L (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift₃) (var (S Z))) · var Z))
+         (`λ ((μΣ w `→ τ)) ((((var (S⁵ Z) ·[ w ]) ·⟨ n-trans (n-·≲L (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift-Σ) (var (S Z))) · var Z))
     g' : Term _ _ _ (Σ (↑ ρ₂ ·[ (μΣ w) ]) `→ (μΣ w `→ τ) `→ τ)
     g' = `λ (Σ (↑ ρ₂ ·[ (μΣ w) ]))
-         (`λ ((μΣ w `→ τ)) ((((var (S⁴ Z) ·[ w ]) ·⟨ n-trans (n-·≲R (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift₃) (var (S Z))) · var Z))
+         (`λ ((μΣ w `→ τ)) ((((var (S⁴ Z) ·[ w ]) ·⟨ n-trans (n-·≲R (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift-Σ) (var (S Z))) · var Z))
     body : Term _ _ _ (Σ (↑ ρ₃ ·[ (μΣ w) ]) `→ (μΣ w `→ τ) `→ τ)
     body = (f' ▿ g') (n-·lift₁ (n-var (S Z)))
 
 --------------------------------------------------------------------------------
 -- Encoding the boolean type.
-
-Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
-          Type Δ (L lzero)
-Tru = lab "True"
-Fls = lab "False"
-
-BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
-BoolP = (Tru R▹ U) · Fls R▹ U ~ tvar Z
-
-Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
-       Type Δ (★ (lsuc ℓ))
-Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
 
 true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
 true = `Λ _ (`ƛ _ (inj (Σ ((lab Tru) ▹ (lab _))) (n-·≲L (n-var Z))))
@@ -219,25 +208,24 @@ eqΣT {ℓ = ℓ} = `∀ R[ ★ ℓ ] (Π (((Eq ↑) ·[ tvar Z ])) `→ (Σ (tv
 -- fucking llevelvelevlelslssss
 eqΣ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (eqΣT {ℓ})
 eqΣ {ℓ} = 
-  `Λ R[ ★ ℓ ]                   -- z
-  (`λ (Π (((Eq ↑) ·[ tvar Z ]))) -- d
-  (`λ (Σ (tvar Z))               -- v
-  (`λ (Σ (tvar Z))               -- w
+  `Λ R[ ★ ℓ ]                    -- z (TVar)
+  (`λ (Π (((Eq ↑) ·[ tvar Z ]))) -- d (Var)
+  (`λ (Σ (tvar Z))               -- v (Var)
+  (`λ (Σ (tvar Z))               -- w (Var)
     ((ana (tvar Z) idω (Bool {ℓ}) 
-      (`Λ (L lzero)              -- ℓ
-      (`Λ (★ ℓ)                  -- u
-      (`ƛ ((tvar (S Z) R▹ tvar Z) ≲ tvar (Types.S² Z)) 
-      (`λ ⌊ (tvar (S Z)) ⌋       --  l : ⌊ ℓ ⌋ 
-      (`λ ((K² idω ·[ (tvar Z) ])) -- x : u
+      (`Λ (L lzero)              -- ℓ (TVar)
+      (`Λ (★ ℓ)                  -- u (TVar)
+      (`ƛ ((Ł₀ R▹ u₀) ≲ z₀) 
+      (`λ ⌊ (tvar (S Z)) ⌋       --   l : ⌊ ℓ ⌋ (Var)
+      (`λ ((K² idω ·[ (tvar Z) ])) -- y : u    (Var)
         (rowCompl 
-          (n-var Z) 
-          (`Λ R[ ★ ℓ ]            -- y 
-          (`ƛ ((tvar (Types.S² Z) R▹ tvar (S Z)) · tvar Z ~ tvar (Types.S³ Z)) 
-          ((((((((((
-            case ·[ tvar (Types.S² Z) ]) ·[ {!tvar (S Z)!} ]) ·[ {!!} ]) · var (S Z)) · `λ {!!} {!!}))) 
-            ▿ `λ _ false) (n-var {!Z!}) · var (S² {!Z!}))))))))))) 
-      · t-≡ (teq-Σ pfft) (var Z) ))))) 
+          (n-var Z) body)))))) 
+      · t-≡ (teq-Σ pfft) (var Z)))))) 
       where
+        z₀ = tvar (Ty.S² Z)
+        Ł₀ = tvar (S Z)
+        u₀ = tvar Z
+
         -- We need some equational law concering reduction over lifted functions.
         -- It should be the case that 
         --   (λ κ τ) ↑ ·[ υ ] ≡ τ β[ u ]
@@ -246,6 +234,33 @@ eqΣ {ℓ} =
         -- s.t. for (λ κ τ) ↑ we have τ ≡ τ'.
         pfft : (tvar Z) ≡t (idω ↑) ·[ tvar Z ]
         pfft = {!!}
+
+        body : Term _ _ _ 
+               (`∀ R[ ★ ℓ ]
+                 ((tvar (Ty.S² Z) R▹ tvar (S Z)) · tvar Z ~ (tvar (Ty.S³ Z)) ⇒
+                 Bool))
+        body = `Λ (R[ ★ ℓ ]) -- Y (TVar)
+               (`ƛ _         -- π 
+               ((( lhs ▿ `λ _ false) π) · v))
+          where
+            υ = tvar (S Z)
+            Ł = tvar (Ty.S² Z)
+            v = var (S³ Z)
+            π = n-var Z
+            lhs : Term (_ ، R[ ★ ℓ ] ، L zero ، ★ ℓ ، R[ ★ ℓ ]) _ _ (Σ (Ł R▹ υ) `→ Bool {ℓ})
+            lhs = `λ _      -- x (Var)
+              ((((prj▹ d) pf) / l) · (Σ⁻¹ x / l) · y)
+              where
+                Y = tvar Z
+                z = tvar (Ty.S³ Z)
+                x = var Z
+                y = var (S Z) 
+                l = var (S² Z)
+                d = var (S⁵ Z)
+                pf :  Ent _ _ ((
+                          (Ł R▹ (υ `→ `λ (★ ℓ) (tvar Z) ·[ tvar (S Z) ] `→ Bool)) ≲
+                          (Eq ↑) ·[ tvar (S (S (S Z))) ]))
+                pf = {!!}
 
  -- 
 
@@ -284,10 +299,10 @@ eqΣ {ℓ} =
 -- --    (recΣ
 -- --    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- w  (TVar)
 -- --    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- y (TVar)
--- --    (`ƛ (tvar (Types.S³ Z) · (tvar Z) ~ (tvar (S Z)))
+-- --    (`ƛ (tvar (Ty.S³ Z) · (tvar Z) ~ (tvar (S Z)))
 -- --    (`λ ((Σ (K² (tvar (S Z))) ·[ μΣ (tvar (S Z)) ])) -- v (Var)
 -- --    (`λ ((μΣ (tvar (S Z)) `→ K² (μΣ (tvar Z))))     -- r (Var)
 -- --        (In (t-≡
 -- --          (inj {! !} {!!})
--- --          (teq-sym teq-lift₃))))))))))))
+-- --          (teq-sym teq-lift-Σ))))))))))))
 

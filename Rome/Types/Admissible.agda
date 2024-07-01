@@ -14,10 +14,16 @@ open import Rome.Types.Substitution
 -- Permissable types.
 
 -- The unit type.
-U : ∀ {ℓ ℓΔ}{Δ : KEnv ℓΔ} → Type Δ (★ ℓ)
-U = ⌊ lab "unit" ⌋
+-- N.b. it's most elegant to let ⊤ = Π ε and ⊥ = Σ ε, but this definition of ⊤
+-- doesn't behave like a unit:
+--   - Π ε has infinite inhabitants (any record can project to Π ε).
+--   - The denotation of Π ε is not ⊤ in the Index Calculus.
+-- The definition below, on the other hand, has just one inhabitant and 
+-- translates semantically to the identity.
+Unit : ∀ {ℓ ℓΔ}{Δ : KEnv ℓΔ} → Type Δ (★ ℓ)
+Unit = ⌊ lab "unit" ⌋
 
--- The empty record.
+-- The empty record. (See above).
 ∅ : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ (★ ℓ)
 ∅ = Π ε
 
@@ -27,6 +33,22 @@ False = Σ ε
 
 μΣ : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ R[ (★ ℓ) `→ (★ ℓ) ] → Type Δ (★ ℓ)
 μΣ {ℓ} ρ = μ (Σ ρ)
+
+--------------------------------------------------------------------------------
+-- Encoding the boolean type.
+
+Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
+          Type Δ (L lzero)
+Tru = lab "True"
+Fls = lab "False"
+
+BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
+BoolP = (Tru R▹ Unit) · (Fls R▹ Unit) ~ tvar Z
+
+Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
+       Type Δ (★ (lsuc ℓ))
+Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
+
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s
