@@ -35,6 +35,7 @@ open import Rome.GVars.Kinds
 ⟦ teq-sym eq ⟧eq H = sym (⟦ eq ⟧eq H)
 ⟦ teq-trans eq₁ eq₂ ⟧eq H = trans (⟦ eq₁ ⟧eq H) (⟦ eq₂ ⟧eq H)
 ⟦ teq-⇒ x t ⟧eq H rewrite ⟦ x ⟧eq-π H | ⟦ t ⟧eq H = refl
+⟦ teq-→ x t ⟧eq H rewrite ⟦ x ⟧eq H | ⟦ t ⟧eq H = refl
 ⟦ teq-∀ {τ = τ} {υ} eq ⟧eq H =
   ∀-extensionality
     extensionality
@@ -51,3 +52,4 @@ open import Rome.GVars.Kinds
 ⟦ teq-⌊⌋ t ⟧eq H = refl
 ⟦ teq-Π t ⟧eq H rewrite ⟦ t ⟧eq H = refl
 ⟦ teq-Σ t ⟧eq H rewrite ⟦ t ⟧eq H = refl
+⟦ teq-id-↑ ⟧eq H = refl 

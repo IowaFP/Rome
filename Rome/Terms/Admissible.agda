@@ -220,20 +220,11 @@ eqΣ {ℓ} =
       (`λ ((K² idω ·[ (tvar Z) ])) -- y : u    (Var)
         (rowCompl 
           (n-var Z) body)))))) 
-      · t-≡ (teq-Σ pfft) (var Z)))))) 
+      · t-≡ (teq-Σ (teq-sym teq-id-↑)) (var Z)))))) 
       where
         z₀ = tvar (Ty.S² Z)
         Ł₀ = tvar (S Z)
         u₀ = tvar Z
-
-        -- We need some equational law concering reduction over lifted functions.
-        -- It should be the case that 
-        --   (λ κ τ) ↑ ·[ υ ] ≡ τ β[ u ]
-        -- but this is ill-typed--- τ has kind κ on the LHS and R[ κ ] on the RHS.
-        -- So we would need to know what a "lifted body" looks like, e.g, some τ' : R[ κ ]
-        -- s.t. for (λ κ τ) ↑ we have τ ≡ τ'.
-        pfft : (tvar Z) ≡t (idω ↑) ·[ tvar Z ]
-        pfft = {!!}
 
         body : Term _ _ _ 
                (`∀ R[ ★ ℓ ]
@@ -251,16 +242,23 @@ eqΣ {ℓ} =
             lhs = `λ _      -- x (Var)
               ((((prj▹ d) pf) / l) · (Σ⁻¹ x / l) · y)
               where
-                Y = tvar Z
+--                Y = tvar Z
                 z = tvar (Ty.S³ Z)
                 x = var Z
                 y = var (S Z) 
                 l = var (S² Z)
                 d = var (S⁵ Z)
-                pf :  Ent _ _ ((
-                          (Ł R▹ (υ `→ `λ (★ ℓ) (tvar Z) ·[ tvar (S Z) ] `→ Bool)) ≲
-                          (Eq ↑) ·[ tvar (S (S (S Z))) ]))
-                pf = {!!}
+                -- I have this evidence:
+                --   - (Ł R▹ υ) · Y ~ z
+                --   - (Ł R▹ υ) ≲ z
+                pf :  Ent _ _ ((Ł R▹ (υ `→ idω ·[ υ ] `→ Bool)) ≲ (Eq ↑) ·[ z ])
+                pf = n-≡ 
+                  (peq-≲ 
+                    (teq-trans teq-lift₂ 
+                    (teq-sing teq-refl 
+                    (teq-trans teq-β 
+                    (teq-→ teq-refl (teq-→ (teq-sym teq-β) teq-refl) )))) teq-refl) 
+                    (n-≲lift₂ {ϕ = Eq} (n-var (S Z))) -- n-≡ (peq-≲ {!teq-lift₂!} {!!}) (n-var (S Z))
 
  -- 
 
