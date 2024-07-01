@@ -131,6 +131,18 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ M ·⟨ D ⟩ ⟧ g H φ η = do
   m ← (⟦ M ⟧ g H φ η)
   m (⟦ D ⟧n H φ)
+⟦ rowCompl {ρ₁ = ρ₁} {ρ₂ = ρ₂} {τ = τ} ev M ⟧ g H φ η = do
+  m ← ⟦ M ⟧ g H φ η
+  m ← m y
+  m ← m P'
+  just (≡-elim (sym (Weakening τ H y)) m)
+  where
+    C = Ix.complement (⟦ ev ⟧n H φ)
+    y = fst C
+    P = snd C
+    P' : ⟦ K ρ₁ ⟧t (H , y) IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
+    P' rewrite sym (Weakening ρ₁ H y) | sym (Weakening ρ₂ H y)  = P 
+    
 ⟦ (r₁ ⊹ r₂) π ⟧ g H φ η = do
   r₁ ← (⟦ r₁ ⟧ g H φ η) 
   r₂ ← (⟦ r₂ ⟧ g H φ η) 
@@ -177,23 +189,21 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ ana {Δ = Δ} {κ = κ} ρ f τ M ⟧ g H₀ φ η = just 
   (λ { (just (i , P)) → do
     let ⟦ρ⟧ = (⟦ ρ ⟧t H₀)
-    let ⟦τ⟧≡⟦weaken³τ⟧ = Weakening₃ {ℓκA = lzero} τ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-    let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-    let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+    let ⟦τ⟧≡⟦weaken₂τ⟧ = Weakening₂ {ℓκA = lzero} τ H₀ tt (snd ⟦ρ⟧ i)
+    let ⟦ρ⟧≡⟦weaken₂ρ⟧ = Weakening₂ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i)
+    let ⟦f⟧≡⟦weaken₂f⟧ = Weakening₂ {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i)
     ⟦M⟧ ← ⟦ M ⟧ g H₀ φ η
     ⟦M⟧ ← ⟦M⟧ tt
     ⟦M⟧ ← ⟦M⟧ (snd ⟦ρ⟧ i)
-    ⟦M⟧ ← ⟦M⟧ (⟦ρ⟧ delete i)
     ⟦M⟧ ← ⟦M⟧ (evidence i)
     ⟦M⟧ ← ⟦M⟧ (just tt)
-    ⟦M⟧ ← ⟦M⟧ (just (≡-elim (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd (⟦ ρ ⟧t H₀) i)) P))
-    just (≡-elim (sym ⟦τ⟧≡⟦weaken³τ⟧) ⟦M⟧)
+    ⟦M⟧ ← ⟦M⟧ (just (≡-elim (cong-app ⟦f⟧≡⟦weaken₂f⟧ (snd (⟦ ρ ⟧t H₀) i)) P))
+    just (≡-elim (sym ⟦τ⟧≡⟦weaken₂τ⟧) ⟦M⟧)
   ; nothing → nothing})
     where
       ⟦ρ⟧ = ⟦ ρ ⟧t H₀
-      evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.· ⟦ρ⟧ delete i ~
-                 ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
-      evidence i rewrite sym (Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
+      evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.≲ ⟦ (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)))
+      evidence i rewrite sym (Weakening₂ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i)) = λ { fzero → i , refl } --  recombine ⟦ρ⟧ i
 ⟦ Term.Π s ⟧ g H φ η = just (λ { fzero → ⟦ s ⟧ g H φ η })
 ⟦ Π⁻¹ r ⟧ g H φ η = do
   ⟦r⟧ ←  ⟦ r ⟧ g H φ η
@@ -241,10 +251,4 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ fix {τ = τ} ⟧ (ℕ.suc g) H φ η = do
   Fix ← (⟦ fix {τ = τ} ⟧ g H φ η)
   just (λ f → join→ f (Fix f))
--- Expect below to be admissable.
--- ⟦ tie f ⟧ g H φ η = nothing
--- ⟦ recΣ {ℓ = ℓ} {ρ = ρ} {τ} f ⟧ g H φ η = ⟦ f ⟧ g H φ η
--- ⟦ _▿μ_ {τ = τ} M N π ⟧ g H φ η = {!!} 
-
----------------------------------------------------------
 

@@ -77,15 +77,11 @@ AnaT : (κ : Kind ℓκ) → (ρ : Type Δ R[ κ ])
        (φ : Type Δ (κ `→ ★ ℓκ)) (τ : Type Δ (★ ℓ)) →
        Type Δ (★ (ℓ ⊔ lsuc ℓκ))
 AnaT  κ ρ φ τ =
-  `∀ (L lzero) (`∀ κ (`∀ R[ κ ] ((l R▹ u) · y ~ ρ' ⇒
-    ⌊_⌋ {ℓ = lzero} l `→ φ' ·[ u ] `→ τ')))
+  `∀ (L lzero) (`∀ κ (((l R▹ u) ≲ K² ρ ⇒
+    ⌊_⌋ {ℓ = lzero} l `→ K² φ ·[ u ] `→ K² τ)))
     where
-      ρ' = weaken (weaken (weaken ρ))
-      φ' = weaken (weaken (weaken φ))
-      τ' = weaken (weaken (weaken τ))
-      y = tvar Z
-      u = tvar (S Z)
-      l = tvar (S (S Z))
+      u = tvar Z
+      l = tvar (S Z)
 
 FoldT : (ρ : Type Δ R[ ★ ℓκ ]) (υ : Type Δ (★ ℓ)) →
        Type Δ (★ (ℓ ⊔ lsuc ℓκ))
@@ -101,6 +97,8 @@ FoldT {ℓκ = ℓκ} ρ υ =
 
 --------------------------------------------------------------------------------
 -- Terms.
+
+infixl 5 _·_ 
 
 data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) → Set where
   ------------------------------------------------------------
@@ -155,6 +153,14 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
          Term Δ Φ Γ (π ⇒ τ) → Ent Δ Φ π →
          ----------------------------------
+         Term Δ Φ Γ τ
+
+  rowCompl : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
+           {ρ₁ ρ₂ : Type Δ R[ κ ]} {τ : Type Δ (★ ℓ)} →
+
+         Ent Δ Φ (ρ₁ ≲ ρ₂) → 
+         Term Δ Φ Γ (`∀ R[ κ ] (K ρ₁ · (tvar Z) ~ K ρ₂ ⇒ K τ)) →
+         --------------------------------------------------
          Term Δ Φ Γ τ
 
 --   ------------------------------------------------------------
@@ -310,3 +316,4 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
          ----------------------------
          Term Δ Φ Γ ((τ `→ τ) `→ τ)
+
