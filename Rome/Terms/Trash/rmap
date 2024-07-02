@@ -1,0 +1,40 @@
+I want a case that says "I just recurse and move on".
+
+Let's first try typing something simpler.
+
+g : ∀ ρ. (T ▹ ⊤) ≲ ρ ⇒ (F ▹ ⊤) ≲ ρ ⇒ Σ ρ → ⊤
+
+just writing branching won't work---
+
+g = Λ ρ. ƛ π₁ π₂. λ v : Σ ρ. ((case T tt ▿ case F tt) ?)
+
+Here we need evidence that 
+  (T ▹ ⊤) · (F ▹ ⊤) ~ ρ
+which is not the case. Maybe we do:
+
+g = Λ ρ. ƛ π₁ π₂. λ v : Σ ρ. ((case T tt ▿ case F tt) ▿ (λ _. tt) ?)
+
+we have an obligation to show, for
+  (T ▹ ⊤) · (F ▹ ⊤) ~ ρ'
+that
+  ρ' · y ~ ρ
+
+
+-- Just sanity-checking that rowcompl preserves defaulting behavior.
+ez : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → 
+     Term Δ Φ Γ (`∀ R[ ★ ℓ ] (`∀ R[ ★ ℓ ] ((Tru R▹ Unit) · (Fls R▹ Unit) ~ tvar Z ⇒ tvar Z ≲ tvar (S Z) ⇒ Σ (tvar (S Z)) `→ Unit )))
+ez  = `Λ _ (`Λ _ (`ƛ _ (`ƛ _ 
+      (rowCompl (n-var Z) (`Λ _ (`ƛ _ (((((`λ (Σ (Tru R▹ Unit)) u) ▿ (`λ (Σ (Fls R▹ Unit)) u)) (n-var (S (S Z)))) ▿ (`λ _ u)) (n-var Z))))))))
+
+pz : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → 
+     Term Δ Φ Γ (`∀ R[ ★ ℓ `→ ★ ℓ ] ((Tru R▹ `λ _ Unit) ≲ tvar Z ⇒ Functor ·[ Σ (tvar Z) ] `→ tvar Z ↪ Unit ))
+pz = `Λ _  -- ρ
+     (`ƛ _ -- (Tru R▹ `λ _ Unit) ≲ ρ
+     (`λ _ alg))
+     where 
+       alg : Term _ _ _ (tvar Z ↪ Unit)
+       alg = `Λ _ 
+         (`ƛ _ (`λ _ (`λ _ (rowCompl (n-trans (n-var (S Z)) (n-var Z)) {!`Λ!}))))
+         where
+           r = var Z
+           
