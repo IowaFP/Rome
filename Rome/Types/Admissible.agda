@@ -49,6 +49,17 @@ Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
        Type Δ (★ (lsuc ℓ))
 Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
 
+--------------------------------------------------------------------------------
+-- Encoding the natural number type.
+
+Zr Sc : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
+  Type Δ (L lzero)
+Zr = lab "Zero"
+Sc = lab "Succ"
+
+NatP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ `→ ★ ℓ ]) (★ ℓ `→ ★ ℓ)
+NatP {ℓ} = (Zr R▹ `λ (★ ℓ) Unit) · (Sc R▹ `λ (★ ℓ) (tvar Z)) ~ tvar Z
+
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s
