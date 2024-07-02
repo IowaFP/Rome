@@ -4,19 +4,20 @@ module Rome where
 -- Load & typecheck *all* modules.
 
 -- Entailment.
-open import Rome.Entailment -- extensionality
-open import Rome.Entailment.Reasoning
+open import Rome.Entailment public -- extensionality
+open import Rome.Entailment.Reasoning public
 
 -- Equivalence.
-open import Rome.Equivalence -- extensionality
+open import Rome.Equivalence public -- extensionality
+
+open import Rome.Kinds public
 
 -- Terms.
-open import Rome.Terms as Terms -- extensionality
+open import Rome.Terms as Terms public -- extensionality
+open import Rome.Terms.Admissible public
 
 -- Types.
-open import Rome.Types as Types
-open import Rome.Types.Substitution
-open import Rome.Types.Substitution.Properties -- extensionality
-
--- Examples.
-open import Rome.Examples.Section-3 -- extensionality
+open import Rome.Types as Types public
+open import Rome.Types.Admissible public
+open import Rome.Types.Substitution public
+open import Rome.Types.Substitution.Properties public -- extensionality
