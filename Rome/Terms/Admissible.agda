@@ -127,7 +127,7 @@ tie {ℓ₁} {Δ = Δ} {Φ = Φ} =
       (`λ ((tvar (S Z) ↪ tvar Z))
       (`λ (Functor ·[ Σ (tvar (S Z)) ])
       (`λ ((μ (Σ (tvar (S Z)))))
-        ((((((φ ·[ ρ ]) ·[ ε ]) ·⟨ n-ε-R ⟩) · (Out v fmap)) · ((ti · φ) · fmap))))))))
+        (((((φ ·[ ρ ]) ·⟨ n-refl ⟩) · (Out v fmap)) · ((ti · φ) · fmap))))))))
   where
     ρ = tvar (S Z)
     ti = var (S³  Z)
@@ -144,18 +144,18 @@ _▿μ_   : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
                     (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₂ (S² Z)
                     (`∀ R[ ★ ℓ `→ ★ ℓ ] -- ρ₃ (S  Z)
                     (`∀ (★ ℓ)            -- τ      Z
-                    ((tvar (Ty.S³ Z)  ↪₂ tvar Z) `→
-                    (tvar (Ty.S² Z) ↪₂ tvar Z) `→
+                    ((tvar (Ty.S³ Z)  ↪ tvar Z) `→
+                    (tvar (Ty.S² Z) ↪ tvar Z) `→
                     (tvar (Ty.S³ Z)  · tvar (Ty.S² Z) ~ tvar ((Ty.S Z))) ⇒
-                    (tvar (S Z) ↪₂ tvar Z))))))
+                    (tvar (S Z) ↪ tvar Z))))))
 
 _▿μ_ {ℓ = ℓ} =
   `Λ R[ ★ ℓ `→ ★ ℓ ]
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`Λ ((★ ℓ))
-  (`λ (tvar (Ty.S³ Z) ↪₂ tvar Z)
-  (`λ (tvar (Ty.S² Z) ↪₂ tvar Z)
+  (`λ (tvar (Ty.S³ Z) ↪ tvar Z)
+  (`λ (tvar (Ty.S² Z) ↪ tvar Z)
   (`ƛ (tvar (Ty.S³ Z)  · tvar (Ty.S² Z) ~ tvar ((Ty.S Z)))
   (`Λ R[ ★ ℓ `→ ★ ℓ ]
   (`ƛ ((ρ₃ ≲ w))
@@ -258,6 +258,13 @@ eqΣ {ℓ} =
 
  -- 
 
+--------------------------------------------------------------------------------
+-- rmap.
+
+rcase : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (`∀ R[ ★ ℓ `→ ★ ℓ ] (`∀ (★ ℓ) (tvar (S Z) ↪ tvar Z)))
+rcase = `Λ _       -- ρ
+        (`Λ _      -- τ
+        (`Λ _  {!!}))    -- 
 
 --------------------------------------------------------------------------------
 -- FmapΣ.
