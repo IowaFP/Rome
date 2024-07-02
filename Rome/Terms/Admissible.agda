@@ -205,7 +205,6 @@ Eq = `λ _ ((tvar Z) `→ ((tvar Z) `→ K Bool))
 eqΣT : Type Δ (★ (lsuc ℓ))
 eqΣT {ℓ = ℓ} = `∀ R[ ★ ℓ ] (Π (((Eq ↑) ·[ tvar Z ])) `→ (Σ (tvar Z) `→ Σ (tvar Z) `→ Bool {ℓ}))
 
--- fucking llevelvelevlelslssss
 eqΣ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (eqΣT {ℓ})
 eqΣ {ℓ} = 
   `Λ R[ ★ ℓ ]                    -- z (TVar)
@@ -248,9 +247,6 @@ eqΣ {ℓ} =
                 y = var (S Z) 
                 l = var (S² Z)
                 d = var (S⁵ Z)
-                -- I have this evidence:
-                --   - (Ł R▹ υ) · Y ~ z
-                --   - (Ł R▹ υ) ≲ z
                 pf :  Ent _ _ ((Ł R▹ (υ `→ idω ·[ υ ] `→ Bool)) ≲ (Eq ↑) ·[ z ])
                 pf = n-≡ 
                   (peq-≲ 
