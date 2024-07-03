@@ -11,7 +11,7 @@ open import Rome.Types.Syntax
 open import Rome.Types.Substitution
 
 --------------------------------------------------------------------------------
--- Permissable types.
+-- Admissible types.
 
 -- The unit type.
 -- N.b. it's most elegant to let ⊤ = Π ε and ⊥ = Σ ε, but this definition of ⊤
@@ -80,4 +80,7 @@ _↪_  {ℓ} {ι} ρ  τ =
       ((Σ (K ρ)) ·[ μΣ w ] `→ (((μΣ w) `→ K τ) `→ K τ))))
   where
     w = tvar Z
+--------------------------------------------------------------------------------
+-- Projecting out of multirows.
 
+-- (m : MultiRow Δ κ) → l ∈ m → 

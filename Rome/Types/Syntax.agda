@@ -67,12 +67,11 @@ S⁵ x = S (S⁴ x)
 
 data MultiRow : KEnv ℓ → Kind ι → Set 
 _∉_ : Label → MultiRow Δ κ → Set
-_∉?_ : ∀ (l : Label) (m : MultiRow Δ κ) → Dec (l ∉ m)
 
 data MultiRow where
   _▹_ : (l : Label) → (τ : Type Δ κ) → MultiRow Δ κ
   _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : MultiRow Δ κ) → 
-          {_ : True (l ∉? xs)}  → MultiRow Δ κ
+          {_ : l ∉ xs}  → MultiRow Δ κ
 
 l₁ ∉ (l₂ ▹ τ)  with l₁ ≟ l₂ 
 ... | yes p = ⊥₀
@@ -80,14 +79,6 @@ l₁ ∉ (l₂ ▹ τ)  with l₁ ≟ l₂
 l₁ ∉ (l₂ ▹ _ ， mr) with l₁ ≟ l₂
 ... | yes p  = ⊥₀
 ... | no  p  = l₁ ∉ mr 
-
-
-l₁ ∉? (l₂ ▹ τ) with l₁ ≟ l₂ 
-... | yes refl = no (λ ())
-... | no  p = yes tt₀
-l₁ ∉? (l₂ ▹ τ ， m) with l₁ ≟ l₂
-... | yes refl = no (λ ())
-... | no  p = l₁ ∉? m
 
 --------------------------------------------------------------------------------
 -- Types.

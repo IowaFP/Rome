@@ -82,7 +82,7 @@ rename δ (μ X) = μ (rename δ X)
 
 ∉?-≈-renameRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : Label) (m : MultiRow Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
-       True (l ∉? m) → True (l ∉? renameRow δ m)
+       l ∉ m → l ∉ renameRow δ m
 
 renameRow δ (l ▹ τ) = (l ▹ rename δ τ)
 renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {∉?-≈-renameRow l m δ ev}
@@ -173,7 +173,7 @@ subst θ (Row ρ) = Row (substRow θ ρ)
 
 ∉?-≈-substRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : Label) (m : MultiRow Δ₁ κ) (θ : Context Δ₁ Δ₂) →
-       True (l ∉? m) → True (l ∉? substRow θ m)
+       l ∉ m → l ∉ substRow θ m
 
 substRow θ (l ▹ τ) = (l ▹ subst θ τ)
 substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {∉?-≈-substRow l m θ ev}
