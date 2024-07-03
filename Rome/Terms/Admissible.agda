@@ -2,6 +2,8 @@
 module Rome.Terms.Admissible where
 
 open import Preludes.Level
+open import Preludes.Data
+open import Preludes.Relation
 
 open import Rome.Kinds
 open import Rome.Types
@@ -17,6 +19,7 @@ open import Rome.GVars.Kinds
 
 --------------------------------------------------------------------------------
 -- projection and injection of labeled types.
+
 prj▹ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} {Ł : Type Δ (L ℓ)}
        {τ : Type Δ (★ ℓκ)} {ρ : Type Δ R[ ★ ℓκ ]} →
         Term Δ Φ Γ (Π ρ) → Ent Δ Φ ((Ł R▹ τ) ≲ ρ) →
@@ -237,7 +240,7 @@ eqΣ {ℓ} =
             Ł = tvar (Ty.S² Z)
             v = var (S³ Z)
             π = n-var Z
-            lhs : Term (_ ، R[ ★ ℓ ] ، L zero ، ★ ℓ ، R[ ★ ℓ ]) _ _ (Σ (Ł R▹ υ) `→ Bool {ℓ})
+            lhs : Term (_ ، R[ ★ ℓ ] ، L lzero ، ★ ℓ ، R[ ★ ℓ ]) _ _ (Σ (Ł R▹ υ) `→ Bool {ℓ})
             lhs = `λ _      -- x (Var)
               ((((prj▹ d) pf) / l) · (Σ⁻¹ x / l) · y)
               where
