@@ -24,7 +24,7 @@ open import Data.String using (_≟_) public
 open import Data.Empty renaming (⊥ to ⊥₀) public
 open import Data.Unit
   renaming (⊤ to ⊤₀ ; tt to tt₀)
-  hiding (_≟_ ; _≤_ ; _≤?_) public
+  hiding (_≟_) public
 
 
 --------------------------------------------------------------------------------
