@@ -5,6 +5,7 @@ open import Data.Product as DP
 module Rome.Entailment.Semantics (g : Potatoes) where
 
 open import IndexCalculus.Properties
+import IndexCalculus as Ix
 
 open import Rome.Kinds
 open import Rome.Types.Syntax
@@ -31,7 +32,22 @@ open import Rome.GVars.Kinds
 ⟦ S v ⟧pv H (φ , x) = ⟦ v ⟧pv H φ
 
 --------------------------------------------------------------------------------
+-- Meaning of multi-row inclusion.
+
+⟦_⟧∈ : ∀ {l : Label} {τ : Type Δ κ} {m : MultiRow Δ κ} {Φ : PEnv Δ ℓΦ} → 
+       (lab {ℓ = ℓ} l R▹ τ) ∈ m → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → (⟦ (lab {ℓ = ℓ} l R▹ τ) ⟧t H) Ix.≲ (⟦ m ⟧Row H)
+⟦ here ⟧∈ H φ = λ i → i , refl
+⟦ here-again ⟧∈ H φ = λ { fzero → fzero , refl }
+⟦ there ev ⟧∈ H φ fzero with ⟦ ev ⟧∈ H φ fzero
+... | i , P = (fsuc i) , P 
+
+
+--------------------------------------------------------------------------------
 -- The meaning of entailment in the "Simple Rows" theory.
+
+postulate
+  pfft : ∀ {l} {τ : Type Δ κ} {m₁ m₂ : MultiRow Δ κ} → 
+         (l ▹ τ ， m₁) ⊆ m₂ → m₁ ⊆ m₂
 
 ⟦_⟧n : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
          Ent Δ Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H
@@ -98,4 +114,13 @@ open import Rome.GVars.Kinds
     ... | j , P = j , cong (⟦ τ ⟧t H) P
 ⟦ n-ε-R ⟧n H φ = ε-id-R
 ⟦ n-ε-L ⟧n H φ = ε-id-L
+⟦ n-row≲ (l ▹ τ) m₂ f ⟧n H Φ = ⟦ f {ℓ = lzero} l τ here ⟧∈ H Φ
+⟦ n-row≲ (l ▹ τ ， m₁) m₂ f ⟧n H Φ i  = {!!}
+-- Todo: abstract this out to a function inductive over i.
+--  ⟦ f {ℓ = lzero} l τ (here-again) ⟧∈ H Φ fzero
+-- ⟦ n-row≲ (l ▹ τ ， m₁) m₂ f ⟧n H Φ (fsuc i) = {!!} -- ⟦ n-row≲ m₁ m₂ (pfft f) ⟧n H Φ i
+
+-- ⟦ n-row≲ {m₁ = m₁} {m₂} ? ⟧n H Φ i
+-- ⟦ n-row≲ {m₁ = m₁} {m₂} ? ⟧n H Φ
+
   
