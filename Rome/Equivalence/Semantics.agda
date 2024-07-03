@@ -53,3 +53,4 @@ open import Rome.GVars.Kinds
 ⟦ teq-Π t ⟧eq H rewrite ⟦ t ⟧eq H = refl
 ⟦ teq-Σ t ⟧eq H rewrite ⟦ t ⟧eq H = refl
 ⟦ teq-id-↑ ⟧eq H = refl 
+⟦ teq-labTy-Row ⟧eq H = refl
