@@ -16,9 +16,16 @@ open import Data.String using (String ; _++_) public
 open import Data.Fin 
   renaming 
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 
+  hiding (_≟_)
   public
 open import Data.Unit.Polymorphic using (⊤ ; tt) public
 open import Data.Maybe using (Maybe ; just ; nothing ; _>>=_) public
+open import Data.String using (_≟_) public
+open import Data.Empty renaming (⊥ to ⊥₀) public
+open import Data.Unit
+  renaming (⊤ to ⊤₀ ; tt to tt₀)
+  hiding (_≟_ ; _≤_ ; _≤?_) public
+
 
 --------------------------------------------------------------------------------
 -- Maybe helpers.

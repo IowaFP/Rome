@@ -2,6 +2,7 @@
 module Rome.Types.Syntax where
 
 open import Preludes.Level
+open import Preludes.Relation
 open import Preludes.Data
 
 open import Rome.GVars.Kinds
@@ -27,15 +28,9 @@ infix 12 ↑_ _↑
 Label : Set
 Label = String
 
+
 --------------------------------------------------------------------------------
--- Kinding Environments, types, and predicates.
---
--- Kinding Environments, types, and predicates are tied up together, like so:
---   - Pred references Ty, KEnv
---   - Type   references KEnv
---   - KEnv references Pred
-
-
+-- Kinding Environments, types, and predicates... And multirows.
 data Type : KEnv ℓ → Kind ι →  Set
 data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
 
@@ -66,6 +61,29 @@ S² x = S (S x)
 S³ x = S (S² x)
 S⁴ x = S (S³ x)
 S⁵ x = S (S⁴ x)
+
+--------------------------------------------------------------------------------
+-- Multirows.
+
+data MultiRow : KEnv ℓ → Kind ι → Set 
+_∉_ : Label → MultiRow Δ κ → Set
+_∉?_ : ∀ (l : Label) (m : MultiRow Δ κ) → Dec (l ∉ m)
+
+data MultiRow where
+  _▹I_ : (l : Label) → (τ : Type Δ κ) → MultiRow Δ κ
+  _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : MultiRow Δ κ) → 
+          {_ : True (l ∉? xs)}  → MultiRow Δ κ
+
+l₁ ∉ (l₂ ▹I τ)  = l₁ ≡ l₂
+l₁ ∉ (l₂ ▹ _ ， mr) with l₁ ≟ l₂
+... | yes p  = ⊥₀
+... | no  p  = l₁ ∉ mr 
+
+
+l₁ ∉? (l₂ ▹I τ)  = l₁ ≟ l₂
+l₁ ∉? (l₂ ▹ τ ， m) with l₁ ≟ l₂
+... | yes refl = no (λ ())
+... | no  p = l₁ ∉? m
 
 --------------------------------------------------------------------------------
 -- Types.
@@ -113,6 +131,10 @@ data Type where
   -- System Rω.
 
   ε : Type Δ R[ κ ]
+
+  Row : MultiRow Δ κ → 
+       -------------
+       Type Δ R[ κ ]
 
   -- Labels.
   lab :
@@ -173,3 +195,6 @@ data Type where
       (τ : Type Δ ((★ ℓ) `→ (★ ℓ))) →
       -----------------------------------------------
       Type Δ (★ ℓ)
+
+--------------------------------------------------------------------------------
+-- Testing.

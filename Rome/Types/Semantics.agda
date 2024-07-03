@@ -29,7 +29,11 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 -- The meaning of kinding environments and predicates (mutually recursive).
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+⟦_⟧Row : MultiRow Δ κ → ⟦ Δ ⟧ke → Ix.Row ⟦ κ ⟧k
 ⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
+
+⟦ l ▹I τ ⟧Row H = Ix.sing (⟦ τ ⟧t H)
+⟦ (l ▹ τ ， ρ) ⟧Row H = (⟦ τ ⟧t H) Ix.፦ (⟦ ρ ⟧Row H)
 
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H
 ⟦ ρ₁ · ρ₂ ~ ρ₃ ⟧p H = Ix._·_~_ (⟦ ρ₁ ⟧t H) (⟦ ρ₂ ⟧t H) (⟦ ρ₃ ⟧t H)
@@ -71,6 +75,7 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ϕ ↑ ⟧t H = Ix.lift₂ (⟦ ϕ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
 ⟦ ε ⟧t H = Ix.emptyRow
+⟦ Row ρ ⟧t H = ⟦ ρ ⟧Row H
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
 
 

@@ -3,6 +3,9 @@ module Rome.Types.Substitution where
 
 open import Preludes.Level
 open import Preludes.Relation
+open import Data.Unit using (tt)
+open import Data.Empty using (⊥-elim)
+open import Data.String  using (_≟_)
 
 open import Rome.Kinds
 open import Rome.Types.Syntax
@@ -18,6 +21,9 @@ open import Rome.Types.Syntax
 -- A mapping from types to types.
 τ-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
 τ-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ κ → Type Δ₂ κ)
+
+Row-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
+Row-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → MultiRow Δ₁ κ → MultiRow Δ₂ κ)
 
 -- A mapping from preds to preds.
 π-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
@@ -52,23 +58,39 @@ rename : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
 renamePred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
            Δ-map Δ₁ Δ₂ →
            π-map Δ₁ Δ₂
+renameRow : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+           Δ-map Δ₁ Δ₂ →
+           Row-map Δ₁ Δ₂
 
-rename ρ (tvar v) = tvar (ρ v)
-rename ρ (τ `→ υ) = rename ρ τ `→ rename ρ υ
-rename ρ (`∀ κ τ) = `∀ κ (rename (ext ρ) τ)
-rename ρ (`λ s τ) = `λ s (rename (ext ρ) τ)
-rename ρ (τ ·[ υ ]) = rename ρ τ ·[ rename ρ υ ]
-rename ρ (lab l) = lab l
-rename ρ (t ▹ v) = (rename ρ t) ▹ (rename ρ v)
-rename ρ (⌊ t ⌋) = ⌊ rename ρ t ⌋
-rename ρ (t R▹ v) = rename ρ t R▹ rename ρ v
-rename ρ (Π r) = Π (rename ρ r)
-rename ρ (Type.Σ r) = Type.Σ (rename ρ r)
-rename ρ (π ⇒ τ) = renamePred ρ π ⇒ rename ρ τ
-rename ρ (↑ f) = ↑ rename ρ f
-rename ρ (f ↑) = rename ρ f ↑
-rename ρ ε = ε
-rename ρ (μ X) = μ (rename ρ X)
+rename δ (tvar v) = tvar (δ v)
+rename δ (τ `→ υ) = rename δ τ `→ rename δ υ
+rename δ (`∀ κ τ) = `∀ κ (rename (ext δ) τ)
+rename δ (`λ s τ) = `λ s (rename (ext δ) τ)
+rename δ (τ ·[ υ ]) = rename δ τ ·[ rename δ υ ]
+rename δ (lab l) = lab l
+rename δ (t ▹ v) = (rename δ t) ▹ (rename δ v)
+rename δ (⌊ t ⌋) = ⌊ rename δ t ⌋
+rename δ (t R▹ v) = rename δ t R▹ rename δ v
+rename δ (Π r) = Π (rename δ r)
+rename δ (Type.Σ r) = Type.Σ (rename δ r)
+rename δ (π ⇒ τ) = renamePred δ π ⇒ rename δ τ
+rename δ (↑ f) = ↑ rename δ f
+rename δ (f ↑) = rename δ f ↑
+rename δ ε = ε
+rename δ (Row ρ) = Row (renameRow δ ρ)
+rename δ (μ X) = μ (rename δ X)
+
+pfftR : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
+       (l : Label) (m : MultiRow Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
+       True (l ∉? m) → True (l ∉? renameRow δ m)
+
+renameRow δ (l ▹I τ) = (l ▹I rename δ τ)
+renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {pfftR l m δ ev}
+
+pfftR l₁ (l₂ ▹I τ) δ ev = ev
+pfftR l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
+... | yes refl = ⊥-elim ev
+... | no  p = pfftR l₁ m δ ev 
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
@@ -124,6 +146,10 @@ subst : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
 substPred : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
           Context Δ₁ Δ₂ →
           π-map Δ₁ Δ₂
+substRow : ∀ {ℓ₁ ℓ₂} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂} →
+           Context Δ₁ Δ₂ →
+           Row-map Δ₁ Δ₂
+
 
 subst θ (tvar x) = θ x
 subst θ (τ `→ υ) = subst θ τ `→ subst θ υ
@@ -140,7 +166,20 @@ subst θ (π ⇒ τ) = substPred θ π ⇒ subst θ τ
 subst θ (↑ f) = ↑ subst θ f
 subst θ (f ↑) = subst θ f ↑
 subst θ ε = ε
-subst ρ (μ X) = μ (subst ρ X)
+subst θ (μ X) = μ (subst θ X)
+subst θ (Row ρ) = Row (substRow θ ρ)
+
+pfft : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
+       (l : Label) (m : MultiRow Δ₁ κ) (θ : Context Δ₁ Δ₂) →
+       True (l ∉? m) → True (l ∉? substRow θ m)
+
+substRow θ (l ▹I τ) = (l ▹I subst θ τ)
+substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {pfft l m θ ev}
+
+pfft l₁ (l₂ ▹I τ) θ ev = ev
+pfft l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
+... | yes refl = ⊥-elim ev
+... | no  p = pfft l₁ m θ ev 
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
 substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃

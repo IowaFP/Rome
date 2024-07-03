@@ -39,6 +39,12 @@ ixs zero = []
 ixs (suc n) = fromℕ n ∷ Data.List.map inject₁ (ixs n)
 
 --------------------------------------------------------------------------------
+-- Naive row extension.
+
+_፦_  : ∀ {ℓ} {A : Set ℓ} → A → Row {ℓ} A → Row {ℓ} A
+a ፦ (m , Q) = ℕ.suc m , λ { fzero → a ; (fsuc x) → Q x }
+
+--------------------------------------------------------------------------------
 -- Empty row.
 
 emptyRow : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A

@@ -29,6 +29,15 @@ open import Shared.Postulates.FunExt
   ∀ {ℓ₃} {κ : Kind ℓ₃} →
   (τ : Type Δ₁ κ) → _≡_ {a = lsuc ℓ₃} (⟦ τ ⟧t H₁) (⟦ f τ ⟧t H₂)
 
+Row-map-preservation : ∀ {ℓ₁ ℓ₂}
+                     (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
+                     (H₁ : ⟦ Δ₁ ⟧ke)(H₂ : ⟦ Δ₂ ⟧ke) →
+                     (f : Row-map Δ₁ Δ₂) → Setω
+Row-map-preservation {ℓ₁}  Δ₁ Δ₂ H₁ H₂ f =
+  ∀ {ℓ₃} {κ : Kind ℓ₃} →
+  (m : MultiRow Δ₁ κ) → _≡_ {a = lsuc ℓ₃} (⟦ m ⟧Row H₁) (⟦ f m ⟧Row H₂)
+
+
 π-map-preservation : ∀ {ℓ₁ ℓ₂}
                      (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
                      (H₁ : ⟦ Δ₁ ⟧ke)(H₂ : ⟦ Δ₂ ⟧ke) →
@@ -81,6 +90,14 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
                  (f : Δ-map Δ₁ Δ₂) →
                  (Δ-pres : Δ-map-preservation Δ₁ Δ₂ H₁ H₂ f) →
                  τ-map-preservation Δ₁ Δ₂ H₁ H₂ (rename f)
+
+Row-preservation : ∀ {ℓ₁ ℓ₂}
+                 (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
+                 (H₁ : ⟦ Δ₁ ⟧ke)(H₂ : ⟦ Δ₂ ⟧ke) →
+                 (f : Δ-map Δ₁ Δ₂) →
+                 (Δ-pres : Δ-map-preservation Δ₁ Δ₂ H₁ H₂ f) →
+                 Row-map-preservation Δ₁ Δ₂ H₁ H₂ (renameRow f)
+
 
 π-preservation : ∀ {ℓ₁ ℓ₂}
                  (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
@@ -144,7 +161,15 @@ ext-pres Δ₁ Δ₂ H₁ H₂ f Δ-pres X (S v) = Δ-pres v
   |       τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ε = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F)
-  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- refl
+  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- ref
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Row ρ) = Row-preservation _ _ _ _ _ Δ-pres ρ
+
+Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+  rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
+Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
+  rewrite Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |
+          τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
+
 
 π-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ₁ ≲ ρ₂)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₁
@@ -181,6 +206,14 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
                    (f : Context Δ₁ Δ₂) →
                    (σ-pres : Context-preservation Δ₁ Δ₂ H₁ H₂ f) →
                    τ-map-preservation Δ₁ Δ₂ H₁ H₂ (subst f)
+
+σ/Row-preservation : ∀ {ℓ₁ ℓ₂}
+                   (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
+                   (H₁ : ⟦ Δ₁ ⟧ke)(H₂ : ⟦ Δ₂ ⟧ke) →
+                   (f : Context Δ₁ Δ₂) →
+                   (σ-pres : Context-preservation Δ₁ Δ₂ H₁ H₂ f) →
+                   Row-map-preservation Δ₁ Δ₂ H₁ H₂ (substRow f)
+
 σ/π-preservation : ∀ {ℓ₁ ℓ₂}
                    (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) →
                    (H₁ : ⟦ Δ₁ ⟧ke)(H₂ : ⟦ Δ₂ ⟧ke) →
@@ -243,6 +276,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ε = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (μ F)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (Row ρ) = σ/Row-preservation _ _ _ _ _ σ-pres ρ
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
@@ -251,6 +285,12 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₃ = refl
+
+σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+  rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
+σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
+  rewrite σ/Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |
+          σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 
 --------------------------------------------------------------------------------
 -- Substitution Lemma.
