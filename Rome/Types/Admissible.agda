@@ -42,12 +42,9 @@ Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
 Tru = lab "True"
 Fls = lab "False"
 
-BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
-BoolP = (Tru R▹ Unit) · (Fls R▹ Unit) ~ tvar Z
-
 Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
        Type Δ (★ (lsuc ℓ))
-Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
+Bool {ℓ} = Σ (Row ("True" ▹ Unit ， "False" ▹ Unit))
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s

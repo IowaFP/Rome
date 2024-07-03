@@ -14,8 +14,7 @@ open import Rome.Kinds.Syntax
 
 infixr 9 _`→_
 infixr 9 _⇒_
-infixr 10 _▹_
-infixr 10 _R▹_
+-- infixr 10 _▹_
 infixr 10 _≲_
 infix 10 _·_~_
 infixl 11 _·[_]
@@ -72,6 +71,9 @@ data MultiRow where
   _▹_ : (l : Label) → (τ : Type Δ κ) → MultiRow Δ κ
   _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : MultiRow Δ κ) → 
           {_ : l ∉ xs}  → MultiRow Δ κ
+
+infixr 5 _▹_
+infixr 4 _▹_，_
 
 l₁ ∉ (l₂ ▹ τ)  with l₁ ≟ l₂ 
 ... | yes p = ⊥₀

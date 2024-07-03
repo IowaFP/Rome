@@ -38,8 +38,12 @@ data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
 
 --------------------------------------------------------------------------------
 -- Entailment in the "Simple Rows" theory.
+
 _∈_ : Type Δ R[ κ ] → MultiRow Δ κ → Set
 _⊆_ : MultiRow Δ κ → MultiRow Δ κ → Set
+_⊆_ {Δ = Δ} {κ = κ} m₁ m₂ =
+  ∀ {ℓ} (l : Label) (τ : Type Δ κ) → (lab {ℓ = ℓ} l R▹ τ) ∈ m₁ → (lab {ℓ = ℓ} l R▹ τ) ∈ m₂
+
 
 ε ∈ m = ⊤₀
 (lab l₁ R▹ τ₁) ∈ (l₂ ▹ τ₂) with l₁ ≟ l₂
@@ -62,10 +66,6 @@ tvar x ∈ m = ⊥₀
 Π τ ∈ m = ⊥₀
 Σ τ ∈ m = ⊥₀
 
-(l ▹ τ) ⊆ m₂ = Row (l ▹ τ) ∈ m₂
-(l ▹ τ ， m₁) ⊆ m₂ with Row (l ▹ τ) ∈ m₂
-... | c =  {!!}
-
 data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
 
   n-var : ∀ {π : Pred Δ κ} →
@@ -77,15 +77,6 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
 
           --------------
           Ent Δ Φ (τ ≲ τ)
-
-  n-row≲ : ∀ {m₁ m₂ : MultiRow Δ κ} → 
-           m₁ ⊆ m₂ → 
-
--- Want: Row (Z ▹ ⊤) ≲ (Z ▹ ⊤ , S ▹ X)
--- So, show that Row (Z ▹ ⊤) ⊆ Row (Z ▹ ⊤ , S ▹ X)
--- then you are given the entailment.
-           ------------------------
-           Ent Δ Φ (Row m₁ ≲ Row m₂)
 
   n-trans : ∀  {τ₁ τ₂ τ₃ : Type Δ R[ κ ]} →
 
@@ -152,3 +143,12 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
 
              -------------------------
              Ent Δ Φ (ε · ρ ~ ρ)
+
+  ----------------------------------------
+  -- Simple rows.
+
+  n-row≲ : ∀ {m₁ m₂ : MultiRow Δ κ} → 
+           m₁ ⊆ m₂ → 
+
+           ------------------------
+           Ent Δ Φ (Row m₁ ≲ Row m₂)

@@ -2,6 +2,8 @@
 module Rome.Equivalence.Syntax where
 
 open import Preludes.Level
+open import Preludes.Data
+open import Preludes.Relation
 
 open import Rome.Kinds
 open import Rome.Types
@@ -17,6 +19,18 @@ data _≡t_ : (τ υ : Type Δ κ) → Set
 
 infix 0 _≡p_
 infix 0 _≡t_
+
+data _≡m_ : (m₁ m₂ : MultiRow Δ κ) → Set where
+  meq-sing : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} → 
+             (l₁ ≡ l₂) → τ₁ ≡t τ₂ →
+             -------------------------------
+             (l₁ ▹ τ₁) ≡m (l₁ ▹ τ₁)
+
+  meq-▹ : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} {m₁ m₂ : MultiRow Δ κ} 
+           {ev₁ : l₁ ∉ m₁} {ev₂ : l₂ ∉ m₂} → 
+             (l₁ ≡ l₂) → τ₁ ≡t τ₂ → m₁ ≡m m₂ →
+             ------------------------------------
+             (l₁ ▹ τ₁ ， m₁) {ev₁} ≡m (l₂ ▹ τ₂ ， m₂) {ev₂}
 
 data _≡p_ where
   peq-≲ : ∀ {τ₁ τ₂ υ₁ υ₂ : Type Δ R[ κ ]} →
@@ -130,9 +144,13 @@ data _≡t_ where
   --------------------------------------------------------------------------------
   -- The simple row theory.
 
-  teq-labTy-Row :  ∀ {l : Label} {τ : Type Δ κ} →
+  teq-labTy-row :  ∀ {l : Label} {τ : Type Δ κ} →
   
                    -----------------------
                    (lab {ℓ = ℓ} l R▹ τ) ≡t Row (l ▹ τ) 
 
-  -- teq-Row : 
+  teq-row : ∀ {m₁ m₂ : MultiRow Δ κ} →
+
+           m₁ ≡m m₂ → 
+           ----------------
+           Row m₁ ≡t Row m₂
