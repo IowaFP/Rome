@@ -133,4 +133,4 @@ data _≡t_ where
   teq-labTy-Row :  ∀ {l : Label} {τ : Type Δ κ} →
   
                    -----------------------
-                   (lab {ℓ = ℓ} l R▹ τ) ≡t Row (l ▹I τ) 
+                   (lab {ℓ = ℓ} l R▹ τ) ≡t Row (l ▹ τ) 

@@ -164,7 +164,7 @@ Row-preservation : ∀ {ℓ₁ ℓ₂}
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- ref
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Row ρ) = Row-preservation _ _ _ _ _ Δ-pres ρ
 
-Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
   rewrite Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |
@@ -286,7 +286,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₃ = refl
 
-σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
   rewrite σ/Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |

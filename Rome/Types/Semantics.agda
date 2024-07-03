@@ -32,7 +32,7 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 ⟦_⟧Row : MultiRow Δ κ → ⟦ Δ ⟧ke → Ix.Row ⟦ κ ⟧k
 ⟦_⟧p : {κ : Kind ℓκ} → Pred Δ κ → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
 
-⟦ l ▹I τ ⟧Row H = Ix.sing (⟦ τ ⟧t H)
+⟦ l ▹ τ ⟧Row H = Ix.sing (⟦ τ ⟧t H)
 ⟦ (l ▹ τ ， ρ) ⟧Row H = (⟦ τ ⟧t H) Ix.፦ (⟦ ρ ⟧Row H)
 
 ⟦ ρ₁ ≲ ρ₂ ⟧p H = ⟦ ρ₁ ⟧t H Ix.≲ ⟦ ρ₂ ⟧t H

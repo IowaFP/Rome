@@ -84,10 +84,10 @@ pfftR : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : K
        (l : Label) (m : MultiRow Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
        True (l ∉? m) → True (l ∉? renameRow δ m)
 
-renameRow δ (l ▹I τ) = (l ▹I rename δ τ)
+renameRow δ (l ▹ τ) = (l ▹ rename δ τ)
 renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {pfftR l m δ ev}
 
-pfftR l₁ (l₂ ▹I τ) δ ev = ev
+pfftR l₁ (l₂ ▹ τ) δ ev = ev
 pfftR l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = pfftR l₁ m δ ev 
@@ -173,10 +173,10 @@ pfft : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KE
        (l : Label) (m : MultiRow Δ₁ κ) (θ : Context Δ₁ Δ₂) →
        True (l ∉? m) → True (l ∉? substRow θ m)
 
-substRow θ (l ▹I τ) = (l ▹I subst θ τ)
+substRow θ (l ▹ τ) = (l ▹ subst θ τ)
 substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {pfft l m θ ev}
 
-pfft l₁ (l₂ ▹I τ) θ ev = ev
+pfft l₁ (l₂ ▹ τ) θ ev = ev
 pfft l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = pfft l₁ m θ ev 
