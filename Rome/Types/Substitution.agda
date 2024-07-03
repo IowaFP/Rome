@@ -87,7 +87,9 @@ rename δ (μ X) = μ (rename δ X)
 renameRow δ (l ▹I τ) = (l ▹I rename δ τ)
 renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {∉?-≈-renameRow l m δ ev}
 
-∉?-≈-renameRow l₁ (l₂ ▹I τ) δ ev = ev
+∉?-≈-renameRow l₁ (l₂ ▹I τ) δ ev with l₁ ≟ l₂ 
+... | yes refl = ⊥-elim ev
+... | no  p = tt
 ∉?-≈-renameRow l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = ∉?-≈-renameRow l₁ m δ ev 
@@ -176,7 +178,9 @@ subst θ (Row ρ) = Row (substRow θ ρ)
 substRow θ (l ▹I τ) = (l ▹I subst θ τ)
 substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {∉?-≈-substRow l m θ ev}
 
-∉?-≈-substRow l₁ (l₂ ▹I τ) θ ev = ev
+∉?-≈-substRow l₁ (l₂ ▹I τ) θ ev with l₁ ≟ l₂ 
+... | yes refl = ⊥-elim ev
+... | no  p = tt
 ∉?-≈-substRow l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = ∉?-≈-substRow l₁ m θ ev 
