@@ -80,17 +80,17 @@ rename δ ε = ε
 rename δ (Row ρ) = Row (renameRow δ ρ)
 rename δ (μ X) = μ (rename δ X)
 
-pfftR : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
+∉?-≈-renameRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : Label) (m : MultiRow Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
        True (l ∉? m) → True (l ∉? renameRow δ m)
 
 renameRow δ (l ▹I τ) = (l ▹I rename δ τ)
-renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {pfftR l m δ ev}
+renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {∉?-≈-renameRow l m δ ev}
 
-pfftR l₁ (l₂ ▹I τ) δ ev = ev
-pfftR l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
+∉?-≈-renameRow l₁ (l₂ ▹I τ) δ ev = ev
+∉?-≈-renameRow l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
-... | no  p = pfftR l₁ m δ ev 
+... | no  p = ∉?-≈-renameRow l₁ m δ ev 
 
 renamePred ρ (ρ₁ ≲ ρ₂) = rename ρ ρ₁ ≲ rename ρ ρ₂
 renamePred ρ (ρ₁ · ρ₂ ~ ρ₃) = rename ρ ρ₁ ·  rename ρ ρ₂ ~ rename ρ ρ₃
@@ -169,17 +169,17 @@ subst θ ε = ε
 subst θ (μ X) = μ (subst θ X)
 subst θ (Row ρ) = Row (substRow θ ρ)
 
-pfft : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
+∉?-≈-substRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : Label) (m : MultiRow Δ₁ κ) (θ : Context Δ₁ Δ₂) →
        True (l ∉? m) → True (l ∉? substRow θ m)
 
 substRow θ (l ▹I τ) = (l ▹I subst θ τ)
-substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {pfft l m θ ev}
+substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {∉?-≈-substRow l m θ ev}
 
-pfft l₁ (l₂ ▹I τ) θ ev = ev
-pfft l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
+∉?-≈-substRow l₁ (l₂ ▹I τ) θ ev = ev
+∉?-≈-substRow l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
-... | no  p = pfft l₁ m θ ev 
+... | no  p = ∉?-≈-substRow l₁ m θ ev 
 
 substPred θ (ρ₁ ≲ ρ₂)      = subst θ ρ₁ ≲ subst θ ρ₂
 substPred θ (ρ₁ · ρ₂ ~ ρ₃) = subst θ ρ₁ ·  subst θ ρ₂ ~ subst θ ρ₃
