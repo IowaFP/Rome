@@ -74,13 +74,17 @@ data MultiRow where
   _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : MultiRow Δ κ) → 
           {_ : True (l ∉? xs)}  → MultiRow Δ κ
 
-l₁ ∉ (l₂ ▹ τ)  = l₁ ≡ l₂
+l₁ ∉ (l₂ ▹ τ)  with l₁ ≟ l₂ 
+... | yes p = ⊥₀
+... | no  p = ⊤₀
 l₁ ∉ (l₂ ▹ _ ， mr) with l₁ ≟ l₂
 ... | yes p  = ⊥₀
 ... | no  p  = l₁ ∉ mr 
 
 
-l₁ ∉? (l₂ ▹ τ)  = l₁ ≟ l₂
+l₁ ∉? (l₂ ▹ τ) with l₁ ≟ l₂ 
+... | yes refl = no (λ ())
+... | no  p = yes tt₀
 l₁ ∉? (l₂ ▹ τ ， m) with l₁ ≟ l₂
 ... | yes refl = no (λ ())
 ... | no  p = l₁ ∉? m
