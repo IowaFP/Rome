@@ -16,7 +16,7 @@ NatP : Pred (Δ ، R[ ★ ℓ `→ ★ ℓ ]) (★ ℓ `→ ★ ℓ)
 NatP {ℓ = ℓ} = (Zr R▹ `λ (★ ℓ) Unit) · (Sc R▹ `λ (★ ℓ) (tvar Z)) ~ tvar Z
 
 NatRow : Type Δ R[ ★ ℓ `→ ★ ℓ ]
-NatRow {ℓ = ℓ} = Row ("Zero" ▹ `λ (★ ℓ) Unit ， ("Succ" ▹I `λ (★ ℓ) (tvar Z)))
+NatRow {ℓ = ℓ} = Row ("Zero" ▹ `λ (★ ℓ) Unit ， ("Succ" ▹ `λ (★ ℓ) (tvar Z)))
 
 --------------------------------------------------------------------------------
 -- Examples involving NatP.

@@ -35,7 +35,7 @@ Row-map-preservation : ∀ {ℓ₁ ℓ₂}
                      (f : Row-map Δ₁ Δ₂) → Setω
 Row-map-preservation {ℓ₁}  Δ₁ Δ₂ H₁ H₂ f =
   ∀ {ℓ₃} {κ : Kind ℓ₃} →
-  (m : MultiRow Δ₁ κ) → _≡_ {a = lsuc ℓ₃} (⟦ m ⟧Row H₁) (⟦ f m ⟧Row H₂)
+  (m : Row Δ₁ κ) → _≡_ {a = lsuc ℓ₃} (⟦ m ⟧Row H₁) (⟦ f m ⟧Row H₂)
 
 
 π-map-preservation : ∀ {ℓ₁ ℓ₂}
@@ -162,9 +162,9 @@ Row-preservation : ∀ {ℓ₁ ℓ₂}
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ε = refl
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- ref
-τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (Row ρ) = Row-preservation _ _ _ _ _ Δ-pres ρ
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (⦃- ρ -⦄) = Row-preservation _ _ _ _ _ Δ-pres ρ
 
-Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
   rewrite Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |
@@ -276,7 +276,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ε = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (μ F)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl
-σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (Row ρ) = σ/Row-preservation _ _ _ _ _ σ-pres ρ
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ⦃- ρ -⦄ = σ/Row-preservation _ _ _ _ _ σ-pres ρ
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁
@@ -286,7 +286,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₂
   |       σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₃ = refl
 
-σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹I τ)
+σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
 σ/Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ ， m) 
   rewrite σ/Row-preservation  Δ₁ Δ₂ H₁ H₂ f Δ-pres m |

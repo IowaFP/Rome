@@ -11,7 +11,7 @@ open import Rome.Types.Syntax
 open import Rome.Types.Substitution
 
 --------------------------------------------------------------------------------
--- Permissable types.
+-- Admissible types.
 
 -- The unit type.
 -- N.b. it's most elegant to let ⊤ = Π ε and ⊥ = Σ ε, but this definition of ⊤
@@ -42,12 +42,9 @@ Tru Fls : ∀ {ℓΔ} {Δ : KEnv ℓΔ} →
 Tru = lab "True"
 Fls = lab "False"
 
-BoolP : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Pred (Δ ، R[ ★ ℓ ]) (★ ℓ)
-BoolP = (Tru R▹ Unit) · (Fls R▹ Unit) ~ tvar Z
-
 Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
        Type Δ (★ (lsuc ℓ))
-Bool {ℓ} = `∀ (R[ ★ ℓ ]) (BoolP ⇒ Σ (tvar Z))
+Bool {ℓ} = Σ ⦃- "True" ▹ Unit ， "False" ▹ Unit -⦄
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s
@@ -80,4 +77,7 @@ _↪_  {ℓ} {ι} ρ  τ =
       ((Σ (K ρ)) ·[ μΣ w ] `→ (((μΣ w) `→ K τ) `→ K τ))))
   where
     w = tvar Z
+--------------------------------------------------------------------------------
+-- Projecting out of multirows.
 
+-- (m : Row Δ κ) → l ∈ m → 

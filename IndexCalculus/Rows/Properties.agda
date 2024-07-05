@@ -31,7 +31,7 @@ recombine {ℓ} {A} ρ i = evid ρ i , (pickedIn , deletedIn {i = i}) where
   evid (suc (suc n) , f) (fsuc i) (fsuc j)
     with evid (suc n , λ x → f (fsuc x)) i j
   ... | left (fzero , g) = left (fzero , g)
-  ... | right (i' , g)   = right ((raise 1 i') , g)
+  ... | right (i' , g)   = right (( 1 ↑ʳ i') , g)
 
 --------------------------------------------------------------------------------
 -- x · y ~ z implies x≲z in our (commutative) row theory.

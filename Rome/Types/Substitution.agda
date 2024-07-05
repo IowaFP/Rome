@@ -23,7 +23,7 @@ open import Rome.Types.Syntax
 τ-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Type Δ₁ κ → Type Δ₂ κ)
 
 Row-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
-Row-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → MultiRow Δ₁ κ → MultiRow Δ₂ κ)
+Row-map Δ₁ Δ₂ = (∀ {ℓ₃} {κ : Kind ℓ₃} → Row Δ₁ κ → Row Δ₂ κ)
 
 -- A mapping from preds to preds.
 π-map : ∀ {ℓ₁ ℓ₂} (Δ₁ : KEnv ℓ₁) (Δ₂ : KEnv ℓ₂) → Set
@@ -77,17 +77,17 @@ rename δ (π ⇒ τ) = renamePred δ π ⇒ rename δ τ
 rename δ (↑ f) = ↑ rename δ f
 rename δ (f ↑) = rename δ f ↑
 rename δ ε = ε
-rename δ (Row ρ) = Row (renameRow δ ρ)
+rename δ (⦃- ρ -⦄) = ⦃- renameRow δ ρ -⦄
 rename δ (μ X) = μ (rename δ X)
 
 ∉?-≈-renameRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
-       (l : Label) (m : MultiRow Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
-       True (l ∉? m) → True (l ∉? renameRow δ m)
+       (l : Label) (m : Row Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
+       l ∉ m → l ∉ renameRow δ m
 
-renameRow δ (l ▹I τ) = (l ▹I rename δ τ)
+renameRow δ (l ▹ τ) = (l ▹ rename δ τ)
 renameRow δ ((l ▹ τ ， m) {ev}) = (l ▹ rename δ τ ， (renameRow δ m)) {∉?-≈-renameRow l m δ ev}
 
-∉?-≈-renameRow l₁ (l₂ ▹I τ) δ ev with l₁ ≟ l₂ 
+∉?-≈-renameRow l₁ (l₂ ▹ τ) δ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = tt
 ∉?-≈-renameRow l₁ (l₂ ▹ τ ， m) δ ev with l₁ ≟ l₂ 
@@ -169,16 +169,16 @@ subst θ (↑ f) = ↑ subst θ f
 subst θ (f ↑) = subst θ f ↑
 subst θ ε = ε
 subst θ (μ X) = μ (subst θ X)
-subst θ (Row ρ) = Row (substRow θ ρ)
+subst θ ⦃- ρ -⦄ = ⦃- substRow θ ρ -⦄
 
 ∉?-≈-substRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
-       (l : Label) (m : MultiRow Δ₁ κ) (θ : Context Δ₁ Δ₂) →
-       True (l ∉? m) → True (l ∉? substRow θ m)
+       (l : Label) (m : Row Δ₁ κ) (θ : Context Δ₁ Δ₂) →
+       l ∉ m → l ∉ substRow θ m
 
-substRow θ (l ▹I τ) = (l ▹I subst θ τ)
+substRow θ (l ▹ τ) = (l ▹ subst θ τ)
 substRow θ ((l ▹ τ ， m) {ev}) = (l ▹ subst θ τ ， (substRow θ m)) {∉?-≈-substRow l m θ ev}
 
-∉?-≈-substRow l₁ (l₂ ▹I τ) θ ev with l₁ ≟ l₂ 
+∉?-≈-substRow l₁ (l₂ ▹ τ) θ ev with l₁ ≟ l₂ 
 ... | yes refl = ⊥-elim ev
 ... | no  p = tt
 ∉?-≈-substRow l₁ (l₂ ▹ τ ， m) θ ev with l₁ ≟ l₂ 
