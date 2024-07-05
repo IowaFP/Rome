@@ -1,8 +1,11 @@
 module Rome.Programs.Half where
 
 open import Preludes.Level
+open import Preludes.Relation
+open import Preludes.Data
 open import Rome
 open import Rome.GVars
+open import Data.String.Properties using (_≟_)
 
 --------------------------------------------------------------------------------
 -- Encoding the natural number type.
@@ -17,6 +20,34 @@ NatP {ℓ = ℓ} = (Zr R▹ `λ (★ ℓ) Unit) · (Sc R▹ `λ (★ ℓ) (tvar 
 
 NatRow : Type Δ R[ ★ ℓ `→ ★ ℓ ]
 NatRow {ℓ = ℓ} = Row ("Zero" ▹ `λ (★ ℓ) Unit ， ("Succ" ▹ `λ (★ ℓ) (tvar Z)))
+
+NatRowFunctor : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Functor {ℓ = ℓ} ·[ Σ NatRow ])
+NatRowFunctor {ℓ = ℓ} = t-≡ (teq-sym teq-β)
+  (`Λ (★ ℓ) 
+  (`Λ (★ ℓ)
+  (`λ (tvar (S Z) `→ tvar Z)
+  (`λ ((Σ NatRow) ·[ tvar (S Z) ])
+    body
+  ))))
+  where
+    A : Type (Δ ، ★ ℓ ، ★ ℓ) _
+    A = tvar (S Z)
+    B : Type (Δ ، ★ ℓ ، ★ ℓ) _
+    B = tvar Z
+    body : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term
+      (Δ ، ★ ℓ ، ★ ℓ)
+      (weakΦ (weakΦ Φ))
+      (weakΓ (weakΓ Γ) ، A `→ B ، Σ NatRow ·[ A ])
+      (Σ NatRow ·[ B ])
+    body = {!   !}
+
+-- have: Σ ((↑ NatRow) ·[ A ]) {by teq-lift-Σ}
+-- have:  {by teq-lift₁-multi}
+
+-- ↑ (Row ...) ·[ υ ] ≡t Row ( blah ·[ υ ])
+
+μNatZero : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (μΣ {ℓ = ℓ} NatRow)
+μNatZero = In {!   !} NatRowFunctor
 
 --------------------------------------------------------------------------------
 -- Examples involving NatP.
