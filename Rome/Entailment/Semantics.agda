@@ -118,6 +118,9 @@ open import Rome.GVars.Kinds
     help (l ▹ τ) ρ₂ ι H φ = ⟦ ι {ℓ = lzero} l τ end ⟧∈ H φ 
     help (l ▹ τ ， ρ₁) ρ₂ ι H φ fzero = ⟦ ι {ℓ = lzero} l τ here ⟧∈ H φ fzero
     help (l ▹ τ ， ρ₁) ρ₂ ι H φ (fsuc i) = help ρ₁ ρ₂ (there⊆ _ _ ι) H φ i
+⟦ n-row· (l ▹ τ) ρ₂ ρ₃ {ev} eq ⟧n H Φ rewrite ⟦ eq ⟧eq-ρ H = 
+  (λ i → left (fzero , {!⟦ eq ⟧eq-ρ H!})) , ((λ i → {!!} , {!!}) , (λ i → {!!} , {!!}))
+⟦ n-row· (l ▹ τ ， ρ₁) ρ₂ ρ₃ {ev} eq ⟧n H Φ = {!!}
   
 -- ⟦ n-row≲ (l ▹ τ) m₂ f ⟧n H Φ = ⟦ f {ℓ = lzero} l τ end ⟧∈ H Φ
 -- ⟦ n-row≲ ((l ▹ τ ， m₁) {ev}) m₂ f ⟧n H Φ = go
