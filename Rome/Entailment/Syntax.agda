@@ -37,46 +37,7 @@ data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
         PVar Φ π → PVar (Φ , ϕ) π
 
 --------------------------------------------------------------------------------
--- Entailment in the "Simple Rows" theory.
-
-data _∈_ : Type Δ R[ κ ] → Row Δ κ → Set
-_⊆_ : Row Δ κ → Row Δ κ → Set
-
-data _∈_ where
-  end : ∀ {ℓ}{l}{τ : Type Δ κ} →
-         (lab {ℓ = ℓ} l R▹ τ) ∈ (l ▹ τ)
-  here : ∀ {ℓ}{l}{τ : Type Δ κ} {m : Row Δ κ} {ev : l ∉ m} → 
-               (lab {ℓ = ℓ} l R▹ τ) ∈ (l ▹ τ ， m) {ev}
-  there  : ∀ {ℓ}{l₁ l₂}{τ₁ τ₂ : Type Δ κ} {m : Row Δ κ} {ev : l₂ ∉ m} → 
-            (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ m  → (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ ((l₂ ▹ τ₂ ， m) {ev})
-
-_⊆_ {Δ = Δ} {κ = κ} m₁ m₂ =
-  ∀ {ℓ} (l : Label) (τ : Type Δ κ) → (lab {ℓ = ℓ} l R▹ τ) ∈ m₁ → (lab {ℓ = ℓ} l R▹ τ) ∈ m₂
-
-there⊆ : ∀ {l₁} {τ₁ : Type Δ κ} (ρ₁ ρ₂ : Row Δ κ) {ev : l₁ ∉ ρ₁} → 
-         (l₁ ▹ τ₁ ， ρ₁) {ev} ⊆ ρ₂ → ρ₁ ⊆ ρ₂
-there⊆ ρ₁ ρ₂ ι l₂ τ₂ e = ι _ _ (there e)
-
--- ε ∈ m = ⊤₀
--- (lab l₁ R▹ τ₁) ∈ (l₂ ▹ τ₂) with l₁ ≟ l₂
--- ... | yes _ = ∀ (eq : τ₁ ≡t τ₂) → ⊤
--- ... | no  _ = ⊥₀
--- ((lab {ℓ = ℓ} l₁) R▹ τ₁) ∈ (l₂ ▹ τ₂ ， m) with l₁ ≟ l₂
--- ... | yes _ = ∀ (eq : τ₁ ≡t τ₂) → ⊤
--- ... | no  _ = (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ m
--- (_ R▹ τ) ∈ m = ⊥₀
--- Row (l₁ ▹ τ₁) ∈ (l₂ ▹ τ₂)  with l₁ ≟ l₂
--- ... | yes _ = ∀ (eq : τ₁ ≡t τ₂) → ⊤
--- ... | no  _ = ⊥₀
--- (Row (l₁ ▹ τ₁)) ∈ (l₂ ▹ τ₂ ， m)  with l₁ ≟ l₂
--- ... | yes _ = ∀ (eq : τ₁ ≡t τ₂) → ⊤
--- ... | no  _ = Row (l₁ ▹ τ₁) ∈ m
--- Row (l₁ ▹ τ₁ ， m') ∈ m = ⊥₀
--- (τ ▹ τ₁) ∈ m = ⊥₀
--- (τ ·[ τ₁ ]) ∈ m =  ⊥₀
--- tvar x ∈ m = ⊥₀
--- Π τ ∈ m = ⊥₀
--- Σ τ ∈ m = ⊥₀
+-- Entailment.
 
 data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
 
@@ -159,8 +120,15 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
   ----------------------------------------
   -- Simple rows.
 
-  n-row≲ : 
-           ∀ (m₁ m₂ : Row Δ κ) → m₁ ⊆ m₂ → 
+  n-row≲ : ∀ (m₁ m₂ : Row Δ κ) → 
 
+           m₁ ⊆ m₂ → 
            ------------------------
            Ent Δ Φ (⦃- m₁ -⦄ ≲ ⦃- m₂ -⦄)
+
+  -- n-row· : 
+  --          ∀ (ρ₁ ρ₂ ρ₃ : Row Δ κ) {ev : ρ₁ # ρ₂} → 
+
+  --          ((ρ₁ ++ ρ₂) {ev}) ≡r ρ₃ → 
+  --          ------------------------
+  --          Ent Δ Φ (⦃- ρ₁ -⦄ · ⦃- ρ₂ -⦄ ~ ⦃- ρ₃ -⦄)

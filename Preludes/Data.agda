@@ -12,7 +12,7 @@ open import Data.Sum
   hiding (map) public
 open import Data.Nat using (ℕ ; zero ; suc ; _+_) public
 open import Data.Nat.Show using (show) public
-open import Data.String using (String ; _++_) public
+open import Data.String using (String) public
 open import Data.Fin 
   renaming 
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 

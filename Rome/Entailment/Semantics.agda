@@ -118,19 +118,14 @@ open import Rome.GVars.Kinds
     help (l ▹ τ) ρ₂ ι H φ = ⟦ ι {ℓ = lzero} l τ end ⟧∈ H φ 
     help (l ▹ τ ， ρ₁) ρ₂ ι H φ fzero = ⟦ ι {ℓ = lzero} l τ here ⟧∈ H φ fzero
     help (l ▹ τ ， ρ₁) ρ₂ ι H φ (fsuc i) = help ρ₁ ρ₂ (there⊆ _ _ ι) H φ i
-  
--- ⟦ n-row≲ (l ▹ τ) m₂ f ⟧n H Φ = ⟦ f {ℓ = lzero} l τ end ⟧∈ H Φ
--- ⟦ n-row≲ ((l ▹ τ ， m₁) {ev}) m₂ f ⟧n H Φ = go
---   where
---     go : ⟦ ⦃- ((l ▹ τ ， m₁) {ev}) -⦄ ≲ ⦃- m₂ -⦄ ⟧p H
---     go fzero = ⟦ f {ℓ = lzero} l τ here ⟧∈ H Φ fzero
---     go (fsuc i) = ⟦ n-row≲ m₁ m₂ {!!} ⟧n H Φ i
 
--- Todo: abstract this out to a function inductive over i.
---  ⟦ f {ℓ = lzero} l τ (here-again) ⟧∈ H Φ fzero
--- ⟦ n-row≲ (l ▹ τ ， m₁) m₂ f ⟧n H Φ (fsuc i) = {!!} -- ⟦ n-row≲ m₁ m₂ (pfft f) ⟧n H Φ i
-
--- ⟦ n-row≲ {m₁ = m₁} {m₂} ? ⟧n H Φ i
--- ⟦ n-row≲ {m₁ = m₁} {m₂} ? ⟧n H Φ
-
+-- TODO:
+-- - prove separately the injections from ρ₁ and ρ₂ into (ρ₁ ++ ρ₂);
+--   you should be able to prove that ρ₁ ⊆ (ρ₁ ++ ρ₂) and so forth.
+-- - Not sure on the other direction; way in which syntactic rows
+--   translate to semantic rows may fuck me here, as I think order may
+--   be reversed.
+     
+-- ⟦ n-row· ρ₁ ρ₂ ρ₃ {ev} eq ⟧n H Φ rewrite ⟦ eq ⟧eq-ρ H = 
+--   (λ i → {!!}) , ((λ i → {!!} , {!!}) , (λ i → {!!} , {!!}))
   
