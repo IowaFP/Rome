@@ -35,9 +35,10 @@ open import Rome.GVars.Kinds
 -- Meaning of multi-row inclusion.
 
 ⟦_⟧∈ : ∀ {l : Label} {τ : Type Δ κ} {m : Row Δ κ} {Φ : PEnv Δ ℓΦ} → 
-       (lab {ℓ = ℓ} l R▹ τ) ∈ m → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → (⟦ (lab {ℓ = ℓ} l R▹ τ) ⟧t H) Ix.≲ (⟦ m ⟧Row H)
-⟦ here ⟧∈ H φ = λ i → i , refl
-⟦ here-again ⟧∈ H φ = λ { fzero → fzero , refl }
+       (lab {ℓ = ℓ} l R▹ τ) ∈ m → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → 
+       (⟦ (lab {ℓ = ℓ} l R▹ τ) ⟧t H) Ix.≲ (⟦ m ⟧Row H)
+⟦ end ⟧∈ H φ = λ i → i , refl
+⟦ here ⟧∈ H φ = λ { fzero → fzero , refl }
 ⟦ there ev ⟧∈ H φ fzero with ⟦ ev ⟧∈ H φ fzero
 ... | i , P = (fsuc i) , P 
 
@@ -110,8 +111,21 @@ open import Rome.GVars.Kinds
     ... | j , P = j , cong (⟦ τ ⟧t H) P
 ⟦ n-ε-R ⟧n H φ = ε-id-R
 ⟦ n-ε-L ⟧n H φ = ε-id-L
-⟦ n-row≲ (l ▹ τ) m₂ f ⟧n H Φ = ⟦ f {ℓ = lzero} l τ here ⟧∈ H Φ
-⟦ n-row≲ (l ▹ τ ， m₁) m₂ f ⟧n H Φ i  = {!!}
+⟦ n-row≲ ρ₁ ρ₂ f ⟧n H Φ = help ρ₁ ρ₂ f H Φ
+  where
+    help : ∀ {Φ : PEnv Δ ℓΦ} → (ρ₁ ρ₂ : Row Δ κ) →
+         ρ₁ ⊆ ρ₂ → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → (⟦ ⦃- ρ₁ -⦄ ≲ ⦃- ρ₂ -⦄ ⟧p H)
+    help (l ▹ τ) ρ₂ ι H φ = ⟦ ι {ℓ = lzero} l τ end ⟧∈ H φ 
+    help (l ▹ τ ， ρ₁) ρ₂ ι H φ fzero = ⟦ ι {ℓ = lzero} l τ here ⟧∈ H φ fzero
+    help (l ▹ τ ， ρ₁) ρ₂ ι H φ (fsuc i) = help ρ₁ ρ₂ (there⊆ _ _ ι) H φ i
+  
+-- ⟦ n-row≲ (l ▹ τ) m₂ f ⟧n H Φ = ⟦ f {ℓ = lzero} l τ end ⟧∈ H Φ
+-- ⟦ n-row≲ ((l ▹ τ ， m₁) {ev}) m₂ f ⟧n H Φ = go
+--   where
+--     go : ⟦ ⦃- ((l ▹ τ ， m₁) {ev}) -⦄ ≲ ⦃- m₂ -⦄ ⟧p H
+--     go fzero = ⟦ f {ℓ = lzero} l τ here ⟧∈ H Φ fzero
+--     go (fsuc i) = ⟦ n-row≲ m₁ m₂ {!!} ⟧n H Φ i
+
 -- Todo: abstract this out to a function inductive over i.
 --  ⟦ f {ℓ = lzero} l τ (here-again) ⟧∈ H Φ fzero
 -- ⟦ n-row≲ (l ▹ τ ， m₁) m₂ f ⟧n H Φ (fsuc i) = {!!} -- ⟦ n-row≲ m₁ m₂ (pfft f) ⟧n H Φ i
