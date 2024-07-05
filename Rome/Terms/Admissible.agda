@@ -187,11 +187,10 @@ _▿μ_ {ℓ = ℓ} =
 -- Encoding the boolean type.
 
 true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
-true = inj (Σ (lab Tru ▹ u)) (n-≡ (peq-≲ teq-refl {!  teq-sym (teq-labTy-row)!}) {!!})
--- `Λ _ (`ƛ _ (inj (Σ ((lab Tru) ▹ (lab _))) (n-·≲L (n-var Z))))
+true = inj (Σ (lab Tru ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."True" .Unit end → here }))
 
 false : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
-false = {!!}
+false = inj (Σ (lab Fls ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."False" .Unit end → there end }))
 
 --------------------------------------------------------------------------------
 -- idω : ★ → ★ at all levels.
