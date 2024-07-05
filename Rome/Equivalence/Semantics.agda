@@ -31,10 +31,10 @@ open import Rome.GVars.Kinds
 --------------------------------------------------------------------------------
 -- Multirow equivalence.
 
-⟦_⟧eq-m : ∀ {m₁ m₂ : MultiRow Δ κ} →
-          m₁ ≡m m₂ → (H : ⟦ Δ ⟧ke) → ⟦ Row m₁ ⟧t H ≡ ⟦ Row m₂ ⟧t H
-⟦ meq-sing _ _ ⟧eq-m H = refl
-⟦ meq-▹ eq-l eq-τ eq-m ⟧eq-m H rewrite eq-l | ⟦ eq-τ ⟧eq H | ⟦ eq-m ⟧eq-m H = refl
+⟦_⟧eq-ρ : ∀ {ρ₁ ρ₂ : Row Δ κ} →
+          ρ₁ ≡r ρ₂ → (H : ⟦ Δ ⟧ke) → ⟦ ⦃- ρ₁ -⦄ ⟧t H ≡ ⟦ ⦃- ρ₂ -⦄ ⟧t H
+⟦ req-sing _ _ ⟧eq-ρ H = refl
+⟦ req-▹ eq-l eq-τ eq-ρ ⟧eq-ρ H rewrite eq-l | ⟦ eq-τ ⟧eq H | ⟦ eq-ρ ⟧eq-ρ H = refl
 
 --------------------------------------------------------------------------------
 -- type equivalence.
@@ -62,4 +62,4 @@ open import Rome.GVars.Kinds
 ⟦ teq-Σ t ⟧eq H rewrite ⟦ t ⟧eq H = refl
 ⟦ teq-id-↑ ⟧eq H = refl 
 ⟦ teq-labTy-row ⟧eq H = refl
-⟦ teq-row eq-m ⟧eq H = ⟦ eq-m ⟧eq-m H
+⟦ teq-row eq-ρ ⟧eq H = ⟦ eq-ρ ⟧eq-ρ H

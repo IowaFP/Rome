@@ -44,7 +44,7 @@ Fls = lab "False"
 
 Bool : ∀ {ℓ} {ℓΔ} {Δ : KEnv ℓΔ} →
        Type Δ (★ (lsuc ℓ))
-Bool {ℓ} = Σ (Row ("True" ▹ Unit ， "False" ▹ Unit))
+Bool {ℓ} = Σ ⦃- "True" ▹ Unit ， "False" ▹ Unit -⦄
 
 --------------------------------------------------------------------------------
 -- type of fmap : ∀ t s → F t → F s
@@ -80,4 +80,4 @@ _↪_  {ℓ} {ι} ρ  τ =
 --------------------------------------------------------------------------------
 -- Projecting out of multirows.
 
--- (m : MultiRow Δ κ) → l ∈ m → 
+-- (m : Row Δ κ) → l ∈ m → 

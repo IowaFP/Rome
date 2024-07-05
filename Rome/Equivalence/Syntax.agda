@@ -20,17 +20,17 @@ data _≡t_ : (τ υ : Type Δ κ) → Set
 infix 0 _≡p_
 infix 0 _≡t_
 
-data _≡m_ : (m₁ m₂ : MultiRow Δ κ) → Set where
-  meq-sing : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} → 
+data _≡r_ : (m₁ m₂ : Row Δ κ) → Set where
+  req-sing : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} → 
              (l₁ ≡ l₂) → τ₁ ≡t τ₂ →
              -------------------------------
-             (l₁ ▹ τ₁) ≡m (l₁ ▹ τ₁)
+             (l₁ ▹ τ₁) ≡r (l₁ ▹ τ₁)
 
-  meq-▹ : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} {m₁ m₂ : MultiRow Δ κ} 
+  req-▹ : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} {m₁ m₂ : Row Δ κ} 
            {ev₁ : l₁ ∉ m₁} {ev₂ : l₂ ∉ m₂} → 
-             (l₁ ≡ l₂) → τ₁ ≡t τ₂ → m₁ ≡m m₂ →
+             (l₁ ≡ l₂) → τ₁ ≡t τ₂ → m₁ ≡r m₂ →
              ------------------------------------
-             (l₁ ▹ τ₁ ， m₁) {ev₁} ≡m (l₂ ▹ τ₂ ， m₂) {ev₂}
+             (l₁ ▹ τ₁ ， m₁) {ev₁} ≡r (l₂ ▹ τ₂ ， m₂) {ev₂}
 
 data _≡p_ where
   peq-≲ : ∀ {τ₁ τ₂ υ₁ υ₂ : Type Δ R[ κ ]} →
@@ -147,10 +147,10 @@ data _≡t_ where
   teq-labTy-row :  ∀ {l : Label} {τ : Type Δ κ} →
   
                    -----------------------
-                   (lab {ℓ = ℓ} l R▹ τ) ≡t Row (l ▹ τ) 
+                   (lab {ℓ = ℓ} l R▹ τ) ≡t ⦃- l ▹ τ -⦄
 
-  teq-row : ∀ {m₁ m₂ : MultiRow Δ κ} →
+  teq-row : ∀ {m₁ m₂ : Row Δ κ} →
 
-           m₁ ≡m m₂ → 
+           m₁ ≡r m₂ → 
            ----------------
-           Row m₁ ≡t Row m₂
+           ⦃- m₁ -⦄ ≡t ⦃- m₂ -⦄

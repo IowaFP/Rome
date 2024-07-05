@@ -34,7 +34,7 @@ open import Rome.GVars.Kinds
 --------------------------------------------------------------------------------
 -- Meaning of multi-row inclusion.
 
-⟦_⟧∈ : ∀ {l : Label} {τ : Type Δ κ} {m : MultiRow Δ κ} {Φ : PEnv Δ ℓΦ} → 
+⟦_⟧∈ : ∀ {l : Label} {τ : Type Δ κ} {m : Row Δ κ} {Φ : PEnv Δ ℓΦ} → 
        (lab {ℓ = ℓ} l R▹ τ) ∈ m → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → (⟦ (lab {ℓ = ℓ} l R▹ τ) ⟧t H) Ix.≲ (⟦ m ⟧Row H)
 ⟦ here ⟧∈ H φ = λ i → i , refl
 ⟦ here-again ⟧∈ H φ = λ { fzero → fzero , refl }
@@ -44,10 +44,6 @@ open import Rome.GVars.Kinds
 
 --------------------------------------------------------------------------------
 -- The meaning of entailment in the "Simple Rows" theory.
-
-postulate
-  pfft : ∀ {l} {τ : Type Δ κ} {m₁ m₂ : MultiRow Δ κ} → 
-         (l ▹ τ ， m₁) ⊆ m₂ → m₁ ⊆ m₂
 
 ⟦_⟧n : ∀ {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
          Ent Δ Φ π → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → ⟦ π ⟧p H

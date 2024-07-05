@@ -39,15 +39,15 @@ data PVar : PEnv Δ ℓΦ → Pred Δ κ → Set where
 --------------------------------------------------------------------------------
 -- Entailment in the "Simple Rows" theory.
 
-data _∈_ : Type Δ R[ κ ] → MultiRow Δ κ → Set
-_⊆_ : MultiRow Δ κ → MultiRow Δ κ → Set
+data _∈_ : Type Δ R[ κ ] → Row Δ κ → Set
+_⊆_ : Row Δ κ → Row Δ κ → Set
 
 data _∈_ where
   here : ∀ {ℓ}{l}{τ : Type Δ κ} →
          (lab {ℓ = ℓ} l R▹ τ) ∈ (l ▹ τ)
-  here-again : ∀ {ℓ}{l}{τ : Type Δ κ} {m : MultiRow Δ κ} {ev : l ∉ m} → 
+  here-again : ∀ {ℓ}{l}{τ : Type Δ κ} {m : Row Δ κ} {ev : l ∉ m} → 
                (lab {ℓ = ℓ} l R▹ τ) ∈ (l ▹ τ ， m) {ev}
-  there  : ∀ {ℓ}{l₁ l₂}{τ₁ τ₂ : Type Δ κ} {m : MultiRow Δ κ} {ev : l₂ ∉ m} → 
+  there  : ∀ {ℓ}{l₁ l₂}{τ₁ τ₂ : Type Δ κ} {m : Row Δ κ} {ev : l₂ ∉ m} → 
             (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ m  → (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ ((l₂ ▹ τ₂ ， m) {ev})
 
 --data _⊆_ where
@@ -159,7 +159,7 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
   -- Simple rows.
 
   n-row≲ : 
-           ∀ (m₁ m₂ : MultiRow Δ κ) → m₁ ⊆ m₂ → 
+           ∀ (m₁ m₂ : Row Δ κ) → m₁ ⊆ m₂ → 
 
            ------------------------
-           Ent Δ Φ (Row m₁ ≲ Row m₂)
+           Ent Δ Φ (⦃- m₁ -⦄ ≲ ⦃- m₂ -⦄)

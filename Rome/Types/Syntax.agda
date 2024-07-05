@@ -64,13 +64,13 @@ S⁵ x = S (S⁴ x)
 --------------------------------------------------------------------------------
 -- Multirows.
 
-data MultiRow : KEnv ℓ → Kind ι → Set 
-_∉_ : Label → MultiRow Δ κ → Set
+data Row : KEnv ℓ → Kind ι → Set 
+_∉_ : Label → Row Δ κ → Set
 
-data MultiRow where
-  _▹_ : (l : Label) → (τ : Type Δ κ) → MultiRow Δ κ
-  _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : MultiRow Δ κ) → 
-          {_ : l ∉ xs}  → MultiRow Δ κ
+data Row where
+  _▹_ : (l : Label) → (τ : Type Δ κ) → Row Δ κ
+  _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : Row Δ κ) → 
+          {_ : l ∉ xs}  → Row Δ κ
 
 infixr 5 _▹_
 infixr 4 _▹_，_
@@ -129,7 +129,7 @@ data Type where
 
   ε : Type Δ R[ κ ]
 
-  Row : MultiRow Δ κ → 
+  ⦃-_-⦄ : Row Δ κ → 
        -------------
        Type Δ R[ κ ]
 
