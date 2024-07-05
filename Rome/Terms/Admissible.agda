@@ -187,10 +187,11 @@ _▿μ_ {ℓ = ℓ} =
 -- Encoding the boolean type.
 
 true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
-true = `Λ _ (`ƛ _ (inj (Σ ((lab Tru) ▹ (lab _))) (n-·≲L (n-var Z))))
+true = inj (Σ (lab Tru ▹ u)) (n-≡ (peq-≲ teq-refl {!  teq-sym (teq-labTy-row)!}) {!!})
+-- `Λ _ (`ƛ _ (inj (Σ ((lab Tru) ▹ (lab _))) (n-·≲L (n-var Z))))
 
 false : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
-false = `Λ _ (`ƛ _ (inj (Σ ((lab Fls) ▹ (lab _))) (n-·≲R (n-var Z))))
+false = {!!}
 
 --------------------------------------------------------------------------------
 -- idω : ★ → ★ at all levels.
