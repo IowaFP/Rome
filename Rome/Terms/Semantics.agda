@@ -199,11 +199,11 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ In M fmap ⟧ g H φ η = do
   m    ← ⟦ M ⟧ g H φ η 
   fmap ← ⟦ fmap ⟧ g H φ η 
-  In-Maybe tytatos (Ix.ungarbage fmap) (just m)
-⟦ Term.Out {F = F} M fmap ⟧ g H φ η = do
+  Ix.In tytatos (Ix.ungarbage fmap) (just m)
+⟦ Out {F = F} M fmap ⟧ g H φ η = do
   m    ← ⟦ M ⟧ g H φ η 
   fmap ← ⟦ fmap ⟧ g H φ η 
-  Out-Maybe tytatos (Ix.ungarbage fmap) (just m)
+  Ix.Out tytatos (Ix.ungarbage fmap) (just m)
 ⟦ fix ⟧ zero H φ η = nothing
 ⟦ fix {τ = τ} ⟧ (ℕ.suc g) H φ η = do
   Fix ← (⟦ fix {τ = τ} ⟧ g H φ η)
