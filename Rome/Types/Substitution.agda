@@ -128,7 +128,6 @@ K⁴ = λ x → K² (K² x)
 -- tye. Further, the substituted terms are over an arbitrary Context, and need
 -- not be closed.
 
-
 exts : ∀ {ℓ₁ ℓ₂ ℓ₃}
          {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}
          {ι : Kind ℓ₃} →

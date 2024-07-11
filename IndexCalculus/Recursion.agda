@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas  #-}
 module IndexCalculus.Recursion where
 
 open import Preludes.Level
@@ -42,28 +41,8 @@ Out : ∀ {ℓ} {F : Functor ℓ} →
         Mu F n → Mu F (ℕ.suc n)
 Out {_} {F} n fmap return d = cata fmap n (fmap (In n fmap)) (return d) d
 
-In∘Out : ∀ {ℓ} {F : Functor ℓ} → 
-        (n : ℕ) (fmap : FmapT F) → 
-        (F-comp : ∀ {A} {B} {C} → (g : A → B) → (f : B → C) → fmap (λ x → f (g x)) ≡ (λ x → (fmap f (fmap g x)))) →
-        (F-id : ∀ {A} → fmap (λ (x : A) → x) ≡ (λ (x : F A) → x)) →
-        (return : ∀ {A} → A → F A) → 
-        (d : Mu F n) → 
-        In n fmap (Out n fmap return d) ≡ d
-In∘Out ℕ.zero fmap F-comp F-id return d = refl
-In∘Out (ℕ.suc n) fmap F-comp F-id return d = {!!}
-
-Out∘In : ∀ {ℓ} {F : Functor ℓ} → 
-        (n : ℕ) (fmap : FmapT F) → 
-        (F-comp : ∀ {A} {B} {C} → (g : A → B) → (f : B → C) → fmap (λ x → f (g x)) ≡ (λ x → (fmap f (fmap g x)))) →
-        (F-id : ∀ {A} → fmap (λ (x : A) → x) ≡ (λ (x : F A) → x)) →
-        (return : ∀ {A} → A → F A) → 
-        (d : F (Mu F n)) → 
-        (Out n fmap return) (In n fmap d) ≡ d
-Out∘In ℕ.zero fmap F-comp F-id return d = {!!} -- refl
-Out∘In (ℕ.suc n) fmap F-comp F-id return d = {!!}
-
 --------------------------------------------------------------------------------
--- Maybe bullshit fmap.
+-- Cleaning up nested maybes.
 
 Fmap-MaybeT-garbage : ∀ {ℓ} → Functor ℓ → Set (lsuc ℓ)
 Fmap-MaybeT-garbage {ℓ} F = (A : Set ℓ) → Maybe
@@ -83,7 +62,7 @@ ungarbage : ∀ {ℓ} → {F : Functor ℓ} → Fmap-MaybeT-garbage F →
 ungarbage {F} fmap {A} {B} φ fa = fmap A >>= λ f → f B >>= λ f → f (just φ) >>= λ f → f fa
 
 --------------------------------------------------------------------------------
--- Maybe bullshit In, Out, and catamorphism.
+-- Maybe-ized In, Out, and catamorphism.
 
 In-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
            (n : ℕ) (fmap : Fmap-MaybeT F) → Maybe (F (Mu F n)) → Maybe (Mu F n)
@@ -94,7 +73,7 @@ cata-Maybe : ∀ {ℓ} {F : Functor ℓ} {A : Set ℓ} →
        (fmap : Fmap-MaybeT F) → 
        (n : ℕ) → (Maybe (F A) → Maybe A) → Maybe A → Maybe (Mu F n) → Maybe A
 cata-Maybe {ℓ} {F} fmap ℕ.zero φ a d = a
-cata-Maybe {ℓ} {F} fmap (ℕ.suc n) φ a d =  φ (fmap (cata-Maybe fmap n φ a) d) -- φ (fmap (cata-Maybe fmap n φ a) d)
+cata-Maybe {ℓ} {F} fmap (ℕ.suc n) φ a d =  φ (fmap (cata-Maybe fmap n φ a) d)
 
 Out-Maybe : ∀ {ℓ} {F : Functor ℓ} → 
         (n : ℕ) (fmap : Fmap-MaybeT F) → 

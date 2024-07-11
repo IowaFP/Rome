@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Types.Syntax where
 
 open import Preludes.Level
@@ -27,14 +26,12 @@ infix 12 ↑_ _↑
 Label : Set
 Label = String
 
-
 --------------------------------------------------------------------------------
 -- Kinding Environments, types, and predicates... And multirows.
 
 data Type : KEnv ℓ → Kind ι →  Set
 data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
 data Row : KEnv ℓ → Kind ι → Set 
-
 
 data Pred Δ where
   _≲_ : ∀ {κ : Kind ι} →
@@ -151,10 +148,6 @@ data Type where
       -------------
       Type Δ κ
 
-  -- Lifting/mapping operations... I claim the kinds are at least
-  -- self-evident now, even if the placement of arrows is a little bit
-  -- arbitrary...
-
   ↑_ : {κ₁ : Kind ℓ₁} {κ₂ : Kind ℓ₂} →
        Type Δ R[ κ₁ `→ κ₂ ] →
        ------------------------------
@@ -228,8 +221,6 @@ there⊆ ρ₁ ρ₂ ι l₂ τ₂ e = ι _ _ (there e)
 --------------------------------------------------------------------------------
 -- Simple row concatenation.
 
-
--- :) I remain foolishly committed to recursively defined predicates for no good reason.
 _#_ : Row Δ κ → Row Δ κ → Set
 _++_ : (ρ₁ : Row Δ κ) → (ρ₂ : Row Δ κ) → {_ : ρ₁ # ρ₂} → Row Δ κ
 

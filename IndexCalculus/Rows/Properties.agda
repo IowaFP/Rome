@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Rows.Properties where
 
 open import Prelude

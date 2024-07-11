@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.GVars.Levels where
 
 open import Preludes.Level

@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Rows where
 
 open import Agda.Primitive

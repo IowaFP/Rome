@@ -1,4 +1,3 @@
--- {-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Entailment.Syntax where
 
 
@@ -125,10 +124,3 @@ data Ent (Δ : KEnv ℓΔ) (Φ : PEnv Δ ℓΦ) : Pred Δ κ → Set where
            m₁ ⊆ m₂ → 
            ------------------------
            Ent Δ Φ (⦃- m₁ -⦄ ≲ ⦃- m₂ -⦄)
-
-  -- n-row· : 
-  --          ∀ (ρ₁ ρ₂ ρ₃ : Row Δ κ) {ev : ρ₁ # ρ₂} → 
-
-  --          ((ρ₁ ++ ρ₂) {ev}) ≡r ρ₃ → 
-  --          ------------------------
-  --          Ent Δ Φ (⦃- ρ₁ -⦄ · ⦃- ρ₂ -⦄ ~ ⦃- ρ₃ -⦄)

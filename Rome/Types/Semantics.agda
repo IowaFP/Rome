@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Preludes.Data hiding (∃)
 
 module Rome.Types.Semantics (g : Potatoes) where
@@ -19,10 +18,6 @@ import IndexCalculus as Ix
 
 open import Data.Empty.Polymorphic
 open import Data.Product renaming (Σ to ∃) hiding (∃)
-
---------------------------------------------------------------------------------
--- TODO---write the denotation (pleasantly) of algebras in IndexCalculus.Recursion.
--- Then denote μ Σ ρ ↪ τ simply to this denotation.
 
 --------------------------------------------------------------------------------
 -- The meaning of kinding environments and predicates (mutually recursive).
@@ -76,19 +71,3 @@ buildΠ R[ κ ] (n , f) = n , λ i → buildΠ κ (f i)
 ⟦ ε ⟧t H = Ix.emptyRow
 ⟦ ⦃- ρ -⦄ ⟧t H = ⟦ ρ ⟧Row H
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
-
-
---------------------------------------------------------------------------------
--- Testing.
-
-
--- alg-pres ρ τ H = {!cong Maybe!} -- cong Maybe (∀-extensionality extensionality {!!} {!!} {!!})
-
--- t : ∀ (ℓ : Level) → _
--- t ℓ = ⟦ Σ ((lab "u") R▹ `λ (★ ℓ) (tvar Z)) ⟧t
--- ε
-
--- pfft : ∀ {ℓ ι ℓΔ} {Δ : KEnv ℓΔ} → (ρ : Type Δ R[ ★ ℓ `→ ★ ℓ ]) (τ : Type Δ (★ ι)) →
---        (⟦ Δ ⟧ke) →
---        Set
--- pfft ρ τ H  = {!⟦ MAlg ρ τ ⟧t H !}

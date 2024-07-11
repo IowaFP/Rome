@@ -2,8 +2,9 @@
 *.agdai
 ROmega-ICFP23
 ROmega-ICFP23/*
-R-Omega-supp-materials
-R-Omega-supp-materials/*
+Rome-supp-materials
+Rome-supp-materials.zip
+Rome-supp-materials/*
 html/*
 *.html
 *.zip

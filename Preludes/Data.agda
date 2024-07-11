@@ -37,10 +37,17 @@ joinM nothing = nothing
 return : ∀ {ℓ} {A : Set ℓ} → A → Maybe A
 return = just
 
+join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
+          Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
+join→ (just x) a = x a
+join→ nothing a = nothing
+
+join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
+          Maybe (A → Maybe B) → A → Maybe B
+join→k (just x) a = x a
+join→k nothing a = nothing
 
 --------------------------------------------------------------------------------
 -- Synonyms.
 
 Potatoes = ℕ
-dud = 0
-spud = ℕ.suc

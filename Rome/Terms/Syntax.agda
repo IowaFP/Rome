@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms.Syntax where
 
 open import Preludes.Level
@@ -316,4 +315,3 @@ data Term : KEnv ℓΔ → PEnv Δ ℓΦ → Env Δ ℓΓ → Type Δ (★ ℓ) 
 
          ----------------------------
          Term Δ Φ Γ ((τ `→ τ) `→ τ)
-

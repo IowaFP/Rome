@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Terms.Admissible where
 
 open import Preludes.Level
@@ -195,125 +194,11 @@ _▿μ_ {ℓ = ℓ} =
     body : Term _ _ _ (Σ (↑ ρ₃ ·[ (μΣ w) ]) `→ (μΣ w `→ F ·[ w ]) `→ Functor ·[ Σ w ] `→ F ·[ w ])
     body = (f' ▿ g') (n-·lift₁ π₂)
 
--- `λ (Σ (↑ ρ₁ ·[ (μΣ w) ]))
--- (`λ ((μΣ w `→ F ·[ w ])) ((((var (S (S⁵ Z)) ·[ w ]) ·⟨ n-trans (n-·≲L (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift-Σ) (var (S Z))) · var Z))
--- (`λ ((μΣ w `→ f ·[ w ])) ((((var (S⁴ Z) ·[ w ]) ·⟨ n-trans (n-·≲R (n-var (S Z))) (n-var Z) ⟩) · t-≡ (teq-sym teq-lift-Σ) (var (S Z))) · var Z))
-
-
 -- --------------------------------------------------------------------------------
 -- -- Encoding the boolean type.
 
--- true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
--- true = inj (Σ (lab Tru ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."True" .Unit end → here }))
+true : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
+true = inj (Σ (lab Tru ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."True" .Unit end → here }))
 
--- false : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
--- false = inj (Σ (lab Fls ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."False" .Unit end → there end }))
-
--- --------------------------------------------------------------------------------
--- -- idω : ★ → ★ at all levels.
-
--- idω : ∀ {ℓ ℓΔ} {Δ : KEnv ℓΔ} → Type Δ ((★ ℓ) `→ (★ ℓ))
--- idω {ℓ} = `λ (★ ℓ) (tvar Z)
-
--- --------------------------------------------------------------------------------
--- -- EqΣ.
--- -- ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
-
--- Eq : Type Δ (★ ℓ `→ ★ (lsuc ℓ))
--- Eq = `λ _ ((tvar Z) `→ ((tvar Z) `→ K Bool))
-
--- eqΣT : Type Δ (★ (lsuc ℓ))
--- eqΣT {ℓ = ℓ} = `∀ R[ ★ ℓ ] (Π (((Eq ↑) ·[ tvar Z ])) `→ (Σ (tvar Z) `→ Σ (tvar Z) `→ Bool {ℓ}))
-
--- eqΣ : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (eqΣT {ℓ})
--- eqΣ {ℓ} = 
---   `Λ R[ ★ ℓ ]                    -- z (TVar)
---   (`λ (Π (((Eq ↑) ·[ tvar Z ]))) -- d (Var)
---   (`λ (Σ (tvar Z))               -- v (Var)
---   (`λ (Σ (tvar Z))               -- w (Var)
---     ((ana (tvar Z) idω (Bool {ℓ}) 
---       (`Λ (L lzero)              -- ℓ (TVar)
---       (`Λ (★ ℓ)                  -- u (TVar)
---       (`ƛ ((Ł₀ R▹ u₀) ≲ z₀) 
---       (`λ ⌊ (tvar (S Z)) ⌋       --   l : ⌊ ℓ ⌋ (Var)
---       (`λ ((K² idω ·[ (tvar Z) ])) -- y : u    (Var)
---         (rowCompl 
---           (n-var Z) body)))))) 
---       · t-≡ (teq-Σ (teq-sym teq-id-↑)) (var Z)))))) 
---       where
---         z₀ = tvar (Ty.S² Z)
---         Ł₀ = tvar (S Z)
---         u₀ = tvar Z
-
---         body : Term _ _ _ 
---                (`∀ R[ ★ ℓ ]
---                  ((tvar (Ty.S² Z) R▹ tvar (S Z)) · tvar Z ~ (tvar (Ty.S³ Z)) ⇒
---                  Bool))
---         body = `Λ (R[ ★ ℓ ]) -- Y (TVar)
---                (`ƛ _         -- π 
---                ((( lhs ▿ `λ _ false) π) · v))
---           where
---             υ = tvar (S Z)
---             Ł = tvar (Ty.S² Z)
---             v = var (S³ Z)
---             π = n-var Z
---             lhs : Term (_ ، R[ ★ ℓ ] ، L lzero ، ★ ℓ ، R[ ★ ℓ ]) _ _ (Σ (Ł R▹ υ) `→ Bool {ℓ})
---             lhs = `λ _      -- x (Var)
---               ((((prj▹ d) pf) / l) · (Σ⁻¹ x / l) · y)
---               where
--- --                Y = tvar Z
---                 z = tvar (Ty.S³ Z)
---                 x = var Z
---                 y = var (S Z) 
---                 l = var (S² Z)
---                 d = var (S⁵ Z)
---                 pf :  Ent _ _ ((Ł R▹ (υ `→ idω ·[ υ ] `→ Bool)) ≲ (Eq ↑) ·[ z ])
---                 pf = n-≡ 
---                   (peq-≲ 
---                     (teq-trans teq-lift₂ 
---                     (teq-sing teq-refl 
---                     (teq-trans teq-β 
---                     (teq-→ teq-refl (teq-→ (teq-sym teq-β) teq-refl) )))) teq-refl) 
---                     (n-≲lift₂ {ϕ = Eq} (n-var (S Z))) -- n-≡ (peq-≲ {!teq-lift₂!} {!!}) (n-var (S Z))
-
--- --------------------------------------------------------------------------------
--- -- FmapΣ.
-
--- -- fmapΣ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
--- --         Term Δ Φ Γ (`∀ (R[ ★ ℓ `→ ★ ℓ ])
--- --           (Π (⌈ K Functor ⌉· tvar Z) `→ (K Functor) ·[ (Σ (tvar Z)) ]))
--- -- fmapΣ {ℓ = ℓ} = `Λ ((R[ ★ ℓ `→ ★ ℓ ]))
--- --                 (`λ (Π (⌈ K Functor ⌉· tvar Z))
--- --                 (t-≡
--- --                   (`Λ (★ ℓ)
--- --                   (`Λ (★ ℓ)
--- --                   (`λ {!!}
--- --                   (`λ {!!} {!!})))) (teq-sym teq-β)))
-
-
-
--- --------------------------------------------------------------------------------
--- -- Recursive injection.
-
--- -- injμ : {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} →
--- --        Term Δ Φ Γ
--- --          (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- y
--- --            (`∀ R[ (★ ℓ) `→ (★ ℓ) ] -- z
--- --              ((ρ₁ ≲ tvar Z) ⇒
--- --                (Π (⌈ Functor ⌉· tvar (S Z))) `→
--- --                  μΣ (tvar (S Z)) `→ μΣ (tvar Z))))
--- -- injμ {ℓ = ℓ} = {!!}
--- -- --   `Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- y (TVar)
--- -- --  (`Λ R[ (★ ℓ) `→ (★ ℓ) ]                           -- z (TVar)
--- -- --  (`ƛ ((tvar (S Z) ≲ tvar Z))
--- -- --  (`λ ((Π (⌈ Functor ⌉· tvar (S Z))))                 -- d (Var)
--- -- --    (recΣ
--- -- --    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- w  (TVar)
--- -- --    (`Λ R[ ★ ℓ `→ ★ ℓ ]                             -- y (TVar)
--- -- --    (`ƛ (tvar (Ty.S³ Z) · (tvar Z) ~ (tvar (S Z)))
--- -- --    (`λ ((Σ (K² (tvar (S Z))) ·[ μΣ (tvar (S Z)) ])) -- v (Var)
--- -- --    (`λ ((μΣ (tvar (S Z)) `→ K² (μΣ (tvar Z))))     -- r (Var)
--- -- --        (In (t-≡
--- -- --          (inj {! !} {!!})
--- -- --          (teq-sym teq-lift-Σ))))))))))))
-
+false : ∀ {Γ : Env Δ ℓΓ} {Φ : PEnv Δ ℓΦ} → Term Δ Φ Γ (Bool {ℓ})
+false = inj (Σ (lab Fls ▹ u)) (n-≡ (peq-≲ (teq-sym teq-labTy-row)   teq-refl) (n-row≲ _ _ λ { ."False" .Unit end → there end }))

@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Entailment.Reasoning where
 
 open import Preludes.Level

@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 module IndexCalculus.Variants where
 
 open import Agda.Primitive
@@ -55,10 +54,3 @@ _▿_Using_ :
   Σ z → C
 
 (E-Σx ▿ E-Σy Using x·y~z) = (_▿_) {x·y~z = x·y~z} E-Σx E-Σy
-
---------------------------------------------------------------------------------
--- Variant _ana_lysis.
-
--- ...
-    
-  

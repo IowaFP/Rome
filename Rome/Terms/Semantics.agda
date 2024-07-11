@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Preludes.Level
 open import Prelude
 
@@ -21,44 +20,6 @@ open import Rome.Entailment.Semantics tytatos
 open import IndexCalculus
 open import IndexCalculus.Properties
 import IndexCalculus as Ix
-
---------------------------------------------------------------------------------
--- Maybe bullshit helpers.
-
-join→ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
-          Maybe (Maybe A → Maybe B) → Maybe A → Maybe B
-join→ (just x) a = x a
-join→ nothing a = nothing
-
-join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → 
-          Maybe (A → Maybe B) → A → Maybe B
-join→k (just x) a = x a
-join→k nothing a = nothing
-
---------------------------------------------------------------------------------
--- These shenanigans should be moved to the top level export module of each folder.
-
--- ⟦_⟧t : ∀ {ℓ ℓκ} {Δ : KEnv ℓ} {κ : Kind ℓκ} → Type Δ κ → Potatoes → ⟦ Δ ⟧ke → ⟦ κ ⟧k
--- ⟦_⟧t τ n H = TypeSem.⟦_⟧t n τ H
-
--- ⟦_⟧p : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} → Pred Δ κ → Potatoes → ⟦ Δ ⟧ke → Set (lsuc ℓκ)
--- ⟦_⟧p π n H = TypeSem.⟦_⟧p n π H
-
-
--- ⟦_⟧pe : ∀ {ℓ ℓΦ} {Δ : KEnv ℓ} → PEnv Δ ℓΦ → Potatoes → ⟦ Δ ⟧ke → Set (lsuc ℓΦ)
--- ⟦ Φ ⟧pe g H = EntSem.⟦_⟧pe g Φ H
-
--- ⟦_⟧n : ∀ {ℓΔ ℓκ ℓΦ} {κ : Kind ℓκ} {Δ : KEnv ℓΔ} {Φ : PEnv Δ ℓΦ} {π : Pred Δ κ} →
---          Ent Δ Φ π → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe g H → ⟦ π ⟧p g H
--- ⟦ π ⟧n g H η = EntSem.⟦_⟧n g π H η
-
--- ⟦_⟧eq-π : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {π₁ π₂ : Pred Δ κ} →
---          π₁ ≡p π₂ → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ π₁ ⟧p g H ≡ ⟦ π₂ ⟧p g H
--- ⟦_⟧eq-π eq g H = EqSem.⟦_⟧eq-π g eq H
-        
--- ⟦_⟧eq : ∀ {ℓΔ ℓκ} {Δ : KEnv ℓΔ} {κ : Kind ℓκ} {τ υ : Type Δ κ} →
---        τ ≡t υ → (g : Potatoes) → (H : ⟦ Δ ⟧ke) → ⟦ τ ⟧t g H ≡ ⟦ υ ⟧t g H
--- ⟦_⟧eq eq g H = EqSem.⟦_⟧eq g eq H
 
 --------------------------------------------------------------------------------
 -- The meaning of environments.
@@ -85,7 +46,6 @@ private
 ⟦ Z ⟧v H (η , x) = x
 ⟦ S v ⟧v H (η , x) = ⟦ v ⟧v H η
 
-
 --------------------------------------------------------------------------------
 -- Denotational Weakening Lemma.
 
@@ -107,9 +67,6 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 
 --------------------------------------------------------------------------------
 -- -- The meaning of terms.
-
--- open _↔_
--- open _≃_
 
 ⟦_⟧ : ∀ {Φ : PEnv Δ ℓΦ} {Γ : Env Δ ℓΓ}
         {τ : Type Δ (★ ℓ)} →
@@ -203,7 +160,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
     where
       ⟦ρ⟧ = ⟦ ρ ⟧t H₀
       evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.≲ ⟦ (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)))
-      evidence i rewrite sym (Weakening₂ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i)) = λ { fzero → i , refl } --  recombine ⟦ρ⟧ i
+      evidence i rewrite sym (Weakening₂ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i)) = λ { fzero → i , refl }
 ⟦ Term.Π s ⟧ g H φ η = just (λ { fzero → ⟦ s ⟧ g H φ η })
 ⟦ Π⁻¹ r ⟧ g H φ η = do
   ⟦r⟧ ←  ⟦ r ⟧ g H φ η
@@ -237,7 +194,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
          cur y) 
        (just e) r
 
--- Recursive Terms.
+-- Recursive Terms (novel to Rωμ).
 ------------------
 ⟦ In M fmap ⟧ g H φ η = do
   m    ← ⟦ M ⟧ g H φ η 
