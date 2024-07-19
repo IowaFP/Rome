@@ -10,6 +10,7 @@ open import Rome.Entailment.Reasoning public
 -- Equivalence.
 open import Rome.Equivalence public
 
+-- Kinds.
 open import Rome.Kinds public
 
 -- Terms.
