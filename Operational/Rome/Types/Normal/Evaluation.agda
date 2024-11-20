@@ -56,7 +56,8 @@ eval-★ (τ₁ `→ τ₂) η = (eval-★ τ₁ η) `→ (eval-★ τ₂ η)
 eval-★ (`∀ κ τ) η = `∀ _ (eval-★ τ (↑e η))
 eval-★ (μ τ) η with eval-→ τ η 
 ... | left F = μ (ne F)
-... | right F = μ (`λ (F S (ne (` Z))))
+-- This is just η-expansion
+... | right F = μ (`λ (F S (ne (` Z)))) 
 eval-★ (τ₁ ▹ τ₂) η = eval-L τ₁ η ▹ eval-★ τ₂ η
 eval-★ ⌊ τ ⌋ η = ⌊ eval-L τ η ⌋
 eval-★ (Π τ) η = Π (eval-R τ η)
@@ -76,8 +77,10 @@ eval-→ (τ₁ ▹ τ₂) η with eval-→ τ₂ η
 ... | left τ = left ((eval τ₁ η) ▹ τ)
 -- The problem is that I want reduction to retain that this is a labeled type,
 -- otherwise I will be unable to reify labels.
-... | right y = {!!}
-eval-→ (Π τ) η = {!!}
+-- N.b., I think this is wrong... but... moving on.
+... | right f = right f
+eval-→ (Π τ) η with eval-R τ η
+... | c = {!!}
 eval-→ (Σ τ) η = {!!}
 
 eval-R (` x) η = η x 

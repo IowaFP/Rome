@@ -30,6 +30,7 @@ open import Operational.Rome.Types.Normal.Renaming
 --   Ne-→ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemValue Δ₂ κ₁ → SemValue Δ₂ κ₂) → SemValue Δ (κ₁ `→ κ₂)
 --   ne-R→ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemValue Δ₂ κ₁ → SemValue Δ₂ κ₂) → SemValue Δ (κ₁ `→ κ₂)
   
+-- This should be specified inductively, I think
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
@@ -37,18 +38,23 @@ SemType Δ₁ (κ₁ `→ κ₂) =
   (NeutralType Δ₁ (κ₁ `→ κ₂)) or 
   (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 -- This is wrong, I think.
-SemType Δ R[ κ ] = NormalType Δ R[ κ ]
+SemType Δ R[ ★ ] = NormalType Δ R[ ★ ]
+SemType Δ R[ L ] = NormalType Δ R[ L ]
+-- This needs its own builder
+SemType Δ₁ R[ κ₁ `→ κ₂ ] = (NeutralType Δ₁ R[ (κ₁ `→ κ₂) ]) or 
+  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ R[ κ₁ ] → SemType Δ₂ R[ κ₂ ])
+SemType Δ R[ R[ κ ] ] = SemType Δ R[ κ ]
 
-reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
-reflect {κ = ★} τ = ne τ
-reflect {κ = L} τ = ne τ
-reflect {κ = R[ κ' ]} τ = ne τ
-reflect {κ = κ `→ κ₁} τ = left τ
+-- reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
+-- reflect {κ = ★} τ = ne τ
+-- reflect {κ = L} τ = ne τ
+-- reflect {κ = R[ κ' ]} τ = ne τ
+-- reflect {κ = κ `→ κ₁} τ = left τ
 
-reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
-reify {κ = ★} τ = τ
-reify {κ = L} τ = τ
-reify {κ = R[ κ' ]} τ = τ
-reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflect (` Z))))
+-- reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
+-- reify {κ = ★} τ = τ
+-- reify {κ = L} τ = τ
+-- reify {κ = R[ κ' ]} τ = τ
+-- reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
+-- reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflect (` Z))))
 
