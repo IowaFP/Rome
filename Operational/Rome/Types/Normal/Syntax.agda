@@ -42,6 +42,11 @@ data NeutralType Δ κ : Set where
       NeutralType Δ κ
 
 data NormalType Δ where
+
+  Unit :
+       
+        --------------
+        NormalType Δ ★ 
   ne : 
        NeutralType Δ κ → 
        --------------
@@ -120,6 +125,7 @@ data NormalType Δ where
 embed : NormalType Δ κ → Type Δ κ
 embedNE : NeutralType Δ κ → Type Δ κ
 
+embed Unit   = Unit
 embed (ne x) = embedNE x
 embed (`λ τ) = `λ (embed τ)
 embed (τ₁ `→ τ₂) = embed τ₁ `→ embed τ₂

@@ -9,6 +9,12 @@ open import Operational.Rome.Kinds.GVars
 
 
 data Type Δ : Kind → Set where
+
+  Unit :
+
+      --------
+      Type Δ ★
+
   ` : 
       KVar Δ κ →
       --------

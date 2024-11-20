@@ -51,13 +51,14 @@ eval {κ = _ `→ _} τ η = eval-→ τ η
 eval {κ = R[ κ ]} τ η = eval-R τ η
 
 eval-★ (` x) η = η x
+eval-★ Unit η  = Unit
 eval-★ (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval-★ (τ₁ `→ τ₂) η = (eval-★ τ₁ η) `→ (eval-★ τ₂ η)
 eval-★ (`∀ κ τ) η = `∀ _ (eval-★ τ (↑e η))
 eval-★ (μ τ) η with eval-→ τ η 
 ... | left F = μ (ne F)
 -- This is just η-expansion
-... | right F = μ (`λ (F S (reflect (` Z)))) 
+... | right F = μ (`λ (F S (ne (` Z)))) 
 eval-★ (τ₁ ▹ τ₂) η = eval-L τ₁ η ▹ eval-★ τ₂ η
 eval-★ ⌊ τ ⌋ η = ⌊ eval-L τ η ⌋
 eval-★ (Π τ) η = Π (eval-R τ η)
@@ -75,9 +76,6 @@ eval-→ (`λ τ) η = right λ ρ v → eval τ (extende (renSem ρ ∘ η) v)
 eval-→ (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
 eval-→ (τ₁ ▹ τ₂) η with eval-→ τ₂ η 
 ... | left τ = left ((eval τ₁ η) ▹ τ)
--- The problem is that I want reduction to retain that this is a labeled type,
--- otherwise I will be unable to reify labels.
--- N.b., I think this is wrong... but... moving on.
 ... | right f = right f
 eval-→ (Π τ) η with eval-R τ η
 ... | c = {!!}
@@ -96,6 +94,24 @@ idEnv = reflect ∘ `
 -- NormalType forms.
 ⇓ : Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
+
+--------------------------------------------------------------------------------
+-- Testing.
+
+ff : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+ff = (`λ (`λ ((` (S Z)) · (` Z))))
+
+ID : Type Δ (★ `→ ★)
+ID = `λ (` Z)
+
+Const : Type Δ (★ `→ ★)
+Const = `λ Unit
+
+t₁ : Type Δ ★
+t₁ = ((lab "l") ▹ ((ff · Const) · Unit))
+
+_ : _
+_ = {!⇓ t₁!}
 
 --------------------------------------------------------------------------------
 -- 3.3. Completeness of type normalization.

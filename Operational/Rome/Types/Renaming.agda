@@ -26,6 +26,7 @@ _≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : KVar Δ₁ κ) → ρ₁ x ≡
 ↑ ρ (S x) = S (ρ x)
 
 ren : Renaming Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
+ren ρ Unit  = Unit
 ren ρ (` x) = ` (ρ x)
 ren ρ (`λ τ) = `λ (ren (↑ ρ) τ)
 ren ρ (τ₁ · τ₂) = (ren ρ τ₁) · (ren ρ τ₂)
