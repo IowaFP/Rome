@@ -50,12 +50,13 @@ eval {κ = L} τ η = eval-L τ η
 eval {κ = _ `→ _} τ η = eval-→ τ η
 eval {κ = R[ κ ]} τ η = eval-R τ η
 
-
 eval-★ (` x) η = η x
 eval-★ (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval-★ (τ₁ `→ τ₂) η = (eval-★ τ₁ η) `→ (eval-★ τ₂ η)
 eval-★ (`∀ κ τ) η = `∀ _ (eval-★ τ (↑e η))
-eval-★ (μ τ) η = μ (eval-★ τ (↑e η))
+eval-★ (μ τ) η with eval-→ τ η 
+... | left F = μ (ne F)
+... | right F = μ (`λ (F S (ne (` Z))))
 eval-★ (τ₁ ▹ τ₂) η = eval-L τ₁ η ▹ eval-★ τ₂ η
 eval-★ ⌊ τ ⌋ η = ⌊ eval-L τ η ⌋
 eval-★ (Π τ) η = Π (eval-R τ η)
@@ -67,10 +68,6 @@ eval-L (lab l) η = lab l
 eval-L (τ₁ ▹ τ₂) η = (eval-L τ₁ η) ▹ (eval-L τ₂ η)
 eval-L (Π τ) η = Π (eval-R τ η)
 eval-L (Σ τ) η = Σ (eval-R τ η)
-
-postulate
-  m : ⊥
-  me : ∀ {A} → ⊥ → A
 
 eval-→ (` x) η = η x
 eval-→ (`λ τ) η = right λ ρ v → eval τ (extende (renSem ρ ∘ η) v)
@@ -89,29 +86,6 @@ eval-R (τ₁ ▹ τ₂) η = (eval-L τ₁ η) ▹ (eval-R τ₂ η)
 eval-R (τ₁ R▹ τ₂) η = (eval-L τ₁ η) R▹ {!!}
 eval-R (Π τ) η = Π (eval-R τ η)
 eval-R (Σ τ) η = Π (eval-R τ η)
-
-
--- eval (` x) η = η x
--- eval (`λ τ) η = eval-→ (`λ τ) η
--- eval (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
--- eval (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
--- eval (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
--- eval (μ τ) η = μ (eval τ (↑e η))
--- eval (lab l) η = lab l
--- eval {κ = ★} (τ₁ ▹ τ₂) η = (eval τ₁ η) ▹ (eval τ₂ η)
--- eval {κ = L} (τ₁ ▹ τ₂) η =  (eval τ₁ η) ▹ (eval τ₂ η)
--- eval {κ = κ `→ κ₁} (τ₁ ▹ τ₂) η = eval-→ (τ₁ ▹ τ₂) η
--- eval {κ = R[ κ ]} (τ₁ ▹ τ₂) η = eval-R (τ₁ ▹ τ₂) η
--- eval (τ₁ R▹ τ₂) η = eval-R (τ₁ R▹ τ₂) η
--- eval ⌊ τ ⌋ η = ⌊ eval τ η ⌋
--- eval {κ = ★} (Π ρ) η = Π (eval ρ η)
--- eval {κ = L} (Π ρ) η = Π (eval ρ η)
--- eval {κ = κ `→ κ₁} (Π ρ) η = eval-→ (Π ρ) η
--- eval {κ = R[ κ ]} (Π ρ) η = eval-R (Π ρ) η
--- eval {κ = ★} (Σ ρ) η = Σ (eval ρ η)
--- eval {κ = L} (Σ ρ) η = Σ (eval ρ η)
--- eval {κ = κ `→ κ₁} (Σ ρ) η = eval-→ (Σ ρ) η
--- eval {κ = R[ κ ]} (Σ ρ) η = eval-R (Σ ρ) η
 
 idEnv : Env Δ Δ
 idEnv = reflect ∘ `

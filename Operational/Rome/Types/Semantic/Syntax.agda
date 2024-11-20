@@ -21,12 +21,22 @@ open import Operational.Rome.Types.Normal.Renaming
 -- 4. evaluate each syntactic type to a semantic type; then
 -- 5. Normalize by reifying the evaluation.
 
+
+-- data SemValue Δ : Kind → Set where
+--   Nm-★  : NormalType Δ ★ → SemValue Δ ★
+--   Nm-L  : NormalType Δ L → SemValue Δ L
+--   Ne    : NeutralType Δ (κ₁ `→ κ₂) → SemValue Δ (κ₁ `→ κ₂)
+--   Ner   : NeutralType Δ (R[ κ₁ `→ κ₂ ]) → SemValue Δ (R[ κ₁ `→ κ₂ ])
+--   Ne-→ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemValue Δ₂ κ₁ → SemValue Δ₂ κ₂) → SemValue Δ (κ₁ `→ κ₂)
+--   ne-R→ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemValue Δ₂ κ₁ → SemValue Δ₂ κ₂) → SemValue Δ (κ₁ `→ κ₂)
+  
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
   (NeutralType Δ₁ (κ₁ `→ κ₂)) or 
   (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+-- This is wrong, I think.
 SemType Δ R[ κ ] = NormalType Δ R[ κ ]
 
 reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ

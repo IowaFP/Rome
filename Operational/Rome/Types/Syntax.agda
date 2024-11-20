@@ -42,7 +42,7 @@ data Type Δ : Kind → Set where
 
   μ     :
       
-         Type (Δ ,, ★) ★ →
+         Type Δ (★ `→ ★) → 
          -------------
          Type Δ ★
 
