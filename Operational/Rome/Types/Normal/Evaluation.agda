@@ -57,7 +57,7 @@ eval-★ (`∀ κ τ) η = `∀ _ (eval-★ τ (↑e η))
 eval-★ (μ τ) η with eval-→ τ η 
 ... | left F = μ (ne F)
 -- This is just η-expansion
-... | right F = μ (`λ (F S (ne (` Z)))) 
+... | right F = μ (`λ (F S (reflect (` Z)))) 
 eval-★ (τ₁ ▹ τ₂) η = eval-L τ₁ η ▹ eval-★ τ₂ η
 eval-★ ⌊ τ ⌋ η = ⌊ eval-L τ η ⌋
 eval-★ (Π τ) η = Π (eval-R τ η)
