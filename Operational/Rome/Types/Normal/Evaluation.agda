@@ -36,7 +36,7 @@ extende η V (S x) = η x
 -- "SemType application"
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 left A ·V V = reflect (A · (reify V))
-right F ·V V = F id V
+right ⟨ w , F ⟩ ·V V = F id V
 
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
@@ -58,7 +58,7 @@ eval-★ (`∀ κ τ) η = `∀ _ (eval-★ τ (↑e η))
 eval-★ (μ τ) η with eval-→ τ η 
 ... | left F = μ (ne F)
 -- This is just η-expansion
-... | right F = μ (`λ (F S (ne (` Z)))) 
+... | right ⟨ w , F ⟩ = μ (`λ (F S (ne (` Z)))) 
 eval-★ (τ₁ ▹ τ₂) η = eval-L τ₁ η ▹ eval-★ τ₂ η
 eval-★ ⌊ τ ⌋ η = ⌊ eval-L τ η ⌋
 eval-★ (Π τ) η = Π (eval-R τ η)
@@ -72,11 +72,11 @@ eval-L (Π τ) η = Π (eval-R τ η)
 eval-L (Σ τ) η = Σ (eval-R τ η)
 
 eval-→ (` x) η = η x
-eval-→ (`λ τ) η = right λ ρ v → eval τ (extende (renSem ρ ∘ η) v)
+eval-→ (`λ τ) η = right ⟨ none , (λ ρ v → eval τ (extende (renSem ρ ∘ η) v)) ⟩
 eval-→ (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
 eval-→ (τ₁ ▹ τ₂) η with eval-→ τ₂ η 
 ... | left τ = left ((eval τ₁ η) ▹ τ)
-... | right f = right f
+... | right ⟨ w , f ⟩ = right ⟨ eval τ₁ η ▹ , f ⟩
 eval-→ (Π τ) η with eval-R τ η
 ... | c = {!!}
 eval-→ (Σ τ) η = {!!}
@@ -104,14 +104,23 @@ ff = (`λ (`λ ((` (S Z)) · (` Z))))
 ID : Type Δ (★ `→ ★)
 ID = `λ (` Z)
 
+ℓ : Type Δ L
+ℓ = lab "l"
+
 Const : Type Δ (★ `→ ★)
 Const = `λ Unit
+
+t₀ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+t₀ = (ℓ ▹ ff)
 
 t₁ : Type Δ ★
 t₁ = ((lab "l") ▹ ((ff · Const) · Unit))
 
+t₂ : Type Δ ★
+t₂ = (lab "l") ▹ Unit
+
 _ : _
-_ = {!⇓ t₁!}
+_ = {! reify (eval t₀ idEnv)!}
 
 --------------------------------------------------------------------------------
 -- 3.3. Completeness of type normalization.

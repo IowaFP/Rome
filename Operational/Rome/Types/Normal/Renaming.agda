@@ -33,6 +33,5 @@ ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
 ren ρ (ℓ R▹ τ) = (ren ρ ℓ) R▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 
-
 weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
 weaken = ren S

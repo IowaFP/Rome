@@ -1,5 +1,6 @@
 module Operational.Rome.Types.Semantic.Syntax where
 
+open import Data.Product using (_×_ ; _,_)
 open import Operational.Rome.Prelude
 open import Operational.Rome.Kinds.Syntax
 open import Operational.Rome.Kinds.GVars
@@ -31,12 +32,20 @@ open import Operational.Rome.Types.Normal.Renaming
 --   ne-R→ : (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemValue Δ₂ κ₁ → SemValue Δ₂ κ₂) → SemValue Δ (κ₁ `→ κ₂)
   
 -- This should be specified inductively, I think
+
+data Wrapper Δ : Set where
+  none : Wrapper Δ
+  _::_ : Wrapper Δ → Wrapper Δ → Wrapper Δ
+  _▹ : NormalType Δ L → Wrapper Δ
+
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
-  (NeutralType Δ₁ (κ₁ `→ κ₂)) or 
-  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+  (NeutralType Δ₁ (κ₁ `→ κ₂)) 
+  or
+  (Wrapper Δ₁ × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
+
 -- This is wrong, I think.
 SemType Δ R[ κ ] = NormalType Δ R[ κ ]
 
@@ -57,5 +66,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = R[ κ' ]} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflect (` Z))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ none , F ⟩) = `λ (reify ((F S (reflect (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ ℓ ▹ , F ⟩) = ℓ ▹ `λ (reify ((F S (reflect (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ (l ▹) :: w₂ , F ⟩) = {! !} -- ℓ ▹ `λ (reify ((F S (reflect (` Z)))))
 
