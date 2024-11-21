@@ -34,9 +34,10 @@ open import Operational.Rome.Types.Normal.Renaming
 -- This should be specified inductively, I think
 
 data Wrapper Δ : Set where
-  none : Wrapper Δ
-  _::_ : Wrapper Δ → Wrapper Δ → Wrapper Δ
-  _▹ : NormalType Δ L → Wrapper Δ
+  _▹  : NormalType Δ L → Wrapper Δ
+
+Wrappers : KEnv → Set
+Wrappers Δ = List (Wrapper Δ)
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
@@ -44,7 +45,7 @@ SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
   (NeutralType Δ₁ (κ₁ `→ κ₂)) 
   or
-  (Wrapper Δ₁ × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
+  (Wrappers Δ₁ × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
 
 -- This is wrong, I think.
 SemType Δ R[ κ ] = NormalType Δ R[ κ ]
@@ -66,7 +67,6 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = R[ κ' ]} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right ⟨ none , F ⟩) = `λ (reify ((F S (reflect (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ ℓ ▹ , F ⟩) = ℓ ▹ `λ (reify ((F S (reflect (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ (l ▹) :: w₂ , F ⟩) = {! !} -- ℓ ▹ `λ (reify ((F S (reflect (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflect (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ ws , F ⟩) = x ▹ (reify (right ⟨ ws , F ⟩))
 

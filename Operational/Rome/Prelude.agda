@@ -15,6 +15,7 @@ open Product
   public
 
 open import Data.String hiding (_≟_ ; _≈_) public
+open import Data.List using (List ; [] ;  _∷_) public
 Label = String
 
 open import Function using (_∘_) public

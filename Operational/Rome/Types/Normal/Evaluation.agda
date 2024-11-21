@@ -72,11 +72,11 @@ eval-L (Π τ) η = Π (eval-R τ η)
 eval-L (Σ τ) η = Σ (eval-R τ η)
 
 eval-→ (` x) η = η x
-eval-→ (`λ τ) η = right ⟨ none , (λ ρ v → eval τ (extende (renSem ρ ∘ η) v)) ⟩
+eval-→ (`λ τ) η = right ⟨ [] , (λ ρ v → eval τ (extende (renSem ρ ∘ η) v)) ⟩
 eval-→ (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
 eval-→ (τ₁ ▹ τ₂) η with eval-→ τ₂ η 
 ... | left τ = left ((eval τ₁ η) ▹ τ)
-... | right ⟨ w , f ⟩ = right ⟨ eval τ₁ η ▹ , f ⟩
+... | right ⟨ w , f ⟩ = right ⟨ eval τ₁ η ▹ ∷ w , f ⟩
 eval-→ (Π τ) η with eval-R τ η
 ... | c = {!!}
 eval-→ (Σ τ) η = {!!}
@@ -104,14 +104,17 @@ ff = (`λ (`λ ((` (S Z)) · (` Z))))
 ID : Type Δ (★ `→ ★)
 ID = `λ (` Z)
 
-ℓ : Type Δ L
-ℓ = lab "l"
+ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
+ℓ  = lab "l"
+ℓ₁ = lab "l1"
+ℓ₂ = lab "l2"
+ℓ₃ = lab "l3"
 
 Const : Type Δ (★ `→ ★)
 Const = `λ Unit
 
 t₀ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
-t₀ = (ℓ ▹ ff)
+t₀ = (ℓ₁ ▹ (ℓ₂ ▹ ff))
 
 t₁ : Type Δ ★
 t₁ = ((lab "l") ▹ ((ff · Const) · Unit))
