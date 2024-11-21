@@ -117,13 +117,13 @@ t₀ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
 t₀ = (ℓ₁ ▹ (ℓ₂ ▹ ff))
 
 t₁ : Type Δ ★
-t₁ = ((lab "l") ▹ ((ff · Const) · Unit))
+t₁ = (ℓ₁ ▹ (ℓ₂ ▹ ((ff · Const) · Unit)))
 
 t₂ : Type Δ ★
 t₂ = (lab "l") ▹ Unit
 
 _ : _
-_ = {! reify (eval t₀ idEnv)!}
+_ = {! ⇓ t₁!}
 
 --------------------------------------------------------------------------------
 -- 3.3. Completeness of type normalization.
