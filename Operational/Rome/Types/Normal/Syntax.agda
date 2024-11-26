@@ -41,6 +41,12 @@ data NeutralType Δ κ : Set where
       ------------------
       NeutralType Δ κ
 
+  Π  : 
+
+      NeutralType Δ R[ κ ] →
+      ------------------
+      NeutralType Δ κ
+
 data NormalType Δ where
 
   Unit :
@@ -157,3 +163,4 @@ embed (τ ↑) = (embed τ) ↑
 embedNE (` x) = ` x
 embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)
 embedNE (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embedNE τ₂)
+embedNE (Π τ) = Π (embedNE τ)

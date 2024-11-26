@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Operational.Rome.Types.Semantic.NBE where
 
 open import Operational.Rome.Prelude
@@ -20,7 +21,7 @@ reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 
 reflectNE {κ = ★} τ = ne τ
 reflectNE {κ = L} τ = ne τ
-reflectNE {κ = R[ κ ]} τ = ne τ
+reflectNE {κ = R[ κ ]} τ = {!!} -- ne τ
 reflectNE {κ = κ `→ κ₁} τ = left τ
 
 -- ρeflectNE {κ = ★} τ = {!!} -- ne τ
@@ -45,8 +46,12 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = R[ κ' ]} τ = {!!} -- τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ ws , F ⟩) = x ▹ (reify (right ⟨ ws , F ⟩))
+-- reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) , F ⟩) = x ▹ `λ (reify ((F S (reflectNE (` Z)))))
+reify {κ = _ `→ _} (right ⟨ nil , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
+reify {κ = _ `→ _} (right ⟨ Π , F ⟩) = Π {!!} -- `λ (reify ((F S (reflectNE (` Z)))))
+
+-- reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x R▹)  , F ⟩) = {!!}
 
 
 
@@ -106,13 +111,14 @@ reflect-L (Π τ) η = Π (reflect-R τ η)
 reflect-L (Σ τ) η = Σ (reflect-R τ η)
 
 reflect-→ (` x) η = η x
-reflect-→ (`λ τ) η = right ⟨ [] , (λ ρ v → reflect τ (extende (renSem ρ ∘ η) v)) ⟩
+reflect-→ (`λ τ) η = right ⟨ nil , (λ ρ v → reflect τ (extende (renSem ρ ∘ η) v)) ⟩
 reflect-→ (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
-reflect-→ (τ₁ ▹ τ₂) η with reflect-→ τ₂ η 
-... | left τ = left ((reflect τ₁ η) ▹ τ)
-... | right ⟨ w , f ⟩ = right ⟨ reflect τ₁ η ▹ ∷ w , f ⟩
+reflect-→ (ℓ ▹ τ₂) η with reflect-→ τ₂ η 
+... | left τ = left ((reflect ℓ η) ▹ τ)
+... | right ⟨ w , f ⟩ = right ⟨ reflect ℓ η ▹ , f ⟩
 reflect-→ (Π τ) η with reflect-R τ η
-... | c = {!!}
+... | left x = left (Π x)
+... | right ⟨ w , f ⟩ = right ⟨ Π , f ⟩
 reflect-→ (Σ τ) η = {!!}
 reflect-→ (↑ τ) η = {!!}
 reflect-→ (τ ↑) η = {!!}
@@ -120,8 +126,8 @@ reflect-→ (τ ↑) η = {!!}
 reflect-R (` x) η = η x 
 reflect-R (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
 reflect-R (τ₁ ▹ τ₂) η = {!!} -- (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
-reflect-R (τ₁ R▹ τ₂) η = {!!} -- (reflect-L τ₁ η) R▹ {!!}
-reflect-R (Π τ) η = {!!} -- Π (reflect-R τ η)
+reflect-R (τ₁ R▹ τ₂) η = {!!}
+reflect-R (Π τ) η = {!Π !} -- Π (reflect-R τ η)
 reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
 
 idEnv : Env Δ Δ
@@ -158,8 +164,13 @@ t₁ = (ℓ₁ ▹ (ℓ₂ ▹ ((ff · Const) · Unit)))
 t₂ : Type Δ ★
 t₂ = (lab "l") ▹ Unit
 
-_ : _
-_ = {! ⇓ t₀ !}
+t₃ : Type Δ ★
+t₃ = Π (ℓ R▹ Unit)
+
+t₄ : Type Δ (★ `→ ★)
+t₄ = Π (ℓ R▹ (`λ (` Z)))
+
+_ : {!⇓ t₀ !}
 
 --------------------------------------------------------------------------------
 -- 3.3. Completeness of type normalization.
