@@ -14,6 +14,7 @@ open Product
   using (_×_ ; fst ; snd ; ⟨_,_⟩ ; Σ-syntax ; ∃ ; ∃-syntax) 
   public
 
+open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.String hiding (_≟_ ; _≈_) public
 open import Data.List using (List ; [] ;  _∷_) public
 Label = String

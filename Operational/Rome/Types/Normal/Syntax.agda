@@ -5,7 +5,7 @@ open import Operational.Rome.Kinds.Syntax
 open import Operational.Rome.Kinds.GVars
 
 open import Operational.Rome.Types.Syntax
-open import Operational.Rome.Types.Renaming using (↑ ; Renaming)
+open import Operational.Rome.Types.Renaming using (lift ; Renaming)
 open import Operational.Rome.Types.Properties
 
 
@@ -116,6 +116,20 @@ data NormalType Δ where
           ----------------
           NormalType Δ κ
 
+  ↑_ : 
+
+       NormalType Δ R[ κ₁ `→ κ₂ ] →
+       ------------------------------
+       NormalType Δ (κ₁ `→ R[ κ₂ ])
+
+
+  _↑ : 
+
+       NormalType Δ (κ₁ `→ κ₂) →
+       ------------------------------
+       NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+
+
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type NormalTypeization
@@ -137,6 +151,8 @@ embed (lab l) = lab l
 embed (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embed τ₂)
 embed (τ₁ R▹ τ₂) = (embed τ₁) R▹ (embed τ₂)
 embed ⌊ τ ⌋ = ⌊ embed τ ⌋
+embed (↑ τ) = ↑ (embed τ)
+embed (τ ↑) = (embed τ) ↑
 
 embedNE (` x) = ` x
 embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)

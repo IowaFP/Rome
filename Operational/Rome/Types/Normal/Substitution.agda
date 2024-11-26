@@ -10,7 +10,7 @@ import Operational.Rome.Types.Substitution as TypeSub
 
 open import Operational.Rome.Types.Normal.Syntax
 open import Operational.Rome.Types.Normal.Renaming
-open import Operational.Rome.Types.Normal.Evaluation
+open import Operational.Rome.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
 -- 3.6 Normality preserving Type Substitution

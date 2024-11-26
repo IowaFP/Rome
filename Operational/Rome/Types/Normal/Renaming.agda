@@ -5,7 +5,7 @@ open import Operational.Rome.Kinds.Syntax
 open import Operational.Rome.Kinds.GVars
 
 open import Operational.Rome.Types.Syntax
-open import Operational.Rome.Types.Renaming using (↑ ; Renaming)
+open import Operational.Rome.Types.Renaming using (lift ; Renaming)
 open import Operational.Rome.Types.Properties
 
 open import Operational.Rome.Types.Normal.Syntax
@@ -22,9 +22,9 @@ renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
 
 ren ρ Unit   = Unit
 ren ρ (ne τ) = ne (renNE ρ τ)
-ren ρ (`λ τ) = `λ (ren (↑ ρ) τ)
+ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
 ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
-ren ρ (`∀ κ τ) = `∀ κ (ren (↑ ρ) τ)
+ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ τ) = μ (ren ρ τ)
 ren ρ (Π τ) = Π (ren ρ τ)
 ren ρ (Σ τ) = Σ (ren ρ τ)
@@ -32,6 +32,8 @@ ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
 ren ρ (ℓ R▹ τ) = (ren ρ ℓ) R▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
+ren ρ (↑ τ) = ↑ (ren ρ τ)
+ren ρ (τ ↑) = (ren ρ τ) ↑
 
 weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
 weaken = ren S

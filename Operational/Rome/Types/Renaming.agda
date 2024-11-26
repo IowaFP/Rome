@@ -21,17 +21,17 @@ _≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : KVar Δ₁ κ) → ρ₁ x ≡
 
 
 -- ↑ing over binders.
-↑ : Renaming Δ₁ Δ₂ → Renaming (Δ₁ ,, κ) (Δ₂ ,, κ)
-↑ ρ Z = Z
-↑ ρ (S x) = S (ρ x)
+lift : Renaming Δ₁ Δ₂ → Renaming (Δ₁ ,, κ) (Δ₂ ,, κ)
+lift ρ Z = Z
+lift ρ (S x) = S (ρ x)
 
 ren : Renaming Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 ren ρ Unit  = Unit
 ren ρ (` x) = ` (ρ x)
-ren ρ (`λ τ) = `λ (ren (↑ ρ) τ)
+ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
 ren ρ (τ₁ · τ₂) = (ren ρ τ₁) · (ren ρ τ₂)
 ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
-ren ρ (`∀ κ τ) = `∀ κ (ren (↑ ρ) τ)
+ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ F) = μ (ren ρ F)
 ren ρ (Π τ) = Π (ren ρ τ)
 ren ρ (Σ τ) = Σ (ren ρ τ)
@@ -39,6 +39,8 @@ ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
 ren ρ (ℓ R▹ τ) = (ren ρ ℓ) R▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
+ren ρ (↑ τ) = ↑ (ren ρ τ)
+ren ρ (τ ↑) = (ren ρ τ) ↑
 
 weaken : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weaken = ren S

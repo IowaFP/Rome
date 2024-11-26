@@ -35,7 +35,8 @@ sub σ (lab x) = lab x
 sub σ (ℓ ▹ τ) = (sub σ ℓ) ▹ (sub σ τ)
 sub σ (ℓ R▹ τ) = (sub σ ℓ) R▹ (sub σ τ)
 sub σ ⌊ ℓ ⌋ = ⌊ (sub σ ℓ) ⌋
-
+sub σ (↑ τ) = ↑ (sub σ τ)
+sub σ (τ ↑) = (sub σ τ) ↑
 
 -- "Substitutions could be implemented as lists of types and then the cons
 -- constructor would extend a substitution by an additional term. Using our
