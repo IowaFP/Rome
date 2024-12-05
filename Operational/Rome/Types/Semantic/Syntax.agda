@@ -29,16 +29,14 @@ open import Operational.Rome.Types.Normal.Renaming
 -- Then, at point of reification, we use the list of binders to reconstruct
 -- τ with Π and (ℓ ▹) as leading syntax.
 
-data Congruence Δ : Kind → Set where
-  nil : Congruence Δ κ
-  _▹  : NormalType Δ L → Congruence Δ (κ₁ `→ κ₂)
-  _R▹ : NormalType Δ L → Congruence Δ R[ κ₁ `→ κ₂ ]
-  Π    : Congruence Δ (κ₁ `→ κ₂)
-  -- Σ    : NormalType Δ R[ κ ] → Congruence Δ
-  -- R    : Congruence Δ 
+data Congruence Δ : Set where
+  _▹  : NormalType Δ L → Congruence Δ
+  _R▹ : NormalType Δ L → Congruence Δ
+  Π    : Congruence Δ
+  Σ    : Congruence Δ
 
--- Congruences : KEnv → Set
--- Congruences Δ = List (Congruence Δ)
+Congruences : KEnv → Set
+Congruences Δ = List (Congruence Δ)
 
 
 
@@ -50,7 +48,7 @@ SemType-R : KEnv → Kind → Set
 SemFunction : KEnv → Kind → Kind → Set
 
 SemFunction Δ₁ κ₁ κ₂ = 
-  (Congruence Δ₁ (κ₁ `→ κ₂)  × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
+  (Congruences Δ₁  × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L

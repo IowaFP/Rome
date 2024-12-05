@@ -32,24 +32,24 @@ reflectNE {κ = κ `→ κ₁} τ = left τ
 --------------------------------------------------------------------------------
 -- reification of semantic types
 
--- conglue : SemFunction Δ₁ κ₁ κ₂ → NormalType Δ₁ (κ₁ `→ κ₂)
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
-
--- conglue ⟨ [] , F ⟩ = `λ (reify ((F S (reflectNE (` Z)))))
--- conglue ⟨ (ℓ ▹) ∷ xs , F ⟩ = ℓ ▹ (conglue ⟨ xs , F ⟩)
--- conglue ⟨ Π ∷ xs , F ⟩ = Π {!conglue ⟨ xs , F ⟩!}
--- conglue ⟨ Σ ∷ xs , F ⟩ = {!!}
--- conglue ⟨ R ∷ xs , F ⟩ = {!!}
-
-
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = R[ κ' ]} τ = {!!} -- τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
--- reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) , F ⟩) = x ▹ `λ (reify ((F S (reflectNE (` Z)))))
-reify {κ = _ `→ _} (right ⟨ nil , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
-reify {κ = _ `→ _} (right ⟨ Π , F ⟩) = Π {!!} -- `λ (reify ((F S (reflectNE (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
+-- This case should be impossible---ideally, fix by adding kind info into
+-- the congruence. But then a list of congruences must be uniformly typed (so we neeed
+-- a heteregeneous collection.) 
+-- 
+-- I suspect there's a better way to simply compose outer-syntax in a well-kinded
+-- manner. Too brain-fogged right now to think of how.
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x R▹) ∷ cs , F ⟩) = {!!}
+reify {κ = κ₁ `→ κ₂} (right ⟨ Π ∷ cs , F ⟩) = Π (reify (right ⟨ cs , F ⟩))
+reify {κ = κ₁ `→ κ₂} (right ⟨ Σ ∷ cs , F ⟩) = Σ (reify (right ⟨ cs , F ⟩))
+-- reify {κ = _ `→ _} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
+-- reify {κ = _ `→ _} (right ⟨ Π , F ⟩) = Π {!!} -- `λ (reify ((F S (reflectNE (` Z)))))
 
 -- reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x R▹)  , F ⟩) = {!!}
 
@@ -111,14 +111,14 @@ reflect-L (Π τ) η = Π (reflect-R τ η)
 reflect-L (Σ τ) η = Σ (reflect-R τ η)
 
 reflect-→ (` x) η = η x
-reflect-→ (`λ τ) η = right ⟨ nil , (λ ρ v → reflect τ (extende (renSem ρ ∘ η) v)) ⟩
+reflect-→ (`λ τ) η = right ⟨ [] , (λ ρ v → reflect τ (extende (renSem ρ ∘ η) v)) ⟩
 reflect-→ (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect-→ (ℓ ▹ τ₂) η with reflect-→ τ₂ η 
 ... | left τ = left ((reflect ℓ η) ▹ τ)
-... | right ⟨ w , f ⟩ = right ⟨ reflect ℓ η ▹ , f ⟩
+... | right ⟨ w , f ⟩ = right ⟨ reflect ℓ η ▹ ∷ w , f ⟩
 reflect-→ (Π τ) η with reflect-R τ η
 ... | left x = left (Π x)
-... | right ⟨ w , f ⟩ = right ⟨ Π , f ⟩
+... | right ⟨ w , f ⟩ = right ⟨ Π ∷ w , f ⟩
 reflect-→ (Σ τ) η = {!!}
 reflect-→ (↑ τ) η = {!!}
 reflect-→ (τ ↑) η = {!!}
