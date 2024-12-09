@@ -67,7 +67,10 @@ SemType-R Δ L = NormalType Δ R[ L ]
 -- E.g. SemType-R (ℓ R▹ (ℓ R▹ τ))
 SemType-R Δ R[ κ ] with SemType-R Δ κ
 ... | c = {!!}
--- E.g. SemType-R (ℓ R▹ λ x : ★. x)
+-- SemType-R (ℓ R▹ λ x : ★. x) makes sense
+-- but evaluating
+--   SemType-R {ℓ : λ x. x, l : λ x. ⊤)
+-- to a function does not make sense.
 SemType-R Δ₁ (κ₁ `→ κ₂) = 
   NeutralType Δ₁ R[ κ₁ `→ κ₂ ] or SemFunction Δ₁ κ₁ κ₂
 

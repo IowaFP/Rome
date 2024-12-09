@@ -20,7 +20,7 @@ open import Operational.Rome.Types.Properties
 -- - NormalType types are types precluded from any applications (barring neutral forms).
 
 data NormalType (Δ : KEnv) : Kind → Set
-data NeutralType Δ κ : Set where
+data NeutralType Δ : Kind → Set where
 
   ` : 
       KVar Δ κ →
@@ -40,6 +40,13 @@ data NeutralType Δ κ : Set where
       NeutralType Δ κ →
       ------------------
       NeutralType Δ κ
+
+  _R▹_ :
+    
+      NormalType Δ L → 
+      NeutralType Δ κ →
+      ------------------
+      NeutralType Δ R[ κ ]
 
   Π  : 
 
@@ -170,5 +177,6 @@ embed (τ ↑) = (embed τ) ↑
 embedNE (` x) = ` x
 embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)
 embedNE (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embedNE τ₂)
+embedNE (τ₁ R▹ τ₂) = (embed τ₁) R▹ (embedNE τ₂)
 embedNE (Π τ) = Π (embedNE τ)
 embedNE (Σ τ) = Σ (embedNE τ)

@@ -39,7 +39,7 @@ reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
 -- Impossible case... Need to make congruences intrinsic.
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ [] , F ⟩) = {!!} -- need lifting
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ [] , F ⟩) = {!!}
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Π ∷ cs , F ⟩) = {!!}
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Σ ∷ cs , F ⟩) = {!!}
