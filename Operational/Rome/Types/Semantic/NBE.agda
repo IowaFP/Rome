@@ -6,7 +6,7 @@ open import Operational.Rome.Kinds.Syntax
 open import Operational.Rome.Kinds.GVars
 
 open import Operational.Rome.Types.Syntax
-open import Operational.Rome.Types.Renaming using (↑ ; Renaming)
+open import Operational.Rome.Types.Renaming using (lift ; Renaming)
 open import Operational.Rome.Types.Properties
 
 open import Operational.Rome.Types.Normal.Syntax
@@ -35,17 +35,20 @@ reflectNE {κ = κ `→ κ₁} τ = left τ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = R[ κ' ]} τ = {!!} -- τ
+reify {κ = R[ ★ ]} τ = τ
+reify {κ = R[ L ]} τ = τ
+reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
+-- Impossible case... Need to make congruences intrinsic.
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ [] , F ⟩) = {!!} -- need lifting
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x R▹) ∷ cs , F ⟩) = x R▹ (reify (right ⟨ cs , F ⟩))
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Π ∷ cs , F ⟩) = {!!}
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Σ ∷ cs , F ⟩) = {!!}
+reify {κ = R[ R[ κ₁ ] ]} τ = {!!}
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
 reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
--- This case should be impossible---ideally, fix by adding kind info into
--- the congruence. But then a list of congruences must be uniformly typed (so we neeed
--- a heteregeneous collection.) 
--- 
--- I suspect there's a better way to simply compose outer-syntax in a well-kinded
--- manner. Too brain-fogged right now to think of how.
-reify {κ = κ₁ `→ κ₂} (right ⟨ (x R▹) ∷ cs , F ⟩) = {!!}
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x R▹) ∷ cs , F ⟩) = reify (right ⟨ cs , F ⟩)
 reify {κ = κ₁ `→ κ₂} (right ⟨ Π ∷ cs , F ⟩) = Π (reify (right ⟨ cs , F ⟩))
 reify {κ = κ₁ `→ κ₂} (right ⟨ Σ ∷ cs , F ⟩) = Σ (reify (right ⟨ cs , F ⟩))
 -- reify {κ = _ `→ _} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
