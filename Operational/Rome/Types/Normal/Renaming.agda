@@ -20,6 +20,7 @@ renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
 renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
 renNE ρ (Π τ) = Π (renNE ρ τ)
+renNE ρ (Σ τ) = Σ (renNE ρ τ)
 
 ren ρ Unit   = Unit
 ren ρ (ne τ) = ne (renNE ρ τ)

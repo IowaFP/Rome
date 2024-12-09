@@ -6,7 +6,7 @@ open import Operational.Rome.Kinds.Syntax
 open import Operational.Rome.Kinds.GVars
 
 open import Operational.Rome.Types.Syntax
-open import Operational.Rome.Types.Renaming using (↑ ; Renaming)
+open import Operational.Rome.Types.Renaming using (lift ; Renaming)
 open import Operational.Rome.Types.Properties
 
 open import Operational.Rome.Types.Normal.Syntax
@@ -17,14 +17,14 @@ open import Operational.Rome.Types.Semantic.Syntax
 --------------------------------------------------------------------------------
 -- Renaming semantic types.
 
-renC : Renaming Δ₁ Δ₂ → Congruence Δ₁ → Congruence Δ₂
+renC : Renaming Δ₁ Δ₂ → Congruence Δ₁ κ → Congruence Δ₂ κ
 renC ρ (x ▹) = ren ρ x ▹
 renC ρ (x R▹) = ren ρ x R▹
 renC ρ Π     = Π
 renC ρ Σ     = Σ
 -- renC ρ R     = R
 
-renCs : Renaming Δ₁ Δ₂ → Congruences Δ₁ → Congruences Δ₂
+renCs : Renaming Δ₁ Δ₂ → Congruences Δ₁ κ → Congruences Δ₂ κ
 renCs ρ [] = []
 renCs ρ (x ∷ xs) = renC ρ x ∷ renCs ρ xs
 

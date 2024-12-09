@@ -41,14 +41,12 @@ reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
 -- Impossible case... Need to make congruences intrinsic.
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ [] , F ⟩) = {!!} -- need lifting
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x R▹) ∷ cs , F ⟩) = x R▹ (reify (right ⟨ cs , F ⟩))
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Π ∷ cs , F ⟩) = {!!}
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Σ ∷ cs , F ⟩) = {!!}
 reify {κ = R[ R[ κ₁ ] ]} τ = {!!}
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
 reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
-reify {κ = κ₁ `→ κ₂} (right ⟨ (x R▹) ∷ cs , F ⟩) = reify (right ⟨ cs , F ⟩)
 reify {κ = κ₁ `→ κ₂} (right ⟨ Π ∷ cs , F ⟩) = Π (reify (right ⟨ cs , F ⟩))
 reify {κ = κ₁ `→ κ₂} (right ⟨ Σ ∷ cs , F ⟩) = Σ (reify (right ⟨ cs , F ⟩))
 -- reify {κ = _ `→ _} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
@@ -122,13 +120,20 @@ reflect-→ (ℓ ▹ τ₂) η with reflect-→ τ₂ η
 reflect-→ (Π τ) η with reflect-R τ η
 ... | left x = left (Π x)
 ... | right ⟨ w , f ⟩ = right ⟨ Π ∷ w , f ⟩
-reflect-→ (Σ τ) η = {!!}
+reflect-→ (Σ τ) η with reflect-R τ η
+... | left x = left (Σ x)
+... | right ⟨ w , f ⟩ = right ⟨ Σ ∷ w , f ⟩
 reflect-→ (↑ τ) η = {!!}
 reflect-→ (τ ↑) η = {!!}
 
 reflect-R (` x) η = η x 
 reflect-R (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
-reflect-R (τ₁ ▹ τ₂) η = {!!} -- (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
+reflect-R {κ = ★} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
+reflect-R {κ = L} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
+reflect-R {κ = κ `→ κ₁} (τ₁ ▹ τ₂) η with reflect-R τ₂ η 
+... | left x = left ((reflect-L τ₁ η) ▹ x)
+... | right ⟨ cs , F ⟩ = right ⟨ ((reflect-L τ₁ η) ▹ ∷ cs) , F ⟩
+reflect-R {κ = R[ κ ]} (τ₁ ▹ τ₂) η = {!!}
 reflect-R (τ₁ R▹ τ₂) η = {!!}
 reflect-R (Π τ) η = {!Π !} -- Π (reflect-R τ η)
 reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
