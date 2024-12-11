@@ -1,4 +1,0 @@
-# System F For Fun And Profit in Agda
-
-- https://doi.org/10.1007/978-3-030-33636-3
-- https://files.zotero.net/eyJleHBpcmVzIjoxNzI2NzU2MjU5LCJoYXNoIjoiNTlkODRjZDU5YmQ2M2E2NTVjMDhiM2VhNTdlYmM3NmQiLCJjb250ZW50VHlwZSI6ImFwcGxpY2F0aW9uXC9wZGYiLCJjaGFyc2V0IjoiIiwiZmlsZW5hbWUiOiJDaGFwbWFuIGV0IGFsLiAtIDIwMTkgLSBTeXN0ZW0gRiBpbiBBZ2RhLCBmb3IgZnVuIGFuZCBwcm9maXQucGRmIn0%3D/428a3dc35ad37c6ac416240853f4a1f41098dc2f36555b5047cf586fb6ced26e/Chapman%20et%20al.%20-%202019%20-%20System%20F%20in%20Agda%2C%20for%20fun%20and%20profit.pdf
