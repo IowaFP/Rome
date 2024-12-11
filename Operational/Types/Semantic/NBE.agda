@@ -114,11 +114,9 @@ reflect-L (Π τ) η = Π (reflect-R τ η)
 reflect-L (Σ τ) η = Σ (reflect-R τ η)
 
 reflect-→ (` x) η = η x
--- right ⟨ [] , (λ ρ v → reflect τ (extende (renSem {κ = {!!}} ρ ∘ η) v)) ⟩
 reflect-→ {Δ₁} {κ₁} {κ₂} {Δ₂} (`λ τ) η = 
   right ⟨ [] , 
     (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
-    
 reflect-→ (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect-→ (ℓ ▹ τ₂) η with reflect-→ τ₂ η 
 ... | left τ = left ((reflect ℓ η) ▹ τ)
@@ -138,12 +136,19 @@ reflect-R {κ = ★} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R 
 reflect-R {κ = L} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
 reflect-R {κ = κ₁ `→ κ₂} (τ₁ ▹ τ₂) η with reflect-R τ₂ η 
 ... | left x = left ((reflect-L τ₁ η) ▹ x)
-... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!}
-reflect-R (τ₁ R▹ τ₂) η = {!!}
-reflect-R (Π τ) η = {!Π !} -- Π (reflect-R τ η)
-reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
--- ignoring:
+... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (reflect-L τ₁ η) , ⟨ (l ▹) ∷ cs , F ⟩ ⟩
 reflect-R {κ = R[ κ ]} (τ₁ ▹ τ₂) η = {!!}
+reflect-R {κ = ★} (τ₁ R▹ τ₂) η = (reflect-L τ₁ η) R▹ (reflect τ₂ η)
+reflect-R {κ = L} (τ₁ R▹ τ₂) η = (reflect-L τ₁ η) R▹ (reflect τ₂ η)
+reflect-R {κ = κ₁ `→ κ₂} (τ₁ R▹ τ₂) η  with reflect-→ τ₂ η 
+... | left x = left ((reflect-L τ₁ η) R▹ x)
+... | right ⟨ cs , F ⟩ = right ⟨ (reflect-L τ₁ η) , ⟨ cs , F ⟩ ⟩
+reflect-R {κ = R[ κ ]} (τ₁ R▹ τ₂) η = {!!}
+reflect-R (Π τ) η = {!!} -- Π (reflect-R τ η)
+reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
+
+-- ignoring:
+
 
 idEnv : Env Δ Δ
 idEnv = reflectNE ∘ `
@@ -211,6 +216,9 @@ C₃ = Π (ℓ R▹ Unit)
 C₄ : Type Δ (★ `→ ★)
 C₄ = Π (ℓ R▹ (`λ (` Z)))
 
-_ : {!⇓ C₃!}
+-- This case is broken. See C-c C-n below.
+C₅ : Type Δ (R[ ★ `→ ★ ])
+C₅ = ℓ₁ ▹ (ℓ₂ R▹ ((`λ (` Z))))
 
+_ : {!⇓ C₅!}
 
