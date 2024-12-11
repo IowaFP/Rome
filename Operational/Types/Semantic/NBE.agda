@@ -21,13 +21,11 @@ reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 
 reflectNE {κ = ★} τ = ne τ
 reflectNE {κ = L} τ = ne τ
-reflectNE {κ = R[ κ ]} τ = {!!} -- ne τ
 reflectNE {κ = κ `→ κ₁} τ = left τ
-
--- ρeflectNE {κ = ★} τ = {!!} -- ne τ
--- ρeflectNE {κ = L} τ = {!!} -- ne τ
--- ρeflectNE {κ = _ `→ _} τ = {!!} -- left τ -- left τ
--- ρeflectNE {κ = R[ κ ]} τ = {!!} -- ρeflectNE {κ = {!!}} {n = {!!}} {!!}
+reflectNE {κ = R[ ★ ]} τ = ne τ
+reflectNE {κ = R[ L ]} τ = ne τ
+reflectNE {κ = R[ _ `→ _ ]} τ = left τ
+reflectNE {κ = R[ R[ κ ] ]} τ = {!!}
 
 --------------------------------------------------------------------------------
 -- reification of semantic types
@@ -35,20 +33,16 @@ reflectNE {κ = κ `→ κ₁} τ = left τ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
+reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
+reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
+reify {κ = κ₁ `→ κ₂} (right ⟨ ΠR▹ x ∷ cs , F ⟩) = Π (x R▹ (reify (right ⟨ cs , F ⟩))) -- x R▹ (reify (right ⟨ cs , F ⟩))
+reify {κ = κ₁ `→ κ₂} (right ⟨ ΣR▹ x ∷ cs , F ⟩) = Σ (x R▹ (reify (right ⟨ cs , F ⟩)))
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
--- Impossible case... Need to make congruences intrinsic.
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ [] , F ⟩) = {!!}
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Π ∷ cs , F ⟩) = {!!}
-reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ Σ ∷ cs , F ⟩) = {!!}
+reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ l , ⟨ cs , F ⟩ ⟩) = l R▹ reify (right ⟨ cs , F ⟩)
 reify {κ = R[ R[ κ₁ ] ]} τ = {!!}
-reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ (x ▹) ∷ cs , F ⟩) = x ▹ (reify (right ⟨ cs , F ⟩))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Π ∷ cs , F ⟩) = Π (reify (right ⟨ cs , F ⟩))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Σ ∷ cs , F ⟩) = Σ (reify (right ⟨ cs , F ⟩))
 -- reify {κ = _ `→ _} (right ⟨ [] , F ⟩) = `λ (reify ((F S (reflectNE (` Z)))))
 -- reify {κ = _ `→ _} (right ⟨ Π , F ⟩) = Π {!!} -- `λ (reify ((F S (reflectNE (` Z)))))
 
@@ -67,7 +61,15 @@ extende η V Z     = V
 extende η V (S x) = η x
 
 ↑e : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
-↑e η = extende (weakenSem ∘ η) (reflectNE (` Z))
+-- extende (weakenSem {Δ = Δ₂} {κ₁ = {!κ'!}} {κ₂ = {!!}} ∘ η {κ = {!κ!}}) (reflectNE {κ = κ} (` Z))
+↑e {Δ₁} {Δ₂} {κ} η  = extende η' V -- extende η' V
+  where
+    η' : Env Δ₁ (Δ₂ ,, κ)
+    η' {κ'} v = (weakenSem {Δ = Δ₂} {κ₁ = κ'} {κ₂ = κ}) (η v)
+
+    V  : SemType (Δ₂ ,, κ) κ
+    V = reflectNE {κ = κ} (` Z)
+
 
 --------------------------------------------------------------------------------
 -- Semantic application
@@ -112,17 +114,21 @@ reflect-L (Π τ) η = Π (reflect-R τ η)
 reflect-L (Σ τ) η = Σ (reflect-R τ η)
 
 reflect-→ (` x) η = η x
-reflect-→ (`λ τ) η = right ⟨ [] , (λ ρ v → reflect τ (extende (renSem ρ ∘ η) v)) ⟩
+-- right ⟨ [] , (λ ρ v → reflect τ (extende (renSem {κ = {!!}} ρ ∘ η) v)) ⟩
+reflect-→ {Δ₁} {κ₁} {κ₂} {Δ₂} (`λ τ) η = 
+  right ⟨ [] , 
+    (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
+    
 reflect-→ (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect-→ (ℓ ▹ τ₂) η with reflect-→ τ₂ η 
 ... | left τ = left ((reflect ℓ η) ▹ τ)
 ... | right ⟨ w , f ⟩ = right ⟨ reflect ℓ η ▹ ∷ w , f ⟩
 reflect-→ (Π τ) η with reflect-R τ η
 ... | left x = left (Π x)
-... | right ⟨ w , f ⟩ = right ⟨ Π ∷ w , f ⟩
+... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (ΠR▹ l ∷ cs) , F ⟩
 reflect-→ (Σ τ) η with reflect-R τ η
-... | left x = left (Σ x)
-... | right ⟨ w , f ⟩ = right ⟨ Σ ∷ w , f ⟩
+... | left x = left (Π x)
+... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (ΣR▹ l ∷ cs) , F ⟩
 reflect-→ (↑ τ) η = {!!}
 reflect-→ (τ ↑) η = {!!}
 
@@ -130,13 +136,14 @@ reflect-R (` x) η = η x
 reflect-R (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
 reflect-R {κ = ★} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
 reflect-R {κ = L} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
-reflect-R {κ = κ `→ κ₁} (τ₁ ▹ τ₂) η with reflect-R τ₂ η 
+reflect-R {κ = κ₁ `→ κ₂} (τ₁ ▹ τ₂) η with reflect-R τ₂ η 
 ... | left x = left ((reflect-L τ₁ η) ▹ x)
-... | right ⟨ cs , F ⟩ = right ⟨ ((reflect-L τ₁ η) ▹ ∷ cs) , F ⟩
-reflect-R {κ = R[ κ ]} (τ₁ ▹ τ₂) η = {!!}
+... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!}
 reflect-R (τ₁ R▹ τ₂) η = {!!}
 reflect-R (Π τ) η = {!Π !} -- Π (reflect-R τ η)
 reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
+-- ignoring:
+reflect-R {κ = R[ κ ]} (τ₁ ▹ τ₂) η = {!!}
 
 idEnv : Env Δ Δ
 idEnv = reflectNE ∘ `
@@ -148,11 +155,8 @@ idEnv = reflectNE ∘ `
 --------------------------------------------------------------------------------
 -- Testing.
 
-ff : Type Δ ((★ `→ ★) `→ ★ `→ ★)
-ff = (`λ (`λ ((` (S Z)) · (` Z))))
-
-ID : Type Δ (★ `→ ★)
-ID = `λ (` Z)
+----------------------------------------
+-- Labels.
 
 ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
 ℓ  = lab "l"
@@ -160,33 +164,53 @@ ID = `λ (` Z)
 ℓ₂ = lab "l2"
 ℓ₃ = lab "l3"
 
-Const : Type Δ (★ `→ ★)
-Const = `λ Unit
+----------------------------------------
+-- Some function types.
 
-t₀ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
-t₀ = (ℓ₁ ▹ (ℓ₂ ▹ ff))
+apply : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+apply = (`λ (`λ ((` (S Z)) · (` Z))))
 
-t₁ : Type Δ ★
-t₁ = (ℓ₁ ▹ (ℓ₂ ▹ ((ff · Const) · Unit)))
+ID : Type Δ (★ `→ ★)
+ID = `λ (` Z)
 
-t₂ : Type Δ ★
-t₂ = (lab "l") ▹ Unit
+Const-U : Type Δ (★ `→ ★)
+Const-U = `λ Unit
 
-t₃ : Type Δ ★
-t₃ = Π (ℓ R▹ Unit)
+_ : Type Δ (★ `→ ★)
+_ = {!⇓ Const-U!}
 
-t₄ : Type Δ (★ `→ ★)
-t₄ = Π (ℓ R▹ (`λ (` Z)))
+----------------------------------------
+-- Simple terms.
 
-_ : {!⇓ t₀ !}
+A₀ : Type Δ ★
+A₀ = (lab "l") ▹ Unit
 
---------------------------------------------------------------------------------
--- 3.3. Completeness of type normalization.
---
--- Completeness states that normalizing two β-equal types yields the same normal
--- form. In other words, `nf` is injective: normalization picks out unique
--- representations for normal forms.
---
--- (OMITTED).
+_ = {!!} 
+
+----------------------------------------
+-- Row-kinded function types.
+
+constR : Type Δ R[ ★ `→ ★ ]
+constR = ℓ R▹ (`λ (` Z))
+
+_ = {!⇓ constR!}
+
+
+----------------------------------------
+-- Terms with congruences.
+
+C₁ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+C₁ = (ℓ₁ ▹ (ℓ₂ ▹ apply))
+
+C₂ : Type Δ ★
+C₂ = (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
+
+C₃ : Type Δ ★
+C₃ = Π (ℓ R▹ Unit)
+
+C₄ : Type Δ (★ `→ ★)
+C₄ = Π (ℓ R▹ (`λ (` Z)))
+
+_ : {!⇓ C₃!}
 
 

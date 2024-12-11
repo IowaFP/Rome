@@ -20,20 +20,15 @@ open import Rome.Operational.Types.Normal.Renaming
 -- Agda's computation to eliminate applications.  A Congruence specifies any
 -- syntax under which could occur a binder. For example, consider: 
 --   τ = Π (ℓ ▹ (λ x. ` Z))
--- We would like 
---   (reify ∘ reflect) τ ≊ τ 
+-- We obviously expect that this normalizes to itself (modulo data type)
+--   ⇓ τ ≊ τ 
 -- but we must reflect the function portion (λ x. x) into an Agda function.
--- Hence, we reflect τ into
---   ⟨ [ Π , ℓ ▹ ] , F ⟩ 
--- where F is the *Agda* identity function on SemTypes.
--- Then, at point of reification, we use the list of binders to reconstruct
--- τ with Π and (ℓ ▹) as leading syntax.
 
 data Congruence Δ : Kind → Set where
   _▹  : NormalType Δ L → Congruence Δ κ
   _R▹ : NormalType Δ L → Congruence Δ R[ κ ]
-  Π    : Congruence Δ κ
-  Σ    : Congruence Δ κ
+  ΠR▹    : NormalType Δ L → Congruence Δ κ
+  ΣR▹    : NormalType Δ L → Congruence Δ κ
 
 Congruences : KEnv → Kind → Set
 Congruences Δ κ = List (Congruence Δ κ)
@@ -69,10 +64,11 @@ SemType-R Δ R[ κ ] with SemType-R Δ κ
 ... | c = {!!}
 -- SemType-R (ℓ R▹ λ x : ★. x) makes sense
 -- but evaluating
---   SemType-R {ℓ : λ x. x, l : λ x. ⊤)
+--   SemType-R {a : λ x. x, b : λ x. ⊤}
 -- to a function does not make sense.
+-- This is a separate problem, I think, than the congruence problem.
 SemType-R Δ₁ (κ₁ `→ κ₂) = 
-  NeutralType Δ₁ R[ κ₁ `→ κ₂ ] or SemFunction Δ₁ κ₁ κ₂
+  NeutralType Δ₁ R[ κ₁ `→ κ₂ ] or (NormalType Δ₁ L × SemFunction Δ₁ κ₁ κ₂)
 
 
 -- _ : {!∀ Δ → SemType-R Δ R[ R[ ★ ] ]!}

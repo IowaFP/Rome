@@ -20,8 +20,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 renC : Renaming Δ₁ Δ₂ → Congruence Δ₁ κ → Congruence Δ₂ κ
 renC ρ (x ▹) = ren ρ x ▹
 renC ρ (x R▹) = ren ρ x R▹
-renC ρ Π     = Π
-renC ρ Σ     = Σ
+renC ρ (ΠR▹ x) = ΠR▹ (ren ρ x)
+renC ρ (ΣR▹ x) = ΣR▹ (ren ρ x)
 -- renC ρ R     = R
 
 renCs : Renaming Δ₁ Δ₂ → Congruences Δ₁ κ → Congruences Δ₂ κ
@@ -39,7 +39,7 @@ renSem {κ = κ `→ κ₁} ρ (right ⟨ ws , F ⟩) = right ⟨ renCs ρ ws , 
 renSem-R {κ = ★} ρ τ = ren ρ τ
 renSem-R {κ = L} ρ τ = ren ρ τ
 renSem-R {κ = κ₁ `→ κ₂} ρ (left τ) = left (renNE ρ τ)
-renSem-R {κ = κ₁ `→ κ₂} ρ (right ⟨ w , F ⟩) = right ⟨ renCs ρ w , (λ ρ' → F (ρ' ∘ ρ)) ⟩
+renSem-R {κ = κ₁ `→ κ₂} ρ (right ⟨ l , ⟨ cs , F ⟩ ⟩) = right ⟨ ren ρ l , ⟨ (renCs ρ cs) , (λ ρ' → F (ρ' ∘ ρ)) ⟩ ⟩
 renSem-R {κ = R[ κ ]} ρ τ = {!!}
 
 --------------------------------------------------------------------------------
