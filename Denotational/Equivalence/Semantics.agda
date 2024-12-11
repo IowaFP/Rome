@@ -1,9 +1,9 @@
-open import Prelude
-open import Preludes.Level
+open import Rome.Prelude
+open import Rome.Preludes.Level
 
 module Rome.Denotational.Equivalence.Semantics (g : Potatoes) where
 
-open import Shared.Postulates.FunExt
+open import Rome.Shared.Postulates.FunExt
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax

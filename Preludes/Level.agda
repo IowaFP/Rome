@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Preludes.Level where
+module Rome.Preludes.Level where
 
 --------------------------------------------------------------------------------
 -- Level nonsense

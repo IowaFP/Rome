@@ -1,6 +1,6 @@
 module Rome.Denotational.Kinds.Syntax where
 
-open import Preludes.Level
+open import Rome.Preludes.Level
 open import Rome.Denotational.GVars.Levels
 
 --------------------------------------------------------------------------------

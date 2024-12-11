@@ -1,7 +1,7 @@
-module Prelude where
+module Rome.Prelude where
 
 --------------------------------------------------------------------------------
 -- Re-export
 
-open import Preludes.Data public
-open import Preludes.Relation public
+open import Rome.Preludes.Data public
+open import Rome.Preludes.Relation public

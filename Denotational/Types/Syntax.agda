@@ -1,8 +1,8 @@
 module Rome.Denotational.Types.Syntax where
 
-open import Preludes.Level
-open import Preludes.Relation
-open import Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
+open import Rome.Preludes.Data
 
 open import Rome.Denotational.GVars.Kinds
 open import Rome.Denotational.Kinds.Syntax

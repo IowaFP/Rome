@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Preludes.Relation where
+module Rome.Preludes.Relation where
 
 open import Relation.Nullary
   using (Dec ; yes ; no ; ¬_)

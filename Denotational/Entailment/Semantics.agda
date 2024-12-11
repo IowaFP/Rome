@@ -1,11 +1,11 @@
-open import Prelude
-open import Preludes.Level
+open import Rome.Prelude
+open import Rome.Preludes.Level
 open import Data.Product as DP
 
 module Rome.Denotational.Entailment.Semantics (g : Potatoes) where
 
-open import IndexCalculus.Properties
-import IndexCalculus as Ix
+open import Rome.IndexCalculus.Properties
+import Rome.IndexCalculus as Ix
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax

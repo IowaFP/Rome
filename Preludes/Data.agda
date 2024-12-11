@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Preludes.Data where
+module Rome.Preludes.Data where
 
 --------------------------------------------------------------------------------
 -- Data imports.

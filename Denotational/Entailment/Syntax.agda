@@ -1,9 +1,9 @@
 module Rome.Denotational.Entailment.Syntax where
 
 
-open import Preludes.Data
-open import Preludes.Level
-open import Preludes.Relation
+open import Rome.Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types

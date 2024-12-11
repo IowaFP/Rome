@@ -1,12 +1,12 @@
 {-# OPTIONS --allow-unsolved-metas  --sized-types #-}
-module IndexCalculus.SizedBullshit where
+module Rome.IndexCalculus.SizedBullshit where
 
 open import Agda.Builtin.Size
-open import Preludes.Level
-open import Preludes.Data
-open import IndexCalculus.Rows
-open import IndexCalculus.Variants
--- open import Preludes.Partiality
+open import Rome.Preludes.Level
+open import Rome.Preludes.Data
+open import Rome.IndexCalculus.Rows
+open import Rome.IndexCalculus.Variants
+-- open import Rome.Preludes.Partiality
 
 --------------------------------------------------------------------------------
 -- Denoting recursive types.

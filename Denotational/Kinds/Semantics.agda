@@ -1,11 +1,11 @@
 module Rome.Denotational.Kinds.Semantics where
 
 
-open import Preludes.Level
-open import Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Data
 
 
-open import IndexCalculus using (Row)
+open import Rome.IndexCalculus using (Row)
 
 open import Rome.Denotational.GVars.Levels
 open import Rome.Denotational.Kinds.Syntax

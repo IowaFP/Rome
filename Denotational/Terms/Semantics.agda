@@ -1,10 +1,10 @@
-open import Preludes.Level
-open import Prelude
+open import Rome.Preludes.Level
+open import Rome.Prelude
 
 module Rome.Denotational.Terms.Semantics (tytatos : Potatoes) where
  
-open import Shared.Lib.Equality
-open import Shared.Postulates.FunExt
+open import Rome.Shared.Lib.Equality
+open import Rome.Shared.Postulates.FunExt
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax
@@ -17,9 +17,9 @@ open import Rome.Denotational.Equivalence.Semantics tytatos
 open import Rome.Denotational.Entailment.Syntax 
 open import Rome.Denotational.Entailment.Semantics tytatos
 
-open import IndexCalculus
-open import IndexCalculus.Properties
-import IndexCalculus as Ix
+open import Rome.IndexCalculus
+open import Rome.IndexCalculus.Properties
+import Rome.IndexCalculus as Ix
 
 --------------------------------------------------------------------------------
 -- The meaning of environments.
@@ -97,7 +97,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
     C = Ix.complement (⟦ ev ⟧n H φ)
     y = fst C
     P = snd C
-    P' : ⟦ K ρ₁ ⟧t (H , y) IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
+    P' : ⟦ K ρ₁ ⟧t (H , y) Rome.IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
     P' rewrite sym (Weakening ρ₁ H y) | sym (Weakening ρ₂ H y)  = P 
     
 ⟦ (r₁ ⊹ r₂) π ⟧ g H φ η = do

@@ -1,4 +1,4 @@
-module IndexCalculus.Rows where
+module Rome.IndexCalculus.Rows where
 
 open import Agda.Primitive
 

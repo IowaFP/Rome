@@ -1,9 +1,9 @@
-module IndexCalculus where
+module Rome.IndexCalculus where
 
 --------------------------------------------------------------------------------
 -- Re-export Syntax & Semantics
 
-open import IndexCalculus.Rows public
-open import IndexCalculus.Records public
-open import IndexCalculus.Variants public
-open import IndexCalculus.Recursion public
+open import Rome.IndexCalculus.Rows public
+open import Rome.IndexCalculus.Records public
+open import Rome.IndexCalculus.Variants public
+open import Rome.IndexCalculus.Recursion public

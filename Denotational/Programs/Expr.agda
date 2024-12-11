@@ -1,6 +1,6 @@
 module Rome.Denotational.Programs.Expr where
 
-open import Preludes.Level
+open import Rome.Preludes.Level
 open import Rome
 open import Rome.Denotational.GVars
 

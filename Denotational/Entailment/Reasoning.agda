@@ -1,6 +1,6 @@
 module Rome.Denotational.Entailment.Reasoning where
 
-open import Preludes.Level
+open import Rome.Preludes.Level
 
 open import Function using (id)
 

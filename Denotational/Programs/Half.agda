@@ -1,8 +1,8 @@
 module Rome.Denotational.Programs.Half where
 
-open import Preludes.Level
-open import Preludes.Relation
-open import Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
+open import Rome.Preludes.Data
 open import Rome
 open import Rome.Denotational.GVars
 open import Data.String.Properties using (_≟_)

@@ -1,5 +1,5 @@
-open import Preludes.Level
-open import Prelude
+open import Rome.Preludes.Level
+open import Rome.Prelude
 
 module Rome.Denotational.Types.Substitution.Properties (g : Potatoes) where
 
@@ -7,7 +7,7 @@ open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax
 open import Rome.Denotational.Types.Semantics g
 open import Rome.Denotational.Types.Substitution
-open import Shared.Postulates.FunExt
+open import Rome.Shared.Postulates.FunExt
 
 --------------------------------------------------------------------------------
 -- Preservation of meaning across type-var maps, predicate maps, type maps, and

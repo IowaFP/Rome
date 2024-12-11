@@ -1,12 +1,12 @@
-module IndexCalculus.Recursion where
+module Rome.IndexCalculus.Recursion where
 
-open import Preludes.Level
-open import Preludes.Relation
-open import Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
+open import Rome.Preludes.Data
 open import Data.Empty.Polymorphic using (⊥) public
-open import IndexCalculus.Rows
-open import IndexCalculus.Variants
-open import IndexCalculus.Records
+open import Rome.IndexCalculus.Rows
+open import Rome.IndexCalculus.Variants
+open import Rome.IndexCalculus.Records
 
 --------------------------------------------------------------------------------
 -- Functors.

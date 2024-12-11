@@ -1,20 +1,20 @@
-open import Preludes.Data hiding (∃)
+open import Rome.Preludes.Data hiding (∃)
 
 module Rome.Denotational.Types.Semantics (g : Potatoes) where
 
-open import Preludes.Level
-open import Preludes.Relation
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
 
 open import Rome.Denotational.GVars.Kinds
 
-open import Shared.Postulates.FunExt
+open import Rome.Shared.Postulates.FunExt
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax
 open import Rome.Denotational.Types.Admissible
 open import Rome.Denotational.Types.Substitution
 
-import IndexCalculus as Ix
+import Rome.IndexCalculus as Ix
 
 open import Data.Empty.Polymorphic
 open import Data.Product renaming (Σ to ∃) hiding (∃)

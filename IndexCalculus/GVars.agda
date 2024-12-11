@@ -1,9 +1,9 @@
-module IndexCalculus.GVars where
+module Rome.IndexCalculus.GVars where
 
-open import Prelude
-open import Preludes.Level hiding (suc ; zero)
+open import Rome.Prelude
+open import Rome.Preludes.Level hiding (suc ; zero)
 
-open import IndexCalculus.Rows
+open import Rome.IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Generalized variables.

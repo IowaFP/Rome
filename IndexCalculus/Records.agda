@@ -1,4 +1,4 @@
-module IndexCalculus.Records where
+module Rome.IndexCalculus.Records where
 
 open import Agda.Primitive
 
@@ -16,8 +16,8 @@ open import Data.Product
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
   hiding (fold)  
 
-open import IndexCalculus.Rows
-open import IndexCalculus.Properties
+open import Rome.IndexCalculus.Rows
+open import Rome.IndexCalculus.Properties
 
 --------------------------------------------------------------------------------
 -- Records say: "If you give me an index in range, I can give you a type".

@@ -1,11 +1,11 @@
-module IndexCalculus.Variants.Properties where
+module Rome.IndexCalculus.Variants.Properties where
 
-open import Prelude
-open import Preludes.Level hiding (suc ; zero)
+open import Rome.Prelude
+open import Rome.Preludes.Level hiding (suc ; zero)
 
-open import IndexCalculus.Rows
-open import IndexCalculus.Variants
-open import IndexCalculus.GVars
+open import Rome.IndexCalculus.Rows
+open import Rome.IndexCalculus.Variants
+open import Rome.IndexCalculus.GVars
 
 --------------------------------------------------------------------------------
 -- inverse injection.

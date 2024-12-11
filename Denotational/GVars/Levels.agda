@@ -1,6 +1,6 @@
 module Rome.Denotational.GVars.Levels where
 
-open import Preludes.Level
+open import Rome.Preludes.Level
 
 --------------------------------------------------------------------------------
 -- Generalized Vars.

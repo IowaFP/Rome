@@ -1,10 +1,10 @@
 
 module Rome.Denotational.Types.Admissible where
 
-open import Preludes.Level
-open import Preludes.Data
+open import Rome.Preludes.Level
+open import Rome.Preludes.Data
 
-import IndexCalculus as Ix
+import Rome.IndexCalculus as Ix
 
 open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax

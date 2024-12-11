@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Shared.Lib.Equality where
+module Rome.Shared.Lib.Equality where
 
 open import Relation.Binary.PropositionalEquality using (_≡_; subst)
 

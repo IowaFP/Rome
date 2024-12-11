@@ -1,8 +1,8 @@
 
 module Rome.Denotational.Types.Substitution where
 
-open import Preludes.Level
-open import Preludes.Relation
+open import Rome.Preludes.Level
+open import Rome.Preludes.Relation
 open import Data.Unit using (tt)
 open import Data.Empty using (⊥-elim)
 open import Data.String  using (_≟_)

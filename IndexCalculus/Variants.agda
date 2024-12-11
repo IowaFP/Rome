@@ -1,4 +1,4 @@
-module IndexCalculus.Variants where
+module Rome.IndexCalculus.Variants where
 
 open import Agda.Primitive
 
@@ -13,7 +13,7 @@ open import Data.Product
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
 
-open import IndexCalculus.Rows
+open import Rome.IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Variants say: "Of the types in this row, I can give you exactly one."
