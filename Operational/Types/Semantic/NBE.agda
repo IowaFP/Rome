@@ -81,15 +81,18 @@ right ⟨ w , F ⟩ ·V V = F id V
 --------------------------------------------------------------------------------
 -- Reflection of types
 
+­- collapse back into one function because ITPs lol
 reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 reflect-★ : Type Δ₁ ★ → Env Δ₁ Δ₂ → SemType Δ₂ ★
 reflect-L : Type Δ₁ L → Env Δ₁ Δ₂ → SemType Δ₂ L
 reflect-R : Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
 reflect-→ : Type Δ₁ (κ₁ `→ κ₂) → Env Δ₁ Δ₂ → SemType Δ₂ (κ₁ `→ κ₂)
 
+reflect (l ▹ τ) η = {!!} 
 reflect {κ = ★} τ η = reflect-★ τ η
 reflect {κ = L} τ η = reflect-L τ η
 reflect {κ = _ `→ _} τ η = reflect-→ τ η
+-- reflect {κ = R[ κ₁ `→ κ₂ ]} (ℓ₁ R▹ τ) η = {!!}
 reflect {κ = R[ κ ]} τ η = reflect-R τ η
 
 reflect-★ (` x) η = η x
@@ -134,6 +137,7 @@ reflect-R (` x) η = η x
 reflect-R (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
 reflect-R {κ = ★} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
 reflect-R {κ = L} (τ₁ ▹ τ₂) η = (reflect-L τ₁ η) ▹ (reflect-R τ₂ η)
+-- e.g.  ℓ₁ ▹ (ℓ₂ R▹ ID)
 reflect-R {κ = κ₁ `→ κ₂} (τ₁ ▹ τ₂) η with reflect-R τ₂ η 
 ... | left x = left ((reflect-L τ₁ η) ▹ x)
 ... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (reflect-L τ₁ η) , ⟨ (l ▹) ∷ cs , F ⟩ ⟩
@@ -142,7 +146,7 @@ reflect-R {κ = ★} (τ₁ R▹ τ₂) η = (reflect-L τ₁ η) R▹ (reflect 
 reflect-R {κ = L} (τ₁ R▹ τ₂) η = (reflect-L τ₁ η) R▹ (reflect τ₂ η)
 reflect-R {κ = κ₁ `→ κ₂} (τ₁ R▹ τ₂) η  with reflect-→ τ₂ η 
 ... | left x = left ((reflect-L τ₁ η) R▹ x)
-... | right ⟨ cs , F ⟩ = right ⟨ (reflect-L τ₁ η) , ⟨ cs , F ⟩ ⟩
+... | right F = right ⟨ (reflect-L τ₁ η) , F ⟩
 reflect-R {κ = R[ κ ]} (τ₁ R▹ τ₂) η = {!!}
 reflect-R (Π τ) η = {!!} -- Π (reflect-R τ η)
 reflect-R (Σ τ) η = {!!} -- Π (reflect-R τ η)
@@ -164,10 +168,18 @@ idEnv = reflectNE ∘ `
 -- Labels.
 
 ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
+l l₁ l₂ l₃ : NormalType Δ L
 ℓ  = lab "l"
+l  = lab "l"
+
 ℓ₁ = lab "l1"
+l₁ = lab "l1"
+
 ℓ₂ = lab "l2"
+l₂ = lab "l2"
+
 ℓ₃ = lab "l3"
+l₃ = lab "l3"
 
 ----------------------------------------
 -- Some function types.
@@ -175,50 +187,79 @@ idEnv = reflectNE ∘ `
 apply : Type Δ ((★ `→ ★) `→ ★ `→ ★)
 apply = (`λ (`λ ((` (S Z)) · (` Z))))
 
+_ : ∀ {Δ} → ⇓ (apply {Δ}) ≡ `λ (`λ (ne (` (S Z) · ne (` Z)))) -- (`λ (`λ ((` ?) · ?)))
+_ = refl
+
 ID : Type Δ (★ `→ ★)
 ID = `λ (` Z)
+
+_ : ∀ {Δ} → ⇓ (ID {Δ}) ≡ `λ (ne (` Z))
+_ = refl
 
 Const-U : Type Δ (★ `→ ★)
 Const-U = `λ Unit
 
-_ : Type Δ (★ `→ ★)
-_ = {!⇓ Const-U!}
+_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ Unit
+_ = refl
 
 ----------------------------------------
 -- Simple terms.
 
 A₀ : Type Δ ★
-A₀ = (lab "l") ▹ Unit
+A₀ = ℓ ▹ Unit
 
-_ = {!!} 
+_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡ l ▹ Unit
+_ = refl
 
 ----------------------------------------
 -- Row-kinded function types.
 
-constR : Type Δ R[ ★ `→ ★ ]
-constR = ℓ R▹ (`λ (` Z))
+Id-R : Type Δ R[ ★ `→ ★ ]
+Id-R = ℓ R▹ (`λ (` Z))
 
-_ = {!⇓ constR!}
+_ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡ l R▹ (`λ (ne (` Z)))
+_ = refl
 
 
 ----------------------------------------
--- Terms with congruences.
+-- Function types with congruences. 
 
 C₁ : Type Δ ((★ `→ ★) `→ ★ `→ ★)
 C₁ = (ℓ₁ ▹ (ℓ₂ ▹ apply))
 
+_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ (l₁ ▹ (l₂ ▹ (⇓ apply)))
+_ = refl
+
+
 C₂ : Type Δ ★
 C₂ = (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
+
+_ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ (l₁ ▹ (l₂ ▹ Unit))
+_ = refl
 
 C₃ : Type Δ ★
 C₃ = Π (ℓ R▹ Unit)
 
+_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l R▹ Unit)
+_ = refl
+
 C₄ : Type Δ (★ `→ ★)
 C₄ = Π (ℓ R▹ (`λ (` Z)))
 
--- This case is broken. See C-c C-n below.
+_ : ∀ {Δ} → ⇓ (C₄ {Δ}) ≡ Π (l R▹ `λ (ne (` Z)))
+_ = refl
+
 C₅ : Type Δ (R[ ★ `→ ★ ])
 C₅ = ℓ₁ ▹ (ℓ₂ R▹ ((`λ (` Z))))
 
-_ : {!⇓ C₅!}
+C₆ : Type Δ (R[ ★ `→ ★ ])
+C₆ = ℓ₁ R▹ (ℓ₂ ▹ ((`λ (` Z))))
 
+C₇ : Type Δ (R[ ★ `→ ★ ])
+C₇ = ℓ₁ ▹ (ℓ₂ R▹ (ℓ₃ ▹ ID))
+
+-- an equivalence that shouldn't be happening
+_ : ∀ {Δ} → ⇓ (C₅ {Δ}) ≡ ⇓ (C₆ {Δ})
+_ = {!reflect C₇!} -- refl
+
+-- what about even further nesting...

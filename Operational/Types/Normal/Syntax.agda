@@ -59,7 +59,9 @@ data NeutralType Δ : Kind → Set where
       NeutralType Δ R[ κ ] →
       ------------------
       NeutralType Δ κ
-
+  
+  -- Need that e.g. ↑ F is neutral for
+  -- F : ★ → ★
 
 data NormalType Δ where
 
@@ -96,6 +98,7 @@ data NormalType Δ where
          NormalType Δ (★ `→ ★) →
          -------------
          NormalType Δ ★
+
   ------------------------------------------------------------------
   -- Rω business
 

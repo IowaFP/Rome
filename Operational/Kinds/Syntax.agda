@@ -5,6 +5,19 @@ module Rome.Operational.Kinds.Syntax where
 -- 2.1 Kinds
 open import Rome.Extrinsic.Kinds public
 
+-- data Flat : Kind → Set
+-- data Kind : Set
+
+-- data Kind where
+--   ★     : Kind
+--   L     : Kind
+--   _`→_ : Kind → Kind → Kind
+--   R[_]  : Flat Kind → Kind
+
+-- data Flat where
+-- infixr 5 _`→_
+
+
 --------------------------------------------------------------------------------
 -- 2.2 contexts
 

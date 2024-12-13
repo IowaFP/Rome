@@ -43,7 +43,8 @@ SemType-R : KEnv → Kind → Set
 SemFunction : KEnv → Kind → Kind → Set
 
 SemFunction Δ₁ κ₁ κ₂ = 
-  (Congruences Δ₁ (κ₁ `→ κ₂) × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
+  (Congruences Δ₁ (κ₁ `→ κ₂) × 
+  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
