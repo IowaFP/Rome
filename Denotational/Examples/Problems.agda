@@ -27,8 +27,3 @@ open import Rome.Denotational.Terms -- extensionality
 
 --------------------------------------------------------------------------------
 -- 
-
--- This type is definitely uninhabitable
-shit : ∀ {ℓΔ ℓφ ℓΓ} {Δ : KEnv ℓΔ} {φ : PEnv Δ ℓφ}  {Γ : Env Δ ℓΓ} → Term Δ φ Γ 
-       (Π (Π (lab "l1" R▹ (lab "l2" R▹ Unit))))
-shit {ℓ} = t-≡ {!!} ((lab (lab "l1")) ▹ ((lab (lab "l2")) ▹ lab (lab "Unit")))

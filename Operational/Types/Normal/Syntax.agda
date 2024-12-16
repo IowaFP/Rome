@@ -145,28 +145,32 @@ data NormalType Δ where
 -- 
 
 -- isNE : NormalType Δ κ → Set
--- isNE (ne x) = ⊤
--- isNE Unit = ⊥
--- isNE (`λ τ) = ⊥
+-- isNE (ne x)     = ⊤
+-- isNE (`λ τ)     = ⊤
+-- isNE (`∀ κ τ)   = ⊤
+-- isNE (lab x)    = ⊥
+-- isNE Unit       = ⊥
+-- isNE (τ₁ ▹ τ₂)  = ⊥
+-- isNE (μ τ)      = ⊥
 -- isNE (τ₁ `→ τ₂) = isNE τ₁ × isNE τ₂
--- isNE (`∀ κ τ)  = {!⊥!}
--- isNE (μ τ) = ⊥
--- isNE (lab x) = ⊤
--- isNE (τ₁ ▹ τ₂) = ⊥
--- isNE ⌊ τ ⌋ = isNE τ
--- isNE (Π τ) = isNE τ
--- isNE (Σ τ) = isNE τ
--- isNE (↑ τ) = isNE τ
--- isNE (τ ↑) = isNE τ
+-- isNE ⌊ τ ⌋      = isNE τ
+-- isNE (Π τ)      = isNE τ
+-- isNE (Σ τ)      = isNE τ
+-- isNE (↑ τ)      = isNE τ
+-- isNE (τ ↑)      = isNE τ
 
 -- row-canonicity : (r : NormalType Δ R[ κ ]) → isNE r or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
--- row-canonicity (ne x) = left tt
--- row-canonicity (ℓ ▹ τ) = right ⟨ ℓ , ⟨ τ , refl ⟩ ⟩
--- row-canonicity (Π (ne x)) = {!!}
--- row-canonicity (Π (x ▹ x₁)) = {!!}
--- row-canonicity (Π (Π x)) = {!!}
--- row-canonicity (Π (Σ x)) = {!!}
--- row-canonicity (Σ r) = {!right!}
+-- row-canonicity (ne x)       = left tt
+-- row-canonicity (ℓ ▹ τ)      = right ⟨ ℓ , ⟨ τ , refl ⟩ ⟩
+-- row-canonicity (Π (ne x))   = left tt
+-- row-canonicity (Π (ℓ ▹ τ)) with row-canonicity τ
+-- ... | left x                   = {!!}
+-- ... | right ⟨ x , ⟨ τ' , eq ⟩ ⟩ rewrite eq = right ⟨ ℓ , ⟨ Π (x ▹ τ') , {!!} ⟩ ⟩
+-- -- I think terms at this type are simply uninhabitable.
+-- row-canonicity (Π t) with row-canonicity t
+-- ... | left x = left x
+-- ... | right ⟨ l , ⟨ t , snd₁ ⟩ ⟩ = {!!}
+-- row-canonicity (Σ r)        = {!right!}
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type NormalTypeization
@@ -195,3 +199,5 @@ embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)
 embedNE (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embedNE τ₂)
 embedNE (Π τ) = Π (embedNE τ)
 embedNE (Σ τ) = Σ (embedNE τ)
+
+--------------------------------------------------------------------------------
