@@ -62,16 +62,8 @@ data Type Δ : Kind → Set where
         --------
         Type Δ L
 
-  -- singleton formation
-  -- Remove. At term level replace with stripping/singleton
-  --- formation for Π and Σ separately.
-  _▹_ :
-        Type Δ L → Type Δ κ →
-        -------------------
-        Type Δ κ
-
   -- Row singleton formation
-  _R▹_ :
+  _▹_ :
          Type Δ L → Type Δ κ →
          -------------------
          Type Δ R[ κ ]

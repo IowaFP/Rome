@@ -19,7 +19,6 @@ ren : Renaming Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
 renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
-renNE ρ (τ₁ R▹ τ₂) = ren ρ τ₁ R▹ renNE ρ τ₂
 renNE ρ (Π τ) = Π (renNE ρ τ)
 renNE ρ (Σ τ) = Σ (renNE ρ τ)
 
@@ -33,7 +32,6 @@ ren ρ (Π τ) = Π (ren ρ τ)
 ren ρ (Σ τ) = Σ (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
-ren ρ (ℓ R▹ τ) = (ren ρ ℓ) R▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 ren ρ (↑ τ) = ↑ (ren ρ τ)
 ren ρ (τ ↑) = (ren ρ τ) ↑

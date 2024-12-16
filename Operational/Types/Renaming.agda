@@ -37,7 +37,6 @@ ren ρ (Π τ) = Π (ren ρ τ)
 ren ρ (Σ τ) = Σ (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
-ren ρ (ℓ R▹ τ) = (ren ρ ℓ) R▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 ren ρ (↑ τ) = ↑ (ren ρ τ)
 ren ρ (τ ↑) = (ren ρ τ) ↑

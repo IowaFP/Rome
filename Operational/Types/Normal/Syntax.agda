@@ -36,13 +36,7 @@ data NeutralType Δ : Kind → Set where
 
   _▹_ :
     
-      NormalType Δ L → 
-      NeutralType Δ κ →
-      ------------------
-      NeutralType Δ κ
-
-  _R▹_ :
-    
+      -- change this to neutral.
       NormalType Δ L → 
       NeutralType Δ κ →
       ------------------
@@ -109,14 +103,8 @@ data NormalType Δ where
         --------
         NormalType Δ L
 
-  -- singleton formation
-  _▹_ :
-        NormalType Δ L → NormalType Δ κ →
-        -------------------
-        NormalType Δ κ
-
   -- Row singleton formation
-  _R▹_ :
+  _▹_ :
          NormalType Δ L → NormalType Δ κ →
          -------------------
          NormalType Δ R[ κ ]
@@ -124,7 +112,7 @@ data NormalType Δ where
   -- label constant formation
   ⌊_⌋ :
         NormalType Δ L →
-        ----------
+        -----------------
         NormalType Δ ★
 
   Π     :
@@ -153,6 +141,32 @@ data NormalType Δ where
        NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 
+--------------------------------------------------------------------------------
+-- 
+
+-- isNE : NormalType Δ κ → Set
+-- isNE (ne x) = ⊤
+-- isNE Unit = ⊥
+-- isNE (`λ τ) = ⊥
+-- isNE (τ₁ `→ τ₂) = isNE τ₁ × isNE τ₂
+-- isNE (`∀ κ τ)  = {!⊥!}
+-- isNE (μ τ) = ⊥
+-- isNE (lab x) = ⊤
+-- isNE (τ₁ ▹ τ₂) = ⊥
+-- isNE ⌊ τ ⌋ = isNE τ
+-- isNE (Π τ) = isNE τ
+-- isNE (Σ τ) = isNE τ
+-- isNE (↑ τ) = isNE τ
+-- isNE (τ ↑) = isNE τ
+
+-- row-canonicity : (r : NormalType Δ R[ κ ]) → isNE r or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
+-- row-canonicity (ne x) = left tt
+-- row-canonicity (ℓ ▹ τ) = right ⟨ ℓ , ⟨ τ , refl ⟩ ⟩
+-- row-canonicity (Π (ne x)) = {!!}
+-- row-canonicity (Π (x ▹ x₁)) = {!!}
+-- row-canonicity (Π (Π x)) = {!!}
+-- row-canonicity (Π (Σ x)) = {!!}
+-- row-canonicity (Σ r) = {!right!}
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type NormalTypeization
@@ -172,7 +186,6 @@ embed (Π τ) = Π (embed τ)
 embed (Σ τ) = Σ (embed τ)
 embed (lab l) = lab l
 embed (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embed τ₂)
-embed (τ₁ R▹ τ₂) = (embed τ₁) R▹ (embed τ₂)
 embed ⌊ τ ⌋ = ⌊ embed τ ⌋
 embed (↑ τ) = ↑ (embed τ)
 embed (τ ↑) = (embed τ) ↑
@@ -180,6 +193,5 @@ embed (τ ↑) = (embed τ) ↑
 embedNE (` x) = ` x
 embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)
 embedNE (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embedNE τ₂)
-embedNE (τ₁ R▹ τ₂) = (embed τ₁) R▹ (embedNE τ₂)
 embedNE (Π τ) = Π (embedNE τ)
 embedNE (Σ τ) = Σ (embedNE τ)
