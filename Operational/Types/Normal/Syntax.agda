@@ -177,27 +177,27 @@ data NormalType Δ where
 --
 -- (OMITTED).
 
-embed : NormalType Δ κ → Type Δ κ
-embedNE : NeutralType Δ κ → Type Δ κ
+⇑ : NormalType Δ κ → Type Δ κ
+⇑NE : NeutralType Δ κ → Type Δ κ
 
-embed Unit   = Unit
-embed (ne x) = embedNE x
-embed (`λ τ) = `λ (embed τ)
-embed (τ₁ `→ τ₂) = embed τ₁ `→ embed τ₂
-embed (`∀ κ τ) = `∀ κ (embed τ)
-embed (μ τ) = μ (embed τ)
-embed (Π τ) = Π (embed τ)
-embed (Σ τ) = Σ (embed τ)
-embed (lab l) = lab l
-embed (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embed τ₂)
-embed ⌊ τ ⌋ = ⌊ embed τ ⌋
-embed (↑ τ) = ↑ (embed τ)
-embed (τ ↑) = (embed τ) ↑
+⇑ Unit   = Unit
+⇑ (ne x) = ⇑NE x
+⇑ (`λ τ) = `λ (⇑ τ)
+⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
+⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
+⇑ (μ τ) = μ (⇑ τ)
+⇑ (Π τ) = Π (⇑ τ)
+⇑ (Σ τ) = Σ (⇑ τ)
+⇑ (lab l) = lab l
+⇑ (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑ τ₂)
+⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
+⇑ (↑ τ) = ↑ (⇑ τ)
+⇑ (τ ↑) = (⇑ τ) ↑
 
-embedNE (` x) = ` x
-embedNE (τ₁ · τ₂) = (embedNE τ₁) · (embed τ₂)
-embedNE (τ₁ ▹ τ₂) = (embed τ₁) ▹ (embedNE τ₂)
-embedNE (Π τ) = Π (embedNE τ)
-embedNE (Σ τ) = Σ (embedNE τ)
+⇑NE (` x) = ` x
+⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
+⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
+⇑NE (Π τ) = Π (⇑NE τ)
+⇑NE (Σ τ) = Σ (⇑NE τ)
 
 --------------------------------------------------------------------------------

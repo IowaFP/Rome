@@ -25,7 +25,7 @@ Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
 
 -- Effectively: denormalize `n`, substitute, then normalize.
 sub : Sub Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
-sub σ n = ⇓ (TypeSub.sub (embed ∘ σ) (embed n))
+sub σ n = ⇓ (TypeSub.sub (⇑ ∘ σ) (⇑ n))
 
 extend : Sub Δ₁ Δ₂ → (A : NormalType Δ₂ κ) → Sub (Δ₁ ,, κ) Δ₂
 extend σ A Z = A
