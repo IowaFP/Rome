@@ -1,4 +1,4 @@
-module Rome.Operational.Types.Properties.Stability where
+module Rome.Operational.Types.Theorems.Stability where
 
 open import Rome.Operational.Prelude
 
@@ -14,9 +14,9 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
--- - stability: ⇑ is right-inverse to ⇓ 
---   or, ⇓ is a split-epimorphism.
--- - stabilityNE: reflect ∘ ⇑NE  = reflectNE
+-- - stability : ⇑ is right-inverse to ⇓ 
+--     or, ⇓ is a split-monomorphism/section.
+-- - stabilityNE : reflect ∘ ⇑NE  = reflectNE
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ

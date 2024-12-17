@@ -35,8 +35,8 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ⟨ nope , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Π x xs , F ⟩) with reify (right ⟨ xs , F ⟩) 
-... | c = {!!} -- Π (x ▹ ))
+reify {κ = κ₁ `→ κ₂} (right ⟨ Π x xs , F ⟩) = {!!} -- with reify (right ⟨ xs , F ⟩) 
+-- ... | c = {!!} -- Π (x ▹ ))
 -- ... | c = Π (x ▹ {!!}) -- Π (reify (right ⟨ x , ⟨ cs , {!!} ⟩ ⟩))
 reify {κ = κ₁ `→ κ₂} (right ⟨ Σ x xs , F ⟩) = {!!}
 reify {κ = R[ ★ ]} τ = τ
