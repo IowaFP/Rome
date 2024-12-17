@@ -1,0 +1,11 @@
+relabel : ∀ ρ₁ ρ₂ ls : R[ ★ ]. ∀ new old : L.
+          (new ▹ ⌊ old ⌋) ≲ ls, (old ▹ τ) ≲ ρ₁, (new ▹ τ) ≲ ρ₂ ⇒ 
+          Π ls → Π ρ₁ → Π ρ₂
+relabel =
+  Λ ρ₁ ρ₂ ls. 
+  λ names : Π ls. λ d : Π ρ₁.
+  syn (λ l : ⌊ L ⌋. sel d (sel names l))
+
+relabel (person_id ▹ label "Id") (Id ▹ 1, Name ▹ "Hugh Janus")
+≡ 
+ (boat_id ▹ 1, Name ▹ "Hugh Janus")
