@@ -1,4 +1,4 @@
-module Rome.Operational.Types.Normal.Properties where
+module Rome.Operational.Types.Normal.Properties.Renaming where
 
 open import Rome.Operational.Prelude
 
@@ -7,7 +7,7 @@ open import Rome.Operational.Kinds.GVars
 
 import Rome.Operational.Types as Types
 import Rome.Operational.Types.Properties as TypeProps
-open TypeProps using (↑-cong ; ↑-id ; ↑-comp)
+open TypeProps using (lift-cong ; lift-id ; lift-comp)
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; ↑)
 
 open import Rome.Operational.Types.Normal
@@ -28,14 +28,14 @@ ren-cong-ne eq (ν · τ) rewrite
 ren-cong eq (ne ν) rewrite 
   ren-cong-ne eq ν = refl
 ren-cong eq (`λ τ) rewrite 
-  ren-cong (TypeProps.↑-cong eq) τ = refl 
+  ren-cong (TypeProps.lift-cong eq) τ = refl 
 ren-cong eq (τ₁ `→ τ₂) rewrite 
     ren-cong eq τ₁ 
   | ren-cong eq τ₂ = refl
 ren-cong eq (`∀ κ τ) rewrite 
-  ren-cong (TypeProps.↑-cong eq) τ = refl 
+  ren-cong (TypeProps.lift-cong eq) τ = refl 
 ren-cong eq (μ τ) rewrite 
-  ren-cong (TypeProps.↑-cong eq) τ = refl 
+  ren-cong (TypeProps.lift-cong eq) τ = refl 
 
 --------------------------------------------------------------------------------
 -- Renaming preserves identities (functor law #1)
@@ -50,16 +50,16 @@ ren-id-ne (τ₁ · τ₂) rewrite
 
 ren-id (ne ν) rewrite ren-id-ne ν = refl
 ren-id (`λ τ) rewrite 
-    ren-cong ↑-id τ 
+    ren-cong lift-id τ 
   | ren-id τ = refl 
 ren-id (τ₁ `→ τ₂) rewrite 
     ren-id τ₁ 
   | ren-id τ₂ = refl
 ren-id (`∀ κ τ) rewrite 
-    ren-cong ↑-id τ 
+    ren-cong lift-id τ 
   | ren-id τ = refl
 ren-id (μ τ) rewrite 
-    ren-cong ↑-id τ 
+    ren-cong lift-id τ 
   | ren-id τ = refl
 
 --------------------------------------------------------------------------------
@@ -76,14 +76,14 @@ ren-comp-ne ρ₁ ρ₂ (ν · τ) rewrite
 
 ren-comp ρ₁ ρ₂ (ne ν) rewrite ren-comp-ne ρ₁ ρ₂ ν  = refl
 ren-comp ρ₁ ρ₂ (`λ τ)  rewrite
-  trans (ren-cong (↑-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ) = refl
+  trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ) = refl
 ren-comp ρ₁ ρ₂ (τ₁ `→ τ₂) rewrite
     ren-comp ρ₁ ρ₂ τ₁ 
   | ren-comp ρ₁ ρ₂ τ₂ = refl
 ren-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
-  (trans (ren-cong (↑-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ)) = refl
+  (trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ)) = refl
 ren-comp ρ₁ ρ₂ (μ τ) rewrite
-  (trans (ren-cong (↑-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ)) = refl
+  (trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (↑ ρ₁) (↑ ρ₂) τ)) = refl
 
 --------------------------------------------------------------------------------
 -- Auxiliary lemmas
@@ -100,7 +100,7 @@ postulate
   comm-sub-↑      : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
                       sub (↑s σ) τ 
                     ≡ 
-                      eval (Types.sub (Types.↑s (embed ∘ σ)) (embed τ)) (↑e (idEnv))
+                      reflect (Types.sub (Types.↑s (embed ∘ σ)) (embed τ)) (↑e (idEnv))
 
   comm-sub-β      : ∀ (σ : Sub Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                       sub σ (τ₁ β[ τ₂ ])

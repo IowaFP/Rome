@@ -54,8 +54,18 @@ data NeutralType Δ : Kind → Set where
       ------------------
       NeutralType Δ κ
   
-  -- Need that e.g. ↑ F is neutral for
-  -- F : ★ → ★
+  ↑_ : 
+
+       NeutralType Δ R[ κ₁ `→ κ₂ ] →
+       ------------------------------
+       NeutralType Δ (κ₁ `→ R[ κ₂ ])
+
+
+  _↑ : 
+
+       NeutralType Δ (κ₁ `→ κ₂) →
+       ------------------------------
+       NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 data NormalType Δ where
 
@@ -199,5 +209,7 @@ data NormalType Δ where
 ⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
 ⇑NE (Π τ) = Π (⇑NE τ)
 ⇑NE (Σ τ) = Σ (⇑NE τ)
+⇑NE (↑ F) = ↑ (⇑NE F)
+⇑NE (F ↑) = (⇑NE F) ↑
 
 --------------------------------------------------------------------------------
