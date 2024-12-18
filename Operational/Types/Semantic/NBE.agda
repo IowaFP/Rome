@@ -130,7 +130,11 @@ reflect {κ = κ₁ `→ κ₂} (`λ τ) η = right ⟨
 reflect {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η 
 ... | left x = left (Π x)
-... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (just (Π l)) , F ⟩
+  -- Ideally this case would not be happening.
+  -- Need to think on what term actually would spark this case.
+... | right ⟨ l₁ , c@(⟨ just (Π l₂) , F ⟩) ⟩ = {!!} -- right ⟨ (just (Π l₁)) , F ⟩
+... | right ⟨ l₁ , ⟨ just (Σ x) , F ⟩ ⟩      = {!!}
+... | right ⟨ l₁ , ⟨ nothing , F ⟩ ⟩         = right ⟨ (just (Π l₁)) , F ⟩
 reflect {κ = κ₁ `→ κ₂} (Σ τ) η = {!!} -- with reflect τ η
 -- ... | left x = left (Π x)
 -- ... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!} -- right ⟨ (Σ l ∷ cs) , F ⟩
@@ -264,6 +268,11 @@ _ = {!⇓ C₃!}
 -- -- I doubt also that normalization is stable: 
 -- --   ∀ τ. ⇓ (embed τ) ≡ τ
 
+shit₁ : Type Δ ★
+shit₁ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+
+_ : ⇓ shit₁ ≡ Π▹ l₁ (Π▹ l₂ Unit)
+_ = {!!}
 
 -- shit₂ : NormalType Δ (★ `→ ★)
 -- shit₂ = Π (Σ (l₁ ▹ (l₂ ▹ (`λ (ne (` Z)))))) 
