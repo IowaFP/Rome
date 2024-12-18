@@ -22,10 +22,13 @@ data Var : Context Δ → NormalType Δ ★ → Set where
   S : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → Var Γ τ₁  → Var (Γ , τ₂) τ₁
   T : ∀ {Γ} {τ : NormalType Δ ★} → Var Γ τ → Var (Γ ,, κ) (weaken τ)
 
+private
+  variable
+    τ υ τ₁ τ₂ : NormalType Δ ★
+    ℓ ℓ₁ ℓ₂   : NormalType Δ L
+    
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
-  ` : ∀ {τ} →
- 
-      Var Γ τ → 
+  ` : Var Γ τ → 
       --------
       NormalTerm Γ τ
 
@@ -41,6 +44,9 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
        NormalTerm Γ τ₁ → 
        ---------
        NormalTerm Γ τ₂
+  
+  ------------------------------------------------------------
+  -- System Fω
 
   Λ : ∀ {τ} →
 
@@ -55,17 +61,67 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
           ----------------
           NormalTerm Γ (τ₂ β[ τ₁ ])
 
+  ------------------------------------------------------------
+  -- Recursive types
+
   roll : 
-         ∀ τ → 
-         NormalTerm Γ (τ β[ μ τ ]) → 
+         ∀ F → 
+         -- lol. Okay, neutrality is not quite accurate for our needs.
+         NormalTerm Γ (F · μ F) → 
          -----------------
-         NormalTerm Γ (μ τ)
+         NormalTerm Γ (μ F)
 
   unroll : 
-         ∀ τ → 
-         NormalTerm Γ (μ τ) → 
-         --------------
-         NormalTerm Γ (τ β[ μ τ ])
+           ∀ F → 
+           NormalTerm Γ (μ F) → 
+           --------------
+           NormalTerm Γ (F ·  μ F)
+
+  ------------------------------------------------------------
+  -- Qualified types
+  
+  -- ...
+
+  ------------------------------------------------------------
+  -- Rω labels
+
+  -- labels
+  lab : 
+
+        ∀ (l : NormalType Δ L) →
+        -------------------
+        NormalTerm Γ ⌊ l ⌋
+
+  ------------------------------------------------------------
+  -- Rω records
+
+  -- Record singleton formation
+  _Π▹_ : 
+          (M₁ : NormalTerm Γ ⌊ ℓ ⌋) (M₂ : NormalTerm Γ υ) →
+          ----------------------------------------
+          NormalTerm Γ (Π (ℓ ▹ υ))
+
+  -- Record singleton elimination
+  _Π/_ :
+          (M₁ : NormalTerm Γ (Π (ℓ ▹ υ))) (M₂ : NormalTerm Γ ⌊ ℓ ⌋) →
+          ----------------------------------------
+          NormalTerm Γ υ
+
+  ------------------------------------------------------------
+  -- Rω variants
+
+  -- Record singleton formation
+  _Σ▹_ : 
+          (M₁ : NormalTerm Γ ⌊ ℓ ⌋) (M₂ : NormalTerm Γ υ) →
+          ----------------------------------------
+          NormalTerm Γ (Σ (ℓ ▹ υ))
+
+  -- Record singleton elimination
+  _Σ/_ :
+          (M₁ : NormalTerm Γ (Σ (ℓ ▹ υ))) (M₂ : NormalTerm Γ ⌊ ℓ ⌋) →
+          ----------------------------------------
+          NormalTerm Γ υ
+
 
 --------------------------------------------------------------------------------
 -- helpers.
