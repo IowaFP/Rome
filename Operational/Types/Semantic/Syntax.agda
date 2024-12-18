@@ -24,10 +24,9 @@ open import Rome.Operational.Types.Normal.Renaming
 --   ⇓ τ ≊ τ 
 -- but we must reflect the function portion (λ x. x) into an Agda function.
 
-data Congruences (Δ : KEnv) : Kind → Set where
-  nope : Congruences Δ κ
-  Π  : NormalType Δ L → Congruences Δ R[ κ ] → Congruences Δ κ
-  Σ  : NormalType Δ L → Congruences Δ R[ κ ] → Congruences Δ κ
+data Congruence (Δ : KEnv) : Set where
+  Π  : NormalType Δ L → Congruence Δ
+  Σ  : NormalType Δ L → Congruence Δ
 
 
 
@@ -36,29 +35,32 @@ data Congruences (Δ : KEnv) : Kind → Set where
 -- Semantic types.
 
 SemType : KEnv → Kind → Set
-SemType-R : KEnv → Kind → Set
+-- SemType-R : KEnv → Kind → Set
 SemFunction : KEnv → Kind → Kind → Set
 
-SemFunction Δ₁ κ₁ κ₂ = 
-  (Congruences Δ₁ (κ₁ `→ κ₂) × 
-  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂))
+SemFunction Δ₁ κ₁ κ₂ = Maybe (Congruence Δ₁) × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
   NeutralType Δ₁ (κ₁ `→ κ₂) or SemFunction Δ₁ κ₁ κ₂
-SemType Δ R[ κ ] = SemType-R Δ κ
+SemType Δ R[ ★ ] = NormalType Δ R[ ★ ]
+SemType Δ R[ L ] = NormalType Δ R[ L ]
+SemType Δ R[ κ₁ `→ κ₂ ] = 
+  NeutralType Δ R[ κ₁ `→ κ₂ ] or 
+  (NormalType Δ L × SemFunction Δ κ₁ κ₂)
+SemType Δ R[ R[ κ ] ] = {!!}
 
--- E.g. SemType-R (ℓ R▹ ⊤)
-SemType-R Δ ★ = NormalType Δ R[ ★ ]
--- E.g. SemType-R (ℓ R▹ ℓ)
-SemType-R Δ L = NormalType Δ R[ L ]
--- E.g. SemType-R (ℓ R▹ (ℓ R▹ τ))
-SemType-R Δ R[ κ ] with SemType-R Δ κ
-... | c = {!!}
--- E.g. SemType-R (ℓ ▹ λ x : ★. x)
-SemType-R Δ₁ (κ₁ `→ κ₂) = 
-  NeutralType Δ₁ R[ κ₁ `→ κ₂ ] or (NormalType Δ₁ L × SemFunction Δ₁ κ₁ κ₂)
+-- -- E.g. SemType-R (ℓ ▹ ⊤)
+-- SemType-R Δ ★ = NormalType Δ R[ ★ ]
+-- -- E.g. SemType-R (ℓ ▹ ℓ)
+-- SemType-R Δ L = NormalType Δ R[ L ]
+-- -- E.g. SemType-R (ℓ₁ ▹ (ℓ₂ ▹ τ))
+-- SemType-R Δ R[ κ ] with SemType-R Δ κ
+-- ... | c = {!!}
+-- -- E.g. SemType-R (ℓ ▹ λ x : ★. x)
+-- SemType-R Δ₁ (κ₁ `→ κ₂) = 
+--   NeutralType Δ₁ R[ κ₁ `→ κ₂ ] or (NormalType Δ₁ L × SemFunction Δ₁ κ₁ κ₂)
 
 
--- _ : {!∀ Δ → SemType-R Δ R[ R[ ★ ] ]!}
+-- -- _ : {!∀ Δ → SemType-R Δ R[ R[ ★ ] ]!}

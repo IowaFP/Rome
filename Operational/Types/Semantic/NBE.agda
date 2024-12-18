@@ -34,11 +34,9 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right ⟨ nope , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Π x xs , F ⟩) = {!!} -- with reify (right ⟨ xs , F ⟩) 
--- ... | c = {!!} -- Π (x ▹ ))
--- ... | c = Π (x ▹ {!!}) -- Π (reify (right ⟨ x , ⟨ cs , {!!} ⟩ ⟩))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Σ x xs , F ⟩) = {!!}
+reify {κ = κ₁ `→ κ₂} (right ⟨ nothing , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ just (Π l) , F ⟩) = Π▹ l (`λ (reify (F S (reflectNE {κ = κ₁} (` Z)))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ just (Σ l) , F ⟩) = {!!}
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
@@ -90,7 +88,17 @@ reflect {κ = ★} (μ τ) η with reflect τ η
 -- This is just η-expansion
 ... | right ⟨ w , F ⟩ = μ (`λ (F S (ne (` Z)))) 
 reflect {κ = ★} ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
-reflect {κ = ★} (Π τ) η = Π (reflect τ η)
+reflect {κ = ★} (Π τ) η with reflect τ η 
+... | ne x = ne (Π x)
+... | l ▹ τ = Π▹ l τ
+... | Π▹ l τ  = Π▹ l (go τ)
+  where
+    go : NormalType Δ R[ ★ ] → NormalType Δ ★
+    go (ne x) = ne (Π x)
+    go (l' ▹ t₂) = Π▹ l' t₂
+    go (Π▹ l' t) = Π▹ l' (go t)
+    go (Σ t) = {!!}
+... | Σ c = {!!}
 reflect {κ = ★} (Σ τ) η = Σ (reflect τ η)
 
 -- ----------------------------------------
@@ -99,23 +107,33 @@ reflect {κ = ★} (Σ τ) η = Σ (reflect τ η)
 reflect {κ = L} (` x) η = η x
 reflect {κ = L} (τ₁ · τ₂) η = (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect {κ = L} (lab l) η = lab l
-reflect {κ = L} (Π τ) η = Π (reflect τ η)
+reflect {κ = L} (Π τ) η with reflect τ η 
+... | ne x = ne (Π x)
+... | l ▹ τ = Π▹ l τ
+... | Π▹ l τ  = Π▹ l (go τ)
+  where
+    go : NormalType Δ R[ L ] → NormalType Δ L
+    go (ne x) = ne (Π x)
+    go (l' ▹ t₂) = Π▹ l' t₂
+    go (Π▹ l' t) = Π▹ l' (go t)
+    go (Σ t) = {!!}
+... | Σ c = {!!}
 reflect {κ = L} (Σ τ) η = Σ (reflect τ η)
 
 -- ----------------------------------------
 -- -- function reflection.
 
 reflect {κ = κ₁ `→ κ₂} (` x) η = η x
-reflect {κ = κ₁ `→ κ₂} (`λ τ) η = 
-  right ⟨ nope , 
-    (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
+reflect {κ = κ₁ `→ κ₂} (`λ τ) η = right ⟨ 
+  nothing , 
+  (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
 reflect {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
-reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η
+reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η 
 ... | left x = left (Π x)
-... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ Π l {!!} , F ⟩ -- right ⟨ l , ⟨ (Π ∷ cs) , F ⟩ ⟩
-reflect {κ = κ₁ `→ κ₂} (Σ τ) η with reflect τ η
-... | left x = left (Π x)
-... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {! !} -- right ⟨ (ΣR▹ l ∷ cs) , F ⟩
+... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = right ⟨ (just (Π l)) , F ⟩
+reflect {κ = κ₁ `→ κ₂} (Σ τ) η = {!!} -- with reflect τ η
+-- ... | left x = left (Π x)
+-- ... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!} -- right ⟨ (Σ l ∷ cs) , F ⟩
 reflect {κ = κ₁ `→ κ₂} (↑ τ) η = {!!}
 reflect {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
 
@@ -220,50 +238,48 @@ _ = refl
 C₁ : Type Δ ★
 C₁ = Π (ℓ ▹ Unit)
 
-_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ Unit)
+_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π▹ l Unit
 _ = refl
 
 C₂ : Type Δ (★ `→ ★)
 C₂ = Π (ℓ ▹ (`λ (` Z)))
 
-_ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ Π (l ▹ `λ (ne (` Z)))
-_ = {!reflect C₂ !}
+_ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ Π▹ l (`λ (ne (` Z)))
+_ = refl 
 
 C₃ : Type Δ R[ ★ ]
 C₃ = Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
 
-_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (l₂ ▹ Unit))
-_ = {!!}
+_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ (l₁ ▹ Π▹ l₂ Unit)
+_ = {!⇓ C₃!}
 
 
-----------------------------------------
--- Tricky business.
+-- ----------------------------------------
+-- -- Tricky business.
 
--- These types imply my definition of semantic types at row kind is inaccurate:
--- I am working under the assumption that where there's a row there's a label---
--- which is sort of true---but not necessarily of canonical form.  My
--- representation is a bit fucked for the following terms.
--- I doubt also that normalization is stable: 
---   ∀ τ. ⇓ (embed τ) ≡ τ
+-- -- These types imply my definition of semantic types at row kind is inaccurate:
+-- -- I am working under the assumption that where there's a row there's a label---
+-- -- which is sort of true---but not necessarily of canonical form.  My
+-- -- representation is a bit fucked for the following terms.
+-- -- I doubt also that normalization is stable: 
+-- --   ∀ τ. ⇓ (embed τ) ≡ τ
 
-shit₁ : NormalType Δ (★ `→ ★)
-shit₁ = Π (Π (l₁ ▹ (l₂ ▹ `λ (ne (` Z)))))
 
-shit₂ : NormalType Δ (★ `→ ★)
-shit₂ = Π (Σ (l₁ ▹ (l₂ ▹ (`λ (ne (` Z)))))) 
+-- shit₂ : NormalType Δ (★ `→ ★)
+-- shit₂ = Π (Σ (l₁ ▹ (l₂ ▹ (`λ (ne (` Z)))))) 
 
-shit₃ : NormalType Δ (R[ ★ `→ ★ ])
-shit₃ = Π (Π (l₁ ▹ (l₂ ▹ (l₃ ▹ (`λ (ne (` Z)))))))
+-- shit₃ : NormalType Δ (R[ ★ `→ ★ ])
+-- shit₃ = Π (Π (l₁ ▹ (l₂ ▹ (l₃ ▹ (`λ (ne (` Z)))))))
 
 
 
---------------------------------------------------------------------------------
--- Claims.
+-- --------------------------------------------------------------------------------
+-- -- Claims.
 
--- row-canonicity : (r : Type Δ R[ κ ]) → ∃[ x ] ∃[ τ ] ((⇓ r ≡ (x ▹ τ)) or isNE (⇓ r))
--- row-canonicity (` x) = {!!}
--- row-canonicity (r · r₁) = {!!}
--- row-canonicity (r ▹ r₁) = {!!}
--- row-canonicity (Π r) with ⇓ r 
--- ... | c = ⟨ {!!} , ⟨ {!!} , {!!} ⟩ ⟩
--- row-canonicity (Σ r) = {!!}
+-- -- row-canonicity : (r : Type Δ R[ κ ]) → ∃[ x ] ∃[ τ ] ((⇓ r ≡ (x ▹ τ)) or isNE (⇓ r))
+-- -- row-canonicity (` x) = {!!}
+-- -- row-canonicity (r · r₁) = {!!}
+-- -- row-canonicity (r ▹ r₁) = {!!}
+-- -- row-canonicity (Π r) with ⇓ r 
+-- -- ... | c = ⟨ {!!} , ⟨ {!!} , {!!} ⟩ ⟩
+-- -- row-canonicity (Σ r) = {!!}

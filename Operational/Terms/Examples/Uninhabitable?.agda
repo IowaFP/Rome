@@ -18,5 +18,5 @@ open import Rome.Operational.Terms.Syntax
 shit₁ : Type Δ ★
 shit₁ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-shit  : ∀ {Γ} → Term Γ shit₁ → Set
-shit m = {!!}
+shit  : ∀ {Γ} → Term Γ shit₁
+shit = {!!}

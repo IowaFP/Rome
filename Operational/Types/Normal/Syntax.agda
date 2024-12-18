@@ -18,21 +18,28 @@ open import Rome.Operational.Types.Properties
 --    (ii) applications with variables stuck in head position. 
 --         (And hence cannot reduce).
 -- - NormalType types are types precluded from any applications (barring neutral forms).
+--
+-- PROBLEMS:
+--  - We should expect that (F ↑) · (l ▹ τ) is not in normal form, however it is by this
+--    definition.
+--  - I've changed the definition of μ to take F : Set → Set rather than be a 
+--    binding site---but we later want terms to be indexed by NormalTypes, and 
+--    F (μ F) is not necessarily in normal form (it is so only if F is neutral).
 
 data NormalType (Δ : KEnv) : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
       KVar Δ κ →
-      --------
+      ---------------
       NeutralType Δ κ
 
   _·_ : 
       
-        NeutralType Δ (κ₁ `→ κ) → 
-        NormalType Δ κ₁ → 
-        ------------
-        NeutralType Δ κ
+      NeutralType Δ (κ₁ `→ κ) → 
+      NormalType Δ κ₁ → 
+      ---------------------------
+      NeutralType Δ κ
 
   _▹_ :
     
@@ -48,60 +55,61 @@ data NeutralType Δ : Kind → Set where
       ------------------
       NeutralType Δ κ
 
-  Σ  : 
+  -- Σ  : 
 
-      NeutralType Δ R[ κ ] →
-      ------------------
-      NeutralType Δ κ
+  --     NeutralType Δ R[ κ ] →
+  --     ------------------
+  --     NeutralType Δ κ
   
-  ↑_ : 
+  -- ↑_ : 
 
-       NeutralType Δ R[ κ₁ `→ κ₂ ] →
-       ------------------------------
-       NeutralType Δ (κ₁ `→ R[ κ₂ ])
-
+  --     NeutralType Δ R[ κ₁ `→ κ₂ ] →
+  --     ------------------------------
+  --     NeutralType Δ (κ₁ `→ R[ κ₂ ])
 
   _↑ : 
 
-       NeutralType Δ (κ₁ `→ κ₂) →
-       ------------------------------
-       NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+      NeutralType Δ (κ₁ `→ κ₂) →
+      ------------------------------
+      NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 data NormalType Δ where
 
   Unit :
        
-        --------------
-        NormalType Δ ★ 
+      --------------
+      NormalType Δ ★ 
+
   ne : 
-       NeutralType Δ κ → 
-       --------------
-       NormalType Δ κ
+
+      NeutralType Δ κ → 
+      --------------
+      NormalType Δ κ
 
   `λ :
 
       NormalType (Δ ,, κ₁) κ₂ → 
-      ---------------
+      --------------------------
       NormalType Δ (κ₁ `→ κ₂)
 
   _`→_ : 
 
-         NormalType Δ ★ →
-         NormalType Δ ★ → 
-         --------
-         NormalType Δ ★
+      NormalType Δ ★ →
+      NormalType Δ ★ → 
+      -----------------
+      NormalType Δ ★
 
   `∀    :
       
-         (κ : Kind) → NormalType (Δ ,, κ) ★ →
-         -------------
-         NormalType Δ ★
+      (κ : Kind) → NormalType (Δ ,, κ) ★ →
+      --------------------------------------
+      NormalType Δ ★
 
   μ     :
       
-         NormalType Δ (★ `→ ★) →
-         -------------
-         NormalType Δ ★
+      NormalType Δ (★ `→ ★) →
+      -------------------------
+      NormalType Δ ★
 
   ------------------------------------------------------------------
   -- Rω business
@@ -109,46 +117,52 @@ data NormalType Δ where
   -- labels
   lab :
     
-        Label → 
-        --------
-        NormalType Δ L
+      Label → 
+      --------
+      NormalType Δ L
 
   -- Row singleton formation
   _▹_ :
-         NormalType Δ L → NormalType Δ κ →
-         -------------------
-         NormalType Δ R[ κ ]
+      NormalType Δ L → NormalType Δ κ →
+      -------------------
+      NormalType Δ R[ κ ]
 
   -- label constant formation
   ⌊_⌋ :
-        NormalType Δ L →
-        -----------------
-        NormalType Δ ★
+      NormalType Δ L →
+      -----------------
+      NormalType Δ ★
 
-  Π     :
+  -- Π     :
 
-          NormalType Δ R[ κ ] → 
-          ----------------
-          NormalType Δ κ
+  --     NeutralType Δ R[ κ ] → 
+  --     -----------------------
+  --     NormalType Δ κ
+
+  Π▹ :
+
+      NormalType Δ L →  NormalType Δ κ → 
+      -----------------------
+      NormalType Δ κ
 
   Σ     :
 
-          NormalType Δ R[ κ ] → 
-          ----------------
-          NormalType Δ κ
+      NormalType Δ R[ κ ] → 
+      ----------------
+      NormalType Δ κ
 
   ↑_ : 
 
-       NormalType Δ R[ κ₁ `→ κ₂ ] →
-       ------------------------------
-       NormalType Δ (κ₁ `→ R[ κ₂ ])
+      NormalType Δ R[ κ₁ `→ κ₂ ] →
+      ------------------------------
+      NormalType Δ (κ₁ `→ R[ κ₂ ])
 
 
   _↑ : 
 
-       NormalType Δ (κ₁ `→ κ₂) →
-       ------------------------------
-       NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+      NormalType Δ (κ₁ `→ κ₂) →
+      ------------------------------
+      NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 
 --------------------------------------------------------------------------------
@@ -183,7 +197,7 @@ data NormalType Δ where
 -- row-canonicity (Σ r)        = {!right!}
 
 --------------------------------------------------------------------------------
--- 3.4 Soundness of Type NormalTypeization
+-- 3.4 Soundness of Type Normalization
 --
 -- (OMITTED).
 
@@ -196,7 +210,7 @@ data NormalType Δ where
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
-⇑ (Π τ) = Π (⇑ τ)
+⇑ (Π▹ l τ) = Π (⇑ l ▹ ⇑ τ)
 ⇑ (Σ τ) = Σ (⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑ τ₂)
@@ -208,8 +222,8 @@ data NormalType Δ where
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
 ⇑NE (Π τ) = Π (⇑NE τ)
-⇑NE (Σ τ) = Σ (⇑NE τ)
-⇑NE (↑ F) = ↑ (⇑NE F)
+-- ⇑NE (Σ τ) = Σ (⇑NE τ)
+-- ⇑NE (↑ F) = ↑ (⇑NE F)
 ⇑NE (F ↑) = (⇑NE F) ↑
 
 --------------------------------------------------------------------------------

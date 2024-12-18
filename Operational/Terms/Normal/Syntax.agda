@@ -65,11 +65,11 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
   -- Recursive types
 
   roll : 
-         ∀ F → 
+         ∀ (F : NeutralType Δ (★ `→ ★)) → 
          -- lol. Okay, neutrality is not quite accurate for our needs.
-         NormalTerm Γ (F · μ F) → 
+         NormalTerm Γ (ne (F · μ F)) → 
          -----------------
-         NormalTerm Γ (μ F)
+         NormalTerm Γ (μ F) μ (Σ (Z ▹ `λ X. ⊤, S ▹ `λ X. X))
 
   unroll : 
            ∀ F → 

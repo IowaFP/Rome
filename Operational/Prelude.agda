@@ -10,6 +10,8 @@ open import Data.Empty public
 import Data.Sum as Sum
   renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
 
+open import Data.Maybe using (Maybe ; just ; nothing) public
+
 open Sum using (_or_ ; left ; right) public
 import Data.Product as Product
   renaming (proj₁ to fst ; proj₂ to snd ; _,_ to ⟨_,_⟩) 
