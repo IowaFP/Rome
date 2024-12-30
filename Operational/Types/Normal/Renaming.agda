@@ -20,7 +20,7 @@ renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
 renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
 renNE ρ (Π τ) = Π (renNE ρ τ)
--- renNE ρ (Σ τ) = Σ (renNE ρ τ)
+renNE ρ (Σ τ) = Σ (renNE ρ τ)
 -- renNE ρ (↑ τ) = ↑ (renNE ρ τ)
 renNE ρ (τ ↑) = (renNE ρ τ) ↑
 
@@ -32,7 +32,7 @@ ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ τ) = μ (ren ρ τ)
 -- ren ρ (Π τ) = Π (renNE ρ τ)
 ren ρ (Π▹ l τ) = Π▹ (ren ρ l) (ren ρ τ)
-ren ρ (Σ τ) = Σ (ren ρ τ)
+ren ρ (Σ▹ l τ) = Σ▹ (ren ρ l) (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋

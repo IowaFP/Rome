@@ -36,7 +36,7 @@ reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
 reify {κ = κ₁ `→ κ₂} (right ⟨ Π l ∷ cs , F ⟩) = Π▹ l (reify (right ⟨ cs , F ⟩))
-reify {κ = κ₁ `→ κ₂} (right ⟨ Σ x ∷ cs , F ⟩) = {!!}
+reify {κ = κ₁ `→ κ₂} (right ⟨ Σ l ∷ cs , F ⟩) = Σ▹ l (reify (right ⟨ cs , F ⟩))
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
@@ -71,6 +71,23 @@ left A ·V V = reflectNE (A · (reify V))
 right ⟨ w , F ⟩ ·V V = F id V
 
 --------------------------------------------------------------------------------
+-- *Reconstruction* helper
+-- of Π (l ▹ τ) from semantic type ⟨ Π l , τ ⟩
+-- (and likewise for Σ (l ▹ τ))
+
+go-Π : ∀ {κ} → NormalType Δ R[ κ ] → NormalType Δ κ
+go-Π (ne x) = ne (Π x)
+go-Π (l' ▹ t₂) = Π▹ l' t₂
+go-Π (Π▹ l' t) = Π▹ l' (go-Π t)
+go-Π (Σ▹ l' t) = Σ▹ l' (go-Π t)
+
+go-Σ : ∀ {κ} → NormalType Δ R[ κ ] → NormalType Δ κ
+go-Σ (ne x) = ne (Σ x)
+go-Σ (l' ▹ t₂) = Σ▹ l' t₂
+go-Σ (Π▹ l' t) = Π▹ l' (go-Σ t)
+go-Σ (Σ▹ l' t) = Σ▹ l' (go-Σ t)
+
+--------------------------------------------------------------------------------
 -- Simultaneous reflection & evaluation of types to Semantic Types
 
 reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
@@ -91,15 +108,13 @@ reflect {κ = ★} ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
 reflect {κ = ★} (Π τ) η with reflect τ η 
 ... | ne x = ne (Π x)
 ... | l ▹ τ = Π▹ l τ
-... | Π▹ l τ  = Π▹ l (go τ)
-  where
-    go : NormalType Δ R[ ★ ] → NormalType Δ ★
-    go (ne x) = ne (Π x)
-    go (l' ▹ t₂) = Π▹ l' t₂
-    go (Π▹ l' t) = Π▹ l' (go t)
-    go (Σ t) = {!!}
-... | Σ c = {!!}
-reflect {κ = ★} (Σ τ) η = Σ (reflect τ η)
+... | Π▹ l τ  = Π▹ l (go-Π τ)
+... | Σ▹ l τ = Σ▹ l (go-Π τ)
+reflect {κ = ★} (Σ τ) η with reflect τ η 
+... | ne x = ne (Σ x)
+... | l ▹ τ = Σ▹ l τ
+... | Π▹ l τ  = Π▹ l (go-Σ τ)
+... | Σ▹ l τ = Σ▹ l (go-Σ τ)
 
 -- ----------------------------------------
 -- -- Label reflection.
@@ -110,15 +125,13 @@ reflect {κ = L} (lab l) η = lab l
 reflect {κ = L} (Π τ) η with reflect τ η 
 ... | ne x = ne (Π x)
 ... | l ▹ τ = Π▹ l τ
-... | Π▹ l τ  = Π▹ l (go τ)
-  where
-    go : NormalType Δ R[ L ] → NormalType Δ L
-    go (ne x) = ne (Π x)
-    go (l' ▹ t₂) = Π▹ l' t₂
-    go (Π▹ l' t) = Π▹ l' (go t)
-    go (Σ t) = {!!}
-... | Σ c = {!!}
-reflect {κ = L} (Σ τ) η = Σ (reflect τ η)
+... | Π▹ l τ  = Π▹ l (go-Π τ)
+... | Σ▹ l τ = Σ▹ l (go-Π τ)
+reflect {κ = L} (Σ τ) η with reflect τ η 
+... | ne x = ne (Σ x)
+... | l ▹ τ = Σ▹ l τ
+... | Π▹ l τ  = Π▹ l (go-Σ τ)
+... | Σ▹ l τ = Σ▹ l (go-Σ τ)
 
 -- ----------------------------------------
 -- -- function reflection.
@@ -132,11 +145,13 @@ reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η
 ... | left x = left (Π x)
 ... | right ⟨ l₁ , ⟨ [] , F ⟩ ⟩         = right ⟨ Π l₁ ∷ [] , F ⟩
 ... | right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Π l₁ ∷ Π l₂ ∷ cs , F ⟩
-... | right ⟨ l₁ , ⟨ Σ x ∷ cs , F ⟩ ⟩ = right ⟨ {!!} , {!!} ⟩
+... | right ⟨ l₁ , ⟨ Σ l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Π l₁ ∷ Σ l₂ ∷ cs  , F ⟩
 
-reflect {κ = κ₁ `→ κ₂} (Σ τ) η = {!!} -- with reflect τ η
--- ... | left x = left (Π x)
--- ... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!} -- right ⟨ (Σ l ∷ cs) , F ⟩
+reflect {κ = κ₁ `→ κ₂} (Σ τ) η with reflect τ η 
+... | left x = left (Σ x)
+... | right ⟨ l₁ , ⟨ [] , F ⟩ ⟩         = right ⟨ Σ l₁ ∷ [] , F ⟩
+... | right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Σ l₁ ∷ Π l₂ ∷ cs , F ⟩
+... | right ⟨ l₁ , ⟨ Σ l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Σ l₁ ∷ Σ l₂ ∷ cs  , F ⟩
 reflect {κ = κ₁ `→ κ₂} (↑ τ) η = {!!}
 reflect {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
 
@@ -161,7 +176,7 @@ idEnv : Env Δ Δ
 idEnv = reflectNE ∘ `
 
 -- NormalType forms.
-⇓ : Type Δ κ → NormalType Δ κ
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (reflect τ idEnv)
 
 --------------------------------------------------------------------------------
@@ -250,40 +265,56 @@ C₂ = Π (ℓ ▹ (`λ (` Z)))
 _ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ Π▹ l (`λ (ne (` Z)))
 _ = refl 
 
-C₃ : Type Δ R[ ★ ]
-C₃ = Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
+C₃ : Type Δ ★
+C₃ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ((apply · Const-U) · Unit))))
 
-_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ (l₁ ▹ Π▹ l₂ Unit)
-_ = {!⇓ C₃!}
+_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π▹ l₁ (Π▹ l₂ Unit)
+_ = refl
 
 
 -- ----------------------------------------
--- -- Tricky business.
+-- -- Unreduced Π applications
 
--- -- These types imply my definition of semantic types at row kind is inaccurate:
--- -- I am working under the assumption that where there's a row there's a label---
--- -- which is sort of true---but not necessarily of canonical form.  My
--- -- representation is a bit fucked for the following terms.
--- -- I doubt also that normalization is stable: 
--- --   ∀ τ. ⇓ (embed τ) ≡ τ
+NR₀ : Type Δ ★
+NR₀ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-shit₁ : Type Δ ★
-shit₁ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+_ : ⇓ {Δ = Δ} NR₀ ≡ Π▹ l₁ (Π▹ l₂ Unit)
+_ = {!reflect NR₀!}
 
-_ : ⇓ shit₁ ≡ Π▹ l₁ (Π▹ l₂ Unit)
+NR₁ : Type Δ (★ `→ ★)
+NR₁ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ID)))
+
+_ : ⇓ {Δ = Δ} NR₁ ≡ Π▹ l₁ (Π▹ l₂ (⇓ ID))
+_ = {!reflect NR₂!}
+
+
+NR₂ : Type Δ R[ ★ ]
+NR₂ = Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
+
+_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ (l₁ ▹ Π▹ l₂ Unit)
+_ = {!⇓ C₃!}
+
+
+
+----------------------------------------
+-- Mixed Π and Σ w/ unreduced computation
+
+mix₀ : Type Δ ★
+mix₀ = Π (Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+
+_ : ⇓ {Δ = Δ} mix₀ ≡ {!⇓ {Δ = Δ} mix₀!}
 _ = {!!}
 
-shit₂ : Type Δ (★ `→ ★)
-shit₂ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ID)))
 
-_ : ⇓ shit₂ ≡ Π▹ l₁ (Π▹ l₂ (⇓ ID))
-_ = {!reflect shit₂!}
+--------------------------------------------------------------------------------
+-- Lifting nonsense
 
 lift-L  : Type Δ ((★ `→ ★) `→ ★)
 lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
 
-_ : ⇓ lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
+_ : ⇓ {Δ = Δ} lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
 _ = {!⇓ hmm!}
+
 
 
 -- --------------------------------------------------------------------------------

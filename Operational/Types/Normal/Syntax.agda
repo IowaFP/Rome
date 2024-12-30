@@ -55,11 +55,11 @@ data NeutralType Δ : Kind → Set where
       ------------------
       NeutralType Δ κ
 
-  -- Σ  : 
+  Σ  : 
 
-  --     NeutralType Δ R[ κ ] →
-  --     ------------------
-  --     NeutralType Δ κ
+      NeutralType Δ R[ κ ] →
+      ------------------
+      NeutralType Δ κ
   
   -- ↑_ : 
 
@@ -133,21 +133,15 @@ data NormalType Δ where
       -----------------
       NormalType Δ ★
 
-  -- Π     :
-
-  --     NeutralType Δ R[ κ ] → 
-  --     -----------------------
-  --     NormalType Δ κ
-
   Π▹ :
 
       NormalType Δ L →  NormalType Δ κ → 
       -----------------------
       NormalType Δ κ
 
-  Σ     :
+  Σ▹     :
 
-      NormalType Δ R[ κ ] → 
+      NormalType Δ L → NormalType Δ κ → 
       ----------------
       NormalType Δ κ
 
@@ -211,7 +205,7 @@ data NormalType Δ where
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (Π▹ l τ) = Π (⇑ l ▹ ⇑ τ)
-⇑ (Σ τ) = Σ (⇑ τ)
+⇑ (Σ▹ l τ) = Σ (⇑ l ▹ ⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑ τ₂)
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
@@ -222,7 +216,7 @@ data NormalType Δ where
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
 ⇑NE (Π τ) = Π (⇑NE τ)
--- ⇑NE (Σ τ) = Σ (⇑NE τ)
+⇑NE (Σ τ) = Σ (⇑NE τ)
 -- ⇑NE (↑ F) = ↑ (⇑NE F)
 ⇑NE (F ↑) = (⇑NE F) ↑
 
