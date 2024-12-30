@@ -25,7 +25,7 @@ reflectNE {κ = R[ ★ ]} τ       = ne τ
 reflectNE {κ = R[ L ]} τ       = ne τ
 reflectNE {κ = κ `→ κ₁} τ     = left τ
 reflectNE {κ = R[ _ `→ _ ]} τ = left τ
-reflectNE {κ = R[ R[ κ ] ]} τ  = {!!}
+reflectNE {κ = R[ R[ κ ] ]} τ  = left τ
 
 --------------------------------------------------------------------------------
 -- reification of semantic types
@@ -41,7 +41,8 @@ reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (right ⟨ l , ⟨ cs , F ⟩ ⟩) = l ▹ (reify (right ⟨ cs , F ⟩))
-reify {κ = R[ R[ κ₁ ] ]} τ = {!!}
+reify {κ = R[ R[ κ₁ ] ]} (left x) = ne x
+reify {κ = R[ R[ κ₁ ] ]} (right ⟨ l , τ ⟩) = l ▹ (reify τ)
 
 --------------------------------------------------------------------------------
 -- Semantic environments
@@ -162,11 +163,34 @@ reflect {κ = R[ κ ]} (` x) η = η x
 reflect {κ = R[ κ ]} (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
 reflect {κ = R[ ★ ]} (τ₁ ▹ τ₂) η = (reflect τ₁ η) ▹ (reflect τ₂ η)
 reflect {κ = R[ L ]} (τ₁ ▹ τ₂) η = (reflect τ₁ η) ▹ (reflect τ₂ η)
-reflect {κ = R[ κ₁ `→ κ₂ ]} (τ₁ ▹ τ₂) η  with reflect τ₂ η 
-... | left x = left ((reflect τ₁ η) ▹ x)
-... | right F = right ⟨ (reflect τ₁ η) , F ⟩
-reflect {κ = R[ R[ κ ] ]} (τ₁ ▹ τ₂) η = {!!}
-reflect {κ = R[ κ ]} (Π τ) η = {!!}
+reflect {κ = R[ κ₁ `→ κ₂ ]} (l ▹ τ) η  with reflect τ η 
+... | left x = left ((reflect l η) ▹ x)
+... | right F = right ⟨ (reflect l η) , F ⟩
+reflect {κ = R[ R[ κ ] ]} (l ▹ τ) η = right ⟨ (reflect l η) , (reflect τ η) ⟩
+reflect {κ = R[ ★ ]} (Π τ) η with reflect τ η 
+... | left x = ne (Π x)
+... | right ⟨ l , τ ⟩ = Π▹ l τ
+reflect {κ = R[ L ]} (Π τ) η with reflect τ η 
+... | left x = ne (Π x)
+... | right ⟨ l , τ ⟩ = Π▹ l τ
+reflect {κ = R[ κ `→ κ₁ ]} (Π τ) η with reflect τ η 
+... | left x = left (Π x)
+... | right ⟨ l , left x ⟩ = left (Π (l ▹ x))
+... | right ⟨ l₁ , right ⟨ l₂ , ⟨ cs , F ⟩ ⟩ ⟩ = right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ -- right ⟨ l₁ , ⟨ ((Π l₂) ∷ cs) , F ⟩ ⟩
+reflect {κ = R[ R[ κ ] ]} (Π τ) η with reflect τ η
+... | left x = left (Π x)
+... | right ⟨ l , left x ⟩ = left (Π (l ▹ x))
+-- WRONG! ********************************************
+... | right ⟨ l₁ , right ⟨ l₂ , τ' ⟩ ⟩ = right ⟨ l₁ , unfold κ l₂ τ' ⟩ 
+  where
+  -- This is all bad. My IH and recursion is not set up properly---
+  -- this procedure will continue ad infinitum.
+    unfold : (κ : Kind) → NormalType _ L → SemType _ R[ κ ] → SemType _ R[ κ ]
+    unfold ★ l₂ τ' = (Π▹ l₂ τ')
+    unfold L l₂ τ' = (Π▹ l₂ τ')
+    unfold (κ₁ `→ κ₂) l₂ (left x) = {!!} -- ⟨ l₁ , (left x) ⟩
+    unfold (κ₁ `→ κ₂) l₂ (right ⟨ l₃ , ⟨ cs , F ⟩ ⟩ ) = right ⟨ l₂ , ⟨ Π l₃ ∷ cs , F ⟩ ⟩
+    unfold R[ κ ] τ' = {!!}
 reflect {κ = R[ κ ]} (Σ τ) η = {!!}
 
 --------------------------------------------------------------------------------
@@ -279,21 +303,46 @@ NR₀ : Type Δ ★
 NR₀ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
 _ : ⇓ {Δ = Δ} NR₀ ≡ Π▹ l₁ (Π▹ l₂ Unit)
-_ = {!reflect NR₀!}
+_ = refl
 
 NR₁ : Type Δ (★ `→ ★)
 NR₁ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ID)))
 
 _ : ⇓ {Δ = Δ} NR₁ ≡ Π▹ l₁ (Π▹ l₂ (⇓ ID))
-_ = {!reflect NR₂!}
+_ = refl
 
 
 NR₂ : Type Δ R[ ★ ]
 NR₂ = Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
 
-_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ (l₁ ▹ Π▹ l₂ Unit)
-_ = {!⇓ C₃!}
+_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ Π▹ l₁ (l₂ ▹ Unit)
+_ = refl
 
+NR₃ : Type Δ R[ ★ `→ ★ ]
+NR₃ = Π (ℓ₁ ▹ (ℓ₂ ▹ ID))
+
+_ : ⇓ {Δ = Δ} NR₃ ≡ l₁ ▹ (Π▹ l₂ (⇓ ID))
+_ = refl
+
+NR₄ : Type Δ R[ R[ ★ ] ]
+NR₄ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ Unit)))
+
+_ : ⇓ {Δ = Δ} NR₄ ≡ l₁ ▹ (Π▹ l₂ (l₃ ▹ Unit))
+_ = refl
+
+NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
+NR₅ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ ID)))
+
+_ : ⇓ {Δ = Δ} NR₅ ≡ l₁ ▹ (l₂ ▹ (Π▹ l₃ (⇓ ID)))
+_ = refl
+
+-- NR₄ and NR₅ do not agree. This is bad.
+
+NR₆ : Type Δ R[ R[ R[ ★ `→ ★ ] ] ]
+NR₆ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ (ℓ ▹ ID))))
+
+_ : ⇓ {Δ = Δ} NR₆ ≡ {!!}
+_ = {!reflect NR₆!}
 
 
 ----------------------------------------
@@ -313,7 +362,7 @@ lift-L  : Type Δ ((★ `→ ★) `→ ★)
 lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
 
 _ : ⇓ {Δ = Δ} lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
-_ = {!⇓ hmm!}
+_ = {!⇓ lift-L!}
 
 
 

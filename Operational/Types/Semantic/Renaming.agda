@@ -28,7 +28,6 @@ renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renSem {κ = ★} ρ τ = ren ρ τ
 renSem {κ = L} ρ τ = ren ρ τ
 renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
-renSem {κ = κ `→ κ₁} ρ (right ⟨ [] , F ⟩) = right ⟨ [] , (λ ρ' → F (ρ' ∘ ρ)) ⟩
 renSem {κ = κ `→ κ₁} ρ (right ⟨ cs , F ⟩) = right ⟨ renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))) ⟩
 
 renSem {κ = R[ κ' ]} ρ τ = {!!} -- ren ρ τ -- renSem-R {κ = κ'} {0} ρ τ 
