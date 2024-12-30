@@ -34,9 +34,9 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right ⟨ nothing , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ just (Π l) , F ⟩) = Π▹ l (`λ (reify (F S (reflectNE {κ = κ₁} (` Z)))))
-reify {κ = κ₁ `→ κ₂} (right ⟨ just (Σ l) , F ⟩) = {!!}
+reify {κ = κ₁ `→ κ₂} (right ⟨ [] , F ⟩) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
+reify {κ = κ₁ `→ κ₂} (right ⟨ Π l ∷ cs , F ⟩) = Π▹ l (reify (right ⟨ cs , F ⟩))
+reify {κ = κ₁ `→ κ₂} (right ⟨ Σ x ∷ cs , F ⟩) = {!!}
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
@@ -125,16 +125,15 @@ reflect {κ = L} (Σ τ) η = Σ (reflect τ η)
 
 reflect {κ = κ₁ `→ κ₂} (` x) η = η x
 reflect {κ = κ₁ `→ κ₂} (`λ τ) η = right ⟨ 
-  nothing , 
+  [] , 
   (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
 reflect {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η 
 ... | left x = left (Π x)
-  -- Ideally this case would not be happening.
-  -- Need to think on what term actually would spark this case.
-... | right ⟨ l₁ , c@(⟨ just (Π l₂) , F ⟩) ⟩ = {!!} -- right ⟨ (just (Π l₁)) , F ⟩
-... | right ⟨ l₁ , ⟨ just (Σ x) , F ⟩ ⟩      = {!!}
-... | right ⟨ l₁ , ⟨ nothing , F ⟩ ⟩         = right ⟨ (just (Π l₁)) , F ⟩
+... | right ⟨ l₁ , ⟨ [] , F ⟩ ⟩         = right ⟨ Π l₁ ∷ [] , F ⟩
+... | right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Π l₁ ∷ Π l₂ ∷ cs , F ⟩
+... | right ⟨ l₁ , ⟨ Σ x ∷ cs , F ⟩ ⟩ = right ⟨ {!!} , {!!} ⟩
+
 reflect {κ = κ₁ `→ κ₂} (Σ τ) η = {!!} -- with reflect τ η
 -- ... | left x = left (Π x)
 -- ... | right ⟨ l , ⟨ cs , F ⟩ ⟩ = {!!} -- right ⟨ (Σ l ∷ cs) , F ⟩
@@ -274,12 +273,17 @@ shit₁ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 _ : ⇓ shit₁ ≡ Π▹ l₁ (Π▹ l₂ Unit)
 _ = {!!}
 
--- shit₂ : NormalType Δ (★ `→ ★)
--- shit₂ = Π (Σ (l₁ ▹ (l₂ ▹ (`λ (ne (` Z)))))) 
+shit₂ : Type Δ (★ `→ ★)
+shit₂ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ID)))
 
--- shit₃ : NormalType Δ (R[ ★ `→ ★ ])
--- shit₃ = Π (Π (l₁ ▹ (l₂ ▹ (l₃ ▹ (`λ (ne (` Z)))))))
+_ : ⇓ shit₂ ≡ Π▹ l₁ (Π▹ l₂ (⇓ ID))
+_ = {!reflect shit₂!}
 
+lift-L  : Type Δ ((★ `→ ★) `→ ★)
+lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
+
+_ : ⇓ lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
+_ = {!⇓ hmm!}
 
 
 -- --------------------------------------------------------------------------------

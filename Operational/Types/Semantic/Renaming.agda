@@ -21,12 +21,16 @@ renC : Renaming Δ₁ Δ₂ → Congruence Δ₁ → Congruence Δ₂
 renC ρ (Π x) = Π (ren ρ x)
 renC ρ (Σ x) = Σ (ren ρ x)
 
+renCs : Renaming Δ₁ Δ₂ → List (Congruence Δ₁) → List (Congruence Δ₂)
+renCs ρ = map (renC ρ)
+
 renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renSem {κ = ★} ρ τ = ren ρ τ
 renSem {κ = L} ρ τ = ren ρ τ
 renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
-renSem {κ = κ `→ κ₁} ρ (right ⟨ just ws , F ⟩) = right ⟨ just (renC ρ ws) , (λ ρ' → F (ρ' ∘ ρ)) ⟩
-renSem {κ = κ `→ κ₁} ρ (right ⟨ nothing , F ⟩) = right ⟨ nothing , (λ ρ' → F (ρ' ∘ ρ)) ⟩
+renSem {κ = κ `→ κ₁} ρ (right ⟨ [] , F ⟩) = right ⟨ [] , (λ ρ' → F (ρ' ∘ ρ)) ⟩
+renSem {κ = κ `→ κ₁} ρ (right ⟨ cs , F ⟩) = right ⟨ renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))) ⟩
+
 renSem {κ = R[ κ' ]} ρ τ = {!!} -- ren ρ τ -- renSem-R {κ = κ'} {0} ρ τ 
 
 --------------------------------------------------------------------------------
