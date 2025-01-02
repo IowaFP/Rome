@@ -67,11 +67,11 @@ data NeutralType Δ : Kind → Set where
   --     ------------------------------
   --     NeutralType Δ (κ₁ `→ R[ κ₂ ])
 
-  _↑ : 
+  -- _↑ : 
 
-      NeutralType Δ (κ₁ `→ κ₂) →
-      ------------------------------
-      NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+  --     NeutralType Δ (κ₁ `→ κ₂) →
+  --     ------------------------------
+  --     NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 data NormalType Δ where
 
@@ -145,50 +145,32 @@ data NormalType Δ where
       ----------------
       NormalType Δ κ
 
-  ↑_ : 
+  -- ↑_ : 
 
-      NormalType Δ R[ κ₁ `→ κ₂ ] →
-      ------------------------------
-      NormalType Δ (κ₁ `→ R[ κ₂ ])
+  --     NormalType Δ R[ κ₁ `→ κ₂ ] →
+  --     ------------------------------
+  --     NormalType Δ (κ₁ `→ R[ κ₂ ])
 
 
-  _↑ : 
+  -- _↑ : 
 
-      NormalType Δ (κ₁ `→ κ₂) →
-      ------------------------------
-      NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+  --     NormalType Δ (κ₁ `→ κ₂) →
+  --     ------------------------------
+  --     NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 
 --------------------------------------------------------------------------------
 -- 
 
--- isNE : NormalType Δ κ → Set
--- isNE (ne x)     = ⊤
--- isNE (`λ τ)     = ⊤
--- isNE (`∀ κ τ)   = ⊤
--- isNE (lab x)    = ⊥
--- isNE Unit       = ⊥
--- isNE (τ₁ ▹ τ₂)  = ⊥
--- isNE (μ τ)      = ⊥
--- isNE (τ₁ `→ τ₂) = isNE τ₁ × isNE τ₂
--- isNE ⌊ τ ⌋      = isNE τ
--- isNE (Π τ)      = isNE τ
--- isNE (Σ τ)      = isNE τ
--- isNE (↑ τ)      = isNE τ
--- isNE (τ ↑)      = isNE τ
-
--- row-canonicity : (r : NormalType Δ R[ κ ]) → isNE r or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
--- row-canonicity (ne x)       = left tt
--- row-canonicity (ℓ ▹ τ)      = right ⟨ ℓ , ⟨ τ , refl ⟩ ⟩
--- row-canonicity (Π (ne x))   = left tt
--- row-canonicity (Π (ℓ ▹ τ)) with row-canonicity τ
--- ... | left x                   = {!!}
--- ... | right ⟨ x , ⟨ τ' , eq ⟩ ⟩ rewrite eq = right ⟨ ℓ , ⟨ Π (x ▹ τ') , {!!} ⟩ ⟩
--- -- I think terms at this type are simply uninhabitable.
--- row-canonicity (Π t) with row-canonicity t
--- ... | left x = left x
--- ... | right ⟨ l , ⟨ t , snd₁ ⟩ ⟩ = {!!}
--- row-canonicity (Σ r)        = {!right!}
+-- Counter-example:
+-- Π▹ l (ne x)
+-- row-canonicity : (r : NormalType Δ R[ κ ]) → ∃[ x ] (ne x ≡ r) or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
+-- row-canonicity (ne x) = left ⟨ x , refl ⟩
+-- row-canonicity (l ▹ τ) = right ⟨ l , ⟨ τ , refl ⟩ ⟩
+-- row-canonicity (Π▹ l τ) with row-canonicity τ
+-- ... | left ⟨ x , refl ⟩ = left {!!}
+-- ... | right y = {!!}
+-- row-canonicity (Σ▹ l τ) = {!!}
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
@@ -205,19 +187,19 @@ data NormalType Δ where
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (Π▹ l τ) = Π · (⇑ l ▹ ⇑ τ)
-⇑ (Σ▹ l τ) = Σ (⇑ l ▹ ⇑ τ)
+⇑ (Σ▹ l τ) = Σ · (⇑ l ▹ ⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑ τ₂)
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
-⇑ (↑ τ) = ↑ (⇑ τ)
-⇑ (τ ↑) = (⇑ τ) ↑
+-- ⇑ (↑ τ) = ↑ (⇑ τ)
+-- ⇑ (τ ↑) = (⇑ τ) ↑
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
 ⇑NE (Π τ) = Π · (⇑NE τ)
-⇑NE (Σ τ) = Σ (⇑NE τ)
+⇑NE (Σ τ) = Σ · (⇑NE τ)
 -- ⇑NE (↑ F) = ↑ (⇑NE F)
-⇑NE (F ↑) = (⇑NE F) ↑
+-- ⇑NE (F ↑) = (⇑NE F) ↑
 
 --------------------------------------------------------------------------------

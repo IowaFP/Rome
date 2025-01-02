@@ -30,12 +30,12 @@ sub σ (τ₁ `→ τ₂) = (sub σ τ₁) `→ (sub σ τ₂)
 sub σ (`∀ κ τ) = `∀ κ (sub (↑s σ) τ)
 sub σ (μ F) = μ (sub σ F)
 sub σ (Π) = Π
-sub σ (Σ τ) = Σ (sub σ τ)
+sub σ Σ = Σ
 sub σ (lab x) = lab x
 sub σ (ℓ ▹ τ) = (sub σ ℓ) ▹ (sub σ τ)
 sub σ ⌊ ℓ ⌋ = ⌊ (sub σ ℓ) ⌋
-sub σ (↑ τ) = ↑ (sub σ τ)
-sub σ (τ ↑) = (sub σ τ) ↑
+-- sub σ (↑ τ) = ↑ (sub σ τ)
+-- sub σ (τ ↑) = (sub σ τ) ↑
 
 -- "Substitutions could be implemented as lists of types and then the cons
 -- constructor would extend a substitution by an additional term. Using our

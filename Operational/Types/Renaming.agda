@@ -34,12 +34,12 @@ ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
 ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ F) = μ (ren ρ F)
 ren ρ (Π ) = Π 
-ren ρ (Σ τ) = Σ (ren ρ τ)
+ren ρ Σ = Σ
 ren ρ (lab x) = lab x
 ren ρ (ℓ ▹ τ) = (ren ρ ℓ) ▹ (ren ρ τ)
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
-ren ρ (↑ τ) = ↑ (ren ρ τ)
-ren ρ (τ ↑) = (ren ρ τ) ↑
+-- ren ρ (↑ τ) = ↑ (ren ρ τ)
+-- ren ρ (τ ↑) = (ren ρ τ) ↑
 
 weaken : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weaken = ren S
