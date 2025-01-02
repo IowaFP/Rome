@@ -67,8 +67,6 @@ extende η V (S x) = η x
 idEnv : Env Δ Δ
 idEnv = reflectNE ∘ `
 
-
-
 --------------------------------------------------------------------------------
 -- Semantic application
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
@@ -76,26 +74,8 @@ left A ·V V = reflectNE (A · (reify V))
 right ⟨ w , F ⟩ ·V V = F id V
 
 --------------------------------------------------------------------------------
--- *Reconstruction* helper
--- of Π (l ▹ τ) from semantic type ⟨ Π l , τ ⟩
--- (and likewise for Σ (l ▹ τ))
-
-go-Π : ∀ {κ} → NormalType Δ R[ κ ] → NormalType Δ κ
-go-Π (ne x) = ne (Π x)
-go-Π (l' ▹ t₂) = Π▹ l' t₂
-go-Π (Π▹ l' t) = Π▹ l' (go-Π t)
-go-Π (Σ▹ l' t) = Σ▹ l' (go-Π t)
-
-go-Σ : ∀ {κ} → NormalType Δ R[ κ ] → NormalType Δ κ
-go-Σ (ne x) = ne (Σ x)
-go-Σ (l' ▹ t₂) = Σ▹ l' t₂
-go-Σ (Π▹ l' t) = Π▹ l' (go-Σ t)
-go-Σ (Σ▹ l' t) = Σ▹ l' (go-Σ t)
-
---------------------------------------------------------------------------------
 -- Simultaneous reflection & evaluation of types to Semantic Types
 
-reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 π : SemType Δ R[ κ ] → SemType Δ κ
 σ : SemType Δ R[ κ ] → SemType Δ κ
 σ = {!!} 
@@ -123,12 +103,16 @@ _▵_ {κ = R[ κ ]} ℓ τ = right ⟨ ℓ , τ ⟩
     go {★} t = π {Δ} {★} (reflectNE t)
     go {L} t = π {Δ} {L} (reflectNE t)
     go {κ₁ `→ κ₂} t = left (Π t)
-    go {R[ κ ]} t = {!!}
+    go {R[ ★ ]} t = {!go t!}
+    go {R[ L ]} t = {!!}
+    go {R[ κ `→ κ₁ ]} t = {!!}
+    go {R[ R[ κ ] ]} t = {!!}
 π {Δ} {κ = R[ κ ]} (right ⟨ ℓ , τ ⟩) = ℓ ▵ (π τ)
 
 -- ----------------------------------------
 -- -- Type reflection.
 
+reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 reflect {κ = ★} (` x) η = η x
 reflect {κ = ★} Unit η  = Unit
 reflect {κ = ★} (τ₁ · τ₂) η = (reflect τ₁ η) ·V (reflect τ₂ η)
