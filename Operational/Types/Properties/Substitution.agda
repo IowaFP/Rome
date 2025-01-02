@@ -38,7 +38,7 @@ ren-cong eq (τ₁ · τ₂) rewrite ren-cong eq τ₁ | ren-cong eq τ₂ = ref
 ren-cong eq (τ₁ `→ τ₂) rewrite ren-cong eq τ₁ | ren-cong eq τ₂ = refl
 ren-cong eq (`∀ κ τ) rewrite ren-cong (lift-cong eq) τ = refl 
 ren-cong eq (μ F) rewrite ren-cong eq F = refl 
-ren-cong eq (Π τ) rewrite ren-cong eq τ = refl 
+ren-cong eq Π = refl 
 ren-cong eq (Σ τ) rewrite ren-cong eq τ = refl 
 ren-cong eq (lab _) = refl
 ren-cong eq (τ₁ ▹ τ₂) rewrite 
@@ -56,7 +56,7 @@ ren-id (τ₁ · τ₂) rewrite ren-id τ₁ | ren-id τ₂ = refl
 ren-id (τ₁ `→ τ₂) rewrite ren-id τ₁ | ren-id τ₂ = refl
 ren-id (`∀ κ τ) rewrite ren-cong lift-id τ | ren-id τ = refl
 ren-id (μ F) rewrite ren-id F = refl
-ren-id (Π τ) rewrite ren-id τ = refl
+ren-id Π = refl
 ren-id (Σ τ) rewrite ren-id τ = refl
 ren-id (lab _) = refl
 ren-id (τ₁ ▹ τ₂) rewrite 
@@ -71,7 +71,7 @@ ren-comp : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) →
            ∀ (τ : Type Δ₁ κ) → ren (ρ₂ ∘ ρ₁) τ ≡ ren ρ₂ (ren ρ₁ τ)
 ren-comp _ _   Unit = refl
 ren-comp ρ₁ ρ₂ (` x) = refl
-ren-comp ρ₁ ρ₂ (Π ρ) rewrite ren-comp ρ₁ ρ₂ ρ = refl
+ren-comp ρ₁ ρ₂ Π = refl
 ren-comp ρ₁ ρ₂ (Σ ρ) rewrite ren-comp ρ₁ ρ₂ ρ = refl
 ren-comp ρ₁ ρ₂ (`λ τ)  rewrite
   trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (lift ρ₁) (lift ρ₂) τ) = refl

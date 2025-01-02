@@ -77,9 +77,8 @@ data Type Δ : Kind → Set where
   -- Record formation
   Π     :
 
-          Type Δ R[ κ ] → 
           ----------------
-          Type Δ κ
+          Type Δ (R[ κ ] `→ κ)
 
   -- Variant formation
   Σ     :

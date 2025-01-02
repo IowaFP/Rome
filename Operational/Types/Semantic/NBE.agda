@@ -64,6 +64,10 @@ extende η V (S x) = η x
     V  : SemType (Δ₂ ,, κ) κ
     V = reflectNE {κ = κ} (` Z)
 
+idEnv : Env Δ Δ
+idEnv = reflectNE ∘ `
+
+
 
 --------------------------------------------------------------------------------
 -- Semantic application
@@ -92,6 +96,35 @@ go-Σ (Σ▹ l' t) = Σ▹ l' (go-Σ t)
 -- Simultaneous reflection & evaluation of types to Semantic Types
 
 reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+π : SemType Δ R[ κ ] → SemType Δ κ
+σ : SemType Δ R[ κ ] → SemType Δ κ
+σ = {!!} 
+
+_▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
+_▵_ {κ = ★} ℓ τ = ℓ ▹ τ
+_▵_ {κ = L} ℓ τ = ℓ ▹ τ
+_▵_ {κ = κ₁ `→ κ₂} ℓ (left x) = left (ℓ ▹ x)
+_▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right ⟨ ℓ , F ⟩
+_▵_ {κ = R[ κ ]} ℓ τ = right ⟨ ℓ , τ ⟩
+
+-- e.g. Π ρ
+π {κ = ★} (ne x) = ne (Π x)
+-- e.g. Π (ℓ ▹ τ)
+π {κ = ★} (ℓ ▹ τ) = Π▹ ℓ τ
+-- e.g. Π (l ▹ τ) w/ τ : R [ ★ ]
+π {Δ} {κ = ★} (Π▹ ℓ τ) = Π▹ ℓ (π {Δ = Δ} {κ = ★} τ)
+π {Δ} {κ = ★} (Σ▹ ℓ τ) = Σ▹ ℓ (π {Δ = Δ} {κ = ★} τ)
+π {κ = κ₁ `→ κ₂} (left x) = left (Π x)
+π {κ = κ₁ `→ κ₂} (right ⟨ ℓ , ⟨ cs , F ⟩ ⟩) = right ⟨ ((Π ℓ) ∷ cs) , F ⟩
+π {κ = L} τ = {!!}
+π {Δ} {κ = R[ κ ]} (left t) = go t
+  where
+    go : ∀ {κ} → NeutralType Δ R[ κ ] → SemType Δ κ
+    go {★} t = π {Δ} {★} (reflectNE t)
+    go {L} t = π {Δ} {L} (reflectNE t)
+    go {κ₁ `→ κ₂} t = left (Π t)
+    go {R[ κ ]} t = {!!}
+π {Δ} {κ = R[ κ ]} (right ⟨ ℓ , τ ⟩) = ℓ ▵ (π τ)
 
 -- ----------------------------------------
 -- -- Type reflection.
@@ -106,11 +139,6 @@ reflect {κ = ★} (μ τ) η with reflect τ η
 -- This is just η-expansion
 ... | right ⟨ w , F ⟩ = μ (`λ (F S (ne (` Z)))) 
 reflect {κ = ★} ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
-reflect {κ = ★} (Π τ) η with reflect τ η 
-... | ne x = ne (Π x)
-... | l ▹ τ = Π▹ l τ
-... | Π▹ l τ  = Π▹ l (go-Π τ)
-... | Σ▹ l τ = Σ▹ l (go-Π τ)
 reflect {κ = ★} (Σ τ) η with reflect τ η 
 ... | ne x = ne (Σ x)
 ... | l ▹ τ = Σ▹ l τ
@@ -123,11 +151,6 @@ reflect {κ = ★} (Σ τ) η with reflect τ η
 reflect {κ = L} (` x) η = η x
 reflect {κ = L} (τ₁ · τ₂) η = (reflect τ₁ η) ·V (reflect τ₂ η)
 reflect {κ = L} (lab l) η = lab l
-reflect {κ = L} (Π τ) η with reflect τ η 
-... | ne x = ne (Π x)
-... | l ▹ τ = Π▹ l τ
-... | Π▹ l τ  = Π▹ l (go-Π τ)
-... | Σ▹ l τ = Σ▹ l (go-Π τ)
 reflect {κ = L} (Σ τ) η with reflect τ η 
 ... | ne x = ne (Σ x)
 ... | l ▹ τ = Σ▹ l τ
@@ -142,12 +165,7 @@ reflect {κ = κ₁ `→ κ₂} (`λ τ) η = right ⟨
   [] , 
   (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)) ⟩
 reflect {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
-reflect {κ = κ₁ `→ κ₂} (Π τ) η with reflect τ η 
-... | left x = left (Π x)
-... | right ⟨ l₁ , ⟨ [] , F ⟩ ⟩         = right ⟨ Π l₁ ∷ [] , F ⟩
-... | right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Π l₁ ∷ Π l₂ ∷ cs , F ⟩
-... | right ⟨ l₁ , ⟨ Σ l₂ ∷ cs , F ⟩ ⟩ = right ⟨ Π l₁ ∷ Σ l₂ ∷ cs  , F ⟩
-
+reflect {κ = κ₁ `→ κ₂} Π η = right ⟨ [] , (λ ρ v → π v) ⟩
 reflect {κ = κ₁ `→ κ₂} (Σ τ) η with reflect τ η 
 ... | left x = left (Σ x)
 ... | right ⟨ l₁ , ⟨ [] , F ⟩ ⟩         = right ⟨ Σ l₁ ∷ [] , F ⟩
@@ -161,43 +179,11 @@ reflect {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
 
 reflect {κ = R[ κ ]} (` x) η = η x
 reflect {κ = R[ κ ]} (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
-reflect {κ = R[ ★ ]} (τ₁ ▹ τ₂) η = (reflect τ₁ η) ▹ (reflect τ₂ η)
-reflect {κ = R[ L ]} (τ₁ ▹ τ₂) η = (reflect τ₁ η) ▹ (reflect τ₂ η)
-reflect {κ = R[ κ₁ `→ κ₂ ]} (l ▹ τ) η  with reflect τ η 
-... | left x = left ((reflect l η) ▹ x)
-... | right F = right ⟨ (reflect l η) , F ⟩
-reflect {κ = R[ R[ κ ] ]} (l ▹ τ) η = right ⟨ (reflect l η) , (reflect τ η) ⟩
-reflect {κ = R[ ★ ]} (Π τ) η with reflect τ η 
-... | left x = ne (Π x)
-... | right ⟨ l , τ ⟩ = Π▹ l τ
-reflect {κ = R[ L ]} (Π τ) η with reflect τ η 
-... | left x = ne (Π x)
-... | right ⟨ l , τ ⟩ = Π▹ l τ
-reflect {κ = R[ κ `→ κ₁ ]} (Π τ) η with reflect τ η 
-... | left x = left (Π x)
-... | right ⟨ l , left x ⟩ = left (Π (l ▹ x))
-... | right ⟨ l₁ , right ⟨ l₂ , ⟨ cs , F ⟩ ⟩ ⟩ = right ⟨ l₁ , ⟨ Π l₂ ∷ cs , F ⟩ ⟩ -- right ⟨ l₁ , ⟨ ((Π l₂) ∷ cs) , F ⟩ ⟩
-reflect {κ = R[ R[ κ ] ]} (Π τ) η with reflect τ η
-... | left x = left (Π x)
-... | right ⟨ l , left x ⟩ = left (Π (l ▹ x))
--- WRONG! ********************************************
-... | right ⟨ l₁ , right ⟨ l₂ , τ' ⟩ ⟩ = right ⟨ l₁ , unfold κ l₂ τ' ⟩ 
-  where
-  -- This is all bad. My IH and recursion is not set up properly---
-  -- this procedure will continue ad infinitum.
-    unfold : (κ : Kind) → NormalType _ L → SemType _ R[ κ ] → SemType _ R[ κ ]
-    unfold ★ l₂ τ' = (Π▹ l₂ τ')
-    unfold L l₂ τ' = (Π▹ l₂ τ')
-    unfold (κ₁ `→ κ₂) l₂ (left x) = {!!} -- ⟨ l₁ , (left x) ⟩
-    unfold (κ₁ `→ κ₂) l₂ (right ⟨ l₃ , ⟨ cs , F ⟩ ⟩ ) = right ⟨ l₂ , ⟨ Π l₃ ∷ cs , F ⟩ ⟩
-    unfold R[ κ ] τ' = {!!}
+reflect {κ = R[ κ ]} (τ₁ ▹ τ₂) η = (reflect τ₁ η) ▵ (reflect τ₂ η)
 reflect {κ = R[ κ ]} (Σ τ) η = {!!}
 
 --------------------------------------------------------------------------------
 -- Evaluation.
-
-idEnv : Env Δ Δ
-idEnv = reflectNE ∘ `
 
 -- NormalType forms.
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
@@ -278,101 +264,101 @@ _ = refl
 -- Function types with congruences. 
 
 C₁ : Type Δ ★
-C₁ = Π (ℓ ▹ Unit)
+C₁ = Π · (ℓ ▹ Unit)
 
 _ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π▹ l Unit
 _ = refl
 
 C₂ : Type Δ (★ `→ ★)
-C₂ = Π (ℓ ▹ (`λ (` Z)))
+C₂ = Π · (ℓ ▹ (`λ (` Z)))
 
 _ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ Π▹ l (`λ (ne (` Z)))
 _ = refl 
 
 C₃ : Type Δ ★
-C₃ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ((apply · Const-U) · Unit))))
+C₃ = Π · (ℓ₁ ▹ (Π · (ℓ₂ ▹ ((apply · Const-U) · Unit))))
 
 _ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π▹ l₁ (Π▹ l₂ Unit)
 _ = refl
 
 
--- ----------------------------------------
--- -- Unreduced Π applications
+-- -- ----------------------------------------
+-- -- -- Unreduced Π applications
 
 NR₀ : Type Δ ★
-NR₀ = Π (Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+NR₀ = Π · (Π · (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
 _ : ⇓ {Δ = Δ} NR₀ ≡ Π▹ l₁ (Π▹ l₂ Unit)
-_ = refl
+_ = refl 
 
 NR₁ : Type Δ (★ `→ ★)
-NR₁ = Π (ℓ₁ ▹ (Π (ℓ₂ ▹ ID)))
+NR₁ = Π · (ℓ₁ ▹ (Π  · (ℓ₂ ▹ ID)))
 
 _ : ⇓ {Δ = Δ} NR₁ ≡ Π▹ l₁ (Π▹ l₂ (⇓ ID))
 _ = refl
 
 
 NR₂ : Type Δ R[ ★ ]
-NR₂ = Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
+NR₂ = Π · (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit)))
 
-_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ Π▹ l₁ (l₂ ▹ Unit)
+_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ l₁ ▹ (Π▹ l₂ Unit)
 _ = refl
 
 NR₃ : Type Δ R[ ★ `→ ★ ]
-NR₃ = Π (ℓ₁ ▹ (ℓ₂ ▹ ID))
+NR₃ = Π · (ℓ₁ ▹ (ℓ₂ ▹ ID))
 
 _ : ⇓ {Δ = Δ} NR₃ ≡ l₁ ▹ (Π▹ l₂ (⇓ ID))
 _ = refl
 
 NR₄ : Type Δ R[ R[ ★ ] ]
-NR₄ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ Unit)))
+NR₄ = Π · (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} NR₄ ≡ l₁ ▹ (Π▹ l₂ (l₃ ▹ Unit))
+_ : ⇓ {Δ = Δ} NR₄ ≡ l₁ ▹ (l₂ ▹ (Π▹ l₃ Unit))
 _ = refl
 
 NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
-NR₅ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ ID)))
+NR₅ = Π · (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ ID)))
 
 _ : ⇓ {Δ = Δ} NR₅ ≡ l₁ ▹ (l₂ ▹ (Π▹ l₃ (⇓ ID)))
 _ = refl
 
--- NR₄ and NR₅ do not agree. This is bad.
+-- -- NR₄ and NR₅ do not agree. This is bad.
 
 NR₆ : Type Δ R[ R[ R[ ★ `→ ★ ] ] ]
-NR₆ = Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ (ℓ ▹ ID))))
+NR₆ = Π · (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ (ℓ ▹ ID))))
 
-_ : ⇓ {Δ = Δ} NR₆ ≡ {!!}
-_ = {!reflect NR₆!}
-
-
-----------------------------------------
--- Mixed Π and Σ w/ unreduced computation
-
-mix₀ : Type Δ ★
-mix₀ = Π (Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
-
-_ : ⇓ {Δ = Δ} mix₀ ≡ {!⇓ {Δ = Δ} mix₀!}
-_ = {!!}
+_ : ⇓ {Δ = Δ} NR₆ ≡ (l₁ ▹ (l₂ ▹ (l₃ ▹ (Π▹ l (⇓ ID)))))
+_ = refl
 
 
---------------------------------------------------------------------------------
--- Lifting nonsense
+-- ----------------------------------------
+-- -- Mixed Π and Σ w/ unreduced computation
 
-lift-L  : Type Δ ((★ `→ ★) `→ ★)
-lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
+-- mix₀ : Type Δ ★
+-- mix₀ = Π (Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
-_ = {!⇓ lift-L!}
-
+-- _ : ⇓ {Δ = Δ} mix₀ ≡ {!⇓ {Δ = Δ} mix₀!}
+-- _ = {!!}
 
 
 -- --------------------------------------------------------------------------------
--- -- Claims.
+-- -- Lifting nonsense
 
--- -- row-canonicity : (r : Type Δ R[ κ ]) → ∃[ x ] ∃[ τ ] ((⇓ r ≡ (x ▹ τ)) or isNE (⇓ r))
--- -- row-canonicity (` x) = {!!}
--- -- row-canonicity (r · r₁) = {!!}
--- -- row-canonicity (r ▹ r₁) = {!!}
--- -- row-canonicity (Π r) with ⇓ r 
--- -- ... | c = ⟨ {!!} , ⟨ {!!} , {!!} ⟩ ⟩
--- -- row-canonicity (Σ r) = {!!}
+-- lift-L  : Type Δ ((★ `→ ★) `→ ★)
+-- lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
+
+-- _ : ⇓ {Δ = Δ} lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
+-- _ = {!⇓ lift-L!}
+
+
+
+-- -- --------------------------------------------------------------------------------
+-- -- -- Claims.
+
+-- -- -- row-canonicity : (r : Type Δ R[ κ ]) → ∃[ x ] ∃[ τ ] ((⇓ r ≡ (x ▹ τ)) or isNE (⇓ r))
+-- -- -- row-canonicity (` x) = {!!}
+-- -- -- row-canonicity (r · r₁) = {!!}
+-- -- -- row-canonicity (r ▹ r₁) = {!!}
+-- -- -- row-canonicity (Π r) with ⇓ r 
+-- -- -- ... | c = ⟨ {!!} , ⟨ {!!} , {!!} ⟩ ⟩
+-- -- -- row-canonicity (Σ r) = {!!}
