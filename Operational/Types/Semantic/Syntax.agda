@@ -38,12 +38,12 @@ SemType : KEnv → Kind → Set
 -- SemType-R : KEnv → Kind → Set
 SemFunction : KEnv → Kind → Kind → Set
 
-SemFunction Δ₁ κ₁ κ₂ = List (Congruence Δ₁) × (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+SemFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
-  NeutralType Δ₁ (κ₁ `→ κ₂) or SemFunction Δ₁ κ₁ κ₂
+  NeutralType Δ₁ (κ₁ `→ κ₂) or List (Congruence Δ₁) × SemFunction Δ₁ κ₁ κ₂
 -- E.g. SemType-R (ℓ ▹ ⊤)
 SemType Δ R[ ★ ] = NormalType Δ R[ ★ ]
 -- E.g. SemType-R (ℓ ▹ ℓ)
@@ -51,7 +51,7 @@ SemType Δ R[ L ] = NormalType Δ R[ L ]
 -- E.g. SemType-R (ℓ ▹ λ x : ★. x)
 SemType Δ R[ κ₁ `→ κ₂ ] = 
   NeutralType Δ R[ κ₁ `→ κ₂ ] or 
-  (NormalType Δ L × SemFunction Δ κ₁ κ₂)
+  (NormalType Δ L × List (Congruence Δ) × SemFunction Δ κ₁ κ₂)
 -- E.g. SemType-R (ℓ₁ ▹ (ℓ₂ ▹ τ))
 SemType Δ R[ R[ κ ] ] = 
   NeutralType Δ R[ R[ κ ] ] or

@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Theorems.Stability where
 
 open import Rome.Operational.Prelude
@@ -12,6 +13,8 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
+
+open import Rome.Operational.Types.Theorems.Completeness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
