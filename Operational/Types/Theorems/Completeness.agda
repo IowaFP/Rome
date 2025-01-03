@@ -52,7 +52,61 @@ SemExtensionality {Δ₁} {κ₁} {κ₂} F G =
 Uniform {Δ₁} {κ₁} {κ₂} F = 
   ∀ {Δ₂ Δ₃} (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
   V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (F (ρ₂ ∘ ρ₁) (renSem ρ₂ V₂))
-  
+--------------------------------------------------------------------------------
+-- Semantic equality forms a PER
+
+refl-≋ : ∀ (τ : NeutralType Δ κ) → reflectNE τ ≋ reflectNE τ
+refl-≋ {κ = ★} τ = refl
+refl-≋ {κ = L} τ = refl
+refl-≋ {κ = κ `→ κ₁} τ = refl
+refl-≋ {κ = R[ ★ ]} τ = refl
+refl-≋ {κ = R[ L ]} τ = refl
+refl-≋ {κ = R[ κ `→ κ₁ ]} τ = refl
+refl-≋ {κ = R[ R[ κ ] ]} τ = refl
+
+
+
+--------------------------------------------------------------------------------
+-- Reflecting propositional equality of neutral types into semantic equality.
+
+
+reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
+reflect-≋ {κ = ★} refl = refl
+reflect-≋ {κ = L} refl = refl
+reflect-≋ {κ = κ `→ κ₁} eq = eq
+reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl-≋ τ₁
+
+--------------------------------------------------------------------------------
+-- Reify semantic equality back to propositional equality
+
+reify-≋→ : 
+  ∀ (F G : SemType Δ (κ₁ `→ κ₂)) →  _≋_ {Δ = Δ} {κ = κ₁ `→ κ₂} F  G →
+  reify {Δ = Δ} {κ = κ₁ `→ κ₂} F ≡ reify G
+reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂
+reify-≋→ (left τ₁) (left τ₂) refl = refl
+reify-≋→ (right ⟨ [] , F ⟩) (right ⟨ .[] , G ⟩)
+  ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩ = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
+reify-≋→  
+  (right ⟨ Π l ∷ cs , F ⟩) (right ⟨ .(Π l ∷ cs) , G ⟩)
+  (⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩) = 
+  cong (Π▹ l) (reify-≋ {τ₁ = (right ⟨ cs , _ ⟩)} {τ₂ = right ⟨ cs , _ ⟩} ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩)
+reify-≋→  
+  (right ⟨ Σ l ∷ cs , F ⟩) (right ⟨ .(Σ l ∷ cs) , G ⟩)
+  (⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩) = 
+  cong (Σ▹ l) (reify-≋ {τ₁ = (right ⟨ cs , _ ⟩)} {τ₂ = right ⟨ cs , _ ⟩} ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩)
+                  
+
+reify-≋ {κ = ★}  sem-eq = sem-eq
+reify-≋ {κ = L} sem-eq = sem-eq
+reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂ sem-eq
+reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
+reify-≋ {κ = R[ L ]} sem-eq = sem-eq
+reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right ⟨ l₁ , F ⟩} {right ⟨ l₂ , G ⟩} ⟨ refl , eeeqs ⟩ 
+  rewrite reify-≋→ (right F) (right G) eeeqs = refl
+reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
+reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ⟨ refl , sem-eq ⟩ 
+  rewrite reify-≋ sem-eq = refl
 
 --------------------------------------------------------------------------------
 -- Need:
