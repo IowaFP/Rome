@@ -23,10 +23,60 @@ open import Rome.Operational.Types.Theorems.Completeness
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
-stabilityNE : ∀ (τ : NeutralType Δ κ) → reflect (⇑NE τ) idEnv ≡ reflectNE τ
+stabilityNE : ∀ (τ : NeutralType Δ κ) → reflect (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
 
-stability   = {!!}
-stabilityNE = {!!}
+▵-stable : ∀ {l : NormalType Δ L} {τ : NeutralType Δ κ} → 
+           (l ▵ reflectNE τ) ≡ reflectNE (l ▹ τ)
+▵-stable {l = l} {τ} = {!!}
+
+-- This is all fairly *not* trivial
+stabilityNE {κ = ★} (` x) = refl
+stabilityNE {κ = ★} (τ · x) = {!!}
+stabilityNE {κ = ★} (Π τ) = {!!}
+stabilityNE {κ = ★} (Σ τ) = {!!}
+stabilityNE {κ = L} (` x) = refl
+stabilityNE {κ = L} (τ · x) = {!!}
+stabilityNE {κ = L} (Π τ) = {!!}
+stabilityNE {κ = L} (Σ τ) = {!!}
+stabilityNE {κ = κ₁ `→ κ₂} (` x) = refl
+stabilityNE {κ = κ₁ `→ κ₂} (τ · x) = {!!}
+stabilityNE {κ = κ₁ `→ κ₂} (Π τ) = {!!}
+stabilityNE {κ = κ₁ `→ κ₂} (Σ τ) = {!!}
+stabilityNE {κ = R[ ★ ]} (` x) = refl
+stabilityNE {κ = R[ ★ ]} (τ · x) = {!!}
+stabilityNE {κ = R[ ★ ]} (x ▹ τ) rewrite stability x | stabilityNE τ = {!!}
+stabilityNE {κ = R[ ★ ]} (Π τ) = {!!}
+stabilityNE {κ = R[ ★ ]} (Σ τ) = {!!}
+stabilityNE {κ = R[ L ]} (` x) = refl
+stabilityNE {κ = R[ L ]} (τ · x) = {!!}
+stabilityNE {κ = R[ L ]} (x ▹ τ) = {!!}
+stabilityNE {κ = R[ L ]} (Π τ) = {!!}
+stabilityNE {κ = R[ L ]} (Σ τ) = {!!}
+stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (` x) = refl
+stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (τ · x) = {!!}
+stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (x ▹ τ) = {!!}
+stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (Π τ) = {!!}
+stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (Σ τ) = {!!}
+stabilityNE {κ = R[ R[ κ ] ]} τ = {!!}
+
+stability Unit = refl
+stability {κ = ★} (ne x) = stabilityNE x
+stability {κ = L} (ne x) = stabilityNE x
+stability {κ = κ `→ κ₁} (ne x) = cong reify (stabilityNE x)
+stability {κ = R[ ★ ]} (ne x) = stabilityNE x
+stability {κ = R[ L ]} (ne x) = stabilityNE x
+stability {κ = R[ κ `→ κ₁ ]} (ne x) = {!!}
+stability {κ = R[ R[ κ ] ]} (ne x) = {!!}
+stability (`λ τ) = {!!}
+stability (τ₁ `→ τ₂) = {!!}
+stability (`∀ κ τ) = {!!}
+stability (μ τ) = {!!}
+stability (lab x) = refl
+stability (τ ▹ τ₁) = {!!}
+stability ⌊ τ ⌋ = {!!}
+stability (Π▹ τ τ₁) = {!!}
+stability (Σ▹ τ τ₁) = {!!}
+
 
 --------------------------------------------------------------------------------
 -- idempotency

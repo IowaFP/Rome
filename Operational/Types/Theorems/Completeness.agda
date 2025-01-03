@@ -64,17 +64,15 @@ refl-≋ {κ = R[ L ]} τ = refl
 refl-≋ {κ = R[ κ `→ κ₁ ]} τ = refl
 refl-≋ {κ = R[ R[ κ ] ]} τ = refl
 
-
-
 --------------------------------------------------------------------------------
 -- Reflecting propositional equality of neutral types into semantic equality.
 
 
-reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
-reflect-≋ {κ = ★} refl = refl
-reflect-≋ {κ = L} refl = refl
-reflect-≋ {κ = κ `→ κ₁} eq = eq
-reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl-≋ τ₁
+reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
+reflectNE-≋ {κ = ★} refl = refl
+reflectNE-≋ {κ = L} refl = refl
+reflectNE-≋ {κ = κ `→ κ₁} eq = eq
+reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl-≋ τ₁
 
 --------------------------------------------------------------------------------
 -- Reify semantic equality back to propositional equality
@@ -85,7 +83,7 @@ reify-≋→ :
 reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂
 reify-≋→ (left τ₁) (left τ₂) refl = refl
 reify-≋→ (right ⟨ [] , F ⟩) (right ⟨ .[] , G ⟩)
-  ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩ = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
+  ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩ = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
 reify-≋→  
   (right ⟨ Π l ∷ cs , F ⟩) (right ⟨ .(Π l ∷ cs) , G ⟩)
   (⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩) = 
@@ -107,6 +105,11 @@ reify-≋ {κ = R[ κ `→ κ₁ ]} {right ⟨ l₁ , F ⟩} {right ⟨ l₂ , G
 reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ⟨ refl , sem-eq ⟩ 
   rewrite reify-≋ sem-eq = refl
+
+--------------------------------------------------------------------------------
+--
+Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
+Env-≋ η₁ η₂ = ∀ {κ}(x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
 
 --------------------------------------------------------------------------------
 -- Need:
