@@ -26,39 +26,19 @@ open import Rome.Operational.Types.Theorems.Completeness
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → reflect (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
 
--- ▵-stable : ∀ {l : NormalType Δ L} {τ : NeutralType Δ κ} → 
---            (l ▵ reflectNE τ) ≡ reflectNE (l ▹ τ)
--- ▵-stable {l = l} {τ} = {!!}
-
 -- This is all fairly *not* trivial
 stabilityNE {κ = ★} (` x) = refl
-stabilityNE {κ = ★} (τ · x) = {!!}
-stabilityNE {κ = ★} (Π τ) = {!!}
-stabilityNE {κ = ★} (Σ τ) = {!!}
 stabilityNE {κ = L} (` x) = refl
-stabilityNE {κ = L} (τ · x) = {!!}
-stabilityNE {κ = L} (Π τ) = {!!}
-stabilityNE {κ = L} (Σ τ) = {!!}
-stabilityNE {κ = κ₁ `→ κ₂} (` x) = refl
-stabilityNE {κ = κ₁ `→ κ₂} (τ · x) = {!!}
-stabilityNE {κ = κ₁ `→ κ₂} (Π τ) = {!!}
-stabilityNE {κ = κ₁ `→ κ₂} (Σ τ) = {!!}
-stabilityNE {κ = R[ ★ ]} (` x) = refl
-stabilityNE {κ = R[ ★ ]} (τ · x) = {!!}
-stabilityNE {κ = R[ ★ ]} (x ▹ τ) rewrite stability x | stability τ | ren-id x = refl
-stabilityNE {κ = R[ ★ ]} (Π τ) = {!!}
-stabilityNE {κ = R[ ★ ]} (Σ τ) = {!!}
-stabilityNE {κ = R[ L ]} (` x) = refl
-stabilityNE {κ = R[ L ]} (τ · x) = {!!}
-stabilityNE {κ = R[ L ]} (x ▹ τ) = {!!}
-stabilityNE {κ = R[ L ]} (Π τ) = {!!}
-stabilityNE {κ = R[ L ]} (Σ τ) = {!!}
-stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (` x) = refl
-stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (τ · x) = {!!}
-stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (x ▹ τ) = {!!}
-stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (Π τ) = {!!}
-stabilityNE {κ = R[ κ₁ `→ κ₂ ]} (Σ τ) = {!!}
-stabilityNE {κ = R[ R[ κ ] ]} τ = {!!}
+stabilityNE {κ = κ `→ κ₁} (` x) = refl
+stabilityNE {κ = R[ κ ]} (` x) = refl
+stabilityNE (τ · x) = {!!}
+stabilityNE (_▹_ {★} l τ) rewrite stability l | stability τ | ren-id l = refl
+stabilityNE (_▹_ {L} l τ) rewrite stability l | stability τ | ren-id l = refl
+stabilityNE (_▹_ {κ `→ κ₁} l τ) rewrite stability l | stability τ | ren-id l = {!!}
+-- Bad!!!!
+stabilityNE (_▹_ {R[ κ ]} l τ) rewrite stability l | stability τ | ren-id l = {!!}
+stabilityNE (Π τ) = {!!}
+stabilityNE (Σ τ) = {!!}
 
 stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x
