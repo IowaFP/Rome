@@ -26,6 +26,7 @@ open import Rome.Operational.Types.Properties
 --    binding site---but we later want terms to be indexed by NormalTypes, and 
 --    F (μ F) is not necessarily in normal form (it is so only if F is neutral).
 
+infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
 data NeutralType Δ : Kind → Set where
 
@@ -41,12 +42,11 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
-  _▹_ :
-    
-      -- change this to neutral.
+  _▹_ : 
+      
       NormalType Δ L → 
-      NeutralType Δ κ →
-      ------------------
+      NormalType Δ κ → 
+      ---------------------------
       NeutralType Δ R[ κ ]
 
   Π  : 
@@ -121,12 +121,6 @@ data NormalType Δ where
       --------
       NormalType Δ L
 
-  -- Row singleton formation
-  _▹_ :
-      NormalType Δ L → NormalType Δ κ →
-      -------------------
-      NormalType Δ R[ κ ]
-
   -- label constant formation
   ⌊_⌋ :
       NormalType Δ L →
@@ -186,17 +180,16 @@ data NormalType Δ where
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
-⇑ (Π▹ l τ) = Π · (⇑ l ▹ ⇑ τ)
-⇑ (Σ▹ l τ) = Σ · (⇑ l ▹ ⇑ τ)
+⇑ (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
+⇑ (Σ▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
 ⇑ (lab l) = lab l
-⇑ (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑ τ₂)
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 -- ⇑ (↑ τ) = ↑ (⇑ τ)
 -- ⇑ (τ ↑) = (⇑ τ) ↑
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-⇑NE (τ₁ ▹ τ₂) = (⇑ τ₁) ▹ (⇑NE τ₂)
+⇑NE (τ₁ ▹ τ₂) = (`▹` · (⇑ τ₁)) · (⇑ τ₂) -- (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (Π τ) = Π · (⇑NE τ)
 ⇑NE (Σ τ) = Σ · (⇑NE τ)
 -- ⇑NE (↑ F) = ↑ (⇑NE F)

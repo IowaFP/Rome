@@ -63,10 +63,10 @@ data Type Δ : Kind → Set where
         Type Δ L
 
   -- Row singleton formation
-  _▹_ :
-         Type Δ L → Type Δ κ →
+  `▹` :
+
          -------------------
-         Type Δ R[ κ ]
+         Type Δ (L `→ κ `→ R[ κ ])
 
   -- label constant formation
   ⌊_⌋ :

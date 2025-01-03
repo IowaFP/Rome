@@ -18,6 +18,9 @@ open import Rome.Operational.Types.Semantic.NBE
 --
 
 postulate
+  -- renaming functor laws
+  ren-id    : ∀ (τ : NormalType Δ κ) → ren id τ ≡ τ
+
   -- renaming commutes with beta-reduction.
   comm-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                     ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]

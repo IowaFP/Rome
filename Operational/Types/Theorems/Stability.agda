@@ -11,6 +11,7 @@ import Rome.Operational.Types.Properties as TypeProps
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
+open import Rome.Operational.Types.Normal.Properties.Postulates
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -25,9 +26,9 @@ open import Rome.Operational.Types.Theorems.Completeness
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → reflect (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
 
-▵-stable : ∀ {l : NormalType Δ L} {τ : NeutralType Δ κ} → 
-           (l ▵ reflectNE τ) ≡ reflectNE (l ▹ τ)
-▵-stable {l = l} {τ} = {!!}
+-- ▵-stable : ∀ {l : NormalType Δ L} {τ : NeutralType Δ κ} → 
+--            (l ▵ reflectNE τ) ≡ reflectNE (l ▹ τ)
+-- ▵-stable {l = l} {τ} = {!!}
 
 -- This is all fairly *not* trivial
 stabilityNE {κ = ★} (` x) = refl
@@ -44,7 +45,7 @@ stabilityNE {κ = κ₁ `→ κ₂} (Π τ) = {!!}
 stabilityNE {κ = κ₁ `→ κ₂} (Σ τ) = {!!}
 stabilityNE {κ = R[ ★ ]} (` x) = refl
 stabilityNE {κ = R[ ★ ]} (τ · x) = {!!}
-stabilityNE {κ = R[ ★ ]} (x ▹ τ) rewrite stability x | stabilityNE τ = {!!}
+stabilityNE {κ = R[ ★ ]} (x ▹ τ) rewrite stability x | stability τ | ren-id x = refl
 stabilityNE {κ = R[ ★ ]} (Π τ) = {!!}
 stabilityNE {κ = R[ ★ ]} (Σ τ) = {!!}
 stabilityNE {κ = R[ L ]} (` x) = refl
@@ -72,7 +73,6 @@ stability (τ₁ `→ τ₂) = {!!}
 stability (`∀ κ τ) = {!!}
 stability (μ τ) = {!!}
 stability (lab x) = refl
-stability (τ ▹ τ₁) = {!!}
 stability ⌊ τ ⌋ = {!!}
 stability (Π▹ τ τ₁) = {!!}
 stability (Σ▹ τ τ₁) = {!!}
