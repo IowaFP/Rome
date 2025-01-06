@@ -6,7 +6,7 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-import Rome.Operational.Types as Types
+open import Rome.Operational.Types as Types
 import Rome.Operational.Types.Properties as TypeProps
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
@@ -21,7 +21,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 -- Completeness relation on semantic types
 _≋_ : SemType Δ κ → SemType Δ κ → Set
-SemExtensionality : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
+Extensionality-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
 Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
 
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
@@ -30,7 +30,7 @@ _≋_ {κ = κ₁ `→ κ₂} (left x) (left y) = x ≡ y
 _≋_ {κ = κ₁ `→ κ₂} (left x) (right y) = ⊥
 _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right ⟨ cs₁ , F ⟩) (right ⟨ cs₂ , G ⟩) = 
-  cs₁ ≡ cs₂ × Uniform F × Uniform G × SemExtensionality {Δ₁} F G
+  cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
  
 _≋_ {κ = R[ ★ ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
@@ -38,14 +38,14 @@ _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ κ `→ κ₁ ]} (right x) (left y) = ⊥
 _≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ⟨ l₁ , ⟨ cs₁ , F ⟩ ⟩) (right ⟨ l₂ , ⟨ cs₂ , G ⟩ ⟩) = 
-  l₁ ≡ l₂ × cs₁ ≡ cs₂ × Uniform F × Uniform G × SemExtensionality {Δ₁} F G
+  l₁ ≡ l₂ × cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
 _≋_ {κ = R[ R[ κ ] ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ R[ κ ] ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = R[ R[ κ ] ]} (right ⟨ l₁ , τ₁ ⟩) (right ⟨ l₂ , τ₂ ⟩) = 
   l₁ ≡ l₂ × τ₁ ≋ τ₂
 
-SemExtensionality {Δ₁} {κ₁} {κ₂} F G = 
+Extensionality-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
   V₁ ≋ V₂ → F ρ V₁ ≋ G ρ V₂
 
@@ -63,6 +63,17 @@ refl-≋ {κ = R[ ★ ]} τ = refl
 refl-≋ {κ = R[ L ]} τ = refl
 refl-≋ {κ = R[ κ `→ κ₁ ]} τ = refl
 refl-≋ {κ = R[ R[ κ ] ]} τ = refl
+
+sym-≋ : ∀ (τ₁ τ₂ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
+sym-≋ {κ = ★} t₁ t₂ refl = refl
+sym-≋ {κ = L} t₁ t₂ refl = refl
+sym-≋ {κ = κ `→ κ₁} (left x) (left x₁) refl = refl
+sym-≋ {κ = κ `→ κ₁} (right ⟨ cs , F ⟩) (right ⟨ .cs , G ⟩) ⟨ refl , ⟨ Unif-F , ⟨ Unif-G , Ext ⟩ ⟩  ⟩ = ⟨ refl , ⟨ Unif-G , ⟨ Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z →
+     sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z))) ⟩ ⟩ ⟩
+sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
+sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
+sym-≋ {κ = R[ κ `→ κ₁ ]} t₁ t₂ eq-1 = {!   !}
+sym-≋ {κ = R[ R[ κ ] ]} t₁ t₂ eq-1 = {!   !} 
 
 --------------------------------------------------------------------------------
 -- Reflecting propositional equality of neutral types into semantic equality.
@@ -107,9 +118,32 @@ reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ⟨ refl , sem-eq ⟩
   rewrite reify-≋ sem-eq = refl
 
 --------------------------------------------------------------------------------
---
+-- Pointwise PER for environments
+
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ η₁ η₂ = ∀ {κ}(x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+
+--------------------------------------------------------------------------------
+-- id extension
+--
+-- Lemma needed for semantic renaming commutation theorem.
+-- States that if we evaluate a single term in related environments, we get related results.
+
+postulate 
+  idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
+        reflect τ η₁ ≋ reflect τ η₂
+
+
+--------------------------------------------------------------------------------
+-- Semantic renaming commutes with evaluation (reflection of types)
+
+postulate
+  ↻-renSem-reflect : 
+    ∀ (τ : Type Δ₁ κ) → (η₁ η₂ : Env Δ₁ Δ₂) → (Ρ : Env-≋ η₁ η₂) →
+      (ρ : Renaming Δ₂ Δ₃) → (renSem ρ (reflect τ η₁)) ≋ reflect τ (renSem ρ ∘ η₂)
+
+
+
 
 --------------------------------------------------------------------------------
 -- Need:

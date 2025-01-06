@@ -22,19 +22,19 @@ postulate
   ren-id    : ∀ (τ : NormalType Δ κ) → ren id τ ≡ τ
 
   -- renaming commutes with beta-reduction.
-  comm-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
+  ↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                     ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]
 
   -- weakening commutes with substitution.
-  comm-weaken-sub : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
+  ↻-weaken-sub : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
                     weaken {κ₁ = κ'} (sub σ τ) ≡ sub (↑s σ) (weaken τ)
 
-  comm-sub-↑      : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
+  ↻-sub-↑      : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
                       sub (↑s σ) τ 
                     ≡ 
                       reflect (Types.sub (Types.↑s (⇑ ∘ σ)) (⇑ τ)) (↑e (idEnv))
 
-  comm-sub-β      : ∀ (σ : Sub Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
+  ↻-sub-β      : ∀ (σ : Sub Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                       sub σ (τ₁ β[ τ₂ ])
                     ≡ 
                       reflect (Types.sub (Types.↑s (⇑ ∘ σ)) (⇑ τ₁)) (↑e (idEnv))
