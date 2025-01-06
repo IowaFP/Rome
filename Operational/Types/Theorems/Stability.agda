@@ -12,6 +12,7 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Properties.Postulates
+open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -36,7 +37,8 @@ stabilityNE {Δ} {κ `→ κ₁} (τ₁ · τ₂) rewrite stabilityNE τ₁ | st
 stabilityNE {Δ} {R[ κ ]} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl    
 stabilityNE (_▹_ {★} l τ) rewrite stability l | stability τ | ren-id l = refl
 stabilityNE (_▹_ {L} l τ) rewrite stability l | stability τ | ren-id l = refl
-stabilityNE (_▹_ {κ `→ κ₁} l τ) rewrite stability l | stability τ | ren-id l = {! !}
+-- Pfft!!!
+stabilityNE (_▹_ {κ `→ κ₁} l τ) rewrite stability l | stability τ | ren-id l = {!stability τ !}
 -- Bad!!!!
 stabilityNE (_▹_ {R[ κ ]} l τ) rewrite stability l | stability τ | ren-id l = {! !}
 stabilityNE {κ = ★} (Π τ) rewrite stabilityNE τ = refl
@@ -60,8 +62,8 @@ stability {κ = L} (ne x) = stabilityNE x
 stability {κ = κ `→ κ₁} (ne x) = cong reify (stabilityNE x)
 stability {κ = R[ ★ ]} (ne x) = stabilityNE x
 stability {κ = R[ L ]} (ne x) = stabilityNE x
-stability {κ = R[ κ `→ κ₁ ]} (ne x) = {! !}
-stability {κ = R[ R[ κ ] ]} (ne x) = {! !}
+stability {κ = R[ κ `→ κ₁ ]} (ne x) rewrite stabilityNE x = refl
+stability {κ = R[ R[ κ ] ]} (ne x) rewrite stabilityNE x = refl
 stability {κ = κ₁ `→ κ₂} (`λ τ) = 
   cong `λ 
     (trans 
