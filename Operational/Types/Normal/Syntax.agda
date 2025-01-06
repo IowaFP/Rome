@@ -127,17 +127,17 @@ data NormalType Δ where
       -----------------
       NormalType Δ ★
 
-  Π▹ :
+--   Π▹ :
 
-      NormalType Δ L →  NormalType Δ κ → 
-      -----------------------
-      NormalType Δ κ
+--       NormalType Δ L →  NormalType Δ κ → 
+--       -----------------------
+--       NormalType Δ κ
 
-  Σ▹     :
+--   Σ▹     :
 
-      NormalType Δ L → NormalType Δ κ → 
-      ----------------
-      NormalType Δ κ
+--       NormalType Δ L → NormalType Δ κ → 
+--       ----------------
+--       NormalType Δ κ
 
   -- ↑_ : 
 
@@ -180,8 +180,8 @@ data NormalType Δ where
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
-⇑ (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
-⇑ (Σ▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
+-- ⇑ (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
+-- ⇑ (Σ▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 -- ⇑ (↑ τ) = ↑ (⇑ τ)

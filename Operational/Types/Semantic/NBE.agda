@@ -34,8 +34,8 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ( [] , F )) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = κ₁ `→ κ₂} (right ( Π l ∷ cs , F )) = Π▹ l (reify (right ( cs , F )))
-reify {κ = κ₁ `→ κ₂} (right ( Σ l ∷ cs , F )) = Σ▹ l (reify (right ( cs , F )))
+reify {κ = κ₁ `→ κ₂} (right ( Π l ∷ cs , F )) = ne (Π (l ▹ (reify (right (cs , F))))) -- Π▹ l (reify (right ( cs , F )))
+reify {κ = κ₁ `→ κ₂} (right ( Σ l ∷ cs , F )) =  ne (Σ (l ▹ (reify (right (cs , F)))))
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
@@ -86,11 +86,7 @@ _▵_ {κ = R[ κ ]} ℓ τ = right ( ℓ , τ )
 
 π : SemType Δ R[ κ ] → SemType Δ κ
 π {κ = ★} (ne x) = ne (Π x)
-π {Δ} {κ = ★} (Π▹ ℓ τ) = Π▹ ℓ (π {Δ = Δ} {κ = ★} τ)
-π {Δ} {κ = ★} (Σ▹ ℓ τ) = Σ▹ ℓ (π {Δ = Δ} {κ = ★} τ)
 π {κ = L} (ne x) = ne (Π x)
-π {Δ} {κ = L} (Π▹ ℓ τ) = Π▹ ℓ (π {Δ = Δ} {κ = L} τ)
-π {Δ} {κ = L} (Σ▹ ℓ τ) = Σ▹ ℓ (π {Δ = Δ} {κ = L} τ)
 π {κ = κ₁ `→ κ₂} (left x) = left (Π x)
 π {κ = κ₁ `→ κ₂} (right ( ℓ , ( cs , F ) )) = right ( ((Π ℓ) ∷ cs) , F )
 π {Δ} {κ = R[ κ ]} (left t) = go t
@@ -107,11 +103,7 @@ _▵_ {κ = R[ κ ]} ℓ τ = right ( ℓ , τ )
 
 σ : SemType Δ R[ κ ] → SemType Δ κ
 σ {κ = ★} (ne x) = ne (Σ x)
-σ {Δ} {κ = ★} (Π▹ ℓ τ) = Π▹ ℓ (σ {Δ = Δ} {κ = ★} τ)
-σ {Δ} {κ = ★} (Σ▹ ℓ τ) = Σ▹ ℓ (σ {Δ = Δ} {κ = ★} τ)
 σ {κ = L} (ne x) = ne (Σ x)
-σ {Δ} {κ = L} (Π▹ ℓ τ) = Π▹ ℓ (σ {Δ = Δ} {κ = L} τ)
-σ {Δ} {κ = L} (Σ▹ ℓ τ) = Σ▹ ℓ (σ {Δ = Δ} {κ = L} τ)
 σ {κ = κ₁ `→ κ₂} (left x) = left (Σ x)
 σ {κ = κ₁ `→ κ₂} (right ( ℓ , ( cs , F ) )) = right ( ((Σ ℓ) ∷ cs) , F )
 σ {Δ} {κ = R[ κ ]} (left t) = go t

@@ -78,23 +78,6 @@ stability (`∀ κ τ) =
             (stability τ)))
 stability (μ (ne x)) rewrite stabilityNE x = refl
 stability (μ (`λ τ)) rewrite stability (`λ τ) = cong μ refl
-stability (μ (Π▹ l τ)) = {!   !}
-stability (μ (Σ▹ l τ)) = {!   !}
--- More problems!!!
--- We have goal:
---  ne (Π (l ▹ Unit)) ≡ Π▹ l Unit
--- Noncanonicity!!! Just get fucking rid of Π▹!!!
-stability {κ = κ} (Π▹ l Unit) rewrite ren-id (reflect (⇑ l) (λ x → reflectNE (` x))) | stability l  = {!   !}
-stability {κ = κ} (Π▹ l (ne x)) = {!   !}
-stability {κ = κ} (Π▹ l (`λ τ)) = {!   !}
-stability {κ = κ} (Π▹ l (τ `→ τ₁)) = {!   !}
-stability {κ = κ} (Π▹ l (`∀ κ₁ τ)) = {!   !}
-stability {κ = κ} (Π▹ l (μ τ)) = {!   !}
-stability {κ = κ} (Π▹ l (lab x)) = {!   !}
-stability {κ = κ} (Π▹ l ⌊ τ ⌋) = {!   !}
-stability {κ = κ} (Π▹ l (Π▹ τ τ₁)) = {!   !}
-stability {κ = κ} (Π▹ l (Σ▹ τ τ₁)) = {!   !}
-stability (Σ▹ l τ) = {!  !}
 stability (lab x) = refl
 stability ⌊ τ ⌋ rewrite stability τ = refl
 stability (τ₁ `→ τ₂) rewrite stability τ₁ | stability τ₂ = refl

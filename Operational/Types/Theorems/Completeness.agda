@@ -111,13 +111,14 @@ reify-≋→ (right ( [] , F )) (right ( .[] , G ))
 reify-≋→  
   (right ( Π l ∷ cs , F )) (right ( .(Π l ∷ cs) , G ))
   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
-  cong (Π▹ l) (reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext ) ) ))
+    cong ne (cong Π (cong (_▹_ l) 
+    ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
 reify-≋→  
   (right ( Σ l ∷ cs , F )) (right ( .(Σ l ∷ cs) , G ))
   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
-  cong (Σ▹ l) (reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext ) ) ))
+    cong ne (cong Σ (cong (_▹_ l) 
+    ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
                   
-
 reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
 reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂ sem-eq
@@ -168,4 +169,4 @@ postulate
 -- - reflectCR
 -- - ren⊧-reflect
 -- - reifyCR
- 
+  
