@@ -48,12 +48,24 @@ stability {κ = R[ ★ ]} (ne x) = stabilityNE x
 stability {κ = R[ L ]} (ne x) = stabilityNE x
 stability {κ = R[ κ `→ κ₁ ]} (ne x) = {! !}
 stability {κ = R[ R[ κ ] ]} (ne x) = {! !}
-stability {κ = κ₁ `→ κ₂} (`λ τ) = {! idext ((λ { Z → reflectNE-≋ refl ; (S α) → ↻-renSem-reflectNE S (` α)})) (⇑ τ) !}
-    -- cong `λ 
-    -- (trans (idext {κ = {!   !}} ((λ { Z → reflectNE-≋ refl ; (S α) → ↻-renSem-reflectNE S (` α)})) {!   !}) 
-    -- (stability τ))
-stability (`∀ κ τ) = {!  !}
-stability (μ τ) = {!  !}
+stability {κ = κ₁ `→ κ₂} (`λ τ) = 
+  cong `λ 
+    (trans 
+        (reify-≋ 
+            (idext (λ { Z → reflectNE-≋ refl
+                          ; (S α) → ↻-renSem-reflectNE S (` α)}) (⇑ τ)))
+        (stability τ))
+stability (`∀ κ τ) = 
+    cong (`∀ κ) 
+        ((trans 
+            (reify-≋ 
+                (idext (λ { Z → reflectNE-≋ refl 
+                              ; (S α) → ↻-renSem-reflectNE S (` α)}) (⇑ τ)))
+            (stability τ)))
+stability (μ (ne x)) rewrite stabilityNE x = refl
+stability (μ (`λ τ)) rewrite stability (`λ τ) = cong μ refl
+stability (μ (Π▹ τ τ₁)) = {!   !}
+stability (μ (Σ▹ τ τ₁)) = {!   !}
 stability (Π▹ τ τ₁) = {!  !}
 stability (Σ▹ τ τ₁) = {!  !}
 stability (lab x) = refl
