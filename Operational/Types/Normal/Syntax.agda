@@ -159,10 +159,10 @@ data NormalType Δ where
 -- Counter-example:
 -- Π▹ l (ne x)
 -- row-canonicity : (r : NormalType Δ R[ κ ]) → ∃[ x ] (ne x ≡ r) or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
--- row-canonicity (ne x) = left ⟨ x , refl ⟩
--- row-canonicity (l ▹ τ) = right ⟨ l , ⟨ τ , refl ⟩ ⟩
+-- row-canonicity (ne x) = left ( x , refl )
+-- row-canonicity (l ▹ τ) = right ( l , ( τ , refl ) )
 -- row-canonicity (Π▹ l τ) with row-canonicity τ
--- ... | left ⟨ x , refl ⟩ = left {!!}
+-- ... | left ( x , refl ) = left {!!}
 -- ... | right y = {!!}
 -- row-canonicity (Σ▹ l τ) = {!!}
 

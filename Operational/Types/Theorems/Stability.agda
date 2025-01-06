@@ -69,5 +69,5 @@ idempotency τ rewrite stability (⇓ τ) = refl
 --   
 
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
-surjectivity τ = ⟨ ⇑ τ , stability τ ⟩ 
+surjectivity τ = ( ⇑ τ , stability τ ) 
 

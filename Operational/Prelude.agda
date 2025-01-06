@@ -14,9 +14,9 @@ open import Data.Maybe using (Maybe ; just ; nothing) public
 
 open Sum using (_or_ ; left ; right) public
 import Data.Product as Product
-  renaming (proj₁ to fst ; proj₂ to snd ; _,_ to ⟨_,_⟩) 
+  renaming (proj₁ to fst ; proj₂ to snd) 
 open Product 
-  using (_×_ ; fst ; snd ; ⟨_,_⟩ ; Σ-syntax ; ∃ ; ∃-syntax) 
+  using (_×_ ; fst ; snd ; _,_ ; Σ-syntax ; ∃ ; ∃-syntax) 
   public
 
 open import Data.Nat using (ℕ ; zero ; suc) public

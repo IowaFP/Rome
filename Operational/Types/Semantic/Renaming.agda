@@ -29,18 +29,19 @@ renSem-R : Renaming Δ₁ Δ₂ → SemType Δ₁ R[ κ ] → SemType Δ₂ R[ �
 renSem {κ = ★} ρ τ = ren ρ τ
 renSem {κ = L} ρ τ = ren ρ τ
 renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
-renSem {κ = κ `→ κ₁} ρ (right ⟨ cs , F ⟩) = right ⟨ renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))) ⟩
+renSem {κ = κ `→ κ₁} ρ (right (cs , F)) = right (renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))))
 
 renSem {κ = R[ κ ]} ρ τ = renSem-R ρ τ
 renSem-R {κ = ★} ρ τ = ren ρ τ
 renSem-R {κ = L} ρ τ = ren ρ τ
 renSem-R {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
-renSem-R {κ = κ `→ κ₁} ρ (right ⟨ l , ⟨ cs , F ⟩ ⟩) = right ⟨ ren ρ l , ⟨ renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))) ⟩ ⟩
+renSem-R {κ = κ `→ κ₁} ρ (right ( l , (cs , F))) = right (ren ρ l , renCs ρ cs , ((λ ρ' → F (ρ' ∘ ρ))))
 renSem-R {κ = R[ κ ]} ρ (left τ) = left (renNE ρ τ)
-renSem-R {κ = R[ κ ]} ρ (right ⟨ l , τ ⟩) = right ⟨ (ren ρ l) , (renSem ρ τ) ⟩
+renSem-R {κ = R[ κ ]} ρ (right (l , τ)) = right (ren ρ l , renSem ρ τ)
 
---------------------------------------------------------------------------------
--- Weakening
+-- --------------------------------------------------------------------------------
+-- -- Weakening
 
 weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
 weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
+ 

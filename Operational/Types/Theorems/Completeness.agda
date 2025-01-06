@@ -29,7 +29,7 @@ _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = κ₁ `→ κ₂} (left x) (left y) = x ≡ y
 _≋_ {κ = κ₁ `→ κ₂} (left x) (right y) = ⊥
 _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
-_≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right ⟨ cs₁ , F ⟩) (right ⟨ cs₂ , G ⟩) = 
+_≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right ( cs₁ , F )) (right ( cs₂ , G )) = 
   cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
  
 _≋_ {κ = R[ ★ ]} τ₁ τ₂ = τ₁ ≡ τ₂
@@ -37,12 +37,12 @@ _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ κ `→ κ₁ ]} (right x) (left y) = ⊥
-_≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ⟨ l₁ , ⟨ cs₁ , F ⟩ ⟩) (right ⟨ l₂ , ⟨ cs₂ , G ⟩ ⟩) = 
+_≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ( l₁ , ( cs₁ , F ) )) (right ( l₂ , ( cs₂ , G ) )) = 
   l₁ ≡ l₂ × cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
 _≋_ {κ = R[ R[ κ ] ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ R[ κ ] ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
-_≋_ {Δ₁} {κ = R[ R[ κ ] ]} (right ⟨ l₁ , τ₁ ⟩) (right ⟨ l₂ , τ₂ ⟩) = 
+_≋_ {Δ₁} {κ = R[ R[ κ ] ]} (right ( l₁ , τ₁ )) (right ( l₂ , τ₂ )) = 
   l₁ ≡ l₂ × τ₁ ≋ τ₂
 
 Extensionality-≋ {Δ₁} {κ₁} {κ₂} F G = 
@@ -68,12 +68,25 @@ sym-≋ : ∀ (τ₁ τ₂ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ
 sym-≋ {κ = ★} t₁ t₂ refl = refl
 sym-≋ {κ = L} t₁ t₂ refl = refl
 sym-≋ {κ = κ `→ κ₁} (left x) (left x₁) refl = refl
-sym-≋ {κ = κ `→ κ₁} (right ⟨ cs , F ⟩) (right ⟨ .cs , G ⟩) ⟨ refl , ⟨ Unif-F , ⟨ Unif-G , Ext ⟩ ⟩  ⟩ = ⟨ refl , ⟨ Unif-G , ⟨ Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z →
-     sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z))) ⟩ ⟩ ⟩
+sym-≋ {κ = κ `→ κ₁} 
+  (right (cs , F)) (right (.cs , G)) 
+  (refl , (Unif-F , (Unif-G , Ext))) = 
+     refl ,  Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
 sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} t₁ t₂ eq-1 = {!   !}
-sym-≋ {κ = R[ R[ κ ] ]} t₁ t₂ eq-1 = {!   !} 
+sym-≋ {κ = R[ κ `→ κ₁ ]} (left x) (left x₁) refl = refl
+sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , cs , snd₁)) (right (.l , .cs , snd₂)) (refl , refl , Unif-F , Unif-G , Ext) = refl ,
+  refl ,
+  Unif-G ,
+  Unif-F ,
+  (λ {Δ₂} ρ {V₁} {V₂} z →
+     sym-≋ (snd₁ ρ V₂) (snd₂ ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
+sym-≋ {κ = R[ R[ κ ] ]} (left x) (left x₁) refl = refl
+sym-≋ {κ = R[ R[ κ ] ]} (right (l , τ₁)) (right (.l , τ₂)) (refl , eq) = refl , sym-≋ τ₁ τ₂ eq 
+
+postulate
+  -- todo
+  trans-≋ : ∀ (τ₁ τ₂ τ₃ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
 
 --------------------------------------------------------------------------------
 -- Reflecting propositional equality of neutral types into semantic equality.
@@ -93,16 +106,16 @@ reify-≋→ :
   reify {Δ = Δ} {κ = κ₁ `→ κ₂} F ≡ reify G
 reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂
 reify-≋→ (left τ₁) (left τ₂) refl = refl
-reify-≋→ (right ⟨ [] , F ⟩) (right ⟨ .[] , G ⟩)
-  ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩ = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
+reify-≋→ (right ( [] , F )) (right ( .[] , G ))
+  ( refl , ( unif-F , ( unif-G , ext ) ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
 reify-≋→  
-  (right ⟨ Π l ∷ cs , F ⟩) (right ⟨ .(Π l ∷ cs) , G ⟩)
-  (⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩) = 
-  cong (Π▹ l) (reify-≋ {τ₁ = (right ⟨ cs , _ ⟩)} {τ₂ = right ⟨ cs , _ ⟩} ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩)
+  (right ( Π l ∷ cs , F )) (right ( .(Π l ∷ cs) , G ))
+  (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
+  cong (Π▹ l) (reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext ) ) ))
 reify-≋→  
-  (right ⟨ Σ l ∷ cs , F ⟩) (right ⟨ .(Σ l ∷ cs) , G ⟩)
-  (⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩) = 
-  cong (Σ▹ l) (reify-≋ {τ₁ = (right ⟨ cs , _ ⟩)} {τ₂ = right ⟨ cs , _ ⟩} ⟨ refl , ⟨ unif-F , ⟨ unif-G , ext ⟩ ⟩ ⟩)
+  (right ( Σ l ∷ cs , F )) (right ( .(Σ l ∷ cs) , G ))
+  (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
+  cong (Σ▹ l) (reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext ) ) ))
                   
 
 reify-≋ {κ = ★}  sem-eq = sem-eq
@@ -111,10 +124,10 @@ reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂
 reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
 reify-≋ {κ = R[ L ]} sem-eq = sem-eq
 reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right ⟨ l₁ , F ⟩} {right ⟨ l₂ , G ⟩} ⟨ refl , eeeqs ⟩ 
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right ( l₁ , F )} {right ( l₂ , G )} ( refl , eeeqs ) 
   rewrite reify-≋→ (right F) (right G) eeeqs = refl
 reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ⟨ refl , sem-eq ⟩ 
+reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
   rewrite reify-≋ sem-eq = refl
 
 --------------------------------------------------------------------------------
@@ -151,3 +164,4 @@ postulate
 -- - reflectCR
 -- - ren⊧-reflect
 -- - reifyCR
+ 
