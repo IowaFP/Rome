@@ -24,7 +24,7 @@ reflectNE {κ = R[ ★ ]} τ       = ne τ
 reflectNE {κ = R[ L ]} τ       = ne τ
 reflectNE {κ = κ `→ κ₁} τ     = left τ
 reflectNE {κ = R[ _ `→ _ ]} τ = left τ
-reflectNE {κ = R[ R[ κ ] ]} τ  = left τ
+reflectNE {κ = R[ R[ κ ] ]} τ = left τ 
 
 --------------------------------------------------------------------------------
 -- reification of semantic types
@@ -81,8 +81,8 @@ _▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▵_ {κ = ★} ℓ τ = ne (ℓ ▹ τ) -- ℓ ▹ τ
 _▵_ {κ = L} ℓ τ = ne (ℓ ▹ τ) -- ℓ ▹ τ
 _▵_ {κ = κ₁ `→ κ₂} ℓ (left x) = left (ℓ ▹ ne x) -- left (ℓ ▹ x)
-_▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right ( ℓ , F )
-_▵_ {κ = R[ κ ]} ℓ τ = right ( ℓ , τ )
+_▵_ {κ = κ₁ `→ κ₂} ℓ (right (cs , F)) = left (ℓ ▹ reify (right (cs , F))) 
+_▵_ {κ = R[ κ ]} ℓ τ = left (ℓ ▹ (reify τ))
 
 π : SemType Δ R[ κ ] → SemType Δ κ
 π {κ = ★} (ne x) = ne (Π x)

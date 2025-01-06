@@ -37,10 +37,14 @@ stabilityNE {Δ} {κ `→ κ₁} (τ₁ · τ₂) rewrite stabilityNE τ₁ | st
 stabilityNE {Δ} {R[ κ ]} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl    
 stabilityNE (_▹_ {★} l τ) rewrite stability l | stability τ | ren-id l = refl
 stabilityNE (_▹_ {L} l τ) rewrite stability l | stability τ | ren-id l = refl
--- Pfft!!!
-stabilityNE (_▹_ {κ `→ κ₁} l τ) rewrite stability l | stability τ | ren-id l = {!stability τ !}
--- Bad!!!!
-stabilityNE (_▹_ {R[ κ ]} l τ) rewrite stability l | stability τ | ren-id l = {! !}
+stabilityNE (_▹_ {κ `→ κ₁} l (ne x)) rewrite stability l | stabilityNE x | ren-id l = refl
+stabilityNE (_▹_ {κ `→ κ₁} l (`λ τ)) rewrite ren-id l | ren-id (reflect (⇑ l) (λ x → reflectNE (` x))) | stability l = 
+    cong left (cong (_▹_ l) (cong `λ ((trans 
+        (reify-≋ 
+            (idext (λ { Z → reflectNE-≋ refl
+                          ; (S α) → ↻-renSem-reflectNE S (` α)}) (⇑ τ)))
+        (stability τ))))) 
+stabilityNE (_▹_ {R[ κ ]} l τ) rewrite stability l | stability τ | ren-id l = refl 
 stabilityNE {κ = ★} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = L} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ `→ κ₁} (Π τ) rewrite stabilityNE τ = refl
@@ -93,8 +97,8 @@ idempotency τ rewrite stability (⇓ τ) = refl
 --------------------------------------------------------------------------------
 -- surjectivity
 --   
-
+ 
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
 
- 
+  
