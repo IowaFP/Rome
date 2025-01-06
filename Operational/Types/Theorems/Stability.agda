@@ -26,19 +26,33 @@ open import Rome.Operational.Types.Theorems.Completeness
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → reflect (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
 
--- This is all fairly *not* trivial
 stabilityNE {κ = ★} (` x) = refl
 stabilityNE {κ = L} (` x) = refl
 stabilityNE {κ = κ `→ κ₁} (` x) = refl
 stabilityNE {κ = R[ κ ]} (` x) = refl
-stabilityNE (τ · x) = {! !}
+stabilityNE {Δ} {★} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl
+stabilityNE {Δ} {L} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl
+stabilityNE {Δ} {κ `→ κ₁} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl
+stabilityNE {Δ} {R[ κ ]} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl    
 stabilityNE (_▹_ {★} l τ) rewrite stability l | stability τ | ren-id l = refl
 stabilityNE (_▹_ {L} l τ) rewrite stability l | stability τ | ren-id l = refl
 stabilityNE (_▹_ {κ `→ κ₁} l τ) rewrite stability l | stability τ | ren-id l = {! !}
 -- Bad!!!!
 stabilityNE (_▹_ {R[ κ ]} l τ) rewrite stability l | stability τ | ren-id l = {! !}
-stabilityNE (Π τ) = {! !}
-stabilityNE (Σ τ) = {! !}
+stabilityNE {κ = ★} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = L} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = κ `→ κ₁} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ ★ ]} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ L ]} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ κ `→ κ₁ ]} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = ★} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = L} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = κ `→ κ₁} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ ★ ]} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ L ]} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ κ `→ κ₁ ]} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ R[ κ ] ]} (Σ τ) rewrite stabilityNE τ = refl
 
 stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x
@@ -85,3 +99,4 @@ idempotency τ rewrite stability (⇓ τ) = refl
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
 
+ 
