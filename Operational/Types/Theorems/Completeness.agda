@@ -151,9 +151,13 @@ postulate
 -- Semantic renaming commutes with evaluation (reflection of types)
 
 postulate
+  ↻-renSem-reflectNE  : 
+    ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
+      (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
+  
   ↻-renSem-reflect : 
-    ∀ (τ : Type Δ₁ κ) → (η₁ η₂ : Env Δ₁ Δ₂) → (Ρ : Env-≋ η₁ η₂) →
-      (ρ : Renaming Δ₂ Δ₃) → (renSem ρ (reflect τ η₁)) ≋ reflect τ (renSem ρ ∘ η₂)
+    ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → {Ρ : Env-≋ η₁ η₂} →
+      (renSem ρ (reflect τ η₁)) ≋ reflect τ (renSem ρ ∘ η₂)
 
 
 
