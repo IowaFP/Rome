@@ -54,28 +54,15 @@ data Row Δ where
 
   Π : 
 
-      NeutralType Δ R[ κ ] → 
+      NeutralType Δ R[ R[ κ ] ] → 
       ------------
       Row Δ R[ κ ] 
 
     
   Σ  : 
 
-      NeutralType Δ R[ κ ] →
+      NeutralType Δ R[ R[ κ ] ] →
       -------------
-      Row Δ R[ κ ]
-
-  Π▹ : 
-
-      NormalType Δ L → NormalType Δ κ → 
-      ------------
-      Row Δ R[ κ ]
-
-    
-  Σ▹  : 
-
-      NormalType Δ L → NormalType Δ κ → 
-      ------------
       Row Δ R[ κ ]
   
 
@@ -215,10 +202,8 @@ not-var (τ · x) = not-var τ
 
 
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
-⇑Row (Π ρ) = {!   !}
-⇑Row (Σ ρ) = ⇑NE ρ
-⇑Row (Π▹ l τ) = {! Π  !} · ((`▹` · (⇑ l)) · (⇑ τ))
-⇑Row (Σ▹ l τ) = {!   !}
+⇑Row (Π ρ) = Π · ⇑NE ρ
+⇑Row (Σ ρ) = Σ · ⇑NE ρ
 
 
 --------------------------------------------------------------------------------
