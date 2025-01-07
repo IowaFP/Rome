@@ -158,13 +158,25 @@ data NormalType Δ where
 
 -- Counter-example:
 -- Π▹ l (ne x)
--- row-canonicity : (r : NormalType Δ R[ κ ]) → ∃[ x ] (ne x ≡ r) or ∃[ x ] ∃[ τ ] (r ≡ (x ▹ τ))
--- row-canonicity (ne x) = left ( x , refl )
--- row-canonicity (l ▹ τ) = right ( l , ( τ , refl ) )
--- row-canonicity (Π▹ l τ) with row-canonicity τ
--- ... | left ( x , refl ) = left {!!}
--- ... | right y = {!!}
--- row-canonicity (Σ▹ l τ) = {!!}
+rows-all-neutral : (r : NormalType Δ R[ κ ]) → ∃[ x ] (ne x ≡ r)
+rows-all-neutral (ne x) = x , refl
+
+not-application : NeutralType Δ κ → Set
+not-application (` x) = ⊤
+not-application (τ · x) = ⊥
+not-application (x ▹ x₁) = ⊤
+not-application (Π τ) = ⊤
+not-application (Σ τ) = ⊤
+
+row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → ∃[ x ] (r ≡ ` x) or
+                                              ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) or
+                                              ∃[ τ ] (r ≡ Π τ) or
+                                              ∃[ τ ] (r ≡ Σ τ)
+row-canonicity (` x) na = left (x , refl)
+row-canonicity (τ · x) ()
+row-canonicity (x ▹ x₁) na = right (left (x , x₁ , refl))
+row-canonicity (Π τ) na = right (right (left (τ , refl)))
+row-canonicity (Σ τ) na = right (right (right (τ , refl)))
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
