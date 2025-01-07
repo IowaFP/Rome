@@ -165,18 +165,32 @@ not-application : NeutralType Δ κ → Set
 not-application (` x) = ⊤
 not-application (τ · x) = ⊥
 not-application (x ▹ x₁) = ⊤
-not-application (Π τ) = ⊤
-not-application (Σ τ) = ⊤
+not-application (Π τ) = not-application τ
+not-application (Σ τ) = not-application τ
 
-row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → ∃[ x ] (r ≡ ` x) or
-                                              ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) or
-                                              ∃[ τ ] (r ≡ Π τ) or
-                                              ∃[ τ ] (r ≡ Σ τ)
-row-canonicity (` x) na = left (x , refl)
-row-canonicity (τ · x) ()
-row-canonicity (x ▹ x₁) na = right (left (x , x₁ , refl))
-row-canonicity (Π τ) na = right (right (left (τ , refl)))
-row-canonicity (Σ τ) na = right (right (right (τ , refl)))
+not-var : NeutralType Δ κ → Set
+not-var (` x) = ⊥
+not-var (τ · x) = not-var τ
+not-var (l ▹ x) = ⊤
+not-var (Π τ) = not-var τ 
+not-var (Σ τ) = not-var τ 
+
+data NormalRow (r : NeutralType Δ R[ κ ]) : Set where
+    `▹ : (l : NormalType Δ L) → (τ : NormalType Δ κ) → r ≡ (l ▹ τ) → NormalRow r
+    Π    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Π (l ▹ τ) → NormalRow r
+    Σ    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Σ (l ▹ τ) → NormalRow r
+    
+-- well pfft.
+-- You may still form nonsense like Π (Π (ℓ ▹ τ)) at neutral type, which means
+-- there are reductions not happening. (This should be Π (ℓ ▹ (Π τ))).
+row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → not-var r → NormalRow r
+row-canonicity  (l ▹ τ) na nv = `▹ l τ refl
+row-canonicity (Π r) na nv with row-canonicity r na nv 
+... | `▹ l τ refl = Π l τ refl
+... | Π l τ eq = {!   !}
+... | Σ l τ eq = {!   !}
+row-canonicity (Σ r) na nv = {!   !}
+
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
