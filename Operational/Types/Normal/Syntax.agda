@@ -50,33 +50,33 @@ data Row Δ where
       NormalType Δ L → 
       NormalType Δ κ → 
       ---------------------------
-      Row Δ κ
+      Row Δ R[ κ ]
 
   Π : 
 
       NeutralType Δ R[ κ ] → 
       ------------
-      Row Δ κ 
+      Row Δ R[ κ ] 
 
     
   Σ  : 
 
       NeutralType Δ R[ κ ] →
       -------------
-      Row Δ κ
+      Row Δ R[ κ ]
 
   Π▹ : 
 
       NormalType Δ L → NormalType Δ κ → 
       ------------
-      Row Δ κ
+      Row Δ R[ κ ]
 
     
   Σ▹  : 
 
       NormalType Δ L → NormalType Δ κ → 
       ------------
-      Row Δ κ
+      Row Δ R[ κ ]
   
 
 data NormalType Δ where
@@ -94,7 +94,7 @@ data NormalType Δ where
 
   row :
 
-      Row Δ κ →
+      Row Δ R[ κ ] →
       -------------------
       NormalType Δ R[ κ ]
 
@@ -141,14 +141,14 @@ data NormalType Δ where
 
   Π  : 
 
-      Row Δ ★ →
+      Row Δ R[ ★ ] →
       ------------------
       NormalType Δ ★
 
 
   Σ  : 
 
-      Row Δ ★ →
+      Row Δ R[ ★ ] →
       ------------------
       NormalType Δ ★
 
@@ -194,7 +194,7 @@ not-var (τ · x) = not-var τ
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
-⇑Row : Row Δ κ → Type Δ R[ κ ]
+⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
 
 
 ⇑ Unit   = Unit
@@ -206,8 +206,8 @@ not-var (τ · x) = not-var τ
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
-⇑ (Π x) = Π · (⇑Row x)
-⇑ (Σ x) = Σ · (⇑Row x)
+⇑ (Π x) = Π · ⇑Row x
+⇑ (Σ x) = Σ · ⇑Row x
 
 
 ⇑NE (` x) = ` x
@@ -215,8 +215,8 @@ not-var (τ · x) = not-var τ
 
 
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
-⇑Row (Π ρ) = Π · {! ⇑NE ρ  !}
-⇑Row (Σ ρ) = {!   !}
+⇑Row (Π ρ) = {!   !}
+⇑Row (Σ ρ) = ⇑NE ρ
 ⇑Row (Π▹ l τ) = {! Π  !} · ((`▹` · (⇑ l)) · (⇑ τ))
 ⇑Row (Σ▹ l τ) = {!   !}
 
