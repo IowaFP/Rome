@@ -28,6 +28,7 @@ open import Rome.Operational.Types.Properties
 
 infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
+data Row Δ : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -42,36 +43,41 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
+data Row Δ where
+
   _▹_ : 
       
       NormalType Δ L → 
       NormalType Δ κ → 
       ---------------------------
-      NeutralType Δ R[ κ ]
+      Row Δ κ
 
-  Π  : 
+  Π : 
 
-      NeutralType Δ R[ κ ] →
-      ------------------
-      NeutralType Δ κ
+      NeutralType Δ R[ κ ] → 
+      ------------
+      Row Δ κ 
 
+    
   Σ  : 
 
       NeutralType Δ R[ κ ] →
-      ------------------
-      NeutralType Δ κ
+      -------------
+      Row Δ κ
+
+  Π▹ : 
+
+      NormalType Δ L → NormalType Δ κ → 
+      ------------
+      Row Δ κ
+
+    
+  Σ▹  : 
+
+      NormalType Δ L → NormalType Δ κ → 
+      ------------
+      Row Δ κ
   
-  -- ↑_ : 
-
-  --     NeutralType Δ R[ κ₁ `→ κ₂ ] →
-  --     ------------------------------
-  --     NeutralType Δ (κ₁ `→ R[ κ₂ ])
-
-  -- _↑ : 
-
-  --     NeutralType Δ (κ₁ `→ κ₂) →
-  --     ------------------------------
-  --     NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 
 data NormalType Δ where
 
@@ -85,6 +91,12 @@ data NormalType Δ where
       NeutralType Δ κ → 
       --------------
       NormalType Δ κ
+
+  row :
+
+      Row Δ κ →
+      -------------------
+      NormalType Δ R[ κ ]
 
   `λ :
 
@@ -127,30 +139,18 @@ data NormalType Δ where
       -----------------
       NormalType Δ ★
 
---   Π▹ :
+  Π  : 
 
---       NormalType Δ L →  NormalType Δ κ → 
---       -----------------------
---       NormalType Δ κ
-
---   Σ▹     :
-
---       NormalType Δ L → NormalType Δ κ → 
---       ----------------
---       NormalType Δ κ
-
-  -- ↑_ : 
-
-  --     NormalType Δ R[ κ₁ `→ κ₂ ] →
-  --     ------------------------------
-  --     NormalType Δ (κ₁ `→ R[ κ₂ ])
+      Row Δ ★ →
+      ------------------
+      NormalType Δ ★
 
 
-  -- _↑ : 
+  Σ  : 
 
-  --     NormalType Δ (κ₁ `→ κ₂) →
-  --     ------------------------------
-  --     NormalType Δ (R[ κ₁ ] `→ R[ κ₂ ])
+      Row Δ ★ →
+      ------------------
+      NormalType Δ ★
 
 
 --------------------------------------------------------------------------------
@@ -158,38 +158,33 @@ data NormalType Δ where
 
 -- Counter-example:
 -- Π▹ l (ne x)
-rows-all-neutral : (r : NormalType Δ R[ κ ]) → ∃[ x ] (ne x ≡ r)
-rows-all-neutral (ne x) = x , refl
+all-rows-neutral-or-row : (τ : NormalType Δ R[ κ ]) → (∃[ x ] (ne x ≡ τ) or ∃[ r ] (row r ≡ τ))
+all-rows-neutral-or-row (ne x) = left (x , refl)
+all-rows-neutral-or-row (row x) = right (x , refl)
 
 not-application : NeutralType Δ κ → Set
 not-application (` x) = ⊤
 not-application (τ · x) = ⊥
-not-application (x ▹ x₁) = ⊤
-not-application (Π τ) = not-application τ
-not-application (Σ τ) = not-application τ
 
 not-var : NeutralType Δ κ → Set
 not-var (` x) = ⊥
 not-var (τ · x) = not-var τ
-not-var (l ▹ x) = ⊤
-not-var (Π τ) = not-var τ 
-not-var (Σ τ) = not-var τ 
 
-data NormalRow (r : NeutralType Δ R[ κ ]) : Set where
-    `▹ : (l : NormalType Δ L) → (τ : NormalType Δ κ) → r ≡ (l ▹ τ) → NormalRow r
-    Π    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Π (l ▹ τ) → NormalRow r
-    Σ    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Σ (l ▹ τ) → NormalRow r
+-- data NormalRow (r : NeutralType Δ R[ κ ]) : Set where
+--     `▹ : (l : NormalType Δ L) → (τ : NormalType Δ κ) → r ≡ (l ▹ τ) → NormalRow r
+--     Π    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Π (l ▹ τ) → NormalRow r
+--     Σ    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Σ (l ▹ τ) → NormalRow r
     
--- well pfft.
--- You may still form nonsense like Π (Π (ℓ ▹ τ)) at neutral type, which means
--- there are reductions not happening. (This should be Π (ℓ ▹ (Π τ))).
-row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → not-var r → NormalRow r
-row-canonicity  (l ▹ τ) na nv = `▹ l τ refl
-row-canonicity (Π r) na nv with row-canonicity r na nv 
-... | `▹ l τ refl = Π l τ refl
-... | Π l τ eq = {!   !}
-... | Σ l τ eq = {!   !}
-row-canonicity (Σ r) na nv = {!   !}
+-- -- well pfft.
+-- -- You may still form nonsense like Π (Π (ℓ ▹ τ)) at neutral type, which means
+-- -- there are reductions not happening. (This should be Π (ℓ ▹ (Π τ))).
+-- row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → not-var r → NormalRow r
+-- row-canonicity  (l ▹ τ) na nv = `▹ l τ refl
+-- row-canonicity (Π r) na nv with row-canonicity r na nv 
+-- ... | `▹ l τ refl = Π l τ refl
+-- ... | Π l τ eq = {!   !}
+-- ... | Σ l τ eq = {!   !}
+-- row-canonicity (Σ r) na nv = {!   !}
 
 
 --------------------------------------------------------------------------------
@@ -199,26 +194,31 @@ row-canonicity (Σ r) na nv = {!   !}
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
+⇑Row : Row Δ κ → Type Δ R[ κ ]
+
 
 ⇑ Unit   = Unit
 ⇑ (ne x) = ⇑NE x
+⇑ (row x) = ⇑Row x
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
--- ⇑ (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
--- ⇑ (Σ▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
--- ⇑ (↑ τ) = ↑ (⇑ τ)
--- ⇑ (τ ↑) = (⇑ τ) ↑
+⇑ (Π x) = Π · (⇑Row x)
+⇑ (Σ x) = Σ · (⇑Row x)
+
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-⇑NE (τ₁ ▹ τ₂) = (`▹` · (⇑ τ₁)) · (⇑ τ₂) -- (⇑NE τ₁) · (⇑ τ₂)
-⇑NE (Π τ) = Π · (⇑NE τ)
-⇑NE (Σ τ) = Σ · (⇑NE τ)
--- ⇑NE (↑ F) = ↑ (⇑NE F)
--- ⇑NE (F ↑) = (⇑NE F) ↑
+
+
+⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
+⇑Row (Π ρ) = Π · {! ⇑NE ρ  !}
+⇑Row (Σ ρ) = {!   !}
+⇑Row (Π▹ l τ) = {! Π  !} · ((`▹` · (⇑ l)) · (⇑ τ))
+⇑Row (Σ▹ l τ) = {!   !}
+
 
 --------------------------------------------------------------------------------
