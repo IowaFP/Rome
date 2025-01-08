@@ -34,6 +34,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right ( [] , F )) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
+-- Need to use inspect idiom here to show that κ₂ can only be one of three cases (or use dual predicate Rowed)
 reify {κ = κ₁ `→ κ₂} (right ( Π l ∷ cs , F )) with flat? κ₂
 ... | yes p = Π (l ▹ (reify (right (cs , F)))) p -- Π (l ▹ (reify (right (cs , F)))) {!   !}
 ... | no  p with = `λ {!  !}  -- ne (Π (l ▹ (reify (right (cs , F))))) -- Π▹ l (reify (right ( cs , F )))
