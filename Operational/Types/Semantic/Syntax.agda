@@ -46,8 +46,8 @@ SemType Δ₁ (κ₁ `→ κ₂) =
 SemType Δ R[ ★ ] = NormalType Δ R[ ★ ]
 SemType Δ R[ L ] = NormalType Δ R[ L ]
 SemType Δ R[ κ₁ `→ κ₂ ] = 
-  NeutralType Δ R[ κ₁ `→ κ₂ ] or 
+  NormalType Δ R[ κ₁ `→ κ₂ ] or 
   (NormalType Δ L × List (Congruence Δ) × KripkeFunction Δ κ₁ κ₂)
 SemType Δ R[ R[ κ ] ] = 
-  NeutralType Δ R[ R[ κ ] ] or
+  NormalType Δ R[ R[ κ ] ] or
   (NormalType Δ L × SemType Δ R[ κ ])  

@@ -58,12 +58,26 @@ data Row Δ where
       ------------
       Row Δ R[ κ ] 
 
+  Π▹ : 
+
+      NormalType Δ L → 
+      NormalType Δ κ → 
+      ------------
+      Row Δ κ
     
   Σ  : 
 
       NeutralType Δ R[ R[ κ ] ] →
       -------------
       Row Δ R[ κ ]
+
+  Σ▹ : 
+
+      NormalType Δ L → 
+      NormalType Δ κ → 
+      ------------
+      Row Δ κ
+    
   
 
 data NormalType Δ where
@@ -128,51 +142,24 @@ data NormalType Δ where
 
   Π  : 
 
-      Row Δ R[ ★ ] →
+      Row Δ R[ κ ] → Flat κ → 
       ------------------
-      NormalType Δ ★
+      NormalType Δ κ
 
 
   Σ  : 
 
-      Row Δ R[ ★ ] →
+      Row Δ R[ κ ] → Flat κ → 
       ------------------
-      NormalType Δ ★
+      NormalType Δ κ
 
 
 --------------------------------------------------------------------------------
 -- 
 
--- Counter-example:
--- Π▹ l (ne x)
 all-rows-neutral-or-row : (τ : NormalType Δ R[ κ ]) → (∃[ x ] (ne x ≡ τ) or ∃[ r ] (row r ≡ τ))
 all-rows-neutral-or-row (ne x) = left (x , refl)
 all-rows-neutral-or-row (row x) = right (x , refl)
-
-not-application : NeutralType Δ κ → Set
-not-application (` x) = ⊤
-not-application (τ · x) = ⊥
-
-not-var : NeutralType Δ κ → Set
-not-var (` x) = ⊥
-not-var (τ · x) = not-var τ
-
--- data NormalRow (r : NeutralType Δ R[ κ ]) : Set where
---     `▹ : (l : NormalType Δ L) → (τ : NormalType Δ κ) → r ≡ (l ▹ τ) → NormalRow r
---     Π    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Π (l ▹ τ) → NormalRow r
---     Σ    : (l : NormalType Δ L) → (τ : NormalType Δ R[ κ ]) → r ≡ Σ (l ▹ τ) → NormalRow r
-    
--- -- well pfft.
--- -- You may still form nonsense like Π (Π (ℓ ▹ τ)) at neutral type, which means
--- -- there are reductions not happening. (This should be Π (ℓ ▹ (Π τ))).
--- row-canonicity : (r : NeutralType Δ R[ κ ]) → not-application r → not-var r → NormalRow r
--- row-canonicity  (l ▹ τ) na nv = `▹ l τ refl
--- row-canonicity (Π r) na nv with row-canonicity r na nv 
--- ... | `▹ l τ refl = Π l τ refl
--- ... | Π l τ eq = {!   !}
--- ... | Σ l τ eq = {!   !}
--- row-canonicity (Σ r) na nv = {!   !}
-
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
@@ -193,8 +180,8 @@ not-var (τ · x) = not-var τ
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
-⇑ (Π x) = Π · ⇑Row x
-⇑ (Σ x) = Σ · ⇑Row x
+⇑ (Π x _) = Π · ⇑Row x
+⇑ (Σ x _) = Σ · ⇑Row x
 
 
 ⇑NE (` x) = ` x
@@ -204,6 +191,7 @@ not-var (τ · x) = not-var τ
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
 ⇑Row (Π ρ) = Π · ⇑NE ρ
 ⇑Row (Σ ρ) = Σ · ⇑NE ρ
-
+⇑Row (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
+⇑Row (Σ▹ l τ) = Σ · ((`▹` · (⇑ l)) · (⇑ τ))
 
 --------------------------------------------------------------------------------
