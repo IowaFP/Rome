@@ -18,13 +18,6 @@ open import Rome.Operational.Types.Properties
 --    (ii) applications with variables stuck in head position. 
 --         (And hence cannot reduce).
 -- - NormalType types are types precluded from any applications (barring neutral forms).
---
--- PROBLEMS:
---  - We should expect that (F ↑) · (l ▹ τ) is not in normal form, however it is by this
---    definition.
---  - I've changed the definition of μ to take F : Set → Set rather than be a 
---    binding site---but we later want terms to be indexed by NormalTypes, and 
---    F (μ F) is not necessarily in normal form (it is so only if F is neutral).
 
 infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
@@ -43,6 +36,25 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
+  Π : 
+
+      NeutralType Δ R[ κ ] → 
+      ------------
+      NeutralType Δ κ
+
+  Σ : 
+
+      NeutralType Δ R[ κ ] → 
+      ------------
+      NeutralType Δ κ
+
+  _▹_ : 
+      
+      NormalType Δ L → 
+      NeutralType Δ κ → 
+      ---------------------------
+      NeutralType Δ R[ κ ]
+
 data Row Δ where
 
   _▹_ : 
@@ -52,11 +64,6 @@ data Row Δ where
       ---------------------------
       Row Δ R[ κ ]
 
-  Π : 
-
-      NeutralType Δ R[ R[ κ ] ] → 
-      ------------
-      Row Δ R[ κ ] 
 
   Π▹ : 
 
@@ -64,12 +71,6 @@ data Row Δ where
       NormalType Δ κ → 
       ------------
       Row Δ κ
-    
-  Σ  : 
-
-      NeutralType Δ R[ R[ κ ] ] →
-      -------------
-      Row Δ R[ κ ]
 
   Σ▹ : 
 
@@ -142,24 +143,35 @@ data NormalType Δ where
 
   Π  : 
 
-      Row Δ R[ κ ] → Flat κ → 
+      Row Δ R[ ★ ] →
       ------------------
-      NormalType Δ κ
+      NormalType Δ ★
 
 
   Σ  : 
 
-      Row Δ R[ κ ] → Flat κ → 
-      ------------------
-      NormalType Δ κ
+      Row Δ R[ ★ ] →
+      ---------------
+      NormalType Δ ★
 
 
 --------------------------------------------------------------------------------
--- 
+-- Rows have the following canonical forms:
+--  - Variables or neutral applications
+--  - Variables/neutral applications nested under Π and/or Σ 
+--  - Labeled rows (ℓ ▹ τ), possibly nested e.g. (ℓ₁ ▹ (ℓ₂ ▹ τ))
+--  - Nested labeled rows under Π/Σ e.g. Π (ℓ ▹ τ) for τ : R[ ★ ]
 
 all-rows-neutral-or-row : (τ : NormalType Δ R[ κ ]) → (∃[ x ] (ne x ≡ τ) or ∃[ r ] (row r ≡ τ))
 all-rows-neutral-or-row (ne x) = left (x , refl)
 all-rows-neutral-or-row (row x) = right (x , refl)
+
+row-canonicity : ∀ (r : Row Δ R[ κ ]) → ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) or
+                                         ∃[ l ] (∃[ τ ] (r ≡ (Π▹ l τ))) or
+                                         ∃[ l ] (∃[ τ ] (r ≡ (Σ▹ l τ)))
+row-canonicity (l ▹ τ) = left (l , τ , refl)
+row-canonicity (Π▹ l τ) = right (left (l , τ , refl))
+row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
@@ -180,18 +192,18 @@ all-rows-neutral-or-row (row x) = right (x , refl)
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
-⇑ (Π x _) = Π · ⇑Row x
-⇑ (Σ x _) = Σ · ⇑Row x
+⇑ (Π x) = Π · ⇑Row x
+⇑ (Σ x) = Σ · ⇑Row x
 
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-
+⇑NE (τ₁ ▹ τ₂) = `▹` · (⇑ τ₁) · (⇑NE τ₂)
+⇑NE (Π ρ) = Π · ⇑NE ρ
+⇑NE (Σ ρ) = Σ · ⇑NE ρ
 
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
-⇑Row (Π ρ) = Π · ⇑NE ρ
-⇑Row (Σ ρ) = Σ · ⇑NE ρ
-⇑Row (Π▹ l τ) = Π · ((`▹` · (⇑ l)) · (⇑ τ))
-⇑Row (Σ▹ l τ) = Σ · ((`▹` · (⇑ l)) · (⇑ τ))
+⇑Row (Π▹ l τ) = Π · (`▹` · (⇑ l) · (⇑ τ))
+⇑Row (Σ▹ l τ) = Σ · (`▹` · (⇑ l) · (⇑ τ))
 
 --------------------------------------------------------------------------------

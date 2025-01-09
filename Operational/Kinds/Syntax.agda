@@ -41,14 +41,21 @@ flat? L = yes tt
 flat? (κ₁ `→ κ₂) = flat? κ₂
 flat? R[ κ ] = no (λ ())
 
-Rowed-not-Flat : ∀ κ → Rowed κ → ¬ Flat κ
-Rowed-not-Flat (_ `→ κ) r = Rowed-not-Flat κ r
-Rowed-not-Flat R[ κ ] r = λ ()
+Rowed→¬Flat : ∀ κ → Rowed κ → ¬ Flat κ
+Rowed→¬Flat (_ `→ κ) r = Rowed→¬Flat κ r
+Rowed→¬Flat R[ κ ] r = λ ()
 
-Flat-not-Rowed : ∀ κ → Flat κ → ¬ Rowed κ
-Flat-not-Rowed ★ f = λ ()
-Flat-not-Rowed L f = λ ()
-Flat-not-Rowed (_ `→ κ) f = Flat-not-Rowed κ f
+¬Flat→Rowed : ∀ κ → ¬ Flat κ → Rowed κ
+¬Flat→Rowed ★ nf = nf tt
+¬Flat→Rowed L nf = nf tt
+¬Flat→Rowed (κ `→ κ₁) nf = ¬Flat→Rowed κ₁ nf
+¬Flat→Rowed R[ κ ] nf = tt
+
+
+Flat→¬Rowed : ∀ κ → Flat κ → ¬ Rowed κ
+Flat→¬Rowed ★ f = λ ()
+Flat→¬Rowed L f = λ ()
+Flat→¬Rowed (_ `→ κ) f = Flat→¬Rowed κ f
 
 --------------------------------------------------------------------------------
 -- 2.2 contexts

@@ -24,11 +24,6 @@ open import Rome.Operational.Types.Normal.Renaming
 --   ⇓ τ ≊ τ 
 -- but we must reflect the function portion (λ x. x) into an Agda function.
 
-data Congruence (Δ : KEnv) : Set where
-  Π  : NormalType Δ L → Congruence Δ
-  Σ  : NormalType Δ L → Congruence Δ
-
-
 
 
 --------------------------------------------------------------------------------
@@ -42,12 +37,12 @@ KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → Se
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = 
-  NeutralType Δ₁ (κ₁ `→ κ₂) or List (Congruence Δ₁) × KripkeFunction Δ₁ κ₁ κ₂
+  NeutralType Δ₁ (κ₁ `→ κ₂) or KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ ★ ] = NormalType Δ R[ ★ ]
 SemType Δ R[ L ] = NormalType Δ R[ L ]
 SemType Δ R[ κ₁ `→ κ₂ ] = 
-  NormalType Δ R[ κ₁ `→ κ₂ ] or 
-  (NormalType Δ L × List (Congruence Δ) × KripkeFunction Δ κ₁ κ₂)
+  NeutralType Δ R[ κ₁ `→ κ₂ ] or 
+  (NormalType Δ L × KripkeFunction Δ κ₁ κ₂)
 SemType Δ R[ R[ κ ] ] = 
   NormalType Δ R[ R[ κ ] ] or
   (NormalType Δ L × SemType Δ R[ κ ])  

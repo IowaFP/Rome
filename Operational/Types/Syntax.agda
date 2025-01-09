@@ -8,6 +8,7 @@ open import Rome.Operational.Kinds.GVars
 -- 2.4 Types
 
 
+infixl 5 _·_
 data Type Δ : Kind → Set where
 
   Unit :

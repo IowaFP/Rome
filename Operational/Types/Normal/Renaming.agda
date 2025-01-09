@@ -19,6 +19,9 @@ renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
 
 renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
+renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
+renNE ρ (Π τ) = Π (renNE ρ τ)
+renNE ρ (Σ τ) = Σ (renNE ρ τ)
 
 ren ρ Unit   = Unit
 ren ρ (ne τ) = ne (renNE ρ τ)
@@ -29,14 +32,11 @@ ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ τ) = μ (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
-ren ρ (Π τ f) = Π (renRow ρ τ) f 
-ren ρ (Σ τ f) = Σ (renRow ρ τ) f
-
+ren ρ (Π τ) = Π (renRow ρ τ)
+ren ρ (Σ τ) = Σ (renRow ρ τ)
 
 renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
-renRow ρ (Π τ) = Π (renNE ρ τ)
 renRow ρ (Π▹ l τ) = Π▹ (ren ρ l) (ren ρ τ)
-renRow ρ (Σ τ) = Σ (renNE ρ τ)
 renRow ρ (Σ▹ l τ) = Σ▹ (ren ρ l) (ren ρ τ)
 
 weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
