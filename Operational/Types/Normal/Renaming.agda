@@ -39,5 +39,9 @@ renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 renRow ρ (Π▹ l τ) = Π▹ (ren ρ l) (ren ρ τ)
 renRow ρ (Σ▹ l τ) = Σ▹ (ren ρ l) (ren ρ τ)
 
+--------------------------------------------------------------------------------
+-- Weakening
+
 weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
 weaken = ren S
+

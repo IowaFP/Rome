@@ -43,3 +43,4 @@ ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 
 weaken : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weaken = ren S
+

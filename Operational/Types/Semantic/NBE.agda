@@ -81,6 +81,13 @@ right F ·V V = F id V
 -- βV {Δ₁} {Δ₂} {κ₁ `→ κ₃} {κ₂} {Δ} ρ f τ = {!   !}
 -- βV {Δ₁} {Δ₂} {R[ κ₁ ]} {κ₂} {Δ} ρ f τ = {!   !} 
 
+-- TODO:
+-- I believe 
+--    - (i) it should be possible to write reflection of normaltypes back to semantic (Duh), and
+--    - (ii) It is necessary to eta-expand types like Π (ℓ ▹ λ x. x) into λ x. (ℓ ▹ Π x)
+-- but it's turning out to be quite tricky, as there is a contravariance of Env Δ₁ Δ₂ inducing
+-- a requirement for Renaming (Δ₁ ,, κ) Δ₂, which is impossible to produce.
+
 reflectN : {ρ : Renaming Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ →  SemType Δ₂ κ 
 reflectN {κ = ★} {ρ = ρ}  τ η = ren ρ τ -- τ
 reflectN {κ = L} {ρ = ρ} τ η = ren ρ τ -- τ
