@@ -5,7 +5,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 --------------------------------------------------------------------------------
--- 2.4 Types
+-- Types
 
 
 infixl 5 _·_
@@ -100,3 +100,24 @@ data Type Δ : Kind → Set where
 
        ----------------------------------------
        Type Δ ((κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ])
+
+
+
+--------------------------------------------------------------------------------
+-- Type constant helpers
+
+-- helpers
+_`▹_ : Type Δ L → Type Δ κ → Type Δ R[ κ ] 
+l `▹ t = `▹` · l · t
+
+`Π : Type Δ R[ κ ] → Type Δ κ 
+`Π τ = Π · τ 
+
+`Σ : Type Δ R[ κ ] → Type Δ κ 
+`Σ τ = Σ · τ 
+
+`↑ : Type Δ (κ₁ `→ κ₂) → Type Δ (R[ κ₁ ] `→ R[ κ₂ ])
+`↑ f = ↑ · f
+
+_<$>_ : Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] → Type Δ R[ κ₂ ]
+f <$> m = ↑ · f · m -- `↑ · f · m 
