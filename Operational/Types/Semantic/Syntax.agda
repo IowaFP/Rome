@@ -44,5 +44,5 @@ SemType Δ R[ κ₁ `→ κ₂ ] =
   NeutralType Δ R[ κ₁ `→ κ₂ ] or 
   (NormalType Δ L × KripkeFunction Δ κ₁ κ₂)
 SemType Δ R[ R[ κ ] ] = 
-  NormalType Δ R[ R[ κ ] ] or
+  NeutralType Δ R[ R[ κ ] ] or
   (NormalType Δ L × SemType Δ R[ κ ])  

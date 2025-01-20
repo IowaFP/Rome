@@ -33,11 +33,12 @@ ren ρ (μ τ) = μ (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 ren ρ (Π τ) = Π (renRow ρ τ)
+ren ρ (ΠL τ) = ΠL (renRow ρ τ)
 ren ρ (Σ τ) = Σ (renRow ρ τ)
 
 renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
-renRow ρ (Π▹ l τ) = Π▹ (ren ρ l) (ren ρ τ)
-renRow ρ (Σ▹ l τ) = Σ▹ (ren ρ l) (ren ρ τ)
+-- renRow ρ (Π▹ l τ) = Π▹ (ren ρ l) (ren ρ τ)
+-- renRow ρ (Σ▹ l τ) = Σ▹ (ren ρ l) (ren ρ τ)
 
 --------------------------------------------------------------------------------
 -- Weakening

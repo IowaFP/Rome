@@ -25,7 +25,7 @@ reflectNE {κ = R[ ★ ]} τ       = ne τ
 reflectNE {κ = R[ L ]} τ       = ne τ
 reflectNE {κ = κ `→ κ₁} τ     = left τ
 reflectNE {κ = R[ _ `→ _ ]} τ = left τ
-reflectNE {κ = R[ R[ κ ] ]} τ = left (ne τ)
+reflectNE {κ = R[ R[ κ ] ]} τ = left τ
 
 --------------------------------------------------------------------------------
 -- reification of semantic types
@@ -39,7 +39,7 @@ reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , F)) = row (l ▹ (reify (right F))) 
-reify {κ = R[ R[ κ₁ ] ]} (left x) =  x  
+reify {κ = R[ R[ κ₁ ] ]} (left x) =  ne x
 reify {κ = R[ R[ κ₁ ] ]} (right (l , τ)) = row (l ▹ (reify τ))
 
 -- --------------------------------------------------------------------------------
@@ -74,60 +74,75 @@ left A ·V V = reflectNE (A · (reify V))
 right F ·V V = F id V
 
 --------------------------------------------------------------------------------
--- Reflecting normal types back to semantic
+-- (1) Reflecting normal, neutral, and types to semantic.
+-- (2) Rewriting *semantic* combinators for Π, _▹_, et al
+-- N.b. that Types are simultaneously evaluated and reflected; neutral types and normal types
+-- require an environment for reflection so that bodies of lambdas may be extended.
 
--- βV : Renaming Δ₁ Δ₂ → NormalType (Δ₁ ,, κ₁) κ₂ → SemType Δ κ₁ → SemType Δ₂ κ₂
--- βV {Δ₁} {Δ₂} {★} {κ₂} {Δ} ρ f τ = {!   !}
--- βV {Δ₁} {Δ₂} {L} {κ₂} {Δ} ρ f τ = {!   !}
--- βV {Δ₁} {Δ₂} {κ₁ `→ κ₃} {κ₂} {Δ} ρ f τ = {!   !}
--- βV {Δ₁} {Δ₂} {R[ κ₁ ]} {κ₂} {Δ} ρ f τ = {!   !} 
-
--- TODO:
--- I believe 
---    - (i) it should be possible to write reflection of normaltypes back to semantic (Duh), and
---    - (ii) It is necessary to eta-expand types like Π (ℓ ▹ λ x. x) into λ x. (ℓ ▹ Π x)
--- but it's turning out to be quite tricky, as there is a contravariance of Env Δ₁ Δ₂ inducing
--- a requirement for Renaming (Δ₁ ,, κ) Δ₂, which is impossible to produce.
-
-reflectN : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Renaming Δ₁ Δ₂ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflectN {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) ρ η = right (λ ρ' v → reflectN τ {!   !} (extende (λ x → renSem ρ' (η x)) v))
-reflectN Unit ρ η = Unit
-reflectN (ne x) ρ η = renSem ρ (reflectNE x)
-reflectN (row x) ρ η = {!   !}
-reflectN (τ `→ τ₁) ρ η = {!   !}
-reflectN (`∀ κ τ) ρ η = {!   !}
-reflectN (μ τ) ρ η = {!   !}
-reflectN (lab x) ρ η = {!   !}
-reflectN ⌊ τ ⌋ ρ η = {!   !}
-reflectN (Π x) ρ η = {!   !}
-reflectN (Σ x) ρ η = {!   !}
-
-
--- --------------------------------------------------------------------------------
--- -- Semantic type function constants
+reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
+evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
 
 _▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▵_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
 _▵_ {κ = L} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
 _▵_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (λ ρ v → reflectNE ((renNE ρ τ) · (reify v))))
 _▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , F)
-_▵_ {κ = R[ κ ]} ℓ τ = left (row (ℓ ▹ (reify τ))) 
+_▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
--- -- -- -- TODO: Refactor these to take an environment and be mutually recursive with reflect;
--- -- -- -- use reflect to define the lifting of Π under a binder
+evalNE (` x) η = η x
+evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
+evalNE {κ = ★} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = Π x
+evalNE {κ = L} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = ΠL x
+evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
+... | left x = left (Π x)
+... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
+evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
+evalNE (Σ τ) η = {!   !}
+
+reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
+reflect Unit η = Unit
+reflect (ne x) η = evalNE x η
+reflect (row x) η = reflectRow x η
+reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
+reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
+reflect (μ τ) η with reflect τ η 
+... | left F = μ (ne F)
+... | right F = μ (`λ (F S (ne (` Z)))) 
+reflect (lab x) η = lab x
+reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
+reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
+reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
+reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
+reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
+
+
+-- --------------------------------------------------------------------------------
+-- -- Semantic type function constants
+
+
 πNE : NeutralType Δ R[ κ ] → SemType Δ κ 
-πN : ∀ {Δ₁ Δ₂ Δ₃} → NormalType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
--- π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
-π▹ : NormalType Δ L → SemType Δ κ → SemType Δ κ
-π▹ {κ = ★} l τ = Π (l ▹ τ)
-π▹ {κ = L} l τ = {!   !}
-π▹ {κ = κ₁ `→ κ₂} l (left τ) = right λ ρ v → π▹ (ren ρ l) ((reflectNE (renNE ρ τ)) ·V v)
-π▹ {κ = κ₁ `→ κ₂} l (right F) = right (λ ρ v → π▹ (ren ρ l) (F ρ v)) 
-π▹ {κ = R[ ★ ]} l τ = row (Π▹ l τ)
-π▹ {κ = R[ L ]} l τ = row (Π▹ l τ)
-π▹ {κ = R[ κ `→ κ₁ ]} l τ = {!   !}
-π▹ {κ = R[ R[ κ ] ]} l τ = {!   !}
-reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+-- πN  : NormalType Δ₁ κ₁ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+σNE : NeutralType Δ R[ κ ] → SemType Δ κ 
+
+-- πN : ∀ {Δ₁ Δ₂ Δ₃} → NormalType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
+-- π▹ : NormalType Δ L → SemType Δ κ → SemType Δ κ
+-- -- π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
+-- π▹ {κ = ★} l τ = Π (l ▹ τ)
+-- π▹ {κ = L} l τ = {!   !}
+-- π▹ {κ = κ₁ `→ κ₂} l (left τ) = right λ ρ v → π▹ (ren ρ l) ((reflectNE (renNE ρ τ)) ·V v)
+-- π▹ {κ = κ₁ `→ κ₂} l (right F) = right (λ ρ v → π▹ (ren ρ l) (F ρ v)) 
+-- π▹ {κ = R[ ★ ]} l τ = {!   !} -- row (Π▹ l τ)
+-- π▹ {κ = R[ L ]} l τ = {!   !} -- row (Π▹ l τ)
+-- π▹ {κ = R[ κ `→ κ₁ ]} l τ = {!   !}
+-- π▹ {κ = R[ R[ κ ] ]} l τ = {!   !}
+
 
 πNE {κ = ★} τ = ne (Π τ)
 πNE {κ = L} τ = ne (Π τ)
@@ -135,42 +150,75 @@ reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 πNE {κ = R[ ★ ]} τ = ne (Π τ)
 πNE {κ = R[ L ]} τ = ne (Π τ)
 πNE {κ = R[ κ `→ κ₁ ]} τ = left (Π τ)
-πNE {κ = R[ R[ κ ] ]} τ = left (ne (Π τ)) 
+πNE {κ = R[ R[ κ ] ]} τ = left (Π τ)
+
+σNE = {!   !}
+
+-- graveyard
+-- πN {κ = κ} (ne x) ρ η = πNE x
+-- πN {κ = ★} (row (x ▹ x₁)) ρ η = Π (x ▹ x₁)
+-- -- πN {κ = ★} (row (Π▹ x x₁)) ρ η = Π (x ▹ (πN x₁ ρ η))
+-- -- πN {κ = ★} (row (Σ▹ x x₁)) ρ η = Σ (x ▹ (πN x₁ ρ η))
+-- -- Need Π constructor for Label kind
+-- πN {κ = L} (row τ) ρ η = {!   !}
+-- πN {κ = κ₁ `→ κ₂} (row (l ▹ ne x)) ρ η = π▹ {κ = κ₁ `→ κ₂} l (left x)
+-- πN {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (row (l ▹ `λ τ)) ρ η = 
+--   right (λ ρ' v → (renSem {κ = κ₁ `→ κ₂} ρ' (π▹ {κ = κ₁ `→ κ₂} l (reflect {κ = κ₁ `→ κ₂} (`λ τ) idEnv)) ·V v))
+-- -- πN {κ = κ `→ κ₁} (row (Π▹ x x₁)) ρ η = {!   !}
+-- -- πN {κ = κ `→ κ₁} (row (Σ▹ x x₁)) ρ η = {!   !}
+-- πN {κ = R[ κ ]} (row τ) ρ η = {!   !}
 
 
-πN {κ = κ} (ne x) ρ η = πNE x
-πN {κ = ★} (row (x ▹ x₁)) ρ η = Π (x ▹ x₁)
-πN {κ = ★} (row (Π▹ x x₁)) ρ η = Π (x ▹ (πN x₁ ρ η))
-πN {κ = ★} (row (Σ▹ x x₁)) ρ η = Σ (x ▹ (πN x₁ ρ η))
--- Need Π constructor for Label kind
-πN {κ = L} (row τ) ρ η = {!   !}
-πN {κ = κ₁ `→ κ₂} (row (l ▹ ne x)) ρ η = π▹ {κ = κ₁ `→ κ₂} l (left x)
-πN {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (row (l ▹ `λ τ)) ρ η = 
-  right (λ ρ' v → (renSem {κ = κ₁ `→ κ₂} ρ' (π▹ {κ = κ₁ `→ κ₂} l (reflectN {κ = κ₁ `→ κ₂} (`λ τ) id idEnv)) ·V v))
-πN {κ = κ `→ κ₁} (row (Π▹ x x₁)) ρ η = {!   !}
-πN {κ = κ `→ κ₁} (row (Σ▹ x x₁)) ρ η = {!   !}
-πN {κ = R[ κ ]} (row τ) ρ η = {!   !}
 
+-- π {★} (ne (` x)) η with η x 
+-- ... | ne ρ  = ne (Π ρ)
+-- ... | row r@(l ▹ τ) = Π r
+-- π {★} (ne (x · x₁)) η = {!   !}
+-- π {★} (ne (Π x)) η = {!   !}
+-- π {★} (ne (Σ x)) η = {!   !}
+-- π {★} (row x) η = {!   !}
+-- π {L} τ η = {!   !}
+-- π {κ₁ `→ κ₂} (left x) η = {!   !}
+-- π {κ₁ `→ κ₂} {Δ₁} {Δ₂} (right (l , F)) η = right (λ {Δ₃} ρ v → {! F   !})
+-- π {R[ κ ]} τ η = {!   !}
 
--- -- π {κ = ★} (ne x) ρ η = ne (Π x)
--- -- π {κ = ★} (row (l ▹ τ)) ρ η = Π (l ▹ τ)
--- -- π {κ = ★} (row (Π▹ l τ)) ρ η = Π (l ▹ (π {κ = ★} τ ρ η)) 
--- -- π {κ = ★} (row (Σ▹ l τ)) ρ η = Σ (l ▹ (π {κ = ★} τ ρ η))
--- -- π {κ = L} τ ρ η = {!   !}
--- -- π {κ = κ `→ κ₁} (left x) ρ η = left (Π x)
--- -- π {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (right (l , F)) ρ η = 
--- --   right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
--- -- π {κ = R[ κ ]} (left (ne x)) ρ η = πNE x 
--- -- π {κ = R[ ★ ]} (left (row (l ▹ τ))) ρ η = π▹ {κ = R[ ★ ]} l τ -- _▵_ {κ = ★} l (π {κ = ★} τ ρ η)
--- -- π {κ = R[ ★ ]} (left (row (Π▹ l τ))) ρ η = row (Π▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
--- -- π {κ = R[ ★ ]} (left (row (Σ▹ l τ))) ρ η =  row (Σ▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
--- -- π {κ = R[ L ]} (left (row τ)) = {!   !}
--- -- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ ne x))) ρ η = left (l ▹ (Π x))
--- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ τ))) ρ η = _▵_ {κ = κ₁ `→ κ₂} l (π {κ = κ₁ `→ κ₂} (reflectN τ idEnv) ρ η)
--- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Π▹ l τ))) ρ η = {!   !}
--- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Σ▹ l τ))) ρ η = {!   !}
--- -- π {κ = R[ R[ κ ] ]} (left (row τ)) = {!   !}
--- -- π {κ = R[ κ ]} (right (l , τ)) ρ η = l ▵ (π τ ρ η) -- l ▵ (π τ η)
+π {κ = ★} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (ne x) ρ η = ne (Π x)
+π {κ = ★} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (row r) ρ η = Π r
+π {κ = L} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (ne x) ρ η = ne (Π x)
+π {κ = L} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (row r) ρ η = ΠL r
+π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = left (Π x)
+π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , F)) ρ η = right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
+π {κ = R[ ★ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = ne (Π x)
+π {κ = R[ ★ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η = row (l ▹ (reify (π {κ = ★} τ ρ η)))
+π {κ = R[ L ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = ne (Π x)
+π {κ = R[ L ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η = row (l ▹ (reify (π {κ = L} τ ρ η)))
+π {κ = R[ κ₁ `→ κ₂ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = left (Π x)
+π {κ = R[ κ₁ `→ κ₂ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , left τ)) ρ η = _▵_ {κ = κ₁ `→ κ₂} l (πNE {κ = κ₁ `→ κ₂} τ)
+π {κ = R[ κ₁ `→ κ₂ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η = _▵_ {κ = κ₁ `→ κ₂} l (π {κ = κ₁ `→ κ₂} τ id idEnv)
+π {κ = R[ R[ κ ] ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = left (Π x)
+π {κ = R[ R[ κ ] ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , left τ)) ρ η = _▵_ {κ = R[ κ ]} l (πNE {κ = R[ κ ]} τ)
+π {κ = R[ R[ κ ] ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η =  _▵_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ id idEnv)
+
+-- graveyard
+-- π {κ = ★} (ne x) ρ η = ne (Π x)
+-- π {κ = ★} (row (l ▹ τ)) ρ η = Π (l ▹ τ)
+-- π {κ = ★} (row (Π▹ l τ)) ρ η = Π (l ▹ (π {κ = ★} τ ρ η)) 
+-- π {κ = ★} (row (Σ▹ l τ)) ρ η = Σ (l ▹ (π {κ = ★} τ ρ η))
+-- π {κ = L} τ ρ η = {!   !}
+-- π {κ = κ `→ κ₁} (left x) ρ η = left (Π x)
+-- π {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (right (l , F)) ρ η = 
+--   right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
+-- π {κ = R[ κ ]} (left (ne x)) ρ η = πNE x 
+-- π {κ = R[ ★ ]} (left (row (l ▹ τ))) ρ η = π▹ {κ = R[ ★ ]} l τ -- _▵_ {κ = ★} l (π {κ = ★} τ ρ η)
+-- π {κ = R[ ★ ]} (left (row (Π▹ l τ))) ρ η = row (Π▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
+-- π {κ = R[ ★ ]} (left (row (Σ▹ l τ))) ρ η =  row (Σ▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
+-- π {κ = R[ L ]} (left (row τ)) = {!   !}
+-- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ ne x))) ρ η = left (l ▹ (Π x))
+-- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ τ))) ρ η = _▵_ {κ = κ₁ `→ κ₂} l (π {κ = κ₁ `→ κ₂} (reflect τ idEnv) ρ η)
+-- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Π▹ l τ))) ρ η = {!   !}
+-- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Σ▹ l τ))) ρ η = {!   !}
+-- π {κ = R[ R[ κ ] ]} (left (row τ)) = {!   !}
+-- π {κ = R[ κ ]} (right (l , τ)) ρ η = l ▵ (π τ ρ η) -- l ▵ (π τ η)
 
 
 -- -- -- -- σ : SemType Δ R[ κ ] → SemType Δ κ
@@ -190,51 +238,51 @@ reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 -- -- -- --     go {R[ R[ κ ] ]} t = left (Σ t)
 -- -- -- -- σ {Δ} {κ = R[ κ ]} (right ( ℓ , τ )) = ℓ ▵ (σ τ)
 
--- ----------------------------------------
--- -- Type reflection.
+----------------------------------------
+-- Type evaluation.
 
 
--- reflect {κ = ★} (` x) η = η x
--- reflect {κ = ★} Unit η  = Unit
--- reflect {κ = ★} (τ₁ · τ₂) η = (reflect τ₁ η) ·V (reflect τ₂ η)
--- reflect {κ = ★} (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
--- reflect {κ = ★} (`∀ κ τ) η = `∀ _ (reflect τ (↑e η))
--- reflect {κ = ★} (μ τ) η with reflect τ η 
--- ... | left F = μ (ne F)
--- ... | right F = μ (`λ (F S (ne (` Z)))) 
--- reflect {κ = ★} ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
+eval {κ = ★} (` x) η = η x
+eval {κ = ★} Unit η  = Unit
+eval {κ = ★} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = ★} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
+eval {κ = ★} (μ τ) η with eval τ η 
+... | left F = μ (ne F)
+... | right F = μ (`λ (F S (ne (` Z)))) 
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
--- -- -- ----------------------------------------
--- -- -- -- Label reflection.
+-- -- ----------------------------------------
+-- -- -- Label evalion.
 
--- reflect {κ = L} (` x) η = η x
--- reflect {κ = L} (τ₁ · τ₂) η = (reflect τ₁ η) ·V (reflect τ₂ η)
--- reflect {κ = L} (lab l) η = lab l
+eval {κ = L} (` x) η = η x
+eval {κ = L} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = L} (lab l) η = lab l
 
--- -- -- ----------------------------------------
--- -- -- -- function reflection.
+-- -- ----------------------------------------
+-- -- -- function evalion.
 
--- reflect {κ = κ₁ `→ κ₂} (` x) η = η x
--- reflect {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → reflect τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
--- reflect {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (reflect τ₁ η) ·V (reflect τ₂ η)
--- reflect {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → πN (reify v) id idEnv) -- π v ρ η
--- reflect {κ = κ₁ `→ κ₂} Σ η = {!  !} 
--- reflect {κ = _} `▹` η = right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
--- -- reflect {κ = κ₁ `→ κ₂} (↑ τ) η = {!!}
--- -- reflect {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
+eval {κ = κ₁ `→ κ₂} (` x) η = η x
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
+eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v ρ η) -- π v ρ η
+eval {κ = κ₁ `→ κ₂} Σ η = {!  !} 
+eval {κ = _} `▹` η = right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
+-- eval {κ = κ₁ `→ κ₂} (↑ τ) η = {!!}
+-- eval {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
 
--- -- -- ----------------------------------------
--- -- -- -- Row reflection.
+-- -- ----------------------------------------
+-- -- -- Row evalion.
 
--- reflect {κ = R[ κ ]} (` x) η = η x
--- reflect {κ = R[ κ ]} (τ₁ · τ₂) η = reflect τ₁ η ·V reflect τ₂ η
+eval {κ = R[ κ ]} (` x) η = η x
+eval {κ = R[ κ ]} (τ₁ · τ₂) η = eval τ₁ η ·V eval τ₂ η
 
--- -- -- --------------------------------------------------------------------------------
--- -- -- -- Evaluation.
+-- -- --------------------------------------------------------------------------------
+-- -- -- Evaluation.
 
--- -- -- -- NormalType forms.
--- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
--- ⇓ τ = reify (reflect τ idEnv)
+-- -- -- NormalType forms.
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
 
 -- -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- -- Testing.
@@ -409,5 +457,5 @@ reflect : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 -- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-        
-        
+          
+          

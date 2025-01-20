@@ -36,7 +36,7 @@ renSem-R {κ = ★} ρ τ = ren ρ τ
 renSem-R {κ = L} ρ τ = ren ρ τ 
 renSem-R {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
 renSem-R {κ = κ `→ κ₁} ρ (right ( l , F)) = right (ren ρ l , ((λ ρ' → F (ρ' ∘ ρ))))
-renSem-R {κ = R[ κ ]} ρ (left τ) = left (ren ρ τ) 
+renSem-R {κ = R[ κ ]} ρ (left τ) = left (renNE ρ τ) 
 renSem-R {κ = R[ κ ]} ρ (right (l , τ)) = right (ren ρ l , renSem ρ τ)
 
 -- --------------------------------------------------------------------------------

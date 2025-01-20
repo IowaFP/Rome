@@ -65,19 +65,19 @@ data Row Δ where
       Row Δ R[ κ ]
 
 
-  Π▹ : 
+--   Π▹ : 
 
-      NormalType Δ L → 
-      NormalType Δ κ → 
-      ------------
-      Row Δ κ
+--       NormalType Δ L → 
+--       NormalType Δ κ → 
+--       ------------
+--       Row Δ κ
 
-  Σ▹ : 
+--   Σ▹ : 
 
-      NormalType Δ L → 
-      NormalType Δ κ → 
-      ------------
-      Row Δ κ
+--       NormalType Δ L → 
+--       NormalType Δ κ → 
+--       ------------
+--       Row Δ κ
     
   
 
@@ -96,7 +96,7 @@ data NormalType Δ where
 
   row :
 
-      Row Δ R[ κ ] →
+      Row Δ R[ κ ] → 
       -------------------
       NormalType Δ R[ κ ]
 
@@ -147,6 +147,12 @@ data NormalType Δ where
       ------------------
       NormalType Δ ★
 
+  ΠL  : 
+
+      Row Δ R[ L ] →
+      ------------------
+      NormalType Δ L
+
 
   Σ  : 
 
@@ -166,12 +172,12 @@ all-rows-neutral-or-row : (τ : NormalType Δ R[ κ ]) → (∃[ x ] (ne x ≡ �
 all-rows-neutral-or-row (ne x) = left (x , refl)
 all-rows-neutral-or-row (row x) = right (x , refl)
 
-row-canonicity : ∀ (r : Row Δ R[ κ ]) → ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) or
-                                         ∃[ l ] (∃[ τ ] (r ≡ (Π▹ l τ))) or
-                                         ∃[ l ] (∃[ τ ] (r ≡ (Σ▹ l τ)))
-row-canonicity (l ▹ τ) = left (l , τ , refl)
-row-canonicity (Π▹ l τ) = right (left (l , τ , refl))
-row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
+row-canonicity : ∀ (r : Row Δ R[ κ ]) → ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) -- or
+                                        --  ∃[ l ] (∃[ τ ] (r ≡ (Π▹ l τ))) or
+                                        --  ∃[ l ] (∃[ τ ] (r ≡ (Σ▹ l τ)))
+row-canonicity (l ▹ τ) = (l , τ , refl)
+-- row-canonicity (Π▹ l τ) = right (left (l , τ , refl))
+-- row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
@@ -193,6 +199,7 @@ row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 ⇑ (Π x) = Π · ⇑Row x
+⇑ (ΠL x) = Π · ⇑Row x
 ⇑ (Σ x) = Σ · ⇑Row x
 
 
@@ -203,8 +210,8 @@ row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
 ⇑NE (Σ ρ) = Σ · ⇑NE ρ
 
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
-⇑Row (Π▹ l τ) = Π · (`▹` · (⇑ l) · (⇑ τ))
-⇑Row (Σ▹ l τ) = Σ · (`▹` · (⇑ l) · (⇑ τ))
+-- ⇑Row (Π▹ l τ) = Π · (`▹` · (⇑ l) · (⇑ τ))
+-- ⇑Row (Σ▹ l τ) = Σ · (`▹` · (⇑ l) · (⇑ τ))
 
 --------------------------------------------------------------------------------
 -- problems
@@ -213,4 +220,4 @@ row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
 -- fuck₁ = `λ (ne (Π (Π ((lab "l") ▹ ((lab "l2") ▹ ` Z)))))
 
 fuck₂ : NormalType Δ (★ `→ ★)
-fuck₂ = `λ (Π ((lab "l") ▹ (Π ((lab "l2") ▹ (ne (` Z))))))
+fuck₂ = `λ (Π ((lab "l") ▹ (Π ((lab "l2") ▹ (ne (` Z)))))) 
