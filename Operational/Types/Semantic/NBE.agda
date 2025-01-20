@@ -125,18 +125,46 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 ----------------------------------------
 -- Semantic combinator for Lifting
 
+postulate
+  all : ∀ (X : Set) → X
+  
+`↑ : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ (κ₁ `→ κ₂) → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ (R[ κ₁ ] `→ R[ κ₂ ])
 _·RV_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _·RV_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
-_·RV_ {κ₁ = ★} {κ₂} (right F) (ne x) = {!   !}
+_·RV_ {κ₁ = ★} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
+_·RV_ {κ₁ = ★} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
+_·RV_ {κ₁ = ★} {κ₂ `→ κ₃} f@(right F) (ne x) = left (reify f ↑· x)
+_·RV_ {κ₁ = ★} {R[ κ₂ ]} f@(right F) (ne x) = left (reify f ↑· x)
 _·RV_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
-_·RV_ {κ₁ = L} {κ₂} (right F) (ne x) = {!  !}
+_·RV_ {κ₁ = L} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
+_·RV_ {κ₁ = L} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
+_·RV_ {κ₁ = L} {κ₂ `→ κ₃} f@(right F) (ne x) = left (reify f ↑· x)
+_·RV_ {κ₁ = L} {R[ κ₂ ]} f@(right F) (ne x) = left (reify f ↑· x)
 _·RV_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
-_·RV_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) τ = {!   !}
-_·RV_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) τ = {!   !} 
+_·RV_ {κ₁ = κ₁ `→ κ₂} {★} f@(right F) (left x) = ne (((reify f) ↑· x))
+_·RV_ {κ₁ = κ₁ `→ κ₂} {L} f@(right F) (left x) = ne (((reify f) ↑· x))
+_·RV_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} f@(right F) (left x) = left ((reify f) ↑· x) 
+_·RV_ {κ₁ = κ₁ `→ κ₂} {R[ κ₃ ]} f@(right F) (left x) = left ((reify f) ↑· x) 
+_·RV_ {κ₁ = κ₁ `→ κ₂} {★} f@(right F) g@(right (l , G)) = row (l ▹ F id (right G)) 
+_·RV_ {κ₁ = κ₁ `→ κ₂} {L} f@(right F) g@(right (l , G)) = row (l ▹ F id (right G))
+_·RV_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} f@(right F) g@(right (l , G)) with F id (right G) 
+... | left x = right (l , λ ρ v → reflectNE (renNE ρ x) ·V v)
+... | right y = right (l , y)
+_·RV_ {κ₁ = κ₁ `→ κ₂} {R[ κ₃ ]} (right F) (right (l , G)) = right (l , (F id (right G)))
+_·RV_ {κ₁ = R[ κ₁ ]} {★} f@(right F) (left x) = ne (reify f ↑· x)
+_·RV_ {κ₁ = R[ κ₁ ]} {★} f@(right F) (right (l , τ)) = row (l ▹ (F id τ))
+_·RV_ {κ₁ = R[ κ₁ ]} {L} f@(right F) (left x) = ne (reify f ↑· x)
+_·RV_ {κ₁ = R[ κ₁ ]} {L} f@(right F) (right (l , τ)) = row (l ▹ (F id τ))
+_·RV_ {κ₁ = R[ κ₁ ]} {κ₂ `→ κ₃} f@(right F) (left x) = left ((reify f) ↑· x)
+_·RV_ {κ₁ = R[ κ₁ ]} {κ₂ `→ κ₃} f@(right F) (right (l , τ)) with F id τ
+... | left x = right (l , λ ρ v → reflectNE (renNE ρ x) ·V v)
+... | right y = right (l , y)
+_·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (left x) = left ((reify f) ↑· x)
+_·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l , (F id τ)) 
 
-`↑ : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ (κ₁ `→ κ₂) → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ (R[ κ₁ ] `→ R[ κ₂ ])
+
 `↑ (left x) ρ η = left (↑ x)
-`↑ {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F ρ η = right (λ ρ v → {!   !})
+`↑ {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F ρ η = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.
@@ -162,7 +190,8 @@ evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η
 ... | left x = left (Π x)
 ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
 evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
-evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = right (λ ρ f → {! `↑   !})
+evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = `↑ (evalNE F η) id η
+evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F ↑· x) η = (reflect F η) ·RV (evalNE x η)
 evalNE (Σ τ) η = {!   !}
 
 ----------------------------------------
@@ -397,13 +426,17 @@ _ = refl
 -- -- --------------------------------------------------------------------------------
 -- -- -- Lifting nonsense
 
--- -- lift-L  : Type Δ ((★ `→ ★) `→ ★)
--- -- lift-L = `λ (Π (((` Z) ↑) · (ℓ ▹ Unit))) -- `λ Π ((ℓ₁ ▹ (λ x.
+lift-λ : Type Δ ★
+lift-λ = `Π (↑ · `λ (` Z) · (ℓ `▹ Unit))
 
--- -- _ : ⇓ {Δ = Δ} lift-L ≡ `λ (Π▹ l (ne ((` Z) · Unit)))
--- -- _ = {!⇓ lift-L!}
+_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
+_ = refl
 
+lift-var  : Type Δ ((★ `→ ★) `→ ★)
+lift-var = `λ (`Π ((↑ · (` Z)) · (ℓ `▹ Unit)))
 
+_ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (Π (↑ (` Z) · row (lab "l" ▹ Unit))))
+_ = refl
 
 -- -- -- -- -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- -- -- -- -- Claims.
@@ -416,4 +449,4 @@ _ = refl
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
             
-            
+             
