@@ -74,16 +74,7 @@ left A ·V V = reflectNE (A · (reify V))
 right F ·V V = F id V
 
 --------------------------------------------------------------------------------
--- (1) Reflecting normal, neutral, and types to semantic.
--- (2) Rewriting *semantic* combinators for Π, _▹_, et al
--- N.b. that Types are simultaneously evaluated and reflected; neutral types and normal types
--- require an environment for reflection so that bodies of lambdas may be extended.
-
-reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
-evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
+-- Semantic combinator for labeled types
 
 _▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▵_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
@@ -92,58 +83,11 @@ _▵_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (λ ρ v → reflectN
 _▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , F)
 _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
-evalNE (` x) η = η x
-evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
-evalNE {κ = ★} (Π τ) η with evalNE τ η 
-... | ne x = ne (Π x)
-... | row x = Π x
-evalNE {κ = L} (Π τ) η with evalNE τ η 
-... | ne x = ne (Π x)
-... | row x = ΠL x
-evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
-... | left x = left (Π x)
-... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
-evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
-evalNE (Σ τ) η = {!   !}
 
-reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
-reflect Unit η = Unit
-reflect (ne x) η = evalNE x η
-reflect (row x) η = reflectRow x η
-reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
-reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
-reflect (μ τ) η with reflect τ η 
-... | left F = μ (ne F)
-... | right F = μ (`λ (F S (ne (` Z)))) 
-reflect (lab x) η = lab x
-reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
-reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
-reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
-reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
-reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
-
-
--- --------------------------------------------------------------------------------
--- -- Semantic type function constants
-
+----------------------------------------
+-- Semantic combinators for Π
 
 πNE : NeutralType Δ R[ κ ] → SemType Δ κ 
--- πN  : NormalType Δ₁ κ₁ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-σNE : NeutralType Δ R[ κ ] → SemType Δ κ 
-
--- πN : ∀ {Δ₁ Δ₂ Δ₃} → NormalType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
--- π▹ : NormalType Δ L → SemType Δ κ → SemType Δ κ
--- -- π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
--- π▹ {κ = ★} l τ = Π (l ▹ τ)
--- π▹ {κ = L} l τ = {!   !}
--- π▹ {κ = κ₁ `→ κ₂} l (left τ) = right λ ρ v → π▹ (ren ρ l) ((reflectNE (renNE ρ τ)) ·V v)
--- π▹ {κ = κ₁ `→ κ₂} l (right F) = right (λ ρ v → π▹ (ren ρ l) (F ρ v)) 
--- π▹ {κ = R[ ★ ]} l τ = {!   !} -- row (Π▹ l τ)
--- π▹ {κ = R[ L ]} l τ = {!   !} -- row (Π▹ l τ)
--- π▹ {κ = R[ κ `→ κ₁ ]} l τ = {!   !}
--- π▹ {κ = R[ R[ κ ] ]} l τ = {!   !}
-
-
 πNE {κ = ★} τ = ne (Π τ)
 πNE {κ = L} τ = ne (Π τ)
 πNE {κ = κ₁ `→ κ₂} τ = left (Π τ)
@@ -152,36 +96,7 @@ reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 πNE {κ = R[ κ `→ κ₁ ]} τ = left (Π τ)
 πNE {κ = R[ R[ κ ] ]} τ = left (Π τ)
 
-σNE = {!   !}
-
--- graveyard
--- πN {κ = κ} (ne x) ρ η = πNE x
--- πN {κ = ★} (row (x ▹ x₁)) ρ η = Π (x ▹ x₁)
--- -- πN {κ = ★} (row (Π▹ x x₁)) ρ η = Π (x ▹ (πN x₁ ρ η))
--- -- πN {κ = ★} (row (Σ▹ x x₁)) ρ η = Σ (x ▹ (πN x₁ ρ η))
--- -- Need Π constructor for Label kind
--- πN {κ = L} (row τ) ρ η = {!   !}
--- πN {κ = κ₁ `→ κ₂} (row (l ▹ ne x)) ρ η = π▹ {κ = κ₁ `→ κ₂} l (left x)
--- πN {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (row (l ▹ `λ τ)) ρ η = 
---   right (λ ρ' v → (renSem {κ = κ₁ `→ κ₂} ρ' (π▹ {κ = κ₁ `→ κ₂} l (reflect {κ = κ₁ `→ κ₂} (`λ τ) idEnv)) ·V v))
--- -- πN {κ = κ `→ κ₁} (row (Π▹ x x₁)) ρ η = {!   !}
--- -- πN {κ = κ `→ κ₁} (row (Σ▹ x x₁)) ρ η = {!   !}
--- πN {κ = R[ κ ]} (row τ) ρ η = {!   !}
-
-
-
--- π {★} (ne (` x)) η with η x 
--- ... | ne ρ  = ne (Π ρ)
--- ... | row r@(l ▹ τ) = Π r
--- π {★} (ne (x · x₁)) η = {!   !}
--- π {★} (ne (Π x)) η = {!   !}
--- π {★} (ne (Σ x)) η = {!   !}
--- π {★} (row x) η = {!   !}
--- π {L} τ η = {!   !}
--- π {κ₁ `→ κ₂} (left x) η = {!   !}
--- π {κ₁ `→ κ₂} {Δ₁} {Δ₂} (right (l , F)) η = right (λ {Δ₃} ρ v → {! F   !})
--- π {R[ κ ]} τ η = {!   !}
-
+π : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
 π {κ = ★} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (ne x) ρ η = ne (Π x)
 π {κ = ★} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (row r) ρ η = Π r
 π {κ = L} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (ne x) ρ η = ne (Π x)
@@ -199,49 +114,81 @@ reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 π {κ = R[ R[ κ ] ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , left τ)) ρ η = _▵_ {κ = R[ κ ]} l (πNE {κ = R[ κ ]} τ)
 π {κ = R[ R[ κ ] ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η =  _▵_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ id idEnv)
 
--- graveyard
--- π {κ = ★} (ne x) ρ η = ne (Π x)
--- π {κ = ★} (row (l ▹ τ)) ρ η = Π (l ▹ τ)
--- π {κ = ★} (row (Π▹ l τ)) ρ η = Π (l ▹ (π {κ = ★} τ ρ η)) 
--- π {κ = ★} (row (Σ▹ l τ)) ρ η = Σ (l ▹ (π {κ = ★} τ ρ η))
--- π {κ = L} τ ρ η = {!   !}
--- π {κ = κ `→ κ₁} (left x) ρ η = left (Π x)
--- π {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} {Δ₃} (right (l , F)) ρ η = 
---   right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
--- π {κ = R[ κ ]} (left (ne x)) ρ η = πNE x 
--- π {κ = R[ ★ ]} (left (row (l ▹ τ))) ρ η = π▹ {κ = R[ ★ ]} l τ -- _▵_ {κ = ★} l (π {κ = ★} τ ρ η)
--- π {κ = R[ ★ ]} (left (row (Π▹ l τ))) ρ η = row (Π▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
--- π {κ = R[ ★ ]} (left (row (Σ▹ l τ))) ρ η =  row (Σ▹ l (π {κ = R[ ★ ]} (left τ) ρ η))
--- π {κ = R[ L ]} (left (row τ)) = {!   !}
--- -- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ ne x))) ρ η = left (l ▹ (Π x))
--- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (l ▹ τ))) ρ η = _▵_ {κ = κ₁ `→ κ₂} l (π {κ = κ₁ `→ κ₂} (reflect τ idEnv) ρ η)
--- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Π▹ l τ))) ρ η = {!   !}
--- π {κ = R[ κ₁ `→ κ₂ ]} (left (row (Σ▹ l τ))) ρ η = {!   !}
--- π {κ = R[ R[ κ ] ]} (left (row τ)) = {!   !}
--- π {κ = R[ κ ]} (right (l , τ)) ρ η = l ▵ (π τ ρ η) -- l ▵ (π τ η)
+----------------------------------------
+-- Semantic combinator for Σ
 
+σNE : NeutralType Δ R[ κ ] → SemType Δ κ 
+σNE = {!   !}
+σ : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
+σ = {!   !}
 
--- -- -- -- σ : SemType Δ R[ κ ] → SemType Δ κ
--- -- -- -- σ {κ = ★} (ne x) = ne (Σ x)
--- -- -- -- σ {κ = L} (ne x) = ne (Σ x)
--- -- -- -- σ {κ = κ₁ `→ κ₂} (left x) = left (Σ x)
--- -- -- -- σ {κ = κ₁ `→ κ₂} (right ( ℓ , ( cs , F ) )) = right ( ((Σ ℓ) ∷ cs) , F )
--- -- -- -- σ {Δ} {κ = R[ κ ]} (left t) = go t
--- -- -- --   where
--- -- -- --     go : ∀ {κ} → NeutralType Δ R[ κ ] → SemType Δ κ
--- -- -- --     go {★} t = σ {Δ} {★} (reflectNE t)
--- -- -- --     go {L} t = σ {Δ} {L} (reflectNE t)
--- -- -- --     go {κ₁ `→ κ₂} t = left (Σ t)
--- -- -- --     go {R[ ★ ]} t = ne (Σ t)
--- -- -- --     go {R[ L ]} t = ne (Σ t)
--- -- -- --     go {R[ κ₁ `→ κ₂ ]} t = left (Σ t)
--- -- -- --     go {R[ R[ κ ] ]} t = left (Σ t)
--- -- -- -- σ {Δ} {κ = R[ κ ]} (right ( ℓ , τ )) = ℓ ▵ (σ τ)
+----------------------------------------
+-- Semantic combinator for Lifting
+
+_·RV_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
+_·RV_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
+_·RV_ {κ₁ = ★} {κ₂} (right F) (ne x) = {!   !}
+_·RV_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
+_·RV_ {κ₁ = L} {κ₂} (right F) (ne x) = {!  !}
+_·RV_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
+_·RV_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) τ = {!   !}
+_·RV_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) τ = {!   !} 
+
+`↑ : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ (κ₁ `→ κ₂) → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ (R[ κ₁ ] `→ R[ κ₂ ])
+`↑ (left x) ρ η = left (↑ x)
+`↑ {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F ρ η = right (λ ρ v → {!   !})
+
+----------------------------------------
+-- Evaluation of neutral terms to Semantic.
+--
+-- N.b. that Types are simultaneously evaluated 
+-- and reflected; neutral types and normal types
+-- require an environment for reflection so that bodies 
+-- of lambdas may be extended.
+
+evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
+
+evalNE (` x) η = η x
+evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
+evalNE {κ = ★} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = Π x
+evalNE {κ = L} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = ΠL x
+evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
+... | left x = left (Π x)
+... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
+evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
+evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = right (λ ρ f → {! `↑   !})
+evalNE (Σ τ) η = {!   !}
+
+----------------------------------------
+-- Reflection & evaluation of normal terms to semantic.
+
+reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
+reflect Unit η = Unit
+reflect (ne x) η = evalNE x η
+reflect (row x) η = reflectRow x η
+reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
+reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
+reflect (μ τ) η with reflect τ η 
+... | left F = μ (ne F)
+... | right F = μ (`λ (F S (ne (` Z)))) 
+reflect (lab x) η = lab x
+reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
+reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
+reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
+reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
+
+reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 
 ----------------------------------------
 -- Type evaluation.
 
-
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 eval {κ = ★} (` x) η = η x
 eval {κ = ★} Unit η  = Unit
 eval {κ = ★} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
@@ -253,34 +200,36 @@ eval {κ = ★} (μ τ) η with eval τ η
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
 -- -- ----------------------------------------
--- -- -- Label evalion.
+-- -- -- Label evaluation.
 
 eval {κ = L} (` x) η = η x
 eval {κ = L} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = L} (lab l) η = lab l
 
 -- -- ----------------------------------------
--- -- -- function evalion.
+-- -- -- function evaluation.
 
 eval {κ = κ₁ `→ κ₂} (` x) η = η x
 eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
 eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
+
+----------------------------------------
+-- Type constants
 eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v ρ η) -- π v ρ η
-eval {κ = κ₁ `→ κ₂} Σ η = {!  !} 
+eval {κ = κ₁ `→ κ₂} Σ η = {!   !}
+eval {κ = (κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ]} ↑ η = right (λ ρ f → `↑ f ρ η) 
 eval {κ = _} `▹` η = right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
--- eval {κ = κ₁ `→ κ₂} (↑ τ) η = {!!}
--- eval {κ = κ₁ `→ κ₂} (τ ↑) η = {!!}
 
 -- -- ----------------------------------------
--- -- -- Row evalion.
+-- -- -- Row evaluation.
 
 eval {κ = R[ κ ]} (` x) η = η x
 eval {κ = R[ κ ]} (τ₁ · τ₂) η = eval τ₁ η ·V eval τ₂ η
 
--- -- --------------------------------------------------------------------------------
--- -- -- Evaluation.
+--------------------------------------------------------------------------------
+-- Type normalization
 
--- -- -- NormalType forms.
+-- NormalType forms.
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
 
@@ -466,5 +415,5 @@ _ = refl
 -- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-          
+            
             
