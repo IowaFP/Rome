@@ -168,22 +168,12 @@ data NormalType Δ where
 
 
 --------------------------------------------------------------------------------
--- Rows have the following canonical forms:
---  - Variables or neutral applications
---  - Variables/neutral applications nested under Π and/or Σ 
---  - Labeled rows (ℓ ▹ τ), possibly nested e.g. (ℓ₁ ▹ (ℓ₂ ▹ τ))
---  - Nested labeled rows under Π/Σ e.g. Π (ℓ ▹ τ) for τ : R[ ★ ]
+-- Rows are either neutral or labeled types
 
-all-rows-neutral-or-row : (τ : NormalType Δ R[ κ ]) → (∃[ x ] (ne x ≡ τ) or ∃[ r ] (row r ≡ τ))
-all-rows-neutral-or-row (ne x) = left (x , refl)
-all-rows-neutral-or-row (row x) = right (x , refl)
-
-row-canonicity : ∀ (r : Row Δ R[ κ ]) → ∃[ l ] (∃[ τ ] (r ≡ (l ▹ τ))) -- or
-                                        --  ∃[ l ] (∃[ τ ] (r ≡ (Π▹ l τ))) or
-                                        --  ∃[ l ] (∃[ τ ] (r ≡ (Σ▹ l τ)))
-row-canonicity (l ▹ τ) = (l , τ , refl)
--- row-canonicity (Π▹ l τ) = right (left (l , τ , refl))
--- row-canonicity (Σ▹ l τ) = right (right (l , τ , refl))
+row-canonicity : (ρ : NormalType Δ R[ κ ]) → ∃[ x ] (ρ ≡ ne x) or 
+                                             ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ row (l ▹ τ)))
+row-canonicity (ne x) = left (x , refl)
+row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
@@ -193,7 +183,6 @@ row-canonicity (l ▹ τ) = (l , τ , refl)
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
-
 
 ⇑ Unit   = Unit
 ⇑ (ne x) = ⇑NE x
@@ -211,21 +200,11 @@ row-canonicity (l ▹ τ) = (l , τ , refl)
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
--- ⇑NE (τ₁ ▹ τ₂) = `▹` · (⇑ τ₁) · (⇑NE τ₂)
 ⇑NE (Π ρ) = Π · ⇑NE ρ
 ⇑NE (Σ ρ) = Σ · ⇑NE ρ
 ⇑NE (↑ F) = ↑ · (⇑NE F) 
 ⇑NE (F ↑· τ) = ↑ · (⇑ F) · (⇑NE τ) 
-
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
--- ⇑Row (Π▹ l τ) = Π · (`▹` · (⇑ l) · (⇑ τ))
--- ⇑Row (Σ▹ l τ) = Σ · (`▹` · (⇑ l) · (⇑ τ))
+
 
 --------------------------------------------------------------------------------
--- problems
-
--- fuck₁ : NormalType Δ (★ `→ ★)
--- fuck₁ = `λ (ne (Π (Π ((lab "l") ▹ ((lab "l2") ▹ ` Z)))))
-
-fuck₂ : NormalType Δ (★ `→ ★)
-fuck₂ = `λ (Π ((lab "l") ▹ (Π ((lab "l2") ▹ (ne (` Z)))))) 
