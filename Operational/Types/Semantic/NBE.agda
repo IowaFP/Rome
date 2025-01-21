@@ -127,9 +127,6 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 rmap : SemType Δ (κ₁ `→ κ₂) → SemType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 _·RV_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_·RVKripke_ : KripkeFunction Δ κ₁ κ₂ → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_·RV_ {κ₁ = κ₁} {κ₂} (left f) τ = {!   !}
-_·RV_ {κ₁ = κ₁} {κ₂} (right y) τ = {!   !}
 -- _·RV_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
 -- _·RV_ {κ₁ = ★} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
 -- _·RV_ {κ₁ = ★} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
@@ -160,20 +157,11 @@ _·RV_ {κ₁ = κ₁} {κ₂} (right y) τ = {!   !}
 -- ... | left x = right (l , λ ρ v → reflectNE (renNE ρ x) ·V v)
 -- ... | right y = right (l , y)
 -- _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (left x) = left ((reify f) ↑· x)
--- _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l , (F id τ))
-
--- _·RVKripke_ {κ₁ = ★} {κ₂} f (ne x) = ? reflectNE (reify (right f) ↑· x)
--- _·RVKripke_ {κ₁ = ★} {κ₂} f (row (l ▹ τ)) = ? l ▵ (f id τ)
--- _·RVKripke_ {κ₁ = L} {κ₂} f (ne x) = ? reflectNE (reify (right f) ↑· x)
--- _·RVKripke_ {κ₁ = L} {κ₂} f (row (l ▹ τ)) = ? l ▵ (f id τ)
--- _·RVKripke_ {κ₁ = κ₁ `→ κ₂} {κ₃} f (left x) = ? reflectNE (reify (right f) ↑· x)
--- _·RVKripke_ {κ₁ = κ₁ `→ κ₂} {κ₃} f (right (l , g)) = ? l ▵ (f id (right g))
--- _·RVKripke_ {κ₁ = R[ κ₁ ]} {κ₂} f (left x) = ? --reflectNE (reify (right f) ↑· x)
--- _·RVKripke_ {κ₁ = R[ κ₁ ]} {κ₂} f (right (l , τ)) = ? l ▵ (f id τ)
+-- _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l , (F id τ)) 
 
 
-
-rmap {κ₁ = κ₁} {κ₂} F = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
+rmap (left x) = {!   !} -- left (↑ x)
+rmap {κ₁ = κ₁} {κ₂} F@(right _) = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.
@@ -199,7 +187,7 @@ rmap {κ₁ = κ₁} {κ₂} F = right (λ ρ v → (renSem {κ = κ₁ `→ κ�
 -- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
 -- evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
 -- evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = rmap (evalNE F η)
--- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = {! reflect F η  !} ·RV (evalNE x η)
+-- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F ↑· x) η = (reflect F η) ·RV (evalNE x η)
 -- evalNE (Σ τ) η = {!   !}
 
 -- ----------------------------------------
@@ -424,24 +412,24 @@ _ = refl
 -- -- --------------------------------------------------------------------------------
 -- -- -- Lifting nonsense
 
-lift-λ : Type Δ ★
-lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
+-- lift-λ : Type Δ ★
+-- lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
 
-_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
-_ = refl
+-- _ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
+-- _ = refl
 
-lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
-lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
+-- lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
+-- lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
 
-_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
-_ = refl
+-- _ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
+-- _ = refl
 
-lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
-lift-var = `λ (`λ (` Z) <$> (` Z))
+-- lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
+-- lift-var = `λ (`λ (` Z) <$> (` Z))
 
-_ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
-_ = refl
+-- _ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
+-- _ = refl
 
 -- -- -- -- -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- -- -- -- -- Claims.
@@ -453,5 +441,5 @@ _ = refl
 -- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-              
-              
+             
+             
