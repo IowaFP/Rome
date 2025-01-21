@@ -164,7 +164,7 @@ _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l
 
 
 rmap (left x) ρ η = left (↑ x)
-rmap {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F ρ η = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
+rmap {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F@(right _) ρ η = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.

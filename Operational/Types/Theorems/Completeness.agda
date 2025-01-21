@@ -29,16 +29,16 @@ _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = κ₁ `→ κ₂} (left x) (left y) = x ≡ y
 _≋_ {κ = κ₁ `→ κ₂} (left x) (right y) = ⊥
 _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
-_≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right ( cs₁ , F )) (right ( cs₂ , G )) = 
-  cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
+_≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) = 
+  Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
  
 _≋_ {κ = R[ ★ ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ κ `→ κ₁ ]} (right x) (left y) = ⊥
-_≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ( l₁ , ( cs₁ , F ) )) (right ( l₂ , ( cs₂ , G ) )) = 
-  l₁ ≡ l₂ × cs₁ ≡ cs₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
+_≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ( l₁ ,  F )) (right ( l₂ , G )) = 
+  l₁ ≡ l₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
 _≋_ {κ = R[ R[ κ ] ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ R[ κ ] ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
@@ -69,13 +69,13 @@ sym-≋ {κ = ★} t₁ t₂ refl = refl
 sym-≋ {κ = L} t₁ t₂ refl = refl
 sym-≋ {κ = κ `→ κ₁} (left x) (left x₁) refl = refl
 sym-≋ {κ = κ `→ κ₁} 
-  (right (cs , F)) (right (.cs , G)) 
-  (refl , (Unif-F , (Unif-G , Ext))) = 
-     refl ,  Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
+  (right F) (right G) 
+  (Unif-F , (Unif-G , Ext)) = 
+     Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
 sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ κ `→ κ₁ ]} (left x) (left x₁) refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , cs , snd₁)) (right (.l , .cs , snd₂)) (refl , refl , Unif-F , Unif-G , Ext) = refl ,
+sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , snd₁)) (right (.l , snd₂)) ( refl , Unif-F , Unif-G , Ext) = 
   refl ,
   Unif-G ,
   Unif-F ,
@@ -106,18 +106,18 @@ reify-≋→ :
   reify {Δ = Δ} {κ = κ₁ `→ κ₂} F ≡ reify G
 reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂
 reify-≋→ (left τ₁) (left τ₂) refl = refl
-reify-≋→ (right ( [] , F )) (right ( .[] , G ))
-  ( refl , ( unif-F , ( unif-G , ext ) ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
-reify-≋→  
-  (right ( Π l ∷ cs , F )) (right ( .(Π l ∷ cs) , G ))
-  (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
-    cong ne (cong Π (cong (_▹_ l) 
-    ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
-reify-≋→  
-  (right ( Σ l ∷ cs , F )) (right ( .(Σ l ∷ cs) , G ))
-  (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
-    cong ne (cong Σ (cong (_▹_ l) 
-    ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
+reify-≋→ (right F) (right  G)
+  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
+-- reify-≋→  
+--   (right ( Π l ∷ cs , F )) (right ( .(Π l ∷ cs) , G ))
+--   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
+--     cong ne (cong Π (cong (_▹_ l) 
+--     ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
+-- reify-≋→  
+--   (right ( Σ l ∷ cs , F )) (right ( .(Σ l ∷ cs) , G ))
+--   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
+--     cong ne (cong Σ (cong (_▹_ l) 
+--     ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
                   
 reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
@@ -145,7 +145,7 @@ Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
 
 postulate 
   idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
-        reflect τ η₁ ≋ reflect τ η₂
+        eval τ η₁ ≋ eval τ η₂
 
 
 --------------------------------------------------------------------------------
@@ -156,9 +156,9 @@ postulate
     ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
       (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
   
-  ↻-renSem-reflect : 
+  ↻-renSem-eval : 
     ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → {Ρ : Env-≋ η₁ η₂} →
-      (renSem ρ (reflect τ η₁)) ≋ reflect τ (renSem ρ ∘ η₂)
+      (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
 
 
 
