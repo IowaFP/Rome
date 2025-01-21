@@ -124,11 +124,8 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 ----------------------------------------
 -- Semantic combinator for Lifting
-
-postulate
-  all : ∀ (X : Set) → X
   
-rmap : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ (κ₁ `→ κ₂) → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ (R[ κ₁ ] `→ R[ κ₂ ])
+rmap : SemType Δ (κ₁ `→ κ₂) → SemType Δ (R[ κ₁ ] `→ R[ κ₂ ])
 _·RV_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _·RV_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
 _·RV_ {κ₁ = ★} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
@@ -163,8 +160,8 @@ _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (left x) = left ((reify f) 
 _·RV_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l , (F id τ)) 
 
 
-rmap (left x) ρ η = left (↑ x)
-rmap {κ₁} {κ₂} {Δ₁} {Δ₂} {Δ₃} F@(right _) ρ η = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
+rmap (left x) = left (↑ x)
+rmap {κ₁ = κ₁} {κ₂} F@(right _) = right (λ ρ v → (renSem {κ = κ₁ `→ κ₂} ρ F) ·RV v)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.
@@ -190,7 +187,7 @@ evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η
 ... | left x = left (Π x)
 ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
 evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
-evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = rmap (evalNE F η) id η
+evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = rmap (evalNE F η)
 evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F ↑· x) η = (reflect F η) ·RV (evalNE x η)
 evalNE (Σ τ) η = {!   !}
 
@@ -246,7 +243,7 @@ eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ
 -- Type constants
 eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v ρ η) -- π v ρ η
 eval {κ = κ₁ `→ κ₂} Σ η = {!   !}
-eval {κ = (κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ]} ↑ η = right (λ ρ f → rmap f ρ η) 
+eval {κ = (κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ]} ↑ η = right (λ ρ f → rmap f)
 eval {κ = _} `▹` η = right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
 
 -- -- ----------------------------------------
@@ -445,5 +442,5 @@ _ = refl
 -- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-            
+             
              

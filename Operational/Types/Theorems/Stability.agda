@@ -47,9 +47,19 @@ stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ} (Σ τ) rewrite stabilityNE τ = {!   !}
 stabilityNE {κ = κ} (↑ τ) rewrite stabilityNE τ = refl
 -- I believe this points out that we don't need the second neutral form _↑·_
-stabilityNE {κ = R[ κ₂ ]} (_↑·_ {κ₁} {κ₂} F τ) with (eval (⇑ F) idEnv)
-... | left f rewrite stabilityNE τ | stability F = {! reflectNE-≋ {τ₁ = (↑ f · reify (reflectNE τ))} {τ₂ = F ↑· τ}  !}
+stabilityNE {κ = R[ ★ ]} (_↑·_ {κ₁} {κ₂} F τ) with (eval (⇑ F) idEnv) 
+... | left f rewrite stabilityNE τ = {!   !}
 ... | right y = {!   !}
+stabilityNE {κ = R[ L ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
+stabilityNE {κ = R[ κ₃ `→ κ₄ ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
+stabilityNE {κ = R[ R[ κ₃ ] ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
+
+
+
+-- with (eval (⇑ F) idEnv) | inspect ⇓ (⇑ F)
+-- -- reflectNE-≋ {τ₁ = (↑ f · reify (reflectNE τ))} {τ₂ = F ↑· τ}
+-- ... | left f | [ eq ] rewrite stabilityNE τ  = {!   !}
+-- ... | right y | c  = {!   !}
 
 -- stability Unit = refl
 -- stability {κ = ★} (ne x) = stabilityNE x
@@ -91,5 +101,5 @@ stabilityNE {κ = R[ κ₂ ]} (_↑·_ {κ₁} {κ₂} F τ) with (eval (⇑ F) 
  
 -- surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 -- surjectivity τ = ( ⇑ τ , stability τ ) 
- 
+  
   
