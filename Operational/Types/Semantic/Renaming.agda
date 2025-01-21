@@ -24,12 +24,16 @@ open import Rome.Operational.Types.Semantic.Syntax
 -- renCs : Renaming Δ₁ Δ₂ → List (Congruence Δ₁) → List (Congruence Δ₂)
 -- renCs ρ = map (renC ρ)
 
+renKripke : Renaming Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
+renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
+
 renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renSem-R : Renaming Δ₁ Δ₂ → SemType Δ₁ R[ κ ] → SemType Δ₂ R[ κ ]
 renSem {κ = ★} ρ τ = ren ρ τ
 renSem {κ = L} ρ τ = ren ρ τ
 renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
-renSem {κ = κ `→ κ₁} ρ (right F) = right ((λ ρ' → F (ρ' ∘ ρ)))
+renSem {κ = κ `→ κ₁} ρ (right F) = right (renKripke ρ F)
+
 
 renSem {κ = R[ κ ]} ρ τ = renSem-R ρ τ
 renSem-R {κ = ★} ρ τ = ren ρ τ 

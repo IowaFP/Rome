@@ -39,7 +39,7 @@ ren ρ (lab x) = lab x
 ren ρ `▹` = `▹`
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 -- ren ρ (↑ τ) = ↑ (ren ρ τ)
-ren ρ ↑ = ↑
+ren ρ (f <$> m) = ren ρ f <$> ren ρ m
 
 weaken : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weaken = ren S

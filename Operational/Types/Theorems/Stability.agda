@@ -45,19 +45,18 @@ stabilityNE {κ = R[ L ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ κ `→ κ₁ ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ} (Σ τ) rewrite stabilityNE τ = {!   !}
-stabilityNE {κ = κ} (↑ τ) rewrite stabilityNE τ = refl
--- I believe this points out that we don't need the second neutral form _↑·_
-stabilityNE {κ = R[ ★ ]} (_↑·_ {κ₁} {κ₂} F τ) with (eval (⇑ F) idEnv) 
-... | left f rewrite stabilityNE τ = {!   !}
+stabilityNE (↑ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ ★ ]} (_<$>_ {κ₁} {κ₂} F τ) with (eval (⇑ F) idEnv) 
+... | left f rewrite stabilityNE τ = cong ne {!   !}
 ... | right y = {!   !}
-stabilityNE {κ = R[ L ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
-stabilityNE {κ = R[ κ₃ `→ κ₄ ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
-stabilityNE {κ = R[ R[ κ₃ ] ]} (_↑·_ {κ₁} {κ₂} F τ) = {!   !}
+stabilityNE {κ = R[ L ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
+stabilityNE {κ = R[ κ₃ `→ κ₄ ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
+stabilityNE {κ = R[ R[ κ₃ ] ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
 
 
 
 -- with (eval (⇑ F) idEnv) | inspect ⇓ (⇑ F)
--- -- reflectNE-≋ {τ₁ = (↑ f · reify (reflectNE τ))} {τ₂ = F ↑· τ}
+-- -- reflectNE-≋ {τ₁ = (↑ f · reify (reflectNE τ))} {τ₂ = F <$> τ}
 -- ... | left f | [ eq ] rewrite stabilityNE τ  = {!   !}
 -- ... | right y | c  = {!   !}
 

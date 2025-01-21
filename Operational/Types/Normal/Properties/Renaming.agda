@@ -31,7 +31,7 @@ ren-cong-ne eq (ν · τ) rewrite
 ren-cong-ne eq (Π τ) rewrite ren-cong-ne eq τ = refl 
 ren-cong-ne eq (Σ τ) rewrite ren-cong-ne eq τ = refl 
 ren-cong-ne eq (↑ τ) rewrite ren-cong-ne eq τ = refl
-ren-cong-ne eq (x ↑· τ) rewrite ren-cong eq x | ren-cong-ne eq τ = refl
+ren-cong-ne eq (x <$> τ) rewrite ren-cong eq x | ren-cong-ne eq τ = refl
 
 ren-cong eq (ne ν) rewrite 
   ren-cong-ne eq ν = refl
@@ -67,7 +67,7 @@ ren-id-ne (τ₁ · τ₂) rewrite
 ren-id-ne (Π τ) rewrite ren-id-ne τ = refl
 ren-id-ne (Σ τ) rewrite ren-id-ne τ = refl
 ren-id-ne (↑ τ) rewrite ren-id-ne τ = refl
-ren-id-ne (x ↑· τ) rewrite ren-id x | ren-id-ne τ = refl 
+ren-id-ne (x <$> τ) rewrite ren-id x | ren-id-ne τ = refl 
 
 ren-id (ne ν) rewrite ren-id-ne ν = refl
 ren-id (`λ τ) rewrite 
@@ -107,7 +107,7 @@ ren-comp-ne ρ₁ ρ₂ (ν · τ) rewrite
 ren-comp-ne ρ₁ ρ₂ (Π τ)    rewrite ren-comp-ne ρ₁ ρ₂ τ = refl
 ren-comp-ne ρ₁ ρ₂ (Σ τ)    rewrite ren-comp-ne ρ₁ ρ₂ τ = refl
 ren-comp-ne ρ₁ ρ₂ (↑ τ)    rewrite ren-comp-ne ρ₁ ρ₂ τ = refl
-ren-comp-ne ρ₁ ρ₂ (x ↑· τ) rewrite ren-comp ρ₁ ρ₂ x  | ren-comp-ne ρ₁ ρ₂ τ  = refl
+ren-comp-ne ρ₁ ρ₂ (x <$> τ) rewrite ren-comp ρ₁ ρ₂ x  | ren-comp-ne ρ₁ ρ₂ τ  = refl
 
 ren-comp ρ₁ ρ₂ (ne ν) rewrite ren-comp-ne ρ₁ ρ₂ ν  = refl
 ren-comp ρ₁ ρ₂ (`λ τ)  rewrite

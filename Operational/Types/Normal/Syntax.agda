@@ -48,16 +48,11 @@ data NeutralType Δ : Kind → Set where
       ------------
       NeutralType Δ κ
 
-  ↑ : 
 
-       NeutralType Δ (κ₁ `→ κ₂) →
-       ------------------------------
-       NeutralType Δ (R[ κ₁ ] `→ R[ κ₂ ])
-
-  _↑·_ : 
+  _<$>_ : 
 
        NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
-       ------------------------------
+       -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
 
@@ -202,8 +197,7 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (Π ρ) = Π · ⇑NE ρ
 ⇑NE (Σ ρ) = Σ · ⇑NE ρ
-⇑NE (↑ F) = ↑ · (⇑NE F) 
-⇑NE (F ↑· τ) = ↑ · (⇑ F) · (⇑NE τ) 
+⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 ⇑Row (l ▹ τ) = (`▹` · (⇑ l)) · (⇑ τ)
 
 
