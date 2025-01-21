@@ -125,31 +125,17 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 ----------------------------------------
 -- Semantic combinator for Lifting
 
--- N.b. this is 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = ★} {★} (left F) (ne τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = ★} {L} (left F) (ne τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = ★} {κ₂ `→ κ₃} (left F) (ne τ) = left (((ne F) <$> τ))
-_<$>V_ {κ₁ = ★} {R[ κ₂ ]} (left F) (ne τ) = left (((ne F) <$> τ))
-_<$>V_ {κ₁ = ★} {κ₂} (left x) (row (l ▹ τ)) = l ▵ ((left x) ·V τ)
-
-_<$>V_ {κ₁ = L} {★} (left F) (ne τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = L} {L} (left F) (ne τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = L} {κ₂ `→ κ₃} (left F) (ne τ) = left (((ne F) <$> τ))
-_<$>V_ {κ₁ = L} {R[ κ₂ ]} (left F) (ne τ) = left (((ne F) <$> τ))
-_<$>V_ {κ₁ = L} {κ₂} (left x) (row (l ▹ τ)) = l ▵ ((left x) ·V τ)
-
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {★} (left F) (left τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {★} (left F) (right (l , G)) = _▵_ {κ = ★} l (ne (F · reify (right G)))
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {L} (left F) (left τ) = ne ((ne F) <$> τ)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {L} (left F) (right (l , G)) = _▵_ {κ = L} l (ne (F · reify (right G)))
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} (left F) (left τ) = left ((ne F) <$> τ)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} (left F) (right (l , G)) = {! left F  !} ·V {!   !}
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {R[ κ₃ ]} (left F) τ = {!   !}
-
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (left x) τ = {!   !}
-
-_<$>V_ {κ₁ = κ₁} {κ₂} (right y) τ = {!   !}
+_<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
+... | ne τ = reflectNE ((ne F) <$> τ)
+... | row (l ▹ τ) = _▵_ {κ = κ₂} l (reflectNE (F · τ)) 
+_<$>V_ {κ₁ = κ₁} {κ₂} (right F) τ with reify τ 
+... | ne τ = reflectNE (reify (right F) <$> τ)
+_<$>V_ {κ₁ = ★} {κ₂} (right F) τ | row (l ▹ τ') = l ▵ (F id τ')
+_<$>V_ {κ₁ = L} {κ₂} (right F) τ | row (l ▹ τ') = l ▵ (F id τ')
+_<$>V_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) (left x) | row (l ▹ τ') = {!   !}
+_<$>V_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) (right y) | row (l ▹ τ') = {!   !}
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) τ | row (l ▹ τ') = {!   !}
 -- _<$>V_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
 -- _<$>V_ {κ₁ = ★} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
 -- _<$>V_ {κ₁ = ★} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
@@ -189,45 +175,45 @@ _<$>V_ {κ₁ = κ₁} {κ₂} (right y) τ = {!   !}
 -- require an environment for reflection so that bodies 
 -- of lambdas may be extended.
 
--- evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
+evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
 
--- evalNE (` x) η = η x
--- evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
--- evalNE {κ = ★} (Π τ) η with evalNE τ η 
--- ... | ne x = ne (Π x)
--- ... | row x = Π x
--- evalNE {κ = L} (Π τ) η with evalNE τ η 
--- ... | ne x = ne (Π x)
--- ... | row x = ΠL x
--- evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
--- ... | left x = left (Π x)
--- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
--- evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
--- evalNE {κ = R[ κ₁ ] `→ R[ κ₂ ]} {Δ₁} {Δ₂} (↑ F) η = rmap (evalNE F η)
--- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F ↑· x) η = (reflect F η) <$>V (evalNE x η)
--- evalNE (Σ τ) η = {!   !}
+evalNE (` x) η = η x
+evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
+evalNE {κ = ★} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = Π x
+evalNE {κ = L} (Π τ) η with evalNE τ η 
+... | ne x = ne (Π x)
+... | row x = ΠL x
+evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
+... | left x = left (Π x)
+... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
+evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
+evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = (reflect F η) <$>V (evalNE x η)
+evalNE (Σ τ) η = {!   !}
 
 -- ----------------------------------------
 -- -- Reflection & evaluation of normal terms to semantic.
 
--- reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
--- reflect Unit η = Unit
--- reflect (ne x) η = evalNE x η
--- reflect (row x) η = reflectRow x η
--- reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
--- reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
--- reflect (μ τ) η with reflect τ η 
--- ... | left F = μ (ne F)
--- ... | right F = μ (`λ (F S (ne (` Z)))) 
--- reflect (lab x) η = lab x
--- reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
--- reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
--- reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
--- reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
 
--- reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
+reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
+reflect Unit η = Unit
+reflect (ne x) η = evalNE x η
+reflect (row x) η = reflectRow x η
+reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
+reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
+reflect (μ τ) η with reflect τ η 
+... | left F = μ (ne F)
+... | right F = μ (`λ (F S (ne (` Z)))) 
+reflect (lab x) η = lab x
+reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
+reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
+reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
+reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
+
+reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 
 ----------------------------------------
 -- Type evaluation.
@@ -460,5 +446,5 @@ _ = refl
 -- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
 -- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
 -- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-             
               
+               
