@@ -64,11 +64,11 @@ stability<$> {κ₁ = L} .(reify (right F)) τ | right F | refl rewrite stabilit
 stability<$> {κ₁ = κ₁ `→ κ₂} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl
 stability<$> {κ₁ = R[ κ₁ ]} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl
 
-body : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
+stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
-body τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+stability-β τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
         η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
         η Z = reflNE-≋ (` Z)
@@ -84,8 +84,8 @@ stability {κ   = R[ κ `→ κ₁ ]} (ne x)
     rewrite stabilityNE x = refl
 stability {κ   = R[ R[ κ ] ]} (ne x) 
     rewrite stabilityNE x  = refl
-stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (body τ)
-stability (`∀ κ τ) = cong (`∀ κ) (body τ)
+stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
+stability (`∀ κ τ) = cong (`∀ κ) (stability-β τ)
 stability (μ (ne x)) rewrite stabilityNE x    = refl
 stability (μ (`λ τ)) rewrite stability (`λ τ) = cong μ refl
 stability (lab x)                             = refl
@@ -101,7 +101,7 @@ stability (ΣL x) rewrite stabilityRow x = refl
 stabilityRow {κ = ★} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = L} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = κ `→ κ₁} (l ▹ ne x) rewrite stability l rewrite stabilityNE x = refl
-stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = cong row (cong (_▹_ l) (cong `λ (body m)))
+stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = cong row (cong (_▹_ l) (cong `λ (stability-β m)))
 stabilityRow {κ = R[ κ ]} (l ▹ τ) rewrite stability l | stability τ = refl
  
 --------------------------------------------------------------------------------
