@@ -50,25 +50,27 @@ stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ} (Σ τ) rewrite stabilityNE τ = {!   !}
 stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
 
-stability<$> (ne x) τ with eval (⇑NE x) idEnv | stabilityNE x
-stability<$> (ne x) τ | right y | stx                           = {!   !} 
-stability<$> (ne x) τ | left f | refl rewrite stabilityNE τ = {!   !} 
-stability<$> F@(`λ M) τ = {!   !}
+-- stability<$> {κ₁ = ★} F τ rewrite stability F | stabilityNE τ = {!   !}
+-- stability<$> {κ₁ = L} F τ = {!   !}
+-- stability<$> {κ₁ = κ₁ `→ κ₂} F τ = {!   !}
+-- stability<$> {κ₁ = R[ κ₁ ]} F τ = {!   !}
 
+-- stability<$> (ne x) τ with eval (⇑NE x) idEnv | stabilityNE x
+-- stability<$> (ne x) τ | right y | () 
+-- stability<$> {κ₁ = ★} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
+-- stability<$> {κ₁ = L} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
+-- stability<$> {κ₁ = κ₁ `→ κ₂} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
+-- stability<$> {κ₁ = R[ κ₁ ]} (ne x) τ | left x | refl rewrite stabilityNE τ = refl 
 
--- with eval (⇑ F) idEnv | inspect (⇓ ∘ ⇑) F | eval (⇑NE τ) idEnv | stabilityNE τ
--- ... | right y | insp-f | _ | c = {!   !}
--- ... | left f | insp-f | _ | refl with reify (reflectNE τ) 
--- stabilityNE {_} {R[ κ ]} (_<$>_ {κ₁} {κ} F τ) | left f | [ eq ] | .(reflectNE τ) | refl | ne x rewrite eq = {! refl  !}
--- ... | row x = {!   !}
-
--- stabilityNE {κ = R[ L ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
--- stabilityNE {κ = R[ κ₃ `→ κ₄ ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
--- stabilityNE {κ = R[ R[ κ₃ ] ]} (_<$>_ {κ₁} {κ₂} F τ) = {!   !}
-
-
-
-
+stability<$> F τ with eval (⇑ F) idEnv | stability F
+stability<$> {κ₁ = ★} F τ | left x | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = L} F τ | left x | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = κ₁ `→ κ₂} F τ | left x | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = R[ κ₁ ]} F τ | left x | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = ★} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = L} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl 
+stability<$> {κ₁ = κ₁ `→ κ₂} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl
+stability<$> {κ₁ = R[ κ₁ ]} .(reify (right F)) τ | right F | refl rewrite stabilityNE τ = refl
 
 body : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
