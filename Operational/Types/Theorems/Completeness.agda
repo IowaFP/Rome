@@ -37,8 +37,8 @@ _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ κ `→ κ₁ ]} (right x) (left y) = ⊥
-_≋_ {Δ₁} {κ = R[ κ `→ κ₁ ]} (right ( l₁ ,  F )) (right ( l₂ , G )) = 
-  l₁ ≡ l₂ × Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
+_≋_ {Δ₁} {κ = R[ κ₁ `→ κ₂ ]} (right ( l₁ ,  F )) (right ( l₂ , G )) =
+  l₁ ≡ l₂ × (_≋_ {κ = κ₁ `→ κ₂} F G)
 _≋_ {κ = R[ R[ κ ] ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ R[ κ ] ]} (left x) (right y) = ⊥
 _≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
@@ -75,12 +75,13 @@ sym-≋ {κ = κ `→ κ₁}
 sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ κ `→ κ₁ ]} (left x) (left x₁) refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , snd₁)) (right (.l , snd₂)) ( refl , Unif-F , Unif-G , Ext) = 
-  refl ,
-  Unif-G ,
-  Unif-F ,
-  (λ {Δ₂} ρ {V₁} {V₂} z →
-     sym-≋ (snd₁ ρ V₂) (snd₂ ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
+sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l₁ , F)) (right (.l₁ , G)) (refl , F≋G) = refl , (sym-≋ _ _ F≋G)
+-- sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , snd₁)) (right (.l , snd₂)) ( refl , Unif-F , Unif-G , Ext) = 
+  -- refl ,
+  -- Unif-G ,
+  -- Unif-F ,
+  -- (λ {Δ₂} ρ {V₁} {V₂} z →
+  --    sym-≋ (snd₁ ρ V₂) (snd₂ ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
 sym-≋ {κ = R[ R[ κ ] ]} (left x) (left x₁) refl = refl
 sym-≋ {κ = R[ R[ κ ] ]} (right (l , τ₁)) (right (.l , τ₂)) (refl , eq) = refl , sym-≋ τ₁ τ₂ eq 
 
@@ -125,11 +126,14 @@ reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂
 reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
 reify-≋ {κ = R[ L ]} sem-eq = sem-eq
 reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right ( l₁ , F )} {right ( l₂ , G )} ( refl , eeeqs ) 
-  rewrite reify-≋→ (right F) (right G) eeeqs = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right ( l₁ , F )} {right ( l₂ , G )} ( refl , F≋G ) = {! reify-≋→ F G F≋G   !}
+  where
+    pfft : right (l₁ , F) ≡ right (l₂ , G) → F ≡ G
+    pfft refl = refl
+--   rewrite reify-≋→ (right F) (right G) eeeqs = refl
 reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
-  rewrite reify-≋ sem-eq = refl
+ rewrite reify-≋ sem-eq = refl
 
 --------------------------------------------------------------------------------
 -- Pointwise PER for environments
@@ -159,14 +163,3 @@ postulate
   ↻-renSem-eval : 
     ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → {Ρ : Env-≋ η₁ η₂} →
       (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
-
-
-
-
---------------------------------------------------------------------------------
--- Need:
--- - idext
--- - reflectCR
--- - ren⊧-reflect
--- - reifyCR
-  

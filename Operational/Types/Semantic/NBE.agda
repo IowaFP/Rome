@@ -38,7 +38,8 @@ reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁
 reify {κ = R[ ★ ]} τ = τ
 reify {κ = R[ L ]} τ = τ
 reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
-reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , F)) = row (l ▹ (reify (right F))) 
+reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , left F)) = row (l ▹ (ne F))
+reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , right F)) = row (l ▹ (reify (right F)))
 reify {κ = R[ R[ κ₁ ] ]} (left x) =  ne x
 reify {κ = R[ R[ κ₁ ] ]} (right (l , τ)) = row (l ▹ (reify τ))
 
@@ -79,8 +80,8 @@ right F ·V V = F id V
 _▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▵_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
 _▵_ {κ = L} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
-_▵_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (λ ρ v → reflectNE ((renNE ρ τ) · (reify v))))
-_▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , F)
+_▵_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (left τ))
+_▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , (right F))
 _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 
@@ -102,7 +103,9 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 π {κ = L} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (ne x) ρ η = ne (Π x)
 π {κ = L} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (row r) ρ η = ΠL r
 π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = left (Π x)
-π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , F)) ρ η = right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
+-- This should fuck me here
+π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , left f)) ρ η = right (λ ρ' v → π (ren ρ' l ▵ reflectNE ((renNE ρ' f) · (reify v)))  (ρ' ∘ ρ) η)
+π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , right F)) ρ η = right (λ ρ' v → π (ren ρ' l ▵ F ρ' v)  (ρ' ∘ ρ) η)
 π {κ = R[ ★ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = ne (Π x)
 π {κ = R[ ★ ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (right (l , τ)) ρ η = row (l ▹ (reify (π {κ = ★} τ ρ η)))
 π {κ = R[ L ]} {Δ₁ = Δ₁} {Δ₂} {Δ₃} (left x) ρ η = ne (Π x)
@@ -135,7 +138,8 @@ _<$>V_ {κ₁ = κ₁} {κ₂} (right F) τ with reify τ
 _<$>V_ {κ₁ = ★} {κ₂} (right F) τ               | row (l ▹ τ') = l ▵ (F id τ')
 _<$>V_ {κ₁ = L} {κ₂} (right F) τ                | row (l ▹ τ') = l ▵ (F id τ')
 _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  | row _ = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , G)) | row _ = l ▵ (F id (right G))
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , left G)) | row _ = l ▵ (F id (left G))
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , right G)) | row _ = l ▵ (F id (right G))
 _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x) | row _ = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
 _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▵ (F id τ)
 
@@ -146,45 +150,45 @@ _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▵ (
 -- require an environment for reflection so that bodies 
 -- of lambdas may be extended.
 
-evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
+-- evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+-- reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+-- reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
 
-evalNE (` x) η = η x
-evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
-evalNE {κ = ★} (Π τ) η with evalNE τ η 
-... | ne x = ne (Π x)
-... | row x = Π x
-evalNE {κ = L} (Π τ) η with evalNE τ η 
-... | ne x = ne (Π x)
-... | row x = ΠL x
-evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
-... | left x = left (Π x)
-... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
-evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
-evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = (reflect F η) <$>V (evalNE x η)
-evalNE (Σ τ) η = {!   !}
+-- evalNE (` x) η = η x
+-- evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
+-- evalNE {κ = ★} (Π τ) η with evalNE τ η 
+-- ... | ne x = ne (Π x)
+-- ... | row x = Π x
+-- evalNE {κ = L} (Π τ) η with evalNE τ η 
+-- ... | ne x = ne (Π x)
+-- ... | row x = ΠL x
+-- evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
+-- ... | left x = left (Π x)
+-- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) ρ η)
+-- evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
+-- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = (reflect F η) <$>V (evalNE x η)
+-- evalNE (Σ τ) η = {!   !}
 
--- ----------------------------------------
--- -- Reflection & evaluation of normal terms to semantic.
+-- -- ----------------------------------------
+-- -- -- Reflection & evaluation of normal terms to semantic.
 
 
-reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
-reflect Unit η = Unit
-reflect (ne x) η = evalNE x η
-reflect (row x) η = reflectRow x η
-reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
-reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
-reflect (μ τ) η with reflect τ η 
-... | left F = μ (ne F)
-... | right F = μ (`λ (F S (ne (` Z)))) 
-reflect (lab x) η = lab x
-reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
-reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
-reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
-reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
+-- reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
+-- reflect Unit η = Unit
+-- reflect (ne x) η = evalNE x η
+-- reflect (row x) η = reflectRow x η
+-- reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
+-- reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
+-- reflect (μ τ) η with reflect τ η 
+-- ... | left F = μ (ne F)
+-- ... | right F = μ (`λ (F S (ne (` Z)))) 
+-- reflect (lab x) η = lab x
+-- reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
+-- reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
+-- reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
+-- reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
 
-reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
+-- reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 
 ----------------------------------------
 -- Type evaluation.
@@ -219,7 +223,7 @@ eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ
 eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v ρ η) -- π v ρ η
 eval {κ = κ₁ `→ κ₂} Σ η = {!   !}
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
-eval {κ = _} `▹` η = right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
+eval {κ = _} (l ▹ τ) η = (eval l η) ▵ (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
 
 -- -- ----------------------------------------
 -- -- -- Row evaluation.
@@ -234,187 +238,177 @@ eval {κ = R[ κ ]} (τ₁ · τ₂) η = eval τ₁ η ·V eval τ₂ η
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
 
---------------------------------------------------------------------------------
--- Testing.
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
-----------------------------------------
--- Labels.
+-- --------------------------------------------------------------------------------
+-- -- Testing.
 
-ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
-l l₁ l₂ l₃ : NormalType Δ L
-ℓ  = lab "l"
-l  = lab "l"
+-- ----------------------------------------
+-- -- Labels.
 
-ℓ₁ = lab "l1"
-l₁ = lab "l1"
+-- ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
+-- l l₁ l₂ l₃ : NormalType Δ L
+-- ℓ  = lab "l"
+-- l  = lab "l"
 
-ℓ₂ = lab "l2"
-l₂ = lab "l2"
+-- ℓ₁ = lab "l1"
+-- l₁ = lab "l1"
 
-ℓ₃ = lab "l3"
-l₃ = lab "l3"
+-- ℓ₂ = lab "l2"
+-- l₂ = lab "l2"
 
-----------------------------------------
--- Some function types.
+-- ℓ₃ = lab "l3"
+-- l₃ = lab "l3"
 
-apply : Type Δ ((★ `→ ★) `→ ★ `→ ★)
-apply = (`λ (`λ ((` (S Z)) · (` Z))))
+-- ----------------------------------------
+-- -- Some function types.
 
-_ : ∀ {Δ} → ⇓ (apply {Δ}) ≡ `λ (`λ (ne (` (S Z) · ne (` Z)))) -- (`λ (`λ ((` ?) · ?)))
-_ = refl
+-- apply : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+-- apply = (`λ (`λ ((` (S Z)) · (` Z))))
 
-apply₂ : Type Δ (★ `→ (★ `→ ★) `→ ★)
-apply₂ = `λ (`λ ((` Z) · (` (S Z))))
+-- _ : ∀ {Δ} → ⇓ (apply {Δ}) ≡ `λ (`λ (ne (` (S Z) · ne (` Z)))) -- (`λ (`λ ((` ?) · ?)))
+-- _ = refl
 
-_ : ∀ {Δ} → ⇓ (apply₂ {Δ}) ≡ `λ (`λ (ne (` Z · ne (` (S Z)))))
-_ = refl
+-- apply₂ : Type Δ (★ `→ (★ `→ ★) `→ ★)
+-- apply₂ = `λ (`λ ((` Z) · (` (S Z))))
 
-ID : Type Δ (★ `→ ★)
-ID = `λ (` Z)
+-- _ : ∀ {Δ} → ⇓ (apply₂ {Δ}) ≡ `λ (`λ (ne (` Z · ne (` (S Z)))))
+-- _ = refl
 
-_ : ∀ {Δ} → ⇓ (ID {Δ}) ≡ `λ (ne (` Z))
-_ = refl
+-- ID : Type Δ (★ `→ ★)
+-- ID = `λ (` Z)
 
-Const-U : Type Δ (★ `→ ★)
-Const-U = `λ Unit
+-- _ : ∀ {Δ} → ⇓ (ID {Δ}) ≡ `λ (ne (` Z))
+-- _ = refl
 
-_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ Unit
-_ = refl
+-- Const-U : Type Δ (★ `→ ★)
+-- Const-U = `λ Unit
 
-----------------------------------------
--- Simple terms.
+-- _ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ Unit
+-- _ = refl
 
-A₀ : Type Δ R[ ★ ]
-A₀ = (`▹` · ℓ) · Unit
+-- ----------------------------------------
+-- -- Simple terms.
 
-_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡ row (l ▹ Unit)
-_ = refl
+-- A₀ : Type Δ R[ ★ ]
+-- A₀ = (`▹` · ℓ) · Unit
 
-----------------------------------------
--- Row-kinded function types.
+-- _ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡ row (l ▹ Unit)
+-- _ = refl
 
-Id-R : Type Δ R[ ★ `→ ★ ]
-Id-R = (`▹` · ℓ) · (`λ (` Z))
+-- ----------------------------------------
+-- -- Row-kinded function types.
 
-_ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡ row (l ▹ (`λ (ne (` Z))))
-_ = refl
+-- Id-R : Type Δ R[ ★ `→ ★ ]
+-- Id-R = (`▹` · ℓ) · (`λ (` Z))
 
-apply-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
-apply-R = (`▹` · ℓ₁) · apply
+-- _ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡ row (l ▹ (`λ (ne (` Z))))
+-- _ = refl
 
-_ : ∀ {Δ} → ⇓ (apply-R {Δ}) ≡ row ((l₁ ▹ ⇓ apply))
-_ = refl
+-- apply-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
+-- apply-R = (`▹` · ℓ₁) · apply
 
-----------------------------------------
--- Function types with congruences. 
+-- _ : ∀ {Δ} → ⇓ (apply-R {Δ}) ≡ row ((l₁ ▹ ⇓ apply))
+-- _ = refl
 
-C₁ : Type Δ ★
-C₁ = `Π (ℓ `▹ Unit)
+-- ----------------------------------------
+-- -- Function types with congruences. 
 
-_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ Unit)
-_ = refl
+-- C₁ : Type Δ ★
+-- C₁ = `Π (ℓ `▹ Unit)
 
-C₂ : Type Δ (★ `→ ★)
-C₂ = `Π (ℓ `▹ (`λ (` Z)))
+-- _ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ Unit)
+-- _ = refl
 
-_ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ `λ (Π (l ▹ (ne (` Z))))
-_ = refl 
+-- C₂ : Type Δ (★ `→ ★)
+-- C₂ = `Π (ℓ `▹ (`λ (` Z)))
 
-C₃ : Type Δ ★
-C₃ = `Π (`Π (ℓ₁ `▹ (ℓ₂ `▹ ((apply · Const-U) · Unit))))
+-- _ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ `λ (Π (l ▹ (ne (` Z))))
+-- _ = refl 
 
-_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
-_ = refl
+-- C₃ : Type Δ ★
+-- C₃ = `Π (`Π (ℓ₁ `▹ (ℓ₂ `▹ ((apply · Const-U) · Unit))))
+
+-- _ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
+-- _ = refl
+
+
+-- -- -- -- ----------------------------------------
+-- -- -- -- -- Unreduced Π applications
+
+-- NR₀ : Type Δ ★
+-- NR₀ = `Π (`Π (ℓ₁ `▹ (ℓ₂ `▹ Unit)))
+
+-- _ : ⇓ {Δ = Δ} NR₀ ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
+-- _ = refl 
+
+-- NR₁ : Type Δ (★ `→ ★)
+-- NR₁ = `Π (ℓ₁ `▹ (`Π (ℓ₂ `▹ ID)))
+
+-- _ : ⇓ {Δ = Δ} NR₁ ≡ `λ (Π (l₁ ▹ (Π (l₂ ▹ (ne (` Z))))))
+-- _ = refl
+
+
+-- NR₂ : Type Δ R[ ★ ]
+-- NR₂ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (((apply · Const-U) · Unit))))
+
+-- _ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ row (l₁ ▹ (Π (l₂ ▹ Unit)))
+-- _ = refl
+
+-- NR₃ : Type Δ R[ ★ `→ ★ ]
+-- NR₃ = `Π (ℓ₁ `▹ (ℓ₂ `▹ ID))
+
+-- _ : ⇓ {Δ = Δ} NR₃ ≡ row (l₁ ▹ `λ (Π (l₂ ▹ (ne (` Z)))))
+-- _ = refl
+
+-- NR₄ : Type Δ R[ R[ ★ ] ]
+-- NR₄ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ Unit)))
+
+-- _ : ⇓ {Δ = Δ} NR₄ ≡ row (l₁ ▹ (row (l₂ ▹ (Π (l₃ ▹ Unit)))))
+-- _ = refl
+
+-- NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
+-- NR₅ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ ID)))
+
+-- _ : ⇓ {Δ = Δ} NR₅ ≡ row (l₁ ▹ (row (l₂ ▹ `λ (Π (l₃ ▹ ne (` Z))))))
+-- _ = refl
+
+
+-- NR₆ : Type Δ R[ R[ R[ ★ `→ ★ ] ] ]
+-- NR₆ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ (ℓ `▹ ID))))
+
+-- _ : ⇓ {Δ = Δ} NR₆ ≡ row (lab "l1" ▹ row (lab "l2" ▹ row (lab "l3" ▹ `λ (Π (lab "l" ▹ ne (` Z))))))
+-- _ = refl
 
 
 -- -- -- ----------------------------------------
--- -- -- -- Unreduced Π applications
+-- -- -- -- Mixed Π and Σ w/ unreduced computation
 
-NR₀ : Type Δ ★
-NR₀ = `Π (`Π (ℓ₁ `▹ (ℓ₂ `▹ Unit)))
+-- -- mix₀ : Type Δ ★
+-- -- mix₀ = Π · (Σ · (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} NR₀ ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
-_ = refl 
-
-NR₁ : Type Δ (★ `→ ★)
-NR₁ = `Π (ℓ₁ `▹ (`Π (ℓ₂ `▹ ID)))
-
-_ : ⇓ {Δ = Δ} NR₁ ≡ `λ (Π (l₁ ▹ (Π (l₂ ▹ (ne (` Z))))))
-_ = refl
+-- -- _ : ⇓ {Δ = Δ} mix₀ ≡ Π▹ l₁ (Σ▹ l₂ Unit)
+-- -- _ = {!refl!}
 
 
-NR₂ : Type Δ R[ ★ ]
-NR₂ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (((apply · Const-U) · Unit))))
+-- -- -- --------------------------------------------------------------------------------
+-- -- -- -- Lifting nonsense
 
-_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ row (l₁ ▹ (Π (l₂ ▹ Unit)))
-_ = refl
+-- lift-λ : Type Δ ★
+-- lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
 
-NR₃ : Type Δ R[ ★ `→ ★ ]
-NR₃ = `Π (ℓ₁ `▹ (ℓ₂ `▹ ID))
+-- _ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
+-- _ = refl
 
-_ : ⇓ {Δ = Δ} NR₃ ≡ row (l₁ ▹ `λ (Π (l₂ ▹ (ne (` Z)))))
-_ = refl
+-- lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
+-- lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
-NR₄ : Type Δ R[ R[ ★ ] ]
-NR₄ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ Unit)))
+-- _ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
+-- _ = refl
 
-_ : ⇓ {Δ = Δ} NR₄ ≡ row (l₁ ▹ (row (l₂ ▹ (Π (l₃ ▹ Unit)))))
-_ = refl
+-- lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
+-- lift-var = `λ (`λ (` Z) <$> (` Z))
 
-NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
-NR₅ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ ID)))
-
-_ : ⇓ {Δ = Δ} NR₅ ≡ row (l₁ ▹ (row (l₂ ▹ `λ (Π (l₃ ▹ ne (` Z))))))
-_ = refl
-
-
-NR₆ : Type Δ R[ R[ R[ ★ `→ ★ ] ] ]
-NR₆ = `Π (ℓ₁ `▹ (ℓ₂ `▹ (ℓ₃ `▹ (ℓ `▹ ID))))
-
-_ : ⇓ {Δ = Δ} NR₆ ≡ row (lab "l1" ▹ row (lab "l2" ▹ row (lab "l3" ▹ `λ (Π (lab "l" ▹ ne (` Z))))))
-_ = refl
-
-
--- -- ----------------------------------------
--- -- -- Mixed Π and Σ w/ unreduced computation
-
--- mix₀ : Type Δ ★
--- mix₀ = Π · (Σ · (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
-
--- _ : ⇓ {Δ = Δ} mix₀ ≡ Π▹ l₁ (Σ▹ l₂ Unit)
--- _ = {!refl!}
-
-
--- -- --------------------------------------------------------------------------------
--- -- -- Lifting nonsense
-
-lift-λ : Type Δ ★
-lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
-
-_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
-_ = refl
-
-lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
-lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
-
-_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
-_ = refl
-
-lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
-lift-var = `λ (`λ (` Z) <$> (` Z))
-
-_ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
-_ = refl
-
--- -- -- -- -- -- -- --------------------------------------------------------------------------------
--- -- -- -- -- -- -- -- Claims.
-  
--- -- -- -- -- -- -- -- row-canonicity : (r : Type Δ R[ κ ]) → ∃[ x ] ∃[ τ ] ((⇓ r ≡ (x ▹ τ)) or isNE (⇓ r))
--- -- -- -- -- -- -- -- row-canonicity (` x) = {!!}
--- -- -- -- -- -- -- -- row-canonicity (r · r₁) = {!!}
--- -- -- -- -- -- -- -- row-canonicity (r ▹ r₁) = {!!}
--- -- -- -- -- -- -- -- row-canonicity (Π r) with ⇓ r 
--- -- -- -- -- -- -- -- ... | c = ( {!!} , ( {!!} , {!!} ) )
--- -- -- -- -- -- -- -- row-canonicity (Σ r) = {!!}
-              
-               
+-- _ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
+-- _ = refl 

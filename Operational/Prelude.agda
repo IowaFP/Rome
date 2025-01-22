@@ -40,3 +40,9 @@ id x = x
 
 -- _≈_ : ∀ {A B} {P : A → Set} (f₁ f₂ : P A → P B) → Set
 -- _≈_ {A} {_} {P} f₁ f₂ = ∀ (x : P A) → f₁ x ≡ f₂ x
+
+------------------------------------------------------------------------------
+-- Some lemmas I couldn't find elsewhere
+
+left-inversion : ∀ {A B : Set} {x y : A} → left {B = B} x ≡ left y → x ≡ y
+left-inversion {x = x} {y = y} refl = refl 

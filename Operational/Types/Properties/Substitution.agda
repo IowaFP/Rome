@@ -41,7 +41,7 @@ ren-cong eq (μ F) rewrite ren-cong eq F = refl
 ren-cong eq Π = refl 
 ren-cong eq Σ = refl 
 ren-cong eq (lab _) = refl
-ren-cong eq `▹` = refl
+ren-cong eq (l ▹ τ) rewrite ren-cong eq l | ren-cong eq τ = refl
 ren-cong eq ⌊ τ ⌋ rewrite ren-cong eq τ = refl
 ren-cong eq (f <$> a) rewrite ren-cong eq f | ren-cong eq a = refl
 -- ren-cong eq (τ ↑) rewrite ren-cong eq τ = refl
@@ -57,7 +57,7 @@ ren-id (μ F) rewrite ren-id F = refl
 ren-id Π = refl
 ren-id Σ = refl
 ren-id (lab _) = refl
-ren-id `▹` = refl
+ren-id (l ▹ τ) rewrite ren-id l | ren-id τ = refl
 ren-id ⌊ τ ⌋ rewrite ren-id τ = refl
 -- ren-id (↑ τ) rewrite ren-id τ = refl
 ren-id (f <$> a) rewrite ren-id f | ren-id a = refl
@@ -82,7 +82,7 @@ ren-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
 ren-comp ρ₁ ρ₂ (μ F) rewrite
   ren-comp ρ₁ ρ₂ F = refl
 ren-comp ρ₁ ρ₂ (lab _) = refl
-ren-comp ρ₁ ρ₂ `▹` = refl
+ren-comp ρ₁ ρ₂ (l ▹ τ) rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ τ = refl
 ren-comp ρ₁ ρ₂ ⌊ τ ⌋ rewrite
     ren-comp ρ₁ ρ₂ τ = refl
 ren-comp ρ₁ ρ₂ (f <$> a) rewrite ren-comp ρ₁ ρ₂ f | ren-comp ρ₁ ρ₂ a = refl
