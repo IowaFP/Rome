@@ -117,6 +117,7 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 ----------------------------------------
 -- Semantic combinator for Σ
 
+-- I'll prove Π is stable before duplicating the work for Σ.
 σNE : NeutralType Δ R[ κ ] → SemType Δ κ 
 σNE = {!   !}
 σ : ∀ {Δ₁ Δ₂ Δ₃} → SemType Δ₃ R[ κ ] → Renaming Δ₂ Δ₃ → Env Δ₁ Δ₂ → SemType Δ₃ κ
@@ -127,46 +128,16 @@ _▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
-... | ne τ = reflectNE ((ne F) <$> τ)
+... | ne τ         = reflectNE ((ne F) <$> τ)
 ... | row (l ▹ τ) = _▵_ {κ = κ₂} l (reflectNE (F · τ)) 
 _<$>V_ {κ₁ = κ₁} {κ₂} (right F) τ with reify τ 
-... | ne τ = reflectNE (reify (right F) <$> τ)
-_<$>V_ {κ₁ = ★} {κ₂} (right F) τ | row (l ▹ τ') = l ▵ (F id τ')
-_<$>V_ {κ₁ = L} {κ₂} (right F) τ | row (l ▹ τ') = l ▵ (F id τ')
-_<$>V_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) (left x) | row (l ▹ τ') = {!   !}
-_<$>V_ {κ₁ = κ₁ `→ κ₃} {κ₂} (right F) (right y) | row (l ▹ τ') = {!   !}
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) τ | row (l ▹ τ') = {!   !}
--- _<$>V_ {κ₁ = κ₁} {κ₂} (left x) τ = reflectNE (↑ x · (reify τ))
--- _<$>V_ {κ₁ = ★} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
--- _<$>V_ {κ₁ = ★} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
--- _<$>V_ {κ₁ = ★} {κ₂ `→ κ₃} f@(right F) (ne x) = left (reify f ↑· x)
--- _<$>V_ {κ₁ = ★} {R[ κ₂ ]} f@(right F) (ne x) = left (reify f ↑· x)
--- _<$>V_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
--- _<$>V_ {κ₁ = L} {★} f@(right F) (ne x) = ne ((reify f) ↑· x)
--- _<$>V_ {κ₁ = L} {L} f@(right F) (ne x) = ne ((reify f) ↑· x)
--- _<$>V_ {κ₁ = L} {κ₂ `→ κ₃} f@(right F) (ne x) = left (reify f ↑· x)
--- _<$>V_ {κ₁ = L} {R[ κ₂ ]} f@(right F) (ne x) = left (reify f ↑· x)
--- _<$>V_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▵ (F id τ)
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {★} f@(right F) (left x) = ne (((reify f) ↑· x))
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {L} f@(right F) (left x) = ne (((reify f) ↑· x))
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} f@(right F) (left x) = left ((reify f) ↑· x) 
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {R[ κ₃ ]} f@(right F) (left x) = left ((reify f) ↑· x) 
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {★} f@(right F) g@(right (l , G)) = row (l ▹ F id (right G)) 
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {L} f@(right F) g@(right (l , G)) = row (l ▹ F id (right G))
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃ `→ κ₄} f@(right F) g@(right (l , G)) with F id (right G) 
--- ... | left x = right (l , λ ρ v → reflectNE (renNE ρ x) ·V v)
--- ... | right y = right (l , y)
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {R[ κ₃ ]} (right F) (right (l , G)) = right (l , (F id (right G)))
--- _<$>V_ {κ₁ = R[ κ₁ ]} {★} f@(right F) (left x) = ne (reify f ↑· x)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {★} f@(right F) (right (l , τ)) = row (l ▹ (F id τ))
--- _<$>V_ {κ₁ = R[ κ₁ ]} {L} f@(right F) (left x) = ne (reify f ↑· x)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {L} f@(right F) (right (l , τ)) = row (l ▹ (F id τ))
--- _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂ `→ κ₃} f@(right F) (left x) = left ((reify f) ↑· x)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂ `→ κ₃} f@(right F) (right (l , τ)) with F id τ
--- ... | left x = right (l , λ ρ v → reflectNE (renNE ρ x) ·V v)
--- ... | right y = right (l , y)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (left x) = left ((reify f) ↑· x)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {R[ κ₂ ]} f@(right F) (right (l , τ)) = right (l , (F id τ)) 
+... | ne x = reflectNE (_<$>_ {κ₁ = κ₁} (reify (right F)) x)
+_<$>V_ {κ₁ = ★} {κ₂} (right F) τ               | row (l ▹ τ') = l ▵ (F id τ')
+_<$>V_ {κ₁ = L} {κ₂} (right F) τ                | row (l ▹ τ') = l ▵ (F id τ')
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  | row _ = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , G)) | row _ = l ▵ (F id (right G))
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x) | row _ = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▵ (F id τ)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.
@@ -417,24 +388,23 @@ _ = refl
 -- -- --------------------------------------------------------------------------------
 -- -- -- Lifting nonsense
 
--- lift-λ : Type Δ ★
--- lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
+lift-λ : Type Δ ★
+lift-λ = `Π (`λ (` Z) <$> (ℓ `▹ Unit))
 
--- _ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
--- _ = refl
+_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
+_ = refl
 
--- lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
--- lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
+lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
+lift-λ₂ = `Π (ℓ₁ `▹ (`λ (`λ (` Z) <$> (ℓ₂ `▹ Unit)))) -- `Π (ℓ₁ `▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
+_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
+_ = refl
 
--- _ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
--- _ = refl
+lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
+lift-var = `λ (`λ (` Z) <$> (` Z))
 
--- lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
--- lift-var = `λ (`λ (` Z) <$> (` Z))
-
--- _ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
--- _ = refl
+_ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
+_ = refl
 
 -- -- -- -- -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- -- -- -- -- Claims.
