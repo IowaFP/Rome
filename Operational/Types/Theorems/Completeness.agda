@@ -52,17 +52,21 @@ Extensionality-≋ {Δ₁} {κ₁} {κ₂} F G =
 Uniform {Δ₁} {κ₁} {κ₂} F = 
   ∀ {Δ₂ Δ₃} (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
   V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (F (ρ₂ ∘ ρ₁) (renSem ρ₂ V₂))
+
 --------------------------------------------------------------------------------
 -- Semantic equality forms a PER
 
-refl-≋ : ∀ (τ : NeutralType Δ κ) → reflectNE τ ≋ reflectNE τ
-refl-≋ {κ = ★} τ = refl
-refl-≋ {κ = L} τ = refl
-refl-≋ {κ = κ `→ κ₁} τ = refl
-refl-≋ {κ = R[ ★ ]} τ = refl
-refl-≋ {κ = R[ L ]} τ = refl
-refl-≋ {κ = R[ κ `→ κ₁ ]} τ = refl
-refl-≋ {κ = R[ R[ κ ] ]} τ = refl
+reflNE-≋ : ∀ (τ : NeutralType Δ κ) → reflectNE τ ≋ reflectNE τ
+reflNE-≋ {κ = ★} τ = refl
+reflNE-≋ {κ = L} τ = refl
+reflNE-≋ {κ = κ `→ κ₁} τ = refl
+reflNE-≋ {κ = R[ ★ ]} τ = refl
+reflNE-≋ {κ = R[ L ]} τ = refl
+reflNE-≋ {κ = R[ κ `→ κ₁ ]} τ = refl
+reflNE-≋ {κ = R[ R[ κ ] ]} τ = refl
+
+--------------------------------------------------------------------------------
+-- Congruence
 
 sym-≋ : ∀ (τ₁ τ₂ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
 sym-≋ {κ = ★} t₁ t₂ refl = refl
@@ -76,12 +80,6 @@ sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
 sym-≋ {κ = R[ κ `→ κ₁ ]} (left x) (left x₁) refl = refl
 sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l₁ , F)) (right (.l₁ , G)) (refl , F≋G) = refl , (sym-≋ _ _ F≋G)
--- sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l , snd₁)) (right (.l , snd₂)) ( refl , Unif-F , Unif-G , Ext) = 
-  -- refl ,
-  -- Unif-G ,
-  -- Unif-F ,
-  -- (λ {Δ₂} ρ {V₁} {V₂} z →
-  --    sym-≋ (snd₁ ρ V₂) (snd₂ ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
 sym-≋ {κ = R[ R[ κ ] ]} (left x) (left x₁) refl = refl
 sym-≋ {κ = R[ R[ κ ] ]} (right (l , τ₁)) (right (.l , τ₂)) (refl , eq) = refl , sym-≋ τ₁ τ₂ eq 
 
@@ -97,7 +95,7 @@ reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → r
 reflectNE-≋ {κ = ★} refl = refl
 reflectNE-≋ {κ = L} refl = refl
 reflectNE-≋ {κ = κ `→ κ₁} eq = eq
-reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl-≋ τ₁
+reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = reflNE-≋ τ₁
 
 --------------------------------------------------------------------------------
 -- Reify semantic equality back to propositional equality
@@ -126,10 +124,9 @@ reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂
 reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
 reify-≋ {κ = R[ L ]} sem-eq = sem-eq
 reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right ( l₁ , F )} {right ( l₂ , G )} ( refl , F≋G ) = {! reify-≋→ F G F≋G   !}
-  where
-    pfft : right (l₁ , F) ≡ right (l₂ , G) → F ≡ G
-    pfft refl = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , left F)} {right (l₂ , left G)} (refl , refl) = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , right F)} {right (l₂ , right G)} (refl , unif-F , unif-G , Ext) = 
+  cong row (cong (_▹_ l₁) (cong `λ (reify-≋ (Ext S (reflectNE-≋ refl)))))
 --   rewrite reify-≋→ (right F) (right G) eeeqs = refl
 reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
@@ -159,7 +156,7 @@ postulate
   ↻-renSem-reflectNE  : 
     ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
       (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
-  
+   
   ↻-renSem-eval : 
     ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → {Ρ : Env-≋ η₁ η₂} →
       (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)

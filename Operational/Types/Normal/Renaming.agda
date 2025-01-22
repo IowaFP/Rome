@@ -12,17 +12,18 @@ open import Rome.Operational.Types.Normal.Syntax
 
 --------------------------------------------------------------------------------
 -- Normal Type renaming.
+
+renNE : Renaming Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
+
 postulate
-    renNE : Renaming Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
     ren : Renaming Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
     renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
 
--- renNE ρ (` x) = ` (ρ x)
--- renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
--- renNE ρ (τ₁ ▹ τ₂) = ren ρ τ₁ ▹ renNE ρ τ₂
--- renNE ρ (Π τ) = Π (renNE ρ τ)
--- renNE ρ (Σ τ) = Σ (renNE ρ τ)
--- renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
+renNE ρ (` x) = ` (ρ x)
+renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
+renNE ρ (Π τ) = Π (renNE ρ τ)
+renNE ρ (Σ τ) = Σ (renNE ρ τ)
+renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
 
 -- ren ρ Unit   = Unit
 -- ren ρ (ne τ) = ne (renNE ρ τ)

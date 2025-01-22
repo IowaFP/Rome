@@ -14,6 +14,7 @@ open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Properties.Postulates
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
+open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Completeness
@@ -47,7 +48,6 @@ stabilityNE {κ = R[ L ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ κ `→ κ₁ ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ} (Σ τ) rewrite stabilityNE τ = {!   !}
--- stabilityNE (↑ τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
 
 stability<$> (ne x) τ with eval (⇑NE x) idEnv | stabilityNE x
@@ -68,10 +68,19 @@ stability<$> F@(`λ M) τ = {!   !}
 
 
 
--- with (eval (⇑ F) idEnv) | inspect ⇓ (⇑ F)
--- -- reflectNE-≋ {τ₁ = (↑ f · reify (reflectNE τ))} {τ₂ = F <$> τ}
--- ... | left f | [ eq ] rewrite stabilityNE τ  = {!   !}
--- ... | right y | c  = {!   !}
+
+
+body : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
+      (eval (⇑ τ)
+       (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
+      ≡ τ
+body τ = trans 
+            (reify-≋ (idext η (⇑ τ)))
+            (stability τ)
+    where
+        η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
+        η Z = reflNE-≋ (` Z)
+        η (S x) = (↻-renSem-reflectNE S (` x))            
 
 stability Unit = refl
 stability {κ = ★} (ne x)       = stabilityNE x
@@ -83,20 +92,8 @@ stability {κ   = R[ κ `→ κ₁ ]} (ne x)
     rewrite stabilityNE x = refl
 stability {κ   = R[ R[ κ ] ]} (ne x) 
     rewrite stabilityNE x  = refl
-stability {κ   = κ₁ `→ κ₂} (`λ τ) = 
-  cong `λ 
-    (trans 
-        (reify-≋ 
-            (idext (λ { Z → reflectNE-≋ refl
-                          ; (S α) → ↻-renSem-reflectNE S (` α)}) (⇑ τ)))
-        (stability τ))
-stability (`∀ κ τ) = 
-    cong (`∀ κ) 
-        ((trans 
-            (reify-≋ 
-                (idext (λ { Z → reflectNE-≋ refl 
-                              ; (S α) → ↻-renSem-reflectNE S (` α)}) (⇑ τ)))
-            (stability τ)))
+stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (body τ)
+stability (`∀ κ τ) = cong (`∀ κ) (body τ)
 stability (μ (ne x)) rewrite stabilityNE x    = refl
 stability (μ (`λ τ)) rewrite stability (`λ τ) = cong μ refl
 stability (lab x)                             = refl
@@ -110,9 +107,10 @@ stability (Σ x)                               = {!   !}
 
 stabilityRow {κ = ★} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = L} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
-stabilityRow {κ = κ `→ κ₁} (l ▹ ne x) rewrite stability l rewrite stabilityNE x = {!   !}
-stabilityRow {κ = κ `→ κ₁} (l ▹ `λ τ) = {!   !}
-stabilityRow {κ = R[ κ ]} (l ▹ τ) = {!   !} 
+stabilityRow {κ = κ `→ κ₁} (l ▹ ne x) rewrite stability l rewrite stabilityNE x = refl
+stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = cong row (cong (_▹_ l) (cong `λ (body m)))
+stabilityRow {κ = R[ κ ]} (l ▹ τ) rewrite stability l | stability τ = refl
+ 
 --------------------------------------------------------------------------------
 -- idempotency
 
@@ -125,5 +123,5 @@ idempotency τ rewrite stability (⇓ τ) = refl
  
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
-    
+     
      
