@@ -167,6 +167,12 @@ data NormalType Δ where
       ---------------
       NormalType Δ ★
 
+  ΣL  : 
+
+      Row Δ R[ L ] →
+      ------------------
+      NormalType Δ L
+
 
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
@@ -197,13 +203,12 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 ⇑ (Π x) = Π · ⇑Row x
 ⇑ (ΠL x) = Π · ⇑Row x
 ⇑ (Σ x) = Σ · ⇑Row x
-
+⇑ (ΣL x) = Σ · ⇑Row x
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (Π ρ) = Π · ⇑NE ρ
 ⇑NE (Σ ρ) = Σ · ⇑NE ρ
--- ⇑NE (l ▹ τ) = (⇑ l) ▹ (⇑NE τ)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 
 ⇑Row (l ▹ τ) = (⇑ l) ▹ (⇑ τ)

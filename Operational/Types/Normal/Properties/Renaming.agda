@@ -49,6 +49,7 @@ ren-cong eq (row x) rewrite ren-cong-row eq x = refl
 ren-cong eq (Π x) rewrite ren-cong-row eq x = refl
 ren-cong eq (ΠL x) rewrite ren-cong-row eq x = refl
 ren-cong eq (Σ x) rewrite ren-cong-row eq x = refl
+ren-cong eq (ΣL x) rewrite ren-cong-row eq x = refl
 
 --------------------------------------------------------------------------------
 -- Renaming preserves identities (functor law #1)
@@ -84,6 +85,7 @@ ren-id (row x) rewrite ren-id-row x = refl
 ren-id (Π x)  rewrite ren-id-row x  = refl 
 ren-id (ΠL x) rewrite ren-id-row x  = refl 
 ren-id (Σ x)  rewrite ren-id-row x  = refl 
+ren-id (ΣL x) rewrite ren-id-row x  = refl 
 
 --------------------------------------------------------------------------------
 -- Renaming preserves Composition (functor law #2)
@@ -121,3 +123,4 @@ ren-comp ρ₁ ρ₂ (row x) rewrite ren-comp-row ρ₁ ρ₂ x = refl
 ren-comp ρ₁ ρ₂ (Π x)  rewrite ren-comp-row ρ₁ ρ₂ x = refl
 ren-comp ρ₁ ρ₂ (ΠL x) rewrite ren-comp-row ρ₁ ρ₂ x = refl
 ren-comp ρ₁ ρ₂ (Σ x)  rewrite ren-comp-row ρ₁ ρ₂ x = refl
+ren-comp ρ₁ ρ₂ (ΣL x) rewrite ren-comp-row ρ₁ ρ₂ x = refl

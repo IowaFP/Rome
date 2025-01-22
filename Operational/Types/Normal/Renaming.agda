@@ -41,6 +41,7 @@ ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
 ren ρ (Π τ) = Π (renRow ρ τ)
 ren ρ (ΠL τ) = ΠL (renRow ρ τ)
 ren ρ (Σ τ) = Σ (renRow ρ τ)
+ren ρ (ΣL τ) = ΣL (renRow ρ τ)
 
 renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 

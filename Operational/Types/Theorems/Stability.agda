@@ -25,12 +25,10 @@ open import Rome.Operational.Types.Theorems.Completeness
 -- - stabilityNE : eval ∘ ⇑NE  = reflectNE
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
-
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
 stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → eval (⇑NE (F <$> τ)) idEnv ≡ reflectNE (F <$> τ)
 stabilityRow : ∀ (r : Row Δ R[ κ ]) → ⇓ (⇑Row r) ≡ row r
-
 
 stabilityNE {κ = ★} (` x) = refl
 stabilityNE {κ = L} (` x) = refl
@@ -47,20 +45,14 @@ stabilityNE {κ = R[ ★ ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ L ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ κ `→ κ₁ ]} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = R[ R[ κ ] ]} (Π τ) rewrite stabilityNE τ = refl
-stabilityNE {κ = κ} (Σ τ) rewrite stabilityNE τ = {!   !}
+stabilityNE {κ = ★} (Σ τ)      rewrite stabilityNE τ  = refl
+stabilityNE {κ = L} (Σ τ)       rewrite stabilityNE τ = refl
+stabilityNE {κ = κ `→ κ₁} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ ★ ]}      (Σ τ) rewrite stabilityNE τ       = refl
+stabilityNE {κ = R[ L ]}       (Σ τ) rewrite stabilityNE τ       = refl
+stabilityNE {κ = R[ κ `→ κ₁ ]} (Σ τ) rewrite stabilityNE τ = refl
+stabilityNE {κ = R[ R[ κ ] ]}  (Σ τ) rewrite stabilityNE τ  = refl
 stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
-
--- stability<$> {κ₁ = ★} F τ rewrite stability F | stabilityNE τ = {!   !}
--- stability<$> {κ₁ = L} F τ = {!   !}
--- stability<$> {κ₁ = κ₁ `→ κ₂} F τ = {!   !}
--- stability<$> {κ₁ = R[ κ₁ ]} F τ = {!   !}
-
--- stability<$> (ne x) τ with eval (⇑NE x) idEnv | stabilityNE x
--- stability<$> (ne x) τ | right y | () 
--- stability<$> {κ₁ = ★} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
--- stability<$> {κ₁ = L} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
--- stability<$> {κ₁ = κ₁ `→ κ₂} (ne x) τ | left x | refl rewrite stabilityNE τ = refl
--- stability<$> {κ₁ = R[ κ₁ ]} (ne x) τ | left x | refl rewrite stabilityNE τ = refl 
 
 stability<$> F τ with eval (⇑ F) idEnv | stability F
 stability<$> {κ₁ = ★} F τ | left x | refl rewrite stabilityNE τ = refl
@@ -76,9 +68,7 @@ body : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
-body τ = trans 
-            (reify-≋ (idext η (⇑ τ)))
-            (stability τ)
+body τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
         η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
         η Z = reflNE-≋ (` Z)
@@ -105,7 +95,8 @@ stability (τ₁ `→ τ₂)
 stability (row x)                             = stabilityRow x
 stability (Π x) rewrite stabilityRow x        = refl
 stability (ΠL x) rewrite stabilityRow x       = refl
-stability (Σ x)                               = {!   !}
+stability (Σ x)  rewrite stabilityRow x       = refl
+stability (ΣL x) rewrite stabilityRow x = refl 
 
 stabilityRow {κ = ★} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = L} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
