@@ -20,23 +20,22 @@ open import Rome.Operational.Types.Semantic.Syntax
 renKripke : Renaming Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 
-postulate 
-    renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
-    renSem-R : Renaming Δ₁ Δ₂ → SemType Δ₁ R[ κ ] → SemType Δ₂ R[ κ ]
+renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
+renSem-R : Renaming Δ₁ Δ₂ → SemType Δ₁ R[ κ ] → SemType Δ₂ R[ κ ]
 
--- renSem {κ = ★} ρ τ = ren ρ τ
--- renSem {κ = L} ρ τ = ren ρ τ
--- renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
--- renSem {κ = κ `→ κ₁} ρ (right F) = right (renKripke ρ F)
+renSem {κ = ★} ρ τ = ren ρ τ
+renSem {κ = L} ρ τ = ren ρ τ
+renSem {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
+renSem {κ = κ `→ κ₁} ρ (right F) = right (renKripke ρ F)
 
-
--- renSem {κ = R[ κ ]} ρ τ = renSem-R ρ τ
--- renSem-R {κ = ★} ρ τ = ren ρ τ 
--- renSem-R {κ = L} ρ τ = ren ρ τ 
--- renSem-R {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
--- renSem-R {κ = κ `→ κ₁} ρ (right ( l , F)) = right (ren ρ l , ((λ ρ' → F (ρ' ∘ ρ))))
--- renSem-R {κ = R[ κ ]} ρ (left τ) = left (renNE ρ τ) 
--- renSem-R {κ = R[ κ ]} ρ (right (l , τ)) = right (ren ρ l , renSem ρ τ)
+renSem {κ = R[ κ ]} ρ τ = renSem-R ρ τ
+renSem-R {κ = ★} ρ τ = ren ρ τ 
+renSem-R {κ = L} ρ τ = ren ρ τ 
+renSem-R {κ = κ `→ κ₁} ρ (left τ) = left (renNE ρ τ)
+renSem-R {κ = κ `→ κ₁} ρ (right (l , left x)) = right (ren ρ l , left (renNE ρ x))
+renSem-R {κ = κ `→ κ₁} ρ (right (l , right F)) = right (ren ρ l , right (renKripke ρ F))
+renSem-R {κ = R[ κ ]} ρ (left τ) = left (renNE ρ τ) 
+renSem-R {κ = R[ κ ]} ρ (right (l , τ)) = right (ren ρ l , renSem ρ τ)
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening
