@@ -11,6 +11,7 @@ import Rome.Operational.Types.Properties as TypeProps
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
+open import Rome.Operational.Types.Normal.Renaming as N
 open import Rome.Operational.Types.Normal.Properties.Renaming as NTypeProps
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
@@ -258,6 +259,21 @@ idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Ty
           eval τ η₁ ≋ eval τ η₂
 ↻-renSem-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂) 
+↻-ren-π : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : SemType Δ₁ R[ κ ]) → renSem ρ (π τ) ≋ π (renSem ρ τ)                 
+↻-ren-π {κ = ★} ρ (ne x) = refl
+↻-ren-π {κ = ★} ρ (row x) = refl
+↻-ren-π {κ = L} ρ (ne x) = refl
+↻-ren-π {κ = L} ρ (row x) = refl
+↻-ren-π {κ = κ `→ κ₁} ρ (left _) = refl
+↻-ren-π {κ = κ₁ `→ κ₂} ρ (right (l , left f)) = (λ ρ₁ ρ₂ V₁ V₂ x → {! ↻-renSem-eval   !}) , {!   !}
+↻-ren-π {κ = κ₁ `→ κ₂} ρ (right (l , right F)) = {!   !}
+↻-ren-π {κ = R[ ★ ]} ρ (left x) = refl
+↻-ren-π {κ = R[ ★ ]} ρ (right (l , F)) = cong row (cong (N.ren ρ l ▹_) (↻-ren-π {κ = ★} ρ F))
+↻-ren-π {κ = R[ L ]} ρ (left x) = refl
+↻-ren-π {κ = R[ L ]} ρ (right (l , F)) = cong row (cong (N.ren ρ l ▹_) (↻-ren-π {κ = L} ρ F))
+↻-ren-π {κ = R[ κ `→ κ₁ ]} ρ τ = {!   !}
+↻-ren-π {κ = R[ R[ κ ] ]} ρ τ = {!   !}
+
 
 idext {κ = κ} e Unit = refl
 idext {κ = ★} e (` x) = e x
@@ -297,10 +313,16 @@ idext {κ = R[ κ₁ `→ κ₂ ]} {η₁} {η₂} e (l ▹ τ) with eval τ η�
 ... | right F | right G | ide | d = (idext e l) , ide
 idext {κ = R[ R[ κ₁ ] ]} {η₁} {η₂} e (l ▹ τ) = (idext e l) , (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
-idext {κ = κ} e Π = {!   !}
+idext {κ = R[ ★ ] `→ ★} {η₁} {η₂} e Π = 
+  (λ { ρ₁ ρ₂ V₁ V₂ refl → ↻-ren-π {κ = ★} ρ₂ V₁ }) , 
+  ((λ { ρ₁ ρ₂ V₁ V₂ refl → ↻-ren-π {κ = ★} ρ₂ V₁ }) , 
+  λ ρ x → cong (π {κ = ★}) x)
+idext {κ = R[ L ] `→ L} e Π = {!   !}
+idext {κ = R[ κ₁ `→ κ₂ ] `→ (κ₁ `→ κ₂)} e Π = {!   !}
+idext {κ = R[ R[ κ₁ ] ] `→ R[ κ₁ ]} e Π = {!   !}
 idext {κ = κ} e Σ = {!   !}
 idext {κ = κ} e (τ <$> τ₁) = {!   !} 
-
+ 
 ↻-renSem-eval ρ τ {η₁} {η₂} P = {!   !}
    
  
