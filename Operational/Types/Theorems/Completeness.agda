@@ -55,6 +55,9 @@ Uniform {Δ₁} {κ₁} {κ₂} F =
 
 --------------------------------------------------------------------------------
 -- Semantic equality forms a PER
+-- - Kind of reflexive
+-- - symmetric
+-- - transitive
 
 reflNE-≋ : ∀ (τ : NeutralType Δ κ) → reflectNE τ ≋ reflectNE τ
 reflNE-≋ {κ = ★} τ = refl
@@ -68,24 +71,41 @@ reflNE-≋ {κ = R[ R[ κ ] ]} τ = refl
 --------------------------------------------------------------------------------
 -- Congruence
 
-sym-≋ : ∀ (τ₁ τ₂ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
-sym-≋ {κ = ★} t₁ t₂ refl = refl
-sym-≋ {κ = L} t₁ t₂ refl = refl
-sym-≋ {κ = κ `→ κ₁} (left x) (left x₁) refl = refl
+sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
+sym-≋ {κ = ★}  refl = refl
+sym-≋ {κ = L}  refl = refl
+sym-≋ {κ = κ `→ κ₁} {left x} {left x₁} refl = refl
 sym-≋ {κ = κ `→ κ₁} 
-  (right F) (right G) 
+  {right F} {right G} 
   (Unif-F , (Unif-G , Ext)) = 
-     Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (F ρ V₂) (G ρ V₁) (Ext ρ (sym-≋ V₁ V₂ z)))
-sym-≋ {κ = R[ ★ ]} t₁ t₂ refl = refl
-sym-≋ {κ = R[ L ]} t₁ t₂ refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} (left x) (left x₁) refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} (right (l₁ , F)) (right (.l₁ , G)) (refl , F≋G) = refl , (sym-≋ _ _ F≋G)
-sym-≋ {κ = R[ R[ κ ] ]} (left x) (left x₁) refl = refl
-sym-≋ {κ = R[ R[ κ ] ]} (right (l , τ₁)) (right (.l , τ₂)) (refl , eq) = refl , sym-≋ τ₁ τ₂ eq 
+     Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
+sym-≋ {κ = R[ ★ ]}   refl = refl
+sym-≋ {κ = R[ L ]}   refl = refl
+sym-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
+sym-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , F)} {right (.l₁ , G)} (refl , F≋G) = refl , (sym-≋ F≋G)
+sym-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
+sym-≋ {κ = R[ R[ κ ] ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , eq) = refl , sym-≋ eq 
 
-postulate
-  -- todo
-  trans-≋ : ∀ (τ₁ τ₂ τ₃ : SemType Δ κ) → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
+refl-≋ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₁ ≋ V₁
+trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
+
+refl-≋ q = trans-≋ q (sym-≋ q)
+
+trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = κ₁ `→ κ₂} {left _} {left _} refl q₂ = q₂
+trans-≋ {κ = κ₁ `→ κ₂} {right F} {right G} {right H} 
+  (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
+    unif-F , 
+    unif-H , 
+    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ (sym-≋ q)))
+trans-≋ {κ = R[ ★ ]} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = R[ L ]} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {left _} {left _} refl q₂ = q₂
+trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {right (l , F)} {right (.l , G)} {right (l' , H)} 
+  (refl , F≋G) (refl , G≋H) = refl , trans-≋ F≋G G≋H
+trans-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} {τ₃ = τ₃} refl q₂ = q₂
+trans-≋ {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} {τ₃ = right (.l , H)} (refl , F≋G) (refl , G≋H) = refl , trans-≋ F≋G G≋H
 
 --------------------------------------------------------------------------------
 -- Reflecting propositional equality of neutral types into semantic equality.
@@ -100,34 +120,18 @@ reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = reflNE-≋ τ₁
 --------------------------------------------------------------------------------
 -- Reify semantic equality back to propositional equality
 
-reify-≋→ : 
-  ∀ (F G : SemType Δ (κ₁ `→ κ₂)) →  _≋_ {Δ = Δ} {κ = κ₁ `→ κ₂} F  G →
-  reify {Δ = Δ} {κ = κ₁ `→ κ₂} F ≡ reify G
-reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂
-reify-≋→ (left τ₁) (left τ₂) refl = refl
-reify-≋→ (right F) (right  G)
-  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
--- reify-≋→  
---   (right ( Π l ∷ cs , F )) (right ( .(Π l ∷ cs) , G ))
---   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
---     cong ne (cong Π (cong (_▹_ l) 
---     ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
--- reify-≋→  
---   (right ( Σ l ∷ cs , F )) (right ( .(Σ l ∷ cs) , G ))
---   (( refl , ( unif-F , ( unif-G , ext ) ) )) = 
---     cong ne (cong Σ (cong (_▹_ l) 
---     ((reify-≋ {τ₁ = (right ( cs , _ ))} {τ₂ = right ( cs , _ )} ( refl , ( unif-F , ( unif-G , ext )))))))
-                  
+reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
 reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
-reify-≋ {κ = κ `→ κ₁} {τ₁} {τ₂} sem-eq = reify-≋→ τ₁ τ₂ sem-eq
+reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
+reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
+  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
 reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
 reify-≋ {κ = R[ L ]} sem-eq = sem-eq
 reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , left F)} {right (l₂ , left G)} (refl , refl) = refl
 reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , right F)} {right (l₂ , right G)} (refl , unif-F , unif-G , Ext) = 
   cong row (cong (_▹_ l₁) (cong `λ (reify-≋ (Ext S (reflectNE-≋ refl)))))
---   rewrite reify-≋→ (right F) (right G) eeeqs = refl
 reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
  rewrite reify-≋ sem-eq = refl
@@ -138,21 +142,110 @@ reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq )
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
 Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
 
+-- extension
+extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 
+            {V₁ V₂ : SemType Δ₂ κ} → 
+            V₁ ≋ V₂ → 
+            Env-≋ (extende η₁ V₁) (extende η₂ V₂)
+extend-≋ p q Z = q
+extend-≋ p q (S v) = p v
+
+--------------------------------------------------------------------------------
+-- related applicands yield related applications
+
+App-≋ : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
+           _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
+           {W₁ W₂ : SemType Δ κ₁} → 
+           W₁ ≋ W₂ → 
+           (V₁ ·V W₁) ≋ (V₂ ·V W₂)
+App-≋ {V₁ = left x} {left .x} refl q = reflectNE-≋ (cong (x ·_) (reify-≋ q))
+App-≋ {V₁ = left x} {right y} () q
+App-≋ {V₁ = right y} {left x} () q
+App-≋ {V₁ = right F} {right G} (unif-F , unif-G , Ext) q = Ext id q           
+
+--------------------------------------------------------------------------------
+-- renaming respects ≋
+
+ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
+        (ρ : Renaming Δ₁ Δ₂) → 
+        V₁ ≋ V₂ → 
+        (renSem ρ V₁) ≋ (renSem ρ V₂)
+ren-≋ {κ = ★} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = L} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = κ₁ `→ κ₂} {V₁ = left _} {left _} ρ refl = refl
+ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {right G} ρ₁ (unif-F , unif-G , Ext) = 
+  (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
+  (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
+  λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
+ren-≋ {κ = R[ ★ ]} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = R[ L ]} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = left x} {left x₁} ρ refl = refl
+ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = right (l , left F)} {right (.l , left G)} ρ (refl , refl) = refl , refl
+ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = right (l , right F)} {right (.l , right G)} ρ₁
+  (refl , q) = refl , ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {V₂ = right G}  ρ₁ q
+ren-≋ {κ = R[ R[ κ ] ]} {V₁ = left _} {left _} ρ refl = refl
+ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q) = refl , (ren-≋ {κ = R[ κ ]} ρ q)
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with reflection of neutral types
+
+--             
+--            ren ρ 
+-- Type Δ₁ κ -------------> Type Δ₂ κ 
+--  |                        |
+--  | reflectNE              | reflectNE
+--  |                        |
+--  V                        V 
+-- SemType Δ₁ κ ----------> SemType Δ₂ κ
+--               renSem ρ 
+
+↻-renSem-reflectNE  : 
+  ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
+    (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
+↻-renSem-reflectNE {κ = ★} ρ τ = refl
+↻-renSem-reflectNE {κ = L} ρ τ = refl
+↻-renSem-reflectNE {κ = κ `→ κ₁} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ ★ ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ L ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ κ `→ κ₁ ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ R[ κ ] ]} ρ τ = refl
+
 --------------------------------------------------------------------------------
 -- id extension
 --
 -- Lemma needed for semantic renaming commutation theorem.
 -- States that if we evaluate a single term in related environments, we get related results.
+-- 
+-- Mutually recursive with commutativity of semantic renaming and evaluation (↻-renSem-eval):
+
+--            eval in (renSem (ρ ∘ η₂))
+--  Type Δ₁ κ  ------
+--  |                \            
+--  | eval in η₁       \          
+--  |                    \          
+--  V                      V        
+-- NormalType Δ₂ κ ----------> SemType Δ₂ κ
+--                  renSem ρ 
 
 
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
+↻-renSem-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+                  (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂) 
+
 idext {κ = κ} e Unit = refl
 idext {κ = ★} e (` x) = e x
 idext {κ = L} e (` x) = e x
 idext {κ = κ `→ κ₁} e (` x) = e x
 idext {κ = R[ κ ]} e (` x) = e x
-idext {κ = κ} e (`λ τ) = (λ ρ₁ ρ₂ V₁ V₂ x → {!   !}) , ({!   !} , {!   !})
+idext {κ = κ} e (`λ τ) = 
+  (λ ρ₁ ρ₂ V₁ V₂ q → 
+    trans-≋ 
+      (↻-renSem-eval ρ₂ τ 
+        (extend-≋ {! ren-≋ ρ₁ ∘ reflNE-≋ ∘ e  !} q))
+      {!   !}) , 
+  {!   !} , 
+  λ ρ q → idext (extend-≋ (ren-≋ ρ ∘ e) q) τ
 idext {κ = κ} e (τ · τ₁) = {!   !}
 idext {κ = κ} e (τ `→ τ₁) = {!   !}
 idext {κ = κ} e (`∀ κ₁ τ) = {!   !}
@@ -163,16 +256,6 @@ idext {κ = κ} e ⌊ τ ⌋ = {!   !}
 idext {κ = κ} e Π = {!   !}
 idext {κ = κ} e Σ = {!   !}
 idext {κ = κ} e (τ <$> τ₁) = {!   !} 
- 
 
---------------------------------------------------------------------------------
--- Semantic renaming commutes with evaluation (reflection of types)
-
-postulate
-  ↻-renSem-reflectNE  : 
-    ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
-      (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
+↻-renSem-eval ρ τ {η₁} {η₂} P = {!   !}
    
-  ↻-renSem-eval : 
-    ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → {Ρ : Env-≋ η₁ η₂} →
-      (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
