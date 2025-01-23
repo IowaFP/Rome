@@ -144,10 +144,26 @@ Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
 -- Lemma needed for semantic renaming commutation theorem.
 -- States that if we evaluate a single term in related environments, we get related results.
 
-postulate 
-  idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
-        eval τ η₁ ≋ eval τ η₂
 
+idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
+          eval τ η₁ ≋ eval τ η₂
+idext {κ = κ} e Unit = refl
+idext {κ = ★} e (` x) = e x
+idext {κ = L} e (` x) = e x
+idext {κ = κ `→ κ₁} e (` x) = e x
+idext {κ = R[ κ ]} e (` x) = e x
+idext {κ = κ} e (`λ τ) = (λ ρ₁ ρ₂ V₁ V₂ x → {!   !}) , ({!   !} , {!   !})
+idext {κ = κ} e (τ · τ₁) = {!   !}
+idext {κ = κ} e (τ `→ τ₁) = {!   !}
+idext {κ = κ} e (`∀ κ₁ τ) = {!   !}
+idext {κ = κ} e (μ τ) = {!   !}
+idext {κ = κ} e (lab x) = {!   !}
+idext {κ = κ} e (τ ▹ τ₁) = {!   !}
+idext {κ = κ} e ⌊ τ ⌋ = {!   !}
+idext {κ = κ} e Π = {!   !}
+idext {κ = κ} e Σ = {!   !}
+idext {κ = κ} e (τ <$> τ₁) = {!   !} 
+ 
 
 --------------------------------------------------------------------------------
 -- Semantic renaming commutes with evaluation (reflection of types)
