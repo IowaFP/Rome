@@ -12,19 +12,6 @@ open import Rome.Operational.Types.Properties
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
-  
---------------------------------------------------------------------------------
--- Congruences.
---
--- NBE reflects non-neutral functions into Agda function spaces so as to use
--- Agda's computation to eliminate applications.  A Congruence specifies any
--- syntax under which could occur a binder. For example, consider: 
---   τ = Π (ℓ ▹ (λ x. ` Z))
--- We obviously expect that this normalizes to itself (modulo data type)
---   ⇓ τ ≊ τ 
--- but we must reflect the function portion (λ x. x) into an Agda function.
-
-
 
 --------------------------------------------------------------------------------
 -- Semantic types.
