@@ -19,6 +19,8 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Completeness
 
+open import Rome.Shared.Postulates.FunExt
+
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
 --     or, ⇓ is a split-monomorphism/section.
@@ -68,11 +70,18 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
-stability-β τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
-    where
-        η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
-        η Z = reflNE-≋ (` Z)
-        η (S x) = (↻-renSem-reflectNE S (` x))            
+
+
+
+stability-β {Δ = Δ} τ = trans (cong reify (cong (eval (⇑ τ)) {!extende (λ {κ} v' → renSem S (reflectNE (` v')))
+      (reflectNE (` Z))!})) (stability τ)
+  where
+
+-- stability-β τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+--     where
+--         η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
+--         η Z = reflNE-≋ (` Z)
+--         η (S x) = (↻-renSem-reflectNE S (` x))            
 
 stability Unit = refl
 stability {κ = ★} (ne x)       = stabilityNE x

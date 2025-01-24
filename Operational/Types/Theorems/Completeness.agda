@@ -276,7 +276,7 @@ idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Ty
 Unif-F-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) → Uniform (λ ρ' v → π (N.ren ρ' l ▵ reflectNE (renNE ρ' f · reify v)))
 Unif-F-NE {κ₁ = ★} {★} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong Π refl
 Unif-F-NE {κ₁ = ★} {L} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong ΠL refl
-Unif-F-NE {κ₁ = ★} {κ₂ `→ κ₃} l f ρ₁ ρ₂ V₁ V₂ refl = {! Unif-F-NE l f  !} , ({!   !} , {!   !}) !
+Unif-F-NE {κ₁ = ★} {κ₂ `→ κ₃} l f ρ₁ ρ₂ V₁ V₂ refl = {! Unif-F-NE l f  !} , ({!   !} , {!   !})
 Unif-F-NE {κ₁ = ★} {R[ κ₂ ]} l f ρ₁ ρ₂ V₁ V₂ refl = {!   !}
 Unif-F-NE {κ₁ = L} l f ρ₁ ρ₂ V₁ V₂ q = {!   !}
 Unif-F-NE {κ₁ = κ₁ `→ κ₂} l f ρ₁ ρ₂ V₁ V₂ q = {!   !}
