@@ -71,11 +71,38 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
 
+-- stability-η : eval (⇑ τ) 
 
+idext' : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → (τ : Types.Type Δ₁ κ₁)  → eval τ η₁ ≡ eval τ η₂
+idext' q Types.Unit = refl
+idext' {κ₁ = ★} q (Types.` x) = q x
+idext' {κ₁ = L} q (Types.` x) = q x
+idext' {κ₁ = κ₁ `→ κ₂} q (Types.` x) = q x
+idext' {κ₁ = R[ κ₁ ]} q (Types.` x) = q x
+idext' q (Types.`λ τ)  = 
+    cong right 
+        (extensionality-i (extensionality 
+            (λ ρ → extensionality 
+            (λ v → cong (eval τ) 
+                (cong₂ extende (extensionality-i (extensionality λ x → cong₂ renSem refl (q x) )) refl)))))
+idext' q (τ₁ Types.· τ₂) rewrite idext' q τ₁ = {!   !}
+idext' q (τ₁ Types.`→ τ₂) = {!   !}
+idext' q (Types.`∀ κ₂ τ) = cong (`∀ κ₂) ((idext' (λ {κ} x → {! cong₂ extende ? ? !}) τ))
+idext' q (Types.μ τ) = {!   !}
+idext' q (Types.lab x) = {!   !}
+idext' q (τ Types.▹ τ₁) = {!   !}
+idext' q Types.⌊ τ ⌋ rewrite idext' q τ = refl
+idext' q Types.Π = refl
+idext' q Types.Σ = refl
+idext' q (τ Types.<$> τ₁) = {!   !}
 
-stability-β {Δ = Δ} τ = trans (cong reify (cong (eval (⇑ τ)) {!extende (λ {κ} v' → renSem S (reflectNE (` v')))
-      (reflectNE (` Z))!})) (stability τ)
-  where
+stability-β {Δ = Δ} τ = 
+    trans 
+        (cong reify 
+            (idext' (λ { {κ} Z → refl
+                       ; {κ} (S x) → ↻-renSem-reflectNE S (` x) }) (⇑ τ)))
+        (stability τ)
+  
 
 -- stability-β τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
 --     where

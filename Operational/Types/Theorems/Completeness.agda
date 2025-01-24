@@ -228,7 +228,7 @@ renSem-comp {κ = κ} ρ₁ ρ₂ {V₁} {V₂} q = {!   !}
 
 ↻-renSem-reflectNE  : 
   ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
-    (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
+    (renSem ρ (reflectNE τ)) ≡ (reflectNE (renNE ρ τ))
 ↻-renSem-reflectNE {κ = ★} ρ τ = refl
 ↻-renSem-reflectNE {κ = L} ρ τ = refl
 ↻-renSem-reflectNE {κ = κ `→ κ₁} ρ τ = refl
