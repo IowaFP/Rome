@@ -71,6 +71,12 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
 
+-- App-≋ : ∀ {V₁ V₂ : Type Δ (κ₁ `→ κ₂)} → 
+--            V₁ ≡ V₂ → 
+--            {W₁ W₂ : Type Δ κ₁} → 
+--            W₁ ≡ W₂ → 
+--            (V₁ ·V W₁) ≋ (V₂ ·V W₂)
+
 idext' : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → (τ : Types.Type Δ₁ κ₁)  → eval τ η₁ ≡ eval τ η₂
 idext' q Types.Unit = refl
 idext' {κ₁ = ★} q (Types.` x) = q x
@@ -83,7 +89,8 @@ idext' q (Types.`λ τ)  =
             (λ ρ → extensionality 
             (λ v → cong (eval τ) 
                 (cong₂ extende (extensionality-i (extensionality λ x → cong₂ renSem refl (q x) )) refl)))))
-idext' q (τ₁ Types.· τ₂) = {! τ₂  !}
+-- May need to change type signature to work over SemTypes? Destructing applicands is tricky.
+idext' q (τ₁ Types.· τ₂) = {!   !}
 idext' q (τ₁ Types.`→ τ₂) rewrite idext' q τ₁ | idext' q τ₂ = refl
 idext' {Δ₁ = Δ₁} {κ₁ = κ₁} {η₁ = η₁} {η₂}  q (Types.`∀ κ₂ τ) = cong (`∀ κ₂) ((idext' η τ))
     where
