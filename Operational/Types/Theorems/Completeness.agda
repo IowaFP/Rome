@@ -273,7 +273,7 @@ idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Ty
 ↻-renSem-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
 
-Unif-F-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) → Uniform (λ ρ' v → π (N.ren ρ' l ▵ reflectNE (renNE ρ' f · reify v)))
+Unif-F-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) → Uniform (λ ρ' v → π (N.ren ρ' l ▹ reflectNE (renNE ρ' f · reify v)))
 Unif-F-NE {κ₁ = ★} {★} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong Π refl
 Unif-F-NE {κ₁ = ★} {L} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong ΠL refl
 Unif-F-NE {κ₁ = ★} {κ₂ `→ κ₃} l f ρ₁ ρ₂ V₁ V₂ refl = {! Unif-F-NE l f  !} , ({!   !} , {!   !})
@@ -304,8 +304,8 @@ Unif-F-NE {κ₁ = R[ κ₁ ]} l f ρ₁ ρ₂ V₁ V₂ q = {!   !}
 
 -- ↻-ren-π {κ = κ₁ `→ κ₂} {Δ₁ = Δ₁} {Δ₂} ρ (right (l , right F)) = Unif-F l F , ({!   !} , {!   !})
 --   where
---     Unif-F : ∀ {k₁ k₂} (l : NormalType Δ₁ L) (F : KripkeFunction Δ₁ k₁ k₂) → Uniform (renKripke ρ (λ ρ' v → π (N.ren ρ' l ▵ F ρ' v)))
---     Unif-F {★} l F ρ₁ ρ₂ V₁ V₂ refl = trans-≋ ((↻-ren-π ρ₂ (N.ren (λ x → ρ₁ (ρ x)) l ▵ F (λ x → ρ₁ (ρ x)) V₁))) (cong-π {! ↻-renSem-eval (ρ₁ ∘ ρ) ((⇑ l) ▹ (⇑ (reify ( right F))))   !})
+--     Unif-F : ∀ {k₁ k₂} (l : NormalType Δ₁ L) (F : KripkeFunction Δ₁ k₁ k₂) → Uniform (renKripke ρ (λ ρ' v → π (N.ren ρ' l ▹ F ρ' v)))
+--     Unif-F {★} l F ρ₁ ρ₂ V₁ V₂ refl = trans-≋ ((↻-ren-π ρ₂ (N.ren (λ x → ρ₁ (ρ x)) l ▹ F (λ x → ρ₁ (ρ x)) V₁))) (cong-π {! ↻-renSem-eval (ρ₁ ∘ ρ) ((⇑ l) ▹ (⇑ (reify ( right F))))   !})
 --     Unif-F {L} ρ₁ ρ₂ V₁ V₂ x = {!   !}
 --     Unif-F {k₁ `→ k₂} ρ₁ ρ₂ V₁ V₂ x = {!   !}
 --     Unif-F {R[ k₁ ]} ρ₁ ρ₂ V₁ V₂ x = {!   !}
