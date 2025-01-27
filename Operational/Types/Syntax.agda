@@ -9,7 +9,24 @@ open import Rome.Operational.Kinds.GVars
 
 
 infixl 5 _·_
-data Type Δ : Kind → Set where
+infixr 5 _≲_
+data Pred Δ : Kind → Set
+data Type Δ : Kind → Set 
+
+data Pred Δ where
+  _·_~_ : 
+
+       (ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]) → 
+       --------------------- 
+       Pred Δ R[ κ ]
+
+  _≲_ : 
+
+       (ρ₁ ρ₂ : Type Δ R[ κ ]) →
+       ----------
+       Pred Δ R[ κ ]  
+       
+data Type Δ where
 
   Unit :
 
@@ -17,41 +34,51 @@ data Type Δ : Kind → Set where
       Type Δ ★
 
   ` : 
-      KVar Δ κ →
+      (α : KVar Δ κ) →
       --------
       Type Δ κ
 
   `λ : 
       
-      Type (Δ ,, κ₁) κ₂ → 
+      (τ : Type (Δ ,, κ₁) κ₂) → 
       ---------------
       Type Δ (κ₁ `→ κ₂)
 
   _·_ : 
       
-      Type Δ (κ₁ `→ κ₂) → 
-      Type Δ κ₁ → 
+      (τ₁ : Type Δ (κ₁ `→ κ₂)) → 
+      (τ₂ : Type Δ κ₁) → 
       ----------------
       Type Δ κ₂
 
   _`→_ : 
 
-         Type Δ ★ →
-         Type Δ ★ → 
+         (τ₁ : Type Δ ★) →
+         (τ₂ : Type Δ ★) → 
          --------
          Type Δ ★
 
   `∀    :
       
-         (κ : Kind) → Type (Δ ,, κ) ★ →
+         (κ : Kind) → (τ : Type (Δ ,, κ) ★) →
          -------------
          Type Δ ★
 
   μ     :
       
-         Type Δ (★ `→ ★) → 
+         (φ : Type Δ (★ `→ ★)) → 
          -------------
          Type Δ ★
+
+  ------------------------------------------------------------------
+  -- Qualified types
+
+  _⇒_ : 
+
+         (π : Pred Δ R[ κ₁ ]) → (τ : Type Δ κ₂) → 
+         ---------------------
+         Type Δ κ₂       
+
 
   ------------------------------------------------------------------
   -- Rω business
@@ -59,19 +86,19 @@ data Type Δ : Kind → Set where
   -- labels
   lab :
     
-        Label → 
+        (l : Label) → 
         --------
         Type Δ L
 
   -- Row formation
   _▹_ :
-         Type Δ L → Type Δ κ → 
+         (l : Type Δ L) → (τ : Type Δ κ) → 
          -------------------
          Type Δ R[ κ ]
 
   -- label constant formation
   ⌊_⌋ :
-        Type Δ L →
+        (τ : Type Δ L) →
         ----------
         Type Δ ★
 
@@ -88,16 +115,9 @@ data Type Δ : Kind → Set where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
-  -- ↑_ : 
-
-  --      Type Δ R[ κ₁ `→ κ₂ ] →
-  --      ------------------------------
-  --      Type Δ (κ₁ `→ R[ κ₂ ])
-
-
   _<$>_ : 
 
-       Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] → 
+       (φ : Type Δ (κ₁ `→ κ₂)) → (τ : Type Δ R[ κ₁ ]) → 
        ----------------------------------------
        Type Δ R[ κ₂ ]
 
@@ -128,6 +148,10 @@ data Type Δ : Kind → Set where
 
 --------------------------------------------------------------------------------
 -- Admissable constants
+
+-- for partial application of infix fmap.
+`↑ : Type Δ ((κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ])
+`↑ = `λ (`λ (` (S Z) <$> ` Z))
 
 -- Flapping. See https://hoogle.haskell.org/?hoogle=f%20(a%20-%3E%20b)%20-%3E%20a%20-%3E%20f%20b%20
 flap : Type Δ (R[ κ₁ `→ κ₂ ] `→ κ₁ `→ R[ κ₂ ])
