@@ -85,7 +85,7 @@ _▹V_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , (right F))
 _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 
-----------------------------------------
+--------------------------------------------------------------------------------
 -- Semantic combinators for Π
 
 πNE : NeutralType Δ R[ κ ] → SemType Δ κ 
@@ -116,7 +116,7 @@ _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 π {κ = R[ R[ κ ] ]}  (right (l , left τ))   = _▹V_ {κ                = R[ κ ]} l (πNE {κ   = R[ κ ]} τ)
 π {κ = R[ R[ κ ] ]} (right (l , τ))  =  _▹V_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ)
 
-----------------------------------------
+--------------------------------------------------------------------------------
 -- Semantic combinator for Σ
 
 -- I'll prove Π is stable before duplicating the work for Σ.
@@ -149,7 +149,7 @@ _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 σ {κ = R[ R[ κ ] ]}  (right (l , τ))  =  _▹V_ {κ = R[ κ ]} l (σ {κ = R[ κ ]} τ)
 
 
-----------------------------------------
+--------------------------------------------------------------------------------
 -- Semantic combinator for Lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
@@ -166,54 +166,7 @@ _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , right G)) | row 
 _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x) | row _ = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
 _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹V (F id τ)
 
-----------------------------------------
--- Evaluation of neutral terms to Semantic.
--- N.b. that Types are simultaneously evaluated 
--- and reflected; neutral types and normal types
--- require an environment for reflection so that bodies 
--- of lambdas may be extended.
-
--- evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
-
--- evalNE (` x) η = η x
--- evalNE (τ · x) η = (evalNE τ η) ·V (reflect x η)
--- evalNE {κ = ★} (Π τ) η with evalNE τ η 
--- ... | ne x = ne (Π x)
--- ... | row x = Π x
--- evalNE {κ = L} (Π τ) η with evalNE τ η 
--- ... | ne x = ne (Π x)
--- ... | row x = ΠL x
--- evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
--- ... | left x = left (Π x)
--- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▹V F ρ v) )
--- evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
--- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = (reflect F η) <$>V (evalNE x η)
--- evalNE (Σ τ) η = {!   !}
-
--- -- ----------------------------------------
--- -- -- Reflection & evaluation of normal terms to semantic.
-
-
--- reflect {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (`λ τ) η = right (λ ρ v → reflect τ (extende (λ x → renSem ρ (η x)) v))
--- reflect Unit η = Unit
--- reflect (ne x) η = evalNE x η
--- reflect (row x) η = reflectRow x η
--- reflect (τ₁ `→ τ₂) η = (reflect τ₁ η) `→ (reflect τ₂ η)
--- reflect (`∀ κ τ) η = `∀ κ (reflect τ (↑e η))
--- reflect (μ τ) η with reflect τ η 
--- ... | left F = μ (ne F)
--- ... | right F = μ (`λ (F S (ne (` Z)))) 
--- reflect (lab x) η = lab x
--- reflect ⌊ τ ⌋ η = ⌊ reflect τ η ⌋
--- reflect (Π (l ▹ τ)) η = Π ((reflect l η) ▹ reflect τ η)
--- reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
--- reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
-
--- reflectRow (l ▹ τ) η = (reflect l η) ▹V (reflect τ η)
-
-----------------------------------------
+--------------------------------------------------------------------------------
 -- Type evaluation.
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
@@ -263,6 +216,22 @@ eval {κ = R[ κ ]} (τ₁ · τ₂) η = eval τ₁ η ·V eval τ₂ η
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+
+
+--------------------------------------------------------------------------------
+-- Evaluation of 
+--   - neutral types to semantic types
+--   - normal types to semantic types
+--   - rows to semantic types 
+--
+
+evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
+
+evalNE τ η = eval (⇑NE τ) η
+reflect τ η = eval (⇑ τ) η
+reflectRow (l ▹ τ) η = eval (⇑ (row (l ▹ τ))) η
 
 --------------------------------------------------------------------------------
 -- Testing.
