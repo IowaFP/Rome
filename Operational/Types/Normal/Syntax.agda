@@ -21,72 +21,64 @@ open import Rome.Operational.Types.Properties
 
 infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
+data NormalPred (Δ : KEnv) : Kind → Set
 data Row Δ : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
-      KVar Δ κ →
+      (α : KVar Δ κ) →
       ---------------
       NeutralType Δ κ
 
   _·_ : 
       
-      NeutralType Δ (κ₁ `→ κ) → 
-      NormalType Δ κ₁ → 
+      (f : NeutralType Δ (κ₁ `→ κ)) → 
+      (τ : NormalType Δ κ₁) → 
       ---------------------------
       NeutralType Δ κ
 
---   _▹_ : 
---       NormalType Δ L → 
---       NeutralType Δ (κ₁ `→ κ₂) →
---       ---------------------------
---       NeutralType Δ R[ κ₁ `→ κ₂ ] 
-
   Π : 
 
-      NeutralType Δ R[ κ ] → 
+      (ρ : NeutralType Δ R[ κ ]) → 
       ------------
       NeutralType Δ κ
 
   Σ : 
 
-      NeutralType Δ R[ κ ] → 
+      (ρ : NeutralType Δ R[ κ ]) → 
       ------------
       NeutralType Δ κ
 
 
   _<$>_ : 
 
-       NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
+       (φ : NormalType Δ (κ₁ `→ κ₂)) → (τ : NeutralType Δ R[ κ₁ ]) → 
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
+data NormalPred Δ where
+
+  _·_~_ : 
+
+       (ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]) → 
+       --------------------- 
+       NormalPred Δ R[ κ ]
+
+  _≲_ : 
+
+       (ρ₁ ρ₂ : NormalType Δ R[ κ ]) →
+       ----------
+       NormalPred Δ R[ κ ]  
 
 data Row Δ where
 
   _▹_ : 
       
-      NormalType Δ L → 
-      NormalType Δ κ → 
+      (l : NormalType Δ L) → 
+      (τ : NormalType Δ κ) → 
       ---------------------------
       Row Δ R[ κ ]
 
-
---   Π▹ : 
-
---       NormalType Δ L → 
---       NormalType Δ κ → 
---       ------------
---       Row Δ κ
-
---   Σ▹ : 
-
---       NormalType Δ L → 
---       NormalType Δ κ → 
---       ------------
---       Row Δ κ
-    
-  
 
 data NormalType Δ where
 
@@ -97,40 +89,48 @@ data NormalType Δ where
 
   ne : 
 
-      NeutralType Δ κ → 
+      (x : NeutralType Δ κ) → 
       --------------
       NormalType Δ κ
 
   row :
 
-      Row Δ R[ κ ] → 
+      (ρ : Row Δ R[ κ ]) → 
       -------------------
       NormalType Δ R[ κ ]
 
   `λ :
 
-      NormalType (Δ ,, κ₁) κ₂ → 
+      (τ : NormalType (Δ ,, κ₁) κ₂) → 
       --------------------------
       NormalType Δ (κ₁ `→ κ₂)
 
   _`→_ : 
 
-      NormalType Δ ★ →
-      NormalType Δ ★ → 
+      (τ₁ τ₂ : NormalType Δ ★) →
       -----------------
       NormalType Δ ★
 
   `∀    :
       
-      (κ : Kind) → NormalType (Δ ,, κ) ★ →
+      (κ : Kind) → (τ : NormalType (Δ ,, κ) ★) →
       --------------------------------------
       NormalType Δ ★
 
   μ     :
       
-      NormalType Δ (★ `→ ★) →
+      (φ : NormalType Δ (★ `→ ★)) →
       -------------------------
       NormalType Δ ★
+
+  ------------------------------------------------------------------
+  -- Qualified types
+
+  _⇒_ : 
+
+         (π : NormalPred Δ R[ κ₁ ]) → (τ : NormalType Δ ★) → 
+         ---------------------
+         NormalType Δ ★       
 
   ------------------------------------------------------------------
   -- Rω business
@@ -138,38 +138,38 @@ data NormalType Δ where
   -- labels
   lab :
     
-      Label → 
+      (l : Label) → 
       --------
       NormalType Δ L
 
   -- label constant formation
   ⌊_⌋ :
-      NormalType Δ L →
+      (l : NormalType Δ L) →
       -----------------
       NormalType Δ ★
 
   Π  : 
 
-      Row Δ R[ ★ ] →
+      (ρ : Row Δ R[ ★ ]) →
       ------------------
       NormalType Δ ★
 
   ΠL  : 
 
-      Row Δ R[ L ] →
+      (ρ : Row Δ R[ L ]) →
       ------------------
       NormalType Δ L
 
 
   Σ  : 
 
-      Row Δ R[ ★ ] →
+      (ρ : Row Δ R[ ★ ]) →
       ---------------
       NormalType Δ ★
 
   ΣL  : 
 
-      Row Δ R[ L ] →
+      (ρ : Row Δ R[ L ]) →
       ------------------
       NormalType Δ L
 
@@ -190,6 +190,7 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
+⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
 
 ⇑ Unit   = Unit
 ⇑ (ne x) = ⇑NE x
@@ -204,6 +205,7 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 ⇑ (ΠL x) = Π · ⇑Row x
 ⇑ (Σ x) = Σ · ⇑Row x
 ⇑ (ΣL x) = Σ · ⇑Row x
+⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
@@ -213,5 +215,5 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 
 ⇑Row (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 
-
---------------------------------------------------------------------------------
+⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
+⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

@@ -170,15 +170,22 @@ _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹V 
 -- Type evaluation.
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
+
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+
 eval {κ = ★} (` x) η = η x
 eval {κ = ★} Unit η  = Unit
 eval {κ = ★} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = ★} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
 eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
 eval {κ = ★} (μ τ) η with eval τ η 
 ... | left F = μ (ne F)
 ... | right F = μ (`λ (F S (ne (` Z)))) 
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
+
 
 ----------------------------------------
 -- Label evaluation.
