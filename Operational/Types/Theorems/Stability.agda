@@ -17,9 +17,43 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
+-- open import Rome.Operational.Types.Theorems.Completeness
 
 open import Rome.Shared.Postulates.FunExt
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with reflection of neutral types
+
+--             
+--            ren ρ 
+-- Type Δ₁ κ -------------> Type Δ₂ κ 
+--  |                        |
+--  | reflectNE              | reflectNE
+--  |                        |
+--  V                        V 
+-- SemType Δ₁ κ ----------> SemType Δ₂ κ
+--               renSem ρ 
+
+↻-renSem-reflectNE  : 
+  ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
+    (renSem ρ (reflectNE τ)) ≡ (reflectNE (renNE ρ τ))
+↻-renSem-reflectNE {κ = ★} ρ τ = refl
+↻-renSem-reflectNE {κ = L} ρ τ = refl
+↻-renSem-reflectNE {κ = κ `→ κ₁} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ ★ ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ L ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ κ `→ κ₁ ]} ρ τ = refl
+↻-renSem-reflectNE {κ = R[ R[ κ ] ]} ρ τ = refl
+
+--------------------------------------------------------------------------------
+-- idext 
+--
+-- Evaluating types in equal contexts yields equal semantic types
+
+idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} {κ} → 
+        (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → 
+        (τ : Types.Type Δ₁ κ)  → eval τ η₁ ≡ eval τ η₂
+idext {η₁ = η₁} {η₂} q τ = cong₂ eval {x = τ} refl (extensionality-i (extensionality q))
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -71,57 +105,13 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
 
--- App-≋ : ∀ {V₁ V₂ : Type Δ (κ₁ `→ κ₂)} → 
---            V₁ ≡ V₂ → 
---            {W₁ W₂ : Type Δ κ₁} → 
---            W₁ ≡ W₂ → 
---            (V₁ ·V W₁) ≋ (V₂ ·V W₂)
-
-idext' : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → (τ : Types.Type Δ₁ κ₁)  → eval τ η₁ ≡ eval τ η₂
-idext' q Types.Unit = refl
-idext' {κ₁ = ★} q (Types.` x) = q x
-idext' {κ₁ = L} q (Types.` x) = q x
-idext' {κ₁ = κ₁ `→ κ₂} q (Types.` x) = q x
-idext' {κ₁ = R[ κ₁ ]} q (Types.` x) = q x
-idext' q (Types.`λ τ)  = 
-    cong right 
-        (extensionality-i (extensionality 
-            (λ ρ → extensionality 
-            (λ v → cong (eval τ) 
-                (cong₂ extende (extensionality-i (extensionality λ x → cong₂ renSem refl (q x) )) refl)))))
--- May need to change type signature to work over SemTypes? Destructing applicands is tricky.
-idext' q (τ₁ Types.· τ₂) = {!   !}
-idext' q (τ₁ Types.`→ τ₂) rewrite idext' q τ₁ | idext' q τ₂ = refl
-idext' {Δ₁ = Δ₁} {κ₁ = κ₁} {η₁ = η₁} {η₂}  q (Types.`∀ κ₂ τ) = cong (`∀ κ₂) ((idext' η τ))
-    where
-        η : ∀ {κ} (x : KVar (Δ₁ ,, κ₂) κ) → ↑e η₁ x ≡ ↑e η₂ x
-        η {κ} Z = refl
-        η {κ} (S x) rewrite q x = refl
-idext' q (Types.μ τ) rewrite idext' q τ = refl
-idext' q (Types.lab x) = refl
-idext' q (Types._▹_ {★} l τ) rewrite idext' q l | idext' q τ = refl
-idext' q (Types._▹_ {L} l τ) rewrite idext' q l | idext' q τ = refl
-idext' q (Types._▹_ {κ `→ κ₁} l f) rewrite idext' q l | idext' q f = refl
-idext' q (Types._▹_ {R[ κ ]} l τ) rewrite idext' q l | idext' q τ = refl
-idext' q Types.⌊ τ ⌋ rewrite idext' q τ = refl
-idext' q Types.Π = refl
-idext' q Types.Σ = refl
-idext' q (τ₁ Types.<$> τ₂) rewrite idext' q τ₁ | idext' q τ₂ = refl
-
 stability-β {Δ = Δ} τ = 
     trans 
         (cong reify 
-            (idext' (λ { {κ} Z → refl
+            (idext (λ { {κ} Z → refl
                        ; {κ} (S x) → ↻-renSem-reflectNE S (` x) }) (⇑ τ)))
         (stability τ)
   
-
--- stability-β τ = trans (reify-≋ (idext η (⇑ τ))) (stability τ)
---     where
---         η : Env-≋ (extende (λ v → renSem S (idEnv v)) (reflectNE (` Z))) idEnv
---         η Z = reflNE-≋ (` Z)
---         η (S x) = (↻-renSem-reflectNE S (` x))            
-
 stability Unit = refl
 stability {κ = ★} (ne x)       = stabilityNE x
 stability {κ = L} (ne x)       = stabilityNE x
