@@ -150,6 +150,7 @@ stabilityPred (ρ₁ · ρ₂ ~ ρ₃)
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl
 stabilityPred (ρ₁ ≲ ρ₂) 
     rewrite stability ρ₁ | stability ρ₂ = refl
+
 --------------------------------------------------------------------------------
 -- idempotency
 
