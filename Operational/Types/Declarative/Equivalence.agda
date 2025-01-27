@@ -1,4 +1,4 @@
-module Rome.Operational.Types.Equivalence where
+module Rome.Operational.Types.Declarative.Equivalence where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
