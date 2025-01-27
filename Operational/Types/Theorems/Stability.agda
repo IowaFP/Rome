@@ -49,6 +49,7 @@ open import Rome.Shared.Postulates.FunExt
 -- idext 
 --
 -- Evaluating types in equal contexts yields equal semantic types
+-- (modulo functional extensionality)
 
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} {κ} → 
         (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → 
