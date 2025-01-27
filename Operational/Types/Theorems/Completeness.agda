@@ -188,29 +188,7 @@ open import Rome.Operational.Types.Semantic.NBE
 -- ren-≋ {κ = R[ R[ κ ] ]} {V₁ = left _} {left _} ρ refl = refl
 -- ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q) = refl , (ren-≋ {κ = R[ κ ]} ρ q)
 
--- --------------------------------------------------------------------------------
--- -- Functor laws for renaming as a functorial action
 
--- renSem-id : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → (renSem id V₁) ≋ V₂ 
--- renSem-id {κ = ★} refl = NTypeProps.ren-id _
--- renSem-id {κ = L} refl = NTypeProps.ren-id _
--- renSem-id {κ = κ₁ `→ κ₂} {left x} {left .x} refl = NTypeProps.ren-id-ne x
--- renSem-id {κ = κ₁ `→ κ₂} {right F} {right G} q = q
--- renSem-id {κ = R[ ★ ]} refl = NTypeProps.ren-id _
--- renSem-id {κ = R[ L ]} refl = NTypeProps.ren-id _
--- renSem-id {κ = R[ κ₁ `→ κ₂ ]} {left x} {left .x} refl = NTypeProps.ren-id-ne x
--- renSem-id {κ = R[ κ₁ `→ κ₂ ]} {right (l , left x)} {right (.l , left x₁)} 
---   (refl , refl) = (NTypeProps.ren-id _) , NTypeProps.ren-id-ne _
--- renSem-id {κ = R[ κ₁ `→ κ₂ ]} {right (l , right y)} {right (.l , right y₁)} 
---   (refl , q) = (NTypeProps.ren-id _) , q
--- renSem-id {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = NTypeProps.ren-id-ne _ 
--- renSem-id {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} 
---   (refl , q) = (NTypeProps.ren-id _) , (renSem-id q) 
-
-
--- renSem-comp : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) {V₁ V₂ : SemType Δ₁ κ} → 
---                 V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
--- renSem-comp {κ = κ} ρ₁ ρ₂ {V₁} {V₂} q = {!   !}
 
 
 -- --------------------------------------------------------------------------------
