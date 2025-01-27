@@ -43,8 +43,8 @@ reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , right F)) = row (l ▹ (reify (ri
 reify {κ = R[ R[ κ₁ ] ]} (left x) =  ne x
 reify {κ = R[ R[ κ₁ ] ]} (right (l , τ)) = row (l ▹ (reify τ))
 
--- --------------------------------------------------------------------------------
--- -- Semantic environments
+--------------------------------------------------------------------------------
+-- Semantic environments
 
 Env : KEnv → KEnv → Set
 Env Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → SemType Δ₂ κ
@@ -67,8 +67,8 @@ idEnv : Env Δ Δ
 idEnv = reflectNE ∘ `
 
 
--- --------------------------------------------------------------------------------
--- -- Semantic application
+--------------------------------------------------------------------------------
+-- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 left A ·V V = reflectNE (A · (reify V))
@@ -180,15 +180,15 @@ eval {κ = ★} (μ τ) η with eval τ η
 ... | right F = μ (`λ (F S (ne (` Z)))) 
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
--- -- ----------------------------------------
--- -- -- Label evaluation.
+----------------------------------------
+-- Label evaluation.
 
 eval {κ = L} (` x) η = η x
 eval {κ = L} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = L} (lab l) η = lab l
 
--- -- ----------------------------------------
--- -- -- function evaluation.
+----------------------------------------
+-- function evaluation.
 
 eval {κ = κ₁ `→ κ₂} (` x) η = η x
 eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
@@ -326,8 +326,8 @@ _ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
 _ = refl
 
 
--- -- -- ----------------------------------------
--- -- -- -- Unreduced Π applications
+----------------------------------------
+-- Unreduced Π applications
 
 NR₀ : Type Δ ★
 NR₀ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
