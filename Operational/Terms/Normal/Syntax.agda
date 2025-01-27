@@ -4,9 +4,12 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
+open import Rome.Operational.Types.Syntax
+
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
+open import Rome.Operational.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
 -- 3.7 Terms with normal types
@@ -25,7 +28,7 @@ data Var : Context Δ → NormalType Δ ★ → Set where
 private
   variable
     τ υ τ₁ τ₂ : NormalType Δ ★
-    ℓ ℓ₁ ℓ₂   : NormalType Δ L
+    l l₁ l₂   : NormalType Δ L
     
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
   ` : Var Γ τ → 
@@ -65,17 +68,17 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
   -- Recursive types
 
   roll : 
-         ∀ (F : NeutralType Δ (★ `→ ★)) → 
+         ∀ (F : NormalType Δ (★ `→ ★)) → 
          -- lol. Okay, neutrality is not quite accurate for our needs.
-         NormalTerm Γ (ne (F · μ F)) → 
+         NormalTerm Γ (⇓ ((⇑ F) · (⇑ (μ F)))) → 
          -----------------
-         NormalTerm Γ (μ F) μ (Σ (Z ▹ `λ X. ⊤, S ▹ `λ X. X))
+         NormalTerm Γ (μ F)
 
   unroll : 
            ∀ F → 
            NormalTerm Γ (μ F) → 
            --------------
-           NormalTerm Γ (F ·  μ F)
+           NormalTerm Γ (⇓ ((⇑ F) · (⇑ (μ F))))
 
   ------------------------------------------------------------
   -- Qualified types
@@ -97,13 +100,13 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
 
   -- Record singleton formation
   _Π▹_ : 
-          (M₁ : NormalTerm Γ ⌊ ℓ ⌋) (M₂ : NormalTerm Γ υ) →
+          (M₁ : NormalTerm Γ ⌊ l ⌋) (M₂ : NormalTerm Γ υ) →
           ----------------------------------------
-          NormalTerm Γ (Π (ℓ ▹ υ))
+          NormalTerm Γ (Π (l ▹ υ))
 
   -- Record singleton elimination
   _Π/_ :
-          (M₁ : NormalTerm Γ (Π (ℓ ▹ υ))) (M₂ : NormalTerm Γ ⌊ ℓ ⌋) →
+          (M₁ : NormalTerm Γ (Π (l ▹ υ))) (M₂ : NormalTerm Γ ⌊ l ⌋) →
           ----------------------------------------
           NormalTerm Γ υ
 
@@ -112,13 +115,13 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
 
   -- Record singleton formation
   _Σ▹_ : 
-          (M₁ : NormalTerm Γ ⌊ ℓ ⌋) (M₂ : NormalTerm Γ υ) →
+          (M₁ : NormalTerm Γ ⌊ l ⌋) (M₂ : NormalTerm Γ υ) →
           ----------------------------------------
-          NormalTerm Γ (Σ (ℓ ▹ υ))
+          NormalTerm Γ (Σ (l ▹ υ))
 
   -- Record singleton elimination
   _Σ/_ :
-          (M₁ : NormalTerm Γ (Σ (ℓ ▹ υ))) (M₂ : NormalTerm Γ ⌊ ℓ ⌋) →
+          (M₁ : NormalTerm Γ (Σ (l ▹ υ))) (M₂ : NormalTerm Γ ⌊ l ⌋) →
           ----------------------------------------
           NormalTerm Γ υ
 
