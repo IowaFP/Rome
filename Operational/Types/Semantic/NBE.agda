@@ -77,12 +77,12 @@ right F ·V V = F id V
 --------------------------------------------------------------------------------
 -- Semantic combinator for labeled types
 
-_▹_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
-_▹_ {κ = L} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
-_▹_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (left τ))
-_▹_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , (right F))
-_▹_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
+_▵_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
+_▵_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
+_▵_ {κ = L} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
+_▵_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (left τ))
+_▵_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , (right F))
+_▵_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 
 ----------------------------------------
@@ -103,18 +103,18 @@ _▹_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 π {κ = L}   (ne x)                 = πNE x
 π {κ = L}   (row r)                = ΠL r
 π {κ = κ₁ `→ κ₂}   (left x)               = πNE x
-π {κ = κ₁ `→ κ₂}   (right (l , left f))   = right (λ ρ' v → π (ren ρ' l ▹ reflectNE ((renNE ρ' f) · (reify v))))
-π {κ = κ₁ `→ κ₂}   (right (l , right F))  = right (λ ρ' v → π (ren ρ' l ▹ F ρ' v))
+π {κ = κ₁ `→ κ₂}   (right (l , left f))   = right (λ ρ' v → π (ren ρ' l ▵ reflectNE ((renNE ρ' f) · (reify v))))
+π {κ = κ₁ `→ κ₂}   (right (l , right F))  = right (λ ρ' v → π (ren ρ' l ▵ F ρ' v))
 π {κ = R[ ★ ]}  (left x)               = πNE x
 π {κ = R[ ★ ]}  (right (l , τ))        = row (l ▹ (reify (π {κ = ★} τ )))
 π {κ = R[ L ]}   (left x)               = πNE x
 π {κ = R[ L ]}   (right (l , τ))        = row (l ▹ (reify (π {κ = L} τ )))
 π {κ = R[ κ₁ `→ κ₂ ]}   (left x)               = πNE x
-π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , left τ))   = _▹_ {κ                = κ₁ `→ κ₂} l (πNE {κ = κ₁ `→ κ₂} τ)
-π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , τ))        = _▹_ {κ                = κ₁ `→ κ₂} l (π {κ   = κ₁ `→ κ₂} τ)
+π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , left τ))   = _▵_ {κ                = κ₁ `→ κ₂} l (πNE {κ = κ₁ `→ κ₂} τ)
+π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , τ))        = _▵_ {κ                = κ₁ `→ κ₂} l (π {κ   = κ₁ `→ κ₂} τ)
 π {κ = R[ R[ κ ] ]}   (left x)               = πNE x
-π {κ = R[ R[ κ ] ]}  (right (l , left τ))   = _▹_ {κ                = R[ κ ]} l (πNE {κ   = R[ κ ]} τ)
-π {κ = R[ R[ κ ] ]} (right (l , τ))  =  _▹_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ)
+π {κ = R[ R[ κ ] ]}  (right (l , left τ))   = _▵_ {κ                = R[ κ ]} l (πNE {κ   = R[ κ ]} τ)
+π {κ = R[ R[ κ ] ]} (right (l , τ))  =  _▵_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ)
 
 ----------------------------------------
 -- Semantic combinator for Σ
@@ -135,18 +135,18 @@ _▹_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 σ {κ = L}  (ne x)  = ne (Σ x)
 σ {κ = L}  (row r)  = ΣL r
 σ {κ = κ₁ `→ κ₂}  (left x)  = left (Σ x)
-σ {κ = κ₁ `→ κ₂}  (right (l , left f))  = right (λ ρ' v → σ (ren ρ' l ▹ reflectNE ((renNE ρ' f) · (reify v))))
-σ {κ = κ₁ `→ κ₂}  (right (l , right F))  = right (λ ρ' v → σ (ren ρ' l ▹ F ρ' v))
+σ {κ = κ₁ `→ κ₂}  (right (l , left f))  = right (λ ρ' v → σ (ren ρ' l ▵ reflectNE ((renNE ρ' f) · (reify v))))
+σ {κ = κ₁ `→ κ₂}  (right (l , right F))  = right (λ ρ' v → σ (ren ρ' l ▵ F ρ' v))
 σ {κ = R[ ★ ]}  (left x)  = σNE x
 σ {κ = R[ ★ ]}  (right (l , τ))  = row (l ▹ (reify (σ {κ = ★} τ )))
 σ {κ = R[ L ]}  (left x)  = σNE x
 σ {κ = R[ L ]}  (right (l , τ))  = row (l ▹ (reify (σ {κ = L} τ )))
 σ {κ = R[ κ₁ `→ κ₂ ]}  (left x)  = σNE x
-σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , left τ))  = _▹_ {κ = κ₁ `→ κ₂} l (σNE {κ = κ₁ `→ κ₂} τ)
-σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , τ))  = _▹_ {κ = κ₁ `→ κ₂} l (σ {κ = κ₁ `→ κ₂} τ)
+σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , left τ))  = _▵_ {κ = κ₁ `→ κ₂} l (σNE {κ = κ₁ `→ κ₂} τ)
+σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , τ))  = _▵_ {κ = κ₁ `→ κ₂} l (σ {κ = κ₁ `→ κ₂} τ)
 σ {κ = R[ R[ κ ] ]}  (left x)  = σNE x
-σ {κ = R[ R[ κ ] ]}  (right (l , left τ))  = _▹_ {κ = R[ κ ]} l (σNE {κ = R[ κ ]} τ)
-σ {κ = R[ R[ κ ] ]}  (right (l , τ))  =  _▹_ {κ = R[ κ ]} l (σ {κ = R[ κ ]} τ)
+σ {κ = R[ R[ κ ] ]}  (right (l , left τ))  = _▵_ {κ = R[ κ ]} l (σNE {κ = R[ κ ]} τ)
+σ {κ = R[ R[ κ ] ]}  (right (l , τ))  =  _▵_ {κ = R[ κ ]} l (σ {κ = R[ κ ]} τ)
 
 
 ----------------------------------------
@@ -155,16 +155,16 @@ _▹_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
 ... | ne τ         = reflectNE ((ne F) <$> τ)
-... | row (l ▹ τ) = _▹_ {κ = κ₂} l (reflectNE (F · τ)) 
+... | row (l ▹ τ) = _▵_ {κ = κ₂} l (reflectNE (F · τ)) 
 _<$>V_ {κ₁ = κ₁} {κ₂} (right F) τ with reify τ 
 ... | ne x = reflectNE (_<$>_ {κ₁ = κ₁} (reify (right F)) x)
-_<$>V_ {κ₁ = ★} {κ₂} (right F) τ               | row (l ▹ τ') = l ▹ (F id τ')
-_<$>V_ {κ₁ = L} {κ₂} (right F) τ                | row (l ▹ τ') = l ▹ (F id τ')
+_<$>V_ {κ₁ = ★} {κ₂} (right F) τ               | row (l ▹ τ') = l ▵ (F id τ')
+_<$>V_ {κ₁ = L} {κ₂} (right F) τ                | row (l ▹ τ') = l ▵ (F id τ')
 _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  | row _ = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , left G)) | row _ = l ▹ (F id (left G))
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , right G)) | row _ = l ▹ (F id (right G))
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , left G)) | row _ = l ▵ (F id (left G))
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , right G)) | row _ = l ▵ (F id (right G))
 _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x) | row _ = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹ (F id τ)
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▵ (F id τ)
 
 ----------------------------------------
 -- Evaluation of neutral terms to Semantic.
@@ -187,7 +187,7 @@ _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹ (
 -- ... | row x = ΠL x
 -- evalNE {κ = κ₁ `→ κ₂} {Δ₁} {Δ₂} (Π τ) η with evalNE τ η 
 -- ... | left x = left (Π x)
--- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▹ F ρ v) )
+-- ... | right (l , F) = right (λ {Δ₃} ρ v → π {κ = κ₂} ((renSem {κ = L} ρ l) ▵ F ρ v) )
 -- evalNE {κ = R[ κ ]} (Π τ) η = π (evalNE τ η) id η
 -- evalNE {κ = R[ κ₂ ] } {Δ₁} {Δ₂} (F <$> x) η = (reflect F η) <$>V (evalNE x η)
 -- evalNE (Σ τ) η = {!   !}
@@ -211,7 +211,7 @@ _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹ (
 -- reflect (ΠL (l ▹ τ)) η = ΠL ((reflect l η) ▹ reflect τ η)
 -- reflect (Σ (l ▹ τ)) η = Σ ((reflect l η) ▹ reflect τ η)
 
--- reflectRow (l ▹ τ) η = (reflect l η) ▹ (reflect τ η)
+-- reflectRow (l ▹ τ) η = (reflect l η) ▵ (reflect τ η)
 
 ----------------------------------------
 -- Type evaluation.
@@ -246,7 +246,7 @@ eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ
 eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v)
 eval {κ = κ₁ `→ κ₂} Σ η = right (λ {Δ₃} ρ v → σ v) 
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
-eval {κ = _} (l ▹ τ) η = (eval l η) ▹ (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▹ v))
+eval {κ = _} (l ▹ τ) η = (eval l η) ▵ (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▵ v))
 
 -- -- ----------------------------------------
 -- -- -- Row evaluation.
