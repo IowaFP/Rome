@@ -174,6 +174,18 @@ App-≋ {V₁ = left x} {right y} () q
 App-≋ {V₁ = right y} {left x} () q
 App-≋ {V₁ = right F} {right G} (unif-F , unif-G , Ext) q = Ext id q           
 
+▹-≋ : ∀ {L₁ L₂ : NormalType Δ L} → 
+           _≋_ {κ = L} L₁ L₂ → 
+           {W₁ W₂ : SemType Δ κ₁} → 
+           W₁ ≋ W₂ → 
+           (L₁ ▹V W₁) ≋ (L₂ ▹V W₂)
+▹-≋ {κ₁ = ★} refl refl = refl
+▹-≋ {κ₁ = L} refl refl = refl
+▹-≋ {κ₁ = κ₁ `→ κ₂} refl {left x} {left x₁} w = refl , w
+▹-≋ {κ₁ = κ₁ `→ κ₂} refl {right F} {right G} ≋W = 
+  refl , ≋W
+▹-≋ {κ₁ = R[ κ₁ ]} refl w = refl , w
+
 --------------------------------------------------------------------------------
 -- renaming respects ≋
 
