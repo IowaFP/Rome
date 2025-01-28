@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Theorems.Completeness where
 
 open import Rome.Operational.Prelude
@@ -16,7 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Renaming
 
-open import Rome.Operational.Types.Theorems.Stability
+-- open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.CompletenessRelation
 open import Rome.Shared.Postulates.FunExt
 
 -------------------------------------------------------------------------------
@@ -186,8 +188,33 @@ nested-π-ne {κ = R[ κ ]} x = refl
 -- --             renSem ρ (eval τ idEnv) ≡ eval (ren ρ τ) (extende (renSem S ∘ idEnv) (reflectNE (` Z)))
 -- -- ↻-weaken {κ'} τ  = {!   !}
 
+fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fund {τ₁ = τ} e eq-refl = idext e τ
+fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
+fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ ∘ e) eq₁) (fund e eq₂)
+fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
+fund {κ = ★} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
+fund {κ = L} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
+fund {κ = κ `→ κ₁} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
+fund {κ = R[ κ ]} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
+fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) eq)
+fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fund e eq
+... | left x | left x₁ | refl = refl
+... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
+fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
+fund e eq-β = {!!}
+fund e eq-Π² = {!!}
+fund e eq-Πℓ² = {!!}
+fund e eq-Πλ = {!!}
+fund e eq-▹$ = {!!}
+fund e eq-assoc-Π = {!!}
+
+idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
+idEnv-≋ x = reflectNE-≋ refl
+
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-completeness eq = {!!} 
+completeness eq = reify-≋ (fund idEnv-≋ eq ) 
+
 -- soundness {κ = ★} (inst-≡t (Π² {l = l} {τ = τ})) = refl
 -- soundness {κ = L} (inst-≡t (Π² {l = l} {τ = τ})) = refl
 -- soundness {κ = κ `→ κ₁} (inst-≡t (Π² {l = l} {τ = τ})) with eval τ idEnv
