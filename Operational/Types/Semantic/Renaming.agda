@@ -50,7 +50,7 @@ renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V
 renSem-id V = {!   !}
 
 
-renSem-comp : ∀ (V : SemType Δ₁ κ) (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) → 
+renSem-comp : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
              (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))
 renSem-comp {κ = κ} V ρ₁ ρ₂ = {!   !}
  
