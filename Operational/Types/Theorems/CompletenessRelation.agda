@@ -245,9 +245,12 @@ cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ�
 cong-π {κ = ★} e = cong (π {κ = ★}) e
 cong-π {κ = L} e = cong (π {κ = L}) e
 cong-π {κ = κ₁ `→ κ₂} {left x} {left x₁} refl = refl
-cong-π {κ = κ₁ `→ κ₂} {right (l , left f)} {right (l , left g)} (refl , refl) = {!   !}
-cong-π {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , eq) = {!   !}
-cong-π {κ = R[ κ ]} e = {!   !}
+cong-π {κ = κ₁ `→ κ₂} {right (l , left f)} {right (l , left g)} (refl , refl) = 
+  (λ ρ₁ ρ₂ V₁ V₂ q → {!!}) ,
+  {!!} ,
+  λ ρ q → (cong-π (▹-≋ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ q))))))
+cong-π {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , eq) = {!!}
+cong-π {κ = R[ κ ]} e = {!!}
 
 --------------------------------------------------------------------------------
 -- id extension

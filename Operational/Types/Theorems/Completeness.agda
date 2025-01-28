@@ -256,12 +256,17 @@ fund {κ = ★} e (eq-Π² {l = l} {τ = τ}) rewrite
 fund {κ = L} e (eq-Π² {l = l} {τ = τ}) rewrite 
     fund e (eq-refl {τ = l}) 
   | fund e (eq-refl {τ = τ}) = refl
-fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
+-- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
+fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) 
+  with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
 ... | left x | left .x | refl = 
   (λ ρ₁ ρ₂ V₁ V₂ q → {!!}) ,
   {!!} ,
-  {!!}
-... | right (l , left f) | right (.l , left .f) | refl , refl = (λ ρ₁ ρ₂ V₁ V₂ x → trans-≋ {!!} {!!}) , ({!!} , {!!})
+  λ ρ V → cong-π (▹-≋ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V))))
+... | right (l' , left f) | right (.l' , left .f) | refl , refl = 
+  (λ ρ₁ ρ₂ V₁ V₂ x → {!!}) , 
+  {!!} , 
+  λ ρ V → cong-π (▹-≋ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (▹-≋ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
 ... | right (l , right F) | right (.l , right G) | refl , eq = {!!}
 fund {κ = R[ κ ]} e eq-Π² = {!!}
 fund e eq-Πℓ² = {!!}
