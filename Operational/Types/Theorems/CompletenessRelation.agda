@@ -365,7 +365,8 @@ cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ�
       reflectNE (renNE (λ x → ρ₁ (ρ x)) F · reify V₁)) 
       (▹-≋ refl (reflNE-≋ (renNE (λ x → ρ₁ (ρ x)) F · reify V₁)))) 
       -- Need to rewrite by renaming composition (ren-comp) but for renSem-R
-    (cong-π {! !}) }) ,
+      -- and in a convoluted painful way under reflectNE
+    (cong-π {!  !}) }) ,
   {! !} ,
   {! !}
 ↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , eq) = {! !}
