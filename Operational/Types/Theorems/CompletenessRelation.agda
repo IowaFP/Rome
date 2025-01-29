@@ -337,6 +337,19 @@ cong-ren-·V {κ₂ = κ₂} ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V�
 --------------------------------------------------------------------------------
 -- Renaming commutes with π
 
+rensem-comp-▹ : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
+                   V₁ ≋ V₂ → renSem-R ρ₂ ((N.ren ρ₁ l) ▹V renSem ρ₁ V₁) ≋ (N.ren (ρ₂ ∘ ρ₁) l ▹V renSem (ρ₂ ∘ ρ₁) V₂)
+rensem-comp-▹ {κ = ★} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
+rensem-comp-▹ {κ = L} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
+rensem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (left f) (left .f) refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = refl , refl
+rensem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (right F) (right G) (Unif-F , Unif-G , Ext) = sym (ren-comp ρ₁ ρ₂ l) , 
+  (λ ρ₃ ρ₄ → Unif-F (λ x → ρ₃ (ρ₂ (ρ₁ x))) ρ₄) , 
+  (λ {Δ₂ = Δ₄} {Δ₃ = Δ₅} ρ₃ → Unif-G (λ x → ρ₃ ((ρ₂ ∘ ρ₁) x))) , 
+  λ {Δ₂ = Δ₄} ρ → Ext (λ x → ρ (ρ₂ (ρ₁ x)))
+rensem-comp-▹ {κ = R[ κ ]} ρ₁ ρ₂ l V₁ V₂ v 
+  rewrite sym (renSem-comp ρ₁ ρ₂ V₁) | sym (renSem-comp ρ₁ ρ₂ V₂) = (sym (ren-comp ρ₁ ρ₂ l)) , sym-≋ (ren-≋ (ρ₂ ∘ ρ₁) (sym-≋ v))
+
+
 cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ₁ ≋ π τ₂
 ↻-ren-π : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (π V₁) ≋ π (renSem ρ V₂) 
 ↻-ren-π {★} ρ (ne x) V₂ refl = refl
@@ -352,11 +365,11 @@ cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ�
       reflectNE (renNE (λ x → ρ₁ (ρ x)) F · reify V₁)) 
       (▹-≋ refl (reflNE-≋ (renNE (λ x → ρ₁ (ρ x)) F · reify V₁)))) 
       -- Need to rewrite by renaming composition (ren-comp) but for renSem-R
-    (cong-π {!!}) }) ,
-  {!!} ,
-  {!!}
-↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , eq) = {!!}
-↻-ren-π {R[ κ ]} ρ V₁ V₂ q = {!!}
+    (cong-π {! !}) }) ,
+  {! !} ,
+  {! !}
+↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , eq) = {! !}
+↻-ren-π {R[ κ ]} ρ V₁ V₂ q = {! !}
 
 --------------------------------------------------------------------------------
 -- pfft
@@ -368,7 +381,7 @@ Unif-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
 Unif-NE {κ₁ = ★} {★} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong Π refl
 Unif-NE {κ₁ = ★} {L} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong ΠL refl
 Unif-NE {κ₁ = ★} {κ₂ `→ κ₃} l f ρ₁ ρ₂ V₁ V₂ refl = 
-  (λ ρ₃ ρ₄ V₃ V₄ q → {!!}) , 
+  (λ ρ₃ ρ₄ V₃ V₄ q → {!  !}) , 
   {!   !} , 
   ext
   where
@@ -416,7 +429,7 @@ cong-π {κ = κ₁ `→ κ₂} {right (l , left f)} {right (.l , left .f)} (ref
   Unif-NE l f , 
   λ ρ q → (cong-π (▹-≋ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ q))))))
 
-cong-π {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , eq) = {! !}
+cong-π {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , eq) = {!  !}
 cong-π {κ = R[ κ ]} e = {!  !}
 
 -- --------------------------------------------------------------------------------
@@ -443,7 +456,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
                evalPred π η₁ ≡ evalPred π η₂
 ↻-ren-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
-↻-ren-eval ρ τ P = {!!}
+↻-ren-eval ρ τ P = {!  !}
 
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     sym (reify-≋ (idext e ρ₁))
