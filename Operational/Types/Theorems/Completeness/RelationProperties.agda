@@ -209,6 +209,7 @@ ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q
   cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = κ₂} ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
   trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋ (sym-≋ r)))))
+              
 
 --------------------------------------------------------------------------------
 -- - Renaming commutes with labeled rows (renSem-comp-▹)
@@ -225,6 +226,13 @@ renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (right F) (right G) (Unif-
   λ {Δ₂ = Δ₄} ρ → Ext (λ x → ρ (ρ₂ (ρ₁ x)))
 renSem-comp-▹ {κ = R[ κ ]} ρ₁ ρ₂ l V₁ V₂ v 
   rewrite sym (renSem-comp ρ₁ ρ₂ V₁) | sym (renSem-comp ρ₁ ρ₂ V₂) = (sym (ren-comp ρ₁ ρ₂ l)) , sym-≋ (ren-≋ (ρ₂ ∘ ρ₁) (sym-≋ v))
+
+↻-ren-▹ : ∀ (ρ : Renaming Δ₁ Δ₂) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
+                   V₁ ≋ V₂ → renSem ρ (l ▹V V₁) ≋ (N.ren ρ l ▹V renSem ρ V₂)
+↻-ren-▹ ρ l V₁ V₂ q  = 
+  trans-≋ 
+    (ren-≋ ρ (cong-▹ (sym (ren-id l)) (sym-≋ (renSem-id-≋ (refl-≋ q))))) 
+    (trans-≋ (renSem-comp-▹ id ρ l V₁ V₂ q) (cong-▹ refl (ren-≋ ρ (refl-≋ (sym-≋ q)))))
 
 ren-comp-Kripke-▹ : ∀ {ρ₁ : Renaming Δ₁ Δ₂} {ρ₂ : Renaming Δ₂ Δ₃} (l : NormalType Δ₁ L) (F G : KripkeFunction Δ₁ κ₁ κ₂) → 
                     (V₁ V₂ : SemType Δ₂ κ₁) → V₁ ≋ V₂ → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right G) → 
@@ -344,15 +352,11 @@ cong-π {κ = R[ R[ κ ] ]} {right (l , left x)} {right (.l , left .x)} (refl , 
 cong-π {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (.l' , G))} (refl , refl , q) = refl , cong-π (refl , q)
 
 -- --------------------------------------------------------------------------------
--- π (which does not use its renaming) is uniform. 
+-- π (which does not use its renaming) is uniform.
 
 
 Unif-π : ∀ {Δ} {κ} → Uniform (π-Kripke {Δ = Δ} {κ = κ})
-Unif-π {κ = ★} ρ₁ ρ₂ V₁ V₂ refl = ↻-ren-π {κ = ★} ρ₂ V₁ V₂ refl
-Unif-π {κ = L} ρ₁ ρ₂ V₁ V₂ refl = ↻-ren-π {κ = L} ρ₂ V₁ V₂ refl
-Unif-π {κ = κ `→ κ₁} ρ₁ ρ₂ V₁ V₂ q = {!   !}
-Unif-π {κ = R[ κ ]} ρ₁ ρ₂ V₁ V₂ q = {!   !}
-
+Unif-π {κ = κ} ρ₁ ρ₂ V₁ V₂ q = ↻-ren-π {κ = κ} ρ₂ V₁ V₂ q
 
 --------------------------------------------------------------------------------
 -- id extension
@@ -391,9 +395,12 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
 ↻-ren-eval ρ (μ τ) e = {!   !}
 ↻-ren-eval ρ (π₁ ⇒ τ) e = {!   !}
 ↻-ren-eval ρ (lab l) e = refl
-↻-ren-eval ρ (l ▹ τ) e = {!   !}
+↻-ren-eval ρ (l ▹ τ) {η₁} {η₂} e = 
+  trans-≋ 
+    (ren-≋ {V₁ = (eval l η₁ ▹V eval τ η₁)} {V₂ =  (eval l η₁ ▹V eval τ η₂)} ρ {!   !}) 
+    (trans-≋ (↻-ren-▹ ρ (eval l η₁) (eval τ η₂) (eval τ η₂) {!   !}) {!   !})
 ↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
-↻-ren-eval ρ Π e = Unif-π , Unif-π , {!   !}
+↻-ren-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
 ↻-ren-eval ρ Σ e = {!   !}
 ↻-ren-eval ρ (τ <$> τ₁) e = {!   !}
 
@@ -449,4 +456,4 @@ idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π =
   ((λ { ρ₁ ρ₂ V₁ V₂ q → ↻-ren-π ρ₂ V₁ V₂ q })) , 
   λ ρ x → cong-π x 
 idext {κ = κ} e Σ = {!   !}        
-idext {κ = κ} e (τ <$> τ₁) = {!   !}       
+idext {κ = κ} e (τ <$> τ₁) = {!   !}        
