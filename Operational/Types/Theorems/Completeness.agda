@@ -18,7 +18,8 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Renaming
 
 -- open import Rome.Operational.Types.Theorems.Stability
-open import Rome.Operational.Types.Theorems.CompletenessRelation
+open import Rome.Operational.Types.Theorems.Completeness.Relation
+open import Rome.Operational.Types.Theorems.Completeness.RelationProperties
 open import Rome.Shared.Postulates.FunExt
 
 -------------------------------------------------------------------------------
@@ -237,19 +238,19 @@ fund {τ₁ = τ} e eq-refl = idext e τ
 fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
 fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ ∘ e) eq₁) (fund e eq₂)
 fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
-fund {κ = ★} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
-fund {κ = L} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
-fund {κ = κ `→ κ₁} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
-fund {κ = R[ κ ]} e (eq-· eq₁ eq₂) = App-≋ (fund e eq₁) (fund e eq₂)
+fund {κ = ★} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
+fund {κ = L} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
+fund {κ = κ `→ κ₁} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
+fund {κ = R[ κ ]} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
 fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) eq)
 fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fund e eq
 ... | left x | left x₁ | refl = refl
 ... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
 fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
 fund e (eq-λ eq) = {! !}
-fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = ▹-≋ refl (fund e eq-τ)
+fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
-fund e eq-β = {!!}
+fund e eq-β = {! !}
 fund {κ = ★} e (eq-Π² {l = l} {τ = τ}) rewrite 
     fund e (eq-refl {τ = l}) 
   | fund e (eq-refl {τ = τ}) = refl
@@ -260,19 +261,19 @@ fund {κ = L} e (eq-Π² {l = l} {τ = τ}) rewrite
 fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) 
   with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
 ... | left x | left .x | refl = 
-  (λ ρ₁ ρ₂ V₁ V₂ q → {!!}) ,
-  {!!} ,
-  λ ρ V → cong-π (▹-≋ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V))))
+  (λ ρ₁ ρ₂ V₁ V₂ q → {! !}) ,
+  {! !} ,
+  λ ρ V → cong-π (cong-▹ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V))))
 ... | right (l' , left f) | right (.l' , left .f) | refl , refl = 
-  (λ ρ₁ ρ₂ V₁ V₂ x → {!!}) , 
-  {!!} , 
-  λ ρ V → cong-π (▹-≋ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (▹-≋ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
-... | right (l , right F) | right (.l , right G) | refl , eq = {!!}
-fund {κ = R[ κ ]} e eq-Π² = {!!}
-fund e eq-Πℓ² = {!!}
-fund e eq-Πλ = {!!}
-fund e eq-▹$ = {!!}
-fund e eq-assoc-Π = {!!}
+  (λ ρ₁ ρ₂ V₁ V₂ x → {! !}) , 
+  {! !} , 
+  λ ρ V → cong-π (cong-▹ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
+... | right (l , right F) | right (.l , right G) | refl , eq = {! !}
+fund {κ = R[ κ ]} e eq-Π² = {! !}
+fund e eq-Πℓ² = {! !}
+fund e eq-Πλ = {! !}
+fund e eq-▹$ = {!  !}
+fund e eq-assoc-Π = {!  !}
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl

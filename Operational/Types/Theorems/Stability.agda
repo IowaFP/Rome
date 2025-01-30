@@ -17,44 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
--- open import Rome.Operational.Types.Theorems.Completeness
-
-open import Rome.Shared.Postulates.FunExt
-
---------------------------------------------------------------------------------
--- Renaming commutes with reflection of neutral types
-
---             
---            ren ρ 
--- Type Δ₁ κ -------------> Type Δ₂ κ 
---  |                        |
---  | reflectNE              | reflectNE
---  |                        |
---  V                        V 
--- SemType Δ₁ κ ----------> SemType Δ₂ κ
---               renSem ρ 
-
-↻-renSem-reflectNE  : 
-  ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
-    (renSem ρ (reflectNE τ)) ≡ (reflectNE (renNE ρ τ))
-↻-renSem-reflectNE {κ = ★} ρ τ = refl
-↻-renSem-reflectNE {κ = L} ρ τ = refl
-↻-renSem-reflectNE {κ = κ `→ κ₁} ρ τ = refl
-↻-renSem-reflectNE {κ = R[ ★ ]} ρ τ = refl
-↻-renSem-reflectNE {κ = R[ L ]} ρ τ = refl
-↻-renSem-reflectNE {κ = R[ κ `→ κ₁ ]} ρ τ = refl
-↻-renSem-reflectNE {κ = R[ R[ κ ] ]} ρ τ = refl
-
---------------------------------------------------------------------------------
--- idext 
---
--- Evaluating types in equal contexts yields equal semantic types
--- (modulo functional extensionality)
-
-idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} {κ} → 
-        (∀ {κ : Kind} (x : KVar Δ₁ κ) → η₁ x ≡ η₂ x) → 
-        (τ : Types.Type Δ₁ κ)  → eval τ η₁ ≡ eval τ η₂
-idext {η₁ = η₁} {η₂} q τ = cong₂ eval {x = τ} refl (extensionality-i (extensionality q))
+open import Rome.Operational.Types.Theorems.Completeness.Relation
+open import Rome.Operational.Types.Theorems.Completeness.RelationProperties
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -108,11 +72,11 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       ≡ τ
 
 stability-β {Δ = Δ} τ = 
-    trans 
-        (cong reify 
-            (idext (λ { {κ} Z → refl
-                       ; {κ} (S x) → ↻-renSem-reflectNE S (` x) }) (⇑ τ)))
-        (stability τ)
+    trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+    where
+        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))) idEnv
+        η Z = reflectNE-≋ refl
+        η (S x) = ↻-ren-reflectNE S (` x)
   
 stability Unit = refl
 stability {κ = ★} (ne x)       = stabilityNE x
@@ -165,3 +129,4 @@ surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
      
      
+ 
