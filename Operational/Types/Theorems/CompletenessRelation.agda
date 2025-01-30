@@ -254,6 +254,14 @@ ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q
 ↻-ren-reflectNE {κ = R[ κ `→ κ₁ ]} ρ τ = refl
 ↻-ren-reflectNE {κ = R[ R[ κ ] ]} ρ τ = refl
 
+↻-ren-reflectNE-▹  : 
+  ∀ (ρ : Renaming Δ₁ Δ₂) (l : NormalType Δ₁ L) (τ : NeutralType Δ₁ κ) → 
+    _≋_ {κ = R[ κ ]} (renSem-R ρ (l ▹V (reflectNE τ)))  (N.ren ρ l ▹V (reflectNE (renNE ρ τ)))
+↻-ren-reflectNE-▹ {κ = ★} ρ l τ = refl
+↻-ren-reflectNE-▹ {κ = L} ρ l τ = refl
+↻-ren-reflectNE-▹ {κ = κ `→ κ₁} ρ l τ = refl , refl
+↻-ren-reflectNE-▹ {κ = R[ κ ]} ρ l τ = refl , (↻-ren-reflectNE ρ τ)
+
 --------------------------------------------------------------------------------
 -- Renaming commutes with reification.
 
@@ -366,23 +374,23 @@ cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ�
       (▹-≋ refl (reflNE-≋ (renNE (λ x → ρ₁ (ρ x)) F · reify V₁)))) 
       -- Need to rewrite by renaming composition (ren-comp) but for renSem-R
       -- and in a convoluted painful way under reflectNE
-    (cong-π {!  !}) }) ,
+    (cong-π {! ↻-ren-reflectNE-▹ !}) }) ,
   {! !} ,
   {! !}
-↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , eq) = {! !}
+↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , eq) = {!   !}
 ↻-ren-π {R[ κ ]} ρ V₁ V₂ q = {! !}
 
 --------------------------------------------------------------------------------
 -- pfft
 
-Unif-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) → 
+Unif-NE : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
             Uniform (λ ρ' v → π (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
 
 
 Unif-NE {κ₁ = ★} {★} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong Π refl
 Unif-NE {κ₁ = ★} {L} l f ρ₁ ρ₂ V₁ V₂ refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = cong ΠL refl
 Unif-NE {κ₁ = ★} {κ₂ `→ κ₃} l f ρ₁ ρ₂ V₁ V₂ refl = 
-  (λ ρ₃ ρ₄ V₃ V₄ q → {!  !}) , 
+  (λ ρ₃ ρ₄ V₃ V₄ q → {! ↻-ren-reflectNE-▹  !}) , 
   {!   !} , 
   ext
   where
@@ -517,3 +525,4 @@ idext {κ = κ} e (τ <$> τ₁) = {!   !}
    
  
   
+ 
