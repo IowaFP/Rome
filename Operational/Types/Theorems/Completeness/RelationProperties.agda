@@ -344,21 +344,32 @@ cong-π {κ = R[ R[ κ ] ]} {right (l , left x)} {right (.l , left .x)} (refl , 
 cong-π {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (.l' , G))} (refl , refl , q) = refl , cong-π (refl , q)
 
 -- --------------------------------------------------------------------------------
--- -- id extension
--- --
--- -- Lemma needed for semantic renaming commutation theorem.
--- -- States that if we evaluate a single term in related environments, we get related results.
--- -- 
--- -- Mutually recursive with commutativity of semantic renaming and evaluation (↻-ren-eval):
+-- π (which does not use its renaming) is uniform. 
 
--- --            eval in (renSem (ρ ∘ η₂))
--- --  Type Δ₁ κ  ------
--- --  |                \            
--- --  | eval in η₁       \          
--- --  |                    \          
--- --  V                      V        
--- -- NormalType Δ₂ κ ----------> SemType Δ₂ κ
--- --                  renSem ρ 
+
+Unif-π : ∀ {Δ} {κ} → Uniform (π-Kripke {Δ = Δ} {κ = κ})
+Unif-π {κ = ★} ρ₁ ρ₂ V₁ V₂ refl = ↻-ren-π {κ = ★} ρ₂ V₁ V₂ refl
+Unif-π {κ = L} ρ₁ ρ₂ V₁ V₂ refl = ↻-ren-π {κ = L} ρ₂ V₁ V₂ refl
+Unif-π {κ = κ `→ κ₁} ρ₁ ρ₂ V₁ V₂ q = {!   !}
+Unif-π {κ = R[ κ ]} ρ₁ ρ₂ V₁ V₂ q = {!   !}
+
+
+--------------------------------------------------------------------------------
+-- id extension
+--
+-- Lemma needed for semantic renaming commutation theorem.
+-- States that if we evaluate a single term in related environments, we get related results.
+-- 
+-- Mutually recursive with commutativity of semantic renaming and evaluation (↻-ren-eval):
+
+--            eval in (renSem (ρ ∘ η₂))
+--  Type Δ₁ κ  ------
+--  |                \            
+--  | eval in η₁       \          
+--  |                    \          
+--  V                      V        
+-- NormalType Δ₂ κ ----------> SemType Δ₂ κ
+--                  renSem ρ 
 
 
 ↻-ren-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
@@ -368,7 +379,23 @@ idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Ty
 idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Δ₁ R[ κ ]) →
                evalPred π η₁ ≡ evalPred π η₂
 
-↻-ren-eval ρ τ P = {!  !}
+↻-ren-eval ρ Unit e = refl
+↻-ren-eval {κ = κ} ρ (` α) e = ren-≋ ρ (e α)
+↻-ren-eval ρ (`λ τ) e = {!   !}
+↻-ren-eval {κ = .κ₂} ρ (_·_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {η₁} {η₂} e = 
+  trans-≋
+    (↻-ren-app ρ (idext (refl-≋ ∘ e) τ₁) (idext (refl-≋ ∘ e) τ₂))     
+    (cong-App (↻-ren-eval ρ τ₁ e) (↻-ren-eval ρ τ₂ e))
+↻-ren-eval ρ (τ₁ `→ τ₂) e = cong₂ _`→_ (↻-ren-eval ρ τ₁ e) (↻-ren-eval ρ τ₂ e)
+↻-ren-eval ρ (`∀ κ τ) e = {!  !}
+↻-ren-eval ρ (μ τ) e = {!   !}
+↻-ren-eval ρ (π₁ ⇒ τ) e = {!   !}
+↻-ren-eval ρ (lab l) e = refl
+↻-ren-eval ρ (l ▹ τ) e = {!   !}
+↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
+↻-ren-eval ρ Π e = Unif-π , Unif-π , {!   !}
+↻-ren-eval ρ Σ e = {!   !}
+↻-ren-eval ρ (τ <$> τ₁) e = {!   !}
 
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     sym (reify-≋ (idext e ρ₁))
@@ -421,5 +448,5 @@ idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π =
   (λ { ρ₁ ρ₂ V₁ V₂ q → ↻-ren-π ρ₂ V₁ V₂ q }) , 
   ((λ { ρ₁ ρ₂ V₁ V₂ q → ↻-ren-π ρ₂ V₁ V₂ q })) , 
   λ ρ x → cong-π x 
-idext {κ = κ} e Σ = {!   !}       
-idext {κ = κ} e (τ <$> τ₁) = {!   !}      
+idext {κ = κ} e Σ = {!   !}        
+idext {κ = κ} e (τ <$> τ₁) = {!   !}       

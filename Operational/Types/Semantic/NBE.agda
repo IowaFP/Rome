@@ -116,6 +116,9 @@ _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 π {κ = R[ R[ κ ] ]}  (right (l , left τ))   = _▹V_ {κ                = R[ κ ]} l (πNE {κ   = R[ κ ]} τ)
 π {κ = R[ R[ κ ] ]} (right (l , τ))  =  _▹V_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ)
 
+π-Kripke : KripkeFunction Δ R[ κ ] κ
+π-Kripke ρ v = π v
+
 --------------------------------------------------------------------------------
 -- Semantic combinator for Σ
 
@@ -175,10 +178,11 @@ evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
 
-eval {κ = ★} (` x) η = η x
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+
 eval {κ = ★} Unit η  = Unit
-eval {κ = ★} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
-eval {κ = ★} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
 eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
 eval {κ = ★} (μ τ) η with eval τ η 
@@ -190,16 +194,12 @@ eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 ----------------------------------------
 -- Label evaluation.
 
-eval {κ = L} (` x) η = η x
-eval {κ = L} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = L} (lab l) η = lab l
 
 ----------------------------------------
 -- function evaluation.
 
-eval {κ = κ₁ `→ κ₂} (` x) η = η x
 eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
-eval {κ = κ₁ `→ κ₂} (τ₁ · τ₂) η =  (eval τ₁ η) ·V (eval τ₂ η)
 
 ----------------------------------------
 -- Type constants
@@ -207,12 +207,6 @@ eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v)
 eval {κ = κ₁ `→ κ₂} Σ η = right (λ {Δ₃} ρ v → σ v) 
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▹V v))
-
--- -- ----------------------------------------
--- -- -- Row evaluation.
-
-eval {κ = R[ κ ]} (` x) η = η x
-eval {κ = R[ κ ]} (τ₁ · τ₂) η = eval τ₁ η ·V eval τ₂ η
 
 --------------------------------------------------------------------------------
 -- Type normalization
