@@ -10,7 +10,8 @@ import Rome.Operational.Types.Properties as TypeProps
 open TypeProps using (lift-cong ; lift-id ; lift-comp)
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
-open import Rome.Operational.Types.Normal
+open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.Renaming
 
 --------------------------------------------------------------------------------
 -- Renaming respects congruence of Renamings
