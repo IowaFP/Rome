@@ -236,7 +236,7 @@ fund-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
 
 fund {τ₁ = τ} e eq-refl = idext e τ
 fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
-fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ ∘ e) eq₁) (fund e eq₂)
+fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋l ∘ e) eq₁) (fund e eq₂)
 fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
 fund {κ = ★} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
 fund {κ = L} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)

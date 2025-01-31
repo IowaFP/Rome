@@ -166,7 +166,7 @@ ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q
           (↻-ren-reflectNE (lift ρ) (` Z))) ⟩∎))))
   where
     G≋G : _≋_ {κ = κ₁ `→ κ₂} (right G) (right G)
-    G≋G = refl-≋ {κ = κ₁ `→ κ₂} {V₁ = right G} {V₂ = right F} (sym-≋ {κ = κ₁ `→ κ₂} {τ₁ = right F} {τ₂ = right G} q)
+    G≋G = refl-≋l {κ = κ₁ `→ κ₂} {V₁ = right G} {V₂ = right F} (sym-≋ {κ = κ₁ `→ κ₂} {τ₁ = right F} {τ₂ = right G} q)
 
 ↻-ren-reify {κ = ★} ρ {V₁} {V₂} refl = refl
 ↻-ren-reify {κ = L} ρ {V₁} {V₂} refl = refl
@@ -194,21 +194,21 @@ ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q
 ↻-ren-app {κ₂ = L} ρ {left x} {right y} () r
 ↻-ren-app {κ₂ = L} ρ {right y} {left x} () r
 ↻-ren-app {κ₂ = ★} ρ {left x} {left .x} refl r = 
-  cong (ne ∘ (renNE ρ x ·_)) (trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))
+  cong (ne ∘ (renNE ρ x ·_)) (trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = L} ρ {left x} {left .x} refl r = 
-  cong (ne ∘ (renNE ρ x ·_)) (trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))
+  cong (ne ∘ (renNE ρ x ·_)) (trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = κ₂ `→ κ₃} ρ {left τ} {left .τ} refl r = 
-  cong (renNE ρ τ ·_) ((trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r))))
+  cong (renNE ρ τ ·_) ((trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r))))
 ↻-ren-app {κ₂ = R[ ★ ]} ρ {left f} {left .f} refl r = 
-  cong ne (cong (renNE ρ f ·_) ((trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))))
+  cong ne (cong (renNE ρ f ·_) ((trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))))
 ↻-ren-app {κ₂ = R[ L ]} ρ {left f} {left .f} refl r = 
-  cong ne (cong (renNE ρ f ·_) ((trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))))
+  cong ne (cong (renNE ρ f ·_) ((trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))))
 ↻-ren-app {κ₂ = R[ κ₂ `→ κ₃ ]} ρ {left f} {left .f} refl r = 
-  cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))
+  cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = R[ R[ κ₂ ] ]} ρ {left f} {left .f} refl r = 
-  cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋ r)) (reify-≋ (ren-≋ ρ r)))
+  cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋l r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = κ₂} ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
-  trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋ (sym-≋ r)))))
+  trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋l (sym-≋ r)))))
               
 
 --------------------------------------------------------------------------------
@@ -233,19 +233,7 @@ renSem-comp-▹ : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ�
 renSem-comp-▹ ρ₁ ρ₂ l V₁ V₂ q = 
   trans-≋ 
   (↻-ren-▹ ρ₂ (N.ren ρ₁ l) (renSem ρ₁ V₁) (renSem ρ₁ V₂) (ren-≋ ρ₁ q)) 
-  (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ (sym-≋ q)))))
-
--- renSem-comp-▹ {κ = ★} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
--- renSem-comp-▹ {κ = L} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
--- renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (left f) (left .f) refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = refl , refl
--- renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (right F) (right G) (Unif-F , Unif-G , Ext) = sym (ren-comp ρ₁ ρ₂ l) , 
---   (λ ρ₃ ρ₄ → Unif-F (λ x → ρ₃ (ρ₂ (ρ₁ x))) ρ₄) , 
---   (λ {Δ₂ = Δ₄} {Δ₃ = Δ₅} ρ₃ → Unif-G (λ x → ρ₃ ((ρ₂ ∘ ρ₁) x))) , 
---   λ {Δ₂ = Δ₄} ρ → Ext (λ x → ρ (ρ₂ (ρ₁ x)))
--- renSem-comp-▹ {κ = R[ κ ]} ρ₁ ρ₂ l V₁ V₂ v 
---   rewrite sym (renSem-comp ρ₁ ρ₂ V₁) | sym (renSem-comp ρ₁ ρ₂ V₂) = (sym (ren-comp ρ₁ ρ₂ l)) , sym-≋ (ren-≋ (ρ₂ ∘ ρ₁) (sym-≋ v
-  -- ))
-
+  (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋l (sym-≋ q)))))
 
 ren-comp-Kripke-▹ : ∀ {ρ₁ : Renaming Δ₁ Δ₂} {ρ₂ : Renaming Δ₂ Δ₃} (l : NormalType Δ₁ L) (F G : KripkeFunction Δ₁ κ₁ κ₂) → 
                     (V₁ V₂ : SemType Δ₂ κ₁) → V₁ ≋ V₂ → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right G) → 
@@ -253,7 +241,7 @@ ren-comp-Kripke-▹ : ∀ {ρ₁ : Renaming Δ₁ Δ₂} {ρ₂ : Renaming Δ₂
 ren-comp-Kripke-▹ {κ₁ = κ₁} {κ₂} {ρ₁} {ρ₂} l F G V₁ V₂ q (Unif-F , Unif-G , Ext) rewrite sym (ren-id (N.ren ρ₁ l)) | sym (renSem-id (F ρ₁ V₁)) = 
      trans-≋ 
       (renSem-comp-▹ id ρ₂ (N.ren ρ₁ l) (F ρ₁ V₁) (G ρ₁ V₂) (Ext ρ₁ q)) 
-      (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (Unif-G ρ₁ (ρ₂ ∘ id) V₂ V₂ (refl-≋ (sym-≋ q))))
+      (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (Unif-G ρ₁ (ρ₂ ∘ id) V₂ V₂ (refl-≋l (sym-≋ q))))
 
 --------------------------------------------------------------------------------
 -- - Uniformity is preserved under renaming (ren-Uniform)
@@ -335,7 +323,7 @@ Unif-NE-π▹· l f ρ₁ ρ₂ V₁ V₂ q =
 
 Unif-π▹· l F e@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ V₂ q = 
   renSem ρ₂ (π (N.ren ρ₁ l ▹V F ρ₁ V₁)) 
-  ≋⟨ (↻-ren-π ρ₂ (N.ren ρ₁ l ▹V F ρ₁ V₁) (N.ren ρ₁ l ▹V F ρ₁ V₁) (cong-▹ refl (Ext ρ₁ (refl-≋ q)))) ⟩ 
+  ≋⟨ (↻-ren-π ρ₂ (N.ren ρ₁ l ▹V F ρ₁ V₁) (N.ren ρ₁ l ▹V F ρ₁ V₁) (cong-▹ refl (Ext ρ₁ (refl-≋l q)))) ⟩ 
   cong-π (ren-comp-Kripke-▹ l F F V₁ V₂ q (Unif-F , Unif-F , Ext))
 
 cong-π {κ = ★} e = cong (π {κ = ★}) e
@@ -391,27 +379,64 @@ Unif-π {κ = κ} ρ₁ ρ₂ V₁ V₂ q = ↻-ren-π {κ = κ} ρ₂ V₁ V₂
 
 ↻-ren-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
+↻-ren-eval-pred : ∀ (ρ : Renaming Δ₂ Δ₃) (π : Pred Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+                  (Ρ : Env-≋ η₁ η₂) → (N.renPred ρ (evalPred π η₁)) ≡ evalPred π (renSem ρ ∘ η₂)
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
 idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Δ₁ R[ κ ]) →
                evalPred π η₁ ≡ evalPred π η₂
 
+↻-ren-eval-pred ρ (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} P rewrite 
+    ↻-ren-reify ρ (idext (refl-≋l ∘ P) ρ₁) | reify-≋ (↻-ren-eval ρ ρ₁ P)
+  | ↻-ren-reify ρ (idext (refl-≋l ∘ P) ρ₂) | reify-≋ (↻-ren-eval ρ ρ₂ P)  
+  | ↻-ren-reify ρ (idext (refl-≋l ∘ P) ρ₃) | reify-≋ (↻-ren-eval ρ ρ₃ P)  = refl
+↻-ren-eval-pred ρ (ρ₁ ≲ ρ₂) P rewrite
+    ↻-ren-reify ρ (idext (refl-≋l ∘ P) ρ₁) | reify-≋ (↻-ren-eval ρ ρ₁ P)
+  | ↻-ren-reify ρ (idext (refl-≋l ∘ P) ρ₂) | reify-≋ (↻-ren-eval ρ ρ₂ P)  = refl
+
 ↻-ren-eval ρ Unit e = refl
 ↻-ren-eval {κ = κ} ρ (` α) e = ren-≋ ρ (e α)
-↻-ren-eval ρ (`λ τ) e = {!   !}
+↻-ren-eval ρ₁ (`λ τ) {η₁} {η₂} e = 
+  (λ ρ₂ ρ₃ V₁ V₂ v → 
+    trans-≋ 
+      (↻-ren-eval ρ₃ τ (extend-≋ {η₂ = renSem (ρ₂ ∘ ρ₁) ∘ η₂}  (λ x → ren-≋ (ρ₂ ∘ ρ₁) (e x)) v)) 
+      (idext (λ { Z → ren-≋ ρ₃ (refl-≋l (sym-≋ v)) ; (S x) → sym-≋ (ren-comp-≋ (ρ₂ ∘ ρ₁) ρ₃ (e x)) }) τ)) ,
+  (λ ρ₂ ρ₃ V₁ V₂ v → 
+    trans-≋ 
+      (↻-ren-eval ρ₃ τ (extend-≋ {η₂ = renSem ρ₂ ∘ (renSem ρ₁ ∘ η₂)}  (λ x → ren-≋ ρ₂ (sym-≋ (ren-≋ ρ₁ (refl-≋l (sym-≋ (e x)))))) v)) 
+      (idext 
+        (λ {     Z → ren-≋ ρ₃ (refl-≋l (sym-≋ v)) 
+           ; (S x) → sym-≋ (ren-comp-≋ ρ₂ ρ₃ (ren-≋ ρ₁ (refl-≋l (sym-≋ (e x))))) }) τ)) ,
+  λ ρ₂ q → idext (λ { Z → q ; (S x) → ren-comp-≋ ρ₁ ρ₂ (e x) }) τ
 ↻-ren-eval {κ = .κ₂} ρ (_·_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {η₁} {η₂} e = 
   trans-≋
-    (↻-ren-app ρ (idext (refl-≋ ∘ e) τ₁) (idext (refl-≋ ∘ e) τ₂))     
+    (↻-ren-app ρ (idext (refl-≋l ∘ e) τ₁) (idext (refl-≋l ∘ e) τ₂))     
     (cong-App (↻-ren-eval ρ τ₁ e) (↻-ren-eval ρ τ₂ e))
 ↻-ren-eval ρ (τ₁ `→ τ₂) e = cong₂ _`→_ (↻-ren-eval ρ τ₁ e) (↻-ren-eval ρ τ₂ e)
-↻-ren-eval ρ (`∀ κ τ) e = {!  !}
-↻-ren-eval ρ (μ τ) e = {!   !}
-↻-ren-eval ρ (π₁ ⇒ τ) e = {!   !}
+↻-ren-eval ρ (`∀ κ τ) {η₁} {η₂} e = cong (`∀ κ) 
+  (trans 
+    (↻-ren-eval (lift ρ) τ {↑e η₁} {↑e η₂} 
+      (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl))) 
+    (idext E τ))
+  where
+    E : Env-≋ (renSem (lift ρ) ∘ ↑e {κ = κ} η₂) (↑e (renSem ρ ∘ η₂))
+    E Z = ↻-ren-reflectNE (lift ρ) (` Z)
+    E (S x) = 
+      trans-≋ 
+        (sym-≋ (ren-comp-≋ S (lift ρ) (refl-≋l (sym-≋ (e x))))) 
+        (ren-comp-≋ ρ S (refl-≋r (e x)))
+↻-ren-eval ρ (μ τ) {η₁} {η₂} e = cong μ 
+  (trans 
+    (↻-ren-reify ρ {eval τ η₁} {eval τ η₂} (idext e τ)) 
+    (reify-≋ (↻-ren-eval ρ τ (refl-≋r ∘ e))))
+↻-ren-eval ρ (π ⇒ τ) e = cong₂ _⇒_ (↻-ren-eval-pred ρ π e) (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ (lab l) e = refl
 ↻-ren-eval ρ (l ▹ τ) {η₁} {η₂} e = 
   trans-≋ 
-    (ren-≋ {V₁ = (eval l η₁ ▹V eval τ η₁)} {V₂ =  (eval l η₁ ▹V eval τ η₂)} ρ {!   !}) 
-    (trans-≋ (↻-ren-▹ ρ (eval l η₁) (eval τ η₂) (eval τ η₂) {!   !}) {!   !})
+    (ren-≋ {V₁ = (eval l η₁ ▹V eval τ η₁)} {V₂ = (eval l η₁ ▹V eval τ η₂)} ρ (cong-▹ refl (idext e τ))) 
+    (trans-≋ 
+      (↻-ren-▹ ρ (eval l η₁) (eval τ η₂) (eval τ η₂) (refl-≋l (sym-≋ (idext e τ)))) 
+      (cong-▹ (↻-ren-eval ρ l e) (↻-ren-eval ρ τ (refl-≋l ∘ sym-≋ ∘ e))))
 ↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
 ↻-ren-eval ρ Σ e = {!   !}
@@ -434,17 +459,17 @@ idext {κ = κ} e (`λ τ) =
   (λ ρ₁ ρ₂ V₁ V₂ q → 
     trans-≋ 
       (↻-ren-eval ρ₂ τ 
-        (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ ∘ e) q))
+        (extend-≋ (ren-≋ ρ₁ ∘ refl-≋l ∘ e) q))
       (idext 
-        (λ { Z → ren-≋ ρ₂ (refl-≋ (sym-≋ q))
-           ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ (e x))) }) τ)) ,
+        (λ { Z → ren-≋ ρ₂ (refl-≋l (sym-≋ q))
+           ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋l (e x))) }) τ)) ,
   (λ ρ₁ ρ₂ V₁ V₂ q → 
     trans-≋ 
       (↻-ren-eval ρ₂ τ 
-        (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ ∘ sym-≋ ∘ e) q))
+        (extend-≋ (ren-≋ ρ₁ ∘ refl-≋l ∘ sym-≋ ∘ e) q))
       (idext 
-        (λ { Z → ren-≋ ρ₂ (refl-≋ (sym-≋ q))
-           ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ (sym-≋ (e x)))) }) τ)) , 
+        (λ { Z → ren-≋ ρ₂ (refl-≋l (sym-≋ q))
+           ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋r (e x))) }) τ)) , 
   λ ρ q → idext (extend-≋ (ren-≋ ρ ∘ e) q) τ
 idext {κ = ★} e (τ₁ · τ₂) = cong-App (idext e τ₁) (idext e τ₂)
 idext {κ = L} e (τ₁ · τ₂) = cong-App (idext e τ₁) (idext e τ₂)

@@ -71,11 +71,12 @@ extend-≋ p q (S v) = p v
 
 --------------------------------------------------------------------------------
 -- Semantic equality forms a PER
--- - Kind of reflexive
+-- - Kind of reflexive (as not all SemTypes satisfy Uniformity.)
 -- - symmetric
 -- - transitive
 
-refl-≋ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₁ ≋ V₁
+refl-≋l : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₁ ≋ V₁
+refl-≋r : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₂ ≋ V₂
 sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
 trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
 
@@ -94,7 +95,8 @@ sym-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 sym-≋ {κ = R[ R[ κ ] ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , eq) = refl , sym-≋ eq 
 
 
-refl-≋ q = trans-≋ q (sym-≋ q)
+refl-≋l q = trans-≋ q (sym-≋ q)
+refl-≋r q = refl-≋l (sym-≋ q)
 
 trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
@@ -103,7 +105,7 @@ trans-≋ {κ = κ₁ `→ κ₂} {right F} {right G} {right H}
   (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
     unif-F , 
     unif-H , 
-    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ (sym-≋ q)))
+    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋l (sym-≋ q)))
 trans-≋ {κ = R[ ★ ]} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = R[ L ]} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {left _} {left _} refl q₂ = q₂
@@ -117,10 +119,10 @@ trans-≋ {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} {τ₃ = right (.
 -- Pointwise extensionality (accordingly) forms a PER
 
 refl-Ext : ∀ (F G : KripkeFunction Δ₁ κ₁ κ₂) → Extensionality-≋ F G → Extensionality-≋ F F
-refl-Ext F G Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋ (sym-≋ q))))
+refl-Ext F G Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋l (sym-≋ q))))
 
 sym-Ext : ∀ (F G : KripkeFunction Δ₁ κ₁ κ₂) → Extensionality-≋ F G → Extensionality-≋ G F
-sym-Ext F G Ext ρ q = trans-≋ (refl-≋ (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
+sym-Ext F G Ext ρ q = trans-≋ (refl-≋l (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
 
 --------------------------------------------------------------------------------
 -- Reasoning
@@ -150,24 +152,24 @@ renSem-id-≋ {κ = κ `→ κ₁} {left f} {left .f} refl = ren-id-ne f
 renSem-id-≋ {κ = κ `→ κ₁} {right F} {right G} e = e
 renSem-id-≋ {κ = R[ κ ]} {V₁} e rewrite renSem-id V₁ = e
 
-renSem-comp-≋  : ∀ (ρ₁ : Renaming Δ₁ Δ₂)(ρ₂ : Renaming Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
+ren-comp-≋  : ∀ (ρ₁ : Renaming Δ₁ Δ₂)(ρ₂ : Renaming Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
-renSem-comp-≋ {κ = ★} ρ₁ ρ₂ refl = ren-comp _ _ _
-renSem-comp-≋ {κ = L} ρ₁ ρ₂ refl = ren-comp _ _ _
-renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne ρ₁ ρ₂ _
-renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {right F} {right G} (Unif-F , Unif-G , Ext) = 
+ren-comp-≋ {κ = ★} ρ₁ ρ₂ refl = ren-comp _ _ _
+ren-comp-≋ {κ = L} ρ₁ ρ₂ refl = ren-comp _ _ _
+ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne ρ₁ ρ₂ _
+ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {right F} {right G} (Unif-F , Unif-G , Ext) = 
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-renSem-comp-≋ {κ = R[ ★ ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
-renSem-comp-≋ {κ = R[ L ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
-renSem-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
-renSem-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , left _)} {right (.l , left _)} (refl , refl) = (ren-comp _ _ _) , (ren-comp-ne _ _ _)
-renSem-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , right y)} {right (.l , right y₁)} (refl , Unif-F , Unif-G , Ext) = 
+ren-comp-≋ {κ = R[ ★ ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
+ren-comp-≋ {κ = R[ L ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
+ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
+ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , left _)} {right (.l , left _)} (refl , refl) = (ren-comp _ _ _) , (ren-comp-ne _ _ _)
+ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , right y)} {right (.l , right y₁)} (refl , Unif-F , Unif-G , Ext) = 
   (ren-comp _ _ _) , 
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-renSem-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
-renSem-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {right (l , F)} {right (.l , G)} (refl , q)  = (ren-comp _ _ _) , (renSem-comp-≋ _ _ q)
+ren-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
+ren-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {right (l , F)} {right (.l , G)} (refl , q)  = (ren-comp _ _ _) , (ren-comp-≋ _ _ q)
 

@@ -185,9 +185,7 @@ eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 eval {κ = ★} Unit η  = Unit
 eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
 eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
-eval {κ = ★} (μ τ) η with eval τ η 
-... | left F = μ (ne F)
-... | right F = μ (`λ (F S (ne (` Z)))) 
+eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
 
