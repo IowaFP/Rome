@@ -135,11 +135,18 @@ data _≡t_ where
         ----------------------------
         ((`λ τ₁) · τ₂) ≡t (τ₁ β[ τ₂ ])
 
+    eq-Π : ∀ {l} {τ : Type Δ R[ κ ]} → 
+
+         ----------------------------
+         Π · (l ▹ τ) ≡t (l ▹ (Π · τ))
+
+    -- implied by eq-Π
     eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
 
          ----------------------------
          Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
     
+    -- implied by eq-Π
     eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ R[ κ ]} → 
 
         -------------------------------------------
@@ -166,67 +173,11 @@ nested-π-ne {κ = L} x = refl
 nested-π-ne {κ = κ `→ κ₁} x = refl
 nested-π-ne {κ = R[ κ ]} x = refl
 
--- -- ↻-ren-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) (η₁ : Env Δ₁ Δ₂) (η₂ : Env Δ₃ Δ₃) → 
--- --                 η₁ ≡ η₂ → (renSem ρ (eval τ η₁)) ≡ eval τ (renSem ρ ∘ η₂)
--- -- ↻-ren-eval ρ τ η₁ η₂ q = {!   !}
 
--- ↻-ren-reify : ∀ (ρ : Renaming Δ₁ Δ₂) → (v : SemType Δ₁ κ) → 
---               NR.ren ρ (reify v) ≡ reify (renSem ρ v)
--- ↻-ren-reify {κ = ★} ρ v = refl
--- ↻-ren-reify {κ = L} ρ v = refl
--- ↻-ren-reify {κ = κ₁ `→ κ₂} ρ (left x) = refl
--- -- I think I found where I need uniformity.
--- ↻-ren-reify {κ = κ₁ `→ κ₂} ρ (right F) = cong `λ (trans (↻-ren-reify (lift ρ) (F S (reflectNE (` Z)))) (cong reify {!   !}))
--- ↻-ren-reify {κ = R[ κ ]} ρ v = {!   !}              
-
--- ↻-ren-eval : ∀ (ρ : Renaming Δ₂ Δ₃) (τ : Type Δ₁ κ) (η : Env Δ₁ Δ₂) → 
---                 (renSem ρ (eval τ η)) ≡ eval τ (renSem ρ ∘ η)
--- ↻-ren-eval {κ = κ} ρ Unit η = refl
--- ↻-ren-eval {κ = ★} ρ (` α) η = refl
--- ↻-ren-eval {κ = L} ρ (` α) η = refl
--- ↻-ren-eval {κ = κ `→ κ₁} ρ (` α) η = refl
--- ↻-ren-eval {κ = R[ κ ]} ρ (` α) η = refl
--- ↻-ren-eval {κ = κ} ρ (`λ τ) η = cong right 
---     (extensionality-i (extensionality 
---         (λ ρ' → extensionality 
---             (λ v → idext (λ { Z → refl
---                             ; (S x) → renSem-comp (η x) ρ ρ' }) τ))))
--- ↻-ren-eval {κ = ★} ρ (_·_ {κ₁} τ₁ τ₂) η 
---     with eval τ₁ (λ x → renSem ρ (η x)) 
---     | sym (↻-ren-eval ρ τ₁ η) 
---     | eval τ₂ (λ x → renSem ρ (η x)) 
---     | sym (↻-ren-eval ρ τ₂ η) 
---     | eval τ₁ η 
---     | inspect (λ x → eval x η) τ₁ 
---     | eval τ₂ η
---     | inspect (λ x → eval x η) τ₂ 
--- ... | c | refl | d | refl | left x | [ eq₁ ] | g | [ eq₂ ] rewrite eq₁ | eq₂  = cong ne (cong₂ _·_ refl (↻-ren-reify ρ g))
--- ... | c | refl | d | refl | right y | pfft | g | p2  = {!   !} 
--- ↻-ren-eval {κ = L} ρ (_·_ {κ₁} τ₁ τ₂) η = {!   !}
--- ↻-ren-eval {κ = κ `→ κ₂} ρ (_·_ {κ₁} τ₁ τ₂) η = {!   !}
--- ↻-ren-eval {κ = R[ κ ]} ρ (_·_ {κ₁} τ₁ τ₂) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (τ₁ `→ τ₂) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (`∀ κ₁ τ) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (μ τ) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (π₁ ⇒ τ) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (lab l) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (τ₁ ▹ τ₂) η = {!   !}
--- ↻-ren-eval {κ = κ} ρ ⌊ τ ⌋ η = {!   !}
--- ↻-ren-eval {κ = κ} ρ Π η = {!   !}
--- ↻-ren-eval {κ = κ} ρ Σ η = {!   !}
--- ↻-ren-eval {κ = κ} ρ (τ <$> τ₁) η = {!   !}
-
--- ↻-weaken : ∀ (τ : Type Δ₁ κ) {κ'} → 
---             eval τ (weakenSem {κ₂ = κ'} ∘ idEnv) ≡ eval (ren S τ) (extende (renSem S ∘ idEnv) (reflectNE {Δ = Δ₁ ,, κ'} (` Z)))
--- ↻-weaken τ {κ'} = {!  !}
-
--- -- ↻-weaken : ∀ {κ'} (Gr (τ : Type Δ κ) →
--- --             renSem ρ (eval τ idEnv) ≡ eval (ren ρ τ) (extende (renSem S ∘ idEnv) (reflectNE (` Z)))
--- -- ↻-weaken {κ'} τ  = {!   !}
-
-
-fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
-fund-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
+       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fund-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
 
 fund-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fund e τ₁)) (reify-≋ (fund e τ₂))
 fund-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -257,20 +208,23 @@ fund {κ = ★} e (eq-Π² {l = l} {τ = τ}) rewrite
 fund {κ = L} e (eq-Π² {l = l} {τ = τ}) rewrite 
     fund e (eq-refl {τ = l}) 
   | fund e (eq-refl {τ = τ}) = refl
+fund {κ = κ} e eq-Π = {!!}
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
-fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) 
-  with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
-... | left x | left .x | refl = 
-  (λ ρ₁ ρ₂ V₁ V₂ q → {! !}) ,
-  {! !} ,
-  λ ρ V → cong-π (cong-▹ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V))))
-... | right (l' , left f) | right (.l' , left .f) | refl , refl = 
-  (λ ρ₁ ρ₂ V₁ V₂ x → {! !}) , 
-  {! !} , 
-  λ ρ V → cong-π (cong-▹ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
-... | right (l , right F) | right (.l , right G) | refl , eq = {! !}
-fund {κ = R[ κ ]} e eq-Π² = {! !}
-fund e eq-Πℓ² = {! !}
+fund {κ = κ} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) = 
+  cong-π (fund e (eq-Π {l = l} {τ = τ}))
+-- fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) 
+--   with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
+-- ... | left x | left .x | refl = 
+--   Unif-NE-π▹· (eval l η₁) (Π x) , 
+--   Unif-NE-π▹· (eval l η₂) (Π x) , 
+--   λ ρ V → cong-π (cong-▹ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V)))) 
+-- ... | right (l' , left f) | right (.l' , left .f) | refl , refl = 
+--   {!!} , 
+--   {! !} , 
+--   λ ρ V → cong-π (cong-▹ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
+-- ... | right (l , right F) | right (.l , right G) | refl , eq = {! !}
+-- fund {κ = R[ κ ]} e eq-Π² = {! !}
+fund e (eq-Πℓ² {l₁ = l₁} {l₂} {τ}) = (idext e l₁) , cong-π ((idext e l₂) , (idext e τ))
 fund e eq-Πλ = {! !}
 fund e eq-▹$ = {!  !}
 fund e eq-assoc-Π = {!  !}
