@@ -212,27 +212,40 @@ ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q
               
 
 --------------------------------------------------------------------------------
--- - Renaming commutes with labeled rows (renSem-comp-▹)
--- - Renaming commutes with labeled rows housing applications of Kripke functions
-
-renSem-comp-▹ : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
-                   V₁ ≋ V₂ → renSem ρ₂ ((N.ren ρ₁ l) ▹V renSem ρ₁ V₁) ≋ (N.ren (ρ₂ ∘ ρ₁) l ▹V renSem (ρ₂ ∘ ρ₁) V₂)
-renSem-comp-▹ {κ = ★} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
-renSem-comp-▹ {κ = L} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
-renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (left f) (left .f) refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = refl , refl
-renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (right F) (right G) (Unif-F , Unif-G , Ext) = sym (ren-comp ρ₁ ρ₂ l) , 
-  (λ ρ₃ ρ₄ → Unif-F (λ x → ρ₃ (ρ₂ (ρ₁ x))) ρ₄) , 
-  (λ {Δ₂ = Δ₄} {Δ₃ = Δ₅} ρ₃ → Unif-G (λ x → ρ₃ ((ρ₂ ∘ ρ₁) x))) , 
-  λ {Δ₂ = Δ₄} ρ → Ext (λ x → ρ (ρ₂ (ρ₁ x)))
-renSem-comp-▹ {κ = R[ κ ]} ρ₁ ρ₂ l V₁ V₂ v 
-  rewrite sym (renSem-comp ρ₁ ρ₂ V₁) | sym (renSem-comp ρ₁ ρ₂ V₂) = (sym (ren-comp ρ₁ ρ₂ l)) , sym-≋ (ren-≋ (ρ₂ ∘ ρ₁) (sym-≋ v))
+-- - Renaming commutes with labeled rows (↻-ren-▹)
+-- - Renaming under labeled rows respects functor composition laws (renSem-comp-▹; implied by ↻-ren-▹)
+-- - Renaming commutes with labeled rows housing applications of Kripke functions (ren-comp-Kripke-▹)
 
 ↻-ren-▹ : ∀ (ρ : Renaming Δ₁ Δ₂) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
                    V₁ ≋ V₂ → renSem ρ (l ▹V V₁) ≋ (N.ren ρ l ▹V renSem ρ V₂)
-↻-ren-▹ ρ l V₁ V₂ q  = 
+↻-ren-▹ {κ = ★} ρ l V .V refl = refl
+↻-ren-▹ {κ = L} ρ l V .V refl = refl
+↻-ren-▹ {κ = κ₁ `→ κ₂} ρ l (left f) (left .f) refl = refl , refl
+↻-ren-▹ {κ = κ₁ `→ κ₂} ρ₁ l (right F) (right G) (Unif-F , Unif-G , Ext) = 
+  refl ,
+  (λ ρ₂ ρ₃ → Unif-F (ρ₂ ∘ ρ₁) ρ₃) ,
+  ((λ ρ₂ ρ₃ → Unif-G (ρ₂ ∘ ρ₁) ρ₃)) , 
+  λ ρ₂ → Ext (ρ₂ ∘ ρ₁)
+↻-ren-▹ {κ = R[ κ ]} ρ l V₁ V₂ q = refl , (ren-≋ ρ q)
+
+renSem-comp-▹ : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
+                   V₁ ≋ V₂ → renSem ρ₂ ((N.ren ρ₁ l) ▹V renSem ρ₁ V₁) ≋ (N.ren (ρ₂ ∘ ρ₁) l ▹V renSem (ρ₂ ∘ ρ₁) V₂)
+renSem-comp-▹ ρ₁ ρ₂ l V₁ V₂ q = 
   trans-≋ 
-    (ren-≋ ρ (cong-▹ (sym (ren-id l)) (sym-≋ (renSem-id-≋ (refl-≋ q))))) 
-    (trans-≋ (renSem-comp-▹ id ρ l V₁ V₂ q) (cong-▹ refl (ren-≋ ρ (refl-≋ (sym-≋ q)))))
+  (↻-ren-▹ ρ₂ (N.ren ρ₁ l) (renSem ρ₁ V₁) (renSem ρ₁ V₂) (ren-≋ ρ₁ q)) 
+  (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ (sym-≋ q)))))
+
+-- renSem-comp-▹ {κ = ★} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
+-- renSem-comp-▹ {κ = L} ρ₁ ρ₂ l V .V refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ V = refl
+-- renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (left f) (left .f) refl rewrite ren-comp ρ₁ ρ₂ l | ren-comp-ne ρ₁ ρ₂ f = refl , refl
+-- renSem-comp-▹ {κ = κ₁ `→ κ₂} ρ₁ ρ₂ l (right F) (right G) (Unif-F , Unif-G , Ext) = sym (ren-comp ρ₁ ρ₂ l) , 
+--   (λ ρ₃ ρ₄ → Unif-F (λ x → ρ₃ (ρ₂ (ρ₁ x))) ρ₄) , 
+--   (λ {Δ₂ = Δ₄} {Δ₃ = Δ₅} ρ₃ → Unif-G (λ x → ρ₃ ((ρ₂ ∘ ρ₁) x))) , 
+--   λ {Δ₂ = Δ₄} ρ → Ext (λ x → ρ (ρ₂ (ρ₁ x)))
+-- renSem-comp-▹ {κ = R[ κ ]} ρ₁ ρ₂ l V₁ V₂ v 
+--   rewrite sym (renSem-comp ρ₁ ρ₂ V₁) | sym (renSem-comp ρ₁ ρ₂ V₂) = (sym (ren-comp ρ₁ ρ₂ l)) , sym-≋ (ren-≋ (ρ₂ ∘ ρ₁) (sym-≋ v
+  -- ))
+
 
 ren-comp-Kripke-▹ : ∀ {ρ₁ : Renaming Δ₁ Δ₂} {ρ₂ : Renaming Δ₂ Δ₃} (l : NormalType Δ₁ L) (F G : KripkeFunction Δ₁ κ₁ κ₂) → 
                     (V₁ V₂ : SemType Δ₂ κ₁) → V₁ ≋ V₂ → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right G) → 
