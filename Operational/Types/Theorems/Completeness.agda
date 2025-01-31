@@ -140,17 +140,6 @@ data _≡t_ where
          ----------------------------
          Π · (l ▹ τ) ≡t (l ▹ (Π · τ))
 
-    -- implied by eq-Π
-    eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-         ----------------------------
-         Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
-    
-    -- implied by eq-Π
-    eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ R[ κ ]} → 
-
-        -------------------------------------------
-        Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
 
     eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) R[ κ₂ ]} → 
 
@@ -167,12 +156,28 @@ data _≡t_ where
         -------------------------------------------
         (Π · ρ) · τ ≡t Π · (ρ ?? τ)
 
-nested-π-ne : ∀ (x : NeutralType Δ R[ R[  κ ] ]) → πNE x ≡ π (left x)
+-------------------------------------------------------------------------------
+-- Admissable but informative rules
+
+eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
+        ----------------------------
+        Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
+eq-Π² = eq-· eq-refl eq-Π 
+
+
+eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ R[ κ ]} → 
+        -------------------------------------------
+        Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
+eq-Πℓ² = eq-Π
+
+-------------------------------------------------------------------------------
+-- Fundamental theorem
+
+nested-π-ne : ∀ (x : NeutralType Δ R[ R[  κ ] ]) → πNE x ≋ π (left x)
 nested-π-ne {κ = ★} x = refl
 nested-π-ne {κ = L} x = refl
 nested-π-ne {κ = κ `→ κ₁} x = refl
 nested-π-ne {κ = R[ κ ]} x = refl
-
 
 fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
@@ -199,32 +204,24 @@ fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | ev
 ... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
 fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
 fund e (eq-λ eq) = {! !}
+fund e eq-β = {! !}
 fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
-fund e eq-β = {! !}
-fund {κ = ★} e (eq-Π² {l = l} {τ = τ}) rewrite 
-    fund e (eq-refl {τ = l}) 
-  | fund e (eq-refl {τ = τ}) = refl
-fund {κ = L} e (eq-Π² {l = l} {τ = τ}) rewrite 
-    fund e (eq-refl {τ = l}) 
-  | fund e (eq-refl {τ = τ}) = refl
-fund {κ = κ} e eq-Π = {!!}
+fund {κ = R[ ★ ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
+fund {κ = R[ L ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = L}) (idext {κ = R[ L ]} e τ)))
+fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
+... | l | .l | refl | left x | left x₁ | refl = refl , refl
+... | l | .l | refl | right (l' , left f) | right (.l' , left .f) | refl , refl = 
+    refl , Unif-NE-π▹· l' f , Unif-NE-π▹· l' f , λ ρ v → cong-π (cong-▹ refl (reflectNE-≋ (cong₂ _·_ refl (reify-≋ v))))
+... | l | .l | refl | right (l' , right F) | right (.l' , right G) | refl , (Unif-F , Unif-G , Ext) = 
+    refl , 
+    Unif-π▹· l' F (Unif-F , (Unif-F , refl-Ext F G Ext)) , 
+    Unif-π▹· l' G (Unif-G , (Unif-G , refl-Ext G F (sym-Ext F G Ext))) , 
+    λ ρ v → cong-π (cong-▹ refl (Ext ρ v))
+fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
+... | l | .l | refl | left x | left x₁ | refl = refl , nested-π-ne x
+... | l | .l | refl | right y | right y₁ | c = refl , (cong-π c)
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
-fund {κ = κ} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) = 
-  cong-π (fund e (eq-Π {l = l} {τ = τ}))
--- fund {κ = κ₁ `→ κ₂} {η₁ = η₁} {η₂ = η₂} e (eq-Π² {l = l} {τ = τ}) 
---   with eval τ η₁ | eval τ η₂ | fund {τ₁ = τ} {τ₂ = τ} e eq-refl
--- ... | left x | left .x | refl = 
---   Unif-NE-π▹· (eval l η₁) (Π x) , 
---   Unif-NE-π▹· (eval l η₂) (Π x) , 
---   λ ρ V → cong-π (cong-▹ (cong₂ NR.ren refl (idext e l)) (reflectNE-≋ (cong₂ _·_ refl (reify-≋ V)))) 
--- ... | right (l' , left f) | right (.l' , left .f) | refl , refl = 
---   {!!} , 
---   {! !} , 
---   λ ρ V → cong-π (cong-▹ ((cong₂ NR.ren refl (idext e l)) ) (cong-π (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ V)))))))
--- ... | right (l , right F) | right (.l , right G) | refl , eq = {! !}
--- fund {κ = R[ κ ]} e eq-Π² = {! !}
-fund e (eq-Πℓ² {l₁ = l₁} {l₂} {τ}) = (idext e l₁) , cong-π ((idext e l₂) , (idext e τ))
 fund e eq-Πλ = {! !}
 fund e eq-▹$ = {!  !}
 fund e eq-assoc-Π = {!  !}
