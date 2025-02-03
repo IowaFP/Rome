@@ -95,7 +95,7 @@ data _≡t_ where
         ----------------
         μ τ ≡t μ υ
 
-    eq-λ : 
+    eq-λ : ∀ {τ υ : Type (Δ ,, κ₁) κ₂} → 
 
         τ ≡t υ →
         ----------------
@@ -165,6 +165,7 @@ data _≡t_ where
 -- Admissable but informative rules
 
 eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
+
         ----------------------------
         Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
 eq-Π² = eq-· eq-refl eq-Π 
@@ -200,19 +201,26 @@ fund {τ₁ = τ} e eq-refl = idext e τ
 fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
 fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ₗ ∘ e) eq₁) (fund e eq₂)
 fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
-fund {κ = ★} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
-fund {κ = L} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
-fund {κ = κ `→ κ₁} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
-fund {κ = R[ κ ]} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
+fund {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
 fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) eq)
 fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fund e eq
 ... | left x | left x₁ | refl = refl
 ... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
 fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
-fund e (eq-λ eq) = {! !}
+fund e (eq-λ {τ = τ} {υ = υ} eq) = 
+    (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
+      (↻-ren-eval ρ₂ τ (extend-≋ (λ x → ren-≋ ρ₁ (e x)) q)) 
+      (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
+                ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (e x)) }) τ))  , 
+    (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
+      (↻-ren-eval ρ₂ υ (extend-≋ (λ x → ren-≋ ρ₁ (sym-≋ (e x))) q)) 
+      (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
+                ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
+    λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
 fund e eq-β = {! !}
 fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
+
 fund {κ = R[ ★ ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
 fund {κ = R[ L ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = L}) (idext {κ = R[ L ]} e τ)))
 fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
@@ -227,6 +235,7 @@ fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ
 fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
 ... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Π-rec x
 ... | l | .l | refl | right y | right y₁ | c = refl , (cong-π c)
+
 fund {κ = R[ ★ ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
 fund {κ = R[ L ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = L}) (idext {κ = R[ L ]} e τ)))
 fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
@@ -241,6 +250,7 @@ fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ
 fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
 ... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Σ-rec x
 ... | l | .l | refl | right y | right y₁ | c = refl , (cong-σ c)
+
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
 fund e eq-Πλ = {! !}
 fund e eq-▹$ = {!  !}
@@ -250,4 +260,4 @@ idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-completeness eq = reify-≋ (fund idEnv-≋ eq) 
+completeness eq = reify-≋ (fund idEnv-≋ eq)  
