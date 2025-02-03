@@ -11,7 +11,7 @@ open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 import Rome.Operational.Types.Normal.Renaming as NR
-import Rome.Operational.Types.Normal.Renaming as NR
+import Rome.Operational.Types.Normal.Properties.Renaming as NRP
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
@@ -146,7 +146,7 @@ data _≡t_ where
          Σ · (l ▹ τ) ≡t (l ▹ (Σ · τ))
 
 
-    eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) R[ κ₂ ]} → 
+    eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
 
         -------------------------------------------
         Π · (l ▹ `λ τ) ≡t `λ (Π · (weaken l ▹ τ))
@@ -171,7 +171,7 @@ eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} →
 eq-Π² = eq-· eq-refl eq-Π 
 
 
-eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ R[ κ ]} → 
+eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} → 
         -------------------------------------------
         Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
 eq-Πℓ² = eq-Π
@@ -217,7 +217,11 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
-fund e eq-β = {! !}
+fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = trans-≋ 
+  (idext {η₂ = extende η₁ (eval τ₂ η₁)} (λ { Z → idext {η₂ = η₁}  (refl-≋ₗ ∘ e) τ₂
+            ; (S x) → renSem-id-≋ (refl-≋ₗ  (e x)) }) τ₁) 
+ -- Need substitution lemma
+  {!   !}
 fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
 
@@ -252,7 +256,18 @@ fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}
 ... | l | .l | refl | right y | right y₁ | c = refl , (cong-σ c)
 
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
-fund e eq-Πλ = {! !}
+fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ} ) = 
+    (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
+      (↻-ren-π ρ₂ (NR.ren ρ₁ (eval l η₁) ▹V
+        eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (NR.ren ρ₁ (eval l η₁) ▹V
+        eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (cong-▹ refl (refl-≋ₗ (idext (extend-≋ {η₂ = (renSem ρ₁ ∘ η₁)} (λ x → ren-≋ ρ₁ (refl-≋ₗ (e x))) q) τ) )) )
+      (cong-π 
+        (trans-≋ 
+          (↻-ren-▹ ρ₂ (NR.ren ρ₁ (eval l η₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁))  {!   !}) 
+          -- I may need substitution lemma, again
+          (cong-▹ (sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) {! ↻-ren-eval ρ₂ τ {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)}  !})))) ,
+    {!   !} , 
+    {!   !}
 fund e eq-▹$ = {!  !}
 fund e eq-assoc-Π = {!  !}
 
