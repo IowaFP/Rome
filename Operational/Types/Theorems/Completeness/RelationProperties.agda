@@ -75,6 +75,19 @@ cong-▹ {κ₁ = κ₁ `→ κ₂} refl {right F} {right G} ≋W =
   refl , ≋W
 cong-▹ {κ₁ = R[ κ₁ ]} refl w = refl , w
 
+cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
+           _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
+           {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
+           W₁ ≋ W₂ → 
+           _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
+cong-<$> {κ₁ = ★} {V₁ = left x} {left x₁} refl {ne x₂} refl = reflectNE-≋ refl
+cong-<$> {κ₁ = ★} {V₁ = left x} {left x₁} refl {row (l ▹ τ)} refl = cong-▹ refl (reflectNE-≋ refl)
+cong-<$> {κ₁ = ★} {V₁ = right F} {right G} (Unif-F , Unif-G , Ext) {ne x} refl = reflectNE-≋ (cong₂ _<$>_ (cong `λ (reify-≋ (Ext S refl))) refl)
+cong-<$> {κ₁ = ★} {V₁ = right F} {right G} (Unif-F , Unif-G , Ext) {row (l ▹ τ)} refl = cong-▹ refl (Ext id refl)
+cong-<$> {κ₁ = L} v w = {!   !}
+cong-<$> {κ₁ = κ₁ `→ κ₂} v w = {!   !}
+cong-<$> {κ₁ = R[ κ₁ ]} v w = {!   !}
+
 --------------------------------------------------------------------------------
 -- renaming respects ≋
 
@@ -459,8 +472,8 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
       (cong-▹ (↻-ren-eval ρ l e) (↻-ren-eval ρ τ (refl-≋ₗ ∘ sym-≋ ∘ e))))
 ↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
-↻-ren-eval ρ Σ e = {!   !}
-↻-ren-eval ρ (τ <$> τ₁) e = {!   !}
+↻-ren-eval ρ Σ e = Unif-σ , Unif-σ , (λ ρ₁ x → cong-σ x) 
+↻-ren-eval ρ (τ <$> τ₁) e = {! cong-<$>   !}
 
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     sym (reify-≋ (idext e ρ₁))
@@ -517,4 +530,4 @@ idext {κ = κ} e Σ =
   Unif-σ , 
   Unif-σ , 
   λ ρ x → cong-σ x 
-idext {κ = κ} e (τ <$> τ₁) = {!   !}        
+idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
