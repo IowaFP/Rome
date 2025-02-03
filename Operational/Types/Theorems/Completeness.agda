@@ -192,7 +192,7 @@ fund-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
 
 fund {τ₁ = τ} e eq-refl = idext e τ
 fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
-fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋l ∘ e) eq₁) (fund e eq₂)
+fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ₗ ∘ e) eq₁) (fund e eq₂)
 fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
 fund {κ = ★} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
 fund {κ = L} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
@@ -215,8 +215,8 @@ fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ
     refl , Unif-NE-π▹· l' f , Unif-NE-π▹· l' f , λ ρ v → cong-π (cong-▹ refl (reflectNE-≋ (cong₂ _·_ refl (reify-≋ v))))
 ... | l | .l | refl | right (l' , right F) | right (.l' , right G) | refl , (Unif-F , Unif-G , Ext) = 
     refl , 
-    Unif-π▹· l' F (Unif-F , (Unif-F , refl-Ext F G Ext)) , 
-    Unif-π▹· l' G (Unif-G , (Unif-G , refl-Ext G F (sym-Ext F G Ext))) , 
+    Unif-π▹· l' F (Unif-F , (Unif-F , refl-Extₗ Ext)) , 
+    Unif-π▹· l' G (Unif-G , (Unif-G , refl-Extᵣ Ext)) , 
     λ ρ v → cong-π (cong-▹ refl (Ext ρ v))
 fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
 ... | l | .l | refl | left x | left x₁ | refl = refl , nested-π-ne x

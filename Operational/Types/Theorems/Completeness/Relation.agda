@@ -75,8 +75,8 @@ extend-≋ p q (S v) = p v
 -- - symmetric
 -- - transitive
 
-refl-≋l : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₁ ≋ V₁
-refl-≋r : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₂ ≋ V₂
+refl-≋ₗ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₁ ≋ V₁
+refl-≋ᵣ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → V₂ ≋ V₂
 sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
 trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
 
@@ -95,8 +95,8 @@ sym-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
 sym-≋ {κ = R[ R[ κ ] ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , eq) = refl , sym-≋ eq 
 
 
-refl-≋l q = trans-≋ q (sym-≋ q)
-refl-≋r q = refl-≋l (sym-≋ q)
+refl-≋ₗ q = trans-≋ q (sym-≋ q)
+refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
 
 trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
@@ -105,7 +105,7 @@ trans-≋ {κ = κ₁ `→ κ₂} {right F} {right G} {right H}
   (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
     unif-F , 
     unif-H , 
-    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋l (sym-≋ q)))
+    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
 trans-≋ {κ = R[ ★ ]} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = R[ L ]} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {left _} {left _} refl q₂ = q₂
@@ -118,11 +118,17 @@ trans-≋ {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} {τ₃ = right (.
 --------------------------------------------------------------------------------
 -- Pointwise extensionality (accordingly) forms a PER
 
-refl-Ext : ∀ (F G : KripkeFunction Δ₁ κ₁ κ₂) → Extensionality-≋ F G → Extensionality-≋ F F
-refl-Ext F G Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋l (sym-≋ q))))
+refl-Extₗ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ F F
+refl-Extₗ Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋ₗ (sym-≋ q))))
 
-sym-Ext : ∀ (F G : KripkeFunction Δ₁ κ₁ κ₂) → Extensionality-≋ F G → Extensionality-≋ G F
-sym-Ext F G Ext ρ q = trans-≋ (refl-≋l (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
+sym-Ext : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G F
+sym-Ext Ext ρ q = trans-≋ (refl-≋ₗ (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
+
+refl-Extᵣ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G G
+refl-Extᵣ Ext ρ q = refl-Extₗ (sym-Ext Ext) ρ q
+
+trans-Ext : ∀ {F G H : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G H → Extensionality-≋ F H
+trans-Ext Ext-FG Ext-GH ρ q = trans-≋ (Ext-FG ρ q) (trans-≋ (Ext-GH ρ (sym-≋ q)) (refl-Extᵣ Ext-GH ρ q))
 
 --------------------------------------------------------------------------------
 -- Reasoning
