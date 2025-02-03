@@ -149,6 +149,38 @@ _≋⟨_⟩_ : ∀ {V₂ V₃ : SemType Δ κ} →
 V₁ ≋⟨ q ⟩ r = trans-≋ q r
 
 --------------------------------------------------------------------------------
+-- Reflecting propositional equality of neutral types into semantic equality.
+-- (Well kinded neutral types are in the logical relation.)
+
+reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
+reflectNE-≋ {κ = ★} refl = refl
+reflectNE-≋ {κ = L} refl = refl
+reflectNE-≋ {κ = κ `→ κ₁} eq = eq
+reflectNE-≋ {κ = R[ ★ ]} {τ₁ = τ₁} refl = refl
+reflectNE-≋ {κ = R[ L ]} {τ₁ = τ₁} refl = refl
+reflectNE-≋ {κ = R[ κ `→ κ₁ ]} {τ₁ = τ₁} refl = refl
+reflectNE-≋ {κ = R[ R[ κ ] ]} {τ₁ = τ₁} refl = refl
+
+--------------------------------------------------------------------------------
+-- Reify semantic equality back to propositional equality
+
+reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
+reify-≋ {κ = ★}  sem-eq = sem-eq
+reify-≋ {κ = L} sem-eq = sem-eq
+reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
+reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
+  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
+reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
+reify-≋ {κ = R[ L ]} sem-eq = sem-eq
+reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , left F)} {right (l₂ , left G)} (refl , refl) = refl
+reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , right F)} {right (l₂ , right G)} (refl , unif-F , unif-G , Ext) = 
+  cong row (cong (_▹_ l₁) (cong `λ (reify-≋ (Ext S (reflectNE-≋ refl)))))
+reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
+reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
+ rewrite reify-≋ sem-eq = refl
+
+--------------------------------------------------------------------------------
 -- Functorial actions
 
 renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂

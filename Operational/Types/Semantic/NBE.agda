@@ -144,15 +144,14 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 _<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
 ... | ne τ         = reflectNE ((ne F) <$> τ)
 ... | row (l ▹ τ) = _▹V_ {κ = κ₂} l (reflectNE (F · τ)) 
-_<$>V_ {κ₁ = κ₁} {κ₂} (right F) τ with reify τ 
-... | ne x = reflectNE (_<$>_ {κ₁ = κ₁} (reify (right F)) x)
-_<$>V_ {κ₁ = ★} {κ₂} (right F) τ               | row (l ▹ τ') = l ▹V (F id τ')
-_<$>V_ {κ₁ = L} {κ₂} (right F) τ                | row (l ▹ τ') = l ▹V (F id τ')
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  | row _ = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , left G)) | row _ = l ▹V (F id (left G))
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , right G)) | row _ = l ▹V (F id (right G))
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x) | row _ = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) | row _ = l ▹V (F id τ)
+_<$>V_ {κ₁ = ★} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
+_<$>V_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
+_<$>V_ {κ₁ = L} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
+_<$>V_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
+_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , G)) = l ▹V (F id G)
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
+_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) = l ▹V (F id τ)
 
 --------------------------------------------------------------------------------
 -- Type evaluation.
@@ -214,3 +213,4 @@ reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → Sem
 evalNE τ η = eval (⇑NE τ) η
 reflect τ η = eval (⇑ τ) η
 reflectRow (l ▹ τ) η = eval (⇑ (row (l ▹ τ))) η
+ 

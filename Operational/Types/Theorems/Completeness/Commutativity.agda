@@ -1,5 +1,5 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Operational.Types.Theorems.Completeness.RelationProperties where
+module Rome.Operational.Types.Theorems.Completeness.Commutativity where
 
 open import Rome.Operational.Prelude
 
@@ -17,99 +17,7 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Completeness.Relation
-
---------------------------------------------------------------------------------
--- Reflecting propositional equality of neutral types into semantic equality.
--- (Well kinded neutral types are in the logical relation.)
-
-reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
-reflectNE-≋ {κ = ★} refl = refl
-reflectNE-≋ {κ = L} refl = refl
-reflectNE-≋ {κ = κ `→ κ₁} eq = eq
-reflectNE-≋ {κ = R[ ★ ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ L ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ κ `→ κ₁ ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ R[ κ ] ]} {τ₁ = τ₁} refl = refl
-
---------------------------------------------------------------------------------
--- Reify semantic equality back to propositional equality
-
-reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
-reify-≋ {κ = ★}  sem-eq = sem-eq
-reify-≋ {κ = L} sem-eq = sem-eq
-reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
-reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
-  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
-reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
-reify-≋ {κ = R[ L ]} sem-eq = sem-eq
-reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , left F)} {right (l₂ , left G)} (refl , refl) = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , right F)} {right (l₂ , right G)} (refl , unif-F , unif-G , Ext) = 
-  cong row (cong (_▹_ l₁) (cong `λ (reify-≋ (Ext S (reflectNE-≋ refl)))))
-reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
- rewrite reify-≋ sem-eq = refl
-
---------------------------------------------------------------------------------
--- related applicands yield related applications
-
-cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
-           _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
-           {W₁ W₂ : SemType Δ κ₁} → 
-           W₁ ≋ W₂ → 
-           (V₁ ·V W₁) ≋ (V₂ ·V W₂)
-cong-App {V₁ = left x} {left .x} refl q = reflectNE-≋ (cong (x ·_) (reify-≋ q))
-cong-App {V₁ = left x} {right y} () q
-cong-App {V₁ = right y} {left x} () q
-cong-App {V₁ = right F} {right G} (unif-F , unif-G , Ext) q = Ext id q           
-
-cong-▹ : ∀ {L₁ L₂ : NormalType Δ L} → 
-           _≋_ {κ = L} L₁ L₂ → 
-           {W₁ W₂ : SemType Δ κ₁} → 
-           W₁ ≋ W₂ → 
-           (L₁ ▹V W₁) ≋ (L₂ ▹V W₂)
-cong-▹ {κ₁ = ★} refl refl = refl
-cong-▹ {κ₁ = L} refl refl = refl
-cong-▹ {κ₁ = κ₁ `→ κ₂} refl {left x} {left x₁} w = refl , w
-cong-▹ {κ₁ = κ₁ `→ κ₂} refl {right F} {right G} ≋W = 
-  refl , ≋W
-cong-▹ {κ₁ = R[ κ₁ ]} refl w = refl , w
-
-cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
-           _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
-           {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
-           W₁ ≋ W₂ → 
-           _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> {κ₁ = ★} {V₁ = left x} {left x₁} refl {ne x₂} refl = reflectNE-≋ refl
-cong-<$> {κ₁ = ★} {V₁ = left x} {left x₁} refl {row (l ▹ τ)} refl = cong-▹ refl (reflectNE-≋ refl)
-cong-<$> {κ₁ = ★} {V₁ = right F} {right G} (Unif-F , Unif-G , Ext) {ne x} refl = reflectNE-≋ (cong₂ _<$>_ (cong `λ (reify-≋ (Ext S refl))) refl)
-cong-<$> {κ₁ = ★} {V₁ = right F} {right G} (Unif-F , Unif-G , Ext) {row (l ▹ τ)} refl = cong-▹ refl (Ext id refl)
-cong-<$> {κ₁ = L} v w = {!   !}
-cong-<$> {κ₁ = κ₁ `→ κ₂} v w = {!   !}
-cong-<$> {κ₁ = R[ κ₁ ]} v w = {!   !}
-
---------------------------------------------------------------------------------
--- renaming respects ≋
-
-ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
-        (ρ : Renaming Δ₁ Δ₂) → 
-        V₁ ≋ V₂ → 
-        (renSem ρ V₁) ≋ (renSem ρ V₂)
-ren-≋ {κ = ★} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = L} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = κ₁ `→ κ₂} {V₁ = left _} {left _} ρ refl = refl
-ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {right G} ρ₁ (unif-F , unif-G , Ext) = 
-  (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
-  (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
-  λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ ★ ]} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = R[ L ]} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = left x} {left x₁} ρ refl = refl
-ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = right (l , left F)} {right (.l , left G)} ρ (refl , refl) = refl , refl
-ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = right (l , right F)} {right (.l , right G)} ρ₁
-  (refl , q) = refl , ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {V₂ = right G}  ρ₁ q
-ren-≋ {κ = R[ R[ κ ] ]} {V₁ = left _} {left _} ρ refl = refl
-ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q) = refl , (ren-≋ {κ = R[ κ ]} ρ q)
+open import Rome.Operational.Types.Theorems.Completeness.Congruence
 
 --------------------------------------------------------------------------------
 -- Renaming commutes with reflection of neutral types
@@ -473,7 +381,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
 ↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
 ↻-ren-eval ρ Σ e = Unif-σ , Unif-σ , (λ ρ₁ x → cong-σ x) 
-↻-ren-eval ρ (τ <$> τ₁) e = {! cong-<$>   !}
+↻-ren-eval ρ (τ <$> τ₁) e = {!   !}
 
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     sym (reify-≋ (idext e ρ₁))

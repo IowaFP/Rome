@@ -19,7 +19,8 @@ open import Rome.Operational.Types.Semantic.Renaming
 
 -- open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Completeness.Relation
-open import Rome.Operational.Types.Theorems.Completeness.RelationProperties
+open import Rome.Operational.Types.Theorems.Completeness.Congruence
+open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 open import Rome.Shared.Postulates.FunExt
 
 -------------------------------------------------------------------------------
