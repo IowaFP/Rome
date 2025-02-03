@@ -86,71 +86,56 @@ _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 
 
 --------------------------------------------------------------------------------
--- Semantic combinators for Π
+-- (Generic) Semantic combinators for Π/Σ
 
-πNE : NeutralType Δ R[ κ ] → SemType Δ κ 
-πNE {κ = ★} τ = ne (Π τ)
-πNE {κ = L} τ = ne (Π τ)
-πNE {κ = κ₁ `→ κ₂} τ = left (Π τ)
-πNE {κ = R[ ★ ]} τ = ne (Π τ)
-πNE {κ = R[ L ]} τ = ne (Π τ)
-πNE {κ = R[ κ `→ κ₁ ]} τ = left (Π τ)
-πNE {κ = R[ R[ κ ] ]} τ = left (Π τ)
+record Chi : Set where 
+  field
+    ΞNE : ∀ {Δ'} {κ : Kind} → NeutralType Δ' R[ κ ] → NeutralType Δ' κ
+    Ξ★ : ∀ {Δ'} → Row Δ' R[ ★ ] → NormalType Δ' ★
+    ΞL : ∀ {Δ'} → Row Δ' R[ L ] → NormalType Δ' L
+    ren-NE : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NeutralType Δ₁ R[ κ ]) → renNE ρ (ΞNE τ) ≡  ΞNE (renNE ρ τ)
+    ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (renRow ρ τ)
+    ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (renRow ρ τ)
 
-π : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
-π {κ = ★}  (ne x)                 = πNE x
-π {κ = ★}  (row r)                = Π r
-π {κ = L}   (ne x)                 = πNE x
-π {κ = L}   (row r)                = ΠL r
-π {κ = κ₁ `→ κ₂}   (left x)               = πNE x
-π {κ = κ₁ `→ κ₂}   (right (l , left f))   = right (λ ρ' v → π (ren ρ' l ▹V reflectNE ((renNE ρ' f) · (reify v))))
-π {κ = κ₁ `→ κ₂}   (right (l , right F))  = right (λ ρ' v → π (ren ρ' l ▹V F ρ' v))
-π {κ = R[ ★ ]}  (left x)               = πNE x
-π {κ = R[ ★ ]}  (right (l , τ))        = row (l ▹ (reify (π {κ = ★} τ )))
-π {κ = R[ L ]}   (left x)               = πNE x
-π {κ = R[ L ]}   (right (l , τ))        = row (l ▹ (reify (π {κ = L} τ )))
-π {κ = R[ κ₁ `→ κ₂ ]}   (left x)               = πNE x
-π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , left τ))   = _▹V_ {κ                = κ₁ `→ κ₂} l (πNE {κ = κ₁ `→ κ₂} τ)
-π {κ = R[ κ₁ `→ κ₂ ]}   (right (l , τ))        = _▹V_ {κ                = κ₁ `→ κ₂} l (π {κ   = κ₁ `→ κ₂} τ)
-π {κ = R[ R[ κ ] ]}   (left x)               = πNE x
-π {κ = R[ R[ κ ] ]}  (right (l , left τ))   = _▹V_ {κ                = R[ κ ]} l (πNE {κ   = R[ κ ]} τ)
-π {κ = R[ R[ κ ] ]} (right (l , τ))  =  _▹V_ {κ = R[ κ ]} l (π {κ = R[ κ ]} τ)
+ξ : ∀ {Δ} → Chi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ {κ = ★} record { ΞNE = ΞNE } (ne x) = reflectNE (ΞNE x)
+ξ {κ = ★} record { Ξ★ = Ξ★ } (row r) = Ξ★ r
+ξ {κ = L} record { ΞNE   = ΞNE } (ne x)   = reflectNE (ΞNE x) 
+ξ {κ = L} record { ΞL  = ΞL } (row r) = ΞL r 
+ξ {κ = κ₁ `→ κ₂} record { ΞNE = ΞNE } (left x) = reflectNE (ΞNE x) 
+ξ {κ = κ₁ `→ κ₂} Ξ  (right (l , left f))   = 
+  right (λ ρ' v → ξ Ξ (ren ρ' l ▹V reflectNE ((renNE ρ' f) · (reify v)))) 
+ξ {κ = κ₁ `→ κ₂} Ξ  (right (l , right F))  = 
+  right (λ ρ' v → ξ Ξ (ren ρ' l ▹V F ρ' v)) 
+ξ {κ = R[ ★ ]} record { ΞNE = ΞNE }  (left x)  = reflectNE (ΞNE x) 
+ξ {κ = R[ ★ ]} Ξ  (right (l , τ))          = row (l ▹ (reify (ξ {κ = ★} Ξ τ )))
+ξ {κ = R[ L ]}  record { ΞNE = ΞNE } (left x)  =  reflectNE (ΞNE x)
+ξ {κ = R[ L ]}  Ξ  (right (l , τ))         = row (l ▹ (reify (ξ {κ = L} Ξ τ )))
+ξ {κ = R[ κ₁ `→ κ₂ ]} record { ΞNE = ΞNE }  (left x) =  reflectNE (ΞNE x)
+ξ {κ = R[ κ₁ `→ κ₂ ]} record { ΞNE = ΞNE } (right (l , left τ)) =  _▹V_ {κ = κ₁ `→ κ₂} l (reflectNE {κ = κ₁ `→ κ₂} (ΞNE τ))
+ξ {κ = R[ κ₁ `→ κ₂ ]} Ξ  (right (l , τ)) = _▹V_ {κ = κ₁ `→ κ₂} l (ξ {κ = κ₁ `→ κ₂} Ξ τ)
+ξ {κ = R[ R[ κ ] ]} record { ΞNE = ΞNE }  (left x) =  reflectNE (ΞNE x)
+ξ {κ = R[ R[ κ ] ]} record { ΞNE = ΞNE }  (right (l , left τ)) =  
+    _▹V_ {κ = R[ κ ]} l (reflectNE {κ = R[ κ ]} (ΞNE τ))
+ξ {κ = R[ R[ κ ] ]} Ξ  (right (l , τ)) = 
+    _▹V_ {κ = R[ κ ]} l (ξ {κ = R[ κ ]} Ξ τ)
 
-π-Kripke : KripkeFunction Δ R[ κ ] κ
+open Chi 
+
+Π-rec Σ-rec : Chi 
+Π-rec = record
+  { ΞNE = Π ; Ξ★ = Π ; ΞL = ΠL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+Σ-rec = 
+  record
+  { ΞNE = Σ ; Ξ★ = Σ ; ΞL = ΣL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+
+π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+π = ξ Π-rec
+σ = ξ Σ-rec
+
+π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
 π-Kripke ρ v = π v
-
---------------------------------------------------------------------------------
--- Semantic combinator for Σ
-
--- I'll prove Π is stable before duplicating the work for Σ.
-σNE : NeutralType Δ R[ κ ] → SemType Δ κ 
-σNE {κ = ★} τ = ne (Σ τ)
-σNE {κ = L} τ = ne (Σ τ)
-σNE {κ = κ₁ `→ κ₂} τ = left (Σ τ)
-σNE {κ = R[ ★ ]} τ = ne (Σ τ)
-σNE {κ = R[ L ]} τ = ne (Σ τ)
-σNE {κ = R[ κ `→ κ₁ ]} τ = left (Σ τ)
-σNE {κ = R[ R[ κ ] ]} τ = left (Σ τ)
-
-σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
-σ {κ = ★}  (ne x)  = ne (Σ x)
-σ {κ = ★}  (row r)  = Σ r
-σ {κ = L}  (ne x)  = ne (Σ x)
-σ {κ = L}  (row r)  = ΣL r
-σ {κ = κ₁ `→ κ₂}  (left x)  = left (Σ x)
-σ {κ = κ₁ `→ κ₂}  (right (l , left f))  = right (λ ρ' v → σ (ren ρ' l ▹V reflectNE ((renNE ρ' f) · (reify v))))
-σ {κ = κ₁ `→ κ₂}  (right (l , right F))  = right (λ ρ' v → σ (ren ρ' l ▹V F ρ' v))
-σ {κ = R[ ★ ]}  (left x)  = σNE x
-σ {κ = R[ ★ ]}  (right (l , τ))  = row (l ▹ (reify (σ {κ = ★} τ )))
-σ {κ = R[ L ]}  (left x)  = σNE x
-σ {κ = R[ L ]}  (right (l , τ))  = row (l ▹ (reify (σ {κ = L} τ )))
-σ {κ = R[ κ₁ `→ κ₂ ]}  (left x)  = σNE x
-σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , left τ))  = _▹V_ {κ = κ₁ `→ κ₂} l (σNE {κ = κ₁ `→ κ₂} τ)
-σ {κ = R[ κ₁ `→ κ₂ ]}  (right (l , τ))  = _▹V_ {κ = κ₁ `→ κ₂} l (σ {κ = κ₁ `→ κ₂} τ)
-σ {κ = R[ R[ κ ] ]}  (left x)  = σNE x
-σ {κ = R[ R[ κ ] ]}  (right (l , left τ))  = _▹V_ {κ = R[ κ ]} l (σNE {κ = R[ κ ]} τ)
-σ {κ = R[ R[ κ ] ]}  (right (l , τ))  =  _▹V_ {κ = R[ κ ]} l (σ {κ = R[ κ ]} τ)
-
+σ-Kripke ρ v = σ v
 
 --------------------------------------------------------------------------------
 -- Semantic combinator for Lifting
@@ -188,7 +173,6 @@ eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
-
 ----------------------------------------
 -- Label evaluation.
 
@@ -215,7 +199,6 @@ eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
-
 
 --------------------------------------------------------------------------------
 -- Evaluation of 

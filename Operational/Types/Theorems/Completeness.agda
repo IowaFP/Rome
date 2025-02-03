@@ -231,22 +231,3 @@ idEnv-≋ x = reflectNE-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq) 
-
--- soundness {κ = ★} (inst-≡t (Π² {l = l} {τ = τ})) = refl
--- soundness {κ = L} (inst-≡t (Π² {l = l} {τ = τ})) = refl
--- soundness {κ = κ `→ κ₁} (inst-≡t (Π² {l = l} {τ = τ})) with eval τ idEnv
--- ... | left x = refl
--- ... | right y = refl
--- soundness {κ = R[ κ ]} (inst-≡t (Π² {l = l} {τ = τ})) with eval τ idEnv 
--- ... | right y = refl
--- ... | left x rewrite nested-π-ne x = refl 
--- soundness {κ = κ} (inst-≡t (Πℓ² {l₁ = l₁} {l₂} {τ})) = refl
--- soundness {κ = κ₁ `→ R[ κ₂ ]} (inst-≡t (Πλ {l = l})) = 
---     cong `λ (cong reify (cong π (cong right (cong₂ _,_ (trans (↻-ren-eval S l idEnv) (↻-weaken l)) refl))))
--- soundness {κ = R[ ★ ]} (inst-≡t ▹$) = {!   !}
--- soundness {κ = R[ L ]} (inst-≡t ▹$) = {!   !}
--- soundness {κ = R[ κ₂ `→ κ₃ ]} (inst-≡t ▹$) = {!   !}
--- soundness {κ = R[ R[ κ₂ ] ]} (inst-≡t ▹$) = {!   !} -- cong reify {! κ  !}
--- soundness refl-≡t = refl
--- soundness (trans-≡t s₁ s₂) = trans (soundness s₁) (soundness s₂) 
-  

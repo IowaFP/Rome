@@ -37,13 +37,13 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
-  Π : 
+  Π : ∀ {κ} → 
 
       (ρ : NeutralType Δ R[ κ ]) → 
       ------------
       NeutralType Δ κ
 
-  Σ : 
+  Σ : ∀ {κ} → 
 
       (ρ : NeutralType Δ R[ κ ]) → 
       ------------

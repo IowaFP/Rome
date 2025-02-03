@@ -251,113 +251,114 @@ ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renaming Δ�
 ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
 
 --------------------------------------------------------------------------------
--- - Renaming commutes with π (↻-ren-π)
--- - π is congruent w.r.t. semantic equivalence (cong-π)
--- - Neutral functions f and Kripke functions F are uniform under λ x. π (l ▹ F x)
---   (Auxilliary lemmas reused a bunch)
--- - Π applied to neutral types are semantically equivalent to themselvse (refl-πNE)
+-- - Renaming commutes with ξ
+-- - ξ is congruent w.r.t. semantic equivalence 
 
-↻-ren-π : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (π V₁) ≋ π (renSem ρ V₂) 
-cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ₁ ≋ π τ₂
-Unif-NE-π▹· : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
-            Uniform (λ ρ' v → π (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
-Unif-π▹· : ∀ (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right F) →             
-              Uniform (λ ρ' v → π (N.ren ρ' l ▹V F ρ' v))
-refl-πNE : ∀ {Δ}{κ} → (x : NeutralType Δ R[ κ ]) → πNE x ≋ πNE x
+↻-ren-ξ : ∀ {Δ₁} {Δ₂} (Ξ : Chi) {κ : Kind} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (ξ Ξ V₁) ≋ ξ Ξ (renSem ρ V₂) 
+cong-ξ : ∀ (Ξ : Chi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → ξ Ξ τ₁ ≋ ξ Ξ τ₂
+Unif-NE-ξ▹· : ∀ (Ξ : Chi) (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
+            Uniform (λ ρ' v → ξ Ξ (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
+Unif-ξ▹· : ∀ (Ξ : Chi) (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right F) →             
+              Uniform (λ ρ' v → ξ Ξ (N.ren ρ' l ▹V F ρ' v))
+open Chi
+↻-ren-ξ Ξ {★} ρ (ne x) V₂ refl rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {★} ρ (row ρ₁) V₂ refl rewrite ren-★ Ξ ρ ρ₁ = refl
+↻-ren-ξ Ξ {L} ρ (ne x) V₂ refl rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {L} ρ (row ρ₁) V₂ refl rewrite ren-L Ξ ρ ρ₁ = refl
+↻-ren-ξ Ξ {κ `→ κ₁} ρ (left f) (left .f) refl rewrite Ξ .ren-NE ρ f = refl
+↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (right (l , left F)) (right (.l , left G)) (refl , refl) = 
+  ren-Uniform ρ (Unif-NE-ξ▹· Ξ l F) , Unif-NE-ξ▹· Ξ (N.ren ρ l) (renNE ρ F) , 
+  λ _ x → cong-ξ Ξ (cong-▹ (ren-comp _ _ _) (reflectNE-≋ (cong₂ _·_ (ren-comp-ne _ _ _) (reify-≋ x))))
+↻-ren-ξ Ξ {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , Unif-F , Unif-G , Ext) = 
+  ren-Uniform ρ (Unif-ξ▹· Ξ l F (Unif-F , Unif-F , refl-Extₗ Ext)) , 
+  Unif-ξ▹· Ξ (N.ren ρ l) (renKripke ρ G) ((ren-Uniform ρ Unif-G) , ((ren-Uniform ρ Unif-G) , (λ ρ₁ x → refl-Extᵣ Ext (ρ₁ ∘ ρ) x ))) , 
+  λ ρ₁ x → cong-ξ Ξ (cong-▹ (ren-comp _ _ _) (Ext (ρ₁ ∘ ρ) x))
+↻-ren-ξ Ξ {R[ ★ ]} ρ (left x) (left _) refl rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {R[ ★ ]} ρ (right (l , ne x)) (right (.l , .(ne _))) (refl , refl) rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {R[ ★ ]} ρ (right (l , row r)) (right (.l , .(row r))) (refl , refl) rewrite (Ξ .ren-★ ρ r) = refl
+↻-ren-ξ Ξ {R[ L ]} ρ (left x) (left _) refl rewrite (Ξ .ren-NE ρ x)  = refl
+↻-ren-ξ Ξ {R[ L ]} ρ (right (l , ne x)) (right (.l , .(ne _))) (refl , refl) rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {R[ L ]} ρ (right (l , row r)) (right (.l , .(row _))) (refl , refl) rewrite (Ξ .ren-L ρ r) = refl
+↻-ren-ξ Ξ {R[ κ₁ `→ κ₂ ]} ρ (left x) (left _) refl rewrite (Ξ .ren-NE ρ x) = refl
+↻-ren-ξ Ξ {R[ κ₁ `→ κ₂ ]} ρ (right (l , left F)) (right (.l , left G)) (refl , refl) rewrite (Ξ .ren-NE ρ F) = refl , refl
+↻-ren-ξ Ξ {R[ κ₁ `→ κ₂ ]} ρ (right (l , right (l' , left F))) (right (.l , right (.l' , left .F))) (refl , refl , refl) = 
+  refl , ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (right (l' , left F)) (right (l' , left F)) (refl , refl)
+↻-ren-ξ Ξ {R[ κ₁ `→ κ₂ ]} ρ (right (l , right (l' , right F))) (right (.l , right (.l' , right G))) (refl , refl , q) = 
+  refl , ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (right (l' , right F)) (right (l' , right G)) (refl , q)
+↻-ren-ξ Ξ {R[ R[ κ ] ]} ρ (left f) (left _) refl rewrite (Ξ .ren-NE ρ f) = refl
+↻-ren-ξ Ξ {R[ R[ ★ ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) rewrite (Ξ .ren-NE ρ x) = refl , refl
+↻-ren-ξ Ξ {R[ R[ L ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) rewrite (Ξ .ren-NE ρ x) = refl , refl
+↻-ren-ξ Ξ {R[ R[ κ `→ κ₁ ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) rewrite (Ξ .ren-NE ρ x) = refl , refl
+↻-ren-ξ Ξ {R[ R[ R[ κ ] ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl)  rewrite (Ξ .ren-NE ρ x) = refl , refl
+↻-ren-ξ Ξ {R[ R[ κ ] ]} ρ (right (l , right (l' , τ₁))) (right (.l , right (.l' , τ₂))) (refl , refl , q) = 
+  refl , ↻-ren-ξ Ξ ρ (right (l' , τ₁)) (right (l' , τ₂)) (refl , q)
 
-refl-πNE {κ = ★} x = refl
-refl-πNE {κ = L} x = refl
-refl-πNE {κ = κ `→ κ₁} x = refl
-refl-πNE {κ = R[ ★ ]} x = refl
-refl-πNE {κ = R[ L ]} x = refl
-refl-πNE {κ = R[ κ `→ κ₁ ]} x = refl
-refl-πNE {κ = R[ R[ κ ] ]} x = refl
-
-↻-ren-π {★} ρ (ne x) V₂ refl = refl
-↻-ren-π {★} ρ (row ρ₁) V₂ refl = refl
-↻-ren-π {L} ρ (ne x) V₂ refl = refl
-↻-ren-π {L} ρ (row ρ₁) V₂ refl = refl
-↻-ren-π {κ `→ κ₁} ρ (left f) (left .f) refl = refl
-↻-ren-π {κ₁ `→ κ₂} ρ (right (l , left F)) (right (.l , left G)) (refl , refl) = 
-  ren-Uniform ρ (Unif-NE-π▹· l F) , Unif-NE-π▹· (N.ren ρ l) (renNE ρ F) , 
-  λ _ x → cong-π (cong-▹ (ren-comp _ _ _) (reflectNE-≋ (cong₂ _·_ (ren-comp-ne _ _ _) (reify-≋ x))))
-↻-ren-π {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , Unif-F , Unif-G , Ext) = 
-  ren-Uniform ρ (Unif-π▹· l F (Unif-F , Unif-F , refl-Extₗ Ext)) , 
-  Unif-π▹· (N.ren ρ l) (renKripke ρ G) ((ren-Uniform ρ Unif-G) , ((ren-Uniform ρ Unif-G) , (λ ρ₁ x → refl-Extᵣ Ext (ρ₁ ∘ ρ) x ))) , 
-  λ ρ₁ x → cong-π (cong-▹ (ren-comp _ _ _) (Ext (ρ₁ ∘ ρ) x))
-↻-ren-π {R[ ★ ]} ρ (left _) (left _) refl = refl
-↻-ren-π {R[ ★ ]} ρ (right (l , ne _)) (right (.l , .(ne _))) (refl , refl) = refl
-↻-ren-π {R[ ★ ]} ρ (right (l , row _)) (right (.l , .(row _))) (refl , refl) = refl
-↻-ren-π {R[ L ]} ρ (left _) (left _) refl = refl
-↻-ren-π {R[ L ]} ρ (right (l , ne _)) (right (.l , .(ne _))) (refl , refl) = refl
-↻-ren-π {R[ L ]} ρ (right (l , row _)) (right (.l , .(row _))) (refl , refl) = refl
-↻-ren-π {R[ κ₁ `→ κ₂ ]} ρ (left x) (left x₁) refl = refl
-↻-ren-π {R[ κ₁ `→ κ₂ ]} ρ (right (l , left F)) (right (.l , left G)) (refl , refl) = refl , refl
-↻-ren-π {R[ κ₁ `→ κ₂ ]} ρ (right (l , right (l' , left F))) (right (.l , right (.l' , left .F))) (refl , refl , refl) = 
-  refl , ↻-ren-π {κ₁ `→ κ₂} ρ (right (l' , left F)) (right (l' , left F)) (refl , refl)
-↻-ren-π {R[ κ₁ `→ κ₂ ]} ρ (right (l , right (l' , right F))) (right (.l , right (.l' , right G))) (refl , refl , q) = 
-  refl , ↻-ren-π {κ₁ `→ κ₂} ρ (right (l' , right F)) (right (l' , right G)) (refl , q)
-↻-ren-π {R[ R[ κ ] ]} ρ (left _) (left _) refl = refl
-↻-ren-π {R[ R[ ★ ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) = refl , refl
-↻-ren-π {R[ R[ L ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) = refl , refl
-↻-ren-π {R[ R[ κ `→ κ₁ ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) = refl , refl
-↻-ren-π {R[ R[ R[ κ ] ] ]} ρ (right (l , left x)) (right (l , left .x)) (refl , refl) = refl , refl
-↻-ren-π {R[ R[ κ ] ]} ρ (right (l , right (l' , τ₁))) (right (.l , right (.l' , τ₂))) (refl , refl , q) = 
-  refl , ↻-ren-π ρ (right (l' , τ₁)) (right (l' , τ₂)) (refl , q)
-
-Unif-NE-π▹· l f ρ₁ ρ₂ V₁ V₂ q = 
-  (renSem ρ₂ (π (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))))
+Unif-NE-ξ▹· Ξ l f ρ₁ ρ₂ V₁ V₂ q = 
+  (renSem ρ₂ (ξ Ξ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))))
   ≋⟨ 
-      ↻-ren-π ρ₂ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁)) (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))  
+      ↻-ren-ξ Ξ ρ₂ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁)) (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))  
       (cong-▹ refl (reflectNE-≋ refl)) 
     ⟩ 
-  (π (renSem ρ₂ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))))
-  ≋⟨ cong-π {τ₂ = (N.ren (λ x → ρ₂ (ρ₁ x)) l ▹V reflectNE (renNE (λ x → ρ₂ (ρ₁ x)) f · reify (renSem ρ₂ V₂)))} 
+  (ξ Ξ (renSem ρ₂ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁))))
+  ≋⟨ cong-ξ Ξ
       (renSem ρ₂ (N.ren ρ₁ l ▹V reflectNE (renNE ρ₁ f · reify V₁)) 
       ≋⟨ 
         ↻-ren-reflectNE-▹ ρ₂ (N.ren ρ₁ l) (renNE ρ₁ f · reify V₁) 
         ⟩ 
       cong-▹ (sym (ren-comp _ _ _)) (reflectNE-≋ (cong₂ _·_ (sym (ren-comp-ne _ _ _)) (↻-ren-reify ρ₂ q)))) 
     ⟩ 
-  cong-π (cong-▹ refl (reflectNE-≋ refl))
+  cong-ξ Ξ (cong-▹ refl (reflectNE-≋ refl))
 
-Unif-π▹· l F e@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ V₂ q = 
-  renSem ρ₂ (π (N.ren ρ₁ l ▹V F ρ₁ V₁)) 
-  ≋⟨ (↻-ren-π ρ₂ (N.ren ρ₁ l ▹V F ρ₁ V₁) (N.ren ρ₁ l ▹V F ρ₁ V₁) (cong-▹ refl (Ext ρ₁ (refl-≋ₗ q)))) ⟩ 
-  cong-π (ren-comp-Kripke-▹ l F F V₁ V₂ q (Unif-F , Unif-F , Ext))
+Unif-ξ▹· Ξ l F e@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ V₂ q = 
+  trans-≋
+    (↻-ren-ξ Ξ ρ₂ (N.ren ρ₁ l ▹V F ρ₁ V₁) (N.ren ρ₁ l ▹V F ρ₁ V₁) (cong-▹ refl (Ext ρ₁ (refl-≋ₗ q))))
+    (cong-ξ Ξ (ren-comp-Kripke-▹ l F F V₁ V₂ q (Unif-F , Unif-F , Ext)))
 
-cong-π {κ = ★} e = cong (π {κ = ★}) e
-cong-π {κ = L} e = cong (π {κ = L}) e
-cong-π {κ = κ₁ `→ κ₂} {left x} {left x₁} refl = refl
-cong-π {κ = κ₁ `→ κ₂} {right (l , left f)} {right (.l , left .f)} (refl , refl) = 
-  Unif-NE-π▹· l f , 
-  Unif-NE-π▹· l f , 
-  λ ρ q → (cong-π (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ q))))))
+cong-ξ Ξ {κ = ★} e = cong (ξ {★} Ξ) e
+cong-ξ Ξ {κ = L} e = cong (ξ {L} Ξ) e
+cong-ξ Ξ {κ = κ₁ `→ κ₂} {left x} {left x₁} refl = refl
+cong-ξ Ξ {κ = κ₁ `→ κ₂} {right (l , left f)} {right (.l , left .f)} (refl , refl) = 
+  Unif-NE-ξ▹· Ξ l f , 
+  Unif-NE-ξ▹· Ξ l f , 
+  λ ρ q → (cong-ξ Ξ (cong-▹ refl (reflectNE-≋ ((cong₂ _·_ refl (reify-≋ q))))))
+cong-ξ Ξ {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , e@(Unif-F , Unif-G , Ext)) = 
+  Unif-ξ▹· Ξ l F (Unif-F , (Unif-F , refl-Extₗ Ext)) ,
+  Unif-ξ▹· Ξ l G (Unif-G , (Unif-G , refl-Extᵣ Ext)),
+  λ ρ x → cong-ξ Ξ (cong-▹ refl (Ext ρ x))
+cong-ξ Ξ {κ = R[ ★ ]} {left x} {left x₁} refl = refl
+cong-ξ Ξ {κ = R[ L ]} {left x} {left x₁} refl = refl
+cong-ξ Ξ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
+cong-ξ Ξ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
+cong-ξ Ξ {κ = R[ ★ ]} {right (l , τ)} {right (.l , τ')} (refl , refl) = refl
+cong-ξ Ξ {κ = R[ L ]} {right (l , τ)} {right (.l , τ')} (refl , refl) = refl
+cong-ξ Ξ {κ = R[ κ₁ `→ κ₂ ]} {right (l , left x)} {right (.l , left x₁)} (refl , refl) = refl , refl
+cong-ξ Ξ {κ = R[ κ₁ `→ κ₂ ]} {right (l , right (l' , left f))} {right (.l , right (l' , left .f))} (refl , refl , refl) = 
+  refl , cong-ξ Ξ {κ = κ₁ `→ κ₂} {right (l' , left f)} {right (l' , left f)} (refl , refl)
+cong-ξ Ξ {κ = R[ κ₁ `→ κ₂ ]} {right (l , right (l' , right F))} {right (.l , right (l' , right G))} (refl , refl , q) = 
+  refl , cong-ξ Ξ {κ = κ₁ `→ κ₂} {right (l' , right F)} {right (l' , right G)} (refl , q)
+cong-ξ Ξ {κ = R[ R[ κ ] ]} {right (l , left x)} {right (.l , left .x)} (refl , refl) = refl , reflectNE-≋ refl
+cong-ξ Ξ {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (.l' , G))} (refl , refl , q) = refl , cong-ξ Ξ (refl , q)
 
-cong-π {κ = κ₁ `→ κ₂} {right (l , right F)} {right (l , right G)} (refl , e@(Unif-F , Unif-G , Ext)) = 
-  Unif-π▹· l F (Unif-F , (Unif-F , refl-Extₗ Ext)) ,
-  Unif-π▹· l G (Unif-G , (Unif-G , refl-Extᵣ Ext)),
-  λ ρ x → cong-π (cong-▹ refl (Ext ρ x))
-cong-π {κ = R[ ★ ]} {left x} {left x₁} refl = refl
-cong-π {κ = R[ L ]} {left x} {left x₁} refl = refl
-cong-π {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-cong-π {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
-cong-π {κ = R[ ★ ]} {right (l , τ)} {right (.l , τ')} (refl , refl) = refl
-cong-π {κ = R[ L ]} {right (l , τ)} {right (.l , τ')} (refl , refl) = refl
-cong-π {κ = R[ κ₁ `→ κ₂ ]} {right (l , left x)} {right (.l , left x₁)} (refl , refl) = refl , refl
-cong-π {κ = R[ κ₁ `→ κ₂ ]} {right (l , right (l' , left f))} {right (.l , right (l' , left .f))} (refl , refl , refl) = 
-  refl , cong-π {κ = κ₁ `→ κ₂} {right (l' , left f)} {right (l' , left f)} (refl , refl)
-cong-π {κ = R[ κ₁ `→ κ₂ ]} {right (l , right (l' , right F))} {right (.l , right (l' , right G))} (refl , refl , q) = 
-  refl , cong-π {κ = κ₁ `→ κ₂} {right (l' , right F)} {right (l' , right G)} (refl , q)
-cong-π {κ = R[ R[ κ ] ]} {right (l , left x)} {right (.l , left .x)} (refl , refl) = refl , refl-πNE x
-cong-π {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (.l' , G))} (refl , refl , q) = refl , cong-π (refl , q)
+---------------------------------------
+-- instantiations for π and Σ 
 
--- --------------------------------------------------------------------------------
--- π (which does not use its renaming) is uniform.
+↻-ren-π : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (π V₁) ≋ π (renSem ρ V₂) 
+↻-ren-π = ↻-ren-ξ Π-rec
 
+cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ₁ ≋ π τ₂
+cong-π = cong-ξ Π-rec
 
 Unif-π : ∀ {Δ} {κ} → Uniform (π-Kripke {Δ = Δ} {κ = κ})
-Unif-π {κ = κ} ρ₁ = ↻-ren-π {κ = κ}
+Unif-π ρ₁ = ↻-ren-π
+
+↻-ren-σ : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (σ V₁) ≋ σ (renSem ρ V₂) 
+↻-ren-σ = ↻-ren-ξ Σ-rec
+
+cong-σ : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → σ τ₁ ≋ σ τ₂
+cong-σ = cong-ξ Σ-rec
+
+Unif-σ : ∀ {Δ} {κ} → Uniform (σ-Kripke {Δ = Δ} {κ = κ})
+Unif-σ ρ₁ = ↻-ren-σ
 
 --------------------------------------------------------------------------------
 -- id extension
@@ -490,8 +491,11 @@ idext {κ = R[ κ₁ `→ κ₂ ]} {η₁} {η₂} e (l ▹ τ) with eval τ η�
 idext {κ = R[ R[ κ₁ ] ]} {η₁} {η₂} e (l ▹ τ) = (idext e l) , (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
-  (λ { ρ₁ ρ₂ V₁ V₂ q → ↻-ren-π ρ₂ V₁ V₂ q }) , 
-  ((λ { ρ₁ ρ₂ V₁ V₂ q → ↻-ren-π ρ₂ V₁ V₂ q })) , 
+  Unif-π , 
+  Unif-π , 
   λ ρ x → cong-π x 
-idext {κ = κ} e Σ = {!   !}        
+idext {κ = κ} e Σ =
+  Unif-σ , 
+  Unif-σ , 
+  λ ρ x → cong-σ x 
 idext {κ = κ} e (τ <$> τ₁) = {!   !}        
