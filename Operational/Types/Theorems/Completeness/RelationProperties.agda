@@ -340,7 +340,7 @@ cong-ξ Ξ {κ = R[ R[ κ ] ]} {right (l , left x)} {right (.l , left .x)} (refl
 cong-ξ Ξ {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (.l' , G))} (refl , refl , q) = refl , cong-ξ Ξ (refl , q)
 
 ---------------------------------------
--- instantiations for π and Σ 
+-- instantiations for π
 
 ↻-ren-π : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (π V₁) ≋ π (renSem ρ V₂) 
 ↻-ren-π = ↻-ren-ξ Π-rec
@@ -348,14 +348,33 @@ cong-ξ Ξ {κ = R[ R[ κ ] ]} {right (l , right (l' , F))} {right (.l , right (
 cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → π τ₁ ≋ π τ₂
 cong-π = cong-ξ Π-rec
 
+Unif-NE-π▹· : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
+            Uniform (λ ρ' v → π (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
+Unif-NE-π▹· = Unif-NE-ξ▹· Π-rec
+
+Unif-π▹· : ∀ (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F) (right F) →             
+              Uniform (λ ρ' v → π (N.ren ρ' l ▹V F ρ' v))
+Unif-π▹· = Unif-ξ▹· Π-rec
+
 Unif-π : ∀ {Δ} {κ} → Uniform (π-Kripke {Δ = Δ} {κ = κ})
 Unif-π ρ₁ = ↻-ren-π
+
+---------------------------------------
+-- instantiations for σ
 
 ↻-ren-σ : ∀ {Δ₁} {Δ₂} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (σ V₁) ≋ σ (renSem ρ V₂) 
 ↻-ren-σ = ↻-ren-ξ Σ-rec
 
 cong-σ : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → σ τ₁ ≋ σ τ₂
 cong-σ = cong-ξ Σ-rec
+
+Unif-NE-σ▹· : ∀ (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
+            Uniform (λ ρ' v → σ (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
+Unif-NE-σ▹· = Unif-NE-ξ▹· Σ-rec
+
+Unif-σ▹· : ∀ (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F) (right F) →             
+              Uniform (λ ρ' v → σ (N.ren ρ' l ▹V F ρ' v))
+Unif-σ▹· = Unif-ξ▹· Σ-rec
 
 Unif-σ : ∀ {Δ} {κ} → Uniform (σ-Kripke {Δ = Δ} {κ = κ})
 Unif-σ ρ₁ = ↻-ren-σ

@@ -122,6 +122,15 @@ data Type Δ where
        Type Δ R[ κ₂ ]
 
 
+--------------------------------------------------------------------------------
+-- A predicate grouping Π and Σ 
+
+isRowOp : Type Δ (R[ κ ] `→ κ) → Set
+isRowOp (` α) = ⊥
+isRowOp (`λ t) = ⊥
+isRowOp (t · t₁) = ⊥
+isRowOp Π = ⊤
+isRowOp Σ = ⊤
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors

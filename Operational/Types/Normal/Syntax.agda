@@ -173,7 +173,6 @@ data NormalType Δ where
       ------------------
       NormalType Δ L
 
-
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 

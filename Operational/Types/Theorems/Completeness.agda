@@ -140,6 +140,11 @@ data _≡t_ where
          ----------------------------
          Π · (l ▹ τ) ≡t (l ▹ (Π · τ))
 
+    eq-Σ : ∀ {l} {τ : Type Δ R[ κ ]} → 
+
+         ----------------------------
+         Σ · (l ▹ τ) ≡t (l ▹ (Σ · τ))
+
 
     eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) R[ κ₂ ]} → 
 
@@ -173,11 +178,12 @@ eq-Πℓ² = eq-Π
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
-nested-π-ne : ∀ (x : NeutralType Δ R[ R[  κ ] ]) → πNE x ≋ π (left x)
-nested-π-ne {κ = ★} x = refl
-nested-π-ne {κ = L} x = refl
-nested-π-ne {κ = κ `→ κ₁} x = refl
-nested-π-ne {κ = R[ κ ]} x = refl
+open Chi
+nested-ξ-ne : ∀ (Ξ : Chi) (x : NeutralType Δ R[ R[  κ ] ]) → reflectNE (Ξ .ΞNE x) ≋ ξ Ξ (left x)
+nested-ξ-ne {κ = ★} Ξ x = refl
+nested-ξ-ne {κ = L} Ξ x = refl
+nested-ξ-ne {κ = κ `→ κ₁} Ξ x = refl
+nested-ξ-ne {κ = R[ κ ]} Ξ x = refl
 
 fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
@@ -219,8 +225,22 @@ fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ
     Unif-π▹· l' G (Unif-G , (Unif-G , refl-Extᵣ Ext)) , 
     λ ρ v → cong-π (cong-▹ refl (Ext ρ v))
 fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
-... | l | .l | refl | left x | left x₁ | refl = refl , nested-π-ne x
+... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Π-rec x
 ... | l | .l | refl | right y | right y₁ | c = refl , (cong-π c)
+fund {κ = R[ ★ ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
+fund {κ = R[ L ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = L}) (idext {κ = R[ L ]} e τ)))
+fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
+... | l | .l | refl | left x | left x₁ | refl = refl , refl
+... | l | .l | refl | right (l' , left f) | right (.l' , left .f) | refl , refl = 
+    refl , Unif-NE-σ▹· l' f , Unif-NE-σ▹· l' f , λ ρ v → cong-σ (cong-▹ refl (reflectNE-≋ (cong₂ _·_ refl (reify-≋ v))))
+... | l | .l | refl | right (l' , right F) | right (.l' , right G) | refl , (Unif-F , Unif-G , Ext) = 
+    refl , 
+    Unif-σ▹· l' F (Unif-F , (Unif-F , refl-Extₗ Ext)) , 
+    Unif-σ▹· l' G (Unif-G , (Unif-G , refl-Extᵣ Ext)) , 
+    λ ρ v → cong-σ (cong-▹ refl (Ext ρ v))
+fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
+... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Σ-rec x
+... | l | .l | refl | right y | right y₁ | c = refl , (cong-σ c)
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
 fund e eq-Πλ = {! !}
 fund e eq-▹$ = {!  !}
