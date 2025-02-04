@@ -174,6 +174,23 @@ data NormalType Δ where
       NormalType Δ L
 
 --------------------------------------------------------------------------------
+-- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
+-- constructors.
+
+inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} → ne e₁ ≡ ne e₂ → e₁ ≡ e₂
+inj-ne refl = refl
+
+inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
+inj-▹ₗ refl = refl
+
+inj-▹ᵣ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → τ₁ ≡ τ₂
+inj-▹ᵣ refl = refl
+
+inj-row : ∀ {ρ₁ ρ₂ : Row Δ R[ κ ]} → row ρ₁ ≡ row ρ₂ → ρ₁ ≡ ρ₂
+inj-row refl = refl
+
+
+--------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) → ∃[ x ] (ρ ≡ ne x) or 
@@ -216,3 +233,4 @@ row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
+

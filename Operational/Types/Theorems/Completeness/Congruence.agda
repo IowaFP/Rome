@@ -19,7 +19,7 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Completeness.Relation
 
 --------------------------------------------------------------------------------
--- related applicands yield related applications
+-- Application respects ≋
 
 cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
            _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
@@ -30,6 +30,9 @@ cong-App {V₁ = left x} {left .x} refl q = reflectNE-≋ (cong (x ·_) (reify-�
 cong-App {V₁ = left x} {right y} () q
 cong-App {V₁ = right y} {left x} () q
 cong-App {V₁ = right F} {right G} (unif-F , unif-G , Ext) q = Ext id q           
+
+--------------------------------------------------------------------------------
+-- Labeled rows respect ≋
 
 cong-▹ : ∀ {L₁ L₂ : NormalType Δ L} → 
            _≋_ {κ = L} L₁ L₂ → 
@@ -42,6 +45,9 @@ cong-▹ {κ₁ = κ₁ `→ κ₂} refl {left x} {left x₁} w = refl , w
 cong-▹ {κ₁ = κ₁ `→ κ₂} refl {right F} {right G} ≋W = 
   refl , ≋W
 cong-▹ {κ₁ = R[ κ₁ ]} refl w = refl , w
+
+--------------------------------------------------------------------------------
+-- Mapping respects ≋
 
 cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
            _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 

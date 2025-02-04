@@ -55,6 +55,14 @@ Uniform {Δ₁} {κ₁} {κ₂} F =
   ∀ {Δ₂ Δ₃} (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
   V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (F (ρ₂ ∘ ρ₁) (renSem ρ₂ V₂))
 
+
+--------------------------------------------------------------------------------
+-- - Uniformity is preserved under renaming (ren-Uniform)
+--   (This is actually just what uniformity means.)
+
+ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renaming Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
+ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
+
 --------------------------------------------------------------------------------
 -- Pointwise PER for environments
 

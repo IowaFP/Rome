@@ -130,7 +130,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
   cong (renNE ρ f ·_) (trans (↻-ren-reify ρ (refl-≋ₗ r)) (reify-≋ (ren-≋ ρ r)))
 ↻-ren-app {κ₂ = κ₂} ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
   trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋ₗ (sym-≋ r)))))
-              
+
 
 --------------------------------------------------------------------------------
 -- - Renaming commutes with labeled rows (↻-ren-▹)
@@ -165,11 +165,61 @@ ren-comp-Kripke-▹ {κ₁ = κ₁} {κ₂} {ρ₁} {ρ₂} l F G V₁ V₂ q (U
       (cong-▹ (sym (ren-comp ρ₁ ρ₂ l)) (Unif-G ρ₁ (ρ₂ ∘ id) V₂ V₂ (refl-≋ₗ (sym-≋ q))))
 
 --------------------------------------------------------------------------------
--- - Uniformity is preserved under renaming (ren-Uniform)
---   (This is actually just what uniformity means.)
+-- Renaming commutes with <$>
 
-ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renaming Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
-ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
+↻-ren-<$> : ∀ (ρ : Renaming Δ₁ Δ₂) 
+            {V₁ V₂ : SemType Δ₁ (κ₁ `→ κ₂)} → 
+           _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
+           {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
+           W₁ ≋ W₂ → 
+           _≋_ {κ = R[ κ₂ ]} (renSem ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem ρ W₂)
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {left f} {left .f} refl {ne x} {ne x₁} refl = ↻-ren-reflectNE ρ (ne f <$> x)
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {left f} {left .f} refl {row (l ▹ τ)} {row (.l ▹ .τ)} refl = 
+  trans-≋ 
+    (↻-ren-▹ ρ l (reflectNE (f · τ)) (reflectNE (f · τ)) (reflectNE-≋ refl) ) 
+  (cong-▹ refl (↻-ren-reflectNE ρ (f · τ)))
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {left f} {left .f} refl {ne x} {ne .x} refl = ↻-ren-reflectNE ρ (ne f <$> x)
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {left f} {left .f} refl {row (l ▹ τ)} {row (.l ▹ .τ)} refl = 
+  trans-≋ 
+    (↻-ren-▹ ρ l (reflectNE (f · τ)) (reflectNE (f · τ)) (reflectNE-≋ refl) ) 
+  (cong-▹ refl (↻-ren-reflectNE ρ (f · τ)))
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {left f} {left .f} refl {left x} {left .x} refl = ↻-ren-reflectNE ρ (ne f <$> x)
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {left f} {left .f} refl {right (l , left x)} {right (.l , left .x)} (refl , refl) = 
+  trans-≋ 
+    (↻-ren-▹ ρ l (reflectNE (f · (ne x))) (reflectNE (f · (ne x))) (reflectNE-≋ refl) ) 
+  (cong-▹ refl (↻-ren-reflectNE ρ (f · (ne x))))
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {left f} {left .f} refl {right (l , right F)} {right (.l , right G)} (refl , q@(Unif-F , Unif-G , Ext))  = 
+-- fuck this
+  trans-≋ 
+    (↻-ren-▹ ρ l (reflectNE _) (reflectNE _) (reflectNE-≋ refl) ) 
+  (cong-▹ refl 
+  (trans-≋ 
+    (↻-ren-reflectNE ρ (f · `λ (reify (F S (reflectNE (` Z)))))) 
+    (reflectNE-≋ (cong (renNE ρ f ·_) 
+      (cong `λ 
+        (trans 
+          (↻-ren-reify (lift ρ) {F S (reflectNE (` Z))} {G S (reflectNE (` Z))} 
+          (Ext S (reflectNE-≋ refl))) 
+          (reify-≋ 
+            (trans-≋ 
+              (Unif-G S (lift ρ) (reflectNE (` Z)) (reflectNE (` Z)) (reflectNE-≋ refl)) 
+              (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflectNE (lift ρ) (` Z)))))))))))
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {left x} {left .x} refl = {!!}
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {right (l , snd₁)} {right (.l , snd₂)} (refl , snd₃) = {!!}
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} v {ne x} {ne .x} refl = {!!}
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} v {row (l ▹ τ)} {row .(l ▹ τ)} refl = {!ρ₂!}
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} v {ne x} {ne .x} refl = {!!}
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} v {row (l ▹ τ)} {row .(l ▹ τ)} refl = {!ρ₂!}
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F} {right G} v {left x} {left .x} refl = {!!}
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F₁} {right G₁} v {right (l , left x)} {right (.l , left .x)} (refl , refl) = {!!}
+↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F₁} {right G₁} v {right (l , right F₂)} {right (.l , right G₂)} (refl , q) = {!!}
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {right F} {right G} v {left x} {left .x} refl = {!!}
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {right F} {right G} v@(Unif-F , Unif-G , Ext) {right (l , τ₁)} {right (.l , τ₂)} (refl , q) = 
+  trans-≋ 
+    (ren-≋ ρ (cong-▹ (sym (ren-id l)) (refl-Extₗ Ext id (refl-≋ₗ q))))
+    (trans-≋ 
+      (ren-comp-Kripke-▹ {ρ₁ = id} {ρ₂ = ρ} l F G τ₁ τ₂ q v) 
+      (cong-▹ ( trans (ren-comp id ρ l) (cong (N.ren ρ) (ren-id l))) (refl-Extᵣ Ext (ρ ∘ id) (ren-≋ ρ (refl-≋ᵣ q)))))
 
 --------------------------------------------------------------------------------
 -- - Renaming commutes with ξ
@@ -303,7 +353,6 @@ Unif-σ ρ₁ = ↻-ren-σ
 --------------------------------------------------------------------------------
 -- id extension
 --
--- Lemma needed for semantic renaming commutation theorem.
 -- States that if we evaluate a single term in related environments, we get related results.
 -- 
 -- Mutually recursive with commutativity of semantic renaming and evaluation (↻-ren-eval):
@@ -372,17 +421,17 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     (reify-≋ (↻-ren-eval ρ τ (refl-≋ᵣ ∘ e))))
 ↻-ren-eval ρ (π ⇒ τ) e = cong₂ _⇒_ (↻-ren-eval-pred ρ π e) (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ (lab l) e = refl
-↻-ren-eval ρ (l ▹ τ) {η₁} {η₂} e = 
-  trans-≋ 
-    (ren-≋ {V₁ = (eval l η₁ ▹V eval τ η₁)} {V₂ = (eval l η₁ ▹V eval τ η₂)} ρ (cong-▹ refl (idext e τ))) 
-    (trans-≋ 
-      (↻-ren-▹ ρ (eval l η₁) (eval τ η₂) (eval τ η₂) (refl-≋ₗ (sym-≋ (idext e τ)))) 
-      (cong-▹ (↻-ren-eval ρ l e) (↻-ren-eval ρ τ (refl-≋ₗ ∘ sym-≋ ∘ e))))
+↻-ren-eval ρ (l ▹ τ) {η₁} {η₂} e =
+  (trans-≋ 
+      (↻-ren-▹ ρ (eval l η₁) (eval τ η₁) (eval τ η₂) (idext e τ)) 
+      ((cong-▹ (↻-ren-eval ρ l e) (↻-ren-eval ρ τ (refl-≋ᵣ ∘ e)))))
 ↻-ren-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-ren-eval ρ τ e)
 ↻-ren-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
 ↻-ren-eval ρ Σ e = Unif-σ , Unif-σ , (λ ρ₁ x → cong-σ x) 
-↻-ren-eval ρ (τ <$> τ₁) e = {!   !}
-
+↻-ren-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = 
+  trans-≋ 
+    (↻-ren-<$> ρ (idext e τ₁) (idext e τ₂)) 
+    (cong-<$> (↻-ren-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-ren-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     sym (reify-≋ (idext e ρ₁))
   | sym (reify-≋ (idext e ρ₂)) 
