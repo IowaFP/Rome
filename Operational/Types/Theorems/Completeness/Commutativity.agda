@@ -204,12 +204,46 @@ ren-comp-Kripke-▹ {κ₁ = κ₁} {κ₂} {ρ₁} {ρ₂} l F G V₁ V₂ q (U
             (trans-≋ 
               (Unif-G S (lift ρ) (reflectNE (` Z)) (reflectNE (` Z)) (reflectNE-≋ refl)) 
               (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflectNE (lift ρ) (` Z)))))))))))
-↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {left x} {left .x} refl = {!!}
-↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {right (l , snd₁)} {right (.l , snd₂)} (refl , snd₃) = {!!}
-↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} v {ne x} {ne .x} refl = {!!}
-↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} v {row (l ▹ τ)} {row .(l ▹ τ)} refl = {!ρ₂!}
-↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} v {ne x} {ne .x} refl = {!!}
-↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} v {row (l ▹ τ)} {row .(l ▹ τ)} refl = {!ρ₂!}
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {left x} {left .x} refl = ↻-ren-reflectNE ρ (ne f <$> x)
+↻-ren-<$> {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} ρ {left f} {left .f} refl {right (l , τ₁)} {right (.l , τ₂)} (refl , q) = 
+  trans-≋ 
+    (↻-ren-▹ ρ l (reflectNE (f · reify τ₁)) (reflectNE (f · reify τ₁)) (reflectNE-≋ refl)) 
+    (cong-▹ refl 
+      (trans-≋ 
+        (↻-ren-reflectNE ρ (f · reify τ₁)) 
+        (reflectNE-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ q)))))
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} q@(Unif-F , Unif-G , Ext) {ne x} {ne .x} refl = 
+  trans-≋ 
+    (↻-ren-reflectNE ρ (reify (right F) <$> x)) 
+    (reflectNE-≋ 
+      (cong₂ _<$>_ 
+        (cong `λ 
+        (trans 
+          (↻-ren-reify (lift ρ) (Ext S refl)) 
+          (reify-≋ 
+            (trans-≋ 
+              (Unif-G S (lift ρ) (reflectNE {κ = ★} (` Z)) (reflectNE {κ = ★} (` Z)) refl) 
+              (refl-Extᵣ {κ₁ = ★} Ext (S ∘ ρ) (↻-ren-reflectNE {κ = ★} (lift ρ) (` Z)) ))))) refl))
+↻-ren-<$> {κ₁ = ★} {κ₂ = κ₂} ρ {right F} {right G} q@(Unif-F , Unif-G , Ext) {row (l ▹ τ)} {row .(l ▹ τ)} refl = 
+  trans-≋ 
+    (ren-≋ ρ (cong-▹ (sym (ren-id l)) (refl-Extₗ {κ₁ = ★} Ext id {τ} {τ} refl ))) 
+    (ren-comp-Kripke-▹ {κ₁ = ★} {ρ₁ = id} {ρ} l F G τ τ refl q)
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} q@(Unif-F , Unif-G , Ext) {ne x} {ne .x} refl = 
+  trans-≋ 
+    (↻-ren-reflectNE ρ (reify (right F) <$> x)) 
+    (reflectNE-≋ 
+      (cong₂ _<$>_ 
+        (cong `λ 
+        (trans 
+          (↻-ren-reify (lift ρ) (Ext S refl)) 
+          (reify-≋ 
+            (trans-≋ 
+              (Unif-G S (lift ρ) (reflectNE {κ = L} (` Z)) (reflectNE {κ = L} (` Z)) refl) 
+              (refl-Extᵣ {κ₁ = L} Ext (S ∘ ρ) (↻-ren-reflectNE {κ = L} (lift ρ) (` Z)) ))))) refl))
+↻-ren-<$> {κ₁ = L} {κ₂ = κ₂} ρ {right F} {right G} q@(Unif-F , Unif-G , Ext) {row (l ▹ τ)} {row .(l ▹ τ)} refl =
+  trans-≋ 
+    (ren-≋ ρ (cong-▹ (sym (ren-id l)) (refl-Extₗ {κ₁ = L} Ext id {τ} {τ} refl ))) 
+    (ren-comp-Kripke-▹ {κ₁ = L} {ρ₁ = id} {ρ} l F G τ τ refl q)
 ↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F} {right G} v {left x} {left .x} refl = {!!}
 ↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F₁} {right G₁} v {right (l , left x)} {right (.l , left .x)} (refl , refl) = {!!}
 ↻-ren-<$> {κ₁ = κ₁ `→ κ₃} {κ₂ = κ₂} ρ {right F₁} {right G₁} v {right (l , right F₂)} {right (.l , right G₂)} (refl , q) = {!!}
