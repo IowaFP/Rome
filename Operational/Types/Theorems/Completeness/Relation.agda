@@ -34,18 +34,10 @@ _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G
  
-_≋_ {κ = R[ κ ]} τ₁ τ₂ = ?
-_≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
-_≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
-_≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
-_≋_ {κ = R[ κ `→ κ₁ ]} (right x) (left y) = ⊥
-_≋_ {Δ₁} {κ = R[ κ₁ `→ κ₂ ]} (right ( l₁ ,  F )) (right ( l₂ , G )) =
-  l₁ ≡ l₂ × (_≋_ {κ = κ₁ `→ κ₂} F G)
-_≋_ {κ = R[ R[ κ ] ]} (left x) (left y) = x ≡ y
-_≋_ {κ = R[ R[ κ ] ]} (left x) (right y) = ⊥
-_≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
-_≋_ {Δ₁} {κ = R[ R[ κ ] ]} (right ( l₁ , τ₁ )) (right ( l₂ , τ₂ )) = 
-  l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {κ = R[ κ ]} (left x) (left y) = x ≡ y
+_≋_ {κ = R[ κ ]} (left x) (right y) = ⊥
+_≋_ {κ = R[ κ ]} (right y) (left x) = ⊥
+_≋_ {κ = R[ κ ]} (right (l₁ , τ₁)) (right (l₂ , τ₂)) = l₁ ≡ l₂ × τ₁ ≋ τ₂
 
 PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
@@ -95,13 +87,8 @@ sym-≋ {κ = κ `→ κ₁}
   {right F} {right G} 
   (Unif-F , (Unif-G , Ext)) = 
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
-sym-≋ {κ = R[ ★ ]}   refl = refl
-sym-≋ {κ = R[ L ]}   refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-sym-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , F)} {right (.l₁ , G)} (refl , F≋G) = refl , (sym-≋ F≋G)
-sym-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
-sym-≋ {κ = R[ R[ κ ] ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , eq) = refl , sym-≋ eq 
-
+sym-≋ {κ = R[ κ ]} {left x} {left x₁} q = sym q
+sym-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (_ , τ₂)} (refl , q) = refl , (sym-≋ q)
 
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
@@ -114,14 +101,8 @@ trans-≋ {κ = κ₁ `→ κ₂} {right F} {right G} {right H}
     unif-F , 
     unif-H , 
     λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
-trans-≋ {κ = R[ ★ ]} q₁ q₂ = trans q₁ q₂
-trans-≋ {κ = R[ L ]} q₁ q₂ = trans q₁ q₂
-trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {left _} {left _} refl q₂ = q₂
-trans-≋ {κ = R[ κ₁ `→ κ₂ ]} {right (l , F)} {right (.l , G)} {right (l' , H)} 
-  (refl , F≋G) (refl , G≋H) = refl , trans-≋ F≋G G≋H
-trans-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} {τ₃ = τ₃} refl q₂ = q₂
-trans-≋ {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} {τ₃ = right (.l , H)} (refl , F≋G) (refl , G≋H) = refl , trans-≋ F≋G G≋H
-
+trans-≋ {κ = R[ κ ]} {left x} {left _} {left _} refl refl = refl
+trans-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (.l , τ₂)} {right (.l , τ₃)} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
 
 --------------------------------------------------------------------------------
 -- Pointwise extensionality (accordingly) forms a PER
@@ -164,13 +145,10 @@ reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → r
 reflectNE-≋ {κ = ★} refl = refl
 reflectNE-≋ {κ = L} refl = refl
 reflectNE-≋ {κ = κ `→ κ₁} eq = eq
-reflectNE-≋ {κ = R[ ★ ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ L ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ κ `→ κ₁ ]} {τ₁ = τ₁} refl = refl
-reflectNE-≋ {κ = R[ R[ κ ] ]} {τ₁ = τ₁} refl = refl
+reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} q = q
 
---------------------------------------------------------------------------------
--- Reify semantic equality back to propositional equality
+-- --------------------------------------------------------------------------------
+-- -- Reify semantic equality back to propositional equality
 
 reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
 reify-≋ {κ = ★}  sem-eq = sem-eq
@@ -178,15 +156,8 @@ reify-≋ {κ = L} sem-eq = sem-eq
 reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
 reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
   ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
-reify-≋ {κ = R[ ★ ]} sem-eq = sem-eq
-reify-≋ {κ = R[ L ]} sem-eq = sem-eq
-reify-≋ {κ = R[ κ `→ κ₁ ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , left F)} {right (l₂ , left G)} (refl , refl) = refl
-reify-≋ {κ = R[ κ `→ κ₁ ]} {right (l₁ , right F)} {right (l₂ , right G)} (refl , unif-F , unif-G , Ext) = 
-  cong row (cong (_▹_ l₁) (cong `λ (reify-≋ (Ext S (reflectNE-≋ refl)))))
-reify-≋ {κ = R[ R[ κ ] ]} {left x} {left x₁} refl = refl
-reify-≋ {κ = R[ R[ κ ] ]} {right y} {right y₁} ( refl , sem-eq ) 
- rewrite reify-≋ sem-eq = refl
+reify-≋ {κ = R[ κ ]} {left _} {left _} refl = refl
+reify-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (l , τ₂)} (refl , q) = cong (row ∘ (l ▹_)) (reify-≋ q)
 
 --------------------------------------------------------------------------------
 -- Functorial actions
@@ -196,7 +167,8 @@ renSem-id-≋ {κ = ★} refl = ren-id _
 renSem-id-≋ {κ = L} refl = ren-id _
 renSem-id-≋ {κ = κ `→ κ₁} {left f} {left .f} refl = ren-id-ne f
 renSem-id-≋ {κ = κ `→ κ₁} {right F} {right G} e = e
-renSem-id-≋ {κ = R[ κ ]} {V₁} e rewrite renSem-id V₁ = e
+renSem-id-≋ {κ = R[ κ ]} {left x} e rewrite ren-id-ne x = e
+renSem-id-≋ {_} {R[ κ ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , q) = (ren-id l) , renSem-id-≋ q
 
 ren-comp-≋  : ∀ (ρ₁ : Renaming Δ₁ Δ₂)(ρ₂ : Renaming Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
@@ -207,15 +179,5 @@ ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {right F} {right G} (Unif-F , Unif
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-ren-comp-≋ {κ = R[ ★ ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
-ren-comp-≋ {κ = R[ L ]} ρ₁ ρ₂ {V₁} refl = ren-comp _ _ _
-ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
-ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , left _)} {right (.l , left _)} (refl , refl) = (ren-comp _ _ _) , (ren-comp-ne _ _ _)
-ren-comp-≋ {κ = R[ κ `→ κ₁ ]} ρ₁ ρ₂ {right (l , right y)} {right (.l , right y₁)} (refl , Unif-F , Unif-G , Ext) = 
-  (ren-comp _ _ _) , 
-  (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
-  (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
-  (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-ren-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne _ _ _
-ren-comp-≋ {κ = R[ R[ κ ] ]} ρ₁ ρ₂ {right (l , F)} {right (.l , G)} (refl , q)  = (ren-comp _ _ _) , (ren-comp-≋ _ _ q)
-
+ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left x} {left x₁} refl = ren-comp-ne ρ₁ ρ₂ x
+ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (l , τ₁)} {right (_ , τ₂)} (refl , q) = (ren-comp ρ₁ ρ₂ l) , (ren-comp-≋ ρ₁ ρ₂ q)
