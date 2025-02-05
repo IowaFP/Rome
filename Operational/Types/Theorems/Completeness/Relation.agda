@@ -23,7 +23,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 -- Completeness relation on semantic types
 _≋_ : SemType Δ κ → SemType Δ κ → Set
-Extensionality-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
+PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
 Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
 
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
@@ -32,7 +32,7 @@ _≋_ {κ = κ₁ `→ κ₂} (left x) (left y) = x ≡ y
 _≋_ {κ = κ₁ `→ κ₂} (left x) (right y) = ⊥
 _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) = 
-  Uniform F × Uniform G × Extensionality-≋ {Δ₁} F G
+  Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G
  
 _≋_ {κ = R[ ★ ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
@@ -47,7 +47,7 @@ _≋_ {κ = R[ R[ κ ] ]} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = R[ R[ κ ] ]} (right ( l₁ , τ₁ )) (right ( l₂ , τ₂ )) = 
   l₁ ≡ l₂ × τ₁ ≋ τ₂
 
-Extensionality-≋ {Δ₁} {κ₁} {κ₂} F G = 
+PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
   V₁ ≋ V₂ → F ρ V₁ ≋ G ρ V₂
 
@@ -126,16 +126,16 @@ trans-≋ {κ = R[ R[ κ ] ]} {right (l , F)} {right (.l , G)} {τ₃ = right (.
 --------------------------------------------------------------------------------
 -- Pointwise extensionality (accordingly) forms a PER
 
-refl-Extₗ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ F F
+refl-Extₗ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ F F
 refl-Extₗ Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋ₗ (sym-≋ q))))
 
-sym-Ext : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G F
+sym-Ext : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G F
 sym-Ext Ext ρ q = trans-≋ (refl-≋ₗ (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
 
-refl-Extᵣ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G G
+refl-Extᵣ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G G
 refl-Extᵣ Ext ρ q = refl-Extₗ (sym-Ext Ext) ρ q
 
-trans-Ext : ∀ {F G H : KripkeFunction Δ₁ κ₁ κ₂} → Extensionality-≋ F G → Extensionality-≋ G H → Extensionality-≋ F H
+trans-Ext : ∀ {F G H : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G H → PointEqual-≋ F H
 trans-Ext Ext-FG Ext-GH ρ q = trans-≋ (Ext-FG ρ q) (trans-≋ (Ext-GH ρ (sym-≋ q)) (refl-Extᵣ Ext-GH ρ q))
 
 --------------------------------------------------------------------------------

@@ -97,4 +97,3 @@ ren-≋ {κ = R[ κ₁ `→ κ₂ ]} {V₁ = right (l , right F)} {right (.l , r
   (refl , q) = refl , ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {V₂ = right G}  ρ₁ q
 ren-≋ {κ = R[ R[ κ ] ]} {V₁ = left _} {left _} ρ refl = refl
 ren-≋ {κ = R[ R[ κ ] ]} {V₁ = right (l , F)} {right (.l , G)} ρ (refl , q) = refl , (ren-≋ {κ = R[ κ ]} ρ q)
- 

@@ -11,7 +11,6 @@ module Rome.Presentation where
 
 import Rome.IndexCalculus.Recursion
 
-
 -- Some problems with this approach:
 -- 1. ugly
 -- 2. Only permits a bounded depth n of recursive construction. When n ≥ 3 or so,
@@ -35,7 +34,6 @@ import Rome.IndexCalculus.Recursion
 --  - Renaming, renaming, renaming
 -- In between:
 --  - Forces us to be explicit about type normalization (This presentation)
-
 
 --------------------------------------------------------------------------------
 -- #3 On type normalization
@@ -98,6 +96,10 @@ import Rome.Operational.Types.Semantic.Syntax
 -- "reify" semantic types into NormalTypes. 
 import Rome.Operational.Types.Semantic.NBE
 
+-- Here are some example reductions:
+
+import Rome.Operational.Types.Semantic.Examples
+
 -- The challenges posed by Rωμ as opposed to SFFP is that we have more
 -- "computation" than just beta reduction. In particular:
 -- - Π and Σ has computation to perform
@@ -107,8 +109,8 @@ import Rome.Operational.Types.Semantic.NBE
 -- #5 Proof technique: Kripke logical relation
 -- 
 -- Our semantic space is "too large". In particular, the definition:
--- KripkeFunction : KEnv → Kind → Kind → Set
--- KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+--   KripkeFunction : KEnv → Kind → Kind → Set
+--   KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 --
 -- Includes functions that do *not* respect renaming. We call KripkeFunctions
 -- that respect renaming "uniform".
