@@ -155,8 +155,9 @@ open Xi
 ↻-ren-ξ Ξ {κ} ρ (left x) (left x₁) refl rewrite (sym (Ξ .ren-NE ρ x)) = ↻-ren-reflectNE ρ (Ξ .ΞNE x)
 ↻-ren-ξ Ξ {★} ρ (right (l , τ)) (right (.l , .τ)) (refl , refl) = Ξ .ren-★ ρ (l ▹ τ)
 ↻-ren-ξ Ξ {L} ρ (right (l , τ)) (right (.l , .τ)) (refl , refl) = Ξ .ren-L ρ (l ▹ τ)
-↻-ren-ξ Ξ {κ `→ κ₁} ρ (right (l , F)) (right (.l , G)) (refl , q) = 
-    (λ ρ₁ ρ₂ V₁ V₂ x → {!   !}) , ({!   !} , {!   !})
+↻-ren-ξ Ξ {κ `→ κ₁} ρ (right (l , left f)) (right (.l , left g)) (refl , refl) = 
+  (ren-Uniform ρ (Unif-NE-ξ▹· Ξ l f)) , (Unif-NE-ξ▹· Ξ (N.ren ρ l) (renNE ρ f)) , λ ρ v → {!   !}
+↻-ren-ξ Ξ {κ `→ κ₁} ρ (right (l , right F)) (right (.l , right G)) (refl , q) = {!   !}
 ↻-ren-ξ Ξ {R[ κ ]} ρ (right (l , τ₁)) (right (.l , τ₂)) (refl , q) = refl , (↻-ren-ξ Ξ ρ τ₁ τ₂ q)
 -- ↻-ren-ξ Ξ {★} ρ (row ρ₁) V₂ refl rewrite ren-★ Ξ ρ ρ₁ = refl
 -- ↻-ren-ξ Ξ {L} ρ (ne x) V₂ refl rewrite (Ξ .ren-NE ρ x) = refl
