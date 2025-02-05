@@ -21,7 +21,7 @@ reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 
 reflectNE {κ = ★} τ            = ne τ
 reflectNE {κ = L} τ            = ne τ
-reflectNE {κ = R[ κ ]} τ       = left (ne τ)
+reflectNE {κ = R[ κ ]} τ       = {!   !}
 reflectNE {κ = κ `→ κ₁} τ     = left τ
 
 --------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = R[ κ ]} (left x) = x
+reify {κ = R[ κ ]} (left x) = {!   !}
 reify {κ = R[ κ ]} (right (l , τ)) = row (l ▹ (reify τ))
 
 --------------------------------------------------------------------------------
@@ -85,110 +85,94 @@ record Xi : Set where
     ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (renRow ρ τ)
     ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (renRow ρ τ)
 
+open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = ★} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left (ne x)) = ne (ΞNE x)
-ξ {κ = ★} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left (row ρ)) = Ξ★ ρ
-ξ {κ = L} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = {!!}
-ξ {κ = κ `→ κ₁} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = {!!}
-ξ {κ = R[ κ ]} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = {!!}
-ξ {κ = ★} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , τ)) = Ξ★ (l ▹ τ)
-ξ {κ = L} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = ΞL ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , τ)) = ΞL (l ▹ τ)
-ξ {κ = κ `→ κ₁} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , left x)) = {! !}
-ξ {κ = κ `→ κ₁} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , right y)) = {!!}
-ξ {κ = R[ κ ]} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , left x)) = left {!!}
-ξ {κ = R[ κ ]} record { ΞNE = ΞNE ; Ξ★ = _ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (right (l , right y)) = {!!}
+ξ {κ = κ} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = reflectNE (ΞNE x)
+ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
+ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
+ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = right (λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v)))
+ξ {κ = R[ κ ]} Ξ (right (l , τ)) = right (l , ξ Ξ τ)
 
--- open Xi 
+Π-rec Σ-rec : Xi 
+Π-rec = record
+  { ΞNE = Π ; Ξ★ = Π ; ΞL = ΠL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+Σ-rec = 
+  record
+  { ΞNE = Σ ; Ξ★ = Σ ; ΞL = ΣL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 
--- Π-rec Σ-rec : Xi 
--- Π-rec = record
---   { ΞNE = Π ; Ξ★ = Π ; ΞL = ΠL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
--- Σ-rec = 
---   record
---   { ΞNE = Σ ; Ξ★ = Σ ; ΞL = ΣL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+π = ξ Π-rec
+σ = ξ Σ-rec
 
--- π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
--- π = ξ Π-rec
--- σ = ξ Σ-rec
+π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
+π-Kripke ρ v = π v
+σ-Kripke ρ v = σ v
 
--- π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
--- π-Kripke ρ v = π v
--- σ-Kripke ρ v = σ v
+--------------------------------------------------------------------------------
+-- Semantic combinator for Lifting
 
--- --------------------------------------------------------------------------------
--- -- Semantic combinator for Lifting
+_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
 
--- _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
--- _<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
--- ... | ne τ         = reflectNE ((ne F) <$> τ)
--- ... | row (l ▹ τ) = _▹V_ {κ = κ₂} l (reflectNE (F · τ)) 
--- _<$>V_ {κ₁ = ★} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
--- _<$>V_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
--- _<$>V_ {κ₁ = L} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
--- _<$>V_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
--- _<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , G)) = l ▹V (F id G)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
--- _<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) = l ▹V (F id τ)
+--------------------------------------------------------------------------------
+-- Type evaluation.
 
--- --------------------------------------------------------------------------------
--- -- Type evaluation.
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
 
--- eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
 
--- evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
--- evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
--- eval {κ = κ} (` x) η = η x
--- eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
--- eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+eval {κ = ★} Unit η  = Unit
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
+eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
--- eval {κ = ★} Unit η  = Unit
--- eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
--- eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
--- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
--- eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
+----------------------------------------
+-- Label evaluation.
 
--- ----------------------------------------
--- -- Label evaluation.
+eval {κ = L} (lab l) η = lab l
 
--- eval {κ = L} (lab l) η = lab l
+----------------------------------------
+-- function evaluation.
 
--- ----------------------------------------
--- -- function evaluation.
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
 
--- eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
+----------------------------------------
+-- Type constants
+eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v)
+eval {κ = κ₁ `→ κ₂} Σ η = right (λ {Δ₃} ρ v → σ v) 
+eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
+eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▹V v))
 
--- ----------------------------------------
--- -- Type constants
--- eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v)
--- eval {κ = κ₁ `→ κ₂} Σ η = right (λ {Δ₃} ρ v → σ v) 
--- eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
--- eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▹V v))
+--------------------------------------------------------------------------------
+-- Type normalization
 
--- --------------------------------------------------------------------------------
--- -- Type normalization
+-- NormalType forms.
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
 
--- -- NormalType forms.
--- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
--- ⇓ τ = reify (eval τ idEnv)
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
--- ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
--- ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+--------------------------------------------------------------------------------
+-- Evaluation of 
+--   - neutral types to semantic types
+--   - normal types to semantic types
+--   - rows to semantic types 
+--
 
--- --------------------------------------------------------------------------------
--- -- Evaluation of 
--- --   - neutral types to semantic types
--- --   - normal types to semantic types
--- --   - rows to semantic types 
--- --
+evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
 
--- evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
-
--- evalNE τ η = eval (⇑NE τ) η
--- reflect τ η = eval (⇑ τ) η
--- reflectRow (l ▹ τ) η = eval (⇑ (row (l ▹ τ))) η
+evalNE τ η = eval (⇑NE τ) η
+reflect τ η = eval (⇑ τ) η
+reflectRow (l ▹ τ) η = eval (⇑ (row (l ▹ τ))) η
  
