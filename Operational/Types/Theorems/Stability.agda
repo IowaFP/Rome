@@ -18,7 +18,8 @@ open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Completeness.Relation
-open import Rome.Operational.Types.Theorems.Completeness.RelationProperties
+open import Rome.Operational.Types.Theorems.Completeness.Congruence
+open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -28,7 +29,8 @@ open import Rome.Operational.Types.Theorems.Completeness.RelationProperties
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
-stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → eval (⇑NE (F <$> τ)) idEnv ≡ reflectNE (F <$> τ)
+stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → 
+                 eval (⇑NE (F <$> τ)) idEnv ≡ reflectNE (F <$> τ)
 stabilityRow : ∀ (r : Row Δ R[ κ ]) → ⇓ (⇑Row r) ≡ row r
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
 
@@ -106,7 +108,8 @@ stability (ΣL x) rewrite stabilityRow x = refl
 stabilityRow {κ = ★} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = L} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
 stabilityRow {κ = κ `→ κ₁} (l ▹ ne x) rewrite stability l rewrite stabilityNE x = refl
-stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = cong row (cong (_▹_ l) (cong `λ (stability-β m)))
+stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = 
+  cong row (cong (_▹_ l) (cong `λ (stability-β m)))
 stabilityRow {κ = R[ κ ]} (l ▹ τ) rewrite stability l | stability τ = refl
 
 

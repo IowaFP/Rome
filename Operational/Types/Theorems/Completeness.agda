@@ -128,7 +128,7 @@ data _≡t_ where
          
 
   -- -------------------------------------
-  -- Interesting rules
+  -- Computational laws
 
     eq-β : ∀ {τ₁ : Type (Δ ,, κ₁) κ₂} {τ₂ : Type Δ κ₁} → 
 
