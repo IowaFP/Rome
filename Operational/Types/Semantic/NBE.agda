@@ -21,7 +21,7 @@ reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 
 reflectNE {κ = ★} τ            = ne τ
 reflectNE {κ = L} τ            = ne τ
-reflectNE {κ = R[ κ ]} τ       = {!   !}
+reflectNE {κ = R[ κ ]} τ       = left τ
 reflectNE {κ = κ `→ κ₁} τ     = left τ
 
 --------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = R[ κ ]} (left x) = {!   !}
+reify {κ = R[ κ ]} (left x) = ne x
 reify {κ = R[ κ ]} (right (l , τ)) = row (l ▹ (reify τ))
 
 --------------------------------------------------------------------------------

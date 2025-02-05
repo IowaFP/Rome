@@ -34,7 +34,7 @@ _≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G
  
-_≋_ {κ = R[ ★ ]} τ₁ τ₂ = τ₁ ≡ τ₂
+_≋_ {κ = R[ κ ]} τ₁ τ₂ = ?
 _≋_ {κ = R[ L ]} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (left y) = x ≡ y
 _≋_ {κ = R[ κ `→ κ₁ ]} (left x) (right y) = ⊥
