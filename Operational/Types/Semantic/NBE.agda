@@ -88,7 +88,7 @@ _▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
 --------------------------------------------------------------------------------
 -- (Generic) Semantic combinators for Π/Σ
 
-record Chi : Set where 
+record Xi : Set where 
   field
     ΞNE : ∀ {Δ'} {κ : Kind} → NeutralType Δ' R[ κ ] → NeutralType Δ' κ
     Ξ★ : ∀ {Δ'} → Row Δ' R[ ★ ] → NormalType Δ' ★
@@ -97,7 +97,7 @@ record Chi : Set where
     ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (renRow ρ τ)
     ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (renRow ρ τ)
 
-ξ : ∀ {Δ} → Chi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} record { ΞNE = ΞNE } (ne x) = reflectNE (ΞNE x)
 ξ {κ = ★} record { Ξ★ = Ξ★ } (row r) = Ξ★ r
 ξ {κ = L} record { ΞNE   = ΞNE } (ne x)   = reflectNE (ΞNE x) 
@@ -120,9 +120,9 @@ record Chi : Set where
 ξ {κ = R[ R[ κ ] ]} Ξ  (right (l , τ)) = 
     _▹V_ {κ = R[ κ ]} l (ξ {κ = R[ κ ]} Ξ τ)
 
-open Chi 
+open Xi 
 
-Π-rec Σ-rec : Chi 
+Π-rec Σ-rec : Xi 
 Π-rec = record
   { ΞNE = Π ; Ξ★ = Π ; ΞL = ΠL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 Σ-rec = 

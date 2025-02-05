@@ -180,8 +180,8 @@ eq-Πℓ² = eq-Π
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
-open Chi
-nested-ξ-ne : ∀ (Ξ : Chi) (x : NeutralType Δ R[ R[  κ ] ]) → reflectNE (Ξ .ΞNE x) ≋ ξ Ξ (left x)
+open Xi
+nested-ξ-ne : ∀ (Ξ : Xi) (x : NeutralType Δ R[ R[  κ ] ]) → reflectNE (Ξ .ΞNE x) ≋ ξ Ξ (left x)
 nested-ξ-ne {κ = ★} Ξ x = refl
 nested-ξ-ne {κ = L} Ξ x = refl
 nested-ξ-ne {κ = κ `→ κ₁} Ξ x = refl

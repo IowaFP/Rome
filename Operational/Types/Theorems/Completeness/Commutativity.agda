@@ -259,13 +259,14 @@ ren-comp-Kripke-▹ {κ₁ = κ₁} {κ₂} {ρ₁} {ρ₂} l F G V₁ V₂ q (U
 -- - Renaming commutes with ξ
 -- - ξ is congruent w.r.t. semantic equivalence 
 
-↻-ren-ξ : ∀ {Δ₁} {Δ₂} (Ξ : Chi) {κ : Kind} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (ξ Ξ V₁) ≋ ξ Ξ (renSem ρ V₂) 
-cong-ξ : ∀ (Ξ : Chi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → ξ Ξ τ₁ ≋ ξ Ξ τ₂
-Unif-NE-ξ▹· : ∀ (Ξ : Chi) (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
+↻-ren-ξ : ∀ {Δ₁} {Δ₂} (Ξ : Xi) {κ : Kind} (ρ : Renaming Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → V₁ ≋ V₂ → renSem ρ (ξ Ξ V₁) ≋ ξ Ξ (renSem ρ V₂) 
+cong-ξ : ∀ (Ξ : Xi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → τ₁ ≋ τ₂ → ξ Ξ τ₁ ≋ ξ Ξ τ₂
+Unif-NE-ξ▹· : ∀ (Ξ : Xi) (l : NormalType Δ L) (f : NeutralType Δ (κ₁ `→ κ₂)) →
             Uniform (λ ρ' v → ξ Ξ (N.ren ρ' l ▹V reflectNE (renNE ρ' f · reify v)))
-Unif-ξ▹· : ∀ (Ξ : Chi) (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right F) →             
+Unif-ξ▹· : ∀ (Ξ : Xi) (l : NormalType Δ L) (F : KripkeFunction Δ κ₁ κ₂) → _≋_ {κ = κ₁ `→ κ₂} (right F)  (right F) →             
               Uniform (λ ρ' v → ξ Ξ (N.ren ρ' l ▹V F ρ' v))
-open Chi
+
+open Xi
 ↻-ren-ξ Ξ {★} ρ (ne x) V₂ refl rewrite (Ξ .ren-NE ρ x) = refl
 ↻-ren-ξ Ξ {★} ρ (row ρ₁) V₂ refl rewrite ren-★ Ξ ρ ρ₁ = refl
 ↻-ren-ξ Ξ {L} ρ (ne x) V₂ refl rewrite (Ξ .ren-NE ρ x) = refl
