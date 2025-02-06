@@ -21,11 +21,8 @@ reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 
 reflectNE {κ = ★} τ            = ne τ
 reflectNE {κ = L} τ            = ne τ
-reflectNE {κ = R[ ★ ]} τ       = ne τ
-reflectNE {κ = R[ L ]} τ       = ne τ
+reflectNE {κ = R[ κ ]} τ       = left τ
 reflectNE {κ = κ `→ κ₁} τ     = left τ
-reflectNE {κ = R[ _ `→ _ ]} τ = left τ
-reflectNE {κ = R[ R[ κ ] ]} τ = left τ
 
 --------------------------------------------------------------------------------
 -- reification of semantic types
@@ -35,13 +32,8 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
 reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
-reify {κ = R[ ★ ]} τ = τ
-reify {κ = R[ L ]} τ = τ
-reify {κ = R[ κ₁ `→ κ₂ ]} (left τ) = ne τ
-reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , left F)) = row (l ▹ (ne F))
-reify {κ = R[ κ₁ `→ κ₂ ]} (right (l , right F)) = row (l ▹ (reify (right F)))
-reify {κ = R[ R[ κ₁ ] ]} (left x) =  ne x
-reify {κ = R[ R[ κ₁ ] ]} (right (l , τ)) = row (l ▹ (reify τ))
+reify {κ = R[ κ ]} (left x) = ne x
+reify {κ = R[ κ ]} (right (l , τ)) = row (l ▹ (reify τ))
 
 --------------------------------------------------------------------------------
 -- Semantic environments
@@ -78,11 +70,7 @@ right F ·V V = F id V
 -- Semantic combinator for labeled types
 
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹V_ {κ = ★} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
-_▹V_ {κ = L} ℓ τ = row (ℓ ▹ τ) -- ℓ ▹ τ
-_▹V_ {κ = κ₁ `→ κ₂} ℓ (left τ) = right (ℓ , (left τ))
-_▹V_ {κ = κ₁ `→ κ₂} ℓ (right F) = right (ℓ , (right F))
-_▹V_ {κ = R[ κ ]} ℓ τ = right (ℓ , τ)
+_▹V_ {κ = κ} ℓ τ = right (ℓ , τ)
 
 
 --------------------------------------------------------------------------------
@@ -97,30 +85,13 @@ record Xi : Set where
     ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (renRow ρ τ)
     ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (renRow ρ τ)
 
+open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = ★} record { ΞNE = ΞNE } (ne x) = reflectNE (ΞNE x)
-ξ {κ = ★} record { Ξ★ = Ξ★ } (row r) = Ξ★ r
-ξ {κ = L} record { ΞNE   = ΞNE } (ne x)   = reflectNE (ΞNE x) 
-ξ {κ = L} record { ΞL  = ΞL } (row r) = ΞL r 
-ξ {κ = κ₁ `→ κ₂} record { ΞNE = ΞNE } (left x) = reflectNE (ΞNE x) 
-ξ {κ = κ₁ `→ κ₂} Ξ  (right (l , left f))   = 
-  right (λ ρ' v → ξ Ξ (ren ρ' l ▹V reflectNE ((renNE ρ' f) · (reify v)))) 
-ξ {κ = κ₁ `→ κ₂} Ξ  (right (l , right F))  = 
-  right (λ ρ' v → ξ Ξ (ren ρ' l ▹V F ρ' v)) 
-ξ {κ = R[ ★ ]} record { ΞNE = ΞNE }  (left x)  = reflectNE (ΞNE x) 
-ξ {κ = R[ ★ ]} Ξ  (right (l , τ))          = row (l ▹ (reify (ξ {κ = ★} Ξ τ )))
-ξ {κ = R[ L ]}  record { ΞNE = ΞNE } (left x)  =  reflectNE (ΞNE x)
-ξ {κ = R[ L ]}  Ξ  (right (l , τ))         = row (l ▹ (reify (ξ {κ = L} Ξ τ )))
-ξ {κ = R[ κ₁ `→ κ₂ ]} record { ΞNE = ΞNE }  (left x) =  reflectNE (ΞNE x)
-ξ {κ = R[ κ₁ `→ κ₂ ]} record { ΞNE = ΞNE } (right (l , left τ)) =  _▹V_ {κ = κ₁ `→ κ₂} l (reflectNE {κ = κ₁ `→ κ₂} (ΞNE τ))
-ξ {κ = R[ κ₁ `→ κ₂ ]} Ξ  (right (l , τ)) = _▹V_ {κ = κ₁ `→ κ₂} l (ξ {κ = κ₁ `→ κ₂} Ξ τ)
-ξ {κ = R[ R[ κ ] ]} record { ΞNE = ΞNE }  (left x) =  reflectNE (ΞNE x)
-ξ {κ = R[ R[ κ ] ]} record { ΞNE = ΞNE }  (right (l , left τ)) =  
-    _▹V_ {κ = R[ κ ]} l (reflectNE {κ = R[ κ ]} (ΞNE τ))
-ξ {κ = R[ R[ κ ] ]} Ξ  (right (l , τ)) = 
-    _▹V_ {κ = R[ κ ]} l (ξ {κ = R[ κ ]} Ξ τ)
-
-open Xi 
+ξ {κ = κ} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = reflectNE (ΞNE x)
+ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
+ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
+ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = right (λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v)))
+ξ {κ = R[ κ ]} Ξ (right (l , τ)) = right (l , ξ Ξ τ)
 
 Π-rec Σ-rec : Xi 
 Π-rec = record
@@ -133,25 +104,19 @@ open Xi
 π = ξ Π-rec
 σ = ξ Σ-rec
 
+ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
+ξ-Kripke Ξ ρ v = ξ Ξ v
+
 π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
-π-Kripke ρ v = π v
-σ-Kripke ρ v = σ v
+π-Kripke = ξ-Kripke Π-rec
+σ-Kripke = ξ-Kripke Σ-rec
 
 --------------------------------------------------------------------------------
 -- Semantic combinator for Lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} (left F) τ with reify τ 
-... | ne τ         = reflectNE ((ne F) <$> τ)
-... | row (l ▹ τ) = _▹V_ {κ = κ₂} l (reflectNE (F · τ)) 
-_<$>V_ {κ₁ = ★} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
-_<$>V_ {κ₁ = ★} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
-_<$>V_ {κ₁ = L} {κ₂} (right F) (ne x) = reflectNE ((reify (right F)) <$> x)
-_<$>V_ {κ₁ = L} {κ₂} (right F) (row (l ▹ τ)) = l ▹V (F id τ)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = κ₁ `→ κ₂} (reify (right F))  x)
-_<$>V_ {κ₁ = κ₁ `→ κ₂} {κ₃} (right F) (right (l , G)) = l ▹V (F id G)
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (left x)  = reflectNE (_<$>_ {κ₁ = R[ κ₁ ]} (reify (right F))  x)
-_<$>V_ {κ₁ = R[ κ₁ ]} {κ₂} (right F) (right (l , τ)) = l ▹V (F id τ)
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
 
 --------------------------------------------------------------------------------
 -- Type evaluation.
