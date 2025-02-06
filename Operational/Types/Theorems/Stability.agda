@@ -17,9 +17,9 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
--- open import Rome.Operational.Types.Theorems.Completeness.Relation
--- open import Rome.Operational.Types.Theorems.Completeness.Congruence
--- open import Rome.Operational.Types.Theorems.Completeness.Commutativity
+open import Rome.Operational.Types.Theorems.Completeness.Relation
+open import Rome.Operational.Types.Theorems.Completeness.Congruence
+open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -49,12 +49,12 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
       ≡ τ
 
-stability-β {Δ = Δ} τ = {!   !}
---     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
---     where
---         η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))) idEnv
---         η Z = reflectNE-≋ refl
---         η (S x) = ↻-ren-reflectNE S (` x)
+stability-β {Δ = Δ} τ = 
+    trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+    where
+        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))) idEnv
+        η Z = reflectNE-≋ refl
+        η (S x) = ↻-ren-reflectNE S (` x)
   
 stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x

@@ -180,13 +180,6 @@ eq-Πℓ² = eq-Π
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
-open Xi
-nested-ξ-ne : ∀ (Ξ : Xi) (x : NeutralType Δ R[ R[  κ ] ]) → reflectNE (Ξ .ΞNE x) ≋ ξ Ξ (left x)
-nested-ξ-ne {κ = ★} Ξ x = refl
-nested-ξ-ne {κ = L} Ξ x = refl
-nested-ξ-ne {κ = κ `→ κ₁} Ξ x = refl
-nested-ξ-ne {κ = R[ κ ]} Ξ x = refl
-
 fund : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
 fund-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
@@ -225,51 +218,31 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = trans-�
   {!   !}
 fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
-
-fund {κ = R[ ★ ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
-fund {κ = R[ L ]} e (eq-Π {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (π {κ = L}) (idext {κ = R[ L ]} e τ)))
-fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
-... | l | .l | refl | left x | left x₁ | refl = refl , refl
-... | l | .l | refl | right (l' , left f) | right (.l' , left .f) | refl , refl = 
-    refl , Unif-NE-π▹· l' f , Unif-NE-π▹· l' f , λ ρ v → cong-π (cong-▹ refl (reflectNE-≋ (cong₂ _·_ refl (reify-≋ v))))
-... | l | .l | refl | right (l' , right F) | right (.l' , right G) | refl , (Unif-F , Unif-G , Ext) = 
-    refl , 
-    Unif-π▹· l' F (Unif-F , (Unif-F , refl-Extₗ Ext)) , 
-    Unif-π▹· l' G (Unif-G , (Unif-G , refl-Extᵣ Ext)) , 
-    λ ρ v → cong-π (cong-▹ refl (Ext ρ v))
-fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
-... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Π-rec x
-... | l | .l | refl | right y | right y₁ | c = refl , (cong-π c)
-
-fund {κ = R[ ★ ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = ★}) (idext {κ = R[ ★ ]} e τ)))
-fund {κ = R[ L ]} e (eq-Σ {l = l} {τ}) = cong row (cong₂ _▹_ (idext e l) (cong (σ {κ = L}) (idext {κ = R[ L ]} e τ)))
-fund {κ = R[ κ `→ κ₁ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
-... | l | .l | refl | left x | left x₁ | refl = refl , refl
-... | l | .l | refl | right (l' , left f) | right (.l' , left .f) | refl , refl = 
-    refl , Unif-NE-σ▹· l' f , Unif-NE-σ▹· l' f , λ ρ v → cong-σ (cong-▹ refl (reflectNE-≋ (cong₂ _·_ refl (reify-≋ v))))
-... | l | .l | refl | right (l' , right F) | right (.l' , right G) | refl , (Unif-F , Unif-G , Ext) = 
-    refl , 
-    Unif-σ▹· l' F (Unif-F , (Unif-F , refl-Extₗ Ext)) , 
-    Unif-σ▹· l' G (Unif-G , (Unif-G , refl-Extᵣ Ext)) , 
-    λ ρ v → cong-σ (cong-▹ refl (Ext ρ v))
-fund {κ = R[ R[ κ ] ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = ℓ} {τ}) with eval ℓ η₁ | eval ℓ η₂ | idext e ℓ | eval τ η₁ | eval τ η₂ | idext e τ 
-... | l | .l | refl | left x | left x₁ | refl = refl , nested-ξ-ne Σ-rec x
-... | l | .l | refl | right y | right y₁ | c = refl , (cong-σ c)
+fund {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = l} {τ}) = (idext e l) , cong-π {τ₁ = eval τ η₁} {τ₂ = eval τ η₂} (idext e τ)
+fund {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ {l = l} {τ}) = (idext e l) , cong-σ {τ₁ = eval τ η₁} {τ₂ = eval τ η₂} (idext e τ)
 
 -- it would be worthwhile to do the β and λ cases first, which should in effect be simpler.
-fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ} ) = 
-    (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
-      (↻-ren-π ρ₂ (NR.ren ρ₁ (eval l η₁) ▹V
-        eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (NR.ren ρ₁ (eval l η₁) ▹V
-        eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (cong-▹ refl (refl-≋ₗ (idext (extend-≋ {η₂ = (renSem ρ₁ ∘ η₁)} (λ x → ren-≋ ρ₁ (refl-≋ₗ (e x))) q) τ) )) )
-      (cong-π 
-        (trans-≋ 
-          (↻-ren-▹ ρ₂ (NR.ren ρ₁ (eval l η₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁))  {!   !}) 
-          -- I may need substitution lemma, again
-          (cong-▹ (sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) {! ↻-ren-eval ρ₂ τ {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)}  !})))) ,
-    {!   !} , 
-    {!   !}
-fund e eq-▹$ = {!  !}
+fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ}) = {!   !}
+    -- (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
+    --   (↻-ren-π ρ₂ (NR.ren ρ₁ (eval l η₁) ▹V
+    --     eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (NR.ren ρ₁ (eval l η₁) ▹V
+    --     eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (cong-▹ refl (refl-≋ₗ (idext (extend-≋ {η₂ = (renSem ρ₁ ∘ η₁)} (λ x → ren-≋ ρ₁ (refl-≋ₗ (e x))) q) τ) )) )
+    --   (cong-π 
+    --     (trans-≋ 
+    --       (↻-ren-▹ ρ₂ (NR.ren ρ₁ (eval l η₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁))  {!   !}) 
+    --       -- I may need substitution lemma, again
+    --       (cong-▹ (sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) {! ↻-ren-eval ρ₂ τ {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)}  !})))) ,
+    -- {!   !} , 
+    -- {!   !}
+fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = 
+    (idext e l) , 
+    cong-App 
+      {V₁ = eval F η₁} 
+      {V₂ = eval F η₂} 
+      (idext e F) 
+      {W₁ = eval τ η₁} 
+      {W₂ = eval τ η₂} 
+      (idext e τ)
 fund e eq-assoc-Π = {!  !}
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
@@ -277,3 +250,4 @@ idEnv-≋ x = reflectNE-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq)  
+ 
