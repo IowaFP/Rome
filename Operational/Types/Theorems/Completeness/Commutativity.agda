@@ -195,7 +195,35 @@ open Xi
             trans-≋ 
               (↻-ren-app ρ₂ {renSem {κ = κ₁ `→ κ₂} ρ₁ F} {renSem {κ = κ₁ `→ κ₂} ρ₁ F} (ren-≋ ρ₁ (refl-≋ₗ q)) {V₁} {V₂} q') 
               (cong-App (sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ₗ q))) (ren-≋ ρ₂ (refl-≋ᵣ q')))))) , 
-  {!    !} , 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+      (↻-ren-ξ Ξ ρ₂ 
+        (N.ren ρ₁ (N.ren ρ l) ▹V (renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G) ·V V₁)) 
+        (N.ren ρ₁ (N.ren ρ l) ▹V (renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G) ·V V₂)) (refl , {!   !})) 
+      (cong-ξ Ξ
+         {τ₁ =
+          right
+          (N.ren ρ₂ (N.ren ρ₁ (N.ren ρ l)) ,
+           renSem {κ = κ₂} ρ₂ (renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G) ·V V₂))}
+         {N.ren (λ x₁ → ρ₂ (ρ₁ x₁)) (N.ren ρ l) ▹V
+          (renSem {κ = κ₁ `→ κ₂} (λ x₁ → ρ₂ (ρ₁ x₁)) (renSem {κ = κ₁ `→ κ₂} ρ G) ·V renSem ρ₂ V₂)}
+         (sym (ren-comp ρ₁ ρ₂ (N.ren ρ l)) , 
+          trans-≋ 
+            (↻-ren-app ρ₂ 
+              {renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G)} 
+              {renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G)} {!   !}
+              {V₂} {V₂} (refl-≋ᵣ x)) 
+              (cong-App 
+                {V₁ = renSem ρ₂ (renSem ρ₁ (renSem ρ G))} 
+                {V₂ = renSem (λ x₁ → ρ₂ (ρ₁ x₁)) (renSem ρ G)} 
+                (sym-≋ 
+                  (ren-comp-≋ ρ₁ ρ₂ 
+                    {renSem ρ G} 
+                    {renSem ρ G} 
+                    (ren-≋ ρ (refl-≋ᵣ q)))) 
+                {renSem ρ₂ V₂}
+                {renSem ρ₂ V₂} 
+                (ren-≋ ρ₂ (refl-≋ᵣ x)))))) , 
     {!   !}
 ↻-ren-ξ Ξ {R[ κ ]} ρ (right (l , τ₁)) (right (.l , τ₂)) (refl , q) = refl , (↻-ren-ξ Ξ ρ τ₁ τ₂ q)
 
