@@ -384,6 +384,20 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 -- Substitution lemma
 -- 
 
--- substitution-lemma : ∀ (τ₁ : Type (Δ ,, κ₁) κ₂) (τ₂ : Type Δ κ₁) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
---                     eval τ₁ (extende η₁ (eval τ₂ η₁)) ≋ eval (Types.sub (Types.extend ` τ₂) τ₁) η₂
--- substitution-lemma τ₁ τ₂ e = ?
+↻-subst-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+                        (σ : Types.Sub Δ Δ₁) → 
+                    eval (Types.sub σ τ) η₁ ≋ eval τ λ x → eval (σ x) η₂
+↻-subst-eval Unit e σ = refl 
+↻-subst-eval (` α) e σ = idext e (σ α)
+↻-subst-eval (`λ τ₁) e σ = {!   !}
+↻-subst-eval (τ₁ · τ₂) e σ = cong-App (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ) 
+↻-subst-eval (τ₁ `→ τ₂) e σ = cong₂ _`→_ (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ)
+↻-subst-eval (`∀ κ τ₁) e σ = {!   !}
+↻-subst-eval (μ τ₁) e σ = cong μ (reify-≋ (↻-subst-eval τ₁ e σ))
+↻-subst-eval (π₁ ⇒ τ₁) e σ = {!   !}
+↻-subst-eval (lab l) e σ = refl
+↻-subst-eval (τ₁ ▹ τ₂) e σ = (↻-subst-eval τ₁ e σ) , (↻-subst-eval τ₂ e σ)
+↻-subst-eval ⌊ τ₁ ⌋ e σ = cong ⌊_⌋ (↻-subst-eval τ₁ e σ)
+↻-subst-eval Π e σ = Unif-π , Unif-π , λ ρ v → cong-π v
+↻-subst-eval Σ e σ = Unif-σ , Unif-σ , λ ρ v → cong-σ v
+↻-subst-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ)

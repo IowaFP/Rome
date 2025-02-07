@@ -211,11 +211,17 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
-fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = trans-≋ 
-  (idext {η₂ = extende η₁ (eval τ₂ η₁)} (λ { Z → idext {η₂ = η₁}  (refl-≋ₗ ∘ e) τ₂
-            ; (S x) → renSem-id-≋ (refl-≋ₗ  (e x)) }) τ₁) 
- -- Need substitution lemma
-  {!   !}
+fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
+    trans-≋ 
+        (idext 
+            {η₂ = extende η₁ (eval τ₂ η₁)} 
+            (λ { Z → idext {η₂ = η₁}  (refl-≋ₗ ∘ e) τ₂
+           ; (S x) → renSem-id-≋ (refl-≋ₗ  (e x)) }) τ₁) 
+        (sym-≋ 
+            (trans-≋ 
+                ((↻-subst-eval τ₁ (sym-≋ ∘ e) (extend ` τ₂))) 
+                (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
+                          ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
 fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
 fund {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π {l = l} {τ}) = (idext e l) , cong-π {τ₁ = eval τ η₁} {τ₂ = eval τ η₂} (idext e τ)
