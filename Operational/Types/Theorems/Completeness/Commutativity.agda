@@ -379,4 +379,11 @@ idext {κ = κ} e Σ =
   Unif-σ , 
   λ ρ x → cong-σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
- 
+
+--------------------------------------------------------------------------------
+-- Substitution lemma
+-- 
+
+-- substitution-lemma : ∀ (τ₁ : Type (Δ ,, κ₁) κ₂) (τ₂ : Type Δ κ₁) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+--                     eval τ₁ (extende η₁ (eval τ₂ η₁)) ≋ eval (Types.sub (Types.extend ` τ₂) τ₁) η₂
+-- substitution-lemma τ₁ τ₂ e = ?

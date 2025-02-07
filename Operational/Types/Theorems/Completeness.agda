@@ -243,7 +243,7 @@ fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) =
       {W₁ = eval τ η₁} 
       {W₂ = eval τ η₂} 
       (idext e τ)
-fund e eq-assoc-Π = {!  !}
+fund e eq-assoc-Π = {!   !}
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl
