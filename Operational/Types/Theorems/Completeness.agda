@@ -254,7 +254,7 @@ fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) =
       {W₁ = eval τ η₁} 
       {W₂ = eval τ η₂} 
       (idext e τ)
-fund {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
+fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
 ... | right (l , F) | right (.l , G) | refl , q rewrite 
       NRP.ren-id l 
     | renSem-id {κ = κ₁ `→ κ₂} F 
@@ -263,11 +263,13 @@ fund {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = κ₂} {ρ 
         {τ₁ = right (l , (F ·V eval τ η₁))}
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = reflectNE-≋ {!   !} 
+-- Maybe we don't actually need <$> as a neutral form, and can instead eta expand?
+... | left x | left .x | refl rewrite NRP.ren-id-ne x | sym (↻-ren-reify (S {κ₂ = κ}) (idext e τ)) = reflectNE-≋ {! sym (↻-ren-reify (S {κ₂ = κ}) (idext e τ))   !} 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq)  
+ 
  
