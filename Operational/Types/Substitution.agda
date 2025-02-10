@@ -15,9 +15,9 @@ Sub : KEnv → KEnv → Set
 Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
 
 -- ↑ing a substitution over binders.
-↑s :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
-↑s σ Z = ` Z
-↑s σ (S x) = weaken (σ x)
+lifts :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifts σ Z = ` Z
+lifts σ (S x) = weaken (σ x)
 
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.
@@ -25,11 +25,11 @@ sub : Sub Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPred : Sub Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
 sub σ Unit = Unit
 sub σ (` x) = σ x
-sub σ (`λ τ) = `λ (sub (↑s σ) τ)
+sub σ (`λ τ) = `λ (sub (lifts σ) τ)
 sub σ (τ₁ · τ₂) = (sub σ τ₁) · (sub σ τ₂)
 sub σ (τ₁ `→ τ₂) = (sub σ τ₁) `→ (sub σ τ₂)
 sub σ (π ⇒ τ) = subPred σ π ⇒ sub σ τ 
-sub σ (`∀ κ τ) = `∀ κ (sub (↑s σ) τ)
+sub σ (`∀ κ τ) = `∀ κ (sub (lifts σ) τ)
 sub σ (μ F) = μ (sub σ F)
 sub σ (Π) = Π
 sub σ Σ = Σ

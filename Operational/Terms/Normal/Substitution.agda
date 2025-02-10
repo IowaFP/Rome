@@ -26,22 +26,22 @@ open Reasoning
 Sub : ∀ Γ₁ Γ₂ → Normal.Sub Δ₁ Δ₂ → Set
 Sub Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → NormalTerm Γ₂ (Normal.sub σ τ)
 
-↑s : ∀ {σ : Normal.Sub Δ₁ Δ₂} → 
-            Sub Γ₁ Γ₂ σ → Sub (Γ₁ ,, κ) (Γ₂ ,, κ) (Normal.↑s σ)
-↑s {σ = σ} Σ (T {τ = τ} x) = conv (comm-weaken-sub σ τ) (weakenByKind (Σ x))
+lifts : ∀ {σ : Normal.Sub Δ₁ Δ₂} → 
+            Sub Γ₁ Γ₂ σ → Sub (Γ₁ ,, κ) (Γ₂ ,, κ) (Normal.lifts σ)
+lifts {σ = σ} Σ (T {τ = τ} x) = conv (comm-weaken-sub σ τ) (weakenByKind (Σ x))
 
-↑s-τ : ∀ {σ : Normal.Sub _ _} →
+lifts-τ : ∀ {σ : Normal.Sub _ _} →
         Sub Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Sub (Γ₁ , τ) (Γ₂ , Normal.sub σ τ) σ
-↑s-τ Σ Z     = ` Z
-↑s-τ Σ (S x) = weakenByType (Σ x)
+lifts-τ Σ Z     = ` Z
+lifts-τ Σ (S x) = weakenByType (Σ x)
 
 sub : (σ : Normal.Sub Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → ∀ {τ} → 
       NormalTerm Γ₁ τ → NormalTerm Γ₂ (Normal.sub σ τ)
 sub σ Σ {τ} (` x) = Σ x
-sub σ Σ {.(_ `→ _)} (`λ M) = `λ (sub σ (↑s-τ {σ = σ} Σ) M)
+sub σ Σ {.(_ `→ _)} (`λ M) = `λ (sub σ (lifts-τ {σ = σ} Σ) M)
 sub σ Σ {τ} (M · N) = sub σ Σ M · sub σ Σ N
 sub σ Σ {.(`∀ _ _)} (Λ {τ = τ} M) = 
-  Λ (conv (comm-sub-↑ σ τ) (sub (Normal.↑s σ) (↑s Σ) M))
+  Λ (conv (comm-sub-↑ σ τ) (sub (Normal.lifts σ) (lifts Σ) M))
 sub σ Σ {.(τ₁ Normal.β[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv (sym (comm-sub-β σ τ₁ τ₂)) (sub σ Σ M ·[ Normal.sub σ τ₂ ] )
 sub σ Σ {.(μ τ)} (roll τ M) = 

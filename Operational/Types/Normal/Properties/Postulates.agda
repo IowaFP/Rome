@@ -28,17 +28,17 @@ postulate
 
   -- weakening commutes with substitution.
   ↻-weaken-sub : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
-                    weaken {κ₁ = κ'} (sub σ τ) ≡ sub (↑s σ) (weaken τ)
+                    weaken {κ₁ = κ'} (sub σ τ) ≡ sub (lifts σ) (weaken τ)
 
   ↻-sub-↑      : ∀ (σ : Sub Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
-                      sub (↑s σ) τ 
+                      sub (lifts σ) τ 
                     ≡ 
-                      eval (Types.sub (Types.↑s (⇑ ∘ σ)) (⇑ τ)) (↑e (idEnv))
+                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ)) (↑e (idEnv))
 
   sub-β      : ∀ (σ : Sub Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                       sub σ (τ₁ β[ τ₂ ])
                     ≡ 
-                      eval (Types.sub (Types.↑s (⇑ ∘ σ)) (⇑ τ₁)) (↑e (idEnv))
+                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ₁)) (↑e (idEnv))
                       β[ sub σ τ₂ ]
 
   -- Weakening followed by application of τ equals τ (eta expansion w.r.t. weakening)

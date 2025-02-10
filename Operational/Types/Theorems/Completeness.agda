@@ -203,11 +203,11 @@ fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | ev
 fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
 fund e (eq-λ {τ = τ} {υ = υ} eq) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
-      (↻-ren-eval ρ₂ τ (extend-≋ (λ x → ren-≋ ρ₁ (e x)) q)) 
+      (↻-renSem-eval ρ₂ τ (extend-≋ (λ x → ren-≋ ρ₁ (e x)) q)) 
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (e x)) }) τ))  , 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
-      (↻-ren-eval ρ₂ υ (extend-≋ (λ x → ren-≋ ρ₁ (sym-≋ (e x))) q)) 
+      (↻-renSem-eval ρ₂ υ (extend-≋ (λ x → ren-≋ ρ₁ (sym-≋ (e x))) q)) 
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
@@ -237,7 +237,7 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ}) = {!   !}
     --     (trans-≋ 
     --       (↻-ren-▹ ρ₂ (NR.ren ρ₁ (eval l η₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)) (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁))  {!   !}) 
     --       -- I may need substitution lemma, again
-    --       (cong-▹ (sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) {! ↻-ren-eval ρ₂ τ {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)}  !})))) ,
+    --       (cong-▹ (sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) {! ↻-renSem-eval ρ₂ τ {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₁)}  !})))) ,
     -- {!   !} , 
     -- {!   !}
 fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = 

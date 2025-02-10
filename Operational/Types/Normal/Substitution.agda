@@ -19,9 +19,9 @@ Sub : KEnv → KEnv → Set
 Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
 
 -- -- ↑ing a substitution over binders.
-↑s :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
-↑s σ Z = ne (` Z)
-↑s σ (S x) = weaken (σ x)
+lifts :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifts σ Z = ne (` Z)
+lifts σ (S x) = weaken (σ x)
 
 -- Effectively: denormalize `n`, substitute, then normalize.
 sub : Sub Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
