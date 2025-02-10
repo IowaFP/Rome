@@ -174,6 +174,28 @@ data NormalType Δ where
       NormalType Δ L
 
 --------------------------------------------------------------------------------
+-- ground vs neutral types
+
+isNeutral isGround : NormalType Δ κ → Set
+isNeutral (ne x) = ⊤ 
+isNeutral _      = ⊥ 
+
+isGround Unit = ⊤
+isGround (ne x) = ⊥
+isGround (row ρ) = ⊤
+isGround (`λ τ) = ⊤
+isGround (τ `→ τ₁) = ⊤
+isGround (`∀ κ τ) = ⊤
+isGround (μ τ) = ⊤
+isGround (π ⇒ τ) = ⊤
+isGround (lab l) = ⊤
+isGround ⌊ τ ⌋ = ⊤
+isGround (Π ρ) = ⊤
+isGround (ΠL ρ) = ⊤
+isGround (Σ ρ) = ⊤
+isGround (ΣL ρ) = ⊤
+
+--------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
 -- constructors.
 
@@ -193,10 +215,28 @@ inj-row refl = refl
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
-row-canonicity : (ρ : NormalType Δ R[ κ ]) → ∃[ x ] (ρ ≡ ne x) or 
+row-canonicity : (ρ : NormalType Δ R[ κ ]) → isGround ρ → 
                                              ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ row (l ▹ τ)))
-row-canonicity (ne x) = left (x , refl)
-row-canonicity (row (l ▹ τ)) = right (l , τ , refl)
+row-canonicity (row (l ▹ τ)) tt = (l , τ , refl)
+
+
+--------------------------------------------------------------------------------
+-- label-canonicity
+
+label-canonicity : (ℓ : NormalType Δ L) → isGround ℓ → 
+  ∃[ l ] (ℓ ≡ lab l) or 
+  ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΠL (l₁ ▹ l₂))) or
+  ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΣL (l₁ ▹ l₂)))
+label-canonicity (lab l) tt = left (l , refl)
+label-canonicity (ΠL (l₁ ▹ l₂)) tt = right (left (l₁ , l₂ , refl))
+label-canonicity (ΣL (l₁ ▹ l₂)) tt = right (right (l₁ , l₂ , refl))
+
+--------------------------------------------------------------------------------
+-- arrow-canonicity
+
+arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → isGround f → ∃[ τ ] (f ≡ `λ τ)
+arrow-canonicity (`λ f) tt = f , refl
+
 
 --------------------------------------------------------------------------------
 -- 3.4 Soundness of Type Normalization
