@@ -186,3 +186,17 @@ lift-var = `λ (`λ (` Z) <$> (` Z))
 
 _ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
 _ = refl 
+
+lift-assoc₁ : Type Δ ★
+lift-assoc₁ =  (Π · (ℓ ▹ `λ (` Z))) · Unit
+
+_ : ⇓ {Δ = Δ} lift-assoc₁ ≡ Π (l ▹ Unit)
+_ = refl
+
+lift-assoc₂ : Type (Δ ,, (★ `→ ★)) ★
+lift-assoc₂ =  (Π · (ℓ ▹ F)) · Unit 
+    where
+        F = ` Z
+
+_ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π (l ▹ ne (` Z · Unit))
+_ = refl

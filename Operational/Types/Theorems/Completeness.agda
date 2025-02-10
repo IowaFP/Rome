@@ -177,6 +177,11 @@ eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} →
         Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
 eq-Πℓ² = eq-Π
 
+-- eq-assoc-Π' : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
+--             -------------------------------------------
+--             (Π · ρ) · τ ≡t Π · (ρ ?? τ)
+-- eq-assoc-Π' = eq-sym {! eq-Π  !}            
+
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
@@ -249,7 +254,16 @@ fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) =
       {W₁ = eval τ η₁} 
       {W₂ = eval τ η₂} 
       (idext e τ)
-fund e eq-assoc-Π = {!   !}
+fund {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
+... | right (l , F) | right (.l , G) | refl , q rewrite 
+      NRP.ren-id l 
+    | renSem-id {κ = κ₁ `→ κ₂} F 
+    | renSem-id {κ = κ₁ `→ κ₂} G
+    | renSem-id (eval τ η₂) = cong-π 
+        {τ₁ = right (l , (F ·V eval τ η₁))}
+        {τ₂ = right (l , (G ·V eval τ η₂))} 
+        (refl , (cong-App q (idext e τ)))
+... | left x | left .x | refl rewrite NRP.ren-id-ne x = reflectNE-≋ {!   !} 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl
