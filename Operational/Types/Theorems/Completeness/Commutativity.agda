@@ -98,8 +98,28 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ↻-ren-app : ∀ (ρ : Renaming Δ₁ Δ₂) {F G : SemType Δ₁ (κ₁ `→ κ₂)} → _≋_ {κ = κ₁ `→ κ₂} F G → 
                 {V₁ V₂ : SemType Δ₁ κ₁} → V₁ ≋ V₂ →  
                 renSem ρ (F ·V V₁) ≋ (renSem {κ = κ₁ `→ κ₂} ρ G ·V renSem ρ V₂)
-↻-ren-app ρ {left f} {left g} refl {V₁} {V₂} r = 
+↻-ren-app ρ {left f@(` α)} {left f@.(` α)} refl {V₁} {V₂} r = 
   trans-≋ (↻-ren-reflectNE ρ (f · reify V₁)) (reflectNE-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
+↻-ren-app ρ {left f@(_ · τ)} {left f@.(_ · τ)} refl {V₁} {V₂} r = 
+  trans-≋ (↻-ren-reflectNE ρ (f · reify V₁)) (reflectNE-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
+↻-ren-app {κ₁ = κ₁} {κ₂ = κ₂} ρ {left (Π f)} {left .(Π f)} refl {V₁} {V₂} r = 
+  trans-≋ 
+    (↻-ren-reflectNE ρ _) 
+    (reflectNE-≋ 
+      (cong Π (cong₂ _<$>_ 
+        (cong `λ 
+          (trans 
+            ((↻-ren-reify {κ = κ₂} (lift ρ) (reflectNE-≋ (cong (` Z ·_) (cong (N.ren S) (reify-≋ r)))))) 
+            (reify-≋ 
+              (trans-≋ 
+                (↻-ren-reflectNE (lift ρ) (` Z · N.ren S (reify V₂))) 
+                (reflectNE-≋ (cong (` Z ·_) 
+                  (trans 
+                    (↻-lift-weaken ρ (reify V₂)) 
+                    (cong (N.ren S) (↻-ren-reify ρ (refl-≋ᵣ r)))))))))) 
+                  refl)))
+↻-ren-app ρ {left (Σ f)} {left .(Σ f)} refl {V₁} {V₂} r = {!   !} 
+  -- 
 ↻-ren-app ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
   trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋ₗ (sym-≋ r)))))
 

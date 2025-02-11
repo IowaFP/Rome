@@ -42,7 +42,12 @@ cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ κ₁} → 
            W₁ ≋ W₂ → 
            (V₁ ·V W₁) ≋ (V₂ ·V W₂)
-cong-App {V₁ = left x} {left .x} refl q = reflectNE-≋ (cong (x ·_) (reify-≋ q))
+cong-App {V₁ = left (Π x)} {left .(Π x)} refl q = 
+  reflectNE-≋ 
+  (cong Π (cong (_<$> x) (cong `λ (reify-≋ (reflectNE-≋ (cong (` Z ·_) (cong (N.ren S) (reify-≋ q))))))))
+cong-App {V₁ = left f@(` α)} {left f@.(` α)} refl q = reflectNE-≋ (cong (f ·_) (reify-≋ q))
+cong-App {V₁ = left f@(x · τ)} {left f@.(x · τ)} refl q = reflectNE-≋ (cong (f ·_) (reify-≋ q))
+cong-App {V₁ = left (Σ x)} {left .(Σ x)} refl q = {!   !} -- reflectNE-≋ (cong (x ·_) (reify-≋ q))
 cong-App {V₁ = left x} {right y} () q
 cong-App {V₁ = right y} {left x} () q
 cong-App {V₁ = right F} {right G} (unif-F , unif-G , Ext) q = Ext id q           

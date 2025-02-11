@@ -13,6 +13,7 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 
+
 --------------------------------------------------------------------------------
 -- Renaming respects congruence of Renamings
 
@@ -140,7 +141,7 @@ ren-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
   (trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (lift ρ₁) (lift ρ₂) τ)) = refl
 ren-comp ρ₁ ρ₂ (μ τ) rewrite ren-comp ρ₁ ρ₂ τ = refl
 ren-comp ρ₁ ρ₂ Unit = refl
-ren-comp ρ₁ ρ₂ (lab x) = refl
+ren-comp ρ₁ ρ₂ (lab x) = refl 
 ren-comp ρ₁ ρ₂ ⌊ τ ⌋ rewrite ren-comp ρ₁ ρ₂ τ = refl 
 ren-comp ρ₁ ρ₂ (row x) rewrite ren-comp-row ρ₁ ρ₂ x = refl
 ren-comp ρ₁ ρ₂ (Π x)  rewrite ren-comp-row ρ₁ ρ₂ x = refl
@@ -152,5 +153,12 @@ ren-comp-row ρ₁ ρ₂ (l ▹ τ) rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ
 
 ren-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite ren-comp ρ ρ' ρ₁ | ren-comp ρ ρ' ρ₂ | ren-comp ρ ρ' ρ₃ = refl
-ren-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
+ren-comp-pred ρ ρ' (ρ₁ ≲ ρ₂) 
   rewrite ren-comp ρ ρ' ρ₁ | ren-comp ρ ρ' ρ₂ = refl
+
+--------------------------------------------------------------------------------
+-- Lifting commutes with weakening
+
+↻-lift-weaken : ∀ {κ'} (ρ : Renaming Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
+                ren (lift {κ = κ'} ρ) (ren S τ) ≡ ren S (ren ρ τ)
+↻-lift-weaken {κ' = κ'} ρ τ rewrite sym (ren-comp (S {κ₂ = κ'}) (lift ρ) τ) | ren-comp ρ (S {κ₂ = κ'}) τ = refl

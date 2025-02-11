@@ -61,8 +61,15 @@ idEnv = reflectNE ∘ `
 
 --------------------------------------------------------------------------------
 -- Semantic application
-
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
+_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
+π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
+
+left (Π x) ·V V = π (right (λ { ρ (left f) → reflectNE (f · (ren ρ (reify V)))
+                              ; ρ (right F) → F id (renSem ρ V) }) <$>V left x)
 left A ·V V = reflectNE (A · (reify V))
 right F ·V V = F id V
 
@@ -87,7 +94,7 @@ record Xi : Set where
 
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = κ} record { ΞNE = ΞNE ; Ξ★ = Ξ★ ; ΞL = _ ; ren-NE = _ ; ren-★ = _ ; ren-L = _ } (left x) = reflectNE (ΞNE x)
+ξ {κ = κ} Ξ (left x) = reflectNE (Ξ .ΞNE x)
 ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
 ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
 ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = right (λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v)))
@@ -100,7 +107,7 @@ open Xi
   record
   { ΞNE = Σ ; Ξ★ = Σ ; ΞL = ΣL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 
-π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+
 π = ξ Π-rec
 σ = ξ Σ-rec
 
@@ -114,9 +121,7 @@ open Xi
 --------------------------------------------------------------------------------
 -- Semantic combinator for Lifting
 
-_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
+
 
 --------------------------------------------------------------------------------
 -- Type evaluation.
