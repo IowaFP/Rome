@@ -17,6 +17,22 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Completeness.Relation
+-- --------------------------------------------------------------------------------
+-- -- renaming respects ≋
+
+ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
+        (ρ : Renaming Δ₁ Δ₂) → 
+        V₁ ≋ V₂ → 
+        (renSem ρ V₁) ≋ (renSem ρ V₂)
+ren-≋ {κ = ★} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = L} {V₁ = V₁} {V₂} ρ refl = refl
+ren-≋ {κ = κ₁ `→ κ₂} {V₁ = left _} {left _} ρ refl = refl
+ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {right G} ρ₁ (unif-F , unif-G , Ext) = 
+  (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
+  (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
+  λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
+ren-≋ {κ = R[ κ ]} {V₁ = left x} {left _} ρ refl = refl
+ren-≋ {κ = R[ κ ]} {V₁ = right (l , τ₁)} {right (l , τ₂)} ρ (refl , q) = refl , (ren-≋ ρ q)
 
 --------------------------------------------------------------------------------
 -- Application respects ≋
@@ -52,19 +68,3 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
 cong-<$> v {left x} {left x₁} refl = cong (_<$> x) (reify-≋ v)
 cong-<$> v {right (l , τ₁)} {right (l , τ₂)} (refl , w) = refl , (cong-App v w)
 
--- --------------------------------------------------------------------------------
--- -- renaming respects ≋
-
-ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
-        (ρ : Renaming Δ₁ Δ₂) → 
-        V₁ ≋ V₂ → 
-        (renSem ρ V₁) ≋ (renSem ρ V₂)
-ren-≋ {κ = ★} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = L} {V₁ = V₁} {V₂} ρ refl = refl
-ren-≋ {κ = κ₁ `→ κ₂} {V₁ = left _} {left _} ρ refl = refl
-ren-≋ {κ = κ₁ `→ κ₂} {V₁ = right F} {right G} ρ₁ (unif-F , unif-G , Ext) = 
-  (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
-  (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
-  λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ κ ]} {V₁ = left x} {left _} ρ refl = refl
-ren-≋ {κ = R[ κ ]} {V₁ = right (l , τ₁)} {right (l , τ₂)} ρ (refl , q) = refl , (ren-≋ ρ q)

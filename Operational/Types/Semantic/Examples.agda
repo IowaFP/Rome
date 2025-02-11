@@ -200,3 +200,16 @@ lift-assoc₂ =  (Π · (ℓ ▹ F)) · Unit
 
 _ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π (l ▹ ne (` Z · Unit))
 _ = refl
+
+lift-assoc₃ : Type (Δ ,, R[ ★ `→ ★ ]) ★
+lift-assoc₃ =  (Π · F) · Unit
+    where
+        F = ` Z
+
+lift-assoc₃' : Type (Δ ,, R[ ★ `→ ★ ]) ★
+lift-assoc₃' =  Π · (F ?? Unit)
+    where
+        F = ` Z
+
+_ : ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃ ≡ ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃'
+_ = refl
