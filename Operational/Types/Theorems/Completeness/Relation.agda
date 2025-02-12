@@ -28,10 +28,7 @@ Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
 
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
-_≋_ {κ = κ₁ `→ κ₂} (left x) (left y) = x ≡ y
-_≋_ {κ = κ₁ `→ κ₂} (left x) (right y) = ⊥
-_≋_ {κ = κ₁ `→ κ₂} (right y) (left x) = ⊥
-_≋_ {Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) = 
+_≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G
  
 _≋_ {κ = R[ κ ]} (left x) (left y) = x ≡ y
@@ -82,9 +79,8 @@ trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ�
 
 sym-≋ {κ = ★}  refl = refl
 sym-≋ {κ = L}  refl = refl
-sym-≋ {κ = κ `→ κ₁} {left x} {left x₁} refl = refl
 sym-≋ {κ = κ `→ κ₁} 
-  {right F} {right G} 
+  {F} {G} 
   (Unif-F , (Unif-G , Ext)) = 
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
 sym-≋ {κ = R[ κ ]} {left x} {left x₁} q = sym q
@@ -95,8 +91,7 @@ refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
 
 trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
 trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
-trans-≋ {κ = κ₁ `→ κ₂} {left _} {left _} refl q₂ = q₂
-trans-≋ {κ = κ₁ `→ κ₂} {right F} {right G} {right H} 
+trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H} 
   (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
     unif-F , 
     unif-H , 
@@ -138,26 +133,107 @@ _≋⟨_⟩_ : ∀ {V₂ V₃ : SemType Δ κ} →
 V₁ ≋⟨ q ⟩ r = trans-≋ q r
 
 --------------------------------------------------------------------------------
--- Reflecting propositional equality of neutral types into semantic equality.
--- (Well kinded neutral types are in the logical relation.)
+-- The first step in a proof by logical relation is to assert that well-typed 
+-- entities inhabit the relation. 
+
+-- The following definitions are necessarily mutually recursive;
+-- ideally some of these would be put in Theorems.Completeness.Commutativity.
 
 reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
+reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
+↻-ren-reflect  : 
+  ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
+    (renSem ρ (reflect τ)) ≋ (reflect (renNE ρ τ))
+↻-ren-reify-kripke : ∀ (ρ : Renaming Δ₁ Δ₂) (F G : KripkeFunction Δ₁ κ₁ κ₂) → 
+        _≋_ {Δ = Δ₁} {κ = κ₁ `→ κ₂} F G → 
+        N.ren (lift ρ) (reify (F S (reflect (` Z)))) ≡ reify (renKripke ρ G S (reflect (` Z)))
+↻-ren-reify : ∀ {Δ₁} {Δ₂} {κ} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
+                V₁ ≋ V₂ →  N.ren ρ (reify V₁) ≡ reify (renSem ρ V₂)
+
+--------------------------------------------------------------------------------
+-- reflect-≋ asserts that well kinded types are in the relation
+
 reflect-≋ {κ = ★} refl = refl
 reflect-≋ {κ = L} refl = refl
-reflect-≋ {κ = κ `→ κ₁} eq = eq
+reflect-≋ {κ = κ `→ κ₁} {f} refl = Unif-f , Unif-f , PE-f
+  where
+    Unif-f : Uniform (λ ρ v → reflect (renNE ρ f · reify v))
+    Unif-f ρ₁ ρ₂ V₁ V₂ q = 
+      trans-≋ 
+        (↻-ren-reflect ρ₂ (renNE ρ₁ f · reify V₁)) 
+        (reflect-≋ (cong₂ _·_ (sym (ren-comp-ne ρ₁ ρ₂ f)) 
+          (↻-ren-reify ρ₂ q)))
+
+    PE-f : PointEqual-≋ (λ ρ v → reflect (renNE ρ f · reify v)) (λ ρ v → reflect (renNE ρ f · reify v))
+    PE-f ρ v = reflect-≋ (cong₂ _·_ refl (reify-≋ v))
 reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} q = q
 
--- --------------------------------------------------------------------------------
--- -- Reify semantic equality back to propositional equality
+--------------------------------------------------------------------------------
+-- reify-≋ asserts that related semantic types reify to the same normal form.
 
-reify-≋  : ∀ {τ₁ τ₂ : SemType Δ κ} → τ₁ ≋ τ₂ → reify τ₁ ≡ reify τ₂ 
 reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
-reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
-reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
+reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
   ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
-reify-≋ {κ = R[ κ ]} {left _} {left _} refl = refl
-reify-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (l , τ₂)} (refl , q) = cong (row ∘ (l ▹_)) (reify-≋ q)
+reify-≋ {κ = R[ κ ]} {left τ₁} {left τ₂} refl = refl 
+reify-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (l , τ₂)} (refl , q) = cong (l ▹_) (reify-≋ q) -- cong (row ∘ (l ▹_)) (reify-≋ q)
+
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with reification.
+
+--             
+--                renSem ρ 
+-- SemType Δ₁ κ -------------> SemType Δ₂ Κ
+--  |                          |
+--  | reify                    | reify
+--  |                          |
+--  V                          V 
+-- NormalType Δ₁ κ ----------> NormalType Δ₂ κ
+--                   ren ρ 
+
+
+↻-ren-reify-kripke {κ₁ = κ₁} {κ₂} ρ F G q@(Unif-F , Unif-G , Ext) = 
+  (trans 
+    (↻-ren-reify (lift ρ) (Ext S (reflect-≋ (refl {x = ` Z})))) 
+    (reify-≋ (trans-≋ 
+      (Unif-G S (lift ρ) _ _ (reflect-≋ refl)) 
+      (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflect (lift ρ) (` Z))))))
+
+↻-ren-reify {κ = ★} ρ {V₁} {V₂} refl = refl
+↻-ren-reify {κ = L} ρ {V₁} {V₂} refl = refl
+↻-ren-reify {Δ₁} {Δ₂} {κ = κ₁ `→ κ₂} ρ f@{F} g@{G} q@(Unif-F , Unif-G , Ext) = 
+  cong `λ 
+  (↻-ren-reify-kripke ρ F G q)
+↻-ren-reify {κ = R[ κ ]} ρ {left x} {left _} refl = refl
+↻-ren-reify {κ = R[ κ ]} ρ {right (l , _)} {right (_ , _)} (refl , q) = cong ((N.ren ρ l ▹_)) (↻-ren-reify ρ q)
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with reflection of neutral types
+
+--             
+--            ren ρ 
+-- Type Δ₁ κ -------------> Type Δ₂ κ 
+--  |                        |
+--  | reflect              | reflect
+--  |                        |
+--  V                        V 
+-- SemType Δ₁ κ ----------> SemType Δ₂ κ
+--               renSem ρ 
+
+↻-ren-reflect {κ = ★} ρ τ = refl
+↻-ren-reflect {κ = L} ρ τ = refl
+↻-ren-reflect {κ = κ `→ κ₁} ρ τ = 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+    (↻-ren-reflect ρ₂ (renNE (λ x₁ → ρ₁ (ρ x₁)) τ · reify V₁)) 
+    (reflect-≋ (cong₂ _·_ (sym (ren-comp-ne (ρ₁ ∘ ρ) ρ₂ τ)) (↻-ren-reify ρ₂ x)))) , 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+      (↻-ren-reflect ρ₂ (renNE ρ₁ (renNE ρ τ) · reify V₁)) 
+      (reflect-≋ (cong₂ _·_ (sym (ren-comp-ne ρ₁ ρ₂ (renNE ρ τ))) (↻-ren-reify ρ₂ x)))) , 
+  λ ρ' v → reflect-≋ (cong₂ _·_ (ren-comp-ne ρ ρ' τ) (reify-≋ v))
+↻-ren-reflect {κ = R[ κ ]} ρ τ = refl
 
 --------------------------------------------------------------------------------
 -- Functorial actions
@@ -165,8 +241,7 @@ reify-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (l , τ₂)} (refl , q) = co
 renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂
 renSem-id-≋ {κ = ★} refl = ren-id _
 renSem-id-≋ {κ = L} refl = ren-id _
-renSem-id-≋ {κ = κ `→ κ₁} {left f} {left .f} refl = ren-id-ne f
-renSem-id-≋ {κ = κ `→ κ₁} {right F} {right G} e = e
+renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
 renSem-id-≋ {κ = R[ κ ]} {left x} e rewrite ren-id-ne x = e
 renSem-id-≋ {_} {R[ κ ]} {right (l , τ₁)} {right (.l , τ₂)} (refl , q) = (ren-id l) , renSem-id-≋ q
 
@@ -174,8 +249,7 @@ ren-comp-≋  : ∀ (ρ₁ : Renaming Δ₁ Δ₂)(ρ₂ : Renaming Δ₂ Δ₃)
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
 ren-comp-≋ {κ = ★} ρ₁ ρ₂ refl = ren-comp _ _ _
 ren-comp-≋ {κ = L} ρ₁ ρ₂ refl = ren-comp _ _ _
-ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {left _} {left _} refl = ren-comp-ne ρ₁ ρ₂ _
-ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {right F} {right G} (Unif-F , Unif-G , Ext) = 
+ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) = 
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))

@@ -64,36 +64,34 @@ idEnv = reflect ∘ `
 
 
 --------------------------------------------------------------------------------
--- Semantic application and applicators Π, Σ, and <?>
+-- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
-π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
-
-_<?>_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-(left f) <?> a = left ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f) -- ne ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f)
-(right (l , F)) <?> a = right (l , F ·V a) -- l ▹ {!   !}
-
--- left (Π f) ·V V = π (f <?> V)
--- left (Σ f) ·V V = σ (f <?> V)
--- left A ·V V = reflect (A · (reify V))
 F ·V V = F id V
 
--- --------------------------------------------------------------------------------
--- -- Semantic lifting
+--------------------------------------------------------------------------------
+-- Semantic flap
+
+_<?>_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+(left f) <?> a = left ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f)
+(right (l , F)) <?> a = right (l , F ·V a)
+
+--------------------------------------------------------------------------------
+-- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reifyKripke F <$> x) -- ne (reifyKripke F <$> x) -- (reify F <$> x) 
 _<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , F ·V τ) -- l ▹ {!   !} -- (l , (F ·V τ))
 
--- --------------------------------------------------------------------------------
--- -- Semantic combinator for labeled types
+--------------------------------------------------------------------------------
+-- Semantic combinator for labeled types
 
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▹V_ {κ = κ} ℓ τ = right (ℓ , τ)
 
 
--- --------------------------------------------------------------------------------
--- -- (Generic) Semantic combinators for Π/Σ
+--------------------------------------------------------------------------------
+-- (Generic) Semantic combinators for Π/Σ
 
 record Xi : Set where 
   field
@@ -108,10 +106,7 @@ open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ (left x) = Ξ .Ξ★ (ne x)
 ξ {κ = L} Ξ (left x) = Ξ .ΞL (ne x)
-ξ {κ = κ `→ ★} Ξ (left x) = λ ρ v → Ξ .Ξ★ (reify (left (renNE ρ x) <?> v))
-ξ {κ = κ `→ L} Ξ (left x) =  λ ρ v → Ξ .ΞL (reify (left (renNE ρ x) <?> v))
-ξ {κ = κ `→ κ₁ `→ κ₂} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
-ξ {κ = κ `→ R[ κ₁ ]} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
+ξ {κ = κ₁ `→ κ₂} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
 ξ {κ = R[ κ ]} Ξ (left x) = (λ ρ v → ξ Ξ v) <$>V (left x) 
 ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
 ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
@@ -125,7 +120,7 @@ open Xi
   record
   { Ξ★ = Σ ; ΞL = ΣL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 
-
+π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
 π = ξ Π-rec
 σ = ξ Σ-rec
 
