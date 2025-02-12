@@ -26,24 +26,24 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 --            ren ρ 
 -- Type Δ₁ κ -------------> Type Δ₂ κ 
 --  |                        |
---  | reflectNE              | reflectNE
+--  | reflect              | reflect
 --  |                        |
 --  V                        V 
 -- SemType Δ₁ κ ----------> SemType Δ₂ κ
 --               renSem ρ 
 
-↻-ren-reflectNE  : 
+↻-ren-reflect  : 
   ∀ (ρ : Renaming Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
-    (renSem ρ (reflectNE τ)) ≋ (reflectNE (renNE ρ τ))
-↻-ren-reflectNE {κ = ★} ρ τ = refl
-↻-ren-reflectNE {κ = L} ρ τ = refl
-↻-ren-reflectNE {κ = κ `→ κ₁} ρ τ = refl
-↻-ren-reflectNE {κ = R[ κ ]} ρ τ = refl
+    (renSem ρ (reflect τ)) ≋ (reflect (renNE ρ τ))
+↻-ren-reflect {κ = ★} ρ τ = refl
+↻-ren-reflect {κ = L} ρ τ = refl
+↻-ren-reflect {κ = κ `→ κ₁} ρ τ = refl
+↻-ren-reflect {κ = R[ κ ]} ρ τ = refl
 
-↻-ren-reflectNE-▹  : 
+↻-ren-reflect-▹  : 
   ∀ (ρ : Renaming Δ₁ Δ₂) (l : NormalType Δ₁ L) (τ : NeutralType Δ₁ κ) → 
-    _≋_ {κ = R[ κ ]} (renSem {κ = R[ κ ]} ρ (l ▹V (reflectNE τ)))  (N.ren ρ l ▹V (reflectNE (renNE ρ τ)))
-↻-ren-reflectNE-▹ ρ l τ = refl , (↻-ren-reflectNE ρ τ)
+    _≋_ {κ = R[ κ ]} (renSem {κ = R[ κ ]} ρ (l ▹V (reflect τ)))  (N.ren ρ l ▹V (reflect (renNE ρ τ)))
+↻-ren-reflect-▹ ρ l τ = refl , (↻-ren-reflect ρ τ)
 
 --------------------------------------------------------------------------------
 -- Renaming commutes with reification.
@@ -60,16 +60,16 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 
 ↻-ren-reify-kripke : ∀ (ρ : Renaming Δ₁ Δ₂) (F G : KripkeFunction Δ₁ κ₁ κ₂) → 
         _≋_ {Δ = Δ₁} {κ = κ₁ `→ κ₂} (right F) (right G) → 
-        N.ren (lift ρ) (reify (F S (reflectNE (` Z)))) ≡ reify (renKripke ρ G S (reflectNE (` Z)))
+        N.ren (lift ρ) (reify (F S (reflect (` Z)))) ≡ reify (renKripke ρ G S (reflect (` Z)))
 ↻-ren-reify : ∀ {Δ₁} {Δ₂} {κ} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
                 V₁ ≋ V₂ →  N.ren ρ (reify V₁) ≡ reify (renSem ρ V₂)
 
 ↻-ren-reify-kripke {κ₁ = κ₁} {κ₂} ρ F G q@(Unif-F , Unif-G , Ext) = (trans 
-    (↻-ren-reify (lift ρ) (Ext S (reflectNE-≋ (refl {x = ` Z})))) 
+    (↻-ren-reify (lift ρ) (Ext S (reflect-≋ (refl {x = ` Z})))) 
     (reify-≋ 
-      ((renSem (lift ρ) (G S (reflectNE (` Z)))) 
-      ≋⟨ (Unif-G S (lift ρ) _ _ (reflectNE-≋ refl)) ⟩ 
-      ((G (λ x → lift ρ (S x)) (renSem (lift ρ) (reflectNE (` Z)))) 
+      ((renSem (lift ρ) (G S (reflect (` Z)))) 
+      ≋⟨ (Unif-G S (lift ρ) _ _ (reflect-≋ refl)) ⟩ 
+      ((G (λ x → lift ρ (S x)) (renSem (lift ρ) (reflect (` Z)))) 
       ≋⟨ (cong-App 
           {κ₁ = κ₁} {κ₂ = κ₂} 
           {V₁ = (renSem {κ = κ₁ `→ κ₂} (S ∘ ρ) (right G))} 
@@ -77,8 +77,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
           ((λ ρ₁ ρ₂ v → Unif-G (ρ₁ ∘ S ∘ ρ) ρ₂ v) , 
            (λ ρ₁ ρ₂ v → Unif-G (ρ₁ ∘ S ∘ ρ) ρ₂ v) , 
            (λ ρ' q' →  (snd (snd G≋G)) (ρ' ∘ S ∘ ρ) q'))
-          {W₂ = (reflectNE (` Z))} 
-          (↻-ren-reflectNE (lift ρ) (` Z))) ⟩∎))))
+          {W₂ = (reflect (` Z))} 
+          (↻-ren-reflect (lift ρ) (` Z))) ⟩∎))))
   where
     G≋G : _≋_ {κ = κ₁ `→ κ₂} (right G) (right G)
     G≋G = refl-≋ₗ {κ = κ₁ `→ κ₂} {V₁ = right G} {V₂ = right F} (sym-≋ {κ = κ₁ `→ κ₂} {τ₁ = right F} {τ₂ = right G} q)
@@ -99,13 +99,13 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
                 {V₁ V₂ : SemType Δ₁ κ₁} → V₁ ≋ V₂ →  
                 renSem ρ (F ·V V₁) ≋ (renSem {κ = κ₁ `→ κ₂} ρ G ·V renSem ρ V₂)
 ↻-ren-app ρ {left f@(` α)} {left f@.(` α)} refl {V₁} {V₂} r = 
-  trans-≋ (↻-ren-reflectNE ρ (f · reify V₁)) (reflectNE-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
+  trans-≋ (↻-ren-reflect ρ (f · reify V₁)) (reflect-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
 ↻-ren-app ρ {left f@(_ · τ)} {left f@.(_ · τ)} refl {V₁} {V₂} r = 
-  trans-≋ (↻-ren-reflectNE ρ (f · reify V₁)) (reflectNE-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
+  trans-≋ (↻-ren-reflect ρ (f · reify V₁)) (reflect-≋ (cong (renNE ρ f ·_) (↻-ren-reify ρ r)))
 ↻-ren-app {κ₁ = κ₁} {κ₂ = κ₂} ρ {left (Π f)} {left .(Π f)} refl {V₁} {V₂} r = 
   trans-≋ 
-    (↻-ren-reflectNE ρ _) 
-    (reflectNE-≋ 
+    (↻-ren-reflect ρ _) 
+    (reflect-≋ 
       (cong Π 
         (cong (_<$> renNE ρ f) 
           (cong `λ 
@@ -113,8 +113,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               (cong (` Z ·_) (trans (↻-lift-weaken ρ (reify V₁)) (cong (N.ren S) (↻-ren-reify ρ r)))))))))
 ↻-ren-app ρ {left (Σ f)} {left .(Σ f)} refl {V₁} {V₂} r = 
     trans-≋ 
-    (↻-ren-reflectNE ρ _) 
-    (reflectNE-≋ 
+    (↻-ren-reflect ρ _) 
+    (reflect-≋ 
       (cong Σ 
         (cong (_<$> renNE ρ f) 
           (cong `λ 
@@ -204,7 +204,7 @@ Unif-ξ▹ {κ₁ = κ₁} {κ₂} Ξ l F q ρ₁ ρ₂ V₁ V₂ q' =
                 (ren-≋ ρ₂ (refl-≋ᵣ q')))))
 
 open Xi
-↻-ren-ξ Ξ {κ} ρ (left x) (left x₁) refl rewrite (sym (Ξ .ren-NE ρ x)) = ↻-ren-reflectNE ρ (Ξ .ΞNE x)
+↻-ren-ξ Ξ {κ} ρ (left x) (left x₁) refl rewrite (sym (Ξ .ren-NE ρ x)) = ↻-ren-reflect ρ (Ξ .ΞNE x)
 ↻-ren-ξ Ξ {★} ρ (right (l , τ)) (right (.l , .τ)) (refl , refl) = Ξ .ren-★ ρ (l ▹ τ)
 ↻-ren-ξ Ξ {L} ρ (right (l , τ)) (right (.l , .τ)) (refl , refl) = Ξ .ren-L ρ (l ▹ τ)
 ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (right (l , F)) (right (.l , G)) (refl , q) = 
@@ -220,7 +220,7 @@ open Xi
       ((ren-comp ρ ρ₁ l) , cong-App (ren-comp-≋ ρ ρ₁ q) v)
 ↻-ren-ξ Ξ {R[ κ ]} ρ (right (l , τ₁)) (right (.l , τ₂)) (refl , q) = refl , (↻-ren-ξ Ξ ρ τ₁ τ₂ q)
 
-cong-ξ Ξ {κ = κ} {left x} {left x₁} refl = reflectNE-≋ refl
+cong-ξ Ξ {κ = κ} {left x} {left x₁} refl = reflect-≋ refl
 cong-ξ Ξ {κ = ★} {right (l , τ₁)} {right (.l , τ₂)} (refl , refl) = refl
 cong-ξ Ξ {κ = L} {right (l , τ₁)} {right (.l , τ₂)} (refl , refl) = refl
 cong-ξ Ξ {κ = κ₁ `→ κ₂} {right (l , F)} {right (.l , G)} (refl , q) = 
@@ -321,11 +321,11 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
 ↻-renSem-eval ρ (`∀ κ τ) {η₁} {η₂} e = cong (`∀ κ) 
   (trans 
     (↻-renSem-eval (lift ρ) τ {↑e η₁} {↑e η₂} 
-      (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl))) 
+      (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl))) 
     (idext E τ))
   where
     E : Env-≋ (renSem (lift ρ) ∘ ↑e {κ = κ} η₂) (↑e (renSem ρ ∘ η₂))
-    E Z = ↻-ren-reflectNE (lift ρ) (` Z)
+    E Z = ↻-ren-reflect (lift ρ) (` Z)
     E (S x) = 
       trans-≋ 
         (sym-≋ (ren-comp-≋ S (lift ρ) (refl-≋ₗ (sym-≋ (e x))))) 
@@ -386,7 +386,7 @@ idext {κ = κ `→ κ₁} e (τ₁ · τ₂) = cong-App (idext e τ₁) (idext 
 idext {κ = R[ κ ]} e (τ₁ · τ₂) = cong-App (idext e τ₁) (idext e τ₂)
 idext {κ = κ} e (τ₁ `→ τ₂) = cong₂ _`→_ (idext e τ₁) (idext e τ₂)
 idext {κ = κ} e (π ⇒ τ) = cong₂ _⇒_ (idext-pred e π) (idext e τ)
-idext {κ = κ} e (`∀ κ₁ τ) = cong (`∀ κ₁) (idext (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) τ)
+idext {κ = κ} e (`∀ κ₁ τ) = cong (`∀ κ₁) (idext (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) τ)
 idext {κ = ★} {η₁} {η₂} e (μ τ) with eval τ η₁ | eval τ η₂ | reify-≋ (idext e τ)
 ... | left x | left x₁ | refl = refl
 ... | right F | right G | r = cong μ r
@@ -462,9 +462,9 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
     (↻-ren-eval (lift ρ) τ 
       (extend-≋ 
         (ren-≋ S ∘ e) 
-        (reflectNE-≋ {τ₁ = ` Z} refl))) 
+        (reflect-≋ {τ₁ = ` Z} refl))) 
     (idext 
-      (λ { Z     → reflectNE-≋ refl 
+      (λ { Z     → reflect-≋ refl 
          ; (S x) → (ren-≋ S ∘ refl-≋ᵣ ∘ e) (ρ x) }) τ))
 ↻-ren-eval ρ (μ τ) {η₁} {η₂} e = cong μ (reify-≋ (↻-ren-eval ρ τ e))
 ↻-ren-eval ρ (π ⇒ τ) {η₁} {η₂} e = cong₂ _⇒_ (↻-ren-eval-pred ρ π e) (↻-ren-eval ρ τ e)
@@ -529,11 +529,11 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
       τ)  
 ↻-subst-eval (`∀ κ τ) e σ = cong (`∀ κ) 
   (trans 
-    (↻-subst-eval τ (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) (Types.lifts σ) ) 
+    (↻-subst-eval τ (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) (Types.lifts σ) ) 
     (idext 
-      (λ { Z     → reflectNE-≋ refl 
+      (λ { Z     → reflect-≋ refl 
          ; (S x) → trans-≋ 
-                      (↻-ren-eval S (σ x) (extend-≋ (ren-≋ S ∘ refl-≋ᵣ ∘ e) (reflectNE-≋ refl))) 
+                      (↻-ren-eval S (σ x) (extend-≋ (ren-≋ S ∘ refl-≋ᵣ ∘ e) (reflect-≋ refl))) 
                       (sym-≋ (↻-renSem-eval S (σ x) (refl-≋ᵣ ∘ e) )) }) 
       τ))
 ↻-subst-eval (τ₁ · τ₂) e σ = cong-App (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ) 

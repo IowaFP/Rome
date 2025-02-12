@@ -16,30 +16,28 @@ open import Rome.Operational.Types.Semantic.Renaming
 
 
 --------------------------------------------------------------------------------
--- reflection of neutral types
-reflectNE : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
-
-reflectNE {κ = ★} τ            = ne τ
-reflectNE {κ = L} τ            = ne τ
-reflectNE {κ = R[ κ ]} τ       = left τ
-reflectNE {κ = κ `→ κ₁} τ     = left τ
-
---------------------------------------------------------------------------------
--- reification of semantic types
-
+-- reflection of neutral types & reification of semantic types
+reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
+
+reflect {κ = ★} τ            = ne τ
+reflect {κ = L} τ            = ne τ
+reflect {κ = R[ κ ]} τ       = left τ
+reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renNE ρ τ · reify v)
+
+-- reflectN : ∀ {κ} → NormalType Δ κ → SemType Δ κ
+-- reflectN {κ = ★} τ = τ
+-- reflectN {κ = L} τ = τ
+-- reflectN {κ = κ `→ κ₁} τ = λ ρ v → reflect {! ren ρ τ   !}
+-- reflectN {κ = R[ κ ]} τ = {!   !}
+reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
+reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
+
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = κ₁ `→ κ₂} (left τ) = ne τ
-reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁} (` Z))))
+reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right (l , τ)) = row (l ▹ (reify τ))
-
-reify∘reflect≡ne : ∀ (τ : NeutralType Δ κ) → reify (reflectNE τ) ≡ ne τ 
-reify∘reflect≡ne {κ = ★} τ = refl
-reify∘reflect≡ne {κ = L} τ = refl
-reify∘reflect≡ne {κ = κ `→ κ₁} τ = refl
-reify∘reflect≡ne {κ = R[ κ ]} τ = refl
+reify {κ = R[ κ ]} (right (l , τ)) = l ▹ (reify τ)
 
 --------------------------------------------------------------------------------
 -- Semantic environments
@@ -52,17 +50,17 @@ extende η V Z     = V
 extende η V (S x) = η x
 
 ↑e : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
--- extende (weakenSem {Δ = Δ₂} {κ₁ = {!κ'!}} {κ₂ = {!!}} ∘ η {κ = {!κ!}}) (reflectNE {κ = κ} (` Z))
+-- extende (weakenSem {Δ = Δ₂} {κ₁ = {!κ'!}} {κ₂ = {!!}} ∘ η {κ = {!κ!}}) (reflect {κ = κ} (` Z))
 ↑e {Δ₁} {Δ₂} {κ} η  = extende η' V -- extende η' V
   where
     η' : Env Δ₁ (Δ₂ ,, κ)
     η' {κ'} v = (weakenSem {Δ = Δ₂} {κ₁ = κ'} {κ₂ = κ}) (η v)
 
     V  : SemType (Δ₂ ,, κ) κ
-    V = reflectNE {κ = κ} (` Z)
+    V = reflect {κ = κ} (` Z)
 
 idEnv : Env Δ Δ
-idEnv = reflectNE ∘ `
+idEnv = reflect ∘ `
 
 
 --------------------------------------------------------------------------------
@@ -71,54 +69,61 @@ idEnv = reflectNE ∘ `
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
 
-_<?>_ : NeutralType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-f <?> a = left ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f)
+_<?>_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+(left f) <?> a = left ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f) -- ne ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f)
+(right (l , F)) <?> a = right (l , F ·V a) -- l ▹ {!   !}
 
-left (Π f) ·V V = π (f <?> V)
-left (Σ f) ·V V = σ (f <?> V)
-left A ·V V = reflectNE (A · (reify V))
-right F ·V V = F id V
+-- left (Π f) ·V V = π (f <?> V)
+-- left (Σ f) ·V V = σ (f <?> V)
+-- left A ·V V = reflect (A · (reify V))
+F ·V V = F id V
 
---------------------------------------------------------------------------------
--- Semantic lifting
+-- --------------------------------------------------------------------------------
+-- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reifyKripke F <$> x) -- ne (reifyKripke F <$> x) -- (reify F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , F ·V τ) -- l ▹ {!   !} -- (l , (F ·V τ))
 
---------------------------------------------------------------------------------
--- Semantic combinator for labeled types
+-- --------------------------------------------------------------------------------
+-- -- Semantic combinator for labeled types
 
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
 _▹V_ {κ = κ} ℓ τ = right (ℓ , τ)
 
 
---------------------------------------------------------------------------------
--- (Generic) Semantic combinators for Π/Σ
+-- --------------------------------------------------------------------------------
+-- -- (Generic) Semantic combinators for Π/Σ
 
 record Xi : Set where 
   field
-    ΞNE : ∀ {Δ'} {κ : Kind} → NeutralType Δ' R[ κ ] → NeutralType Δ' κ
-    Ξ★ : ∀ {Δ'} → Row Δ' R[ ★ ] → NormalType Δ' ★
-    ΞL : ∀ {Δ'} → Row Δ' R[ L ] → NormalType Δ' L
-    ren-NE : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NeutralType Δ₁ R[ κ ]) → renNE ρ (ΞNE τ) ≡  ΞNE (renNE ρ τ)
-    ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (renRow ρ τ)
-    ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : Row Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (renRow ρ τ)
+    -- ΞNE : ∀ {Δ'} {κ : Kind} → NeutralType Δ' R[ κ ] → NeutralType Δ' κ
+    Ξ★ : ∀ {Δ'} → NormalType  Δ' R[ ★ ] → NormalType Δ' ★
+    ΞL : ∀ {Δ'} → NormalType Δ' R[ L ] → NormalType Δ' L
+    -- ren-NE : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NeutralType Δ₁ R[ κ ]) → renNE ρ (ΞNE τ) ≡  ΞNE (renNE ρ τ)
+    ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (ren ρ τ)
+    ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (ren ρ τ)
 
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = κ} Ξ (left x) = reflectNE (Ξ .ΞNE x)
+ξ {κ = ★} Ξ (left x) = Ξ .Ξ★ (ne x)
+ξ {κ = L} Ξ (left x) = Ξ .ΞL (ne x)
+ξ {κ = κ `→ ★} Ξ (left x) = λ ρ v → Ξ .Ξ★ (reify (left (renNE ρ x) <?> v))
+ξ {κ = κ `→ L} Ξ (left x) =  λ ρ v → Ξ .ΞL (reify (left (renNE ρ x) <?> v))
+ξ {κ = κ `→ κ₁ `→ κ₂} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
+ξ {κ = κ `→ R[ κ₁ ]} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
+ξ {κ = R[ κ ]} Ξ (left x) = (λ ρ v → ξ Ξ v) <$>V (left x) 
 ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
 ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
-ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = right (λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v)))
+ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v))
 ξ {κ = R[ κ ]} Ξ (right (l , τ)) = right (l , ξ Ξ τ)
 
 Π-rec Σ-rec : Xi 
 Π-rec = record
-  { ΞNE = Π ; Ξ★ = Π ; ΞL = ΠL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+  {  Ξ★ = Π ; ΞL = ΠL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 Σ-rec = 
   record
-  { ΞNE = Σ ; Ξ★ = Σ ; ΞL = ΣL ; ren-NE = λ ρ τ → refl ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+  { Ξ★ = Σ ; ΞL = ΣL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 
 
 π = ξ Π-rec
@@ -130,11 +135,6 @@ open Xi
 π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
 π-Kripke = ξ-Kripke Π-rec
 σ-Kripke = ξ-Kripke Σ-rec
-
---------------------------------------------------------------------------------
--- Semantic combinator for Lifting
-
-
 
 --------------------------------------------------------------------------------
 -- Type evaluation.
@@ -163,17 +163,17 @@ eval {κ = L} (lab l) η = lab l
 ----------------------------------------
 -- function evaluation.
 
-eval {κ = κ₁ `→ κ₂} (`λ τ) η = right (λ {Δ₃} ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v))
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
 
-----------------------------------------
--- Type constants
-eval {κ = κ₁ `→ κ₂} Π η = right (λ {Δ₃} ρ v → π v)
-eval {κ = κ₁ `→ κ₂} Σ η = right (λ {Δ₃} ρ v → σ v) 
-eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η) -- right (λ ρ f → rmap f)
-eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l → right (λ ρ₂ v → (renSem {κ = L} ρ₂ l) ▹V v))
+-- ----------------------------------------
+-- -- Type constants
+eval {κ = κ₁ `→ κ₂} Π η = λ ρ v → π v
+eval {κ = κ₁ `→ κ₂} Σ η = λ ρ v → σ v
+eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 
---------------------------------------------------------------------------------
--- Type normalization
+-- -- --------------------------------------------------------------------------------
+-- -- -- Type normalization
 
 -- NormalType forms.
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
@@ -181,19 +181,4 @@ eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) -- right (λ ρ₁ l
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
-
---------------------------------------------------------------------------------
--- Evaluation of 
---   - neutral types to semantic types
---   - normal types to semantic types
---   - rows to semantic types 
---
-
-evalNE : ∀ {Δ₁ Δ₂} → NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflect : ∀ {Δ₁ Δ₂} → NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-reflectRow : ∀ {Δ₁ Δ₂} → Row Δ₁ R[ κ ] → Env Δ₁ Δ₂ → SemType Δ₂ R[ κ ]
-
-evalNE τ η = eval (⇑NE τ) η
-reflect τ η = eval (⇑ τ) η
-reflectRow (l ▹ τ) η = eval (⇑ (row (l ▹ τ))) η
  

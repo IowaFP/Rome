@@ -141,11 +141,11 @@ V₁ ≋⟨ q ⟩ r = trans-≋ q r
 -- Reflecting propositional equality of neutral types into semantic equality.
 -- (Well kinded neutral types are in the logical relation.)
 
-reflectNE-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflectNE τ₁ ≋ reflectNE τ₂
-reflectNE-≋ {κ = ★} refl = refl
-reflectNE-≋ {κ = L} refl = refl
-reflectNE-≋ {κ = κ `→ κ₁} eq = eq
-reflectNE-≋ {κ = R[ κ ]} {τ₁ = τ₁} q = q
+reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
+reflect-≋ {κ = ★} refl = refl
+reflect-≋ {κ = L} refl = refl
+reflect-≋ {κ = κ `→ κ₁} eq = eq
+reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} q = q
 
 -- --------------------------------------------------------------------------------
 -- -- Reify semantic equality back to propositional equality
@@ -155,7 +155,7 @@ reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
 reify-≋ {κ = κ₁ `→ κ₂} {left τ₁} {left τ₂} refl = refl
 reify-≋ {κ = κ₁ `→ κ₂} {right F} {right  G}
-  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflectNE-≋ refl)))
+  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
 reify-≋ {κ = R[ κ ]} {left _} {left _} refl = refl
 reify-≋ {κ = R[ κ ]} {right (l , τ₁)} {right (l , τ₂)} (refl , q) = cong (row ∘ (l ▹_)) (reify-≋ q)
 

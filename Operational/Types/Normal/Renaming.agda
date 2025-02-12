@@ -22,18 +22,18 @@ open import Rome.Operational.Types.Normal.Syntax
 renNE : Renaming Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
 ren : Renaming Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renPred : Renaming Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
-renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
+-- renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
 
 
 renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
-renNE ρ (Π τ) = Π (renNE ρ τ)
-renNE ρ (Σ τ) = Σ (renNE ρ τ)
+-- renNE ρ (Π τ) = Π (renNE ρ τ)
+-- renNE ρ (Σ τ) = Σ (renNE ρ τ)
 renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
 
 ren ρ Unit   = Unit
 ren ρ (ne τ) = ne (renNE ρ τ)
-ren ρ (row τ) = row (renRow ρ τ)
+ren ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
 ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
 ren ρ (π ⇒ τ) = renPred ρ π ⇒ ren ρ τ
@@ -41,15 +41,15 @@ ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
 ren ρ (μ τ) = μ (ren ρ τ)
 ren ρ (lab x) = lab x
 ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
-ren ρ (Π τ) = Π (renRow ρ τ)
-ren ρ (ΠL τ) = ΠL (renRow ρ τ)
-ren ρ (Σ τ) = Σ (renRow ρ τ)
-ren ρ (ΣL τ) = ΣL (renRow ρ τ)
+ren ρ (Π τ) = Π (ren ρ τ)
+ren ρ (ΠL τ) = ΠL (ren ρ τ)
+ren ρ (Σ τ) = Σ (ren ρ τ)
+ren ρ (ΣL τ) = ΣL (ren ρ τ)
 
 renPred ρ (ρ₁ · ρ₂ ~ ρ₃) = (ren ρ ρ₁) · (ren ρ ρ₂) ~ (ren ρ ρ₃)
 renPred ρ (ρ₁ ≲ ρ₂) = (ren ρ ρ₁) ≲ (ren ρ ρ₂)
 
-renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
+-- renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 
 --------------------------------------------------------------------------------
 -- Weakening

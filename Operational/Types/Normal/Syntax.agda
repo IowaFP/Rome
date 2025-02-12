@@ -22,7 +22,6 @@ open import Rome.Operational.Types.Properties
 infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
 data NormalPred (Δ : KEnv) : Kind → Set
-data Row Δ : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -37,17 +36,17 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
-  Π : ∀ {κ} → 
+--   Π : ∀ {κ} → 
 
-      (ρ : NeutralType Δ R[ κ ]) → 
-      ------------
-      NeutralType Δ κ
+--       (ρ : NeutralType Δ R[ κ ]) → 
+--       ------------
+--       NeutralType Δ κ
 
-  Σ : ∀ {κ} → 
+--   Σ : ∀ {κ} → 
 
-      (ρ : NeutralType Δ R[ κ ]) → 
-      ------------
-      NeutralType Δ κ
+--       (ρ : NeutralType Δ R[ κ ]) → 
+--       ------------
+--       NeutralType Δ κ
 
 
   _<$>_ : 
@@ -70,14 +69,14 @@ data NormalPred Δ where
        ----------
        NormalPred Δ R[ κ ]  
 
-data Row Δ where
+-- data Row Δ where
 
-  _▹_ : 
+--   _▹_ : 
       
-      (l : NormalType Δ L) → 
-      (τ : NormalType Δ κ) → 
-      ---------------------------
-      Row Δ R[ κ ]
+--       (l : NormalType Δ L) → 
+--       (τ : NormalType Δ κ) → 
+--       ---------------------------
+--       Row Δ R[ κ ]
 
 
 data NormalType Δ where
@@ -93,10 +92,11 @@ data NormalType Δ where
       --------------
       NormalType Δ κ
 
-  row :
-
-      (ρ : Row Δ R[ κ ]) → 
-      -------------------
+  _▹_ : 
+      
+      (l : NormalType Δ L) → 
+      (τ : NormalType Δ κ) → 
+      ---------------------------
       NormalType Δ R[ κ ]
 
   `λ :
@@ -150,26 +150,26 @@ data NormalType Δ where
 
   Π  : 
 
-      (ρ : Row Δ R[ ★ ]) →
+      (ρ : NormalType Δ R[ ★ ]) →
       ------------------
       NormalType Δ ★
 
   ΠL  : 
 
-      (ρ : Row Δ R[ L ]) →
+      (ρ : NormalType Δ R[ L ]) →
       ------------------
       NormalType Δ L
 
 
   Σ  : 
 
-      (ρ : Row Δ R[ ★ ]) →
+      (ρ : NormalType Δ R[ ★ ]) →
       ---------------
       NormalType Δ ★
 
   ΣL  : 
 
-      (ρ : Row Δ R[ L ]) →
+      (ρ : NormalType Δ R[ L ]) →
       ------------------
       NormalType Δ L
 
@@ -182,7 +182,7 @@ isNeutral _      = ⊥
 
 isGround Unit = ⊤
 isGround (ne x) = ⊥
-isGround (row ρ) = ⊤
+isGround (l ▹ τ) = isGround τ
 isGround (`λ τ) = ⊤
 isGround (τ `→ τ₁) = ⊤
 isGround (`∀ κ τ) = ⊤
@@ -190,10 +190,10 @@ isGround (μ τ) = ⊤
 isGround (π ⇒ τ) = ⊤
 isGround (lab l) = ⊤
 isGround ⌊ τ ⌋ = ⊤
-isGround (Π ρ) = ⊤
-isGround (ΠL ρ) = ⊤
-isGround (Σ ρ) = ⊤
-isGround (ΣL ρ) = ⊤
+isGround (Π ρ) = isGround ρ 
+isGround (ΠL ρ) = isGround ρ 
+isGround (Σ ρ) = isGround ρ 
+isGround (ΣL ρ) = isGround ρ
 
 --------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
@@ -208,16 +208,16 @@ inj-▹ₗ refl = refl
 inj-▹ᵣ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → τ₁ ≡ τ₂
 inj-▹ᵣ refl = refl
 
-inj-row : ∀ {ρ₁ ρ₂ : Row Δ R[ κ ]} → row ρ₁ ≡ row ρ₂ → ρ₁ ≡ ρ₂
-inj-row refl = refl
+-- inj-row : ∀ {ρ₁ ρ₂ : Row Δ R[ κ ]} → row ρ₁ ≡ row ρ₂ → ρ₁ ≡ ρ₂
+-- inj-row refl = refl
 
 
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) → isGround ρ → 
-                                             ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ row (l ▹ τ)))
-row-canonicity (row (l ▹ τ)) tt = (l , τ , refl)
+                                             ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ)))
+row-canonicity (l ▹ τ) t = l , τ , refl
 
 
 --------------------------------------------------------------------------------
@@ -228,8 +228,10 @@ label-canonicity : (ℓ : NormalType Δ L) → isGround ℓ →
   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΠL (l₁ ▹ l₂))) or
   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΣL (l₁ ▹ l₂)))
 label-canonicity (lab l) tt = left (l , refl)
-label-canonicity (ΠL (l₁ ▹ l₂)) tt = right (left (l₁ , l₂ , refl))
-label-canonicity (ΣL (l₁ ▹ l₂)) tt = right (right (l₁ , l₂ , refl))
+label-canonicity (ΠL (l₁ ▹ l₂)) x = right (left (l₁ , l₂ , refl))
+label-canonicity (ΣL (l₁ ▹ l₂)) x = right (right (l₁ , l₂ , refl))
+label-canonicity (ΠL (ne x)) ()
+label-canonicity (ΣL (ne x)) ()
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -245,31 +247,31 @@ arrow-canonicity (`λ f) tt = f , refl
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
-⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
+-- ⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
 
 ⇑ Unit   = Unit
 ⇑ (ne x) = ⇑NE x
-⇑ (row x) = ⇑Row x
+⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ κ τ) = `∀ κ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
-⇑ (Π x) = Π · ⇑Row x
-⇑ (ΠL x) = Π · ⇑Row x
-⇑ (Σ x) = Σ · ⇑Row x
-⇑ (ΣL x) = Σ · ⇑Row x
+⇑ (Π x) = Π · ⇑ x
+⇑ (ΠL x) = Π · ⇑ x
+⇑ (Σ x) = Σ · ⇑ x
+⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-⇑NE (Π ρ) = Π · ⇑NE ρ
-⇑NE (Σ ρ) = Σ · ⇑NE ρ
+-- ⇑NE (Π ρ) = Π · ⇑NE ρ
+-- ⇑NE (Σ ρ) = Σ · ⇑NE ρ
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 
-⇑Row (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
+-- ⇑Row (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

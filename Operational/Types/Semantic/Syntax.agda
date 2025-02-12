@@ -23,8 +23,6 @@ KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → Se
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
-SemType Δ₁ (κ₁ `→ κ₂) = 
-  NeutralType Δ₁ (κ₁ `→ κ₂) or KripkeFunction Δ₁ κ₁ κ₂
+SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ κ ] = 
-  NeutralType Δ R[ κ ] or 
-  (NormalType Δ L × SemType Δ κ)
+  NeutralType Δ R[ κ ] or (NormalType Δ L × SemType Δ κ)

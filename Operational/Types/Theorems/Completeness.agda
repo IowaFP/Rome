@@ -201,7 +201,7 @@ fund e (eq-sym eq) = sym-≋ (fund (sym-≋ ∘ e) eq)
 fund e (eq-trans eq₁ eq₂) = trans-≋ (fund (refl-≋ₗ ∘ e) eq₁) (fund e eq₂)
 fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fund e eq-τ) (fund e eq-υ)
 fund {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
-fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflectNE-≋ refl)) eq)
+fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
 fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fund e eq
 ... | left x | left x₁ | refl = refl
 ... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
@@ -283,7 +283,7 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = �
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
 ... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
-    reflectNE-≋ 
+    reflect-≋ 
       (cong Π 
         (cong (_<$> x) 
           (cong `λ 
@@ -300,7 +300,7 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = �
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
 ... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
-    reflectNE-≋ 
+    reflect-≋ 
       (cong Σ 
         (cong (_<$> x) 
           (cong `λ 
@@ -309,7 +309,7 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = �
                 (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))                 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
-idEnv-≋ x = reflectNE-≋ refl
+idEnv-≋ x = reflect-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq)  

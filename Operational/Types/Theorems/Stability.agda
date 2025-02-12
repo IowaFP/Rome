@@ -24,13 +24,13 @@ open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
 --     or, ⇓ is a split-monomorphism/section.
--- - stabilityNE : eval ∘ ⇑NE  = reflectNE
+-- - stabilityNE : eval ∘ ⇑NE  = reflect
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
-stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflectNE τ
+stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
 stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → 
-                 eval (⇑NE (F <$> τ)) idEnv ≡ reflectNE (F <$> τ)
+                 eval (⇑NE (F <$> τ)) idEnv ≡ reflect (F <$> τ)
 stabilityRow : ∀ (r : Row Δ R[ κ ]) → ⇓ (⇑Row r) ≡ row r
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
 
@@ -49,15 +49,15 @@ stability<$> {κ₁ = κ₁} .(reify (right F)) τ | right F | refl rewrite stab
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
-       (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))))
+       (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
       ≡ τ
 
 stability-β {Δ = Δ} τ = 
     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
-        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflectNE (` Z))) idEnv
-        η Z = reflectNE-≋ refl
-        η (S x) = ↻-ren-reflectNE S (` x)
+        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η Z = reflect-≋ refl
+        η (S x) = ↻-ren-reflect S (` x)
   
 stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x
