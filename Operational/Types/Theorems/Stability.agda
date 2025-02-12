@@ -35,7 +35,10 @@ stabilityRow : ∀ (r : Row Δ R[ κ ]) → ⇓ (⇑Row r) ≡ row r
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
 
 stabilityNE {κ = κ} (` x) = refl
-stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = refl
+stabilityNE {Δ} {κ} (f@(` α) · τ₂) rewrite stabilityNE f | stability τ₂ = refl
+stabilityNE {Δ} {κ} (f@(τ₁ · τ) · τ₂) rewrite stabilityNE f | stability τ₂ = refl
+stabilityNE {Δ} {κ} (Π τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = {!   !}
+stabilityNE {Δ} {κ} (Σ τ₁ · τ₂) = {!   !} -- rewrite stabilityNE τ₁ | stability τ₂ = refl
 stabilityNE {κ = κ} (Π τ) rewrite stabilityNE τ = refl
 stabilityNE {κ = κ} (Σ τ)      rewrite stabilityNE τ  = refl
 stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
