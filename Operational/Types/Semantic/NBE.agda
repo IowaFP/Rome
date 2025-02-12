@@ -41,7 +41,6 @@ reify∘reflect≡ne {κ = L} τ = refl
 reify∘reflect≡ne {κ = κ `→ κ₁} τ = refl
 reify∘reflect≡ne {κ = R[ κ ]} τ = refl
 
-
 --------------------------------------------------------------------------------
 -- Semantic environments
 
@@ -67,19 +66,25 @@ idEnv = reflectNE ∘ `
 
 
 --------------------------------------------------------------------------------
--- Semantic application
+-- Semantic application and applicators Π, Σ, and <?>
+
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
-_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
+_<?>_ : NeutralType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+f <?> a = left ((`λ (ne ((` Z) · (ren S (reify a))))) <$> f)
 
-left (Π x) ·V V = π (left ((`λ (ne ((` Z) · (ren S (reify V))))) <$> x))
-  -- π (right (λ { ρ (left f) → reflectNE (f · (ren ρ (reify V)))
-  --            ; ρ (right F) → F id (renSem ρ V) }) <$>V left x)
+left (Π f) ·V V = π (f <?> V)
+left (Σ f) ·V V = σ (f <?> V)
 left A ·V V = reflectNE (A · (reify V))
 right F ·V V = F id V
+
+--------------------------------------------------------------------------------
+-- Semantic lifting
+
+_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
 
 --------------------------------------------------------------------------------
 -- Semantic combinator for labeled types
