@@ -27,6 +27,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 -- - stabilityNE : eval ∘ ⇑NE  = reflect
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
+
+-- TODO: Refactor NormalType to be in η-long form
 η-expand : NormalType Δ κ → NormalType Δ κ
 η-expand {κ = ★} x = x
 η-expand {κ = L} τ = τ
