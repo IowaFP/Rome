@@ -35,6 +35,13 @@ reify {κ = κ₁ `→ κ₂} (right F) = `λ (reify (F S (reflectNE {κ = κ₁
 reify {κ = R[ κ ]} (left x) = ne x
 reify {κ = R[ κ ]} (right (l , τ)) = row (l ▹ (reify τ))
 
+reify∘reflect≡ne : ∀ (τ : NeutralType Δ κ) → reify (reflectNE τ) ≡ ne τ 
+reify∘reflect≡ne {κ = ★} τ = refl
+reify∘reflect≡ne {κ = L} τ = refl
+reify∘reflect≡ne {κ = κ `→ κ₁} τ = refl
+reify∘reflect≡ne {κ = R[ κ ]} τ = refl
+
+
 --------------------------------------------------------------------------------
 -- Semantic environments
 
@@ -68,8 +75,9 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 _<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reify F <$> x) 
 _<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , (F ·V τ))
 
-left (Π x) ·V V = π (right (λ { ρ (left f) → reflectNE (f · (ren ρ (reify V)))
-                              ; ρ (right F) → F id (renSem ρ V) }) <$>V left x)
+left (Π x) ·V V = π (left ((`λ (ne ((` Z) · (ren S (reify V))))) <$> x))
+  -- π (right (λ { ρ (left f) → reflectNE (f · (ren ρ (reify V)))
+  --            ; ρ (right F) → F id (renSem ρ V) }) <$>V left x)
 left A ·V V = reflectNE (A · (reify V))
 right F ·V V = F id V
 

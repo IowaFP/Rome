@@ -264,7 +264,13 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = �
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
 ... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
-    reflectNE-≋ (cong Π (cong (_<$> x) (cong `λ (cong (reify ∘ reflectNE) (cong (` Z ·_) (↻-ren-reify S (idext e τ))))))) 
+    reflectNE-≋ 
+      (cong Π 
+        (cong (_<$> x) 
+          (cong `λ 
+            (sym (trans 
+                (reify∘reflect≡ne _) 
+                (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ)))))))))) 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflectNE-≋ refl

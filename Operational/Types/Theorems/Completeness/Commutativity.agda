@@ -106,18 +106,11 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
   trans-≋ 
     (↻-ren-reflectNE ρ _) 
     (reflectNE-≋ 
-      (cong Π (cong₂ _<$>_ 
-        (cong `λ 
-          (trans 
-            ((↻-ren-reify {κ = κ₂} (lift ρ) (reflectNE-≋ (cong (` Z ·_) (cong (N.ren S) (reify-≋ r)))))) 
-            (reify-≋ 
-              (trans-≋ 
-                (↻-ren-reflectNE (lift ρ) (` Z · N.ren S (reify V₂))) 
-                (reflectNE-≋ (cong (` Z ·_) 
-                  (trans 
-                    (↻-lift-weaken ρ (reify V₂)) 
-                    (cong (N.ren S) (↻-ren-reify ρ (refl-≋ᵣ r)))))))))) 
-                  refl)))
+      (cong Π 
+        (cong (_<$> renNE ρ f) 
+          (cong `λ 
+            (cong ne 
+              (cong (` Z ·_) (trans (↻-lift-weaken ρ (reify V₁)) (cong (N.ren S) (↻-ren-reify ρ r)))))))))
 ↻-ren-app ρ {left (Σ f)} {left .(Σ f)} refl {V₁} {V₂} r = {!   !} 
   -- 
 ↻-ren-app ρ {right F} {right G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
