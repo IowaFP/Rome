@@ -25,7 +25,7 @@ renPred : Renaming Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂
 -- renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
 
 
-renNE ρ (` x) = ` (ρ x)
+renNE ρ (` x {g}) = ` (ρ x) {g}
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
 -- renNE ρ (Π τ) = Π (renNE ρ τ)
 -- renNE ρ (Σ τ) = Σ (renNE ρ τ)

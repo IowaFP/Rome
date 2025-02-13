@@ -17,6 +17,18 @@ infixr 5 _`→_
 --------------------------------------------------------------------------------
 -- Partitioning of kinds by rows and row-valued functions.
 
+Ground : Kind → Set 
+Ground ★ = ⊤
+Ground L = ⊤
+Ground (κ `→ κ₁) = ⊥
+Ground R[ κ ] = Ground κ
+
+ground? : ∀ κ → Dec (Ground κ)
+ground? ★ = yes tt
+ground? L = yes tt
+ground? (κ `→ κ₁) = no (λ ())
+ground? R[ κ ] = ground? κ
+
 Rowed : Kind → Set
 Rowed ★ = ⊥
 Rowed L = ⊥

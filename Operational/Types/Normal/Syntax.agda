@@ -25,8 +25,8 @@ data NormalPred (Δ : KEnv) : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
-      (α : KVar Δ κ) →
-      ---------------
+      (α : KVar Δ κ) → {_ : Ground κ} → 
+      ---------------------------
       NeutralType Δ κ
 
   _·_ : 
