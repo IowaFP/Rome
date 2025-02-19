@@ -25,7 +25,7 @@ data NormalPred (Δ : KEnv) : Kind → Set
 data NeutralType Δ : Kind → Set where
 
   ` : 
-      (α : KVar Δ κ) → {_ : Ground κ} → 
+      (α : KVar Δ κ) → 
       ---------------------------
       NeutralType Δ κ
 
@@ -35,19 +35,6 @@ data NeutralType Δ : Kind → Set where
       (τ : NormalType Δ κ₁) → 
       ---------------------------
       NeutralType Δ κ
-
---   Π : ∀ {κ} → 
-
---       (ρ : NeutralType Δ R[ κ ]) → 
---       ------------
---       NeutralType Δ κ
-
---   Σ : ∀ {κ} → 
-
---       (ρ : NeutralType Δ R[ κ ]) → 
---       ------------
---       NeutralType Δ κ
-
 
   _<$>_ : 
 
@@ -88,7 +75,7 @@ data NormalType Δ where
 
   ne : 
 
-      (x : NeutralType Δ κ) → 
+      (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
       --------------
       NormalType Δ κ
 
@@ -174,32 +161,10 @@ data NormalType Δ where
       NormalType Δ L
 
 --------------------------------------------------------------------------------
--- ground vs neutral types
-
-isNeutral isGround : NormalType Δ κ → Set
-isNeutral (ne x) = ⊤ 
-isNeutral _      = ⊥ 
-
-isGround Unit = ⊤
-isGround (ne x) = ⊥
-isGround (l ▹ τ) = isGround τ
-isGround (`λ τ) = ⊤
-isGround (τ `→ τ₁) = ⊤
-isGround (`∀ κ τ) = ⊤
-isGround (μ τ) = ⊤
-isGround (π ⇒ τ) = ⊤
-isGround (lab l) = ⊤
-isGround ⌊ τ ⌋ = ⊤
-isGround (Π ρ) = isGround ρ 
-isGround (ΠL ρ) = isGround ρ 
-isGround (Σ ρ) = isGround ρ 
-isGround (ΣL ρ) = isGround ρ
-
---------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
 -- constructors.
 
-inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} → ne e₁ ≡ ne e₂ → e₁ ≡ e₂
+inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
 inj-ne refl = refl
 
 inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
@@ -215,29 +180,32 @@ inj-▹ᵣ refl = refl
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
-row-canonicity : (ρ : NormalType Δ R[ κ ]) → isGround ρ → 
-                                             ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ)))
-row-canonicity (l ▹ τ) t = l , τ , refl
+row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
+    ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ))) or 
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
+row-canonicity (ne τ) = right (τ , refl)
+row-canonicity (l ▹ τ) = left (l , τ , refl)
+
+
 
 
 --------------------------------------------------------------------------------
 -- label-canonicity
 
-label-canonicity : (ℓ : NormalType Δ L) → isGround ℓ → 
-  ∃[ l ] (ℓ ≡ lab l) or 
-  ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΠL (l₁ ▹ l₂))) or
-  ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΣL (l₁ ▹ l₂)))
-label-canonicity (lab l) tt = left (l , refl)
-label-canonicity (ΠL (l₁ ▹ l₂)) x = right (left (l₁ , l₂ , refl))
-label-canonicity (ΣL (l₁ ▹ l₂)) x = right (right (l₁ , l₂ , refl))
-label-canonicity (ΠL (ne x)) ()
-label-canonicity (ΣL (ne x)) ()
+-- label-canonicity : (ℓ : NormalType Δ L) → 
+--   ∃[ l ] (ℓ ≡ lab l) or 
+--   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΠL (l₁ ▹ l₂))) or
+--   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΣL (l₁ ▹ l₂)))
+-- label-canonicity (lab l) = left (l , refl)
+-- label-canonicity (ΠL (l₁ ▹ l₂)) = right (left (l₁ , l₂ , refl))
+-- label-canonicity (ΣL (l₁ ▹ l₂)) = right (right (l₁ , l₂ , refl))
+
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
 
-arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → isGround f → ∃[ τ ] (f ≡ `λ τ)
-arrow-canonicity (`λ f) tt = f , refl
+arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → ∃[ τ ] (f ≡ `λ τ)
+arrow-canonicity (`λ f) = f , refl
 
 
 --------------------------------------------------------------------------------

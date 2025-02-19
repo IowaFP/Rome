@@ -25,14 +25,12 @@ renPred : Renaming Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂
 -- renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
 
 
-renNE ρ (` x {g}) = ` (ρ x) {g}
+renNE ρ (` x) = ` (ρ x)
 renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
--- renNE ρ (Π τ) = Π (renNE ρ τ)
--- renNE ρ (Σ τ) = Σ (renNE ρ τ)
 renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
 
 ren ρ Unit   = Unit
-ren ρ (ne τ) = ne (renNE ρ τ)
+ren ρ (ne τ {g}) = ne (renNE ρ τ) {g}
 ren ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
 ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
@@ -57,3 +55,10 @@ renPred ρ (ρ₁ ≲ ρ₂) = (ren ρ ρ₁) ≲ (ren ρ ρ₂)
 weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
 weaken = ren S
 
+
+--------------------------------------------------------------------------------
+-- η-expansion
+
+η-expand : NeutralType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₂)
+η-expand (` α) = `λ (ne ((` (S α)) · ne (` Z)))
+η-expand (n · τ) = {!   !}

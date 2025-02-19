@@ -31,6 +31,7 @@ open import Relation.Binary.PropositionalEquality as Eq public
 open import Relation.Nullary using (¬_) public
 open import Relation.Nullary.Negation using (contradiction; contraposition) public
 open import Relation.Nullary using (Dec; yes; no) public
+open import Relation.Nullary.Decidable using (True ; toWitness ; fromWitness) public renaming (⌊_⌋ to ∥_∥)
 
 module Reasoning where
   open Eq.≡-Reasoning public
