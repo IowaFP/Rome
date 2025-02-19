@@ -59,6 +59,10 @@ weaken = ren S
 --------------------------------------------------------------------------------
 -- η-expansion
 
+-- This will take more thought
 η-expand : NeutralType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₂)
-η-expand (` α) = `λ (ne ((` (S α)) · ne (` Z)))
+η-expand {κ₂ = ★} (` α) = `λ (ne ((` (S α)) · (ne (` Z) {ground = {!   !}})))
+η-expand {κ₂ = L} (` α) = {!   !}
+η-expand {κ₂ = κ₂ `→ κ₃} (` α) = {!   !}
+η-expand {κ₂ = R[ κ₂ ]} (` α) = {!   !}
 η-expand (n · τ) = {!   !}
