@@ -17,19 +17,19 @@ open import Rome.Operational.Types.Semantic.NBE
 --------------------------------------------------------------------------------
 -- 3.6 Normality preserving Type Substitution
 
-Sub : KEnv → KEnv → Set
-Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
+Substitution : KEnv → KEnv → Set
+Substitution Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
 
 -- -- ↑ing a substitution over binders.
-lifts :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifts :  Substitution Δ₁ Δ₂ → Substitution(Δ₁ ,, κ) (Δ₂ ,, κ)
 lifts {κ = κ} σ Z = η-norm (` Z)
 lifts σ (S x) = weaken (σ x)
 
 -- Effectively: denormalize `n`, substitute, then normalize.
-sub : Sub Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
+sub : Substitution Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 sub σ n = ⇓ (TypeSub.sub (⇑ ∘ σ) (⇑ n))
 
-extend : Sub Δ₁ Δ₂ → (A : NormalType Δ₂ κ) → Sub (Δ₁ ,, κ) Δ₂
+extend : Substitution Δ₁ Δ₂ → (A : NormalType Δ₂ κ) → Substitution(Δ₁ ,, κ) Δ₂
 extend σ A Z = A
 extend σ A (S x) = σ x
 

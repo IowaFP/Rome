@@ -21,176 +21,8 @@ open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Theorems.Completeness.Relation
 open import Rome.Operational.Types.Theorems.Completeness.Congruence
 open import Rome.Operational.Types.Theorems.Completeness.Commutativity
-open import Rome.Shared.Postulates.FunExt
 
--------------------------------------------------------------------------------
--- Small step relation on terms
-
-infix 0 _≡t_
-infix 0 _≡p_
-data _≡p_ : Pred Δ R[ κ ] → Pred Δ R[ κ ] → Set
-data _≡t_ : Type Δ κ → Type Δ κ → Set 
-
-private
-    variable
-        l l₁ l₂ l₃ : Type Δ L
-        ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
-        π₁ π₂    : Pred Δ R[ κ ]
-        τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
-
-data _≡p_ where
-
-  _eq-≲_ : 
-
-        τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → 
-        --------------------
-        τ₁ ≲ τ₂ ≡p  υ₁ ≲ υ₂
-
-  _eq-·_~_ : 
-
-        τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ → 
-        -----------------------------------
-        τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
-
-
-data _≡t_ where 
-
-  -- -------------------------------------
-  -- Eq. relation
-    
-    eq-refl : 
-
-        ------
-        τ ≡t τ 
-
-    eq-sym : 
-    
-        τ₁ ≡t τ₂ →
-        ----------
-        τ₂ ≡t τ₁
-
-    eq-trans : 
-    
-        τ₁ ≡t τ₂ → τ₂ ≡t τ₃ → 
-        ---------------------
-        τ₁ ≡t τ₃
-
-  -- -------------------------------------
-  -- Congruence rules
-
-    eq-→ : 
-
-        τ₁ ≡t τ₂ → υ₁ ≡t υ₂ →
-        -----------------------
-        τ₁ `→ υ₁ ≡t τ₂ `→ υ₂
-
-    eq-∀ : 
-
-        τ ≡t υ →
-        ----------------
-        `∀ κ τ ≡t `∀ κ υ
-
-    eq-μ : 
-
-        τ ≡t υ →
-        ----------------
-        μ τ ≡t μ υ
-
-    eq-λ : ∀ {τ υ : Type (Δ ,, κ₁) κ₂} → 
-
-        τ ≡t υ →
-        ----------------
-        `λ τ ≡t `λ υ
-
-    eq-· :
-
-        τ₁ ≡t υ₁ → τ₂ ≡t υ₂ →
-        ---------------------
-        τ₁ · τ₂ ≡t υ₁ · υ₂
-
-    eq-⌊⌋ : 
-
-        τ ≡t υ →
-        -------------
-        ⌊ τ ⌋ ≡t ⌊ υ ⌋
-
-    eq-▹ :
-
-         l₁ ≡t l₂ → τ₁ ≡t τ₂ →
-        ------------------------
-        (l₁ ▹ τ₁) ≡t (l₂ ▹ τ₂)
-
-    eq-⇒ :
-
-         π₁ ≡p π₂ → τ₁ ≡t τ₂ →
-        ------------------------
-        (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
-
-  -- -------------------------------------
-  -- η rules
-
-    eq-η : ∀ {f : Type Δ (κ₁ `→ κ₂)} → 
-
-
-        ----------------------------
-        f ≡t `λ (ren S f · (` Z))
-
-  -- -------------------------------------
-  -- Computational rules
-
-    eq-β : ∀ {τ₁ : Type (Δ ,, κ₁) κ₂} {τ₂ : Type Δ κ₁} → 
-
-
-        ----------------------------
-        ((`λ τ₁) · τ₂) ≡t (τ₁ β[ τ₂ ])
-
-
-
-    eq-Π : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-         ----------------------------
-         Π · (l ▹ τ) ≡t (l ▹ (Π · τ))
-
-    eq-Σ : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-         ----------------------------
-         Σ · (l ▹ τ) ≡t (l ▹ (Σ · τ))
-
-
-    eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
-
-        -------------------------------------------
-        Π · (l ▹ `λ τ) ≡t `λ (Π · (weaken l ▹ τ))
-
-    eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
-
-        -------------------------------------------
-        (F <$> (l ▹ τ)) ≡t (l ▹ F · τ)
-
-    eq-assoc-Π : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
-
-        ----------------------------
-        (Π · ρ) · τ ≡t Π · (ρ ?? τ)
-
-    eq-assoc-Σ : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
-
-        ----------------------------
-        (Σ · ρ) · τ ≡t Σ · (ρ ?? τ)
-
--------------------------------------------------------------------------------
--- Admissable but informative rules
-
-eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-        ----------------------------
-        Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
-eq-Π² = eq-· eq-refl eq-Π 
-
-
-eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} → 
-        -------------------------------------------
-        Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
-eq-Πℓ² = eq-Π         
+open import Rome.Operational.Types.Equivalence
 
 -------------------------------------------------------------------------------
 -- Fundamental theorem
@@ -262,7 +94,34 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ}) =
                 (idext (λ { Z      → ren-≋ ρ₂ (refl-≋ᵣ q)
                           ; (S x)  → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ₗ (e x))) }) τ)))))  ,
     (λ ρ₁ ρ₂ V₁ V₂ q → 
-        {!   !}) , 
+        trans-≋ 
+          (↻-ren-ξ Π-rec ρ₂ 
+            (right
+                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
+                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (right
+                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
+                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ))) 
+          (cong-π
+             {τ₁ = right (NR.ren ρ₂
+                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))
+                , renSem ρ₂ (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)))}
+             {τ₂ = eval (weaken l)
+              (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v'))
+               (renSem ρ₂ V₂)) ▹V eval τ (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v')) 
+               (renSem ρ₂ V₂))}
+             ((trans 
+                (↻-renSem-eval ρ₂ (weaken l) {extende (renSem ρ₁ ∘ η₂) V₁} {extende (renSem ρ₁ ∘ η₂) V₁} 
+                    (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (idext (λ { Z → ren-≋ ρ₂ q
+                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) (weaken l))) , 
+             trans-≋ 
+                (↻-renSem-eval ρ₂ τ 
+                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} 
+                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (idext (λ { Z → ren-≋ ρ₂ q
+                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) τ)))) , 
     λ ρ {V₁ = V₁} {V₂} v → cong-π
       {τ₁ = right (NR.ren ρ (eval l η₁) ,
                   eval τ (extende (λ {κ} v' → renSem (λ x → ρ x) (η₁ v')) V₁))}
@@ -292,14 +151,12 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = �
         {τ₁ = right (l , (F ·V eval τ η₁))}
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = {!   !}
-    -- reflect-≋ 
-    --   (cong Π 
-    --     (cong (_<$> x) 
-    --       (cong `λ 
-    --         (sym (trans 
-    --             (reify∘reflect≡ne _) 
-    --             (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))
+... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
+    cong-π 
+        (cong (_<$> x) 
+            (cong `λ 
+                (cong (reify ∘ reflect ∘ (` Z ·_)) 
+                    (reify-≋ (ren-≋ S (idext e τ))))))
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
 ... | right (l , F) | right (.l , G) | refl , q rewrite 
       NRP.ren-id l 
@@ -309,14 +166,12 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = �
         {τ₁ = right (l , (F ·V eval τ η₁))}
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = {!   !}
-    -- reflect-≋ 
-    --   (cong Σ 
-    --     (cong (_<$> x) 
-    --       (cong `λ 
-    --         (sym (trans 
-    --             (reify∘reflect≡ne _) 
-    --             (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))                 
+... | left x | left .x | refl rewrite NRP.ren-id-ne x =     
+    cong-σ 
+        (cong (_<$> x) 
+            (cong `λ 
+                (cong (reify ∘ reflect ∘ (` Z ·_)) 
+                    (reify-≋ (ren-≋ S (idext e τ))))))         
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

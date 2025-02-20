@@ -11,18 +11,18 @@ open import Rome.Operational.Types.Renaming
 --
 -- A substitution maps variables to types.
 
-Sub : KEnv → KEnv → Set
-Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
+Substitution : KEnv → KEnv → Set
+Substitution Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
 
 -- ↑ing a substitution over binders.
-lifts :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifts :  Substitution Δ₁ Δ₂ → Substitution(Δ₁ ,, κ) (Δ₂ ,, κ)
 lifts σ Z = ` Z
 lifts σ (S x) = weaken (σ x)
 
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.
-sub : Sub Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-subPred : Sub Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
+sub : Substitution Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
+subPred : Substitution Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
 sub σ Unit = Unit
 sub σ (` x) = σ x
 sub σ (`λ τ) = `λ (sub (lifts σ) τ)
@@ -51,7 +51,7 @@ subPred σ (ρ₁ ≲ ρ₂) = (sub σ ρ₁) ≲ (sub σ ρ₂)
 --
 -- AH> This is analogous to the following procedure: define a "list" as a
 --     function Int -> A and then write cons : A -> (Int -> A) -> (Int -> A).
-extend : Sub Δ₁ Δ₂ → (A : Type Δ₂ κ) → Sub (Δ₁ ,, κ) Δ₂
+extend : Substitution Δ₁ Δ₂ → (A : Type Δ₂ κ) → Substitution(Δ₁ ,, κ) Δ₂
 extend σ A Z = A
 extend σ A (S x) = σ x
 

@@ -369,10 +369,10 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 -- Evaluation commutes with syntactic substitution
 
 ↻-subst-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
-                        (σ : Types.Sub Δ Δ₁) → 
+                        (σ : Types.Substitution Δ Δ₁) → 
                     eval (Types.sub σ τ) η₁ ≋ eval τ (λ x → eval (σ x) η₂)
 ↻-subst-eval-pred : ∀ (π : Pred Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
-                        (σ : Types.Sub Δ Δ₁) → 
+                        (σ : Types.Substitution Δ Δ₁) → 
                     evalPred (Types.subPred σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
 ↻-subst-eval-pred (ρ₁ · ρ₂ ~ ρ₃) e σ rewrite 
     reify-≋ (↻-subst-eval ρ₁ e σ) 

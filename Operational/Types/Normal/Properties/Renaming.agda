@@ -162,3 +162,39 @@ ren-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
 ↻-lift-weaken : ∀ {κ'} (ρ : Renaming Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
                 ren (lift {κ = κ'} ρ) (ren S τ) ≡ ren S (ren ρ τ)
 ↻-lift-weaken {κ' = κ'} ρ τ rewrite sym (ren-comp (S {κ₂ = κ'}) (lift ρ) τ) | ren-comp ρ (S {κ₂ = κ'}) τ = refl
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with embedding
+
+↻-ren-⇑ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
+          ⇑ (ren ρ τ) ≡ Types.ren ρ (⇑ τ)
+↻-ren-⇑NE : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) → 
+          ⇑NE (renNE ρ τ) ≡ Types.ren ρ (⇑NE τ)
+↻-ren-⇑Pred : ∀ (ρ : Renaming Δ₁ Δ₂) → (π : NormalPred Δ₁ R[ κ ]) → 
+            ⇑Pred (renPred ρ π) ≡ Types.renPred ρ (⇑Pred π)      
+
+↻-ren-⇑ ρ Unit = refl
+↻-ren-⇑ ρ (ne x) = ↻-ren-⇑NE ρ x
+↻-ren-⇑ ρ (`λ τ) = cong Types.`λ (↻-ren-⇑ (lift ρ) τ)
+↻-ren-⇑ ρ (τ₁ `→ τ₂) = cong₂ Types._`→_ (↻-ren-⇑ ρ τ₁) (↻-ren-⇑ ρ τ₂) 
+↻-ren-⇑ ρ (`∀ κ τ) = cong (Types.`∀ κ) (↻-ren-⇑ (lift ρ) τ)
+↻-ren-⇑ ρ (μ τ) = cong Types.μ (↻-ren-⇑ ρ τ)
+↻-ren-⇑ ρ (π ⇒ τ) = cong₂ Types._⇒_ (↻-ren-⇑Pred ρ π) (↻-ren-⇑ ρ τ)
+↻-ren-⇑ ρ (lab l) = refl
+↻-ren-⇑ ρ ⌊ τ ⌋ = cong Types.⌊_⌋ (↻-ren-⇑ ρ τ)
+↻-ren-⇑ ρ (l ▹ τ) = cong₂ Types._▹_ (↻-ren-⇑ ρ l) (↻-ren-⇑ ρ τ)
+↻-ren-⇑ ρ (Π r) = cong (λ x → Types.Π Types.· x) (↻-ren-⇑ ρ r) 
+↻-ren-⇑ ρ (ΠL r) = cong (λ x → Types.Π Types.· x) (↻-ren-⇑ ρ r)
+↻-ren-⇑ ρ (Σ r)  = cong (λ x → Types.Σ Types.· x) (↻-ren-⇑ ρ r)
+↻-ren-⇑ ρ (ΣL r) = cong (λ x → Types.Σ Types.· x) (↻-ren-⇑ ρ r)
+
+↻-ren-⇑NE ρ (` α) = refl
+↻-ren-⇑NE ρ (τ₁ · τ₂) = cong₂ Types._·_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)
+↻-ren-⇑NE ρ (φ <$> τ) = cong₂ Types._<$>_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
+
+
+↻-ren-⇑Pred ρ (ρ₁ · ρ₂ ~ ρ₃) rewrite 
+    ↻-ren-⇑ ρ ρ₁ 
+  | ↻-ren-⇑ ρ ρ₂
+  | ↻-ren-⇑ ρ ρ₃ = refl
+↻-ren-⇑Pred ρ (ρ₁ ≲ ρ₂) = cong₂ Types._≲_ (↻-ren-⇑ ρ ρ₁) (↻-ren-⇑ ρ ρ₂)
