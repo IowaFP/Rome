@@ -57,10 +57,10 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
-fund e (eq-η {f = f}) = 
+fund {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) = 
   fst (idext e f) , 
-  (λ ρ₁ ρ₂ V₁ V₂ q → {! !}) , 
-  λ ρ v → sym-≋ (trans-≋ {!!} {!!})  -- with idext e f 
+  fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weaken f · (` Z))))) , 
+  λ ρ {V₁} {V₂} v → {!   !}  -- with idext e f 
 -- ... | Unif-f-η₁ , Unif-f-η₂ , PE-f =
 --   Unif-f-η₁  , 
 --   ren-Uniform {!S!} {!!} , 
@@ -185,5 +185,6 @@ idEnv-≋ x = reflect-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq)  
+ 
  
  
