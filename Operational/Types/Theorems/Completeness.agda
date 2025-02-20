@@ -57,7 +57,14 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
-fund e (eq-η) = {!   !} , {!   !} , {!   !}
+fund e (eq-η {f = f}) = 
+  fst (idext e f) , 
+  (λ ρ₁ ρ₂ V₁ V₂ q → {! !}) , 
+  λ ρ v → sym-≋ (trans-≋ {!!} {!!})  -- with idext e f 
+-- ... | Unif-f-η₁ , Unif-f-η₂ , PE-f =
+--   Unif-f-η₁  , 
+--   ren-Uniform {!S!} {!!} , 
+--   {!   !}
 fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
     trans-≋ 
         (idext 

@@ -46,7 +46,6 @@ extende η V Z     = V
 extende η V (S x) = η x
 
 ↑e : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
--- extende (weakenSem {Δ = Δ₂} {κ₁ = {!κ'!}} {κ₂ = {!!}} ∘ η {κ = {!κ!}}) (reflect {κ = κ} (` Z))
 ↑e {Δ₁} {Δ₂} {κ} η  = extende η' V -- extende η' V
   where
     η' : Env Δ₁ (Δ₂ ,, κ)
@@ -69,8 +68,8 @@ F ·V V = F id V
 -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reifyKripke F <$> x) -- ne (reifyKripke F <$> x) -- (reify F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , F ·V τ) -- l ▹ {!   !} -- (l , (F ·V τ))
+_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reifyKripke F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , F ·V τ) 
 
 --------------------------------------------------------------------------------
 -- Semantic flap

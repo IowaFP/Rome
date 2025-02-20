@@ -31,22 +31,18 @@ open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
-stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → 
-                 eval (⇑NE (F <$> τ)) idEnv ≡ reflect (F <$> τ)
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
 
 stabilityNE {κ = κ} (` x) = refl
-stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (ren-id-ne τ₁))
-stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
-
-stability<$> F τ with eval (⇑ F) idEnv | stability F
-stability<$> {κ₁ = κ₁} F τ | x | refl rewrite stabilityNE τ = refl
+stabilityNE {Δ} {κ} (τ₁ · τ₂) 
+  rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (ren-id-ne τ₁))
+stabilityNE {κ = R[ κ ]} (F <$> τ) 
+  rewrite stabilityNE τ | stability F = refl
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
        (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
       ≡ τ
-
 stability-β {Δ = Δ} τ = 
     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
