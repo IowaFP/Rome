@@ -11,6 +11,7 @@ import Rome.Operational.Types.Properties as TypeProps
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
+open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -44,4 +45,4 @@ postulate
   -- Weakening followed by application of τ equals τ (eta expansion w.r.t. weakening)
   weaken-η   : ∀ (τ : NormalType Δ ★) {τ₂ : NormalType Δ κ} → τ ≡ (weaken τ) β[ τ₂ ]
 
-  sub-id          : ∀ (τ : NormalType Δ κ) → sub (ne ∘ `) τ ≡ τ
+  sub-id          : ∀ (τ : NormalType Δ κ) → sub (η-norm ∘ `) τ ≡ τ

@@ -213,8 +213,7 @@ fund e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fu
 fund {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fund e eq₁) (fund e eq₂)
 fund e (eq-∀ eq) = cong (`∀ _) (fund (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
 fund {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fund e eq
-... | left x | left x₁ | refl = refl
-... | right y | right y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
+... | y | y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
 fund e (eq-⌊⌋ eq) rewrite fund e eq = refl
 fund e (eq-λ {τ = τ} {υ = υ} eq) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
@@ -226,6 +225,7 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
       (idext (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q)
                 ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (sym-≋ (e x))) }) υ)), 
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
+fund e (eq-η) = {!   !} , {!   !} , {!   !}
 fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
     trans-≋ 
         (idext 
@@ -292,14 +292,14 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = �
         {τ₁ = right (l , (F ·V eval τ η₁))}
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
-    reflect-≋ 
-      (cong Π 
-        (cong (_<$> x) 
-          (cong `λ 
-            (sym (trans 
-                (reify∘reflect≡ne _) 
-                (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))
+... | left x | left .x | refl rewrite NRP.ren-id-ne x = {!   !}
+    -- reflect-≋ 
+    --   (cong Π 
+    --     (cong (_<$> x) 
+    --       (cong `λ 
+    --         (sym (trans 
+    --             (reify∘reflect≡ne _) 
+    --             (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
 ... | right (l , F) | right (.l , G) | refl , q rewrite 
       NRP.ren-id l 
@@ -309,14 +309,14 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = �
         {τ₁ = right (l , (F ·V eval τ η₁))}
         {τ₂ = right (l , (G ·V eval τ η₂))} 
         (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
-    reflect-≋ 
-      (cong Σ 
-        (cong (_<$> x) 
-          (cong `λ 
-            (sym (trans 
-                (reify∘reflect≡ne _) 
-                (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))                 
+... | left x | left .x | refl rewrite NRP.ren-id-ne x = {!   !}
+    -- reflect-≋ 
+    --   (cong Σ 
+    --     (cong (_<$> x) 
+    --       (cong `λ 
+    --         (sym (trans 
+    --             (reify∘reflect≡ne _) 
+    --             (cong ne (cong (` Z ·_) (sym (↻-ren-reify S (idext e τ))))))))))                 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

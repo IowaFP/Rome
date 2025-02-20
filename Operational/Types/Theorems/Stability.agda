@@ -11,6 +11,7 @@ import Rome.Operational.Types.Properties as TypeProps
 open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
+open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Normal.Properties.Postulates
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
@@ -28,86 +29,71 @@ open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
 
--- TODO: Refactor NormalType to be in η-long form
-η-expand : NormalType Δ κ → NormalType Δ κ
-η-expand {κ = ★} x = x
-η-expand {κ = L} τ = τ
-η-expand {κ = κ₁ `→ κ₂} (ne x) = `λ ((reify ∘ reflect) ((renNE S x) · ((reify ∘ reflect) (` {κ = κ₁} Z))))
-η-expand {κ = R[ κ ]} τ = τ
-η-expand τ = τ
-
-
-stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ η-expand τ
+stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
 stability<$> : ∀ (F : NormalType Δ (κ₁ `→ κ₂)) (τ : NeutralType Δ R[ κ₁ ]) → 
                  eval (⇑NE (F <$> τ)) idEnv ≡ reflect (F <$> τ)
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
 
 stabilityNE {κ = κ} (` x) = refl
-stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = {!   !} -- cong reflect (cong (_· τ₂) (ren-id-ne τ₁))
+stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (ren-id-ne τ₁))
 stabilityNE {κ = R[ κ ]} (_<$>_ {κ₁} {κ₂} F τ) = stability<$> F τ
 
--- stability<$> F τ with eval (⇑ F) idEnv | stability F
--- stability<$> {κ₁ = κ₁} F τ | x | refl rewrite stabilityNE τ = refl
+stability<$> F τ with eval (⇑ F) idEnv | stability F
+stability<$> {κ₁ = κ₁} F τ | x | refl rewrite stabilityNE τ = refl
 
--- stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
---       (eval (⇑ τ)
---        (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
---       ≡ τ
+stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
+      (eval (⇑ τ)
+       (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
+      ≡ τ
 
--- stability-β {Δ = Δ} τ = 
---     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
---     where
---         η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
---         η Z = reflect-≋ refl
---         η (S x) = ↻-ren-reflect S (` x)
+stability-β {Δ = Δ} τ = 
+    trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+    where
+        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η Z = reflect-≋ refl
+        η (S x) = ↻-ren-reflect S (` x)
   
 stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x
 stability {κ = L} (ne x)       = stabilityNE x
-stability {κ = κ `→ κ₁} (ne x) rewrite stabilityNE x = refl
+stability {_} {κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
--- stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
--- stability (`∀ κ τ) = cong (`∀ κ) (stability-β τ)
--- stability (μ τ)  rewrite stability τ = refl
--- -- stability (μ (`λ τ)) rewrite stability (`λ τ) = cong μ refl
--- stability (lab x)                             = refl
--- stability ⌊ τ ⌋ rewrite stability τ           = refl
--- stability (τ₁ `→ τ₂) 
---     rewrite stability τ₁ | stability τ₂ = refl
+stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
+stability (`∀ κ τ) = cong (`∀ κ) (stability-β τ)
+stability (μ τ)  rewrite stability τ = refl
+stability (lab x)                             = refl
+stability ⌊ τ ⌋ rewrite stability τ           = refl
+stability (τ₁ `→ τ₂) 
+    rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
-stability (l ▹ τ) rewrite stability l | stability τ = {!   !} 
+stability (l ▹ τ) rewrite stability l | stability τ = refl 
 stability (Π (ne x)) rewrite stabilityNE x = refl
+stability (ΠL (ne x)) rewrite stabilityNE x = refl 
+stability (Σ (ne x))  rewrite stabilityNE x = refl 
+stability (ΣL (ne x)) rewrite stabilityNE x = refl 
 stability (Π (l ▹ τ)) rewrite stability l | stability τ = refl
--- stability (ΠL x) rewrite stability x = {!   !}
--- stability (Σ x)  rewrite stability x = {!   !}
--- stability (ΣL x) rewrite stability x = {!   !}
-
--- -- -- stabilityRow {κ = ★} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
--- -- stabilityRow {κ = L} (l ▹ τ) rewrite stability l | stability τ | ren-id l = cong row refl
--- -- stabilityRow {κ = κ `→ κ₁} (l ▹ ne x) rewrite stability l rewrite stabilityNE x = refl
--- -- stabilityRow {κ = κ `→ κ₁} (l ▹ F@(`λ m)) rewrite stability l | stability m = 
--- --   cong row (cong (_▹_ l) (cong `λ (stability-β m)))
--- -- stabilityRow {κ = R[ κ ]} (l ▹ τ) rewrite stability l | stability τ = refl
-
+stability (ΠL (l ▹ τ)) rewrite stability l | stability τ = refl
+stability (Σ  (l ▹ τ)) rewrite stability l | stability τ = refl
+stability (ΣL (l ▹ τ)) rewrite stability l | stability τ = refl
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl
 stabilityPred (ρ₁ ≲ ρ₂) 
     rewrite stability ρ₁ | stability ρ₂ = refl
 
--- --------------------------------------------------------------------------------
--- -- idempotency
+--------------------------------------------------------------------------------
+-- idempotency
  
--- idempotency : ∀ (τ : Types.Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
--- idempotency τ rewrite stability (⇓ τ) = refl
+idempotency : ∀ (τ : Types.Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+idempotency τ rewrite stability (⇓ τ) = refl
 
--- --------------------------------------------------------------------------------
--- -- surjectivity
--- --   
+--------------------------------------------------------------------------------
+-- surjectivity
+--   
  
--- surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
--- surjectivity τ = ( ⇑ τ , stability τ ) 
+surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
+surjectivity τ = ( ⇑ τ , stability τ ) 
      
      
  

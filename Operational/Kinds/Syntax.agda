@@ -26,7 +26,7 @@ Ground R[ κ ] = ⊤
 ground? : ∀ κ → Dec (Ground κ)
 ground? ★ = yes tt
 ground? L = yes tt
-ground? (κ `→ κ₁) = no (λ ())
+ground? (_ `→ _) = no (λ ())
 ground? R[ κ ] = yes tt
 
 --------------------------------------------------------------------------------

@@ -68,7 +68,7 @@ _ = refl
 A₀ : Type Δ R[ ★ ]
 A₀ = (ℓ ▹ Unit)
 
-_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡ row (l ▹ Unit)
+_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡  (l ▹ Unit)
 _ = refl
 
 ----------------------------------------
@@ -77,13 +77,13 @@ _ = refl
 Id-R : Type Δ R[ ★ `→ ★ ]
 Id-R = ℓ ▹ (`λ (` Z))
 
-_ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡ row (l ▹ (`λ (ne (` Z))))
+_ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡  (l ▹ (`λ (ne (` Z))))
 _ = refl
 
 apply-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
 apply-R = ℓ₁ ▹ apply
 
-_ : ∀ {Δ} → ⇓ (apply-R {Δ}) ≡ row ((l₁ ▹ ⇓ apply))
+_ : ∀ {Δ} → ⇓ (apply-R {Δ}) ≡  ((l₁ ▹ ⇓ apply))
 _ = refl
 
 ----------------------------------------
@@ -127,32 +127,32 @@ _ = refl
 NR₂ : Type Δ R[ ★ ]
 NR₂ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (((apply · Const-U) · Unit))))
 
-_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡ row (l₁ ▹ (Π (l₂ ▹ Unit)))
+_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡  (l₁ ▹ (Π (l₂ ▹ Unit)))
 _ = refl
 
 NR₃ : Type Δ R[ ★ `→ ★ ]
 NR₃ = `Π (ℓ₁ ▹ (ℓ₂ ▹ ID))
 
-_ : ⇓ {Δ = Δ} NR₃ ≡ row (l₁ ▹ `λ (Π (l₂ ▹ (ne (` Z)))))
+_ : ⇓ {Δ = Δ} NR₃ ≡  (l₁ ▹ `λ (Π (l₂ ▹ (ne (` Z)))))
 _ = refl
 
 NR₄ : Type Δ R[ R[ ★ ] ]
 NR₄ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} NR₄ ≡ row (l₁ ▹ (row (l₂ ▹ (Π (l₃ ▹ Unit)))))
+_ : ⇓ {Δ = Δ} NR₄ ≡  (l₁ ▹ ( (l₂ ▹ (Π (l₃ ▹ Unit)))))
 _ = refl
 
 NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
 NR₅ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ ID)))
 
-_ : ⇓ {Δ = Δ} NR₅ ≡ row (l₁ ▹ (row (l₂ ▹ `λ (Π (l₃ ▹ ne (` Z))))))
+_ : ⇓ {Δ = Δ} NR₅ ≡  (l₁ ▹ ( (l₂ ▹ `λ (Π (l₃ ▹ ne (` Z))))))
 _ = refl
 
 
 NR₆ : Type Δ R[ R[ R[ ★ `→ ★ ] ] ]
 NR₆ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ (ℓ ▹ ID))))
 
-_ : ⇓ {Δ = Δ} NR₆ ≡ row (lab "l1" ▹ row (lab "l2" ▹ row (lab "l3" ▹ `λ (Π (lab "l" ▹ ne (` Z))))))
+_ : ⇓ {Δ = Δ} NR₆ ≡  (lab "l1" ▹  (lab "l2" ▹  (lab "l3" ▹ `λ (Π (lab "l" ▹ ne (` Z))))))
 _ = refl
 
 
@@ -178,7 +178,7 @@ _ = refl
 lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
 lift-λ₂ = `Π (ℓ₁ ▹ (`λ (`λ (` Z) <$> (ℓ₂ ▹ Unit)))) -- `Π (ℓ₁ ▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ (row (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
+_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ ( (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
 _ = refl
 
 lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
