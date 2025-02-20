@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Normal.Substitution where
 
 open import Rome.Operational.Prelude
@@ -22,7 +23,7 @@ Sub Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
 lifts :  Sub Δ₁ Δ₂ → Sub (Δ₁ ,, κ) (Δ₂ ,, κ)
 lifts {κ = ★} σ Z = ne (` Z)
 lifts {κ = L} σ Z = ne (` Z)
-lifts {κ = κ₁ `→ κ₂} σ Z = `λ (ne ((` (S Z)) · {! lifts σ   !}))
+lifts {κ = κ₁ `→ κ₂} σ Z = η-expand (` Z)
 lifts {κ = R[ κ ]} σ Z = ne (` Z)
 lifts σ (S x) = weaken (σ x)
 

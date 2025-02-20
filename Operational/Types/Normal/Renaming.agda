@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Normal.Renaming where
 
 open import Rome.Operational.Prelude
@@ -61,8 +62,32 @@ weaken = ren S
 
 -- This will take more thought
 η-expand : NeutralType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₂)
-η-expand {κ₂ = ★} (` α) = `λ (ne ((` (S α)) · (ne (` Z) {ground = {!   !}})))
-η-expand {κ₂ = L} (` α) = {!   !}
-η-expand {κ₂ = κ₂ `→ κ₃} (` α) = {!   !}
-η-expand {κ₂ = R[ κ₂ ]} (` α) = {!   !}
-η-expand (n · τ) = {!   !}
+η-expand {κ₁ = κ₁} {κ₂ = κ₂} x  with ground? κ₁ | ground? κ₂ 
+... | yes p  | yes q = `λ (ne ((renNE S x) · ne (` Z) {ground = fromWitness p}) {fromWitness q})
+η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = κ₃} x | no p | yes q = 
+    `λ (ne ((renNE S x) · (η-expand (` Z))) {fromWitness q})
+η-expand {κ₁ = κ₁} {κ₂ = κ₂ `→ κ₃} f | yes p | no q = 
+    `λ (η-expand ((renNE S f) · (ne (` Z) {ground = fromWitness p})))
+η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = κ₃ `→ κ₄} x | no p | no q = {!   !}
+η-expand {κ₁ = κ₁} {κ₂ = ★} x | yes p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = κ₁} {κ₂ = L} x | yes p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = κ₁} {κ₂ = R[ κ₂ ]} x | yes p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = ★} {κ₂ = κ₂} x | no p | yes q = ⊥-elim (p tt)
+η-expand {κ₁ = L} {κ₂ = κ₂} x | no p | yes q = ⊥-elim (p tt)
+
+η-expand {κ₁ = R[ κ₁ ]} {κ₂ = κ₂} x | no p | yes q = ⊥-elim (p tt)
+η-expand {κ₁ = ★} {κ₂ = ★} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = ★} {κ₂ = L} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = ★} {κ₂ = κ₂ `→ κ₃} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = ★} {κ₂ = R[ κ₂ ]} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = L} {κ₂ = ★} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = L} {κ₂ = L} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = L} {κ₂ = κ₂ `→ κ₃} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = L} {κ₂ = R[ κ₂ ]} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = ★} x | no p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = L} x | no p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = R[ κ₃ ]} x | no p | no q = ⊥-elim (q tt)
+η-expand {κ₁ = R[ κ₁ ]} {κ₂ = ★} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = R[ κ₁ ]} {κ₂ = L} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = R[ κ₁ ]} {κ₂ = κ₂ `→ κ₃} x | no p | no q = ⊥-elim (p tt)
+η-expand {κ₁ = R[ κ₁ ]} {κ₂ = R[ κ₂ ]} x | no p | no q = ⊥-elim (p tt)
