@@ -60,14 +60,12 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
 fund {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) = 
   fst (idext e f) , 
   fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weaken f · (` Z))))) , 
-  λ ρ {V₁} {V₂} v → sym-≋ 
+  λ ρ {V₁} {V₂} v → 
+  sym-≋ 
     (trans-≋ 
         (snd (snd (↻-ren-eval S f {η₂ = (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂)} (extend-≋ (λ x → ren-≋ ρ (refl-≋ᵣ (e x))) (refl-≋ᵣ v)))) id (sym-≋ v)) 
-        (trans-≋ (snd (snd (idext {η₁ = (λ x → renSem ρ (η₂ x))} {η₂ = (renSem ρ) ∘ η₂} (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) f)) id {V₁} {V₂}  v) {!   !}))
--- ... | Unif-f-η₁ , Unif-f-η₂ , PE-f =
---   Unif-f-η₁  , 
---   ren-Uniform {!S!} {!!} , 
---   {!   !}
+        (trans-≋ (snd (snd (idext {η₁ = (λ x → renSem ρ (η₂ x))} {η₂ = (renSem ρ) ∘ η₂} (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) f)) id {V₁} {V₂}  v) {! fst (idext e f) id ρ   !}))
+
 fund {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
     trans-≋ 
         (idext 

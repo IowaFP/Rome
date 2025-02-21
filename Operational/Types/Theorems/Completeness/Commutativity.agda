@@ -433,3 +433,12 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 ↻-subst-eval Π e σ = Unif-π , Unif-π , λ ρ v → cong-π v
 ↻-subst-eval Σ e σ = Unif-σ , Unif-σ , λ ρ v → cong-σ v
 ↻-subst-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ)
+
+transfer : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renaming Δ₂ Δ₃) {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+              Env-≋ η₁ η₂ →  eval f (renSem ρ ∘ η₁) id V₁ ≋ eval f η₂ ρ V₂
+transfer (` α) ρ v e = snd (snd (e α)) ρ v
+transfer (`λ f) ρ v e = idext (λ { Z → v
+                                 ; (S x) → {!   !} }) f
+transfer (f · f₁) ρ v e = trans-≋ (snd (snd (transfer f ρ {!   !} e)) id v) {!   !}
+transfer Π ρ v e = cong-π v
+transfer Σ ρ v e = cong-σ v
