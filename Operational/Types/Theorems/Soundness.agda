@@ -30,13 +30,15 @@ evalSR (`λ τ) {σ} {η} e = {!   !}
 evalSR (τ₁ · τ₂) {σ} {η} e = {! eq-·  !}
 evalSR (τ₁ `→ τ₂) {σ} {η} e = eq-→ (evalSR τ₁ e) (evalSR τ₂ e)
 evalSR (`∀ κ τ) {σ} {η} e = {!   !}
-evalSR (μ τ) {σ} {η} e = eq-μ (reify-≋ (evalSR τ e))
+evalSR (μ τ) {σ} {η} e = eq-μ (eq-trans 
+    (eq-η {f = sub σ τ}) 
+    {!   !}) -- eq-μ (reify-≋ (evalSR τ e))
 evalSR (π ⇒ τ) {σ} {η} e = {!   !}
 evalSR (lab l) {σ} {η} e = eq-refl
 evalSR (l ▹ τ) {σ} {η} e = eq-▹ (evalSR l e) (reify-≋ (evalSR τ e)) 
 evalSR ⌊ τ ⌋ {σ} {η} e = {!   !}
 -- Yeah I need eta equality. Fuck.
-evalSR Π {σ} {η} e = Π · ` Z , (eq-η , {!   !}) -- ⇑ (reify (π (reflect (` Z)))) , ({! π  !} , (λ ρ x → {!   !}))
+evalSR Π {σ} {η} e = {!   !}
 evalSR Σ {σ} {η} e = {!   !}
 evalSR (τ₁ <$> τ₂) {σ} {η} e = {!   !}        
 
