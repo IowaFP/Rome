@@ -434,11 +434,25 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 ↻-subst-eval Σ e σ = Unif-σ , Unif-σ , λ ρ v → cong-σ v
 ↻-subst-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subst-eval τ₁ e σ) (↻-subst-eval τ₂ e σ)
 
-transfer : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renaming Δ₂ Δ₃) {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → {η₁ η₂ : Env Δ₁ Δ₂} → 
-              Env-≋ η₁ η₂ →  eval f (renSem ρ ∘ η₁) id V₁ ≋ eval f η₂ ρ V₂
-transfer (` α) ρ v e = snd (snd (e α)) ρ v
-transfer (`λ f) ρ v e = idext (λ { Z → v
-                                 ; (S x) → {!   !} }) f
-transfer (f · f₁) ρ v e = trans-≋ (snd (snd (transfer f ρ {!   !} e)) id v) {!   !}
-transfer Π ρ v e = cong-π v
-transfer Σ ρ v e = cong-σ v
+↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renaming Δ₂ Δ₃) 
+                {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 
+                {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →  
+                eval f (renSem ρ ∘ η₁) id V₁ ≋ eval f η₂ ρ V₂
+↻-eval-Kripke (` α) ρ v e = snd (snd (e α)) ρ v
+↻-eval-Kripke (`λ f) ρ v {η₁} {η₂} e = 
+  idext (λ { Z → v
+           ; (S x) → renSem-id-≋ 
+                      {V₁ = (renSem ρ ∘ η₁) x} 
+                      {(renSem ρ ∘ η₂) x} 
+                      (ren-≋ ρ (e x)) }) f
+↻-eval-Kripke (f · a) ρ {V₁} {V₂} v {η₁} {η₂} e with 
+    ↻-eval-Kripke f ρ {eval a (renSem ρ ∘ η₁)} {eval a (renSem ρ ∘ η₂)} (idext (ren-≋ ρ ∘ e) a) {η₁} {η₂} e
+  | ↻-eval-Kripke f id {eval a η₁} {eval a η₂} (idext e a) e
+... | (Unif-ρ₁ , Unif-ρ₂ , Ext-ρ) | (Unif-id₁ , Unif-id₂ , Ext-id) = -- {! fst (idext e f)  ρ id  !}
+    trans-≋ 
+      (Ext-ρ id v) 
+      (sym-≋ (trans-≋ 
+        (third ((fst ∘ snd) (idext e f) id ρ (eval a η₂) (eval a η₂) (refl-≋ᵣ (idext e a))) id (refl-≋ᵣ v)) 
+        (third (third (idext (refl-≋ᵣ ∘ e) f) ρ (↻-renSem-eval ρ a (refl-≋ᵣ ∘ e))) id (refl-≋ᵣ v))))
+↻-eval-Kripke Π ρ v e = cong-π v
+↻-eval-Kripke Σ ρ v e = cong-σ v

@@ -42,6 +42,9 @@ id x = x
 -- _≈_ : ∀ {A B} {P : A → Set} (f₁ f₂ : P A → P B) → Set
 -- _≈_ {A} {_} {P} f₁ f₂ = ∀ (x : P A) → f₁ x ≡ f₂ x
 
+third : ∀ {A B C : Set} → A × B × C → C
+third = snd ∘ snd
+
 ------------------------------------------------------------------------------
 -- Some lemmas I couldn't find elsewhere
 
