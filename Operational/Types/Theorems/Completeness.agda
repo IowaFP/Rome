@@ -63,7 +63,7 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) =
   λ ρ {V₁} {V₂} v → sym-≋ 
     (trans-≋ 
         (snd (snd (↻-ren-eval S f {η₂ = (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂)} (extend-≋ (λ x → ren-≋ ρ (refl-≋ᵣ (e x))) (refl-≋ᵣ v)))) id (sym-≋ v)) 
-        {! snd (snd (idext {η₁ = (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂ ∘ S)} {η₂ = η₁} ? f)) ρ (refl-≋ₗ v)  !})
+        (trans-≋ (snd (snd (idext {η₁ = (λ x → renSem ρ (η₂ x))} {η₂ = (renSem ρ) ∘ η₂} (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) f)) id {V₁} {V₂}  v) {!   !}))
 -- ... | Unif-f-η₁ , Unif-f-η₂ , PE-f =
 --   Unif-f-η₁  , 
 --   ren-Uniform {!S!} {!!} , 
