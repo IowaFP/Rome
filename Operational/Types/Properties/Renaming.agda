@@ -109,3 +109,6 @@ ren-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃)
 ren-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
   rewrite ren-comp ρ ρ' ρ₁ | ren-comp ρ ρ' ρ₂ = refl 
 
+↻-lift-weaken : ∀ {κ'} (ρ : Renaming Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
+                ren (lift {κ = κ'} ρ) (ren S τ) ≡ ren S (ren ρ τ)
+↻-lift-weaken {κ' = κ'} ρ τ rewrite sym (ren-comp (S {κ₂ = κ'}) (lift ρ) τ) | ren-comp ρ (S {κ₂ = κ'}) τ = refl

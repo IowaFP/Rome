@@ -12,7 +12,7 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal.Syntax
 import Rome.Operational.Types.Normal.Renaming as N
-open import Rome.Operational.Types.Normal.Properties.Renaming
+import Rome.Operational.Types.Normal.Properties.Renaming as NPR
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
@@ -51,15 +51,50 @@ reify-≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} →
 
 cong-ren-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renaming Δ₁ Δ₂) → 
                 τ ≡t υ → ren ρ τ ≡t ren ρ υ 
-cong-ren-≡t {τ = τ} {υ} ρ e = {! e  !} 
+cong-ren-≡p : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} (ρ : Renaming Δ₁ Δ₂) → 
+                π₁ ≡p π₂ → renPred ρ π₁ ≡p renPred ρ π₂
+
+cong-ren-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
+cong-ren-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-ren-≡t (lift ρ) e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-ren-≡t (lift ρ) e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-ren-≡p ρ x) (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
+    eq-trans 
+        (eq-η {f = ren ρ τ}) 
+        (eq-λ (eq-· 
+            (inst (sym (↻-lift-weaken ρ τ) )) 
+            eq-refl))
+cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
+    eq-trans 
+        (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
+        (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
+cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π 
+cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
+cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
+    eq-trans 
+    (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
+    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
+cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
+cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
+cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
+
+cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
+cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
 
 reflect-≋ {κ = ★} e = e 
 reflect-≋ {κ = L} e = e
 reflect-≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = λ ρ q → reflect-≋ 
     (eq-· 
-        (eq-sym (eq-trans (inst (↻-ren-⇑NE ρ υ)) 
+        (eq-sym (eq-trans (inst (NPR.↻-ren-⇑NE ρ υ)) 
             (cong-ren-≡t ρ (eq-sym e)))) 
-        (reify-≋ q))
+        (reify-≋ q)) 
 reflect-≋ {κ = R[ κ ]} e = e           
 
 reify-≋ {κ = ★} {τ} {V} e = e 
@@ -77,4 +112,4 @@ reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = e
 -- Relating syntactic substitutions to semantic environments
 
 SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set
-SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α) 
+SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    

@@ -7,9 +7,13 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
 
+
 postulate
   ↻-sub-ren : ∀ {ρ : Renaming Δ₁ Δ₂}{σ : Substitution Δ₂ Δ₃}
                 (τ : Type Δ₁ κ) → sub (σ ∘ ρ) τ ≡ sub σ (ren ρ τ)
+
+  ↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
+                  ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]
   
   sub-id : ∀ (τ : Type Δ κ) → sub ` τ ≡ τ 
   sub-comp : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₂ Δ₃}
