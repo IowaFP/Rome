@@ -68,6 +68,25 @@ Unif-ξ▹ : ∀ (Ξ : Xi) (l : NormalType Δ L) (F : SemType Δ (κ₁ `→ κ�
           _≋_ {κ = R[ κ ]} V₁ V₂ → renSem ρ (ξ Ξ V₁) ≋ ξ Ξ (renSem {κ = R[ κ ]} ρ V₂) 
 cong-ξ : ∀ (Ξ : Xi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → ξ Ξ τ₁ ≋ ξ Ξ τ₂
 
+Unif-ξ<?> : ∀ (Ξ : Xi) (x : NeutralType Δ R[ κ₁ `→ κ₂ ]) → Uniform (λ ρ v → ξ Ξ (left (renNE ρ x) <?> v))
+Unif-ξ<?> Ξ x ρ₂ ρ₃ V₁ V₂ v = 
+    trans-≋ 
+      (↻-ren-ξ Ξ ρ₃ (left (renNE ρ₂ x) <?> V₁) (left (renNE ρ₂ x) <?> V₁) refl) 
+      (cong-ξ Ξ (cong₂ _<$>_ (cong `λ 
+        (trans 
+          (↻-ren-reify 
+            (lift ρ₃) 
+            {reflect (` (id Z) · reify (renSem S V₁))} 
+            {reflect (` (id Z) · reify (renSem S V₁))} 
+            (reflect-≋ refl)) 
+          (reify-≋ (trans-≋ 
+            (↻-ren-reflect (lift ρ₃) (` (id Z) · reify (renSem S V₁))) 
+            (reflect-≋ (cong (` Z ·_) 
+              (trans
+                (↻-ren-reify (lift ρ₃) {renSem S V₁} {renSem S V₂} (ren-≋ S v)) 
+                (reify-≋ (↻-lift-weaken-≋  ρ₃ (refl-≋ᵣ v)))))) ))))
+        (sym (ren-comp-ne ρ₂ ρ₃ x))))
+
 Unif-ξ Ξ ρ = ↻-ren-ξ Ξ
 
 Unif-ξ▹ {κ₁ = κ₁} {κ₂} Ξ l F q@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ V₂ q' =
@@ -102,25 +121,11 @@ open Xi
 ↻-ren-ξ Ξ {L} ρ (left x) (left _) refl = Ξ .ren-L ρ (ne x)
 ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (left x) (left _) refl =
   ren-Uniform {F = λ ρ₁ v → ξ Ξ (left (renNE ρ₁ x) <?> v)} ρ 
-  (λ ρ₂ ρ₃ V₁ V₂ v → 
-    trans-≋ 
-      (↻-ren-ξ Ξ ρ₃ (left (renNE ρ₂ x) <?> V₁) (left (renNE ρ₂ x) <?> V₁) refl) 
-      (cong-ξ Ξ (cong₂ _<$>_ (cong `λ 
-        (trans 
-          (↻-ren-reify 
-            (lift ρ₃) 
-            {reflect (` (id Z) · reify (renSem S V₁))} 
-            {reflect (` (id Z) · reify (renSem S V₁))} 
-            (reflect-≋ refl)) 
-          (reify-≋ (trans-≋ 
-            (↻-ren-reflect (lift ρ₃) (` (id Z) · reify (renSem S V₁))) 
-            (reflect-≋ (cong (` Z ·_) 
-              (trans
-                (↻-ren-reify (lift ρ₃) {renSem S V₁} {renSem S V₂} (ren-≋ S v)) 
-                (reify-≋ (↻-lift-weaken-≋  ρ₃ (refl-≋ᵣ v)))))) ))))
-        (sym (ren-comp-ne ρ₂ ρ₃ x))))) , 
-  {!   !} , 
-  {!   !}
+  (Unif-ξ<?> Ξ x) , 
+  Unif-ξ<?> Ξ (renNE ρ x) , 
+  λ ρ' v → cong-ξ Ξ 
+    (cong₂ _<$>_ (cong `λ (cong (reify ∘ reflect) (cong (` (id Z) ·_) (reify-≋ (ren-≋ S v) )))) 
+    (ren-comp-ne ρ ρ' x))
 ↻-ren-ξ Ξ {R[ κ ]} ρ (left x) (left _) refl = 
   cong (_<$> renNE ρ x) 
     (cong `λ (trans 
@@ -144,7 +149,12 @@ open Xi
 
 cong-ξ Ξ {κ = ★} {left x} {left _} refl = refl
 cong-ξ Ξ {κ = L} {left x} {left _} refl = refl
-cong-ξ Ξ {κ = κ₁ `→ κ₂} {left x} {left _} refl = {! Unif-ξ▹ Ξ  !}
+cong-ξ Ξ {κ = κ₁ `→ κ₂} {left x} {left _} refl = 
+  Unif-ξ<?> Ξ x , 
+  Unif-ξ<?> Ξ x , 
+  λ ρ v → cong-ξ Ξ 
+    (cong₂ _<$>_ (cong `λ (cong (reify ∘ reflect) (cong (` (id Z) ·_) (reify-≋ (ren-≋ S v) )))) 
+    refl)
 cong-ξ Ξ {κ = R[ κ ]} {left x} {left _} refl = refl
 cong-ξ Ξ {κ = ★} {right (l , τ₁)} {right (.l , τ₂)} (refl , refl) = refl
 cong-ξ Ξ {κ = L} {right (l , τ₁)} {right (.l , τ₂)} (refl , refl) = refl
