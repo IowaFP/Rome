@@ -255,3 +255,11 @@ ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) =
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
 ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left x} {left x₁} refl = ren-comp-ne ρ₁ ρ₂ x
 ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (l , τ₁)} {right (_ , τ₂)} (refl , q) = (ren-comp ρ₁ ρ₂ l) , (ren-comp-≋ ρ₁ ρ₂ q)
+
+↻-lift-weaken-≋ : ∀ {κ'} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
+                 V₁ ≋ V₂ → 
+                renSem (lift {κ = κ'} ρ) (renSem S V₁) ≋ renSem S (renSem ρ V₂)
+↻-lift-weaken-≋ {κ' = κ'} ρ {V₁} {V₂} v = 
+  trans-≋ 
+    (sym-≋ (ren-comp-≋ (S {κ₂ = κ'}) (lift ρ) (sym-≋ v))) 
+    (ren-comp-≋ ρ S (refl-≋ᵣ v))
