@@ -184,6 +184,10 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = �
             (cong `λ 
                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
                     (reify-≋ (ren-≋ S (idext e τ))))))         
+fund {κ = κ} {η₁ = η₁} {η₂} e (eq-app-lift-Π {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
+... | left _ | left _ | refl = refl
+... | right (l , τ) | right (_ , υ) | refl , q = refl , (cong-π q)
+fund {κ = κ} {η₁ = η₁} {η₂} e (eq-<$> t u) = cong-<$> (fund e t) (fund e u)
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

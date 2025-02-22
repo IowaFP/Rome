@@ -84,6 +84,8 @@ cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) =
 cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
 cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
 cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
+cong-ren-≡t {τ = τ} {υ} ρ eq-app-lift-Π = eq-app-lift-Π
+cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
 
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
