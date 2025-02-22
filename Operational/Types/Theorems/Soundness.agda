@@ -22,15 +22,6 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation
 --------------------------------------------------------------------------------
 -- Fundamental lemma
 
--- A new piece of computation... Let:
---   ρ : ∀ κ. R [ κ ] → κ
---   x : R² [ κ ]
--- and now
---   ρ · x : R[ κ ]
--- but also
---   ρ <$> x : R[ κ ]
--- In other words, Π and Σ have their own η expansion rule 
--- because they are kind polymorphic...
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {left x} q = eq-· eq-refl q
@@ -45,7 +36,15 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q =
                     eq-η 
                     (eq-λ (reify-≋ (sound-Π id eq-refl)))) 
                 eq-refl))
-sound-Π ρ {v} {right (l , τ)} q = {!   !}
+sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl q
+sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl q
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {right (l , τ)} q = {!   !}
+sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q = 
+    eq-trans 
+        (eq-· eq-refl q) 
+        (eq-trans 
+            eq-Π 
+            (eq-▹ eq-refl (reify-≋ (sound-Π id (reify-stable τ)))))
 
 evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           SREnv σ η → (sub σ τ) ≋ (eval τ η) 
@@ -72,7 +71,7 @@ idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
 idSR α = reflect-≋ eq-refl
 
 --------------------------------------------------------------------------------
--- Soundness claim 
+-- Soundness claim  
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
-soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))
+soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR))) 

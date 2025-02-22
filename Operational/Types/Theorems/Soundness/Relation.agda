@@ -39,15 +39,10 @@ SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} υ F =
     ∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {v V} → 
       v ≋ V → 
       ren ρ υ · v ≋ renKripke ρ F ·V V
-
+  
+             
 --------------------------------------------------------------------------------
--- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
--- - Types related under _≋_ have reifications equivalent under _≡t_
-
-reflect-≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
-             τ ≡t ⇑NE υ → τ ≋ (reflect υ)
-reify-≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
-              τ ≋ V → τ ≡t ⇑ (reify V)
+-- renaming respects type equivalence
 
 cong-ren-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renaming Δ₁ Δ₂) → 
                 τ ≡t υ → ren ρ τ ≡t ren ρ υ 
@@ -90,6 +85,15 @@ cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
 
+--------------------------------------------------------------------------------
+-- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
+-- - Types related under _≋_ have reifications equivalent under _≡t_
+
+reflect-≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
+             τ ≡t ⇑NE υ → τ ≋ (reflect υ)
+reify-≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
+              τ ≋ V → τ ≡t ⇑ (reify V)
+
 reflect-≋ {κ = ★} e = e 
 reflect-≋ {κ = L} e = e
 reflect-≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = λ ρ q → reflect-≋ 
@@ -109,6 +113,17 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             (inst refl)))
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = e 
+
+--------------------------------------------------------------------------------
+-- Basic stability rule for reification
+
+reify-stable : ∀ (V : SemType Δ κ) → 
+               ⇑ (reify V) ≋ V
+reify-stable {κ = ★} V = eq-refl
+reify-stable {κ = L} V = eq-refl
+reify-stable {κ = κ `→ κ₁} F = λ ρ {v} {V} q → {! reify-stable V  !}
+reify-stable {κ = R[ κ ]} (left x) = eq-refl
+reify-stable {κ = R[ κ ]} (right y) = eq-refl   
 
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
