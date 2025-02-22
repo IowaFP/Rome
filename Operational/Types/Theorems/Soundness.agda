@@ -37,8 +37,8 @@ evalSR (π ⇒ τ) {σ} {η} e = {!   !}
 evalSR (lab l) {σ} {η} e = eq-refl
 evalSR (l ▹ τ) {σ} {η} e = eq-▹ (evalSR l e) (reify-≋ (evalSR τ e)) 
 evalSR ⌊ τ ⌋ {σ} {η} e = {!   !}
--- Yeah I need eta equality. Fuck.
-evalSR Π {σ} {η} e = {!   !}
+evalSR Π {σ} {η} e = λ {ρ {v} {left x} q → {!   !}
+                      ; ρ {v} {right y} q → {!   !}}
 evalSR Σ {σ} {η} e = {!   !}
 evalSR (τ₁ <$> τ₂) {σ} {η} e = {!   !}        
 
@@ -48,5 +48,5 @@ idSR α = reflect-≋ eq-refl
 --------------------------------------------------------------------------------
 -- Soundness claim
 
-soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
+soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)  
 soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))
