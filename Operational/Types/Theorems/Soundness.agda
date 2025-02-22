@@ -25,7 +25,8 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {left x} q = eq-· eq-refl q
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {left x} q = {!   !}
+-- Need more tooling to build _≋_ 
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ eq → {!   !}
 sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q = 
     eq-trans 
         (eq-· eq-refl q) 
@@ -38,6 +39,7 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q =
                 eq-refl))
 sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl q
+-- Need more tooling to build _≋_ 
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {right (l , τ)} q = {!   !}
 sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q = 
     eq-trans 

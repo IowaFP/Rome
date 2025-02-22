@@ -121,6 +121,7 @@ reify-stable : ∀ (V : SemType Δ κ) →
                ⇑ (reify V) ≋ V
 reify-stable {κ = ★} V = eq-refl
 reify-stable {κ = L} V = eq-refl
+-- Need more tooling to build _≋_ 
 reify-stable {κ = κ `→ κ₁} F = λ ρ {v} {V} q → {! reify-stable V  !}
 reify-stable {κ = R[ κ ]} (left x) = eq-refl
 reify-stable {κ = R[ κ ]} (right y) = eq-refl   
