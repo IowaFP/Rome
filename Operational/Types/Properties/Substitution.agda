@@ -131,10 +131,6 @@ sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
 ↻-ren-sub {σ = σ} {ρ} Σ = refl
 ↻-ren-sub {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
 
-↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
-                ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]  
-↻-ren-β ρ τ₁ τ₂ = {!   !}                  
-
 -------------------------------------------------------------------------------
 -- Arrow functor law for lifts & sub (needs commutativity of sub and ren)
 
@@ -151,17 +147,39 @@ sub-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) =
   cong `λ ((trans 
     (sub-cong (lifts-comp σ₁ σ₂) τ) 
     (sub-comp {σ₁ = lifts σ₁} {σ₂ = lifts σ₂} τ)))
-sub-comp (τ₁ · τ₂) = {!   !}
-sub-comp (τ₁ `→ τ₂) = {!   !}
-sub-comp (`∀ κ τ) = {!   !}
-sub-comp (μ τ) = {!   !}
-sub-comp (π ⇒ τ) = {!   !}
+sub-comp (τ₁ · τ₂) = cong₂ _·_ (sub-comp τ₁) (sub-comp τ₂)
+sub-comp (τ₁ `→ τ₂) = cong₂ _`→_ (sub-comp τ₁) (sub-comp τ₂)
+sub-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ κ τ) =   
+  cong (`∀ κ) ((trans 
+    (sub-cong (lifts-comp σ₁ σ₂) τ) 
+    (sub-comp {σ₁ = lifts σ₁} {σ₂ = lifts σ₂} τ)))
+sub-comp (μ τ) = cong μ (sub-comp τ)
+sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+    sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
+  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
+  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₃ 
+  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
+sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
+    sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
+  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
+  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
 sub-comp (lab l) = refl
-sub-comp (τ₁ ▹ τ₂) = {!   !}
-sub-comp ⌊ τ ⌋ = {!   !}
+sub-comp (τ₁ ▹ τ₂) = cong₂ _▹_ (sub-comp τ₁) (sub-comp τ₂)
+sub-comp ⌊ τ ⌋ = cong ⌊_⌋ (sub-comp τ)
 sub-comp Π = refl
 sub-comp Σ = refl
 sub-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-comp τ₁) (sub-comp τ₂)
 
-  
+-------------------------------------------------------------------------------
+-- Renaming commutes with β-reduction
+
+↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
+                ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]  
+↻-ren-β ρ τ₁ τ₂ = 
+  trans 
+    (sym (↻-ren-sub τ₁)) 
+    (trans 
+      (sub-cong (λ { Z → refl ; (S x) → refl }) τ₁) 
+      (↻-sub-ren {ρ = lift ρ} {extend ` (ren ρ τ₂)} τ₁))                  
+
   
