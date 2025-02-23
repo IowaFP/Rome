@@ -36,10 +36,9 @@ _≋_ {κ = R[ κ ]} τ (left n) = τ ≡t (⇑NE n)
 _≋_ {κ = R[ κ ]} τ (right (l , υ)) = τ ≡t ⇑ (l ▹ reify υ)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} υ F =     
-    ∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {τ} {v V} → 
-      τ ≡t υ → 
+    (∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {v V} → 
       v ≋ V → 
-      ren ρ τ · v ≋ renKripke ρ F ·V V
+      ren ρ υ · v ≋ renKripke ρ F ·V V)
   
              
 --------------------------------------------------------------------------------
@@ -98,10 +97,10 @@ reify-≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} →
 reflect-≋ {κ = ★} e = e -- e 
 reflect-≋ {κ = L} e = e -- e
 reflect-≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = 
-    λ ρ t q → reflect-≋ 
+    λ ρ q → reflect-≋ 
     (eq-· 
         (eq-sym (eq-trans (inst (NPR.↻-ren-⇑NE ρ υ)) 
-            (cong-ren-≡t ρ (eq-sym (eq-trans t e))))) 
+            (cong-ren-≡t ρ (eq-sym e)))) 
         (reify-≋ q)) 
 reflect-≋ {κ = R[ κ ]} e = e           
 
@@ -111,7 +110,7 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
     eq-trans 
         eq-η 
         (eq-λ (eq-trans 
-            (reify-≋ (e S eq-refl (reflect-≋ eq-refl))) 
+            (reify-≋ (e S (reflect-≋ eq-refl))) 
             (inst refl)))
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = e 
@@ -142,24 +141,26 @@ subst-≋ : ∀ {τ₁ τ₂ : Type Δ κ} →
 
 subst-≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
-subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {V} rel = λ ρ {v} {V} eq-t rel-v → rel ρ {v} (eq-trans eq-t (eq-sym q)) rel-v
+-- Need to either prove subst-app-≋ in tandem, or
+-- change def'n to be existential.
+subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → {! q  !} -- rel-v -- λ ρ {v} {V} eq-t rel-v → rel ρ {v} (eq-trans eq-t (eq-sym q)) rel-v
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} rel = eq-trans (eq-sym q) rel
 
--- --------------------------------------------------------------------------------
--- -- Basic stability rule for reification
+-- -- --------------------------------------------------------------------------------
+-- -- -- Basic stability rule for reification
 
-reify-stable : ∀ (V : SemType Δ κ) → 
-               ⇑ (reify V) ≋ V
-reify-stable {κ = ★} V = eq-refl
-reify-stable {κ = L} V = eq-refl
--- Need more tooling to build _≋_ 
-reify-stable {κ = κ `→ κ₁} F = λ ρ {τ} {v} {V} t q → {! App-≋ {τ = ren ρ τ} {renKripke ρ F}   !} -- App-≋ {τ = ren ρ τ} {renKripke ρ F} (λ ρ {τ'} {v'} {V'} t' q' → {!   !}) {v} {V} q
-reify-stable {κ = R[ κ ]} (left x) = eq-refl
-reify-stable {κ = R[ κ ]} (right y) = eq-refl   
+-- reify-stable : ∀ (V : SemType Δ κ) → 
+--                ⇑ (reify V) ≋ V
+-- reify-stable {κ = ★} V = eq-refl
+-- reify-stable {κ = L} V = eq-refl
+-- -- Need more tooling to build _≋_ 
+-- reify-stable {κ = κ `→ κ₁} F = λ ρ {τ} {v} {V} t q → {! subst-≋ (cong-ren-≡t ρ t) {renKripke ρ F}   !} -- λ ρ {τ} {v} {V} t q → {! App-≋ {τ = ren ρ τ} {renKripke ρ F}   !} -- App-≋ {τ = ren ρ τ} {renKripke ρ F} (λ ρ {τ'} {v'} {V'} t' q' → {!   !}) {v} {V} q
+-- reify-stable {κ = R[ κ ]} (left x) = eq-refl
+-- reify-stable {κ = R[ κ ]} (right y) = eq-refl   
 
--- --------------------------------------------------------------------------------
--- -- Relating syntactic substitutions to semantic environments
+-- -- --------------------------------------------------------------------------------
+-- -- -- Relating syntactic substitutions to semantic environments
 
-SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
-SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
+-- SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
+-- SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
