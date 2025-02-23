@@ -62,7 +62,30 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q =
                 eq-refl))
 sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl q
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , τ)} q  ρ₂ {v₂} {V₂} rel-v = {!   !}
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} q  ρ₂ {v₂} {V₂} rel-v = 
+  subst-≋ (eq-sym (eq-· (eq-· eq-refl (cong-ren-≡t ρ₂ q)) eq-refl)) 
+  (subst-≋ 
+    (eq-sym eq-assoc-Π) 
+    (subst-≋ 
+      (eq-sym 
+      (eq-trans 
+        (eq-· eq-refl 
+          (eq-trans 
+            (eq-· eq-β eq-refl) 
+            eq-β)) 
+          eq-refl)) 
+      (sound-Π ρ₂ 
+        (eq-trans 
+          eq-▹$ 
+          (eq-▹ 
+            (eq-trans 
+              (inst (sub-weaken (ren ρ₂ (⇑ l)) v₂)) 
+              (inst (sym (↻-ren-⇑  ρ₂ l)))) 
+            (eq-trans 
+              eq-β 
+              (eq-trans 
+                eq-β 
+                {!   !})))))))
 sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q = 
     eq-trans 
         (eq-· eq-refl q) 
@@ -97,4 +120,4 @@ idSR α = reflect-≋ eq-refl
 -- Soundness claim  
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
-soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))  
+soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))   

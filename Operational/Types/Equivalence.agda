@@ -161,7 +161,9 @@ data _≡t_ where
 
         -------------------------------------------
         (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
-
+        
+    -- TODO:
+    -- using ?? for convenience here is causing headache later.
     eq-assoc-Π : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
 
         ----------------------------

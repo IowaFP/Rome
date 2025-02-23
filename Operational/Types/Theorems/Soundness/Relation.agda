@@ -158,28 +158,17 @@ subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} rel = eq-tran
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Basic stability rule for reification
--- postulate
---   ↻-sub-⇑ : ∀ (σ : Substitution Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
---           ⇑ (N.sub σ τ) ≡ Types.sub ρ (⇑ τ)
 
-reify-stable : ∀ (V : SemType Δ κ) → 
+reify-stable : ∀ (V : SemType Δ κ) {_ : True (ground? κ)} → 
                ⇑ (reify V) ≋ V
-reify-stable {κ = ★} V = eq-refl
-reify-stable {κ = L} V = eq-refl
--- Need to find a way to commute a substitution over (⇑ (reify (F S (reflect (` Z)))))
-reify-stable {κ = κ₁ `→ κ₂} F ρ {v} {V} rel-v = 
-    subst-≋ 
-    (eq-sym (eq-trans 
-      eq-β 
-      (eq-trans 
-        (inst (sym (↻-sub-ren {ρ = lift ρ} {extend ` v} (⇑ (reify (F S (reflect ( ` Z)))))))) 
-        (reify-≋ {!   !}))))
-    (reify-stable (renKripke ρ F ·V V)) 
-reify-stable {κ = R[ κ ]} (left x) = eq-refl
-reify-stable {κ = R[ κ ]} (right y) = eq-refl   
+reify-stable {κ = ★} V {g} = eq-refl
+reify-stable {κ = L} V {g} = eq-refl
+reify-stable {κ = R[ κ ]} (left x) {g} = eq-refl
+reify-stable {κ = R[ κ ]} (right y) {g} = eq-refl
+               
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Relating syntactic substitutions to semantic environments
-
-SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
+ 
+SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
 SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
