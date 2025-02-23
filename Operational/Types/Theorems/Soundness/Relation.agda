@@ -50,41 +50,41 @@ cong-ren-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renaming Δ₁ Δ₂) →
 cong-ren-≡p : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} (ρ : Renaming Δ₁ Δ₂) → 
                 π₁ ≡p π₂ → renPred ρ π₁ ≡p renPred ρ π₂
 
--- cong-ren-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-ren-≡t ρ e)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-ren-≡t (lift ρ) e)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-ren-≡t ρ e)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-ren-≡t (lift ρ) e)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-ren-≡t ρ e)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-ren-≡p ρ x) (cong-ren-≡t ρ e)
--- cong-ren-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
---     eq-trans 
---         (eq-η {f = ren ρ τ}) 
---         (eq-λ (eq-· 
---             (inst (sym (↻-lift-weaken ρ τ) )) 
---             eq-refl))
--- cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
---     eq-trans 
---         (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
---         (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
--- cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π 
--- cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
--- cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
---     eq-trans 
---     (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
---     (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
--- cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
--- cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
--- cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
--- cong-ren-≡t {τ = τ} {υ} ρ eq-app-lift-Π = eq-app-lift-Π
--- cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
+cong-ren-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
+cong-ren-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-ren-≡t (lift ρ) e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-ren-≡t (lift ρ) e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
+cong-ren-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-ren-≡p ρ x) (cong-ren-≡t ρ e)
+cong-ren-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
+    eq-trans 
+        (eq-η {f = ren ρ τ}) 
+        (eq-λ (eq-· 
+            (inst (sym (↻-lift-weaken ρ τ) )) 
+            eq-refl))
+cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
+    eq-trans 
+        (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
+        (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
+cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π 
+cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
+cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
+    eq-trans 
+    (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
+    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
+cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
+cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
+cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
+cong-ren-≡t {τ = τ} {υ} ρ eq-app-lift-Π = eq-app-lift-Π
+cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
 
--- cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
--- cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
+cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
+cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
 
 --------------------------------------------------------------------------------
 -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
@@ -149,17 +149,17 @@ subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} rel = eq-tran
 -- --------------------------------------------------------------------------------
 -- -- Basic stability rule for reification
 
--- reify-stable : ∀ (V : SemType Δ κ) → 
---                ⇑ (reify V) ≋ V
--- reify-stable {κ = ★} V = eq-refl
--- reify-stable {κ = L} V = eq-refl
--- -- Need more tooling to build _≋_ 
--- reify-stable {κ = κ `→ κ₁} F = λ ρ {v} {V} q → {! reify-stable V  !}
--- reify-stable {κ = R[ κ ]} (left x) = eq-refl
--- reify-stable {κ = R[ κ ]} (right y) = eq-refl   
+reify-stable : ∀ (V : SemType Δ κ) → 
+               ⇑ (reify V) ≋ V
+reify-stable {κ = ★} V = eq-refl
+reify-stable {κ = L} V = eq-refl
+-- Need more tooling to build _≋_ 
+reify-stable {κ = κ `→ κ₁} F = λ ρ {τ} {v} {V} t q → {! App-≋ {τ = ren ρ τ} {renKripke ρ F}   !} -- App-≋ {τ = ren ρ τ} {renKripke ρ F} (λ ρ {τ'} {v'} {V'} t' q' → {!   !}) {v} {V} q
+reify-stable {κ = R[ κ ]} (left x) = eq-refl
+reify-stable {κ = R[ κ ]} (right y) = eq-refl   
 
 -- --------------------------------------------------------------------------------
 -- -- Relating syntactic substitutions to semantic environments
 
--- SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
--- SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
+SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
+SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
