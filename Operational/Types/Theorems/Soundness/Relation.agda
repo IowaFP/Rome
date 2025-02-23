@@ -18,6 +18,7 @@ open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Theorems.Completeness.Commutativity
 -- open import Rome.Operational.Types.Normal.Properties.Postulates
 
 --------------------------------------------------------------------------------
@@ -114,20 +115,30 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             (inst refl)))
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = e 
+--------------------------------------------------------------------------------
+-- renaming respects _≋_
+
+
+ren-≋ : ∀ (ρ : Renaming Δ₁ Δ₂) 
+           {v : Type Δ₁ κ} 
+           {V : SemType Δ₁ κ} → 
+           v ≋ V → 
+           ren ρ v ≋ renSem ρ V
+ren-≋ ρ {v} {V} rel-v = {!   !}           
 
 -- --------------------------------------------------------------------------------
 -- -- Equivalent types relate to the same semantic types
 
 App-≋ : ∀
-    {τ : Type Δ (κ₁ `→ κ₂)}
-  → {V : SemType Δ (κ₁ `→ κ₂)}
-  → τ ≋ V
-  → {υ : Type Δ κ₁}
+    {f : Type Δ (κ₁ `→ κ₂)}
+  → {F : SemType Δ (κ₁ `→ κ₂)}
+  → f ≋ F
+  → {τ : Type Δ κ₁}
   → {W : SemType Δ κ₁}
-  → υ ≋ W
+  → τ ≋ W
     ---------------------
-  → (τ · υ) ≋ (V ·V W)
-App-≋ {V = V} t v = {!   !}  
+  → (f · τ) ≋ (F ·V W)
+App-≋ {F = F} t v = {!   !}  
 
 -- --------------------------------------------------------------------------------
 -- -- Equivalent types relate to the same semantic types
@@ -141,26 +152,34 @@ subst-≋ : ∀ {τ₁ τ₂ : Type Δ κ} →
 
 subst-≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
--- Need to either prove subst-app-≋ in tandem, or
--- change def'n to be existential.
-subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → {! q  !} -- rel-v -- λ ρ {v} {V} eq-t rel-v → rel ρ {v} (eq-trans eq-t (eq-sym q)) rel-v
+subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-≋ (eq-· (cong-ren-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} rel = eq-trans (eq-sym q) rel
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Basic stability rule for reification
+-- postulate
+--   ↻-sub-⇑ : ∀ (σ : Substitution Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
+--           ⇑ (N.sub σ τ) ≡ Types.sub ρ (⇑ τ)
 
--- reify-stable : ∀ (V : SemType Δ κ) → 
---                ⇑ (reify V) ≋ V
--- reify-stable {κ = ★} V = eq-refl
--- reify-stable {κ = L} V = eq-refl
--- -- Need more tooling to build _≋_ 
--- reify-stable {κ = κ `→ κ₁} F = λ ρ {τ} {v} {V} t q → {! subst-≋ (cong-ren-≡t ρ t) {renKripke ρ F}   !} -- λ ρ {τ} {v} {V} t q → {! App-≋ {τ = ren ρ τ} {renKripke ρ F}   !} -- App-≋ {τ = ren ρ τ} {renKripke ρ F} (λ ρ {τ'} {v'} {V'} t' q' → {!   !}) {v} {V} q
--- reify-stable {κ = R[ κ ]} (left x) = eq-refl
--- reify-stable {κ = R[ κ ]} (right y) = eq-refl   
+reify-stable : ∀ (V : SemType Δ κ) → 
+               ⇑ (reify V) ≋ V
+reify-stable {κ = ★} V = eq-refl
+reify-stable {κ = L} V = eq-refl
+-- Need to find a way to commute a substitution over (⇑ (reify (F S (reflect (` Z)))))
+reify-stable {κ = κ₁ `→ κ₂} F ρ {v} {V} rel-v = 
+    subst-≋ 
+    (eq-sym (eq-trans 
+      eq-β 
+      (eq-trans 
+        (inst (sym (↻-sub-ren {ρ = lift ρ} {extend ` v} (⇑ (reify (F S (reflect ( ` Z)))))))) 
+        (reify-≋ {!   !}))))
+    (reify-stable (renKripke ρ F ·V V)) 
+reify-stable {κ = R[ κ ]} (left x) = eq-refl
+reify-stable {κ = R[ κ ]} (right y) = eq-refl   
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Relating syntactic substitutions to semantic environments
 
--- SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
--- SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
+SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set 
+SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    

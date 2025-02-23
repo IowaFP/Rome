@@ -78,6 +78,7 @@ sub-id Σ = refl
 sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
 
 
+
 -------------------------------------------------------------------------------
 -- substitution and renaming commute
 
@@ -130,6 +131,10 @@ sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
 ↻-ren-sub {σ = σ} {ρ} Π = refl
 ↻-ren-sub {σ = σ} {ρ} Σ = refl
 ↻-ren-sub {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
+
+sub-weaken : ∀ (τ : Type Δ κ₁) (v : Type Δ κ₂) → 
+             sub (extend ` v) (ren S τ) ≡ τ 
+sub-weaken τ v = trans (sym (↻-sub-ren {ρ = S} {σ = extend ` v} τ)) (sub-id τ)
 
 -------------------------------------------------------------------------------
 -- Arrow functor law for lifts & sub (needs commutativity of sub and ren)
