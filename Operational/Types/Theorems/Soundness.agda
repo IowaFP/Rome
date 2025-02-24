@@ -21,15 +21,18 @@ open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Theorems.Soundness.Relation 
 
+open import Rome.Operational.Types.Theorems.Stability
+
 --------------------------------------------------------------------------------
 -- Fundamental lemma
 
 evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           SREnv σ η → (sub σ τ) ≋ (eval τ η) 
 
--- β-≋ : sub (extend (` ∘ ρ₂) v₂)
---       (⇑ (reify (f S (reflect (` Z)))))
---       ≋ (renKripke ρ₂ f ·V V₂)
+β-≋ : ∀ (ρ : Renaming Δ₁ Δ₂) (f : KripkeFunction Δ₁ κ₁ κ₂) 
+         (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → v ≋ V → 
+         sub (extend (` ∘ ρ) v) (⇑ (reify (f S (reflect (` Z))))) ≋ f ρ V
+β-≋ ρ f v V rel-v = {!   !}          
        
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
@@ -65,49 +68,50 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q =
                     eq-η 
                     (eq-λ (reify-≋ (sound-Π id eq-refl)))) 
                 eq-refl))
-sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl q
-sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl q
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} q  ρ₂ {v₂} {V₂} rel-v = 
-  subst-≋ (eq-sym (eq-· (eq-· eq-refl (cong-ren-≡t ρ₂ q)) eq-refl)) 
-  (subst-≋ 
-    (eq-sym eq-assoc-Π) 
-    (subst-≋ 
-      (eq-sym 
-      (eq-trans 
-        (eq-· eq-refl 
-          (eq-trans 
-            (eq-· eq-β eq-refl) 
-            eq-β)) 
-          eq-refl)) 
-      (sound-Π ρ₂ 
-        (eq-trans 
-          eq-▹$ 
-          (eq-▹ 
-            (eq-trans 
-              (inst (sub-weaken (ren ρ₂ (⇑ l)) v₂)) 
-              (inst (sym (↻-ren-⇑  ρ₂ l)))) 
-            (eq-trans 
-              eq-β 
-              (eq-trans 
-                eq-β 
-                (eq-trans 
-                  (inst (sym (sub-comp (ren (lift S) (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) ) 
-                  (eq-trans 
-                    (eq-sym (inst (↻-sub-ren (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) 
-                    (eq-trans 
-                      (inst (sym (↻-sub-ren (⇑ (reify (f S (reflect (` Z)))))))) 
-                      (reify-≋ (subst-≋ 
-                        (inst (sub-cong 
-                          {σ₁ = (extend (` ∘ ρ₂) v₂)} 
-                          (λ { Z → sym (sub-weaken v₂ _) ; (S x) → refl }) 
-                          (⇑ (reify (f S (reflect (` Z))))))) 
-                        {! !}))))))))))))
-sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q = 
+sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
+sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} q  ρ₂ {v₂} {V₂} rel-v = {!   !} 
+  -- subst-≋ (eq-sym (eq-· (eq-· eq-refl (cong-ren-≡t ρ₂ q)) eq-refl)) 
+  -- (subst-≋ 
+  --   (eq-sym eq-assoc-Π) 
+  --   (subst-≋ 
+  --     (eq-sym 
+  --     (eq-trans 
+  --       (eq-· eq-refl 
+  --         (eq-trans 
+  --           (eq-· eq-β eq-refl) 
+  --           eq-β)) 
+  --         eq-refl)) 
+  --     (sound-Π ρ₂ 
+  --       (eq-trans 
+  --         eq-▹$ 
+  --         (eq-▹ 
+  --           (eq-trans 
+  --             (inst (sub-weaken (ren ρ₂ (⇑ l)) v₂)) 
+  --             (inst (sym (↻-ren-⇑  ρ₂ l)))) 
+  --           (eq-trans 
+  --             eq-β 
+  --             (eq-trans 
+  --               eq-β 
+  --               (eq-trans 
+  --                 (inst (sym (sub-comp (ren (lift S) (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) ) 
+  --                 (eq-trans 
+  --                   (eq-sym (inst (↻-sub-ren (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) 
+  --                   (eq-trans 
+  --                     (inst (sym (↻-sub-ren (⇑ (reify (f S (reflect (` Z)))))))) 
+  --                     (reify-≋ (subst-≋ 
+  --                       (inst (sub-cong 
+  --                         {σ₁ = (extend (` ∘ ρ₂) v₂)} 
+  --                         (λ { Z → sym (sub-weaken v₂ _) ; (S x) → refl }) 
+  --                         (⇑ (reify (f S (reflect (` Z))))))) 
+  --                       {!  !}))))))))))))
+sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
     eq-trans 
         (eq-· eq-refl q) 
         (eq-trans 
             eq-Π 
-            (eq-▹ eq-refl (reify-≋ (sound-Π id (reify-stable τ)))))
+            (eq-▹ eq-refl (reify-≋ (sound-Π id rel)))) , 
+    {!   !}
 
 
 evalSR Unit {σ} {η} e = eq-refl
@@ -122,7 +126,7 @@ evalSR (μ τ) {σ} {η} e = eq-μ
         (eq-λ (evalSR τ e S eq-refl)))
 evalSR (π ⇒ τ) {σ} {η} e = {!   !}
 evalSR (lab l) {σ} {η} e = eq-refl
-evalSR (l ▹ τ) {σ} {η} e = eq-▹ (evalSR l e) (reify-≋ (evalSR τ e)) 
+evalSR (l ▹ τ) {σ} {η} e = (eq-▹ (evalSR l e) (reify-≋ (evalSR τ e))) , (subst-≋ (reify-≋ (evalSR τ e)) (evalSR τ e)) -- eq-▹ (evalSR l e) (reify-≋ (evalSR τ e)) 
 evalSR ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (evalSR τ e)
 evalSR Π {σ} {η} e = sound-Π
 evalSR Σ {σ} {η} e = {!   !}
