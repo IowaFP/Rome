@@ -53,4 +53,3 @@ renSem-comp {κ = L} ρ₁ ρ₂ V = ren-comp _ _ _
 renSem-comp {κ = κ `→ κ₁} ρ₁ ρ₂ F = refl
 renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (left x) = cong left (ren-comp-ne _ _ _)
 renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (right (l , τ)) = cong right (cong₂ _,_ (ren-comp _ _ _) (renSem-comp _ _ _))
-

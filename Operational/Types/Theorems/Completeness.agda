@@ -160,30 +160,66 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Π {κ₁ = κ₁} {κ₂ = �
     | renSem-id {κ = κ₁ `→ κ₂} F 
     | renSem-id {κ = κ₁ `→ κ₂} G
     | renSem-id (eval τ η₂) = cong-π 
-        {τ₁ = right (l , (F ·V eval τ η₁))}
-        {τ₂ = right (l , (G ·V eval τ η₂))} 
-        (refl , (cong-App q (idext e τ)))
+      (refl , 
+      (cong-App 
+        q 
+        (sym-≋ 
+          (weaken-extend τ 
+            {renSem id ∘ η₂} {η₁} 
+            (λ x → trans-≋ (renSem-id-≋ (sym-≋ (e x))) (refl-≋ₗ (e x))) 
+            {λ {Δ} → G {Δ}} 
+            (refl-≋ᵣ {V₂ = λ {Δ} → G {Δ}} q)))))
 ... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
     cong-π 
         (cong (_<$> x) 
             (cong `λ 
                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
-                    (reify-≋ (ren-≋ S (idext e τ))))))
+                    (reify-≋ (sym-≋ (trans-≋ 
+                      (weaken-extend τ 
+                        {renSem S ∘ η₂} {renSem S ∘ η₂} 
+                        (ren-≋ S ∘ refl-≋ᵣ ∘ e) 
+                        {λ {_} ρ₁ v → reflect (` (ρ₁ Z) · reify v)} 
+                        ((λ ρ₁ ρ₂ V₁ V₂ x → trans-≋ 
+                            (↻-ren-reflect ρ₂ (` (ρ₁ Z) · reify V₁)) 
+                            (reflect-≋ (cong (` (ρ₂ (ρ₁ Z)) ·_) (↻-ren-reify ρ₂ x)))) , 
+                         (λ ρ₁ ρ₂ V₁ V₂ x → trans-≋ 
+                            (↻-ren-reflect ρ₂ (` (ρ₁ Z) · reify V₁)) 
+                            (reflect-≋ (cong (` (ρ₂ (ρ₁ Z)) ·_) (↻-ren-reify ρ₂ x)))) , 
+                         λ ρ v → reflect-≋ (cong (` (ρ Z) ·_) (reify-≋ v)))) 
+                      (sym-≋ (↻-renSem-eval S τ e))))))))
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-assoc-Σ {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
 ... | right (l , F) | right (.l , G) | refl , q rewrite 
       NRP.ren-id l 
     | renSem-id {κ = κ₁ `→ κ₂} F 
     | renSem-id {κ = κ₁ `→ κ₂} G
     | renSem-id (eval τ η₂) = cong-σ 
-        {τ₁ = right (l , (F ·V eval τ η₁))}
-        {τ₂ = right (l , (G ·V eval τ η₂))} 
-        (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x =     
+      (refl , 
+      (cong-App 
+        q 
+        (sym-≋ 
+          (weaken-extend τ 
+            {renSem id ∘ η₂} {η₁} 
+            (λ x → trans-≋ (renSem-id-≋ (sym-≋ (e x))) (refl-≋ₗ (e x))) 
+            {λ {Δ} → G {Δ}} 
+            (refl-≋ᵣ {V₂ = λ {Δ} → G {Δ}} q)))))
+... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
     cong-σ 
         (cong (_<$> x) 
             (cong `λ 
                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
-                    (reify-≋ (ren-≋ S (idext e τ))))))         
+                    (reify-≋ (sym-≋ (trans-≋ 
+                      (weaken-extend τ 
+                        {renSem S ∘ η₂} {renSem S ∘ η₂} 
+                        (ren-≋ S ∘ refl-≋ᵣ ∘ e) 
+                        {λ {_} ρ₁ v → reflect (` (ρ₁ Z) · reify v)} 
+                        ((λ ρ₁ ρ₂ V₁ V₂ x → trans-≋ 
+                            (↻-ren-reflect ρ₂ (` (ρ₁ Z) · reify V₁)) 
+                            (reflect-≋ (cong (` (ρ₂ (ρ₁ Z)) ·_) (↻-ren-reify ρ₂ x)))) , 
+                         (λ ρ₁ ρ₂ V₁ V₂ x → trans-≋ 
+                            (↻-ren-reflect ρ₂ (` (ρ₁ Z) · reify V₁)) 
+                            (reflect-≋ (cong (` (ρ₂ (ρ₁ Z)) ·_) (↻-ren-reify ρ₂ x)))) , 
+                         λ ρ v → reflect-≋ (cong (` (ρ Z) ·_) (reify-≋ v)))) 
+                      (sym-≋ (↻-renSem-eval S τ e))))))))
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-app-lift-Π {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
 ... | left _ | left _ | refl = refl
 ... | right (l , τ) | right (_ , υ) | refl , q = refl , (cong-π q)
