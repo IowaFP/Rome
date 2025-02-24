@@ -495,3 +495,14 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
         (third (third (idext (refl-≋ᵣ ∘ e) f) ρ (↻-renSem-eval ρ a (refl-≋ᵣ ∘ e))) id (refl-≋ᵣ v))))
 ↻-eval-Kripke Π ρ v e = cong-π v
 ↻-eval-Kripke Σ ρ v e = cong-σ v
+
+--------------------------------------------------------------------------------
+-- Evaluating a weakened typed in an extended environment is cancellative
+
+weaken-extend : ∀ (τ : Type Δ₁ κ₁) → 
+                  {η₁ η₂ : Env Δ₁ Δ₂} → 
+                  Env-≋ η₁ η₂ → 
+                  {V : SemType Δ₂ κ₂}  → 
+                  V ≋ V →
+                  eval (Types.weaken τ) (extende η₁ V) ≋ eval τ η₂
+weaken-extend τ {η₁} {η₂} e {V} v = ↻-ren-eval S τ {extende η₁ V} {extende η₂ V} (extend-≋ e v)   
