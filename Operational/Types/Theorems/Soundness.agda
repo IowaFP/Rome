@@ -24,8 +24,13 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation
 --------------------------------------------------------------------------------
 -- Fundamental lemma
 
+evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          SREnv σ η → (sub σ τ) ≋ (eval τ η) 
 
-              
+-- β-≋ : sub (extend (` ∘ ρ₂) v₂)
+--       (⇑ (reify (f S (reflect (` Z)))))
+--       ≋ (renKripke ρ₂ f ·V V₂)
+       
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {left x} q = eq-· eq-refl q
@@ -85,7 +90,18 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} q  ρ₂ {v₂}
               eq-β 
               (eq-trans 
                 eq-β 
-                {!   !})))))))
+                (eq-trans 
+                  (inst (sym (sub-comp (ren (lift S) (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) ) 
+                  (eq-trans 
+                    (eq-sym (inst (↻-sub-ren (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) 
+                    (eq-trans 
+                      (inst (sym (↻-sub-ren (⇑ (reify (f S (reflect (` Z)))))))) 
+                      (reify-≋ (subst-≋ 
+                        (inst (sub-cong 
+                          {σ₁ = (extend (` ∘ ρ₂) v₂)} 
+                          (λ { Z → sym (sub-weaken v₂ _) ; (S x) → refl }) 
+                          (⇑ (reify (f S (reflect (` Z))))))) 
+                        {! !}))))))))))))
 sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q = 
     eq-trans 
         (eq-· eq-refl q) 
@@ -93,11 +109,10 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} q =
             eq-Π 
             (eq-▹ eq-refl (reify-≋ (sound-Π id (reify-stable τ)))))
 
-evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-          SREnv σ η → (sub σ τ) ≋ (eval τ η) 
+
 evalSR Unit {σ} {η} e = eq-refl
 evalSR (` α) {σ} {η} e = e α
-evalSR (`λ τ) {σ} {η} e = {!   !}
+evalSR (`λ τ) {σ} {η} e = {! evalSR (` Z)   !}
 evalSR (τ₁ · τ₂) {σ} {η} e = {! eq-·  !}
 evalSR (τ₁ `→ τ₂) {σ} {η} e = eq-→ (evalSR τ₁ e) (evalSR τ₂ e)
 evalSR (`∀ κ τ) {σ} {η} e = {!   !}

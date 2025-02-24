@@ -156,8 +156,9 @@ subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V}
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} rel = eq-trans (eq-sym q) rel
 
--- -- --------------------------------------------------------------------------------
--- -- -- Basic stability rule for reification
+
+--------------------------------------------------------------------------------
+-- Basic stability rule for reification
 
 reify-stable : ∀ (V : SemType Δ κ) {_ : True (ground? κ)} → 
                ⇑ (reify V) ≋ V
