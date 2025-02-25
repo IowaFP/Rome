@@ -134,3 +134,12 @@ ren-≋ {κ = R[ κ ]} ρ {v} {right (l , V)} (eq-v , rel-v) =
  
 SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
 SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
+
+--------------------------------------------------------------------------------
+-- Relating syntactic substitutions to semantic environments
+ 
+weaken-≋ : ∀ {κ} {κ₁} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → SREnv σ η → 
+           (α : KVar (Δ₁ ,, κ) κ₁) →
+           lifts σ α ≋ extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)) α
+weaken-≋ e Z = reflect-≋ eq-refl
+weaken-≋ e (S α) = ren-≋ S (e α)           

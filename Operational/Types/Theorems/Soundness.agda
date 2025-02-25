@@ -113,44 +113,50 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fund : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           SREnv σ η → (sub σ τ) ≋ (eval τ η) 
-evalSR Unit {σ} {η} e = eq-refl
-evalSR (` α) {σ} {η} e = e α
-evalSR (`λ τ) {σ} {η} e = {! evalSR (` Z)   !}
-evalSR (τ₁ · τ₂) {σ} {η} e  = 
+          
+fundPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Δ₁ R[ κ ]){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          SREnv σ η → (subPred σ π) ≡p ⇑Pred (evalPred π η)           
+fundPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-≋ (fund ρ₁ e)) eq-· (reify-≋ (fund ρ₂ e)) ~ (reify-≋ (fund ρ₃ e))
+fundPred (ρ₁ ≲ ρ₂) e = (reify-≋ (fund ρ₁ e)) eq-≲ (reify-≋ (fund ρ₂ e))
+
+fund Unit {σ} {η} e = eq-refl
+fund (` α) {σ} {η} e = e α
+fund (`λ τ) {σ} {η} e = {! fund τ (weaken-≋ e)   !}
+fund (τ₁ · τ₂) {σ} {η} e  = 
   subst-≋ 
     (eq-· (inst (ren-id (sub σ τ₁))) eq-refl) 
-    (evalSR τ₁ e id (evalSR τ₂ e))
-evalSR (τ₁ `→ τ₂) {σ} {η} e = eq-→ (evalSR τ₁ e) (evalSR τ₂ e)
-evalSR (`∀ κ τ) {σ} {η} e = {!   !}
-evalSR (μ τ) {σ} {η} e = eq-μ 
+    (fund τ₁ e id (fund τ₂ e))
+fund (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fund τ₁ e) (fund τ₂ e)
+fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {↑e η} (weaken-≋ e))
+fund (μ τ) {σ} {η} e = eq-μ 
     (eq-trans 
         (eq-η {f = sub σ τ}) 
-        (eq-λ (evalSR τ e S eq-refl)))
-evalSR (π ⇒ τ) {σ} {η} e = eq-⇒ {!   !} (evalSR τ e)
-evalSR (lab l) {σ} {η} e = eq-refl
-evalSR (l ▹ τ) {σ} {η} e = 
+        (eq-λ (fund τ e S eq-refl)))
+fund (π ⇒ τ) {σ} {η} e = eq-⇒ (fundPred π e) (fund τ e)
+fund (lab l) {σ} {η} e = eq-refl
+fund (l ▹ τ) {σ} {η} e = 
   (eq-▹ 
-    (evalSR l e) 
-    (reify-≋ (evalSR τ e))) , 
-    (reify-stable (evalSR τ e))
-evalSR ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (evalSR τ e)
-evalSR Π {σ} {η} e = sound-Π
-evalSR Σ {σ} {η} e = {!   !}
-evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | evalSR τ₂ e 
+    (fund l e) 
+    (reify-≋ (fund τ e))) , 
+    (reify-stable (fund τ e))
+fund ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fund τ e)
+fund Π {σ} {η} e = sound-Π
+fund Σ {σ} {η} e = {!   !}
+fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fund τ₂ e 
 ... | left x | [ eq ] | _ = 
   eq-<$> 
     (eq-trans 
       eq-η 
       (eq-λ 
-        (reify-≋ (evalSR τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
+        (reify-≋ (fund τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
     (eq-trans 
-      (reify-≋ (evalSR τ₂ e)) 
+      (reify-≋ (fund τ₂ e)) 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
 ... | right (l , V) | [ eq ] | (eq₂ , rel-v) = 
   eq-trans 
-    (eq-<$> (reify-≋ (λ {Δ} → evalSR τ₁ e {Δ})) eq₂) 
+    (eq-<$> (reify-≋ (λ {Δ} → fund τ₁ e {Δ})) eq₂) 
     (eq-trans 
       eq-▹$ 
       (eq-▹ 
@@ -159,7 +165,7 @@ evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval
           (eq-· 
             (eq-trans 
               (eq-λ 
-                (eq-sym (reify-≋ (evalSR τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
+                (eq-sym (reify-≋ (fund τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
                 (eq-trans 
                   (eq-sym eq-η) 
                   (eq-trans 
@@ -168,8 +174,8 @@ evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval
                       eq-refl 
                       (inst (sym (ren-id (sub σ τ₁)))))))) 
               (reify-≋ (rel-v))) 
-          (reify-≋ (evalSR τ₁ e id rel-v))))) , 
-  reify-stable (evalSR τ₁ e id rel-v)
+          (reify-≋ (fund τ₁ e id rel-v))))) , 
+  reify-stable (fund τ₁ e id rel-v)
 
 idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
 idSR α = reflect-≋ eq-refl
@@ -178,5 +184,5 @@ idSR α = reflect-≋ eq-refl
 -- Soundness claim  
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
-soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))   
+soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (fund τ idSR)))   
   

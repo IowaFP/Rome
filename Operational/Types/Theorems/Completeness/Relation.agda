@@ -66,6 +66,7 @@ extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
 extend-≋ p q Z = q
 extend-≋ p q (S v) = p v
 
+
 --------------------------------------------------------------------------------
 -- Semantic equality forms a PER
 -- - Kind of reflexive (as not all SemTypes satisfy Uniformity.)
