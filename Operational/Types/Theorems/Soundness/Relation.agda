@@ -67,7 +67,7 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
         eq-η 
         (eq-λ (eq-trans 
             (reify-≋ (e S (reflect-≋ eq-refl))) 
-            (inst refl)))
+            eq-refl))
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = fst e 
         
