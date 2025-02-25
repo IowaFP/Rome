@@ -142,8 +142,8 @@ evalSR (l ▹ τ) {σ} {η} e =
 evalSR ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (evalSR τ e)
 evalSR Π {σ} {η} e = sound-Π
 evalSR Σ {σ} {η} e = {!   !}
-evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂
-... | left x | [ eq ]  = 
+evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | evalSR τ₂ e 
+... | left x | [ eq ] | _ = 
   eq-<$> 
     (eq-trans 
       eq-η 
@@ -152,19 +152,13 @@ evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval
     (eq-trans 
       (reify-≋ (evalSR τ₂ e)) 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
-... | right (l , V) | [ eq ] = 
+... | right (l , V) | [ eq ] | (eq₂ , rel-v) = 
   eq-trans 
-    (eq-<$> 
-      (reify-≋ (λ {Δ} → evalSR τ₁ e {Δ})) 
-      (eq-trans 
-        (reify-≋ (evalSR τ₂ e))  
-        (inst (cong (⇑ ∘ reify) eq)))) 
+    (eq-<$> (reify-≋ (λ {Δ} → evalSR τ₁ e {Δ})) eq₂) 
     (eq-trans 
       eq-▹$ 
-      (eq-▹ 
-        eq-refl 
-          (reify-≋ {! evalSR τ₁ e id {⇑ (reify V)} {V}   !}))) , 
-  {! evalSR τ₁ e id  !}
+      (eq-▹ eq-refl (eq-trans eq-β {! evalSR τ₁ e S {` Z} {reflect (` Z)}  !}))) , 
+  reify-stable (evalSR τ₁ e id rel-v)
 
 idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
 idSR α = reflect-≋ eq-refl
@@ -174,3 +168,4 @@ idSR α = reflect-≋ eq-refl
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
 soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))   
+ 
