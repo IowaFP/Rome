@@ -12,6 +12,7 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
+  using (↻-ren-⇑NE ; ↻-ren-⇑)
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
@@ -121,7 +122,10 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
 evalSR Unit {σ} {η} e = eq-refl
 evalSR (` α) {σ} {η} e = e α
 evalSR (`λ τ) {σ} {η} e = {! evalSR (` Z)   !}
-evalSR (τ₁ · τ₂) {σ} {η} e = {! eq-·  !}
+evalSR (τ₁ · τ₂) {σ} {η} e  = 
+  subst-≋ 
+    (eq-· (inst (ren-id (sub σ τ₁))) eq-refl) 
+    (evalSR τ₁ e id (evalSR τ₂ e))
 evalSR (τ₁ `→ τ₂) {σ} {η} e = eq-→ (evalSR τ₁ e) (evalSR τ₂ e)
 evalSR (`∀ κ τ) {σ} {η} e = {!   !}
 evalSR (μ τ) {σ} {η} e = eq-μ 
@@ -138,7 +142,17 @@ evalSR (l ▹ τ) {σ} {η} e =
 evalSR ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (evalSR τ e)
 evalSR Π {σ} {η} e = sound-Π
 evalSR Σ {σ} {η} e = {!   !}
-evalSR (τ₁ <$> τ₂) {σ} {η} e = {!   !}        
+evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂
+... | left x | [ eq ]  = 
+  eq-<$> 
+    (eq-trans 
+      eq-η 
+      (eq-λ 
+        (reify-≋ (evalSR τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
+    (eq-trans 
+      (reify-≋ (evalSR τ₂ e)) 
+      (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
+... | right (l , υ) | [ eq ] = {!   !} , {!   !}
 
 idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
 idSR α = reflect-≋ eq-refl
