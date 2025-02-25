@@ -157,7 +157,22 @@ evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval
     (eq-<$> (reify-≋ (λ {Δ} → evalSR τ₁ e {Δ})) eq₂) 
     (eq-trans 
       eq-▹$ 
-      (eq-▹ eq-refl (eq-trans eq-β {! evalSR τ₁ e S {` Z} {reflect (` Z)}  !}))) , 
+      (eq-▹ 
+        eq-refl 
+        (eq-trans 
+          (eq-· 
+            (eq-trans 
+              (eq-λ 
+                (eq-sym (reify-≋ (evalSR τ₁ e S {` Z} {reflect (` Z)} (reflect-≋ eq-refl))))) 
+                (eq-trans 
+                  (eq-sym eq-η) 
+                  (eq-trans 
+                    (inst (sub-cong (λ {κ} x → refl) τ₁)) 
+                    (eq-trans 
+                      eq-refl 
+                      (inst (sym (ren-id (sub σ τ₁)))))))) 
+              (reify-≋ (rel-v))) 
+          (reify-≋ (evalSR τ₁ e id rel-v))))) , 
   reify-stable (evalSR τ₁ e id rel-v)
 
 idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
@@ -168,4 +183,4 @@ idSR α = reflect-≋ eq-refl
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
 soundness τ = subst (_≡t ⇑ (⇓ τ)) (sub-id τ) ((reify-≋ (evalSR τ idSR)))   
- 
+  
