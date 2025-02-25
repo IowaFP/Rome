@@ -25,15 +25,7 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
--- Fundamental lemma
-
-evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-          SREnv σ η → (sub σ τ) ≋ (eval τ η) 
-
-β-≋ : ∀ (ρ : Renaming Δ₁ Δ₂) (f : KripkeFunction Δ₁ κ₁ κ₂) 
-         (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → v ≋ V → 
-         sub (extend (` ∘ ρ) v) (⇑ (reify (f S (reflect (` Z))))) ≋ f ρ V
-β-≋ ρ f v V rel-v = {!   !}          
+-- Soundness for Π 
        
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
@@ -118,7 +110,11 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
             (eq-▹ eq-refl (reify-≋ (sound-Π id rel)))) , 
     reify-stable (sound-Π id rel)
 
+--------------------------------------------------------------------------------
+-- Fundamental lemma  
 
+evalSR : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          SREnv σ η → (sub σ τ) ≋ (eval τ η) 
 evalSR Unit {σ} {η} e = eq-refl
 evalSR (` α) {σ} {η} e = e α
 evalSR (`λ τ) {σ} {η} e = {! evalSR (` Z)   !}
@@ -132,7 +128,7 @@ evalSR (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = sub σ τ}) 
         (eq-λ (evalSR τ e S eq-refl)))
-evalSR (π ⇒ τ) {σ} {η} e = {!   !}
+evalSR (π ⇒ τ) {σ} {η} e = eq-⇒ {!   !} (evalSR τ e)
 evalSR (lab l) {σ} {η} e = eq-refl
 evalSR (l ▹ τ) {σ} {η} e = 
   (eq-▹ 
