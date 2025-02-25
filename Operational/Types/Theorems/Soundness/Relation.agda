@@ -70,24 +70,7 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             (inst refl)))
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = fst e 
-
-what : ∀ {f : Type Δ₁ (κ₁ `→ κ₂)} → {F : KripkeFunction Δ₁ κ₁ κ₂} → 
-            SoundKripke f F → {!   !} 
-what sound-F = {! sound-F    !}            
-
         
-
---------------------------------------------------------------------------------
--- renaming respects _≋_
-
-
-ren-≋ : ∀ (ρ : Renaming Δ₁ Δ₂) 
-           {v : Type Δ₁ κ} 
-           {V : SemType Δ₁ κ} → 
-           v ≋ V → 
-           ren ρ v ≋ renSem ρ V
-ren-≋ ρ {v} {V} rel-v = {!   !}           
-
 -- -- --------------------------------------------------------------------------------
 -- -- -- Equivalent types relate to the same semantic types
 
@@ -104,31 +87,50 @@ subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V}
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} (eq , rel) = eq-trans (eq-sym q) eq , rel
 
--- --------------------------------------------------------------------------------
--- -- Equivalent types relate to the same semantic types
-
-App-≋ : ∀
-    {f : Type Δ (κ₁ `→ κ₂)}
-  → {F : SemType Δ (κ₁ `→ κ₂)}
-  → f ≋ F
-  → {τ : Type Δ κ₁}
-  → {W : SemType Δ κ₁}
-  → τ ≋ W
-    ---------------------
-  → (f · τ) ≋ (F ·V W)
-App-≋ {F = F} sound-f rel-v = {! subst-≋ (reify-≋ (sound-f id rel-v)) (sound-f id rel-v) !}  
-
-
--- --------------------------------------------------------------------------------
--- -- Basic stability rule for reification
+--------------------------------------------------------------------------------
+-- Stability rule for reification
 
 reify-stable : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
                 v ≋ V →
                ⇑ (reify V) ≋ V
 reify-stable {κ = κ} rel-v = subst-≋ (reify-≋ rel-v) rel-v
 
--- -- -- --------------------------------------------------------------------------------
--- -- -- -- Relating syntactic substitutions to semantic environments
+--------------------------------------------------------------------------------
+-- renaming respects _≋_
+
+
+ren-≋ : ∀ (ρ : Renaming Δ₁ Δ₂) 
+           {v : Type Δ₁ κ} 
+           {V : SemType Δ₁ κ} → 
+           v ≋ V → 
+           ren ρ v ≋ renSem ρ V
+ren-≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑ ρ V))))
+ren-≋ {κ = L} ρ {v} {V} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑ ρ V))))
+ren-≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-≋ (eq-· (inst (ren-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
+ren-≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑NE ρ V))))
+ren-≋ {κ = R[ κ ]} ρ {v} {right (l , V)} (eq-v , rel-v) = 
+  eq-trans 
+    (cong-ren-≡t ρ eq-v) 
+    (eq-▹ (inst (sym (NPR.↻-ren-⇑ ρ l))) (reify-≋ (ren-≋ ρ rel-v))) , 
+    reify-stable (ren-≋ ρ rel-v)           
+
+-- --------------------------------------------------------------------------------
+-- -- Equivalent types relate to the same semantic types
+
+-- App-≋ : ∀
+--     {f : Type Δ (κ₁ `→ κ₂)}
+--   → {F : SemType Δ (κ₁ `→ κ₂)}
+--   → f ≋ F
+--   → {τ : Type Δ κ₁}
+--   → {W : SemType Δ κ₁}
+--   → τ ≋ W
+--     ---------------------
+--   → (f · τ) ≋ (F ·V W)
+-- App-≋ {F = F} sound-f rel-v = {! subst-≋ (reify-≋ (sound-f id rel-v)) (sound-f id rel-v) !}  
+
+
+--------------------------------------------------------------------------------
+-- Relating syntactic substitutions to semantic environments
  
 SREnv : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
 SREnv {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋ (η α)    
