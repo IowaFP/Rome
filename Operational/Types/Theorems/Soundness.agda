@@ -152,7 +152,19 @@ evalSR (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval
     (eq-trans 
       (reify-≋ (evalSR τ₂ e)) 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
-... | right (l , υ) | [ eq ] = {!   !} , {!   !}
+... | right (l , V) | [ eq ] = 
+  eq-trans 
+    (eq-<$> 
+      (reify-≋ (λ {Δ} → evalSR τ₁ e {Δ})) 
+      (eq-trans 
+        (reify-≋ (evalSR τ₂ e))  
+        (inst (cong (⇑ ∘ reify) eq)))) 
+    (eq-trans 
+      eq-▹$ 
+      (eq-▹ 
+        eq-refl 
+          (reify-≋ {! evalSR τ₁ e id {⇑ (reify V)} {V}   !}))) , 
+  {! evalSR τ₁ e id  !}
 
 idSR : ∀ {Δ₁} → SREnv ` (idEnv {Δ₁})
 idSR α = reflect-≋ eq-refl
