@@ -40,51 +40,6 @@ SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =
     (∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {v V} → 
       v ≋ V → 
       ren ρ f · v ≋ renKripke ρ F ·V V)
-  
-             
---------------------------------------------------------------------------------
--- renaming respects type equivalence
-
-cong-ren-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renaming Δ₁ Δ₂) → 
-                τ ≡t υ → ren ρ τ ≡t ren ρ υ 
-cong-ren-≡p : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} (ρ : Renaming Δ₁ Δ₂) → 
-                π₁ ≡p π₂ → renPred ρ π₁ ≡p renPred ρ π₂
-
-cong-ren-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
-cong-ren-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-ren-≡t (lift ρ) e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-ren-≡t (lift ρ) e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-ren-≡p ρ x) (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
-    eq-trans 
-        (eq-η {f = ren ρ τ}) 
-        (eq-λ (eq-· 
-            (inst (sym (↻-lift-weaken ρ τ) )) 
-            eq-refl))
-cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
-    eq-trans 
-        (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
-        (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
-cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π 
-cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
-cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
-    eq-trans 
-    (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
-    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
-cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
-cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
-cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
-cong-ren-≡t {τ = τ} {υ} ρ eq-app-lift-Π = eq-app-lift-Π
-cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
-
-cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
-cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
 
 --------------------------------------------------------------------------------
 -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
@@ -116,6 +71,12 @@ reify-≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
 reify-≋ {κ = R[ κ ]} {τ} {left n} e = e 
 reify-≋ {κ = R[ κ ]} {τ} {right (l , υ)} e = fst e 
 
+what : ∀ {f : Type Δ₁ (κ₁ `→ κ₂)} → {F : KripkeFunction Δ₁ κ₁ κ₂} → 
+            SoundKripke f F → {!   !} 
+what sound-F = {! sound-F    !}            
+
+        
+
 --------------------------------------------------------------------------------
 -- renaming respects _≋_
 
@@ -126,20 +87,6 @@ ren-≋ : ∀ (ρ : Renaming Δ₁ Δ₂)
            v ≋ V → 
            ren ρ v ≋ renSem ρ V
 ren-≋ ρ {v} {V} rel-v = {!   !}           
-
--- --------------------------------------------------------------------------------
--- -- Equivalent types relate to the same semantic types
-
-App-≋ : ∀
-    {f : Type Δ (κ₁ `→ κ₂)}
-  → {F : SemType Δ (κ₁ `→ κ₂)}
-  → f ≋ F
-  → {τ : Type Δ κ₁}
-  → {W : SemType Δ κ₁}
-  → τ ≋ W
-    ---------------------
-  → (f · τ) ≋ (F ·V W)
-App-≋ {F = F} t v = {!   !}  
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Equivalent types relate to the same semantic types
@@ -157,17 +104,28 @@ subst-≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V}
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (l , F)} (eq , rel) = eq-trans (eq-sym q) eq , rel
 
+-- --------------------------------------------------------------------------------
+-- -- Equivalent types relate to the same semantic types
+
+App-≋ : ∀
+    {f : Type Δ (κ₁ `→ κ₂)}
+  → {F : SemType Δ (κ₁ `→ κ₂)}
+  → f ≋ F
+  → {τ : Type Δ κ₁}
+  → {W : SemType Δ κ₁}
+  → τ ≋ W
+    ---------------------
+  → (f · τ) ≋ (F ·V W)
+App-≋ {F = F} sound-f rel-v = {! subst-≋ (reify-≋ (sound-f id rel-v)) (sound-f id rel-v) !}  
+
 
 -- --------------------------------------------------------------------------------
 -- -- Basic stability rule for reification
 
--- reify-stable : ∀ (V : SemType Δ κ) {_ : True (ground? κ)} → 
---                ⇑ (reify V) ≋ V
--- reify-stable {κ = ★} V {g} = eq-refl
--- reify-stable {κ = L} V {g} = eq-refl
--- reify-stable {κ = R[ κ ]} (left x) {g} = eq-refl
--- reify-stable {κ = R[ κ ]} (right y) {g} = eq-refl
-               
+reify-stable : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+                v ≋ V →
+               ⇑ (reify V) ≋ V
+reify-stable {κ = κ} rel-v = subst-≋ (reify-≋ rel-v) rel-v
 
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Relating syntactic substitutions to semantic environments
