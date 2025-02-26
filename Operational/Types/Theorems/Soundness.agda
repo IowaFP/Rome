@@ -32,7 +32,7 @@ sound-Π {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
 sound-Π {κ₁ = L} ρ {v} {left x} q = eq-· eq-refl q
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ {v} {V} eq → 
   subst-≋ 
-  (eq-sym (eq-assoc-Π {ρ = ren ρ f} {τ = v})) 
+  (eq-sym (eq-Π-assoc {ρ = ren ρ f} {τ = v})) 
   (subst-≋ 
     (eq-sym 
       (eq-trans 
@@ -54,7 +54,7 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {left x} q =
     eq-trans 
         (eq-· eq-refl q) 
         (eq-trans 
-            eq-app-lift-Π 
+            eq-Π 
             (eq-<$> 
                 (eq-trans 
                     eq-η 
@@ -64,7 +64,7 @@ sound-Π {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
 sound-Π {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} (q , sound-f)  ρ₂ {v₂} {V₂} rel-v = 
   (subst-≋ 
-    (eq-sym eq-assoc-Π) 
+    (eq-sym eq-Π-assoc) 
     (sound-Π ρ₂ 
       (eq-trans 
         (eq-· 
@@ -106,9 +106,95 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
     eq-trans 
         (eq-· eq-refl q) 
         (eq-trans 
-            eq-Π 
+            eq-Π▹ 
             (eq-▹ eq-refl (reify-≋ (sound-Π id rel)))) , 
     reify-stable (sound-Π id rel)
+
+--------------------------------------------------------------------------------
+-- Soundness for Σ (identical logic as Π but woefully duplicated)
+       
+sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ σ-Kripke
+sound-Σ {κ₁ = ★} ρ {v} {left x} q = eq-· eq-refl q
+sound-Σ {κ₁ = L} ρ {v} {left x} q = eq-· eq-refl q
+sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ {v} {V} eq → 
+  subst-≋ 
+  (eq-sym (eq-Σ-assoc {ρ = ren ρ f} {τ = v})) 
+  (subst-≋ 
+    (eq-sym 
+      (eq-trans 
+        (eq-· eq-refl 
+          (eq-trans 
+            (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = ren ρ f}) eq-refl) 
+            eq-β)) 
+          eq-refl)) 
+        (sound-Σ ρ
+           {v = `λ (` Z · ren S v) <$> sub (extend ` v) (ren S (ren ρ f))} 
+           (eq-<$> 
+             (eq-λ (reify-≋ (reflect-≋ (eq-· eq-refl (reify-≋ (ren-≋ S eq))) ))) 
+             (eq-trans 
+               (eq-trans 
+                 (inst (sub-weaken (ren ρ f) v)) 
+                 (cong-ren-≡t ρ q)) 
+               (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
+sound-Σ {κ₁ = R[ κ₁ ]} ρ {v} {left x} q = 
+    eq-trans 
+        (eq-· eq-refl q) 
+        (eq-trans 
+            eq-Σ 
+            (eq-<$> 
+                (eq-trans 
+                    eq-η 
+                    (eq-λ (reify-≋ (sound-Σ id eq-refl)))) 
+                eq-refl))
+sound-Σ {κ₁ = ★} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
+sound-Σ {κ₁ = L} ρ {v} {right (l , τ)} q = eq-· eq-refl (fst q)
+sound-Σ {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {right (l , f)} (q , sound-f)  ρ₂ {v₂} {V₂} rel-v = 
+  (subst-≋ 
+    (eq-sym eq-Σ-assoc) 
+    (sound-Σ ρ₂ 
+      (eq-trans 
+        (eq-· 
+          (eq-· eq-refl (cong-ren-≡t  ρ₂ q)) 
+          eq-refl) 
+        (eq-trans 
+          (eq-· eq-β eq-refl) 
+          (eq-trans 
+            eq-β 
+            ((eq-trans 
+              eq-▹$ 
+              (eq-▹
+                ((eq-trans (inst (sub-weaken (ren ρ₂ (⇑ l)) v₂)) (eq-sym (inst (↻-ren-⇑ ρ₂ l))))) 
+                (eq-trans 
+              eq-β 
+              (eq-trans 
+                eq-β 
+                (eq-trans 
+                  (inst (sym (sub-comp (ren (lift S) (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) ) 
+                  (eq-trans 
+                    (eq-sym (inst (↻-sub-ren (ren (lift ρ₂) (⇑ (reify (f S (reflect (` Z))))))))) 
+                    (eq-trans 
+                      (inst (sym (↻-sub-ren (⇑ (reify (f S (reflect (` Z)))))))) 
+                      ((reify-≋ (subst-≋ 
+                        (inst (sub-cong 
+                          {σ₁ = (extend (` ∘ ρ₂) v₂)} 
+                          (λ { Z → sym (sub-weaken v₂ _) ; (S x) → refl }) 
+                          (⇑ (reify (f S (reflect (` Z))))))) 
+                             (subst-≋ 
+                              (eq-trans 
+                                eq-β 
+                                (eq-trans 
+                                  (inst (sym (↻-sub-ren (⇑ (reify (f S (reflect (` Z)))))))) 
+                                  (inst (sub-cong  (λ { Z → refl
+                                                      ; (S x) → refl }) (⇑ (reify (f S (reflect (` Z))))))))) 
+                              (sound-f ρ₂ rel-v))))))))))))))) , 
+      reify-stable (sound-f ρ₂ rel-v) )))
+sound-Σ {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
+    eq-trans 
+        (eq-· eq-refl q) 
+        (eq-trans 
+            eq-Σ▹ 
+            (eq-▹ eq-refl (reify-≋ (sound-Σ id rel)))) , 
+    reify-stable (sound-Σ id rel)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
@@ -130,7 +216,7 @@ fund (τ₁ · τ₂) {σ} {η} e  =
     (fund τ₁ e id (fund τ₂ e))
 fund (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fund τ₁ e) (fund τ₂ e)
 fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {↑e η} (weaken-≋ e))
-fund (μ τ) {σ} {η} e = eq-μ 
+fund (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = sub σ τ}) 
         (eq-λ (fund τ e S eq-refl)))
@@ -143,7 +229,7 @@ fund (l ▹ τ) {σ} {η} e =
     (reify-stable (fund τ e))
 fund ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fund τ e)
 fund Π {σ} {η} e = sound-Π
-fund Σ {σ} {η} e = {!   !}
+fund Σ {σ} {η} e =  sound-Σ  
 fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fund τ₂ e 
 ... | left x | [ eq ] | _ = 
   eq-<$> 

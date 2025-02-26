@@ -219,16 +219,21 @@ cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ 
     eq-trans 
         (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
         (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
-cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π 
-cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
+cong-ren-≡t {τ = τ} {υ} ρ eq-Π▹ = eq-Π▹ 
+cong-ren-≡t {τ = τ} {υ} ρ eq-Σ▹ = eq-Σ▹
 cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
     eq-trans 
     (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
     (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
+cong-ren-≡t {τ = (Σ · (l ▹ `λ τ))} {υ} ρ (eq-Σλ {l = l} {τ}) = 
+    eq-trans 
+    (eq-Σλ {l = ren ρ l} {ren (lift ρ) τ}) 
+    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
 cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
-cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Π = eq-assoc-Π
-cong-ren-≡t {τ = τ} {υ} ρ eq-assoc-Σ = eq-assoc-Σ
-cong-ren-≡t {τ = τ} {υ} ρ eq-app-lift-Π = eq-app-lift-Π
+cong-ren-≡t {τ = τ} {υ} ρ eq-Π-assoc = eq-Π-assoc
+cong-ren-≡t {τ = τ} {υ} ρ eq-Σ-assoc = eq-Σ-assoc
+cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π
+cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
 cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
 
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
