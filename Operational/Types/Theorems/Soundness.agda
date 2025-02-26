@@ -200,22 +200,31 @@ sound-Σ {κ₁ = R[ κ₁ ]} ρ {v} {right (l , τ)} (q , rel) =
 -- Fundamental lemma  
 
 fund : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-          σ ≋e η → (sub σ τ) ≋⟦ (eval τ η) ⟧
+          σ ≋e⟦ η ⟧ → (sub σ τ) ≋⟦ (eval τ η) ⟧
           
 fundPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Δ₁ R[ κ ]){σ : Substitution Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-          σ ≋e η → (subPred σ π) ≡p ⇑Pred (evalPred π η)           
+          σ ≋e⟦ η ⟧ → (subPred σ π) ≡p ⇑Pred (evalPred π η)           
 fundPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-≋⟦⟧ (fund ρ₁ e)) eq-· (reify-≋⟦⟧ (fund ρ₂ e)) ~ (reify-≋⟦⟧ (fund ρ₃ e))
 fundPred (ρ₁ ≲ ρ₂) e = (reify-≋⟦⟧ (fund ρ₁ e)) eq-≲ (reify-≋⟦⟧ (fund ρ₂ e))
 
 fund Unit {σ} {η} e = eq-refl
 fund (` α) {σ} {η} e = e α
-fund (`λ τ) {σ} {η} e = {! fund τ (weaken-≋ e)   !}
+fund (`λ τ) {σ} {η} e ρ {v} {V} q = 
+  subst-≋⟦⟧ 
+    (eq-sym eq-β) 
+    (subst-≋⟦⟧ 
+      (eq-trans 
+        (eq-trans 
+          (inst (sub-cong (λ { Z → refl ; (S x) → trans (ren-sub-id σ ρ (σ x)) (↻-sub-ren (σ x)) }) τ)) 
+          (inst (sub-comp τ))) 
+        (inst (↻-sub-ren (sub (lifts σ) τ)))) 
+      (fund τ (extend-≋⟦⟧ (ren-≋⟦⟧ ρ ∘ e) q)))
 fund (τ₁ · τ₂) {σ} {η} e  = 
   subst-≋⟦⟧ 
     (eq-· (inst (ren-id (sub σ τ₁))) eq-refl) 
     (fund τ₁ e id (fund τ₂ e))
 fund (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fund τ₁ e) (fund τ₂ e)
-fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {↑e η} (weaken-≋ e))
+fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {↑e η} (weaken-≋⟦⟧ e))
 fund (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = sub σ τ}) 
@@ -263,7 +272,7 @@ fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x
           (reify-≋⟦⟧ (fund τ₁ e id rel-v))))) , 
   refl-≋⟦⟧ (fund τ₁ e id rel-v)
 
-idSR : ∀ {Δ₁} →  ` ≋e (idEnv {Δ₁})
+idSR : ∀ {Δ₁} →  ` ≋e⟦ (idEnv {Δ₁}) ⟧
 idSR α = reflect-≋⟦⟧ eq-refl
 
 --------------------------------------------------------------------------------

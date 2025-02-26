@@ -178,6 +178,13 @@ sub-comp Σ = refl
 sub-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-comp τ₁) (sub-comp τ₂)
 
 -------------------------------------------------------------------------------
+-- 
+
+ren-sub-id : ∀ (σ : Substitution Δ₁ Δ₂) (ρ : Renaming Δ₂ Δ₃) 
+                (τ :  Type Δ₂ κ) → ren ρ τ ≡ sub (` ∘ ρ) τ
+ren-sub-id σ ρ τ = trans (cong (ren ρ) (sym (sub-id τ))) (trans (sym (↻-ren-sub τ)) refl )
+
+-------------------------------------------------------------------------------
 -- Renaming commutes with β-reduction
 
 ↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 

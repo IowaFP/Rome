@@ -114,32 +114,38 @@ ren-≋⟦⟧ {κ = R[ κ ]} ρ {v} {right (l , V)} (eq-v , rel-v) =
     (eq-▹ (inst (sym (NPR.↻-ren-⇑ ρ l))) (reify-≋⟦⟧ (ren-≋⟦⟧ ρ rel-v))) , 
     refl-≋⟦⟧ (ren-≋⟦⟧ ρ rel-v)           
 
--- --------------------------------------------------------------------------------
--- -- Equivalent types relate to the same semantic types
-
--- App-≋ : ∀
---     {f : Type Δ (κ₁ `→ κ₂)}
---   → {F : SemType Δ (κ₁ `→ κ₂)}
---   → f ≋ F
---   → {τ : Type Δ κ₁}
---   → {W : SemType Δ κ₁}
---   → τ ≋ W
---     ---------------------
---   → (f · τ) ≋ (F ·V W)
--- App-≋ {F = F} sound-f rel-v = {! subst-≋⟦⟧ (reify-≋⟦⟧ (sound-f id rel-v)) (sound-f id rel-v) !}  
-
-
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
-_≋e_ : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
-_≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋⟦ (η α) ⟧
+_≋e⟦_⟧ : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
+_≋e⟦_⟧ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → (σ α) ≋⟦ (η α) ⟧
 
 --------------------------------------------------------------------------------
--- Relating syntactic substitutions to semantic environments
+-- Extended substitutions relate to extended environments
+
+extend-≋⟦⟧ : ∀ {κ} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+             σ ≋e⟦ η ⟧ →
+             ∀ {τ : Type Δ₂ κ} {V : SemType Δ₂ κ} → 
+             τ ≋⟦ V ⟧ → 
+             (extend σ τ) ≋e⟦ extende η V ⟧
+extend-≋⟦⟧ p q Z = q
+extend-≋⟦⟧ p q (S x) = p x
+
+
+--------------------------------------------------------------------------------
+-- Weakened substitutions relate to weakened environments
  
-weaken-≋ : ∀ {κ} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
-           σ ≋e η → 
-           lifts {κ = κ} σ ≋e extende (λ {κ'} v → renSem S (η v)) (reflect (` Z))
-weaken-≋ e Z = reflect-≋⟦⟧ eq-refl
-weaken-≋ e (S α) = ren-≋⟦⟧ S (e α)           
+weaken-≋⟦⟧ : ∀ {κ} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+           σ ≋e⟦ η ⟧ → 
+           lifts {κ = κ} σ ≋e⟦ extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)) ⟧
+weaken-≋⟦⟧ e Z = reflect-≋⟦⟧ eq-refl
+weaken-≋⟦⟧ e (S α) = ren-≋⟦⟧ S (e α)           
+
+--------------------------------------------------------------------------------
+-- 
+
+substEnv-≋⟦⟧ : ∀ {σ₁ σ₂ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+             (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
+             σ₁ ≋e⟦ η ⟧ →
+             σ₂ ≋e⟦ η ⟧
+substEnv-≋⟦⟧ eq rel x rewrite sym (eq x) = rel x
