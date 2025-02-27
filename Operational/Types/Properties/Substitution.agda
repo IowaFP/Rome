@@ -42,6 +42,7 @@ sub-cong : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₁ Δ�
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : Type Δ₁ κ) → sub σ₁ τ ≡ sub σ₂ τ
 sub-cong e Unit = refl
+sub-cong e ε = refl
 sub-cong e (` α) = e α
 sub-cong e (`λ τ) = cong `λ (sub-cong (lifts-cong e) τ)
 sub-cong e (τ₁ · τ₂) = cong₂ _·_ (sub-cong e τ₁) (sub-cong e τ₂)
@@ -61,6 +62,7 @@ sub-cong e (τ <$> τ₁) = cong₂ _<$>_ (sub-cong e τ) (sub-cong e τ₁)
 
 sub-id : ∀ (τ : Type Δ κ) → sub ` τ ≡ τ
 sub-id Unit = refl
+sub-id ε = refl
 sub-id (` α) = refl
 sub-id (`λ τ) = cong `λ (trans (sub-cong  {σ₁ = lifts `} {σ₂ = `} lifts-id τ) (sub-id τ))
 sub-id (τ₁ · τ₂) = cong₂ _·_ (sub-id τ₁) (sub-id τ₂)
@@ -86,6 +88,7 @@ sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
 ↻-sub-ren : ∀ {ρ : Renaming Δ₁ Δ₂}{σ : Substitution Δ₂ Δ₃}  
                 (τ : Type Δ₁ κ) → sub (σ ∘ ρ) τ ≡ sub σ (ren ρ τ)
 ↻-sub-ren {ρ = ρ} {σ} Unit = refl
+↻-sub-ren {ρ = ρ} {σ} ε = refl
 ↻-sub-ren {ρ = ρ} {σ} (` α) = refl
 ↻-sub-ren {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (sub-cong lifts-lift τ) (↻-sub-ren τ))
 ↻-sub-ren {ρ = ρ} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-sub-ren τ₁) (↻-sub-ren τ₂)
@@ -111,6 +114,7 @@ sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
 ↻-ren-sub         : ∀ {σ : Substitution Δ₁ Δ₂}{ρ : Renaming Δ₂ Δ₃}(τ : Type Δ₁ κ) →
                     sub (ren ρ ∘ σ) τ ≡ ren ρ (sub σ τ)
 ↻-ren-sub {σ = σ} {ρ} Unit = refl
+↻-ren-sub {σ = σ} {ρ} ε = refl
 ↻-ren-sub {σ = σ} {ρ} (` α) = refl
 ↻-ren-sub {σ = σ} {ρ} (`λ τ) = cong `λ (trans (sub-cong ren-lift-lifts τ) (↻-ren-sub τ))
 ↻-ren-sub {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
@@ -148,6 +152,7 @@ lifts-comp σ₁ σ₂ (S x) = trans (sym (↻-ren-sub (σ₁ x))) (↻-sub-ren 
 sub-comp : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₂ Δ₃}
                 (τ : Type Δ₁ κ) → sub (sub σ₂ ∘ σ₁) τ ≡ sub σ₂ (sub σ₁ τ)
 sub-comp Unit = refl
+sub-comp ε = refl
 sub-comp (` α) = refl
 sub-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) = 
   cong `λ ((trans 

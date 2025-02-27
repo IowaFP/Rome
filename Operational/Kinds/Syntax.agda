@@ -33,7 +33,7 @@ ground? R[ κ ] = yes tt
 -- 2.2 contexts
 
 data KEnv : Set where
-  ε : KEnv
+  ∅ : KEnv
   _,,_ : KEnv → Kind → KEnv
 
 --------------------------------------------------------------------------------

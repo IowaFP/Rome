@@ -50,6 +50,7 @@ ren-cong eq (`∀ κ τ) rewrite
   ren-cong (TypeProps.lift-cong eq) τ = refl 
 ren-cong eq (μ τ) rewrite ren-cong eq τ = refl
 ren-cong eq Unit = refl
+ren-cong eq ε = refl
 ren-cong eq (lab x) = refl
 ren-cong eq ⌊ τ ⌋ rewrite ren-cong eq τ = refl
 ren-cong eq (l ▹ τ) rewrite ren-cong eq l | ren-cong eq τ = refl
@@ -95,6 +96,7 @@ ren-id (`∀ κ τ) rewrite
   | ren-id τ = refl
 ren-id (μ τ) rewrite ren-id τ = refl
 ren-id Unit = refl
+ren-id ε = refl
 ren-id (lab x) = refl
 ren-id ⌊ τ ⌋ rewrite ren-id τ = refl
 ren-id (l ▹ τ) rewrite ren-id l | ren-id τ  = refl
@@ -141,6 +143,7 @@ ren-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
   (trans (ren-cong (lift-comp ρ₁ ρ₂) τ) (ren-comp (lift ρ₁) (lift ρ₂) τ)) = refl
 ren-comp ρ₁ ρ₂ (μ τ) rewrite ren-comp ρ₁ ρ₂ τ = refl
 ren-comp ρ₁ ρ₂ Unit = refl
+ren-comp ρ₁ ρ₂ ε = refl
 ren-comp ρ₁ ρ₂ (lab x) = refl 
 ren-comp ρ₁ ρ₂ ⌊ τ ⌋ rewrite ren-comp ρ₁ ρ₂ τ = refl 
 ren-comp ρ₁ ρ₂ (l ▹ τ) rewrite ren-comp ρ₁ ρ₂ l | ren-comp ρ₁ ρ₂ τ = refl
@@ -174,6 +177,7 @@ ren-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
             ⇑Pred (renPred ρ π) ≡ Types.renPred ρ (⇑Pred π)      
 
 ↻-ren-⇑ ρ Unit = refl
+↻-ren-⇑ ρ ε = refl
 ↻-ren-⇑ ρ (ne x) = ↻-ren-⇑NE ρ x
 ↻-ren-⇑ ρ (`λ τ) = cong Types.`λ (↻-ren-⇑ (lift ρ) τ)
 ↻-ren-⇑ ρ (τ₁ `→ τ₂) = cong₂ Types._`→_ (↻-ren-⇑ ρ τ₁) (↻-ren-⇑ ρ τ₂) 

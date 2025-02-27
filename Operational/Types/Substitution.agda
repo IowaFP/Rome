@@ -24,6 +24,7 @@ lifts σ (S x) = weaken (σ x)
 sub : Substitution Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPred : Substitution Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
 sub σ Unit = Unit
+sub σ ε = ε
 sub σ (` x) = σ x
 sub σ (`λ τ) = `λ (sub (lifts σ) τ)
 sub σ (τ₁ · τ₂) = (sub σ τ₁) · (sub σ τ₂)

@@ -3,7 +3,7 @@ BIBFILE=bibliography
 PDF=${DOC}.pdf
 BIB=${BIBFILE}.bib
 
-LAGDA = ${DOC}.lagda.tex
+LAGDA = ${DOC}.lagda
 SRC = ${DOC}.tex ${BIB} 
 
 AGDA = agda --latex --latex-dir .
@@ -15,8 +15,8 @@ BIBTEX = bibtex
 all: pdf
 
 pdf:  
-	agda --latex --latex-dir . TN.lagda.tex
-	pdflatex -halt-on-error -shell-escape TN
+	agda --latex --latex-dir . ${LAGDA}
+	pdflatex -halt-on-error -shell-escape ${DOC}
 
 #----------------------------------------------------------------
 

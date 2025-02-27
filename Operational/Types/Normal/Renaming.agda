@@ -31,6 +31,7 @@ renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
 renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
 
 ren ρ Unit   = Unit
+ren ρ ε   = ε
 ren ρ (ne τ {g}) = ne (renNE ρ τ) {g}
 ren ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
 ren ρ (`λ τ) = `λ (ren (lift ρ) τ)

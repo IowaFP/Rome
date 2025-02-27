@@ -28,6 +28,7 @@ lift ρ (S x) = S (ρ x)
 ren : Renaming Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPred : Renaming Δ₁ Δ₂ → Pred Δ₁ R[ κ ] → Pred Δ₂ R[ κ ]
 ren ρ Unit  = Unit
+ren ρ ε  = ε
 ren ρ (` x) = ` (ρ x)
 ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
 ren ρ (τ₁ · τ₂) = (ren ρ τ₁) · (ren ρ τ₂)

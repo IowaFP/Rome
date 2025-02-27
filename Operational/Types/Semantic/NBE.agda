@@ -22,7 +22,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} τ       = left τ
+reflect {κ = R[ κ ]} τ       = ne τ
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renNE ρ τ · reify v)
 
 
@@ -32,8 +32,9 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
-reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right (l , τ)) = l ▹ (reify τ)
+reify {κ = R[ κ ]} (ne x) = ne x
+reify {κ = R[ κ ]} (lty (l , τ)) = l ▹ (reify τ)
+reify {κ = R[ κ ]} ε = ε
 
 --------------------------------------------------------------------------------
 -- Semantic environments
@@ -68,8 +69,9 @@ F ·V V = F id V
 -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (left x) = left (reifyKripke F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (right (l , τ)) = right (l , F ·V τ) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (ne x) = ne (reifyKripke F <$> x) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F (lty (l , τ)) = lty (l , F ·V τ) 
+_<$>V_ {κ₁ = κ₁} {κ₂} F ε = ε
 
 --------------------------------------------------------------------------------
 -- Semantic flap
@@ -82,7 +84,7 @@ f <?> a = (λ {Δ₂} ρ F → F {Δ₂ = Δ₂} id (renSem ρ a)) <$>V f
 -- -- Semantic combinator for labeled types
 
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹V_ {κ = κ} ℓ τ = right (ℓ , τ)
+_▹V_ {κ = κ} ℓ τ = lty (ℓ , τ)
 
 
 -- --------------------------------------------------------------------------------
@@ -97,14 +99,17 @@ record Xi : Set where
 
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = ★} Ξ (left x) = Ξ .Ξ★ (ne x)
-ξ {κ = L} Ξ (left x) = Ξ .ΞL (ne x)
-ξ {κ = κ₁ `→ κ₂} Ξ (left x) = λ ρ v → ξ Ξ (left (renNE ρ x) <?> v)
-ξ {κ = R[ κ ]} Ξ (left x) = (λ ρ v → ξ Ξ v) <$>V (left x) 
-ξ {κ = ★} Ξ (right (l , τ)) = Ξ .Ξ★ (l ▹ τ)
-ξ {κ = L} Ξ (right (l , τ)) = Ξ .ΞL (l ▹ τ)
-ξ {κ = κ₁ `→ κ₂} Ξ (right (l , τ)) = λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v))
-ξ {κ = R[ κ ]} Ξ (right (l , τ)) = right (l , ξ Ξ τ)
+ξ {κ = ★} Ξ (ne x) = Ξ .Ξ★ (ne x)
+ξ {κ = ★} Ξ ε = Ξ .Ξ★ ε
+ξ {κ = ★} Ξ (lty (l , τ)) = Ξ .Ξ★ (l ▹ τ)
+ξ {κ = L} Ξ (ne x) = Ξ .ΞL (ne x)
+ξ {κ = L} Ξ ε = Ξ .ΞL ε
+ξ {κ = L} Ξ (lty (l , τ)) = Ξ .ΞL (l ▹ τ)
+ξ {κ = κ₁ `→ κ₂} Ξ (ne x) = λ ρ v → ξ Ξ (ne (renNE ρ x) <?> v)
+ξ {κ = κ₁ `→ κ₂} Ξ (lty (l , τ)) = λ ρ v → ξ Ξ ((ren ρ l) ▹V ((renSem {κ = κ₁ `→ κ₂} ρ τ) ·V v))
+ξ {κ = κ₁ `→ κ₂} Ξ ε = λ ρ v → ξ Ξ (ε <?> v)
+ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+
 
 Π-rec Σ-rec : Xi 
 Π-rec = record
@@ -159,6 +164,7 @@ eval {κ = κ₁ `→ κ₂} Π η = λ ρ v → π v
 eval {κ = κ₁ `→ κ₂} Σ η = λ ρ v → σ v
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
+eval ε η = ε
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization

@@ -56,16 +56,6 @@ data NormalPred Δ where
        ----------
        NormalPred Δ R[ κ ]  
 
--- data Row Δ where
-
---   _▹_ : 
-      
---       (l : NormalType Δ L) → 
---       (τ : NormalType Δ κ) → 
---       ---------------------------
---       Row Δ R[ κ ]
-
-
 data NormalType Δ where
 
   Unit :
@@ -78,13 +68,6 @@ data NormalType Δ where
       (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
       --------------
       NormalType Δ κ
-
-  _▹_ : 
-      
-      (l : NormalType Δ L) → 
-      (τ : NormalType Δ κ) → 
-      ---------------------------
-      NormalType Δ R[ κ ]
 
   `λ :
 
@@ -121,6 +104,19 @@ data NormalType Δ where
 
   ------------------------------------------------------------------
   -- Rω business
+
+  ε : 
+
+      ------------------  
+      NormalType Δ R[ κ ]
+
+
+  _▹_ : 
+      
+      (l : NormalType Δ L) → 
+      (τ : NormalType Δ κ) → 
+      ---------------------------
+      NormalType Δ R[ κ ]
 
   -- labels
   lab :
@@ -182,9 +178,11 @@ inj-▹ᵣ refl = refl
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
     ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ))) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
-row-canonicity (ne τ) = right (τ , refl)
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
+    ρ ≡ ε 
 row-canonicity (l ▹ τ) = left (l , τ , refl)
+row-canonicity (ne τ) = right (left (τ , refl))
+row-canonicity ε = right (right refl)
 
 
 
@@ -215,10 +213,10 @@ arrow-canonicity (`λ f) = f , refl
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
--- ⇑Row : Row Δ R[ κ ] → Type Δ R[ κ ]
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
 
 ⇑ Unit   = Unit
+⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
 ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 ⇑ (`λ τ) = `λ (⇑ τ)
@@ -235,11 +233,7 @@ arrow-canonicity (`λ f) = f , refl
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
--- ⇑NE (Π ρ) = Π · ⇑NE ρ
--- ⇑NE (Σ ρ) = Σ · ⇑NE ρ
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
-
--- ⇑Row (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

@@ -34,6 +34,7 @@ ren-cong :  ∀ {ρ₁ ρ₂ : Renaming Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ →
 ren-cong-pred : ∀ {ρ₁ ρ₂ : Renaming Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
                   (π : Pred Δ₁ R[ κ ]) → renPred ρ₁ π ≡ renPred ρ₂ π
 ren-cong eq Unit = refl
+ren-cong eq ε = refl
 ren-cong eq (` x) rewrite eq x = refl
 ren-cong eq (`λ τ) rewrite ren-cong (lift-cong eq) τ = refl 
 ren-cong eq (τ₁ · τ₂) rewrite ren-cong eq τ₁ | ren-cong eq τ₂ = refl
@@ -56,6 +57,7 @@ ren-cong-pred eq (ρ₁ ≲ ρ₂)
 ren-id : ∀ (τ : Type Δ κ) → ren id τ ≡ τ
 ren-id-pred : ∀ (π : Pred Δ R[ κ ]) → renPred id π ≡ π
 ren-id Unit = refl
+ren-id ε = refl
 ren-id (` x) = refl
 ren-id (`λ τ) rewrite ren-cong lift-id τ | ren-id τ = refl 
 ren-id (τ₁ · τ₂) rewrite ren-id τ₁ | ren-id τ₂ = refl
@@ -82,6 +84,7 @@ ren-comp : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) →
 ren-comp-pred : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) → 
                 ∀ (π : Pred Δ₁ R[ κ ]) → renPred (ρ₂ ∘ ρ₁) π ≡ renPred ρ₂ (renPred ρ₁ π)
 ren-comp _ _   Unit = refl
+ren-comp _ _   ε = refl
 ren-comp ρ₁ ρ₂ (` x) = refl
 ren-comp ρ₁ ρ₂ Π = refl
 ren-comp ρ₁ ρ₂ Σ = refl
