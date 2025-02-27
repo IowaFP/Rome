@@ -36,3 +36,6 @@ extend σ A (S x) = σ x
 -- -- Single variable substitution is a special case of simultaneous substitution.
 _β[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalType Δ κ₂
 τ₁ β[ τ₂ ] = sub (extend (η-norm ∘ `) τ₂) τ₁
+
+_·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
+`λ f ·' v = f β[ v ]

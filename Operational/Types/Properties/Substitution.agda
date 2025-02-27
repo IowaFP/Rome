@@ -10,7 +10,6 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Properties.Renaming
 
 
-
 -------------------------------------------------------------------------------
 -- Functor laws for lifting
 

@@ -70,7 +70,7 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
   roll : 
          ∀ (F : NormalType Δ (★ `→ ★)) → 
          -- lol. Okay, neutrality is not quite accurate for our needs.
-         NormalTerm Γ (⇓ ((⇑ F) · (⇑ (μ F)))) → 
+         NormalTerm Γ (F ·' (μ F)) → 
          -----------------
          NormalTerm Γ (μ F)
 
@@ -78,7 +78,7 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
            ∀ F → 
            NormalTerm Γ (μ F) → 
            --------------
-           NormalTerm Γ (⇓ ((⇑ F) · (⇑ (μ F))))
+           NormalTerm Γ (F ·' (μ F))
 
   ------------------------------------------------------------
   -- Qualified types

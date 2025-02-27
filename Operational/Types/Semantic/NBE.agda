@@ -90,10 +90,8 @@ _▹V_ {κ = κ} ℓ τ = right (ℓ , τ)
 
 record Xi : Set where 
   field
-    -- ΞNE : ∀ {Δ'} {κ : Kind} → NeutralType Δ' R[ κ ] → NeutralType Δ' κ
     Ξ★ : ∀ {Δ'} → NormalType  Δ' R[ ★ ] → NormalType Δ' ★
     ΞL : ∀ {Δ'} → NormalType Δ' R[ L ] → NormalType Δ' L
-    -- ren-NE : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NeutralType Δ₁ R[ κ ]) → renNE ρ (ΞNE τ) ≡  ΞNE (renNE ρ τ)
     ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (ren ρ τ)
     ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (ren ρ τ)
 
