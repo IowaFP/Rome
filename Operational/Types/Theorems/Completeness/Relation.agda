@@ -29,17 +29,13 @@ Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
-  Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G
- 
-_≋_ {κ = R[ κ ]} (ne x) (ne y)                   = x ≡ y
-_≋_ {κ = R[ κ ]} (lty (l₁ , τ₁)) (lty (l₂ , τ₂)) = l₁ ≡ l₂ × τ₁ ≋ τ₂
-_≋_ {κ = R[ κ ]} ε ε                             = ⊤
-_≋_ {κ = R[ κ ]} (ne x) (lty _)                  = ⊥
-_≋_ {κ = R[ κ ]} (ne _) ε                        = ⊥
-_≋_ {κ = R[ κ ]} (lty _) (ne _)                  = ⊥
-_≋_ {κ = R[ κ ]} (lty _) ε                       = ⊥
-_≋_ {κ = R[ κ ]} ε (ne _)                        = ⊥
-_≋_ {κ = R[ κ ]} ε (lty _)                       = ⊥
+  Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
+_≋_ {κ = R[ κ ]} (just (left x)) (just (left y))                   = x ≡ y
+_≋_ {κ = R[ κ ]} (just (right (l₁ , τ₁))) (just (right (l₂ , τ₂))) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {κ = R[ κ ]} nothing nothing                                   = ⊤
+_≋_ {κ = R[ κ ]} (just _) (just _)                                 = ⊥
+_≋_ {κ = R[ κ ]} (just _) nothing                                  = ⊥
+_≋_ {κ = R[ κ ]} nothing (just _)                                  = ⊥
 
 
 PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
@@ -82,9 +78,9 @@ sym-≋ {κ = κ `→ κ₁}
   {F} {G} 
   (Unif-F , (Unif-G , Ext)) = 
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
-sym-≋ {κ = R[ κ ]} {ne x} {ne x₁} q = sym q
-sym-≋ {κ = R[ κ ]} {ε} {ε} q = tt
-sym-≋ {κ = R[ κ ]} {lty (l , τ₁)} {lty (_ , τ₂)} (refl , q) = refl , (sym-≋ q)
+sym-≋ {κ = R[ κ ]} {just (left x)} {just (left x₁)} q = sym q
+sym-≋ {κ = R[ κ ]} {nothing} {nothing} q = tt
+sym-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (_ , τ₂))} (refl , q) = refl , (sym-≋ q)
 
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
@@ -96,9 +92,9 @@ trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H}
     unif-F , 
     unif-H , 
     λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
-trans-≋ {κ = R[ κ ]} {ne x} {ne _} {ne _} refl refl = refl
-trans-≋ {κ = R[ κ ]} {ε} {ε} {ε} tt tt = tt
-trans-≋ {κ = R[ κ ]} {lty (l , τ₁)} {lty (.l , τ₂)} {lty (.l , τ₃)} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
+trans-≋ {κ = R[ κ ]} {just (left x)} {just (left _)} {just (left _)} refl refl = refl
+trans-≋ {κ = R[ κ ]} {nothing} {nothing} {nothing} tt tt = tt
+trans-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} {just (right (.l , τ₃))} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
 
 --------------------------------------------------------------------------------
 -- Pointwise extensionality (accordingly) forms a PER
@@ -176,9 +172,9 @@ reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
 reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
   ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
-reify-≋ {κ = R[ κ ]} {ne τ₁} {ne τ₂} refl = refl 
-reify-≋ {κ = R[ κ ]} {lty (l , τ₁)} {lty (l , τ₂)} (refl , q) = cong (l ▹_) (reify-≋ q) -- cong (row ∘ (l ▹_)) (reify-≋ q)
-reify-≋ {κ = R[ κ ]} {ε} {ε} tt = refl
+reify-≋ {κ = R[ κ ]} {just (left τ₁)} {just (left τ₂)} refl = refl 
+reify-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = cong (l ▹_) (reify-≋ q)
+reify-≋ {κ = R[ κ ]} {nothing} {nothing} tt = refl
 
 
 --------------------------------------------------------------------------------
@@ -207,9 +203,9 @@ reify-≋ {κ = R[ κ ]} {ε} {ε} tt = refl
 ↻-ren-reify {Δ₁} {Δ₂} {κ = κ₁ `→ κ₂} ρ f@{F} g@{G} q@(Unif-F , Unif-G , Ext) = 
   cong `λ 
   (↻-ren-reify-kripke ρ F G q)
-↻-ren-reify {κ = R[ κ ]} ρ {ne x} {ne _} refl = refl
-↻-ren-reify {κ = R[ κ ]} ρ {ε} {ε} tt = refl
-↻-ren-reify {κ = R[ κ ]} ρ {lty (l , _)} {lty (_ , _)} (refl , q) = cong ((N.ren ρ l ▹_)) (↻-ren-reify ρ q)
+↻-ren-reify {κ = R[ κ ]} ρ {just (left x)} {just (left _)} refl = refl
+↻-ren-reify {κ = R[ κ ]} ρ {nothing} {nothing} tt = refl
+↻-ren-reify {κ = R[ κ ]} ρ {just (right (l , _))} {just (right (_ , _))} (refl , q) = cong ((N.ren ρ l ▹_)) (↻-ren-reify ρ q)
 
 --------------------------------------------------------------------------------
 -- Renaming commutes with reflection of neutral types
@@ -245,9 +241,9 @@ renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (re
 renSem-id-≋ {κ = ★} refl = ren-id _
 renSem-id-≋ {κ = L} refl = ren-id _
 renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
-renSem-id-≋ {κ = R[ κ ]} {ne x} e rewrite ren-id-ne x = e
-renSem-id-≋ {κ = R[ κ ]} {ε} e = e
-renSem-id-≋ {_} {R[ κ ]} {lty (l , τ₁)} {lty (.l , τ₂)} (refl , q) = (ren-id l) , renSem-id-≋ q
+renSem-id-≋ {κ = R[ κ ]} {just (left x)} e rewrite ren-id-ne x = e
+renSem-id-≋ {κ = R[ κ ]} {nothing} e = e
+renSem-id-≋ {_} {R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = ren-id l , renSem-id-≋ q
 
 ren-comp-≋  : ∀ (ρ₁ : Renaming Δ₁ Δ₂)(ρ₂ : Renaming Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
@@ -257,9 +253,9 @@ ren-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) =
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {ne x} {ne x₁} refl = ren-comp-ne ρ₁ ρ₂ x
-ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {lty (l , τ₁)} {lty (_ , τ₂)} (refl , q) = (ren-comp ρ₁ ρ₂ l) , (ren-comp-≋ ρ₁ ρ₂ q)
-ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {ε} {ε} tt = tt
+ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {just (left x)} {just (left x₁)} refl = ren-comp-ne ρ₁ ρ₂ x
+ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {just (right (l , τ₁))} {just (right (_ , τ₂))} (refl , q) = (ren-comp ρ₁ ρ₂ l) , (ren-comp-≋ ρ₁ ρ₂ q)
+ren-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {nothing} {nothing} tt = tt
 
 ↻-lift-weaken-≋ : ∀ {κ'} (ρ : Renaming Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → 

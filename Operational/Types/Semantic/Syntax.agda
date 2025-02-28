@@ -16,8 +16,9 @@ open import Rome.Operational.Types.Normal.Renaming
 --------------------------------------------------------------------------------
 -- Semantic types.
 
+-- isomorphic to Maybe (A or B)
 data SemRow (A B : Set) : Set where 
-  ne : A → SemRow A B
+  ne  : A → SemRow A B
   lty : B → SemRow A B
   ε   : SemRow A B
 
@@ -29,6 +30,7 @@ KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → Se
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
-SemType Δ R[ κ ] = 
-  SemRow (NeutralType Δ R[ κ ]) (NormalType Δ L × SemType Δ κ)
+SemType Δ R[ κ ] = Maybe 
+  ((NeutralType Δ R[ κ ]) or 
+  (NormalType Δ L × SemType Δ κ))
 

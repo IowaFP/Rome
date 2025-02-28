@@ -27,9 +27,9 @@ renSem : Renaming Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renSem {κ = ★} ρ τ = ren ρ τ
 renSem {κ = L} ρ τ = ren ρ τ
 renSem {κ = κ `→ κ₁} ρ F = renKripke ρ F
-renSem {κ = R[ κ ]} ρ (ne x) = ne (renNE ρ x)
-renSem {κ = R[ κ ]} ρ (lty (l , τ)) = lty (ren ρ l , renSem ρ τ)
-renSem {κ = R[ κ ]} ρ ε = ε
+renSem {κ = R[ κ ]} ρ (just (left x)) = just (left (renNE ρ x))
+renSem {κ = R[ κ ]} ρ (just (right (l , τ))) = just (right (ren ρ l , renSem ρ τ))
+renSem {κ = R[ κ ]} ρ nothing = nothing
 
 --------------------------------------------------------------------------------
 -- Weakening
@@ -44,16 +44,16 @@ renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V
 renSem-id {κ = ★} V = ren-id V
 renSem-id {κ = L} V = ren-id V
 renSem-id {κ = κ `→ κ₁} F = refl
-renSem-id {κ = R[ κ ]} (ne x) = cong ne (ren-id-ne x) -- ren-id-ne x
-renSem-id {κ = R[ κ ]} (lty (l , τ)) = cong lty (cong₂ _,_ (ren-id l) (renSem-id τ)) -- ren-id-ne x
-renSem-id {κ = R[ κ ]} ε = refl
+renSem-id {κ = R[ κ ]} (just (left x)) = cong (just ∘ left) (ren-id-ne x) -- ren-id-ne x
+renSem-id {κ = R[ κ ]} (just (right (l , τ))) = cong (just ∘ right) (cong₂ _,_ (ren-id l) (renSem-id τ)) -- ren-id-ne x
+renSem-id {κ = R[ κ ]} nothing = refl
 
 renSem-comp : ∀ (ρ₁ : Renaming Δ₁ Δ₂) (ρ₂ : Renaming Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
              (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))
 renSem-comp {κ = ★} ρ₁ ρ₂ V = ren-comp _ _ _
 renSem-comp {κ = L} ρ₁ ρ₂ V = ren-comp _ _ _
 renSem-comp {κ = κ `→ κ₁} ρ₁ ρ₂ F = refl
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (ne x) = cong ne (ren-comp-ne _ _ _)
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (lty (l , τ)) = cong lty (cong₂ _,_ (ren-comp _ _ _) (renSem-comp _ _ _))
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ ε = refl
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (just (left x)) = cong (just ∘ left) (ren-comp-ne _ _ _)
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (just (right (l , τ))) = cong (just ∘ right) (cong₂ _,_ (ren-comp _ _ _) (renSem-comp _ _ _))
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ nothing = refl
 

@@ -22,7 +22,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} τ       = ne τ
+reflect {κ = R[ κ ]} τ       = just (left τ)
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renNE ρ τ · reify v)
 
 
@@ -32,9 +32,9 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
-reify {κ = R[ κ ]} (ne x) = ne x
-reify {κ = R[ κ ]} (lty (l , τ)) = l ▹ (reify τ)
-reify {κ = R[ κ ]} ε = ε
+reify {κ = R[ κ ]} (just (left x)) = ne x
+reify {κ = R[ κ ]} (just (right (l , τ))) = l ▹ (reify τ)
+reify {κ = R[ κ ]} nothing = ε
 
 --------------------------------------------------------------------------------
 -- Semantic environments
@@ -69,9 +69,9 @@ F ·V V = F id V
 -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (ne x) = ne (reifyKripke F <$> x) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F (lty (l , τ)) = lty (l , F ·V τ) 
-_<$>V_ {κ₁ = κ₁} {κ₂} F ε = ε
+_<$>V_ {κ₁ = κ₁} {κ₂} F (just (left x)) = just (left (reifyKripke F <$> x))
+_<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = just (right (l , F ·V τ))
+_<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
 
 --------------------------------------------------------------------------------
 -- Semantic flap
@@ -84,7 +84,7 @@ f <?> a = (λ {Δ₂} ρ F → F {Δ₂ = Δ₂} id (renSem ρ a)) <$>V f
 -- -- Semantic combinator for labeled types
 
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹V_ {κ = κ} ℓ τ = lty (ℓ , τ)
+_▹V_ {κ = κ} ℓ τ = just (right (ℓ , τ))
 
 
 -- --------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ eval {κ = κ₁ `→ κ₂} Π η = λ ρ v → π v
 eval {κ = κ₁ `→ κ₂} Σ η = λ ρ v → σ v
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
-eval ε η = ε
+eval ε η = nothing
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization
