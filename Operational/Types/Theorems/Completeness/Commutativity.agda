@@ -18,6 +18,34 @@ open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Completeness.Relation
 open import Rome.Operational.Types.Theorems.Completeness.Congruence
+open import Rome.Operational.Types.Theorems.Completeness.Uniformity
+
+--------------------------------------------------------------------------------
+-- - Uniformity is preserved under renaming (ren-Uniform)
+--   (This is actually just what uniformity means.)
+
+ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renaming Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
+ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
+
+--------------------------------------------------------------------------------
+-- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.
+-- (This goal appears with the use of the flapping operator (??).)
+
+Unif-apply : ∀ {V₁ V₂ : SemType Δ κ₁} → 
+               V₁ ≋ V₂ → 
+               Uniform {Δ} {κ₁ `→ κ₂} {κ₂} (λ {Δ} ρ F → F {Δ} id (renSem ρ V₂))
+Unif-apply {V₁ = V₁} {V₂} v ρ₁ ρ₂ V₃ V₄ x = 
+  trans-≋
+    (fst x id ρ₂ (renSem ρ₁ V₂) (renSem ρ₁ V₂) (ren-≋ ρ₁ (refl-≋ᵣ v)))
+    (third x ρ₂ (sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ v)))) 
+
+apply-refl : ∀ {V₁ V₂ : SemType Δ κ₁} → 
+               V₁ ≋ V₂ → 
+               _≋_ {κ = (κ₁ `→ κ₂) `→ κ₂} (λ {Δ} ρ F → F {Δ} id (renSem ρ V₁))  (λ {Δ} ρ F → F {Δ} id (renSem ρ V₂))
+apply-refl v = 
+  Unif-apply (sym-≋ v) , 
+  Unif-apply v , 
+  λ ρ v' → third v' id (ren-≋ ρ v)                
 
 -- --------------------------------------------------------------------------------
 -- -- Renaming commutes with application.
@@ -46,10 +74,29 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
-↻-ren-<$> ρ {V₁} {V₂} v {ne x} {ne x₁} refl = cong (_<$> renNE ρ x) (↻-ren-reify ρ v)
-↻-ren-<$> ρ {V₁} {V₂} v {ε} {ε} tt = tt
-↻-ren-<$> ρ {V₁} {V₂} v {lty (l , τ₁)} {lty (.l , τ₂)} (refl , q) = refl , (↻-ren-app ρ v q)
-      
+↻-ren-<$> ρ {V₁} {V₂} v {just (left x)} {just (left _)} refl = cong (_<$> renNE ρ x) (↻-ren-reify ρ v)
+↻-ren-<$> ρ {V₁} {V₂} v {nothing} {nothing} tt = tt
+↻-ren-<$> ρ {V₁} {V₂} v {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = refl , (↻-ren-app ρ v q)
+
+--------------------------------------------------------------------------------
+-- 
+
+Unif-<?> : ∀ (f : SemType Δ R[ κ₁ `→ κ₂ ]) → f ≋ f → 
+            Uniform (λ ρ v → (renSem ρ f <?> v))
+Unif-<?> f q ρ₁ ρ₂ V₁ V₂ v = trans-≋ 
+  (↻-ren-<$> ρ₂ 
+    {λ {Δ} ρ F → F {Δ} id (renSem ρ V₁)} 
+    {λ {Δ} ρ F → F {Δ} id (renSem ρ V₁)} 
+    (Unif-apply (sym-≋ v) , Unif-apply (sym-≋ v) , (λ ρ v' → third v' id (ren-≋ ρ (refl-≋ₗ v))))
+    {renSem ρ₁ f} 
+    {renSem ρ₁ f} 
+    (ren-≋ ρ₁ q)) 
+  (cong-<$> 
+    (ren-Uniform ρ₂ (Unif-apply (refl-≋ₗ v)) , 
+      Unif-apply (ren-≋ ρ₂ (refl-≋ᵣ v)) , 
+      λ ρ v' → third v' id ((ren-comp-≋ ρ₂ ρ v))) 
+    (sym-≋ (ren-comp-≋ ρ₁ ρ₂ q)))            
+
 --------------------------------------------------------------------------------
 -- - Renaming commutes with ξ
 -- - ξ is congruent w.r.t. semantic equivalence 
@@ -62,31 +109,16 @@ Unif-ξ▹ : ∀ (Ξ : Xi) (l : NormalType Δ L) (F : SemType Δ (κ₁ `→ κ�
           _≋_ {κ = R[ κ ]} V₁ V₂ → renSem ρ (ξ Ξ V₁) ≋ ξ Ξ (renSem {κ = R[ κ ]} ρ V₂) 
 cong-ξ : ∀ (Ξ : Xi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → ξ Ξ τ₁ ≋ ξ Ξ τ₂
 
+Unif-ξ Ξ ρ = ↻-ren-ξ Ξ
+
 Unif-ξ<?> : ∀ (Ξ : Xi) (f : SemType Δ R[ κ₁ `→ κ₂ ]) → f ≋ f → Uniform (λ ρ v → ξ Ξ (renSem ρ f <?> v))
 Unif-ξ<?> Ξ f f≋f ρ₂ ρ₃ V₁ V₂ v = 
-  trans-≋ 
-    (↻-ren-ξ Ξ ρ₃ (renSem ρ₂ f <?> V₁) (renSem ρ₂ f <?> V₁) 
+  trans-≋
+    (Unif-ξ Ξ id ρ₃ (renSem ρ₂ f <?> V₁) (renSem ρ₂ f <?> V₁) 
       (cong-<$> 
-        (Unif-apply (sym-≋ v) , Unif-apply (sym-≋ v) , (λ ρ v' → third v' id (ren-≋ ρ (refl-≋ₗ v)))) (ren-≋ ρ₂ f≋f)))
-    (cong-ξ Ξ (trans-≋ (↻-ren-<$> ρ₃ ((Unif-apply (sym-≋ v)) , {!   !} , {!   !}) (ren-≋ ρ₂ f≋f)) {!   !}))
-    -- trans-≋ 
-    --   (↻-ren-ξ Ξ ρ₃ (ne (renNE ρ₂ x) <?> V₁) (ne (renNE ρ₂ x) <?> V₁) refl) 
-    --   (cong-ξ Ξ (cong₂ _<$>_ (cong `λ 
-    --     (trans 
-    --       (↻-ren-reify 
-    --         (lift ρ₃) 
-    --         {reflect (` (id Z) · reify (renSem S V₁))} 
-    --         {reflect (` (id Z) · reify (renSem S V₁))} 
-    --         (reflect-≋ refl)) 
-    --       (reify-≋ (trans-≋ 
-    --         (↻-ren-reflect (lift ρ₃) (` (id Z) · reify (renSem S V₁))) 
-    --         (reflect-≋ (cong (` Z ·_) 
-    --           (trans
-    --             (↻-ren-reify (lift ρ₃) {renSem S V₁} {renSem S V₂} (ren-≋ S v)) 
-    --             (reify-≋ (↻-lift-weaken-≋  ρ₃ (refl-≋ᵣ v)))))) ))))
-    --     (sym (ren-comp-ne ρ₂ ρ₃ x))))
-
-Unif-ξ Ξ ρ = ↻-ren-ξ Ξ
+        (Unif-apply (sym-≋ v) , Unif-apply (sym-≋ v) , (λ ρ v' → third v' id (ren-≋ ρ (refl-≋ₗ v)))) 
+        (ren-≋ ρ₂ f≋f)))
+    (cong-ξ Ξ (Unif-<?> f f≋f ρ₂ ρ₃ V₁ V₂  v))
 
 Unif-ξ▹ {κ₁ = κ₁} {κ₂} Ξ l F q@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ V₂ q' =
     trans-≋ 
@@ -101,7 +133,7 @@ Unif-ξ▹ {κ₁ = κ₁} {κ₂} Ξ l F q@(Unif-F , _ , Ext) ρ₁ ρ₂ V₁ 
           (refl-≋ₗ q'))) 
       (cong-ξ Ξ
          {τ₁ =
-          lty (N.ren ρ₂ (N.ren ρ₁ l) , renSem ρ₂ (renSem {κ = κ₁ `→ κ₂}  ρ₁ F ·V V₁))}
+          just (right (N.ren ρ₂ (N.ren ρ₁ l) , renSem ρ₂ (renSem {κ = κ₁ `→ κ₂}  ρ₁ F ·V V₁)))}
          {τ₂ =
           N.ren (λ x → ρ₂ (ρ₁ x)) l ▹V
           (renSem {κ = κ₁ `→ κ₂} (λ x → ρ₂ (ρ₁ x)) F ·V renSem ρ₂ V₂)}
@@ -136,36 +168,21 @@ open Xi
     ρ 
     (Unif-ξ<?> Ξ f (refl-≋ₗ f≋g)) , 
   Unif-ξ<?> Ξ (renSem ρ g) (ren-≋ ρ (refl-≋ᵣ f≋g)) , 
-  {!   !}
-  -- λ ρ' v → cong-ξ Ξ 
-  --   (cong₂ _<$>_ (cong `λ (cong (reify ∘ reflect) (cong (` (id Z) ·_) (reify-≋ (ren-≋ S v) )))) 
-  --   (ren-comp-ne ρ ρ' x))
+  λ ρ' v → cong-ξ Ξ 
+    (cong-<$> 
+      (apply-refl v) 
+      (ren-comp-≋ ρ ρ' f≋g))
 ↻-ren-ξ Ξ {R[ κ ]} ρ x y x≋y = ↻-ren-<$> ρ (Unif-ξ Ξ , Unif-ξ Ξ , λ ρ → cong-ξ Ξ) x≋y
--- ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ (lty (l , F)) (lty (.l , G)) (refl , q@(Unif-F , Unif-G , Ext)) = {!   !}
-  -- ren-Uniform
-  --   {F = λ ρ₁ v → ξ Ξ (N.ren ρ₁ l ▹V (renKripke ρ₁ F ·V v))} ρ 
-  --   (Unif-ξ▹ Ξ l F (Unif-F , Unif-F , refl-Extₗ Ext)) , 
-  -- Unif-ξ▹ Ξ (N.ren ρ l) (renSem {κ = κ₁ `→ κ₂} ρ G) (ren-Uniform ρ Unif-G , ren-Uniform ρ Unif-G , λ ρ' v → refl-Extᵣ Ext (ρ' ∘ ρ) v) , 
-  --   λ ρ₁ {V₁ = V₁} {V₂} v → cong-ξ Ξ
-  --     {τ₁ =
-  --      lty
-  --      (N.ren (λ x → ρ₁ (ρ x)) l , (renSem {κ = κ₁ `→ κ₂} (λ x → ρ₁ (ρ x)) F ·V V₁))}
-  --     {τ₂ =
-  --      lty (N.ren ρ₁ (N.ren ρ l) , (renSem {κ = κ₁ `→ κ₂} ρ₁ (renSem {κ = κ₁ `→ κ₂} ρ G) ·V V₂))}
-  --     ((ren-comp ρ ρ₁ l) , Ext (ρ₁ ∘ ρ) v)
-
 
 cong-ξ Ξ {κ = ★} {x} {y} x≋y = cong (Ξ .Ξ★) (reify-≋ x≋y)
 cong-ξ Ξ {κ = L} {x} {y} x≋y = cong (Ξ .ΞL) (reify-≋ x≋y)
-cong-ξ Ξ {κ = κ₁ `→ κ₂} {f} {g} f≋g  = {! ↻-ren-ξ Ξ id f g f≋g  !} 
-  -- Unif-ξ<?> Ξ f , 
-  -- Unif-ξ<?> Ξ g , 
-  -- λ ρ {V₁} {V₂} v → cong-ξ Ξ 
-  --   (cong-<$> 
-  --     (Unif-apply (sym-≋ v) , 
-  --     Unif-apply v , 
-  --     λ ρ v' → third v' id (ren-≋ ρ v)) 
-  --     (ren-≋ ρ f≋g))
+cong-ξ Ξ {κ = κ₁ `→ κ₂} {f} {g} f≋g  =
+  Unif-ξ<?> Ξ f (refl-≋ₗ f≋g)  , 
+  Unif-ξ<?> Ξ g (refl-≋ᵣ f≋g) , 
+  λ ρ {V₁} {V₂} v → cong-ξ Ξ 
+    (cong-<$> 
+      (apply-refl v) 
+      (ren-≋ ρ f≋g))
 cong-ξ Ξ {κ = R[ κ ]} {x} {y} x≋y = cong-<$> (Unif-ξ Ξ , Unif-ξ Ξ , (λ ρ → cong-ξ Ξ {_})) x≋y
 
 ---------------------------------------
