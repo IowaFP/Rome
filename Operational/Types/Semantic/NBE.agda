@@ -76,9 +76,12 @@ _<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
 --------------------------------------------------------------------------------
 -- Semantic flap
 
+apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
+apply a = λ ρ F → F ·V (renSem ρ a)
+
 infixr 0 _<?>_
 _<?>_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-f <?> a = (λ {Δ₂} ρ F → F {Δ₂ = Δ₂} id (renSem ρ a)) <$>V f
+f <?> a = apply a <$>V f
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic combinator for labeled types
