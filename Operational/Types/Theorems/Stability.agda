@@ -64,14 +64,11 @@ stability (τ₁ `→ τ₂)
     rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
 stability (l ▹ τ) rewrite stability l | stability τ = refl 
-stability (Π (ne x)) rewrite stabilityNE x = refl
-stability (ΠL (ne x)) rewrite stabilityNE x = refl 
-stability (Σ (ne x))  rewrite stabilityNE x = refl 
-stability (ΣL (ne x)) rewrite stabilityNE x = refl 
-stability (Π (l ▹ τ)) rewrite stability l | stability τ = refl
-stability (ΠL (l ▹ τ)) rewrite stability l | stability τ = refl
-stability (Σ  (l ▹ τ)) rewrite stability l | stability τ = refl
-stability (ΣL (l ▹ τ)) rewrite stability l | stability τ = refl
+stability ε = refl
+stability (Π x)  rewrite stability x = refl
+stability (ΠL x) rewrite stability x = refl
+stability (Σ x)  rewrite stability x = refl
+stability (ΣL x) rewrite stability x = refl
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl

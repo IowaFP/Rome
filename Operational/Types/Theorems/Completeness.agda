@@ -202,6 +202,7 @@ fund {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ {τ = τ}) with eval τ η₁ | 
 ... | just (right (l , τ)) | just (right (_ , υ)) | refl , q = refl , (cong-σ q)
 ... | nothing | nothing | _ = tt
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-<$> t u) = cong-<$> (fund e t) (fund e u)
+fund {κ = κ} {η₁ = η₁} {η₂} e eq-<$>ε = tt 
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

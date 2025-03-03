@@ -246,6 +246,7 @@ cong-ren-≡t {τ = τ} {υ} ρ eq-Σ-assoc = eq-Σ-assoc
 cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π
 cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
 cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
+cong-ren-≡t {τ = τ} {υ} ρ eq-<$>ε = eq-trans eq-<$>ε eq-refl
 
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
 cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
