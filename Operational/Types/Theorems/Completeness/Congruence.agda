@@ -101,7 +101,19 @@ cong-<?> : ∀ {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} →
            _≋_ {κ = R[ κ₁ `→ κ₂ ]} V₁ V₂ → 
            {W₁ W₂ : SemType Δ κ₁} → 
            _≋_ {κ = κ₁} W₁ W₂ → 
-           _≋_ {κ = R[ κ₂ ]} (V₁ <?> W₁)  (V₂ <?> W₂)
+           _≋_ {κ = R[ κ₂ ]} (V₁ <?>V W₁)  (V₂ <?>V W₂)
 cong-<?> v {W₁} {W₂} w = 
   cong-<$> 
   (cong-apply w) v              
+
+
+-- -- Uniform
+--       (λ ρ → π) ·V
+--        (eval l η₁ ▹V
+--         (λ ρ v → eval τ (extende (λ {κ} v' → renSem ρ (η₁ v')) v)))
+
+Unif-app : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → 
+              {V₁ V₂ : SemType Δ₁ κ₁} → 
+              Uniform F → V₁ ≋ V₂ → Uniform {κ₁ = κ₁} {κ₂} (λ ρ v → F ρ (renSem ρ V₁)) 
+Unif-app {F = F} {V₁} {V₂} Unif-f v = {! !}
+

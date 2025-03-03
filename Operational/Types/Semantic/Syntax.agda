@@ -33,4 +33,3 @@ SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ κ ] = Maybe 
   ((NeutralType Δ R[ κ ]) or 
   (NormalType Δ L × SemType Δ κ))
-

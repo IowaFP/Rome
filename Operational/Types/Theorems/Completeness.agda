@@ -85,126 +85,79 @@ fund e (eq-▹ eq-l eq-τ) rewrite fund e eq-l = cong-▹ refl (fund e eq-τ)
 fund e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fund-pred e eq-π) (fund e eq-τ)
 fund {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π▹ {l = l} {τ}) = (idext e l) , cong-π {τ₁ = eval τ η₁} {τ₂ = eval τ η₂} (idext e τ)
 fund {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ▹ {l = l} {τ}) = (idext e l) , cong-σ {τ₁ = eval τ η₁} {τ₂ = eval τ η₂} (idext e τ)
-fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {l = l} {τ = τ}) = 
+-- clean this shit up
+fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {κ₁ = κ₁} {κ₂ = κ₂} {l = l} {τ = τ}) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → 
-      trans-≋ 
-        (↻-ren-ξ Π-rec ρ₂ 
-            (right (NR.ren ρ₁ (eval l η₁) , eval τ (extende (λ {κ} v' → renSem (λ x → ρ₁ x) (η₁ v')) V₁))) 
-            (right (NR.ren ρ₁ (eval l η₁) , eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂))) 
-            (refl , (idext (extend-≋ (refl-≋ₗ ∘ ren-≋ ρ₁ ∘  e) q) τ))) 
+    trans-≋ 
+        (↻-ren-π ρ₂ 
+            (NR.ren ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₁))) 
+            (NR.ren ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₂))) 
+            (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ e) (ren-≋ id q)) τ))) 
         (cong-π 
-            {τ₁ = (right (NR.ren ρ₂ (NR.ren ρ₁ (eval l η₁)) ,
-                   renSem ρ₂ (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂))))} 
-            {τ₂ = (right (NR.ren (λ x → ρ₂ (ρ₁ x)) (eval l η₁) ,
-                   eval τ (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₁ v')) (renSem ρ₂ V₂))))} 
-            ((sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) , 
+            ((sym-≋ {κ = L} (NRP.ren-comp {κ = L} ρ₁ ρ₂ (eval l η₁))) , 
             (trans-≋ 
-                (↻-renSem-eval ρ₂ τ 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂)} 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂)} 
-                    (extend-≋ (refl-≋ₗ ∘ ren-≋ ρ₁ ∘ e) (refl-≋ᵣ q))) 
-                (idext (λ { Z      → ren-≋ ρ₂ (refl-≋ᵣ q)
-                          ; (S x)  → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ₗ (e x))) }) τ)))))  ,
+                (↻-renSem-eval ρ₂ τ (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ₁ ∘ e) (ren-≋ id (refl-≋ᵣ q)) )) 
+                (idext (λ { Z     → ren-comp-≋ ρ₂ id (renSem-id-≋ (refl-≋ᵣ q))
+                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (e x)) }) τ))))) , 
     (λ ρ₁ ρ₂ V₁ V₂ q → 
-        trans-≋ 
-          (↻-ren-ξ Π-rec ρ₂ 
-            (right
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
-                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-            (right
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
-                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-            (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ))) 
-          (cong-π
-             {τ₁ = right (NR.ren ρ₂
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))
-                , renSem ρ₂ (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)))}
-             {τ₂ = eval (weaken l)
-              (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v'))
-               (renSem ρ₂ V₂)) ▹V eval τ (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v')) 
-               (renSem ρ₂ V₂))}
-             ((trans 
-                (↻-renSem-eval ρ₂ (weaken l) {extende (renSem ρ₁ ∘ η₂) V₁} {extende (renSem ρ₁ ∘ η₂) V₁} 
-                    (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-                (idext (λ { Z → ren-≋ ρ₂ q
-                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) (weaken l))) , 
-             trans-≋ 
-                (↻-renSem-eval ρ₂ τ 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-                (idext (λ { Z → ren-≋ ρ₂ q
-                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) τ)))) , 
-    λ ρ {V₁ = V₁} {V₂} v → cong-π
-      {τ₁ = right (NR.ren ρ (eval l η₁) ,
-                  eval τ (extende (λ {κ} v' → renSem (λ x → ρ x) (η₁ v')) V₁))}
-      {τ₂ = right (eval (ren S l) (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂) ,
-                  eval τ (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂))}
-      ((trans 
-        (↻-renSem-eval ρ l {η₁} {η₂} e) 
-        (sym (trans 
-            (↻-ren-eval S l {extende (renSem ρ ∘ η₂) V₂} {extende (renSem ρ ∘ η₂) V₂} (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
-            (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) , 
-      idext (extend-≋ (ren-≋ ρ ∘ e) v) τ)
+    trans-≋ 
+        (↻-ren-π ρ₂ 
+            (eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
+            ((eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
+        (cong-π 
+            ((trans 
+                (↻-renSem-eval ρ₂ (weaken l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (idext (λ { Z     →  ren-≋ ρ₂ q
+                          ; (S x) → (sym-≋ ∘ (ren-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weaken l))) , 
+            trans-≋ 
+                (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
+                (idext (λ { Z     → ren-≋ ρ₂ q
+                          ; (S x) → (sym-≋ ∘ (ren-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) τ)))) , 
+    λ ρ v → 
+    cong-π 
+        ((trans 
+            (↻-renSem-eval ρ l e) 
+            (sym (trans 
+                (↻-ren-eval S l (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
+                (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) ,
+        idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ)
 fund {η₁ = η₁} {η₂ = η₂} e (eq-Σλ {l = l} {τ = τ}) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → 
-      trans-≋ 
-        (↻-ren-ξ Σ-rec ρ₂ 
-            (right (NR.ren ρ₁ (eval l η₁) , eval τ (extende (λ {κ} v' → renSem (λ x → ρ₁ x) (η₁ v')) V₁))) 
-            (right (NR.ren ρ₁ (eval l η₁) , eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂))) 
-            (refl , (idext (extend-≋ (refl-≋ₗ ∘ ren-≋ ρ₁ ∘  e) q) τ))) 
+    trans-≋ 
+        (↻-ren-σ ρ₂ 
+            (NR.ren ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₁))) 
+            (NR.ren ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₂))) 
+            (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ e) (ren-≋ id q)) τ))) 
         (cong-σ 
-            {τ₁ = (right (NR.ren ρ₂ (NR.ren ρ₁ (eval l η₁)) ,
-                   renSem ρ₂ (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂))))} 
-            {τ₂ = (right (NR.ren (λ x → ρ₂ (ρ₁ x)) (eval l η₁) ,
-                   eval τ (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₁ v')) (renSem ρ₂ V₂))))} 
-            ((sym (NRP.ren-comp ρ₁ ρ₂ (eval l η₁))) , 
+            ((sym-≋ {κ = L} (NRP.ren-comp {κ = L} ρ₁ ρ₂ (eval l η₁))) , 
             (trans-≋ 
-                (↻-renSem-eval ρ₂ τ 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂)} 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₁ v')) V₂)} 
-                    (extend-≋ (refl-≋ₗ ∘ ren-≋ ρ₁ ∘ e) (refl-≋ᵣ q))) 
-                (idext (λ { Z      → ren-≋ ρ₂ (refl-≋ᵣ q)
-                          ; (S x)  → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ₗ (e x))) }) τ)))))  ,
+                (↻-renSem-eval ρ₂ τ (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ₁ ∘ e) (ren-≋ id (refl-≋ᵣ q)) )) 
+                (idext (λ { Z     → ren-comp-≋ ρ₂ id (renSem-id-≋ (refl-≋ᵣ q))
+                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (e x)) }) τ))))) , 
     (λ ρ₁ ρ₂ V₁ V₂ q → 
-        trans-≋ 
-          (↻-ren-ξ Σ-rec ρ₂ 
-            (right
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
-                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-            (right
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁) ,
-                eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-            (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ))) 
-          (cong-σ
-             {τ₁ = right (NR.ren ρ₂
-                (eval (ren S l) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))
-                , renSem ρ₂ (eval τ (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)))}
-             {τ₂ = eval (weaken l)
-              (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v'))
-               (renSem ρ₂ V₂)) ▹V eval τ (extende (λ {κ} v' → renSem (λ x → ρ₂ (ρ₁ x)) (η₂ v')) 
-               (renSem ρ₂ V₂))}
-             ((trans 
-                (↻-renSem-eval ρ₂ (weaken l) {extende (renSem ρ₁ ∘ η₂) V₁} {extende (renSem ρ₁ ∘ η₂) V₁} 
-                    (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-                (idext (λ { Z → ren-≋ ρ₂ q
-                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) (weaken l))) , 
-             trans-≋ 
-                (↻-renSem-eval ρ₂ τ 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} 
-                    {(extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)} (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-                (idext (λ { Z → ren-≋ ρ₂ q
-                          ; (S x) → sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ (e x))) }) τ)))) , 
-    λ ρ {V₁ = V₁} {V₂} v → cong-σ
-      {τ₁ = right (NR.ren ρ (eval l η₁) ,
-                  eval τ (extende (λ {κ} v' → renSem (λ x → ρ x) (η₁ v')) V₁))}
-      {τ₂ = right (eval (ren S l) (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂) ,
-                  eval τ (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂))}
-      ((trans 
-        (↻-renSem-eval ρ l {η₁} {η₂} e) 
-        (sym (trans 
-            (↻-ren-eval S l {extende (renSem ρ ∘ η₂) V₂} {extende (renSem ρ ∘ η₂) V₂} (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
-            (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) , 
-      idext (extend-≋ (ren-≋ ρ ∘ e) v) τ)
+    trans-≋ 
+        (↻-ren-σ ρ₂ 
+            (eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
+            ((eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
+        (cong-σ 
+            ((trans 
+                (↻-renSem-eval ρ₂ (weaken l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (idext (λ { Z     →  ren-≋ ρ₂ q
+                          ; (S x) → (sym-≋ ∘ (ren-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weaken l))) , 
+            trans-≋ 
+                (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
+                (idext (λ { Z     → ren-≋ ρ₂ q
+                          ; (S x) → (sym-≋ ∘ (ren-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) τ)))) , 
+    λ ρ v → 
+    cong-σ 
+        ((trans 
+            (↻-renSem-eval ρ l e) 
+            (sym (trans 
+                (↻-ren-eval S l (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
+                (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) ,
+        idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ)
 fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = 
     (idext e l) , 
     cong-App 
@@ -215,41 +168,39 @@ fund {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) =
       {W₂ = eval τ η₂} 
       (idext e τ)
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-Π-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
-... | right (l , F) | right (.l , G) | refl , q rewrite 
+... | just (right (l , F)) | just (right (.l , G)) | refl , q rewrite 
       NRP.ren-id l 
     | renSem-id {κ = κ₁ `→ κ₂} F 
-    | renSem-id {κ = κ₁ `→ κ₂} G
-    | renSem-id (eval τ η₂) = cong-π 
-        {τ₁ = right (l , (F ·V eval τ η₁))}
-        {τ₂ = right (l , (G ·V eval τ η₂))} 
-        (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x = 
+    | renSem-id {κ = κ₁ `→ κ₂} G = cong-π 
+        (refl , third q id (ren-≋ id (idext e τ)))
+... | just (left x) | just (left .x) | refl rewrite NRP.ren-id-ne x = 
     cong-π 
         (cong (_<$> x) 
             (cong `λ 
                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
                     (reify-≋ (ren-≋ S (idext e τ))))))
+... | nothing | nothing | _ = cong-π tt
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) with eval ρ η₁ | eval ρ η₂ | idext e ρ
-... | right (l , F) | right (.l , G) | refl , q rewrite 
+... | just (right (l , F)) | just (right (.l , G)) | refl , q rewrite 
       NRP.ren-id l 
     | renSem-id {κ = κ₁ `→ κ₂} F 
-    | renSem-id {κ = κ₁ `→ κ₂} G
-    | renSem-id (eval τ η₂) = cong-σ 
-        {τ₁ = right (l , (F ·V eval τ η₁))}
-        {τ₂ = right (l , (G ·V eval τ η₂))} 
-        (refl , (cong-App q (idext e τ)))
-... | left x | left .x | refl rewrite NRP.ren-id-ne x =     
+    | renSem-id {κ = κ₁ `→ κ₂} G = cong-σ 
+        (refl , third q id (ren-≋ id (idext e τ)))
+... | just (left x) | just (left .x) | refl rewrite NRP.ren-id-ne x = 
     cong-σ 
         (cong (_<$> x) 
             (cong `λ 
                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
-                    (reify-≋ (ren-≋ S (idext e τ))))))         
+                    (reify-≋ (ren-≋ S (idext e τ))))))
+... | nothing | nothing | _ = cong-σ tt    
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-Π {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
-... | left _ | left _ | refl = refl
-... | right (l , τ) | right (_ , υ) | refl , q = refl , (cong-π q)
+... | just (left _) | just (left _) | refl = refl
+... | just (right (l , τ)) | just (right (_ , υ)) | refl , q = refl , (cong-π q)
+... | nothing | nothing | _ = tt
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
-... | left _ | left _ | refl = refl
-... | right (l , τ) | right (_ , υ) | refl , q = refl , (cong-σ q)
+... | just (left _) | just (left _) | refl = refl
+... | just (right (l , τ)) | just (right (_ , υ)) | refl , q = refl , (cong-σ q)
+... | nothing | nothing | _ = tt
 fund {κ = κ} {η₁ = η₁} {η₂} e (eq-<$> t u) = cong-<$> (fund e t) (fund e u)
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
@@ -257,6 +208,7 @@ idEnv-≋ x = reflect-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fund idEnv-≋ eq)  
+ 
  
  
  

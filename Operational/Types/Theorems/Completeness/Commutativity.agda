@@ -51,10 +51,10 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ↻-ren-<$> ρ {V₁} {V₂} v {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = refl , (↻-ren-app ρ v q)
 
 --------------------------------------------------------------------------------
--- Uniformity of <?>
+-- Uniformity of <?>V
 
 Unif-<?> : ∀ (f : SemType Δ R[ κ₁ `→ κ₂ ]) → f ≋ f → 
-            Uniform (λ ρ v → (renSem ρ f <?> v))
+            Uniform (λ ρ v → (renSem ρ f <?>V v))
 Unif-<?> f q ρ₁ ρ₂ V₁ V₂ v = 
   trans-≋ 
   (↻-ren-<$> ρ₂ 
@@ -78,10 +78,10 @@ cong-ξ : ∀ (Ξ : Xi) {κ} {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = 
 
 Unif-ξ Ξ ρ = ↻-ren-ξ Ξ
 
-Unif-ξ<?> : ∀ (Ξ : Xi) (f : SemType Δ R[ κ₁ `→ κ₂ ]) → f ≋ f → Uniform (λ ρ v → ξ Ξ (renSem ρ f <?> v))
+Unif-ξ<?> : ∀ (Ξ : Xi) (f : SemType Δ R[ κ₁ `→ κ₂ ]) → f ≋ f → Uniform (λ ρ v → ξ Ξ (renSem ρ f <?>V v))
 Unif-ξ<?> Ξ f f≋f ρ₂ ρ₃ V₁ V₂ v = 
   trans-≋
-    (Unif-ξ Ξ id ρ₃ (renSem ρ₂ f <?> V₁) (renSem ρ₂ f <?> V₁) 
+    (Unif-ξ Ξ id ρ₃ (renSem ρ₂ f <?>V V₁) (renSem ρ₂ f <?>V V₁) 
       (cong-<$> 
         (Unif-apply (sym-≋ v) , Unif-apply (sym-≋ v) , (λ ρ v' → third v' id (ren-≋ ρ (refl-≋ₗ v)))) 
         (ren-≋ ρ₂ f≋f)))
@@ -104,7 +104,7 @@ open Xi
         (reify-≋ (ren-≋ ρ (refl-≋ᵣ x≋y)))))
 ↻-ren-ξ Ξ {κ₁ `→ κ₂} ρ f g f≋g =
   ren-Uniform 
-    {F = λ ρ₁ v → ξ Ξ (renSem ρ₁ f <?> v)} 
+    {F = λ ρ₁ v → ξ Ξ (renSem ρ₁ f <?>V  v)} 
     ρ 
     (Unif-ξ<?> Ξ f (refl-≋ₗ f≋g)) , 
   Unif-ξ<?> Ξ (renSem ρ g) (ren-≋ ρ (refl-≋ᵣ f≋g)) , 

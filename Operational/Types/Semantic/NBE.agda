@@ -58,6 +58,17 @@ extende η V (S x) = η x
 idEnv : Env Δ Δ
 idEnv = reflect ∘ `
 
+--------------------------------------------------------------------------------
+-- Semantic helpers for row-kind construction
+
+_▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
+_▹V_ {κ = κ} ℓ τ = just (right (ℓ , τ))
+
+ne-R : NeutralType Δ R[ κ ] → SemType Δ R[ κ ]
+ne-R = just ∘ left
+
+εV : SemType Δ R[ κ ] 
+εV = nothing
 
 --------------------------------------------------------------------------------
 -- Semantic application
@@ -79,15 +90,9 @@ _<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
 apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
 apply a = λ ρ F → F ·V (renSem ρ a)
 
-infixr 0 _<?>_
-_<?>_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-f <?> a = apply a <$>V f
-
--- --------------------------------------------------------------------------------
--- -- Semantic combinator for labeled types
-
-_▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹V_ {κ = κ} ℓ τ = just (right (ℓ , τ))
+infixr 0 _<?>V_
+_<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+f <?>V a = apply a <$>V f
 
 
 -- --------------------------------------------------------------------------------
@@ -104,9 +109,8 @@ open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
 ξ {κ = L} Ξ x = Ξ .ΞL (reify x)
-ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?> v)
+ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
 ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
-
 
 Π-rec Σ-rec : Xi 
 Π-rec = record
