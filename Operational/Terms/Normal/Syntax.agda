@@ -15,7 +15,7 @@ open import Rome.Operational.Types.Semantic.NBE
 -- 3.7 Terms with normal types
 
 data Context : KEnv → Set where
-  ε : Context ε
+  ε : Context ∅
   _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
   _,_  : Context Δ → NormalType Δ ★ → Context Δ
 

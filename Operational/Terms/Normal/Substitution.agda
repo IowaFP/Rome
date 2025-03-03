@@ -10,7 +10,10 @@ open import Rome.Operational.Kinds.GVars
 import Rome.Operational.Types as Types
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties
+open import Rome.Operational.Types.Normal.Eta-expansion
 import Rome.Operational.Types.Normal.Substitution as T
+
+open import Rome.Operational.Types.Semantic.NBE 
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Normal.GVars
@@ -42,11 +45,11 @@ sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (lifts-τ {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
 sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) = 
   Λ (conv (↻-sub-↑ σ τ) (sub (T.lifts σ) (lifts s) M))
-sub σ s {.(τ₁ T.β[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = {!!}
-  -- conv (sym (↻-sub-β σ τ₁ τ₂)) (sub σ Σ M ·[ T.sub σ τ₂ ] )
-sub σ s {.(μ τ)} (roll τ M) = {!!}
+sub σ s {.(τ₁ T.β[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
+  conv (sym (↻-sub-β σ τ₁ τ₂)) (sub σ s M ·[ T.sub σ τ₂ ])
+sub σ s {.(μ τ)} (roll τ M) = conv {!   !} {! roll (T.sub σ τ) (sub σ s M)  !}
   -- roll _ (conv (↻-sub-β σ τ (μ τ)) (sub σ Σ M))
-sub σ s {_} (unroll τ M) = {!!}
+sub σ s {_} (unroll τ M) = {! !}
   -- conv (sym (↻-sub-β σ τ (μ τ))) (unroll _ (sub σ Σ M))
 
 extend : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → 

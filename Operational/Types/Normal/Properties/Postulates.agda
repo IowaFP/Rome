@@ -36,7 +36,7 @@ postulate
                     ≡ 
                       eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ)) (↑e (idEnv))
 
-  sub-β      : ∀ (σ : Substitution Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
+  ↻-sub-β      : ∀ (σ : Substitution Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                       sub σ (τ₁ β[ τ₂ ])
                     ≡ 
                       eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ₁)) (↑e (idEnv))
