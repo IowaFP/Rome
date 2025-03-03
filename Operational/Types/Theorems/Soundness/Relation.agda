@@ -99,6 +99,21 @@ refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} →
 refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 
 --------------------------------------------------------------------------------
+-- Stability rule for reification
+
+-- map-⟦⟧≋ : ∀ {f : Type Δ (κ₁ `→ κ₂)} {F : SemType Δ (κ₁ `→ κ₂)} → 
+--           ⟦ f ⟧≋ F → 
+--           {v : Type Δ R[ κ₁ ]} {V : SemType Δ R[ κ₁ ]} → 
+--           ⟦ v ⟧≋ V → 
+--           ⟦ f <$> v ⟧≋ F <$>V V
+-- map-⟦⟧≋ {f = f} {F} rel-f {v} {just (left x)} rel-v = 
+--   eq-<$> 
+--     (eq-trans eq-η (eq-λ (reify-⟦⟧≋ {! reflect-⟦⟧≋ eq-β  !}))) 
+--     rel-v
+-- map-⟦⟧≋ {f = f} {F} rel-f {v} {just (right y)} rel-v = {!   !}
+-- map-⟦⟧≋ {f = f} {F} rel-f {v} {nothing} rel-v = {!   !} 
+          
+--------------------------------------------------------------------------------
 -- renaming respects _≋_
 
 
@@ -153,3 +168,4 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitution Δ₁ Δ₂} {η : Env Δ�
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
+ 

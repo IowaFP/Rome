@@ -45,7 +45,7 @@ sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π �
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 -- I believe this should be able to be written
--- sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v₁} {V₁} q = λ ρ {v₂} {V₂} eq → 
+-- sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {V₁} q = λ ρ₂ {v₂} {V₂} eq → 
 --    subst-⟦⟧≋ 
 --   (eq-sym eq-Π-assoc) 
 --   (subst-⟦⟧≋ 
@@ -56,13 +56,15 @@ sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 --             (eq-· eq-β eq-refl) 
 --             eq-β)) 
 --           eq-refl)) 
---         (sound-Π ρ 
+--         (sound-Π ρ₂ 
 --           (subst-⟦⟧≋ (eq-<$> 
 --             (eq-λ (eq-· 
 --               eq-refl 
 --               (eq-sym (reify-⟦⟧≋ (ren-⟦⟧≋ S eq))))) 
---             (eq-sym (inst (sub-weaken (ren ρ v₁) v₂)))) 
---             {! reify-⟦⟧≋  !})))
+--             ((eq-sym (inst (sub-weaken (ren ρ₂ v₁) v₂))))) 
+--             (map-⟦⟧≋ 
+--               (λ ρ₃ {v₃} {V₃} rel-v₃ → {!   !}) 
+--               (ren-⟦⟧≋ ρ₂ q)))))
 -- sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {V} q = {!   !} 
 sound-Π  ρ {v} {nothing} q  = 
   subst-⟦⟧≋ 
