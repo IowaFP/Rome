@@ -6,11 +6,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 --------------------------------------------------------------------------------
--- 2.5 Type Renaming
---
--- Renamings map variables in context Δ₁ to context Δ₂.
--- Renaming and substitution are defined in "parallel".
--- weakening is just a special case of renaming;
+-- Type Renaming
 
 Renaming : KEnv → KEnv → Set
 Renaming Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → KVar Δ₂ κ

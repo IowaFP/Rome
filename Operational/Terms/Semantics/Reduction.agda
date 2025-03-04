@@ -5,7 +5,7 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 
 import Rome.Operational.Types as Types
-import Rome.Operational.Types.Normal as NTypes
+open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties
 
@@ -23,8 +23,8 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → NormalTerm 
           (M : NormalTerm (Γ , τ₂) τ₁) → Value (`λ M)
   V-Λ : ∀ {τ} 
           (M : NormalTerm (Γ ,, κ) τ) → Value (Λ M)
-  V-roll : ∀ {τ} {M : NormalTerm Γ (τ NTypes.β[ μ τ ])} → 
-             Value M → Value (roll τ M)
+  V-roll : ∀  (F : NormalType Δ (★ `→ ★)) {M : NormalTerm Γ (F ·' (μ F))} → 
+             Value M → Value (roll F M)
 
 
 --------------------------------------------------------------------------------
@@ -53,15 +53,15 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
             ------------------------
             M₁ ·[ τ' ] —→ M₂ ·[ τ' ]
 
-  ξ-unroll : ∀ {τ} {M₁ M₂ : NormalTerm Γ (μ τ)} →
+  ξ-unroll : ∀ {F} {M₁ M₂ : NormalTerm Γ (μ F)} →
                M₁ —→ M₂ →
                -----------------------
-               unroll τ M₁ —→ unroll τ M₂
+               unroll F M₁ —→ unroll F M₂
 
-  ξ-roll : ∀ {τ} {M₁ M₂ : NormalTerm Γ (τ NTypes.β[ (μ τ) ])} →
+  ξ-roll : ∀ {F} {M₁ M₂ : NormalTerm Γ (F ·' (μ F))} →
              M₁ —→ M₂ →
              -----------------------
-             roll τ M₁ —→ roll τ M₂
+             roll F M₁ —→ roll F M₂
 
   -- N.b. Call by value.
   β-λ : ∀ {τ₁ τ₂} {M : NormalTerm (Γ , τ₁) τ₂} {N : NormalTerm Γ τ₁} →

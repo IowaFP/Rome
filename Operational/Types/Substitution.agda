@@ -7,9 +7,7 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Renaming
 
 --------------------------------------------------------------------------------
--- 2.6 Substitution
---
--- A substitution maps variables to types.
+-- Type-in-Type Substitution
 
 Substitution : KEnv → KEnv → Set
 Substitution Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ

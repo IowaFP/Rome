@@ -51,3 +51,4 @@ open import Rome.Operational.Types.Normal.Renaming
 η-norm {κ = L} x = ne x
 η-norm {κ = κ `→ κ₁} x = η-expand x
 η-norm {κ = R[ κ ]} x = ne x
+

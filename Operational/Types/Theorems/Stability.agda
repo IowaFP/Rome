@@ -12,7 +12,6 @@ open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
 
 open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Eta-expansion
-open import Rome.Operational.Types.Normal.Properties.Postulates
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming

@@ -11,7 +11,7 @@ open import Rome.Operational.Types.Substitution
 -- 2.8 Term contexts.
 
 data Context : KEnv → Set where
-  ε : Context ε
+  ε : Context ∅
   _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
   _,_  : Context Δ → Type Δ ★ → Context Δ
 

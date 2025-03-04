@@ -47,10 +47,15 @@ sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) =
   Λ (conv (↻-sub-↑ σ τ) (sub (T.lifts σ) (lifts s) M))
 sub σ s {.(τ₁ T.β[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv (sym (↻-sub-β σ τ₁ τ₂)) (sub σ s M ·[ T.sub σ τ₂ ])
-sub σ s {.(μ τ)} (roll τ M) = conv {!   !} {! roll (T.sub σ τ) (sub σ s M)  !}
-  -- roll _ (conv (↻-sub-β σ τ (μ τ)) (sub σ Σ M))
-sub σ s {_} (unroll τ M) = {! !}
-  -- conv (sym (↻-sub-β σ τ (μ τ))) (unroll _ (sub σ Σ M))
+sub σ s {.(μ F)} (roll F M) = 
+  roll (T.sub σ F) (conv (cong-·' σ F (μ F)) (sub σ s M))
+sub σ s {_} (unroll F M) = 
+  conv (sym (cong-·' σ F (μ F))) (unroll (T.sub σ F) (sub σ s M))
+sub σ s {x} (lab l) = lab (T.sub σ l)
+sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
+sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
+sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
+sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
 
 extend : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → 
          {τ : NormalType Δ₁ ★} → 
@@ -60,21 +65,21 @@ extend σ s M Z = M
 extend σ s M (S x) = s x
        
 
--- lem : ∀ {τ₂} → Sub (Γ ,, κ) Γ (T.extend (λ x → ne (` x)) τ₂)
--- lem (T {τ = τ} x) = conv (weaken-η τ) (` x)
+lem : ∀ {τ₂} → Sub (Γ ,, κ) Γ (T.extend (λ x → η-norm (` x)) τ₂)
+lem (T {τ = τ} x) = conv (weaken-η τ) (` x)
 
--- _β[_] : ∀ {τ₁ τ₂} → NormalTerm (Γ , τ₂) τ₁ → NormalTerm Γ τ₂ → NormalTerm Γ τ₁
--- _β[_] {τ₁ = τ₁} {τ₂} M N = 
---   conv (sub-id τ₁) 
---   (sub 
---     (ne ∘ `) 
---     (extend 
---       (ne ∘ `) 
---       (conv (sym (sub-id _)) ∘ `) 
---       (conv (sym (sub-id τ₂)) N)) 
---       M)
+_β[_] : ∀ {τ₁ τ₂} → NormalTerm (Γ , τ₂) τ₁ → NormalTerm Γ τ₂ → NormalTerm Γ τ₁
+_β[_] {τ₁ = τ₁} {τ₂} M N = 
+  conv (sub-id τ₁) 
+  (sub 
+    (η-norm ∘ `) 
+    (extend 
+      (η-norm ∘ `) 
+      (conv (sym (sub-id _)) ∘ `) 
+      (conv (sym (sub-id τ₂)) N)) 
+      M)
 
--- _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
---          NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ T.β[ τ₂ ])
--- M β·[ τ₂ ] =  sub (T.extend (ne ∘ `) τ₂) lem M
+_β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
+         NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ T.β[ τ₂ ])
+M β·[ τ₂ ] =  sub (T.extend (η-norm ∘ `) τ₂) lem M
 
