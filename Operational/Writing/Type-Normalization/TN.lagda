@@ -136,10 +136,6 @@ data Pred (Δ : KEnv) : Kind → Set
 data Type Δ : Kind → Set 
 data Type Δ where
 
-  Unit :
-
-      Type Δ ★
-
   ` : 
       (α : KVar Δ κ) →
       Type Δ κ
@@ -162,7 +158,7 @@ data Type Δ where
          Type Δ ★
 \end{code}
 
-We include the \verb!Unit! type for convenience, although it can easily be encoded in 
+Description, description, blah.
 
 \begin{code}
 data Pred Δ where
