@@ -283,7 +283,7 @@ fund (τ₁ · τ₂) {σ} {η} e  =
     (eq-· (inst (ren-id (sub σ τ₁))) eq-refl) 
     (fund τ₁ e id (fund τ₂ e))
 fund (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fund τ₁ e) (fund τ₂ e)
-fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {↑e η} (weaken-⟦⟧≋ e))
+fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {lifts σ} {lifte η} (weaken-⟦⟧≋ e))
 fund (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = sub σ τ}) 

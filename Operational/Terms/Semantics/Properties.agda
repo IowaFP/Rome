@@ -33,18 +33,18 @@ noVar p (T x) = noVar p x
 --------------------------------------------------------------------------------
 -- Proof of progress.
 
-data Progress {τ} (M : NormalTerm Γ τ) : Set where
+data Progress {τ} (M : Term Γ τ) : Set where
   Done : 
          Value M → 
          ----------
          Progress M
 
   Steps : 
-          (M' : NormalTerm Γ τ) → (M —→ M') → 
+          (M' : Term Γ τ) → (M —→ M') → 
           --------------------------------------
           Progress M
 
-progress : NoVar Γ → ∀ {τ} (M : NormalTerm Γ τ) → Progress M
+progress : NoVar Γ → ∀ {τ} (M : Term Γ τ) → Progress M
 progress p (` x) with noVar p x 
 ... | ()
 
@@ -67,6 +67,6 @@ progress p (unroll τ M) with progress p M
 progress p (unroll τ .(roll τ _)) | Done (V-roll M) = Steps _ β-roll
 progress p (unroll τ M)           | Steps M' steps = Steps _ (ξ-unroll steps)
 
-progress-ε : ∀ {τ} (M : NormalTerm ε τ) →
+progress-ε : ∀ {τ} (M : Term ε τ) →
              Progress M
 progress-ε = progress tt

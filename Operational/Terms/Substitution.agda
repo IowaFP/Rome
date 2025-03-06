@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Normal.Substitution where
+module Rome.Operational.Terms.Substitution where
 
 open import Rome.Operational.Prelude
 
@@ -27,7 +27,7 @@ open Reasoning
 -- Sub ...
 
 Sub : ∀ Γ₁ Γ₂ → T.Substitution Δ₁ Δ₂ → Set
-Sub Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → NormalTerm Γ₂ (T.sub σ τ)
+Sub Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term Γ₂ (T.sub σ τ)
 
 lifts : ∀ {σ : T.Substitution Δ₁ Δ₂} → 
             Sub Γ₁ Γ₂ σ → Sub (Γ₁ ,, κ) (Γ₂ ,, κ) (T.lifts σ)
@@ -39,7 +39,7 @@ lifts-τ s Z     = ` Z
 lifts-τ s (S x) = weakenByType (s x)
 
 sub : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → ∀ {τ} → 
-      NormalTerm Γ₁ τ → NormalTerm Γ₂ (T.sub σ τ)
+      Term Γ₁ τ → Term Γ₂ (T.sub σ τ)
 sub σ s {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (lifts-τ {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
@@ -59,7 +59,7 @@ sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
 
 extend : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → 
          {τ : NormalType Δ₁ ★} → 
-         (M : NormalTerm Γ₂ (T.sub σ τ)) → 
+         (M : Term Γ₂ (T.sub σ τ)) → 
          Sub (Γ₁ , τ) Γ₂ σ
 extend σ s M Z = M
 extend σ s M (S x) = s x
@@ -68,7 +68,7 @@ extend σ s M (S x) = s x
 lem : ∀ {τ₂} → Sub (Γ ,, κ) Γ (T.extend (λ x → η-norm (` x)) τ₂)
 lem (T {τ = τ} x) = conv (weaken-η τ) (` x)
 
-_β[_] : ∀ {τ₁ τ₂} → NormalTerm (Γ , τ₂) τ₁ → NormalTerm Γ τ₂ → NormalTerm Γ τ₁
+_β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
 _β[_] {τ₁ = τ₁} {τ₂} M N = 
   conv (sub-id τ₁) 
   (sub 
@@ -80,6 +80,6 @@ _β[_] {τ₁ = τ₁} {τ₂} M N =
       M)
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
-         NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ T.β[ τ₂ ])
+         Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ T.β[ τ₂ ])
 M β·[ τ₂ ] =  sub (T.extend (η-norm ∘ `) τ₂) lem M
 

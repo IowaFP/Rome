@@ -13,241 +13,241 @@ open import Rome.Operational.Types.Properties.Renaming
 -------------------------------------------------------------------------------
 -- Functor laws for lifting
 
-lifts-cong : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₁ Δ₂} →
+liftsₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
-              (x : KVar (Δ₁ ,, κ₁) κ₂) → lifts σ₁ x ≡ lifts σ₂ x
-lifts-cong e Z = refl
-lifts-cong e (S x) = cong (ren S) (e x)              
+              (x : KVar (Δ₁ ,, κ₁) κ₂) → liftsₖ σ₁ x ≡ liftsₖ σ₂ x
+liftsₖ-cong e Z = refl
+liftsₖ-cong e (S x) = cong (renₖ S) (e x)              
 
-lifts-id    : ∀ (x : KVar (Δ ,, κ₁) κ₂) → lifts ` x ≡ ` x 
-lifts-id Z = refl
-lifts-id (S x) = refl
+liftsₖ-id    : ∀ (x : KVar (Δ ,, κ₁) κ₂) → liftsₖ ` x ≡ ` x 
+liftsₖ-id Z = refl
+liftsₖ-id (S x) = refl
 
--- Fusion for lifts and lift
-lifts-lift      : ∀ {ρ : Renaming Δ₁ Δ₂}{σ : Substitution Δ₂ Δ₃} 
+-- Fusion for liftsₖ and lift
+liftsₖ-liftₖ      : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃} 
                     (x : KVar (Δ₁ ,, κ₁) κ₂) → 
-                    lifts (σ ∘ ρ) x ≡ lifts σ (lift ρ x)
-lifts-lift Z = refl
-lifts-lift (S x) = refl
+                    liftsₖ (σ ∘ ρ) x ≡ liftsₖ σ (liftₖ ρ x)
+liftsₖ-liftₖ Z = refl
+liftsₖ-liftₖ (S x) = refl
 
-ren-lift-lifts : ∀ {σ : Substitution Δ₁ Δ₂}{ρ : Renaming Δ₂ Δ₃}(x : KVar (Δ₁ ,, κ₁) κ₂) → 
-                    lifts (ren ρ ∘ σ) x ≡ ren (lift ρ) (lifts σ x)
-ren-lift-lifts Z = refl
-ren-lift-lifts {σ = σ} {ρ} (S x) = trans (sym (ren-comp ρ S (σ x))) (ren-comp S (lift ρ) (σ x))                    
+renₖ-lift-liftsₖ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(x : KVar (Δ₁ ,, κ₁) κ₂) → 
+                    liftsₖ (renₖ ρ ∘ σ) x ≡ renₖ (liftₖ ρ) (liftsₖ σ x)
+renₖ-lift-liftsₖ Z = refl
+renₖ-lift-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ x))) (renₖ-comp S (liftₖ ρ) (σ x))                    
 
 -------------------------------------------------------------------------------
 -- Functor laws for substitution
 
-sub-cong : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₁ Δ₂} →
+subₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
-              (τ : Type Δ₁ κ) → sub σ₁ τ ≡ sub σ₂ τ
-sub-cong e Unit = refl
-sub-cong e ε = refl
-sub-cong e (` α) = e α
-sub-cong e (`λ τ) = cong `λ (sub-cong (lifts-cong e) τ)
-sub-cong e (τ₁ · τ₂) = cong₂ _·_ (sub-cong e τ₁) (sub-cong e τ₂)
-sub-cong e (τ₁ `→ τ₂) = cong₂ _`→_ (sub-cong e τ₁) (sub-cong e τ₂)
-sub-cong e (`∀ κ τ) = cong (`∀ κ) (sub-cong (lifts-cong e) τ)
-sub-cong e (μ τ) = cong μ (sub-cong e τ)
-sub-cong e ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-  sub-cong e ρ₁ | sub-cong e ρ₂ | sub-cong e ρ₃ | sub-cong e τ = refl
-sub-cong e ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
-  sub-cong e ρ₁ | sub-cong e ρ₂ | sub-cong e τ = refl
-sub-cong e (lab l) = refl
-sub-cong e (τ₁ ▹ τ₂) = cong₂ _▹_ (sub-cong e τ₁) (sub-cong e τ₂)
-sub-cong e ⌊ τ ⌋ = cong ⌊_⌋ (sub-cong e τ)
-sub-cong e Π = refl
-sub-cong e Σ = refl
-sub-cong e (τ <$> τ₁) = cong₂ _<$>_ (sub-cong e τ) (sub-cong e τ₁)
+              (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡ subₖ σ₂ τ
+subₖ-cong e Unit = refl
+subₖ-cong e ε = refl
+subₖ-cong e (` α) = e α
+subₖ-cong e (`λ τ) = cong `λ (subₖ-cong (liftsₖ-cong e) τ)
+subₖ-cong e (τ₁ · τ₂) = cong₂ _·_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
+subₖ-cong e (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
+subₖ-cong e (`∀ κ τ) = cong (`∀ κ) (subₖ-cong (liftsₖ-cong e) τ)
+subₖ-cong e (μ τ) = cong μ (subₖ-cong e τ)
+subₖ-cong e ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+  subₖ-cong e ρ₁ | subₖ-cong e ρ₂ | subₖ-cong e ρ₃ | subₖ-cong e τ = refl
+subₖ-cong e ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
+  subₖ-cong e ρ₁ | subₖ-cong e ρ₂ | subₖ-cong e τ = refl
+subₖ-cong e (lab l) = refl
+subₖ-cong e (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
+subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
+subₖ-cong e Π = refl
+subₖ-cong e Σ = refl
+subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
 
-sub-id : ∀ (τ : Type Δ κ) → sub ` τ ≡ τ
-sub-id Unit = refl
-sub-id ε = refl
-sub-id (` α) = refl
-sub-id (`λ τ) = cong `λ (trans (sub-cong  {σ₁ = lifts `} {σ₂ = `} lifts-id τ) (sub-id τ))
-sub-id (τ₁ · τ₂) = cong₂ _·_ (sub-id τ₁) (sub-id τ₂)
-sub-id (τ₁ `→ τ₂) = cong₂ _`→_ (sub-id τ₁) (sub-id τ₂)
-sub-id (`∀ κ τ) = cong (`∀ κ) (trans (sub-cong lifts-id τ) (sub-id τ))
-sub-id (μ τ) = cong μ (sub-id τ)
-sub-id ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-  sub-id ρ₁ | sub-id ρ₂ | sub-id ρ₃ | sub-id τ = refl
-sub-id ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
-  sub-id ρ₁ | sub-id ρ₂ | sub-id τ = refl
-sub-id (lab l) = refl
-sub-id (τ₁ ▹ τ₂) = cong₂ _▹_ (sub-id τ₁) (sub-id τ₂)
-sub-id ⌊ τ ⌋ = cong ⌊_⌋ (sub-id τ)
-sub-id Π = refl
-sub-id Σ = refl
-sub-id (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-id τ₁) (sub-id τ₂)
+subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
+subₖ-id Unit = refl
+subₖ-id ε = refl
+subₖ-id (` α) = refl
+subₖ-id (`λ τ) = cong `λ (trans (subₖ-cong  {σ₁ = liftsₖ `} {σ₂ = `} liftsₖ-id τ) (subₖ-id τ))
+subₖ-id (τ₁ · τ₂) = cong₂ _·_ (subₖ-id τ₁) (subₖ-id τ₂)
+subₖ-id (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-id τ₁) (subₖ-id τ₂)
+subₖ-id (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong liftsₖ-id τ) (subₖ-id τ))
+subₖ-id (μ τ) = cong μ (subₖ-id τ)
+subₖ-id ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+  subₖ-id ρ₁ | subₖ-id ρ₂ | subₖ-id ρ₃ | subₖ-id τ = refl
+subₖ-id ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
+  subₖ-id ρ₁ | subₖ-id ρ₂ | subₖ-id τ = refl
+subₖ-id (lab l) = refl
+subₖ-id (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-id τ₁) (subₖ-id τ₂)
+subₖ-id ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-id τ)
+subₖ-id Π = refl
+subₖ-id Σ = refl
+subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 
 
-
--------------------------------------------------------------------------------
--- substitution and renaming commute
-
-↻-sub-ren : ∀ {ρ : Renaming Δ₁ Δ₂}{σ : Substitution Δ₂ Δ₃}  
-                (τ : Type Δ₁ κ) → sub (σ ∘ ρ) τ ≡ sub σ (ren ρ τ)
-↻-sub-ren {ρ = ρ} {σ} Unit = refl
-↻-sub-ren {ρ = ρ} {σ} ε = refl
-↻-sub-ren {ρ = ρ} {σ} (` α) = refl
-↻-sub-ren {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (sub-cong lifts-lift τ) (↻-sub-ren τ))
-↻-sub-ren {ρ = ρ} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-sub-ren τ₁) (↻-sub-ren τ₂)
-↻-sub-ren {ρ = ρ} {σ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-sub-ren τ₁) (↻-sub-ren τ₂) 
-↻-sub-ren {ρ = ρ} {σ} (`∀ κ τ) = cong (`∀ κ) (trans (sub-cong lifts-lift τ) (↻-sub-ren τ))
-↻-sub-ren {ρ = ρ} {σ} (μ τ) = cong μ (↻-sub-ren τ)
-↻-sub-ren {ρ = ρ} {σ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    ↻-sub-ren {ρ = ρ} {σ} ρ₁ 
-  | ↻-sub-ren {ρ = ρ} {σ} ρ₂ 
-  | ↻-sub-ren {ρ = ρ} {σ} ρ₃ 
-  | ↻-sub-ren {ρ = ρ} {σ} τ = refl
-↻-sub-ren {ρ = ρ} {σ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    ↻-sub-ren {ρ = ρ} {σ} ρ₁ 
-  | ↻-sub-ren {ρ = ρ} {σ} ρ₂ 
-  | ↻-sub-ren {ρ = ρ} {σ} τ = refl
-↻-sub-ren {ρ = ρ} {σ} (lab l) = refl
-↻-sub-ren {ρ = ρ} {σ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-sub-ren τ₁) (↻-sub-ren τ₂) 
-↻-sub-ren {ρ = ρ} {σ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-sub-ren τ)
-↻-sub-ren {ρ = ρ} {σ} Π = refl
-↻-sub-ren {ρ = ρ} {σ} Σ = refl
-↻-sub-ren {ρ = ρ} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-sub-ren τ₁) (↻-sub-ren τ₂) 
-
-↻-ren-sub         : ∀ {σ : Substitution Δ₁ Δ₂}{ρ : Renaming Δ₂ Δ₃}(τ : Type Δ₁ κ) →
-                    sub (ren ρ ∘ σ) τ ≡ ren ρ (sub σ τ)
-↻-ren-sub {σ = σ} {ρ} Unit = refl
-↻-ren-sub {σ = σ} {ρ} ε = refl
-↻-ren-sub {σ = σ} {ρ} (` α) = refl
-↻-ren-sub {σ = σ} {ρ} (`λ τ) = cong `λ (trans (sub-cong ren-lift-lifts τ) (↻-ren-sub τ))
-↻-ren-sub {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
-↻-ren-sub {σ = σ} {ρ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
-↻-ren-sub {σ = σ} {ρ} (`∀ κ τ) = cong (`∀ κ) (trans (sub-cong ren-lift-lifts τ) (↻-ren-sub τ))
-↻-ren-sub {σ = σ} {ρ} (μ τ) = cong μ (↻-ren-sub τ)
-↻-ren-sub {σ = σ} {ρ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    ↻-ren-sub {σ = σ} {ρ} ρ₁ 
-  | ↻-ren-sub {σ = σ} {ρ} ρ₂ 
-  | ↻-ren-sub {σ = σ} {ρ} ρ₃ 
-  | ↻-ren-sub {σ = σ} {ρ} τ = refl
-↻-ren-sub {σ = σ} {ρ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    ↻-ren-sub {σ = σ} {ρ} ρ₁ 
-  | ↻-ren-sub {σ = σ} {ρ} ρ₂ 
-  | ↻-ren-sub {σ = σ} {ρ} τ = refl
-↻-ren-sub {σ = σ} {ρ} (lab l) = refl
-↻-ren-sub {σ = σ} {ρ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
-↻-ren-sub {σ = σ} {ρ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-ren-sub τ)
-↻-ren-sub {σ = σ} {ρ} Π = refl
-↻-ren-sub {σ = σ} {ρ} Σ = refl
-↻-ren-sub {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-ren-sub τ₁) (↻-ren-sub τ₂)
-
-sub-weaken : ∀ (τ : Type Δ κ₁) (v : Type Δ κ₂) → 
-             sub (extend ` v) (ren S τ) ≡ τ 
-sub-weaken τ v = trans (sym (↻-sub-ren {ρ = S} {σ = extend ` v} τ)) (sub-id τ)
 
 -------------------------------------------------------------------------------
--- Arrow functor law for lifts & sub (needs commutativity of sub and ren)
+-- subₖstitution and renₖaming commute
 
-lifts-comp : ∀ (σ₁ : Substitution Δ₁ Δ₂)(σ₂ : Substitution Δ₂ Δ₃)
-                (x : KVar (Δ₁ ,, κ₁) κ₂) → lifts (sub σ₂ ∘ σ₁) x ≡ sub (lifts σ₂) (lifts σ₁ x)
-lifts-comp σ₁ σ₂ Z = refl
-lifts-comp σ₁ σ₂ (S x) = trans (sym (↻-ren-sub (σ₁ x))) (↻-sub-ren (σ₁ x)) 
+↻-subₖ-renₖ : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃}  
+                (τ : Type Δ₁ κ) → subₖ (σ ∘ ρ) τ ≡ subₖ σ (renₖ ρ τ)
+↻-subₖ-renₖ {ρ = ρ} {σ} Unit = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} ε = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} (` α) = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
+↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂)
+↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {ρ = ρ} {σ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
+↻-subₖ-renₖ {ρ = ρ} {σ} (μ τ) = cong μ (↻-subₖ-renₖ τ)
+↻-subₖ-renₖ {ρ = ρ} {σ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+    ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₁ 
+  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₂ 
+  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₃ 
+  | ↻-subₖ-renₖ {ρ = ρ} {σ} τ = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
+    ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₁ 
+  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₂ 
+  | ↻-subₖ-renₖ {ρ = ρ} {σ} τ = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} (lab l) = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {ρ = ρ} {σ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-subₖ-renₖ τ)
+↻-subₖ-renₖ {ρ = ρ} {σ} Π = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} Σ = refl
+↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
 
-sub-comp : ∀ {σ₁ : Substitution Δ₁ Δ₂}{σ₂ : Substitution Δ₂ Δ₃}
-                (τ : Type Δ₁ κ) → sub (sub σ₂ ∘ σ₁) τ ≡ sub σ₂ (sub σ₁ τ)
-sub-comp Unit = refl
-sub-comp ε = refl
-sub-comp (` α) = refl
-sub-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) = 
+↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
+                    subₖ (renₖ ρ ∘ σ) τ ≡ renₖ ρ (subₖ σ τ)
+↻-renₖ-subₖ {σ = σ} {ρ} Unit = refl
+↻-renₖ-subₖ {σ = σ} {ρ} ε = refl
+↻-renₖ-subₖ {σ = σ} {ρ} (` α) = refl
+↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-lift-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {ρ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong renₖ-lift-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {ρ} (μ τ) = cong μ (↻-renₖ-subₖ τ)
+↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+    ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 
+  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₂ 
+  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₃ 
+  | ↻-renₖ-subₖ {σ = σ} {ρ} τ = refl
+↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
+    ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 
+  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₂ 
+  | ↻-renₖ-subₖ {σ = σ} {ρ} τ = refl
+↻-renₖ-subₖ {σ = σ} {ρ} (lab l) = refl
+↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {ρ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-renₖ-subₖ τ)
+↻-renₖ-subₖ {σ = σ} {ρ} Π = refl
+↻-renₖ-subₖ {σ = σ} {ρ} Σ = refl
+↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+
+subₖ-weaken : ∀ (τ : Type Δ κ₁) (v : Type Δ κ₂) → 
+             subₖ (extendₖ ` v) (renₖ S τ) ≡ τ 
+subₖ-weaken τ v = trans (sym (↻-subₖ-renₖ {ρ = S} {σ = extendₖ ` v} τ)) (subₖ-id τ)
+
+-------------------------------------------------------------------------------
+-- Arrow functor law for liftsₖ & subₖ (needs commutativity of subₖ and renₖ)
+
+liftsₖ-comp : ∀ (σ₁ : Substitutionₖ Δ₁ Δ₂)(σ₂ : Substitutionₖ Δ₂ Δ₃)
+                (x : KVar (Δ₁ ,, κ₁) κ₂) → liftsₖ (subₖ σ₂ ∘ σ₁) x ≡ subₖ (liftsₖ σ₂) (liftsₖ σ₁ x)
+liftsₖ-comp σ₁ σ₂ Z = refl
+liftsₖ-comp σ₁ σ₂ (S x) = trans (sym (↻-renₖ-subₖ (σ₁ x))) (↻-subₖ-renₖ (σ₁ x)) 
+
+subₖ-comp : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₂ Δ₃}
+                (τ : Type Δ₁ κ) → subₖ (subₖ σ₂ ∘ σ₁) τ ≡ subₖ σ₂ (subₖ σ₁ τ)
+subₖ-comp Unit = refl
+subₖ-comp ε = refl
+subₖ-comp (` α) = refl
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) = 
   cong `λ ((trans 
-    (sub-cong (lifts-comp σ₁ σ₂) τ) 
-    (sub-comp {σ₁ = lifts σ₁} {σ₂ = lifts σ₂} τ)))
-sub-comp (τ₁ · τ₂) = cong₂ _·_ (sub-comp τ₁) (sub-comp τ₂)
-sub-comp (τ₁ `→ τ₂) = cong₂ _`→_ (sub-comp τ₁) (sub-comp τ₂)
-sub-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ κ τ) =   
+    (subₖ-cong (liftsₖ-comp σ₁ σ₂) τ) 
+    (subₖ-comp {σ₁ = liftsₖ σ₁} {σ₂ = liftsₖ σ₂} τ)))
+subₖ-comp (τ₁ · τ₂) = cong₂ _·_ (subₖ-comp τ₁) (subₖ-comp τ₂)
+subₖ-comp (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-comp τ₁) (subₖ-comp τ₂)
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ κ τ) =   
   cong (`∀ κ) ((trans 
-    (sub-cong (lifts-comp σ₁ σ₂) τ) 
-    (sub-comp {σ₁ = lifts σ₁} {σ₂ = lifts σ₂} τ)))
-sub-comp (μ τ) = cong μ (sub-comp τ)
-sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
-  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
-  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₃ 
-  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
-sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
-  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
-  | sub-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
-sub-comp (lab l) = refl
-sub-comp (τ₁ ▹ τ₂) = cong₂ _▹_ (sub-comp τ₁) (sub-comp τ₂)
-sub-comp ⌊ τ ⌋ = cong ⌊_⌋ (sub-comp τ)
-sub-comp Π = refl
-sub-comp Σ = refl
-sub-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (sub-comp τ₁) (sub-comp τ₂)
+    (subₖ-cong (liftsₖ-comp σ₁ σ₂) τ) 
+    (subₖ-comp {σ₁ = liftsₖ σ₁} {σ₂ = liftsₖ σ₂} τ)))
+subₖ-comp (μ τ) = cong μ (subₖ-comp τ)
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
+    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₃ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
+    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
+subₖ-comp (lab l) = refl
+subₖ-comp (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-comp τ₁) (subₖ-comp τ₂)
+subₖ-comp ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-comp τ)
+subₖ-comp Π = refl
+subₖ-comp Σ = refl
+subₖ-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-comp τ₁) (subₖ-comp τ₂)
 
 -------------------------------------------------------------------------------
 -- 
 
-ren-sub-id : ∀ (σ : Substitution Δ₁ Δ₂) (ρ : Renaming Δ₂ Δ₃) 
-                (τ :  Type Δ₂ κ) → ren ρ τ ≡ sub (` ∘ ρ) τ
-ren-sub-id σ ρ τ = trans (cong (ren ρ) (sym (sub-id τ))) (trans (sym (↻-ren-sub τ)) refl )
+renₖ-subₖ-id : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (ρ : Renamingₖ Δ₂ Δ₃) 
+                (τ :  Type Δ₂ κ) → renₖ ρ τ ≡ subₖ (` ∘ ρ) τ
+renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
 
 -------------------------------------------------------------------------------
--- Renaming commutes with β-reduction
+-- Renamingₖ commutes with β-reduction
 
-↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
-                ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]  
-↻-ren-β ρ τ₁ τ₂ = 
+↻-renₖ-β      : (ρ : Renamingₖ Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
+                renₖ ρ (τ₁ βₖ[ τ₂ ]) ≡ (renₖ (liftₖ ρ) τ₁) βₖ[ (renₖ ρ τ₂) ]  
+↻-renₖ-β ρ τ₁ τ₂ = 
   trans 
-    (sym (↻-ren-sub τ₁)) 
+    (sym (↻-renₖ-subₖ τ₁)) 
     (trans 
-      (sub-cong (λ { Z → refl ; (S x) → refl }) τ₁) 
-      (↻-sub-ren {ρ = lift ρ} {extend ` (ren ρ τ₂)} τ₁))                  
+      (subₖ-cong (λ { Z → refl ; (S x) → refl }) τ₁) 
+      (↻-subₖ-renₖ {ρ = liftₖ ρ} {extendₖ ` (renₖ ρ τ₂)} τ₁))                  
 
 
 --------------------------------------------------------------------------------
--- renaming respects type equivalence
+-- renₖaming respects type equivalence
 
-cong-ren-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renaming Δ₁ Δ₂) → 
-                τ ≡t υ → ren ρ τ ≡t ren ρ υ 
-cong-ren-≡p : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} (ρ : Renaming Δ₁ Δ₂) → 
-                π₁ ≡p π₂ → renPred ρ π₁ ≡p renPred ρ π₂
+cong-renₖ-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renamingₖ Δ₁ Δ₂) → 
+                τ ≡t υ → renₖ ρ τ ≡t renₖ ρ υ 
+cong-renₖ-≡p : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} (ρ : Renamingₖ Δ₁ Δ₂) → 
+                π₁ ≡p π₂ → renPredₖ ρ π₁ ≡p renPredₖ ρ π₂
 
-cong-ren-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
-cong-ren-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-ren-≡t (lift ρ) e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-ren-≡t (lift ρ) e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-ren-≡t ρ e) (cong-ren-≡t ρ e₁)
-cong-ren-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-ren-≡p ρ x) (cong-ren-≡t ρ e)
-cong-ren-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (cong-renₖ-≡t ρ e)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (cong-renₖ-≡t ρ e) (cong-renₖ-≡t ρ e₁)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (cong-renₖ-≡t ρ e) (cong-renₖ-≡t ρ e₁)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (cong-renₖ-≡t (liftₖ ρ) e)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (cong-renₖ-≡t ρ e)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (cong-renₖ-≡t (liftₖ ρ) e)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-renₖ-≡t ρ e) (cong-renₖ-≡t ρ e₁)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-renₖ-≡t ρ e)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-renₖ-≡t ρ e) (cong-renₖ-≡t ρ e₁)
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-renₖ-≡p ρ x) (cong-renₖ-≡t ρ e)
+cong-renₖ-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
     eq-trans 
-        (eq-η {f = ren ρ τ}) 
+        (eq-η {f = renₖ ρ τ}) 
         (eq-λ (eq-· 
-            (inst (sym (↻-lift-weaken ρ τ) )) 
+            (inst (sym (↻-liftₖ-weaken ρ τ) )) 
             eq-refl))
-cong-ren-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ β[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
+cong-renₖ-≡t {τ = `λ τ₁ · τ₂} {.(τ₁ βₖ[ τ₂ ])} ρ (eq-β {τ₁ = τ₁} {τ₂}) = 
     eq-trans 
-        (eq-β {τ₁ = ren (lift ρ) τ₁} {ren ρ τ₂}) 
-        (eq-sym (inst (↻-ren-β ρ τ₁ τ₂)))
-cong-ren-≡t {τ = τ} {υ} ρ eq-Π▹ = eq-Π▹ 
-cong-ren-≡t {τ = τ} {υ} ρ eq-Σ▹ = eq-Σ▹
-cong-ren-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
+        (eq-β {τ₁ = renₖ (liftₖ ρ) τ₁} {renₖ ρ τ₂}) 
+        (eq-sym (inst (↻-renₖ-β ρ τ₁ τ₂)))
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Π▹ = eq-Π▹ 
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Σ▹ = eq-Σ▹
+cong-renₖ-≡t {τ = (Π · (l ▹ `λ τ))} {υ} ρ (eq-Πλ {l = l} {τ}) = 
     eq-trans 
-    (eq-Πλ {l = ren ρ l} {ren (lift ρ) τ}) 
-    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
-cong-ren-≡t {τ = (Σ · (l ▹ `λ τ))} {υ} ρ (eq-Σλ {l = l} {τ}) = 
+    (eq-Πλ {l = renₖ ρ l} {renₖ (liftₖ ρ) τ}) 
+    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-liftₖ-weaken ρ l))) eq-refl)))
+cong-renₖ-≡t {τ = (Σ · (l ▹ `λ τ))} {υ} ρ (eq-Σλ {l = l} {τ}) = 
     eq-trans 
-    (eq-Σλ {l = ren ρ l} {ren (lift ρ) τ}) 
-    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-lift-weaken ρ l))) eq-refl)))
-cong-ren-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
-cong-ren-≡t {τ = τ} {υ} ρ eq-Π-assoc = eq-Π-assoc
-cong-ren-≡t {τ = τ} {υ} ρ eq-Σ-assoc = eq-Σ-assoc
-cong-ren-≡t {τ = τ} {υ} ρ eq-Π = eq-Π
-cong-ren-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
-cong-ren-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-ren-≡t ρ t) (cong-ren-≡t ρ u)
-cong-ren-≡t {τ = τ} {υ} ρ eq-<$>ε = eq-trans eq-<$>ε eq-refl
+    (eq-Σλ {l = renₖ ρ l} {renₖ (liftₖ ρ) τ}) 
+    (eq-λ (eq-· eq-refl (eq-▹ (inst (sym (↻-liftₖ-weaken ρ l))) eq-refl)))
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-▹$ = eq-▹$
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Π-assoc = eq-Π-assoc
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Σ-assoc = eq-Σ-assoc
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Π = eq-Π
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
+cong-renₖ-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (cong-renₖ-≡t ρ t) (cong-renₖ-≡t ρ u)
+cong-renₖ-≡t {τ = τ} {υ} ρ eq-<$>ε = eq-trans eq-<$>ε eq-refl
 
-cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-ren-≡t ρ eq₁ eq-≲ cong-ren-≡t ρ eq₂
-cong-ren-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-ren-≡t ρ eq₁) eq-· (cong-ren-≡t ρ eq₂) ~ (cong-ren-≡t ρ eq₃)
+cong-renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = cong-renₖ-≡t ρ eq₁ eq-≲ cong-renₖ-≡t ρ eq₂
+cong-renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (cong-renₖ-≡t ρ eq₁) eq-· (cong-renₖ-≡t ρ eq₂) ~ (cong-renₖ-≡t ρ eq₃)
   

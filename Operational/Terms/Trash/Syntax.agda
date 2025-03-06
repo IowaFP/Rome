@@ -1,37 +1,47 @@
 module Rome.Operational.Terms.Syntax where
 
-open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Substitution
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Operational.Types.Renaming
+open import Rome.Operational.Types.Substitution
 
 --------------------------------------------------------------------------------
--- 3.7 Terms with normal types
+-- 2.8 Term contexts.
 
 data Context : KEnv → Set where
   ε : Context ∅
   _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
-  _,_  : Context Δ → NormalType Δ ★ → Context Δ
-
-
-data Var : Context Δ → NormalType Δ ★ → Set where
-  Z : ∀ {Γ} {τ : NormalType Δ ★} → Var (Γ , τ) τ
-  S : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → Var Γ τ₁  → Var (Γ , τ₂) τ₁
-  T : ∀ {Γ} {τ : NormalType Δ ★} → Var Γ τ → Var (Γ ,, κ) (weaken τ)
+  _,_  : Context Δ → Type Δ ★ → Context Δ
 
 private
   variable
-    τ υ τ₁ τ₂ : NormalType Δ ★
-    l l₁ l₂   : NormalType Δ L
+    Γ : Context Δ
+
+--------------------------------------------------------------------------------
+-- 2.9 Term vars
+
+data Var : Context Δ → Type Δ ★ → Set where
+  Z : {τ : Type Δ ★} → Var (Γ , τ) τ
+  S : {τ₁ τ₂ : Type Δ ★} → Var Γ τ₁ → Var (Γ , τ₂) τ₁
+  T : {τ : Type Δ ★} → Var Γ τ → Var (Γ ,, κ) (weaken τ)
+
+--------------------------------------------------------------------------------
+-- 2.10 Terms
+
+private
+  variable
+    τ υ τ₁ τ₂ : Type Δ ★
+    ℓ ℓ₁ ℓ₂   : Type Δ L
     
-data Term {Δ} Γ : NormalType Δ ★ → Set where
-  ` : Var Γ τ → 
+
+data Term {Δ} Γ : Type Δ ★ → Set where
+  ------------------------------------------------------------
+  -- Lambda calculus.
+  ` : ∀ {τ} →
+ 
+      Var Γ τ → 
       --------
       Term Γ τ
 
@@ -60,7 +70,7 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   _·[_] : ∀ {τ₂} → 
   
           Term Γ (`∀ κ τ₂) →
-          (τ₁ : NormalType Δ κ) → 
+          (τ₁ : Type Δ κ) → 
           ----------------
           Term Γ (τ₂ β[ τ₁ ])
 
@@ -68,8 +78,8 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   -- Recursive types
 
   roll : 
-         ∀ (F : NormalType Δ (★ `→ ★)) → 
-         Term Γ (F ·' (μ F)) → 
+         ∀ F → 
+         Term Γ (F · μ F) → 
          -----------------
          Term Γ (μ F)
 
@@ -77,12 +87,23 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
            ∀ F → 
            Term Γ (μ F) → 
            --------------
-           Term Γ (F ·' (μ F))
+           Term Γ (F ·  μ F)
 
   ------------------------------------------------------------
   -- Qualified types
   
-  -- ...
+  -- ƛ : ∀ {τ : Type Δ ★}
+
+  --     (π : Pred Δ R[ κ ]) → (Term Γ 
+  --     ----------------------------------------
+  --     Term Γ (π ⇒ τ)
+
+  -- _·⟨_⟩ : ∀ {π : Pred Δ R[ κ ]}{τ : Type Δ ★}
+
+  --         (M : Term Γ (π ⇒ τ)) → 
+  --         ------------------------
+
+
 
   ------------------------------------------------------------
   -- Rω labels
@@ -90,7 +111,7 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   -- labels
   lab : 
 
-        ∀ (l : NormalType Δ L) →
+        ∀ (l : Type Δ L) →
         -------------------
         Term Γ ⌊ l ⌋
 
@@ -98,14 +119,14 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   -- Rω records
 
   -- Record singleton formation
-  _Π▹_ : 
-          (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
+  _Π▹_ : ∀
+          (M₁ : Term Γ ⌊ ℓ ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
-          Term Γ (Π (l ▹ υ))
+          Term Γ (Π · (ℓ ▹ υ))
 
   -- Record singleton elimination
   _Π/_ :
-          (M₁ : Term Γ (Π (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+          (M₁ : Term Γ (Π · (ℓ ▹ υ))) (M₂ : Term Γ ⌊ ℓ ⌋) →
           ----------------------------------------
           Term Γ υ
 
@@ -114,22 +135,13 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
 
   -- Record singleton formation
   _Σ▹_ : 
-          (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
+          (M₁ : Term Γ ⌊ ℓ ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
-          Term Γ (Σ (l ▹ υ))
+          Term Γ (Σ · (ℓ ▹ υ))
 
   -- Record singleton elimination
   _Σ/_ :
-          (M₁ : Term Γ (Σ (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+          (M₁ : Term Γ (Σ · (ℓ ▹ υ))) (M₂ : Term Γ ⌊ ℓ ⌋) →
           ----------------------------------------
           Term Γ υ
 
-
---------------------------------------------------------------------------------
--- Conversion helpers.
-
-convVar : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → τ₁ ≡ τ₂ → Var Γ τ₁ → Var Γ τ₂
-convVar refl v = v
-
-conv : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → τ₁ ≡ τ₂ → Term Γ τ₁ → Term Γ τ₂
-conv refl M = M

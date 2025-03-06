@@ -7,8 +7,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
+open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
@@ -16,16 +15,10 @@ open import Rome.Operational.Types.Normal.Renaming
 --------------------------------------------------------------------------------
 -- Semantic types.
 
--- isomorphic to Maybe (A or B)
-data SemRow (A B : Set) : Set where 
-  ne  : A → SemRow A B
-  lty : B → SemRow A B
-  ε   : SemRow A B
-
 SemType : KEnv → Kind → Set
 
 KripkeFunction : KEnv → Kind → Kind → Set
-KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renaming Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L

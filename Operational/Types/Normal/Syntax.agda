@@ -5,8 +5,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
+open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 
 
 

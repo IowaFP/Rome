@@ -46,7 +46,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
-↻-ren-<$> ρ {V₁} {V₂} v {just (left x)} {just (left _)} refl = cong (_<$> renNE ρ x) (↻-ren-reify ρ v)
+↻-ren-<$> ρ {V₁} {V₂} v {just (left x)} {just (left _)} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
 ↻-ren-<$> ρ {V₁} {V₂} v {nothing} {nothing} tt = tt
 ↻-ren-<$> ρ {V₁} {V₂} v {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = refl , (↻-ren-app ρ v q)
 
@@ -204,11 +204,11 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
 ↻-renSem-eval ρ (τ₁ `→ τ₂) e = cong₂ _`→_ (↻-renSem-eval ρ τ₁ e) (↻-renSem-eval ρ τ₂ e)
 ↻-renSem-eval ρ (`∀ κ τ) {η₁} {η₂} e = cong (`∀ κ) 
   (trans 
-    (↻-renSem-eval (lift ρ) τ {↑e η₁} {↑e η₂} 
+    (↻-renSem-eval (lift ρ) τ {lifte η₁} {lifte η₂} 
       (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl))) 
     (idext E τ))
   where
-    E : Env-≋ (renSem (lift ρ) ∘ ↑e {κ = κ} η₂) (↑e (renSem ρ ∘ η₂))
+    E : Env-≋ (renSem (lift ρ) ∘ lifte {κ = κ} η₂) (lifte (renSem ρ ∘ η₂))
     E Z = ↻-ren-reflect (lift ρ) (` Z)
     E (S x) = 
       trans-≋ 

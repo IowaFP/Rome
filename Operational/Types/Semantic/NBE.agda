@@ -6,8 +6,8 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
+
+open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
@@ -23,8 +23,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} τ       = just (left τ)
-reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renNE ρ τ · reify v)
-
+reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
@@ -46,8 +45,8 @@ extende : (η : Env Δ₁ Δ₂) → (V : SemType Δ₂ κ) → Env (Δ₁ ,, κ
 extende η V Z     = V
 extende η V (S x) = η x
 
-↑e : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
-↑e {Δ₁} {Δ₂} {κ} η  = extende η' V -- extende η' V
+lifte : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifte {Δ₁} {Δ₂} {κ} η  = extende η' V -- extende η' V
   where
     η' : Env Δ₁ (Δ₂ ,, κ)
     η' {κ'} v = (weakenSem {Δ = Δ₂} {κ₁ = κ'} {κ₂ = κ}) (η v)
@@ -102,8 +101,8 @@ record Xi : Set where
   field
     Ξ★ : ∀ {Δ'} → NormalType  Δ' R[ ★ ] → NormalType Δ' ★
     ΞL : ∀ {Δ'} → NormalType Δ' R[ L ] → NormalType Δ' L
-    ren-★ : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → ren ρ (Ξ★ τ) ≡  Ξ★ (ren ρ τ)
-    ren-L : ∀ (ρ : Renaming Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → ren ρ (ΞL τ) ≡  ΞL (ren ρ τ)
+    ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+    ren-L : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → renₖNF ρ (ΞL τ) ≡  ΞL (renₖNF ρ τ)
 
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
@@ -145,7 +144,7 @@ eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
 eval {κ = ★} Unit η  = Unit
 eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
-eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (↑e η))
+eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (lifte η))
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 

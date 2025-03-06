@@ -6,57 +6,49 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
+open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 
 open import Rome.Operational.Types.Normal.Syntax
 
 --------------------------------------------------------------------------------
 -- Normal Type renaming.
 
-
--- postulate
---     renNE : Renaming Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
---     ren : Renaming Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
---     renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
-
-renNE : Renaming Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
-ren : Renaming Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
-renPred : Renaming Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
--- renRow : Renaming Δ₁ Δ₂ → Row Δ₁ κ → Row Δ₂ κ
+renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
+renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
+renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 
 
-renNE ρ (` x) = ` (ρ x)
-renNE ρ (τ₁ · τ₂) = renNE ρ τ₁ · ren ρ τ₂
-renNE ρ (F <$> τ) = ren ρ F <$> (renNE ρ τ)
+renₖNE ρ (` x) = ` (ρ x)
+renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
+renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
 
-ren ρ Unit   = Unit
-ren ρ ε   = ε
-ren ρ (ne τ {g}) = ne (renNE ρ τ) {g}
-ren ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
-ren ρ (`λ τ) = `λ (ren (lift ρ) τ)
-ren ρ (τ₁ `→ τ₂) = (ren ρ τ₁) `→ (ren ρ τ₂)
-ren ρ (π ⇒ τ) = renPred ρ π ⇒ ren ρ τ
-ren ρ (`∀ κ τ) = `∀ κ (ren (lift ρ) τ)
-ren ρ (μ τ) = μ (ren ρ τ)
-ren ρ (lab x) = lab x
-ren ρ ⌊ ℓ ⌋ = ⌊ (ren ρ ℓ) ⌋
-ren ρ (Π τ) = Π (ren ρ τ)
-ren ρ (ΠL τ) = ΠL (ren ρ τ)
-ren ρ (Σ τ) = Σ (ren ρ τ)
-ren ρ (ΣL τ) = ΣL (ren ρ τ)
+renₖNF ρ Unit   = Unit
+renₖNF ρ ε   = ε
+renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
+renₖNF ρ (l ▹ τ) = (renₖNF ρ l) ▹ (renₖNF ρ τ)
+renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
+renₖNF ρ (τ₁ `→ τ₂) = (renₖNF ρ τ₁) `→ (renₖNF ρ τ₂)
+renₖNF ρ (π ⇒ τ) = renPredₖNF ρ π ⇒ renₖNF ρ τ
+renₖNF ρ (`∀ κ τ) = `∀ κ (renₖNF (liftₖ ρ) τ)
+renₖNF ρ (μ τ) = μ (renₖNF ρ τ)
+renₖNF ρ (lab x) = lab x
+renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
+renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
+renₖNF ρ (ΠL τ) = ΠL (renₖNF ρ τ)
+renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
+renₖNF ρ (ΣL τ) = ΣL (renₖNF ρ τ)
 
-renPred ρ (ρ₁ · ρ₂ ~ ρ₃) = (ren ρ ρ₁) · (ren ρ ρ₂) ~ (ren ρ ρ₃)
-renPred ρ (ρ₁ ≲ ρ₂) = (ren ρ ρ₁) ≲ (ren ρ ρ₂)
+renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
+renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
--- renRow ρ (l ▹ τ) = (ren ρ l) ▹ (ren ρ τ)
+-- renRow ρ (l ▹ τ) = (renₖNF ρ l) ▹ (renₖNF ρ τ)
 
 --------------------------------------------------------------------------------
 -- Weakening
 
-weaken : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
-weaken = ren S
+weakenₖNF : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
+weakenₖNF = renₖNF S
 
-weakenNE : NeutralType Δ κ₂ → NeutralType (Δ ,, κ₁) κ₂
-weakenNE = renNE S 
+weakenₖNE : NeutralType Δ κ₂ → NeutralType (Δ ,, κ₁) κ₂
+weakenₖNE = renₖNE S 
 

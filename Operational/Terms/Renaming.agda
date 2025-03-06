@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Normal.Renaming where
+module Rome.Operational.Terms.Renaming where
 
 open import Rome.Operational.Prelude
 
@@ -51,8 +51,8 @@ liftKVar {ρ = ρ} Ρ (T {τ = τ} x) =
   (T (Ρ x))
 
 ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
-      NormalTerm Γ₁ τ →
-      NormalTerm Γ₂ (Normal.ren ρ τ)
+      Term Γ₁ τ →
+      Term Γ₂ (Normal.ren ρ τ)
 ren P (` x) = ` (P x)
 ren P (`λ M) = `λ (ren (lift P) M)
 ren P (M · N) = (ren P M) · (ren P N)
@@ -70,10 +70,10 @@ ren P (M Π/ l) = ren P M Π/ ren P l
 ren P (l Σ▹ M) = (ren P l) Σ▹ (ren P M)
 ren P (M Σ/ l) = ren P M Σ/ ren P l
 
-weakenByType : NormalTerm Γ τ₁ → NormalTerm (Γ , τ₂) τ₁
+weakenByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
 weakenByType {τ₁ = τ₁} M = conv (ren-id τ₁) (ren ((convVar (sym (ren-id _))) ∘ S) M)
 
-weakenByKind : ∀ {τ : NormalType Δ ★} → NormalTerm Γ τ → NormalTerm (Γ ,, κ) (Normal.weaken τ)
+weakenByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (Normal.weaken τ)
 weakenByKind = ren T
 
 

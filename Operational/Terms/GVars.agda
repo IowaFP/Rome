@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Normal.GVars where
+module Rome.Operational.Terms.GVars where
 
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars

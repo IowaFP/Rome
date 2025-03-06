@@ -6,9 +6,6 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
-
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 
@@ -17,13 +14,13 @@ open import Rome.Operational.Types.Normal.Renaming
 
 η-expand : NeutralType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₂)
 η-expand {κ₁ = κ₁} {κ₂ = κ₂} f  with ground? κ₁ | ground? κ₂ 
-... | yes p  | yes q = `λ (ne (weakenNE f · ne (` Z) {ground = fromWitness p}) {fromWitness q})
+... | yes p  | yes q = `λ (ne (weakenₖNE f · ne (` Z) {ground = fromWitness p}) {fromWitness q})
 η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = κ₃} f | no p | yes q = 
-    `λ (ne (weakenNE f · (η-expand (` Z))) {fromWitness q})
+    `λ (ne (weakenₖNE f · (η-expand (` Z))) {fromWitness q})
 η-expand {κ₁ = κ₁} {κ₂ = κ₂ `→ κ₃} f | yes p | no q = 
-    `λ (η-expand (weakenNE f · (ne (` Z) {ground = fromWitness p})))
+    `λ (η-expand (weakenₖNE f · (ne (` Z) {ground = fromWitness p})))
 η-expand {κ₁ = κ₁ `→ κ₂} {κ₂ = κ₃ `→ κ₄} f | no p | no q = 
-    `λ (η-expand (weakenNE f · (η-expand (` Z))))
+    `λ (η-expand (weakenₖNE f · (η-expand (` Z))))
 η-expand {κ₁ = κ₁} {κ₂ = ★} x | yes p | no q = ⊥-elim (q tt)
 η-expand {κ₁ = κ₁} {κ₂ = L} x | yes p | no q = ⊥-elim (q tt)
 η-expand {κ₁ = κ₁} {κ₂ = R[ κ₂ ]} x | yes p | no q = ⊥-elim (q tt)

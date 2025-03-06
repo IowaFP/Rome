@@ -7,10 +7,9 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 import Rome.Operational.Types as Types
-import Rome.Operational.Types.Properties as TypeProps
-open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
+open import Rome.Operational.Types.Properties.Substitution
+open import Rome.Operational.Types.Renaming
 
-open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
@@ -37,12 +36,12 @@ postulate
   ↻-sub-↑      : ∀ (σ : Substitution Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
                       sub (lifts σ) τ 
                     ≡ 
-                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ)) (↑e (idEnv))
+                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ)) (lifte (idEnv))
 
   ↻-sub-β      : ∀ (σ : Substitution Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                       sub σ (τ₁ β[ τ₂ ])
                     ≡ 
-                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ₁)) (↑e (idEnv))
+                      eval (Types.sub (Types.lifts (⇑ ∘ σ)) (⇑ τ₁)) (lifte (idEnv))
                       β[ sub σ τ₂ ]
 
   -- Weakening followed by application of τ equals τ (eta expansion w.r.t. weakening)

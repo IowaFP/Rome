@@ -9,51 +9,51 @@ open import Rome.Operational.Types.Renaming
 --------------------------------------------------------------------------------
 -- Type-in-Type Substitution
 
-Substitution : KEnv → KEnv → Set
-Substitution Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
+Substitutionₖ : KEnv → KEnv → Set
+Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
 
 -- ↑ing a substitution over binders.
-lifts :  Substitution Δ₁ Δ₂ → Substitution(Δ₁ ,, κ) (Δ₂ ,, κ)
-lifts σ Z = ` Z
-lifts σ (S x) = weaken (σ x)
+liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
+liftsₖ σ Z = ` Z
+liftsₖ σ (S x) = weaken (σ x)
 
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.
-sub : Substitution Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-subPred : Substitution Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
-sub σ Unit = Unit
-sub σ ε = ε
-sub σ (` x) = σ x
-sub σ (`λ τ) = `λ (sub (lifts σ) τ)
-sub σ (τ₁ · τ₂) = (sub σ τ₁) · (sub σ τ₂)
-sub σ (τ₁ `→ τ₂) = (sub σ τ₁) `→ (sub σ τ₂)
-sub σ (π ⇒ τ) = subPred σ π ⇒ sub σ τ 
-sub σ (`∀ κ τ) = `∀ κ (sub (lifts σ) τ)
-sub σ (μ F) = μ (sub σ F)
-sub σ (Π) = Π
-sub σ Σ = Σ
-sub σ (lab x) = lab x
-sub σ (l ▹ τ) = sub σ l ▹ sub σ τ
-sub σ ⌊ ℓ ⌋ = ⌊ (sub σ ℓ) ⌋
-sub σ (f <$> a) = sub σ f <$> sub σ a
+subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
+subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
+subₖ σ Unit = Unit
+subₖ σ ε = ε
+subₖ σ (` x) = σ x
+subₖ σ (`λ τ) = `λ (subₖ (liftsₖ σ) τ)
+subₖ σ (τ₁ · τ₂) = (subₖ σ τ₁) · (subₖ σ τ₂)
+subₖ σ (τ₁ `→ τ₂) = (subₖ σ τ₁) `→ (subₖ σ τ₂)
+subₖ σ (π ⇒ τ) = subPredₖ σ π ⇒ subₖ σ τ 
+subₖ σ (`∀ κ τ) = `∀ κ (subₖ (liftsₖ σ) τ)
+subₖ σ (μ F) = μ (subₖ σ F)
+subₖ σ (Π) = Π
+subₖ σ Σ = Σ
+subₖ σ (lab x) = lab x
+subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
+subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
+subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
 
 
-subPred σ (ρ₁ · ρ₂ ~ ρ₃) = sub σ ρ₁ · sub σ ρ₂ ~ sub σ ρ₃
-subPred σ (ρ₁ ≲ ρ₂) = (sub σ ρ₁) ≲ (sub σ ρ₂) 
+subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
+subPredₖ σ (ρ₁ ≲ ρ₂) = (subₖ σ ρ₁) ≲ (subₖ σ ρ₂) 
 
--- "Substitutions could be implemented as lists of types and then the cons
--- constructor would extend a substitution by an additional term. Using our
--- functional representation for substitutions, it is convenient to define an
+-- "Substitutionₖs could be implemented as lists of types and then the cons
+-- constructor would extend a subₖstitution by an additional term. Using our
+-- functional representation for subₖstitutions, it is convenient to define an
 -- operation for this. This effectively defines a new func that,
 --   - if it is applied to the Z variable, returns our additional terms,
---   - and otherwise invokes the original substitution."
+--   - and otherwise invokes the original subₖstitution."
 --
 -- AH> This is analogous to the following procedure: define a "list" as a
 --     function Int -> A and then write cons : A -> (Int -> A) -> (Int -> A).
-extend : Substitution Δ₁ Δ₂ → (A : Type Δ₂ κ) → Substitution(Δ₁ ,, κ) Δ₂
-extend σ A Z = A
-extend σ A (S x) = σ x
+extendₖ : Substitutionₖ Δ₁ Δ₂ → (A : Type Δ₂ κ) → Substitutionₖ(Δ₁ ,, κ) Δ₂
+extendₖ σ A Z = A
+extendₖ σ A (S x) = σ x
 
--- Single variable substitution is a special case of simultaneous substitution.
-_β[_] : Type (Δ ,, κ₁) κ₂ → Type Δ κ₁ → Type Δ κ₂
-B β[ A ] = sub (extend ` A) B
+-- Single variable subₖstitution is a special case of simultaneous subₖstitution.
+_βₖ[_] : Type (Δ ,, κ₁) κ₂ → Type Δ κ₁ → Type Δ κ₂
+B βₖ[ A ] = subₖ (extendₖ ` A) B

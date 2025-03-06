@@ -6,8 +6,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (lift ; Renaming)
-open import Rome.Operational.Types.Properties
+open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
@@ -38,16 +37,16 @@ l₃ = lab "l3"
 ----------------------------------------
 -- Some function types.
 
-apply : Type Δ ((★ `→ ★) `→ ★ `→ ★)
-apply = (`λ (`λ ((` (S Z)) · (` Z))))
+app : Type Δ ((★ `→ ★) `→ ★ `→ ★)
+app = (`λ (`λ ((` (S Z)) · (` Z))))
 
-_ : ∀ {Δ} → ⇓ (apply {Δ}) ≡ `λ (`λ (ne (` (S Z) · ne (` Z)))) -- (`λ (`λ ((` ?) · ?)))
+_ : ∀ {Δ} → ⇓ (app {Δ}) ≡ `λ (`λ (ne (` (S Z) · ne (` Z)))) -- (`λ (`λ ((` ?) · ?)))
 _ = refl
 
-apply₂ : Type Δ (★ `→ (★ `→ ★) `→ ★)
-apply₂ = `λ (`λ ((` Z) · (` (S Z))))
+app₂ : Type Δ (★ `→ (★ `→ ★) `→ ★)
+app₂ = `λ (`λ ((` Z) · (` (S Z))))
 
-_ : ∀ {Δ} → ⇓ (apply₂ {Δ}) ≡ `λ (`λ (ne (` Z · ne (` (S Z)))))
+_ : ∀ {Δ} → ⇓ (app₂ {Δ}) ≡ `λ (`λ (ne (` Z · ne (` (S Z)))))
 _ = refl
 
 ID : Type Δ (★ `→ ★)
@@ -80,10 +79,10 @@ Id-R = ℓ ▹ (`λ (` Z))
 _ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡  (l ▹ (`λ (ne (` Z))))
 _ = refl
 
-apply-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
-apply-R = ℓ₁ ▹ apply
+app-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
+app-R = ℓ₁ ▹ app
 
-_ : ∀ {Δ} → ⇓ (apply-R {Δ}) ≡  ((l₁ ▹ ⇓ apply))
+_ : ∀ {Δ} → ⇓ (app-R {Δ}) ≡  ((l₁ ▹ ⇓ app))
 _ = refl
 
 ----------------------------------------
@@ -102,7 +101,7 @@ _ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ `λ (Π (l ▹ (ne (` Z))))
 _ = refl 
 
 C₃ : Type Δ ★
-C₃ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ ((apply · Const-U) · Unit))))
+C₃ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ ((app · Const-U) · Unit))))
 
 _ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
 _ = refl
@@ -125,7 +124,7 @@ _ = refl
 
 
 NR₂ : Type Δ R[ ★ ]
-NR₂ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (((apply · Const-U) · Unit))))
+NR₂ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (((app · Const-U) · Unit))))
 
 _ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡  (l₁ ▹ (Π (l₂ ▹ Unit)))
 _ = refl
