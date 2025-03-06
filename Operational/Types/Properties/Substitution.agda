@@ -30,10 +30,10 @@ liftsₖ-liftₖ      : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ 
 liftsₖ-liftₖ Z = refl
 liftsₖ-liftₖ (S x) = refl
 
-renₖ-lift-liftsₖ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(x : KVar (Δ₁ ,, κ₁) κ₂) → 
+renₖ-liftₖ-liftsₖ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(x : KVar (Δ₁ ,, κ₁) κ₂) → 
                     liftsₖ (renₖ ρ ∘ σ) x ≡ renₖ (liftₖ ρ) (liftsₖ σ x)
-renₖ-lift-liftsₖ Z = refl
-renₖ-lift-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ x))) (renₖ-comp S (liftₖ ρ) (σ x))                    
+renₖ-liftₖ-liftsₖ Z = refl
+renₖ-liftₖ-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ x))) (renₖ-comp S (liftₖ ρ) (σ x))                    
 
 -------------------------------------------------------------------------------
 -- Functor laws for substitution
@@ -116,10 +116,10 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-renₖ-subₖ {σ = σ} {ρ} Unit = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} ε = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} (` α) = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-lift-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
 ↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
 ↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong renₖ-lift-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {ρ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
 ↻-renₖ-subₖ {σ = σ} {ρ} (μ τ) = cong μ (↻-renₖ-subₖ τ)
 ↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
     ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 

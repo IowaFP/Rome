@@ -15,12 +15,34 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Eta-expansion
+open import Rome.Operational.Types.Normal.Properties.Eta-expansion
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Stability
 
+
+--------------------------------------------------------------------------------
+-- Functor laws for lifting
+
+-- η-norm ∘ ` serves as an identity substitution on normal types.
+liftsₖNF-id : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
+              (x : KVar (Δ₁ ,, κ₁) κ₂) → liftsₖNF (η-norm ∘ `) x ≡ η-norm (` x)
+liftsₖNF-id Z = refl
+liftsₖNF-id (S x)  = ↻-ren-η-norm S x
+
+--------------------------------------------------------------------------------
+-- Substitution is a relative monad
+
+subₖNF-id          : ∀ (τ : NormalType Δ κ) → subₖNF (η-norm ∘ `) τ ≡ τ
+subₖNF-id τ = trans (cong ⇓ {x = subₖ (⇑ ∘ η-norm ∘ `) (⇑ τ)} {y = ⇑ τ} {!!}) (stability τ)
+
+subₖNF-var : {!!}
+subₖNF-var = {!!}
+
+subₖNF-comp : {!!}
+subₖNF-comp = {!!}
 
 --------------------------------------------------------------------------------
 --
@@ -40,16 +62,16 @@ open import Rome.Operational.Types.Theorems.Stability
                   weakenₖNF {κ₁ = κ'} (subₖNF σ τ) ≡ subₖNF (liftsₖNF σ) (weakenₖNF τ)
 ↻-weaken-sub σ τ = {!!}
 
-↻-subₖNF-↑      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
+↻-subₖNF-lifts      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
                     subₖNF (liftsₖNF σ) τ 
                   ≡ 
-                    eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)) (lifte (idEnv))
-↻-subₖNF-↑ σ τ = {!!}
+                    eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)) (lifte idEnv)
+↻-subₖNF-lifts σ τ = {!!}
 
 ↻-subₖNF-β      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
                     subₖNF σ (τ₁ βₖNF[ τ₂ ])
                   ≡ 
-                    eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)) (lifte (idEnv))
+                    eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)) (lifte idEnv)
                     βₖNF[ subₖNF σ τ₂ ]
 ↻-subₖNF-β σ τ₁ τ₂ = {!!}
 
@@ -80,8 +102,7 @@ weakenₖNF-β-id τ {τ₂} = {!↻-weaken-sub !}
 -- sub-id-η-norm (Σ τ) = {!!}
 -- sub-id-η-norm (ΣL τ) = {!!}
 
-sub-id          : ∀ (τ : NormalType Δ κ) → subₖNF (η-norm ∘ `) τ ≡ τ
-sub-id τ = {!stability τ!}
+
 
 -- -- trans 
 -- --   (cong ⇓ (sub-id-η-norm τ)) 
