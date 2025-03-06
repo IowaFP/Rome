@@ -23,8 +23,8 @@ open import Rome.Operational.Types.Normal.Eta-expansion
 ↻-ren-η-norm {κ = ★} ρ x = refl
 ↻-ren-η-norm {κ = L} ρ x = refl
 ↻-ren-η-norm {κ = κ₁ `→ κ₂} ρ x with arrow? κ₁ | arrow? κ₂
-↻-ren-η-norm {Δ₂ = _} {(κ₁ `→ κ₂) `→ κ₃ `→ κ₄} ρ x | yes p | yes q = {!!}
-↻-ren-η-norm {Δ₂ = _} {κ₁ `→ κ₂ `→ κ₃} ρ x | no p | yes d = {!!}
-↻-ren-η-norm {Δ₂ = _} {(κ₁ `→ κ₃) `→ κ₂} ρ x | yes p | no d = {!!}
+↻-ren-η-norm {Δ₂ = _} {(κ₁ `→ κ₂) `→ κ₃ `→ κ₄} ρ x | yes p | yes q = {! !}
+↻-ren-η-norm {Δ₂ = _} {κ₁ `→ κ₂ `→ κ₃} ρ x | no p | yes d = {! !}
+↻-ren-η-norm {Δ₂ = _} {(κ₁ `→ κ₃) `→ κ₂} ρ x | yes p | no d = {! !}
 ... | no p     | no d  = refl
 ↻-ren-η-norm {κ = R[ κ ]} ρ x = refl

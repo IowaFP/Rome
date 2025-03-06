@@ -81,6 +81,12 @@ subₖ-id Σ = refl
 subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 
 
+-------------------------------------------------------------------------------
+-- lifting a substitution fixes points
+
+-- sub-lift-fp : ∀ {σ : Substitutionₖ Δ₁ Δ₂} (τ : Type Δ₁ κ₂) → 
+--                 subₖ (liftsₖ σ) (weakenₖ τ) ≡ subₖ σ τ
+-- sub-lift-fp τ = ?
 
 -------------------------------------------------------------------------------
 -- subₖstitution and renₖaming commute
