@@ -59,7 +59,7 @@ fund e (eq-λ {τ = τ} {υ = υ} eq) =
     λ ρ q → fund (extend-≋ (λ x → ren-≋ ρ (e x)) q) eq
 fund {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) = 
   fst (idext e f) , 
-  fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weaken f · (` Z))))) , 
+  fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weakenₖ f · (` Z))))) , 
   λ ρ {V₁} {V₂} v → 
   sym-≋ 
     (trans-≋ 
@@ -102,14 +102,14 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {κ₁ = κ₁} {κ₂ = κ₂} 
     (λ ρ₁ ρ₂ V₁ V₂ q → 
     trans-≋ 
         (↻-renSem-π ρ₂ 
-            (eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
-            ((eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
+            ((eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
             (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
         (cong-π 
             ((trans 
-                (↻-renSem-eval ρ₂ (weaken l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (↻-renSem-eval ρ₂ (weakenₖ l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
                 (idext (λ { Z     →  ren-≋ ρ₂ q
-                          ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weaken l))) , 
+                          ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weakenₖ l))) , 
             trans-≋ 
                 (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
                 (idext (λ { Z     → ren-≋ ρ₂ q
@@ -138,14 +138,14 @@ fund {η₁ = η₁} {η₂ = η₂} e (eq-Σλ {l = l} {τ = τ}) =
     (λ ρ₁ ρ₂ V₁ V₂ q → 
     trans-≋ 
         (↻-renSem-σ ρ₂ 
-            (eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
-            ((eval (weaken l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
+            (eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
+            ((eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
             (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
         (cong-σ 
             ((trans 
-                (↻-renSem-eval ρ₂ (weaken l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
+                (↻-renSem-eval ρ₂ (weakenₖ l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
                 (idext (λ { Z     →  ren-≋ ρ₂ q
-                          ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weaken l))) , 
+                          ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weakenₖ l))) , 
             trans-≋ 
                 (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
                 (idext (λ { Z     → ren-≋ ρ₂ q

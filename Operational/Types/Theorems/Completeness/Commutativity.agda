@@ -462,6 +462,6 @@ weaken-extend : ∀ (τ : Type Δ₁ κ₁) →
                   Env-≋ η₁ η₂ → 
                   {V : SemType Δ₂ κ₂}  → 
                   V ≋ V →
-                  eval (weaken τ) (extende η₁ V) ≋ eval τ η₂
+                  eval (weakenₖ τ) (extende η₁ V) ≋ eval τ η₂
 weaken-extend τ {η₁} {η₂} e {V} v = ↻-renₖ-eval S τ {extende η₁ V} {extende η₂ V} (extend-≋ e v)   
  

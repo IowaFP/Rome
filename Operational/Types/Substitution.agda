@@ -15,7 +15,7 @@ Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
 -- ↑ing a substitution over binders.
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
 liftsₖ σ Z = ` Z
-liftsₖ σ (S x) = weaken (σ x)
+liftsₖ σ (S x) = weakenₖ (σ x)
 
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.

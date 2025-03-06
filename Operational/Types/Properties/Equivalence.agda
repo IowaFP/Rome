@@ -32,7 +32,7 @@ cong-renₖ-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (cong-renₖ-≡t ρ e
 cong-renₖ-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (cong-renₖ-≡t ρ e)
 cong-renₖ-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (cong-renₖ-≡t ρ e) (cong-renₖ-≡t ρ e₁)
 cong-renₖ-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (cong-renₖ-≡p ρ x) (cong-renₖ-≡t ρ e)
-cong-renₖ-≡t {τ = τ} {.(`λ (weaken τ · ` Z))} ρ eq-η = 
+cong-renₖ-≡t {τ = τ} {.(`λ (weakenₖ τ · ` Z))} ρ eq-η = 
     eq-trans 
         (eq-η {f = renₖ ρ τ}) 
         (eq-λ (eq-· 
