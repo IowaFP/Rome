@@ -25,22 +25,22 @@ open Reasoning
 
 -- Sub ...
 
-Substitutionₜ : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
-Substitutionₜ Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term Γ₂ (subₖNF σ τ)
+Substitution : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
+Substitution Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term Γ₂ (subₖNF σ τ)
 
 lifts : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
-            Substitutionₜ Γ₁ Γ₂ σ → Substitutionₜ (Γ₁ ,, κ) (Γ₂ ,, κ) (liftsₖNF σ)
+            Substitution Γ₁ Γ₂ σ → Substitution (Γ₁ ,, κ) (Γ₂ ,, κ) (liftsₖNF σ)
 lifts {σ = σ} s (T {τ = τ} x) = conv (↻-weaken-sub σ τ) (weakenByKind (s x))
 
-lifts-τ : ∀ {σ : SubstitutionₖNF _ _} →
-        Substitutionₜ Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Substitutionₜ (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
-lifts-τ s Z     = ` Z
-lifts-τ s (S x) = weakenByType (s x)
+liftsType : ∀ {σ : SubstitutionₖNF _ _} →
+        Substitution Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Substitution (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
+liftsType s Z     = ` Z
+liftsType s (S x) = weakenByType (s x)
 
-sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitutionₜ Γ₁ Γ₂ σ → ∀ {τ} → 
+sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {τ} → 
       Term Γ₁ τ → Term Γ₂ (subₖNF σ τ)
 sub σ s {τ} (` x) = s x
-sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (lifts-τ {σ = σ} s) M)
+sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
 sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) = 
   Λ (conv (↻-subₖNF-↑ σ τ) (sub (liftsₖNF σ) (lifts s) M))
@@ -56,15 +56,15 @@ sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
 
-extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitutionₜ Γ₁ Γ₂ σ → 
+extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
          {τ : NormalType Δ₁ ★} → 
          (M : Term Γ₂ (subₖNF σ τ)) → 
-         Substitutionₜ (Γ₁ , τ) Γ₂ σ
+         Substitution (Γ₁ , τ) Γ₂ σ
 extend σ s M Z = M
 extend σ s M (S x) = s x
        
 
-lem : ∀ {τ₂} → Substitutionₜ (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
+lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
 lem (T {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)
 
 _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
