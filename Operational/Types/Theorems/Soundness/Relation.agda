@@ -7,15 +7,18 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types
-open import Rome.Operational.Types.Properties
-open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
+open import Rome.Operational.Types.Renaming
+open import Rome.Operational.Types.Properties.Renaming
+open import Rome.Operational.Types.Properties.Equivalence
 
 open import Rome.Operational.Types.Normal.Syntax
-import Rome.Operational.Types.Normal.Renaming as N
-import Rome.Operational.Types.Normal.Properties.Renaming as NPR
+open import Rome.Operational.Types.Normal.Renaming 
+open import Rome.Operational.Types.Normal.Properties.Renaming
+
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
+
 
 open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Theorems.Completeness.Commutativity
@@ -38,9 +41,9 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {κ = R[ κ ]} τ (just (right (l , υ))) = (τ ≡t ⇑ (l ▹ reify υ)) × (⟦ ⇑ (reify υ) ⟧≋ υ)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
-    (∀ {Δ₂} (ρ : Renaming Δ₁ Δ₂) {v V} → 
+    (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
-      ⟦ (ren ρ f · v) ⟧≋ (renKripke ρ F ·V V))
+      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
 
 --------------------------------------------------------------------------------
 -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
@@ -56,8 +59,8 @@ reflect-⟦⟧≋ {κ = L} e = e
 reflect-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = 
     λ ρ q → reflect-⟦⟧≋ 
     (eq-· 
-        (eq-sym (eq-trans (inst (NPR.↻-ren-⇑NE ρ υ)) 
-            (cong-ren-≡t ρ (eq-sym e)))) 
+        (eq-sym (eq-trans (inst (↻-ren-⇑NE ρ υ)) 
+            (cong-renₖ-≡t ρ (eq-sym e)))) 
         (reify-⟦⟧≋ q)) 
 reflect-⟦⟧≋ {κ = R[ κ ]} e = e           
 
@@ -85,7 +88,7 @@ subst-⟦⟧≋ : ∀ {τ₁ τ₂ : Type Δ κ} →
 
 subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
-subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (cong-ren-≡t ρ q) eq-refl) (rel ρ rel-v)
+subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (cong-renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {just (left x)} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {just (right (l , F))} (eq , rel) = eq-trans (eq-sym q) eq , rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {nothing} p = eq-trans (eq-sym q) p
@@ -117,36 +120,36 @@ refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 -- renaming respects _≋_
 
 
-ren-⟦⟧≋ : ∀ (ρ : Renaming Δ₁ Δ₂) 
+ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
            {V : SemType Δ₁ κ} → 
            ⟦ v ⟧≋ V → 
-           ⟦ ren ρ v ⟧≋ renSem ρ V
-ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑ ρ V))))
-ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑ ρ V))))
-ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (ren-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (left V)} rel-v = eq-trans (cong-ren-≡t ρ rel-v) (eq-sym ((inst (NPR.↻-ren-⇑NE ρ V))))
+           ⟦ renₖ ρ v ⟧≋ renSem ρ V
+ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
+ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
+ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (left V)} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (right (l , V))} (eq-v , rel-v) = 
   eq-trans 
-    (cong-ren-≡t ρ eq-v) 
-    (eq-▹ (inst (sym (NPR.↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
+    (cong-renₖ-≡t ρ eq-v) 
+    (eq-▹ (inst (sym (↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
     refl-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v)           
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {nothing} rel-v = cong-ren-≡t ρ rel-v
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {nothing} rel-v = cong-renₖ-≡t ρ rel-v
 
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
-⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitution Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
+⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
 ⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments
 
-extend-⟦⟧≋ : ∀ {κ} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+extend-⟦⟧≋ : ∀ {κ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
              ⟦ σ ⟧≋e η →
              ∀ {τ : Type Δ₂ κ} {V : SemType Δ₂ κ} → 
              ⟦ τ ⟧≋ V → 
-             ⟦ (extend σ τ) ⟧≋e (extende η V)
+             ⟦ (extendₖ σ τ) ⟧≋e (extende η V)
 extend-⟦⟧≋ p q Z = q
 extend-⟦⟧≋ p q (S x) = p x
 
@@ -154,16 +157,16 @@ extend-⟦⟧≋ p q (S x) = p x
 --------------------------------------------------------------------------------
 -- Weakened substitutions relate to weakened environments
  
-weaken-⟦⟧≋ : ∀ {κ} {σ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+weaken-⟦⟧≋ : ∀ {κ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
            ⟦ σ ⟧≋e η → 
-           ⟦ lifts {κ = κ} σ ⟧≋e (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
+           ⟦ liftsₖ {κ = κ} σ ⟧≋e (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
 weaken-⟦⟧≋ e Z = reflect-⟦⟧≋ eq-refl
 weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)           
 
 --------------------------------------------------------------------------------
 -- 
 
-substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitution Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η

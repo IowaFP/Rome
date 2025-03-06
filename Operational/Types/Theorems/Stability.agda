@@ -6,12 +6,13 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-import Rome.Operational.Types as Types
+open import Rome.Operational.Types
 open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Renaming 
 
+open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Normal.Properties.Renaming
+
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
@@ -33,7 +34,7 @@ stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv
 
 stabilityNE {κ = κ} (` x) = refl
 stabilityNE {Δ} {κ} (τ₁ · τ₂) 
-  rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (ren-id-ne τ₁))
+  rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (renₖNE-id τ₁))
 stabilityNE {κ = R[ κ ]} (F <$> τ) 
   rewrite stabilityNE τ | stability F = refl
 
@@ -76,7 +77,7 @@ stabilityPred (ρ₁ ≲ ρ₂)
 --------------------------------------------------------------------------------
 -- idempotency
  
-idempotency : ∀ (τ : Types.Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
 idempotency τ rewrite stability (⇓ τ) = refl
 
 --------------------------------------------------------------------------------

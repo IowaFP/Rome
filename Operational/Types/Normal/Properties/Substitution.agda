@@ -26,7 +26,7 @@ postulate
   ↻-ren-β      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                     ren ρ (τ₁ β[ τ₂ ]) ≡ (ren (lift ρ) τ₁) β[ (ren ρ τ₂) ]
 
-  ↻-ren-app      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NeutralType Δ₁ (κ₁ `→ κ₂)) (τ₂ : NormalType Δ₁ κ₁) → 
+  ↻-renSem-app      : (ρ : Renaming Δ₁ Δ₂) (τ₁ : NeutralType Δ₁ (κ₁ `→ κ₂)) (τ₂ : NormalType Δ₁ κ₁) → 
                     renNE ρ (τ₁ · τ₂) ≡ (renNE ρ τ₁) · (ren ρ τ₂)
 
   -- weakening commutes with substitution.

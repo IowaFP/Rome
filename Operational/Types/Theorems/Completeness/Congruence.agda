@@ -7,12 +7,12 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types as Types
-import Rome.Operational.Types.Properties as TypeProps
-open import Rome.Operational.Types.Renaming using (Renaming ; _≈_ ; lift)
+open import Rome.Operational.Types.Properties.Renaming
+open import Rome.Operational.Types.Renaming
 
-open import Rome.Operational.Types.Normal
-open import Rome.Operational.Types.Normal.Renaming as N
-open import Rome.Operational.Types.Normal.Properties.Renaming as NTypeProps
+open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.Renaming
+open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
@@ -22,14 +22,14 @@ open import Rome.Operational.Types.Theorems.Completeness.Relation
 -- - Uniformity is preserved under renaming (ren-Uniform)
 --   (This is actually just what uniformity means.)
 
-ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renaming Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
+ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renamingₖ Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
 ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
 
 --------------------------------------------------------------------------------
 -- renaming respects ≋
 
 ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
-        (ρ : Renaming Δ₁ Δ₂) → 
+        (ρ : Renamingₖ Δ₁ Δ₂) → 
         V₁ ≋ V₂ → 
         (renSem ρ V₁) ≋ (renSem ρ V₂)
 ren-≋ {κ = ★} {V₁ = V₁} {V₂} ρ refl = refl
@@ -84,7 +84,7 @@ Unif-apply : ∀ {V₁ V₂ : SemType Δ κ₁} →
 Unif-apply {V₁ = V₁} {V₂} v ρ₁ ρ₂ V₃ V₄ x = 
   trans-≋
     (fst x id ρ₂ (renSem ρ₁ V₂) (renSem ρ₁ V₂) (ren-≋ ρ₁ (refl-≋ᵣ v)))
-    (third x ρ₂ (sym-≋ (ren-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ v)))) 
+    (third x ρ₂ (sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ v)))) 
 
 cong-apply : ∀ {V₁ V₂ : SemType Δ κ₁} → 
                V₁ ≋ V₂ → 
@@ -104,16 +104,5 @@ cong-<?> : ∀ {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} →
            _≋_ {κ = R[ κ₂ ]} (V₁ <?>V W₁)  (V₂ <?>V W₂)
 cong-<?> v {W₁} {W₂} w = 
   cong-<$> 
-  (cong-apply w) v              
-
-
--- -- Uniform
---       (λ ρ → π) ·V
---        (eval l η₁ ▹V
---         (λ ρ v → eval τ (extende (λ {κ} v' → renSem ρ (η₁ v')) v)))
-
-Unif-app : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → 
-              {V₁ V₂ : SemType Δ₁ κ₁} → 
-              Uniform F → V₁ ≋ V₂ → Uniform {κ₁ = κ₁} {κ₂} (λ ρ v → F ρ (renSem ρ V₁)) 
-Unif-app {F = F} {V₁} {V₂} Unif-f v = {! !}
+  (cong-apply w) v
 
