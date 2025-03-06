@@ -42,6 +42,6 @@ renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 
 
-weaken : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
-weaken = renₖ S
+weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
+weakenₖ = renₖ S
 
