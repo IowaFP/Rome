@@ -23,7 +23,7 @@ data Context : KEnv → Set where
 data Var : Context Δ → NormalType Δ ★ → Set where
   Z : ∀ {Γ} {τ : NormalType Δ ★} → Var (Γ , τ) τ
   S : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → Var Γ τ₁  → Var (Γ , τ₂) τ₁
-  T : ∀ {Γ} {τ : NormalType Δ ★} → Var Γ τ → Var (Γ ,, κ) (weaken τ)
+  T : ∀ {Γ} {τ : NormalType Δ ★} → Var Γ τ → Var (Γ ,, κ) (weakenₖNF τ)
 
 private
   variable
@@ -62,7 +62,7 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
           Term Γ (`∀ κ τ₂) →
           (τ₁ : NormalType Δ κ) → 
           ----------------
-          Term Γ (τ₂ β[ τ₁ ])
+          Term Γ (τ₂ βₖNF[ τ₁ ])
 
   ------------------------------------------------------------
   -- Recursive types

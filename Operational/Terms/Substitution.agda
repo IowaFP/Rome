@@ -6,18 +6,17 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 
-
-import Rome.Operational.Types as Types
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Properties
+open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Eta-expansion
-import Rome.Operational.Types.Normal.Substitution as T
+open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.NBE 
 
-open import Rome.Operational.Terms.Normal.Syntax
-open import Rome.Operational.Terms.Normal.GVars
-open import Rome.Operational.Terms.Normal.Renaming
+open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.GVars
+open import Rome.Operational.Terms.Renaming
 
 open Reasoning
 
@@ -26,47 +25,47 @@ open Reasoning
 
 -- Sub ...
 
-Sub : ∀ Γ₁ Γ₂ → T.Substitution Δ₁ Δ₂ → Set
-Sub Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term Γ₂ (T.sub σ τ)
+Substitutionₜ : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
+Substitutionₜ Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term Γ₂ (subₖNF σ τ)
 
-lifts : ∀ {σ : T.Substitution Δ₁ Δ₂} → 
-            Sub Γ₁ Γ₂ σ → Sub (Γ₁ ,, κ) (Γ₂ ,, κ) (T.lifts σ)
+lifts : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
+            Substitutionₜ Γ₁ Γ₂ σ → Substitutionₜ (Γ₁ ,, κ) (Γ₂ ,, κ) (liftsₖNF σ)
 lifts {σ = σ} s (T {τ = τ} x) = conv (↻-weaken-sub σ τ) (weakenByKind (s x))
 
-lifts-τ : ∀ {σ : T.Substitution _ _} →
-        Sub Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Sub (Γ₁ , τ) (Γ₂ , T.sub σ τ) σ
+lifts-τ : ∀ {σ : SubstitutionₖNF _ _} →
+        Substitutionₜ Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Substitutionₜ (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
 lifts-τ s Z     = ` Z
 lifts-τ s (S x) = weakenByType (s x)
 
-sub : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → ∀ {τ} → 
-      Term Γ₁ τ → Term Γ₂ (T.sub σ τ)
+sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitutionₜ Γ₁ Γ₂ σ → ∀ {τ} → 
+      Term Γ₁ τ → Term Γ₂ (subₖNF σ τ)
 sub σ s {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (lifts-τ {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
 sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) = 
-  Λ (conv (↻-sub-↑ σ τ) (sub (T.lifts σ) (lifts s) M))
-sub σ s {.(τ₁ T.β[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
-  conv (sym (↻-sub-β σ τ₁ τ₂)) (sub σ s M ·[ T.sub σ τ₂ ])
+  Λ (conv (↻-subₖNF-↑ σ τ) (sub (liftsₖNF σ) (lifts s) M))
+sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
+  conv (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
 sub σ s {.(μ F)} (roll F M) = 
-  roll (T.sub σ F) (conv (cong-·' σ F (μ F)) (sub σ s M))
+  roll (subₖNF σ F) (conv (cong-·' σ F (μ F)) (sub σ s M))
 sub σ s {_} (unroll F M) = 
-  conv (sym (cong-·' σ F (μ F))) (unroll (T.sub σ F) (sub σ s M))
-sub σ s {x} (lab l) = lab (T.sub σ l)
+  conv (sym (cong-·' σ F (μ F))) (unroll (subₖNF σ F) (sub σ s M))
+sub σ s {x} (lab l) = lab (subₖNF σ l)
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
 
-extend : (σ : T.Substitution Δ₁ Δ₂) → Sub Γ₁ Γ₂ σ → 
+extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitutionₜ Γ₁ Γ₂ σ → 
          {τ : NormalType Δ₁ ★} → 
-         (M : Term Γ₂ (T.sub σ τ)) → 
-         Sub (Γ₁ , τ) Γ₂ σ
+         (M : Term Γ₂ (subₖNF σ τ)) → 
+         Substitutionₜ (Γ₁ , τ) Γ₂ σ
 extend σ s M Z = M
 extend σ s M (S x) = s x
        
 
-lem : ∀ {τ₂} → Sub (Γ ,, κ) Γ (T.extend (λ x → η-norm (` x)) τ₂)
-lem (T {τ = τ} x) = conv (weaken-η τ) (` x)
+lem : ∀ {τ₂} → Substitutionₜ (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
+lem (T {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)
 
 _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
 _β[_] {τ₁ = τ₁} {τ₂} M N = 
@@ -80,6 +79,6 @@ _β[_] {τ₁ = τ₁} {τ₂} M N =
       M)
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
-         Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ T.β[ τ₂ ])
-M β·[ τ₂ ] =  sub (T.extend (η-norm ∘ `) τ₂) lem M
+         Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])
+M β·[ τ₂ ] =  sub (extendₖNF (η-norm ∘ `) τ₂) lem M
 

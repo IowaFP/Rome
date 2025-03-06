@@ -118,9 +118,9 @@ private
     Δ Δ₁ Δ₂ Δ₃ : KEnv
     κ κ₁ κ₂ : Kind
 
-data KVar : KEnv → Kind → Set where
-  Z : KVar (Δ ,, κ) κ
-  S : KVar Δ κ₁ → KVar (Δ ,, κ₂) κ₁
+data TVar : KEnv → Kind → Set where
+  Z : TVar (Δ ,, κ) κ
+  S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁
 \end{code}
 
 The kind variable $x$ is indexed by kinding environment $\Delta$ and kind $\kappa$ to specify that $x$ has kind $\kappa$ in kinding environment $\Delta$.
@@ -137,7 +137,7 @@ data Type Δ : Kind → Set
 data Type Δ where
 
   ` : 
-      (α : KVar Δ κ) →
+      (α : TVar Δ κ) →
       Type Δ κ
 
   `λ : 

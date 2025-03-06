@@ -5,14 +5,16 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 
 import Rome.Operational.Types as Types
-open import Rome.Operational.Types.Normal
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Properties
+open import Rome.Operational.Types.Normal.Substitution
+open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Operational.Types.Normal.Properties.Substitution
 
-open import Rome.Operational.Terms.Normal
+open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.Substitution
 
 open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Terms.Normal.GVars
+open import Rome.Operational.Terms.GVars
 
 
 --------------------------------------------------------------------------------
@@ -74,8 +76,8 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
           --------------------------
           Λ M ·[ τ₁ ] —→ M β·[ τ₁ ]
 
-  β-roll : ∀ {τ} {M : Term Γ (τ NTypes.β[ (μ τ) ])} →
+  β-roll : ∀ {F} {M : Term Γ (F ·' μ F)} →
 
              -------------------------
-             unroll τ (roll τ M) —→ M
+             unroll F (roll F M) —→ M
 
