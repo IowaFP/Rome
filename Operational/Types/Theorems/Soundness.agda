@@ -22,7 +22,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Equivalence
 
-open import Rome.Operational.Types.Theorems.Soundness.Relation 
+open import Rome.Operational.Types.Theorems.Soundness.Relation public 
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
@@ -260,17 +260,17 @@ sound-Σ {κ₁ = R[ κ₁ ]} ρ {v} {just (right (l , τ))} (q , rel) =
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-fund : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSound : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
           
-fundPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSoundPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
-fundPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fund ρ₁ e)) eq-· (reify-⟦⟧≋ (fund ρ₂ e)) ~ (reify-⟦⟧≋ (fund ρ₃ e))
-fundPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fund ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fund ρ₂ e))
+fundSoundPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundSound ρ₁ e)) eq-· (reify-⟦⟧≋ (fundSound ρ₂ e)) ~ (reify-⟦⟧≋ (fundSound ρ₃ e))
+fundSoundPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundSound ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundSound ρ₂ e))
 
-fund Unit {σ} {η} e = eq-refl
-fund (` α) {σ} {η} e = e α
-fund (`λ τ) {σ} {η} e ρ {v} {V} q = 
+fundSound Unit {σ} {η} e = eq-refl
+fundSound (` α) {σ} {η} e = e α
+fundSound (`λ τ) {σ} {η} e ρ {v} {V} q = 
   subst-⟦⟧≋ 
     (eq-sym eq-β) 
     (subst-⟦⟧≋ 
@@ -279,42 +279,42 @@ fund (`λ τ) {σ} {η} e ρ {v} {V} q =
           (inst (subₖ-cong (λ { Z → refl ; (S x) → trans (renₖ-subₖ-id σ ρ (σ x)) (↻-subₖ-renₖ (σ x)) }) τ)) 
           (inst (subₖ-comp τ))) 
         (inst (↻-subₖ-renₖ (subₖ (liftsₖ σ) τ)))) 
-      (fund τ (extend-⟦⟧≋ (ren-⟦⟧≋ ρ ∘ e) q)))
-fund (τ₁ · τ₂) {σ} {η} e  = 
+      (fundSound τ (extend-⟦⟧≋ (ren-⟦⟧≋ ρ ∘ e) q)))
+fundSound (τ₁ · τ₂) {σ} {η} e  = 
   subst-⟦⟧≋ 
     (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) 
-    (fund τ₁ e id (fund τ₂ e))
-fund (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fund τ₁ e) (fund τ₂ e)
-fund (`∀ κ τ) {σ} {η} e = eq-∀ (fund τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
-fund (μ τ) {σ} {η} e = eq-μ
+    (fundSound τ₁ e id (fundSound τ₂ e))
+fundSound (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fundSound τ₁ e) (fundSound τ₂ e)
+fundSound (`∀ κ τ) {σ} {η} e = eq-∀ (fundSound τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
+fundSound (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = subₖ σ τ}) 
-        (eq-λ (fund τ e S eq-refl)))
-fund (π ⇒ τ) {σ} {η} e = eq-⇒ (fundPred π e) (fund τ e)
-fund (lab l) {σ} {η} e = eq-refl
-fund (l ▹ τ) {σ} {η} e = 
+        (eq-λ (fundSound τ e S eq-refl)))
+fundSound (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSoundPred π e) (fundSound τ e)
+fundSound (lab l) {σ} {η} e = eq-refl
+fundSound (l ▹ τ) {σ} {η} e = 
   (eq-▹ 
-    (fund l e) 
-    (reify-⟦⟧≋ (fund τ e))) , 
-    (refl-⟦⟧≋ (fund τ e))
-fund ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fund τ e)
-fund Π {σ} {η} e = sound-Π
-fund Σ {σ} {η} e =  sound-Σ  
-fund ε e = eq-refl 
-fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fund τ₂ e 
+    (fundSound l e) 
+    (reify-⟦⟧≋ (fundSound τ e))) , 
+    (refl-⟦⟧≋ (fundSound τ e))
+fundSound ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundSound τ e)
+fundSound Π {σ} {η} e = sound-Π
+fundSound Σ {σ} {η} e =  sound-Σ  
+fundSound ε e = eq-refl 
+fundSound (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fundSound τ₂ e 
 ... | nothing | [ eq ] | w = eq-trans (eq-<$> eq-refl w) eq-<$>ε
 ... | just (left x) | [ eq ] | _ = 
   eq-<$> 
     (eq-trans 
       eq-η 
       (eq-λ 
-        (reify-⟦⟧≋ (fund τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
+        (reify-⟦⟧≋ (fundSound τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
     (eq-trans 
-      (reify-⟦⟧≋ (fund τ₂ e)) 
+      (reify-⟦⟧≋ (fundSound τ₂ e)) 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
 ... | just (right (l , V)) | [ eq ] | (eq₂ , rel-v) = 
   eq-trans 
-    (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fund τ₁ e {Δ})) eq₂) 
+    (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundSound τ₁ e {Δ})) eq₂) 
     (eq-trans 
       eq-▹$ 
       (eq-▹ 
@@ -323,7 +323,7 @@ fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x
           (eq-· 
             (eq-trans 
               (eq-λ 
-                (eq-sym (reify-⟦⟧≋ (fund τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
+                (eq-sym (reify-⟦⟧≋ (fundSound τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
                 (eq-trans 
                   (eq-sym eq-η) 
                   (eq-trans 
@@ -332,8 +332,8 @@ fund (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x
                       eq-refl 
                       (inst (sym (renₖ-id (subₖ σ τ₁)))))))) 
               (reify-⟦⟧≋ (rel-v))) 
-          (reify-⟦⟧≋ (fund τ₁ e id rel-v))))) , 
-  refl-⟦⟧≋ (fund τ₁ e id rel-v)
+          (reify-⟦⟧≋ (fundSound τ₁ e id rel-v))))) , 
+  refl-⟦⟧≋ (fundSound τ₁ e id rel-v)
 
 idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
 idSR α = reflect-⟦⟧≋ eq-refl
@@ -342,6 +342,6 @@ idSR α = reflect-⟦⟧≋ eq-refl
 -- Soundness claim  
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
-soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fund τ idSR)))   
+soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundSound τ idSR)))   
   
  

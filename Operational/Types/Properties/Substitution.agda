@@ -208,5 +208,12 @@ renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans
 
 
 --------------------------------------------------------------------------------
--- renₖaming respects type equivalence
+-- substitution of a lifted Sub over a weakened typed does nothing
 
+sub-lift-weaken : ∀ {κ'}(σ : Substitutionₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
+          subₖ (liftsₖ {κ = κ'} σ) (weakenₖ τ) ≡
+          weakenₖ {κ₁ = κ'} (subₖ σ τ)
+sub-lift-weaken σ τ = 
+  trans 
+    (sym (↻-subₖ-renₖ τ))
+    (↻-renₖ-subₖ {σ = σ} {ρ = S} τ)
