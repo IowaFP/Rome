@@ -36,6 +36,12 @@ reify {κ = R[ κ ]} (just (right (l , τ))) = l ▹ (reify τ)
 reify {κ = R[ κ ]} nothing = ε
 
 --------------------------------------------------------------------------------
+-- η normalization of neutral types
+
+η-norm : NeutralType Δ κ → NormalType Δ κ 
+η-norm = reify ∘ reflect
+
+--------------------------------------------------------------------------------
 -- Semantic environments
 
 Env : KEnv → KEnv → Set

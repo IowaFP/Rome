@@ -18,11 +18,7 @@ open import Rome.Operational.Types.Semantic.NBE
 SubstitutionₖNF : KEnv → KEnv → Set
 SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
 
--- η-normalization of neutral types
-η-norm : NeutralType Δ κ → NormalType Δ κ 
-η-norm = reify ∘ reflect
-
--- -- ↑ing a substitution over binders.
+-- ↑ing a substitution over binders.
 liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)
 liftsₖNF {κ = κ} σ Z = η-norm (` Z)
 liftsₖNF σ (S x) = weakenₖNF (σ x)

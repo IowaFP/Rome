@@ -27,13 +27,24 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
--- Substitution is a relative monad
+-- Neutral types are equivalent to their η-normalizations
 
-hmm : ∀ (τ : NeutralType Δ κ) → ⇑ (reify (reflect τ)) ≡t ⇑NE τ 
-hmm {κ = ★} τ = eq-refl
-hmm {κ = L} τ = eq-refl
-hmm {κ = κ `→ κ₁} τ = eq-trans (eq-λ (hmm (renₖNE S τ · reify (reflect (` Z))))) (eq-trans (eq-λ (eq-· (inst (↻-ren-⇑NE S τ)) (hmm (` Z)))) (eq-sym eq-η))
-hmm {κ = R[ κ ]} τ = eq-refl 
+η-norm-≡t : ∀ (τ : NeutralType Δ κ) → ⇑ (η-norm τ) ≡t ⇑NE τ 
+η-norm-≡t {κ = ★} τ = eq-refl
+η-norm-≡t {κ = L} τ = eq-refl
+η-norm-≡t {κ = κ `→ κ₁} τ = 
+  eq-trans 
+    (eq-λ (η-norm-≡t (renₖNE S τ · reify (reflect (` Z))))) 
+  (eq-trans 
+    (eq-λ 
+      (eq-· 
+        (inst (↻-ren-⇑NE S τ)) 
+        (η-norm-≡t (` Z))))
+    (eq-sym eq-η))
+η-norm-≡t {κ = R[ κ ]} τ = eq-refl 
+
+--------------------------------------------------------------------------------
+-- Substitution is a relative monad
 
 subₖNF-id          : ∀ (τ : NormalType Δ κ) → subₖNF (η-norm ∘ `) τ ≡ τ
 subₖNF-id τ = 
@@ -42,16 +53,8 @@ subₖNF-id τ =
   (trans 
     (reify-≋ 
       (idext {η₁ = λ x → eval (⇑ (η-norm (` x))) idEnv} {η₂ = idEnv} 
-        (λ { x → fundC {τ₁ = ⇑ (η-norm (` x))} {τ₂ = ` x} idEnv-≋ {!   !} }) (⇑ τ)))
-        -- reify-≋-inj  ((idext idEnv-≋ (⇑ (η-norm (` x))))) (reflect-≋ refl) {!   !} (stability (η-norm (` x)))
+        (λ { x → fundC {τ₁ = ⇑ (η-norm (` x))} {τ₂ = ` x} idEnv-≋ (η-norm-≡t (` x)) }) (⇑ τ)))
     (stability τ))
-    where
-      lem : ∀ (x : KVar Δ κ) → ⇑ (reify (reflect (` x))) ≡t ` x
-      lem {κ = ★} x = eq-refl
-      lem {κ = L} x = eq-refl
-      lem {κ = κ `→ κ₁} x = eq-sym (eq-trans eq-η (eq-λ {! hmm  !}))
-      lem {κ = R[ κ ]} x = eq-refl
-
 
 subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
               subₖNF σ (ne (` x) {g}) ≡ σ x
