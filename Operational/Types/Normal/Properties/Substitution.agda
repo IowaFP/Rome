@@ -16,6 +16,8 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 
+open import Rome.Operational.Types.Normal.Properties.Renaming
+
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -30,7 +32,7 @@ open import Rome.Operational.Types.Theorems.Stability
 hmm : ∀ (τ : NeutralType Δ κ) → ⇑ (reify (reflect τ)) ≡t ⇑NE τ 
 hmm {κ = ★} τ = eq-refl
 hmm {κ = L} τ = eq-refl
-hmm {κ = κ `→ κ₁} τ = {! τ  !}
+hmm {κ = κ `→ κ₁} τ = eq-trans (eq-λ (hmm (renₖNE S τ · reify (reflect (` Z))))) (eq-trans (eq-λ (eq-· (inst (↻-ren-⇑NE S τ)) (hmm (` Z)))) (eq-sym eq-η))
 hmm {κ = R[ κ ]} τ = eq-refl 
 
 subₖNF-id          : ∀ (τ : NormalType Δ κ) → subₖNF (η-norm ∘ `) τ ≡ τ
@@ -47,7 +49,7 @@ subₖNF-id τ =
       lem : ∀ (x : KVar Δ κ) → ⇑ (reify (reflect (` x))) ≡t ` x
       lem {κ = ★} x = eq-refl
       lem {κ = L} x = eq-refl
-      lem {κ = κ `→ κ₁} x = eq-sym (eq-trans eq-η (eq-λ {! eq-·  !}))
+      lem {κ = κ `→ κ₁} x = eq-sym (eq-trans eq-η (eq-λ {! hmm  !}))
       lem {κ = R[ κ ]} x = eq-refl
 
 
