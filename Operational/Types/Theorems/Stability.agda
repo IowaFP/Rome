@@ -10,7 +10,6 @@ open import Rome.Operational.Types
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Normal.Properties.Renaming
 
 open import Rome.Operational.Types.Semantic.Syntax

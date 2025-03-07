@@ -178,6 +178,32 @@ reify-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} 
 reify-≋ {κ = R[ κ ]} {nothing} {nothing} tt = refl
 
 
+reify-≋-inj    : ∀ {τ₁ υ₁ τ₂ υ₂ : SemType Δ κ} → 
+  τ₁ ≋ υ₁ → 
+  τ₂ ≋ υ₂ → 
+  υ₁ ≋ υ₂ →
+  reify τ₁ ≡ reify τ₂ → 
+  τ₁ ≋ τ₂
+reify-≋-inj {κ = ★} r₁ r₂ r₃ eq = eq
+reify-≋-inj {κ = L} r₁ r₂ r₃ eq = eq
+reify-≋-inj {κ = κ `→ κ₁} {τ₁} {υ₁} {τ₂} {υ₂} r₁ r₂ r₃ eq = 
+  fst r₁ , 
+  fst r₂ , 
+  λ ρ {V₁} {V₂} v → 
+    trans-≋ 
+      (third r₁ ρ v) 
+    (trans-≋ (third r₃ ρ (sym-≋ v))
+      (sym-≋ (third r₂ ρ (sym-≋ v))))
+reify-≋-inj {κ = R[ κ ]} {just (left x)} {_} {just (left x₁)} r₁ r₂ r₃ refl = refl
+reify-≋-inj {κ = R[ κ ]} {just (right (l₁ , τ₁))} {just (right (l₂ , τ₂))} {just (right (l₃ , τ₃))} {just (right (l₄ , τ₄))} (_ , r₁) (_ , r₂) r₃ eq = 
+  (inj-▹ₗ eq) , (reify-≋-inj r₁ r₂ (snd r₃) (inj-▹ᵣ eq))
+reify-≋-inj {κ = R[ κ ]} {just (left x)} {_} {nothing} r₁ r₂ r₃ ()
+reify-≋-inj {κ = R[ κ ]} {just (right y)} {_} {nothing} r₁ r₂ r₃ ()
+reify-≋-inj {κ = R[ κ ]} {nothing} {_} {just (left x)} r₁ r₂ r₃ ()
+reify-≋-inj {κ = R[ κ ]} {nothing} {_} {just (right y)} r₁ r₂ r₃ ()
+reify-≋-inj {κ = R[ κ ]} {nothing} {_} {nothing} r₁ r₂ r₃ eq = tt
+
+
 --------------------------------------------------------------------------------
 -- Renamingₖ commutes with reification.
 

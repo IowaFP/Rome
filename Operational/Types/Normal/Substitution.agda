@@ -10,14 +10,17 @@ open import Rome.Operational.Types.Substitution
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
--- 3.6 Normality preserving Type Substitution
+-- Normality preserving Type Substitution
 
 SubstitutionₖNF : KEnv → KEnv → Set
 SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
+
+-- η-normalization of neutral types
+η-norm : NeutralType Δ κ → NormalType Δ κ 
+η-norm = reify ∘ reflect
 
 -- -- ↑ing a substitution over binders.
 liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)
