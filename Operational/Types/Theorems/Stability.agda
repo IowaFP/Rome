@@ -50,10 +50,10 @@ stability-β {Δ = Δ} τ =
         η (S x) = ↻-ren-reflect S (` x)
   
 stability Unit = refl
-stability {κ = ★} (ne x g) = stabilityNE x
-stability {κ = L} (ne x g)       = stabilityNE x
-stability {_} {κ `→ κ₁} (ne x ())
-stability {κ = R[ κ ]} (ne x g) rewrite stabilityNE x = refl
+stability {κ = ★} (ne x) = stabilityNE x
+stability {κ = L} (ne x)       = stabilityNE x
+stability {_} {κ `→ κ₁} (ne x {()})
+stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
 stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
 stability (`∀ κ τ) = cong (`∀ κ) (stability-β τ)
 stability (μ τ)  rewrite stability τ = refl

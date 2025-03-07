@@ -64,7 +64,7 @@ data NormalType Δ where
 
   ne : 
 
-      (x : NeutralType Δ κ) → (ground : True (ground? κ)) → 
+      (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
       --------------
       NormalType Δ κ
 
@@ -159,7 +159,7 @@ data NormalType Δ where
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
 -- constructors.
 
-inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ g ≡ ne e₂ g → e₁ ≡ e₂
+inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
 inj-ne refl = refl
 
 inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
@@ -177,10 +177,10 @@ inj-▹ᵣ refl = refl
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
     ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ))) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] (ρ ≡ ne τ tt) or 
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
     ρ ≡ ε 
 row-canonicity (l ▹ τ) = left (l , τ , refl)
-row-canonicity (ne τ g) = right (left (τ , refl))
+row-canonicity (ne τ) = right (left (τ , refl))
 row-canonicity ε = right (right refl)
 
 
@@ -216,7 +216,7 @@ arrow-canonicity (`λ f) = f , refl
 
 ⇑ Unit   = Unit
 ⇑ ε   = ε
-⇑ (ne x g) = ⇑NE x
+⇑ (ne x) = ⇑NE x
 ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂

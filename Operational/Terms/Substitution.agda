@@ -43,7 +43,7 @@ sub σ s {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
 sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) = 
-  Λ (conv (↻-subₖNF-lifts σ τ) (sub (liftsₖNF σ) (lifts s) M))
+  Λ (conv (↻-subₖNF-↑ σ τ) (sub (liftsₖNF σ) (lifts s) M))
 sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
 sub σ s {.(μ F)} (roll F M) = 
@@ -68,15 +68,15 @@ lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm 
 lem (T {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)
 
 _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
-_β[_] {τ₁ = τ₁} {τ₂} M N = {! sub (η-norm ∘ `)   !}
-  -- conv (sub-id τ₁) 
-  -- (sub 
-  --   (η-norm ∘ `) 
-  --   (extend 
-  --     (η-norm ∘ `) 
-  --     (conv (sym (sub-id _)) ∘ `) 
-  --     (conv (sym (sub-id τ₂)) N)) 
-  --     M)
+_β[_] {τ₁ = τ₁} {τ₂} M N = 
+  conv (sub-id τ₁) 
+  (sub 
+    (η-norm ∘ `) 
+    (extend 
+      (η-norm ∘ `) 
+      (conv (sym (sub-id _)) ∘ `) 
+      (conv (sym (sub-id τ₂)) N)) 
+      M)
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])

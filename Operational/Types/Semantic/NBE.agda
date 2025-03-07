@@ -20,8 +20,8 @@ open import Rome.Operational.Types.Semantic.Renaming
 reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
-reflect {κ = ★} τ            = ne τ tt
-reflect {κ = L} τ            = ne τ tt 
+reflect {κ = ★} τ            = ne τ
+reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} τ       = just (left τ)
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
@@ -31,7 +31,7 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
-reify {κ = R[ κ ]} (just (left x)) = ne x tt
+reify {κ = R[ κ ]} (just (left x)) = ne x
 reify {κ = R[ κ ]} (just (right (l , τ))) = l ▹ (reify τ)
 reify {κ = R[ κ ]} nothing = ε
 
