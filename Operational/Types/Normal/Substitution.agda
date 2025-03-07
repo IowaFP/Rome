@@ -23,6 +23,10 @@ liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) 
 liftsₖNF {κ = κ} σ Z = η-norm (` Z)
 liftsₖNF σ (S x) = weakenₖNF (σ x)
 
+-- Identity substitution (s.t. substₖNF idSubst x = (idSubst x))
+idSubst : SubstitutionₖNF Δ Δ
+idSubst = η-norm ∘ `
+
 -- Effectively: denormalize `n`, substitute, then normalize.
 subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
@@ -33,7 +37,9 @@ extendₖNF σ A (S x) = σ x
 
 -- -- Single variable substitution is a special case of simultaneous substitution.
 _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalType Δ κ₂
-τ₁ βₖNF[ τ₂ ] = subₖNF (extendₖNF (η-norm ∘ `) τ₂) τ₁
+τ₁ βₖNF[ τ₂ ] = subₖNF (extendₖNF idSubst τ₂) τ₁
 
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
+
+

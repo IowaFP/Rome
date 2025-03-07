@@ -11,7 +11,6 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
-open import Rome.Operational.Types.Normal.Eta-expansion
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Renaming
@@ -20,8 +19,7 @@ open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Terms.Syntax
 open import Rome.Operational.Terms.GVars
 
-open import Rome.Operational.Types.Theorems.Completeness.Relation
-open import Rome.Operational.Types.Theorems.Completeness.Commutativity
+open import Rome.Operational.Types.Theorems.Completeness
 
 private
   variable
