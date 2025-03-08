@@ -48,9 +48,8 @@ sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) =
   Λ (conv (↻-lifted-subₖNF-eval σ τ) (sub (liftsₖNF σ) (lifts s) M))
 sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv-t 
-    {τ₁ = {!   !}} 
-    {τ₂ = {! ⇑ (eval (subₖ (liftsₖ (λ x → ⇑ (σ x))) (⇑ τ₁)) (lifte idEnv) βₖNF[
-       subₖNF σ τ₂ ])  !}} 
+    {τ₁ = {! sub σ s M ·[ subₖNF σ τ₂ ] !}} 
+    {τ₂ = subₖ (⇑ ∘ σ) (⇑ (⇓ (subₖ (⇑ ∘ extendₖNF idSubst τ₂) (⇑ τ₁))))} 
     {!   !} 
     (sub σ s M ·[ subₖNF σ τ₂ ]) 
     -- (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
