@@ -20,6 +20,7 @@ open import Rome.Operational.Types.Normal.Properties.Renaming
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
@@ -108,13 +109,32 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 ↻-renₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (ρ : Renamingₖ Δ₂ Δ₃)
                     (τ : NormalType Δ₁ κ) → subₖNF (renₖNF ρ ∘ σ) τ ≡ renₖNF ρ (subₖNF σ τ)           
 ↻-renₖNF-subₖNF σ ρ τ = 
-  subst 
-    (λ x → subₖNF (renₖNF ρ ∘ σ) x ≡ renₖNF ρ (subₖNF σ τ)) 
-    (stability τ) 
-    (trans 
-      (sym (↻-⇓-sub (renₖNF ρ ∘ σ) (⇑ τ))) 
-      -- not sure this is the right direction
-      {!   !})                    
+  trans 
+    (reify-≋ 
+      (trans-≋ 
+        (trans-≋ 
+          (↻-subₖ-eval (⇑ τ) idEnv-≋ (⇑ ∘ renₖNF ρ ∘ σ)) 
+          (trans-≋ 
+            (idext 
+              (λ x → trans-≋ 
+                (subst 
+                  (λ y → eval (⇑ (renₖNF ρ (σ x)))  idEnv ≋ eval y idEnv) 
+                  (↻-ren-⇑ ρ (σ x)) 
+                  (idext idEnv-≋ (⇑ (renₖNF ρ (σ x)))))
+                (trans-≋ 
+                  (↻-renₖ-eval ρ  (⇑ (σ x)) idEnv-≋) 
+                  (idext (sym-≋ ∘ ↻-ren-reflect ρ ∘ `) (⇑ (σ x))))) 
+              (⇑ τ))
+            ((sym-≋ (↻-subₖ-eval (⇑ τ) (ren-≋ ρ ∘ idEnv-≋) (⇑ ∘ σ)))))) 
+        (sym-≋ (↻-renSem-eval ρ (subₖ (⇑ ∘ σ) (⇑ τ)) idEnv-≋))))
+    (sym (↻-ren-reify ρ (idext idEnv-≋ (subₖ (⇑ ∘ σ) (⇑ τ)))))
+  -- subst 
+  --   (λ x → subₖNF (renₖNF ρ ∘ σ) x ≡ renₖNF ρ (subₖNF σ τ)) 
+  --   (stability τ) 
+  --   (trans 
+  --     (sym (↻-⇓-sub (renₖNF ρ ∘ σ) (⇑ τ))) 
+  --     -- not sure this is the right direction
+  --     {! ↻-⇓-sub  !})                    
 
 ↻-subₖNF-renₖNF : ∀ (ρ : Renamingₖ Δ₁ Δ₂)(σ : SubstitutionₖNF Δ₂ Δ₃)
                 (τ : NormalType Δ₁ κ) → subₖNF (σ ∘ ρ) τ ≡ subₖNF σ (renₖNF ρ τ)           
@@ -148,8 +168,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 ↻-renₖNF-β ρ τ₁ τ₂ = {!   !}
 
 --------------------------------------------------------------------------------
--- Substituting a lifted substitution is equivalent to evaluation in a lifted 
--- environment
+-- Substituting a lifted substitution is equivalent to evaluating a lifted environment
 
 ↻-lifted-subₖNF-eval      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
                     subₖNF (liftsₖNF σ) τ 
