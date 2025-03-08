@@ -2481,9 +2481,9 @@ subNf⋆-[]Nf⋆' : ∀{ϕ Ψ K J}
   → (B : ϕ ,⋆ K ⊢Nf⋆ J)
     --------------------------------------------------------------
   → subNf⋆ σ (B [ A ]Nf⋆) ≡ subNf⋆ (liftsNf⋆ σ) B [ subNf⋆ σ A ]Nf⋆
-subNf⋆-[]Nf⋆' σ A B = trans
-  (sym (subNf⋆-comp (extendNf⋆ (ne ∘ `) A) σ B))
-  (trans
+subNf⋆-[]Nf⋆' σ A B = trans -- A
+  (sym (subNf⋆-comp (extendNf⋆ (ne ∘ `) A) σ B)) -- A.1
+  (trans --A.2
     (subNf⋆-cong
       {σ = subNf⋆ σ ∘ extendNf⋆ (ne ∘ `) A}
       {σ' = subNf⋆ (extendNf⋆ (ne ∘ `) (subNf⋆ σ A)) ∘ liftsNf⋆ σ}

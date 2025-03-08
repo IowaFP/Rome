@@ -6,10 +6,15 @@ open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
 
+open import Rome.Operational.Types.Equivalence
+
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Semantic.NBE
+
+open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Completeness
 
 --------------------------------------------------------------------------------
 -- 3.7 Terms with normal types
@@ -133,3 +138,6 @@ convVar refl v = v
 
 conv : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → τ₁ ≡ τ₂ → Term Γ τ₁ → Term Γ τ₂
 conv refl M = M
+
+conv-t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → Term Γ (⇓ τ₁) → Term Γ (⇓ τ₂)
+conv-t eq M = conv (completeness eq) M
