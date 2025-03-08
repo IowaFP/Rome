@@ -29,7 +29,7 @@ Substitution Γ₁ Γ₂ σ = {τ : NormalType _ ★} → Var Γ₁ τ → Term 
 
 lifts : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
             Substitution Γ₁ Γ₂ σ → Substitution (Γ₁ ,, κ) (Γ₂ ,, κ) (liftsₖNF σ)
-lifts {σ = σ} s (T {τ = τ} x) = conv (↻-weaken-sub σ τ) (weakenByKind (s x))
+lifts {σ = σ} s (T {τ = τ} x) = conv (↻-weakenₖNF-subₖNF σ τ) (weakenByKind (s x))
 
 liftsType : ∀ {σ : SubstitutionₖNF _ _} →
         Substitution Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Substitution (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
@@ -42,13 +42,13 @@ sub σ s {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
 sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) = 
-  Λ (conv (↻-subₖNF-lifts σ τ) (sub (liftsₖNF σ) (lifts s) M))
+  Λ (conv (↻-lifted-subₖNF-eval σ τ) (sub (liftsₖNF σ) (lifts s) M))
 sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
 sub σ s {.(μ F)} (roll F M) = 
-  roll (subₖNF σ F) (conv (cong-·' σ F (μ F)) (sub σ s M))
+  roll (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
 sub σ s {_} (unroll F M) = 
-  conv (sym (cong-·' σ F (μ F))) (unroll (subₖNF σ F) (sub σ s M))
+  conv (sym (subₖNF-cong-·' σ F (μ F))) (unroll (subₖNF σ F) (sub σ s M))
 sub σ s {x} (lab l) = lab (subₖNF σ l)
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
@@ -61,7 +61,6 @@ extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ �
          Substitution (Γ₁ , τ) Γ₂ σ
 extend σ s M Z = M
 extend σ s M (S x) = s x
-       
 
 lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
 lem (T {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)

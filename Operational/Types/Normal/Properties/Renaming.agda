@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Normal.Properties.Renaming where
 
 open import Rome.Operational.Prelude
@@ -157,11 +158,11 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ = refl
 
 --------------------------------------------------------------------------------
--- Lifting commutes with weakening
+-- Weakening commutes with renaming
 
-↻-liftₖ-weaken : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
+↻-weakenₖNF-renₖNF  : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
                 renₖNF (liftₖ {κ = κ'} ρ) (renₖNF S τ) ≡ renₖNF S (renₖNF ρ τ)
-↻-liftₖ-weaken {κ' = κ'} ρ τ 
+↻-weakenₖNF-renₖNF  {κ' = κ'} ρ τ 
   rewrite 
     sym (renₖNF-comp (S {κ₂ = κ'}) (liftₖ ρ) τ) 
   | renₖNF-comp ρ (S {κ₂ = κ'}) τ = refl

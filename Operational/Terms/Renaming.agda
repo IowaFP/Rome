@@ -14,7 +14,6 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Renaming
--- open import Rome.Operational.Types.Properties.Renaming
 
 open import Rome.Operational.Terms.Syntax
 open import Rome.Operational.Terms.GVars

@@ -31,14 +31,16 @@ idSubst = η-norm ∘ `
 subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
 
-extendₖNF : SubstitutionₖNF Δ₁ Δ₂ → (A : NormalType Δ₂ κ) → SubstitutionₖNF(Δ₁ ,, κ) Δ₂
+-- Extend the substitution with a NormalType
+extendₖNF : SubstitutionₖNF Δ₁ Δ₂ → (A : NormalType Δ₂ κ) → SubstitutionₖNF (Δ₁ ,, κ) Δ₂
 extendₖNF σ A Z = A
 extendₖNF σ A (S x) = σ x
 
--- -- Single variable substitution is a special case of simultaneous substitution.
+-- Single variable substitution is a special case of simultaneous substitution.
 _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalType Δ κ₂
 τ₁ βₖNF[ τ₂ ] = subₖNF (extendₖNF idSubst τ₂) τ₁
 
+-- Application *is* β-substitution due to canonicity of arrow kinded types
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
