@@ -127,14 +127,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
               (⇑ τ))
             ((sym-≋ (↻-subₖ-eval (⇑ τ) (ren-≋ ρ ∘ idEnv-≋) (⇑ ∘ σ)))))) 
         (sym-≋ (↻-renSem-eval ρ (subₖ (⇑ ∘ σ) (⇑ τ)) idEnv-≋))))
-    (sym (↻-ren-reify ρ (idext idEnv-≋ (subₖ (⇑ ∘ σ) (⇑ τ)))))
-  -- subst 
-  --   (λ x → subₖNF (renₖNF ρ ∘ σ) x ≡ renₖNF ρ (subₖNF σ τ)) 
-  --   (stability τ) 
-  --   (trans 
-  --     (sym (↻-⇓-sub (renₖNF ρ ∘ σ) (⇑ τ))) 
-  --     -- not sure this is the right direction
-  --     {! ↻-⇓-sub  !})                    
+    (sym (↻-ren-reify ρ (idext idEnv-≋ (subₖ (⇑ ∘ σ) (⇑ τ)))))                  
 
 ↻-subₖNF-renₖNF : ∀ (ρ : Renamingₖ Δ₁ Δ₂)(σ : SubstitutionₖNF Δ₂ Δ₃)
                 (τ : NormalType Δ₁ κ) → subₖNF (σ ∘ ρ) τ ≡ subₖNF σ (renₖNF ρ τ)           
