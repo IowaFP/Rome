@@ -105,9 +105,20 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Substitution commutes with renaming
 
-↻-subₖNF-renₖNF : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : SubstitutionₖNF Δ₂ Δ₃}  
+↻-renₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (ρ : Renamingₖ Δ₂ Δ₃)
+                    (τ : NormalType Δ₁ κ) → subₖNF (renₖNF ρ ∘ σ) τ ≡ renₖNF ρ (subₖNF σ τ)           
+↻-renₖNF-subₖNF σ ρ τ = 
+  subst 
+    (λ x → subₖNF (renₖNF ρ ∘ σ) x ≡ renₖNF ρ (subₖNF σ τ)) 
+    (stability τ) 
+    (trans 
+      (sym (↻-⇓-sub (renₖNF ρ ∘ σ) (⇑ τ))) 
+      -- not sure this is the right direction
+      {!   !})                    
+
+↻-subₖNF-renₖNF : ∀ (ρ : Renamingₖ Δ₁ Δ₂)(σ : SubstitutionₖNF Δ₂ Δ₃)
                 (τ : NormalType Δ₁ κ) → subₖNF (σ ∘ ρ) τ ≡ subₖNF σ (renₖNF ρ τ)           
-↻-subₖNF-renₖNF {ρ = ρ} {σ} τ rewrite (sym (stability τ)) = 
+↻-subₖNF-renₖNF ρ σ τ rewrite (sym (stability τ)) = 
   trans 
     (sym (↻-⇓-sub (σ ∘ ρ) (⇑ τ))) 
     (cong ⇓
@@ -121,18 +132,20 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
             (sym (↻-ren-⇑ ρ τ))))))
 
 --------------------------------------------------------------------------------
+-- weakening commutes with substitution.
+
+↻-weakenₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
+                  weakenₖNF {κ₁ = κ'} (subₖNF σ τ) ≡ subₖNF (liftsₖNF σ) (weakenₖNF τ)
+↻-weakenₖNF-subₖNF σ τ {κ} = trans 
+  (sym (↻-renₖNF-subₖNF σ S τ)) 
+  ((↻-subₖNF-renₖNF S (liftsₖNF σ) τ))
+
+--------------------------------------------------------------------------------
 -- renaming commutes with beta-reduction
 
 ↻-renₖNF-β      : (ρ : Renamingₖ Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                 renₖNF ρ (τ₁ βₖNF[ τ₂ ]) ≡ (renₖNF (liftₖ ρ) τ₁) βₖNF[ (renₖNF ρ τ₂) ]
 ↻-renₖNF-β ρ τ₁ τ₂ = {!   !}
-
---------------------------------------------------------------------------------
--- weakening commutes with substitution.
-
-↻-weakenₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
-                  weakenₖNF {κ₁ = κ'} (subₖNF σ τ) ≡ subₖNF (liftsₖNF σ) (weakenₖNF τ)
-↻-weakenₖNF-subₖNF σ τ {κ} = {!   !}
 
 --------------------------------------------------------------------------------
 -- Substituting a lifted substitution is equivalent to evaluation in a lifted 
