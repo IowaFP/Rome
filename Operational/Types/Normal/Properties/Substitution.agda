@@ -204,7 +204,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
       (subₖNF-cong 
         {σ₁ = subₖNF σ ∘ extendₖNF (η-norm ∘ `) τ₂} 
         {subₖNF (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) ∘ liftsₖNF σ} 
-        (λ { Z → sym {! subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z     !}
+        (λ { Z → sym {! subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z  !}
            ; (S x) → {!   !} })
         τ₁) 
       (subₖNF-comp (liftsₖNF σ) (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) τ₁))
@@ -239,7 +239,26 @@ weakenₖNF-β-id τ {τ₂} = {!↻-weaken-sub  !}
                   ≡ 
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)) (lifte idEnv)
                     βₖNF[ subₖNF σ τ₂ ]
-↻-subₖNF-β σ τ₁ τ₂ =  {!   !}
+↻-subₖNF-β σ τ₁ τ₂ =  completeness
+  {τ₁ =
+   subₖ (λ x → ⇑ (σ x))
+   (⇑
+    (eval
+     (subₖ (λ x → ⇑ (extendₖNF (λ x₁ → reify (reflect (` x₁))) τ₂ x))
+      (⇑ τ₁))
+     (λ x → reflect (` x))))}
+  {τ₂ =
+   subₖ
+   (λ x →
+      ⇑
+      (extendₖNF (λ x₁ → reify (reflect (` x₁)))
+       (reify
+        (eval (subₖ (λ x₁ → ⇑ (σ x₁)) (⇑ τ₂)) (λ x₁ → reflect (` x₁))))
+       x))
+   (⇑
+    (eval (subₖ (liftsₖ (λ x → ⇑ (σ x))) (⇑ τ₁))
+     (extende (λ {κ'} v → renSem S (reflect (` v))) (reflect (` Z)))))}
+  {!   !}
 
 --------------------------------------------------------------------------------
 -- Substitution is congruent over _·'_
