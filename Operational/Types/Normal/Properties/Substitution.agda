@@ -94,9 +94,9 @@ subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) →
               subₖNF σ (idSubst x) ≡ σ x
 subₖNF-var {κ = ★} σ Z = stability (σ Z)
 subₖNF-var {κ = L} σ Z = stability (σ Z)
-subₖNF-var {κ = κ `→ κ₁} σ Z = {!   !}
+subₖNF-var {κ = κ `→ κ₁} σ Z = trans (cong `λ (reify-≋ {! ↻-subₖ-eval     !})) (stability (σ Z))
 subₖNF-var {κ = R[ κ ]} σ Z = stability (σ Z)
-subₖNF-var σ (S x) = trans (reify-≋ {!   !}) (stability (σ (S x))) -- stability (σ x)
+subₖNF-var σ (S x) = trans (reify-≋ {! ↻-subₖ-eval    !}) (stability (σ (S x))) -- stability (σ x)
 
 --------------------------------------------------------------------------------
 -- Congruence of normality preserving substitution
