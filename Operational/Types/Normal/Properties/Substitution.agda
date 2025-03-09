@@ -70,13 +70,6 @@ subₖNF-id τ =
     (stability τ))
 
 --------------------------------------------------------------------------------
--- Substitution over a variable substitutes the variable
-
-subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
-              subₖNF σ (ne (` x) {g}) ≡ σ x
-subₖNF-var σ x {g} = stability (σ x)
-
---------------------------------------------------------------------------------
 -- Substitution respects the functor composition
 
 subₖNF-comp :  ∀ (σ₁ : SubstitutionₖNF Δ₁ Δ₂) (σ₂ : SubstitutionₖNF Δ₂ Δ₃) → 
@@ -93,6 +86,17 @@ subₖNF-comp σ₁ σ₂ τ =
           (sym (reify-≋ (↻-subₖ-eval (⇑ τ) idEnv-≋ (subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))))) 
       (cong ⇓ (subₖ-comp (⇑ τ)))) 
     (↻-⇓-sub σ₂ (subₖ (⇑ ∘ σ₁) (⇑ τ)))
+    
+--------------------------------------------------------------------------------
+-- Substitution over a variable substitutes the variable
+
+subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) → 
+              subₖNF σ (idSubst x) ≡ σ x
+subₖNF-var {κ = ★} σ Z = stability (σ Z)
+subₖNF-var {κ = L} σ Z = stability (σ Z)
+subₖNF-var {κ = κ `→ κ₁} σ Z = {!   !}
+subₖNF-var {κ = R[ κ ]} σ Z = stability (σ Z)
+subₖNF-var σ (S x) = trans (reify-≋ {!   !}) (stability (σ (S x))) -- stability (σ x)
 
 --------------------------------------------------------------------------------
 -- Congruence of normality preserving substitution
@@ -204,7 +208,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
       (subₖNF-cong 
         {σ₁ = subₖNF σ ∘ extendₖNF (η-norm ∘ `) τ₂} 
         {subₖNF (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) ∘ liftsₖNF σ} 
-        (λ { Z → sym {! subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z  !}
+        (λ { Z → sym (subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z)
            ; (S x) → {!   !} })
         τ₁) 
       (subₖNF-comp (liftsₖNF σ) (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) τ₁))
