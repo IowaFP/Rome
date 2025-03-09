@@ -172,6 +172,23 @@ neededIdentity σ τ = subₖ-cong (λ { Z → {!   !}
 neededIdentity' : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
                     subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 
 neededIdentity' σ τ = {!   !}
+--------------------------------------------------------------------------------
+--               
+
+subₖ-cong-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
+                  τ₁ ≡t τ₂ → subₖ (⇑ ∘ σ) τ₁ ≡t subₖ (⇑ ∘ σ) τ₂
+subₖ-cong-≡t⇑ {σ = σ} eq = subₖ-cong-≡t {σ = ⇑ ∘ σ} eq                  
+
+
+subₖNF-cong-≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
+                ⇑ τ₁ ≡t ⇑ τ₂ → subₖNF σ τ₁ ≡ subₖNF σ τ₂
+subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq = 
+  reify-≋ 
+    (fundC 
+      {τ₁ = subₖ (⇑ ∘ σ) (⇑ τ₁)} 
+      {τ₂ = subₖ (⇑ ∘ σ) (⇑ τ₂)} 
+      idEnv-≋ (subₖ-cong-≡t⇑ {σ = σ} eq))
+
 
 --------------------------------------------------------------------------------
 -- Substituting commutes over β reduction (first statement)

@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Properties.Substitution where
 
 open import Rome.Operational.Prelude
@@ -208,5 +209,8 @@ renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans
 
 
 --------------------------------------------------------------------------------
--- renₖaming respects type equivalence
+-- substitution respects type equivalence
 
+subₖ-cong-≡t :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
+                  τ₁ ≡t τ₂ → subₖ σ τ₁ ≡t subₖ σ τ₂
+subₖ-cong-≡t {σ} eq = {!   !}   
