@@ -188,8 +188,8 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 
 neededIdentity : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
                     subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 
-neededIdentity σ τ = subₖ-cong (λ { Z → {!   !}
-                                  ; (S x) → {!   !} }) τ
+neededIdentity σ τ = {!   !} -- subₖ-cong (λ { Z → {!   !}
+                          --        ; (S x) → {!   !} }) τ
 
 neededIdentity' : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
                     subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 

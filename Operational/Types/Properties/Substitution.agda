@@ -213,4 +213,27 @@ renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans
 
 subₖ-cong-≡t :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
                   τ₁ ≡t τ₂ → subₖ σ τ₁ ≡t subₖ σ τ₂
-subₖ-cong-≡t {σ} eq = {!   !}   
+subₖ-cong-≡t {σ} eq-refl = eq-refl 
+subₖ-cong-≡t {σ} (eq-sym eq) = eq-sym (subₖ-cong-≡t eq)
+subₖ-cong-≡t {σ} (eq-trans eq eq₁) = eq-trans (subₖ-cong-≡t eq) (subₖ-cong-≡t eq₁)
+subₖ-cong-≡t {σ} (eq-→ eq eq₁) = eq-→ (subₖ-cong-≡t eq) (subₖ-cong-≡t eq₁)
+subₖ-cong-≡t {σ} (eq-∀ eq) = eq-∀ (subₖ-cong-≡t eq)
+subₖ-cong-≡t {σ} (eq-μ eq) = eq-μ (subₖ-cong-≡t eq)
+subₖ-cong-≡t {σ} (eq-λ eq) = eq-λ (subₖ-cong-≡t eq)
+subₖ-cong-≡t {σ} (eq-· eq eq₁) = eq-· (subₖ-cong-≡t eq) (subₖ-cong-≡t eq₁)
+subₖ-cong-≡t {σ} (eq-<$> eq eq₁) = eq-<$> (subₖ-cong-≡t eq) (subₖ-cong-≡t eq₁)
+subₖ-cong-≡t {σ} (eq-⌊⌋ eq) = eq-⌊⌋ (subₖ-cong-≡t eq)
+subₖ-cong-≡t {σ} (eq-▹ eq eq₁) = eq-▹ (subₖ-cong-≡t eq) (subₖ-cong-≡t eq₁)
+subₖ-cong-≡t {σ} (eq-⇒ x eq) = {!   !}
+subₖ-cong-≡t {σ} eq-η = {!   !}
+subₖ-cong-≡t {σ} eq-β = {!subₖ-comp   !}
+subₖ-cong-≡t {σ} eq-<$>ε = eq-<$>ε
+subₖ-cong-≡t {σ} eq-▹$ = eq-▹$
+subₖ-cong-≡t {σ} eq-Π▹ = eq-Π▹
+subₖ-cong-≡t {σ} eq-Σ▹ = eq-Σ▹
+subₖ-cong-≡t {σ} eq-Π = eq-Π
+subₖ-cong-≡t {σ} eq-Σ = eq-Σ
+subₖ-cong-≡t {σ} eq-Πλ = {!   !}
+subₖ-cong-≡t {σ} eq-Σλ = {!   !}
+subₖ-cong-≡t {σ} eq-Π-assoc = eq-Π-assoc
+subₖ-cong-≡t {σ} eq-Σ-assoc = eq-Σ-assoc
