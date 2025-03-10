@@ -16,7 +16,6 @@ open import Rome.Operational.Types.Normal.Renaming
 -- Semantic types.
 
 SemType : KEnv → Kind → Set
-
 KripkeFunction : KEnv → Kind → Kind → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 

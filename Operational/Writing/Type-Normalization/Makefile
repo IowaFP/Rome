@@ -16,7 +16,10 @@ all: pdf
 
 pdf:  
 	agda --latex --latex-dir . ${LAGDA}
-	pdflatex -halt-on-error -shell-escape ${DOC}
+	${LATEX} ${DOC}
+	bibtex ${DOC}
+	${LATEX} ${DOC}
+	${LATEX} ${DOC}
 
 #----------------------------------------------------------------
 
