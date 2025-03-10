@@ -930,7 +930,14 @@ idEnv = reflect ∘ `
 
 \subsection{Helping evaluation}
 
-In aid of writing an evaluator, we found it helpful to develop \emph{semantic} notions of the syntax introduced by \Rome. We can define a row-kinded constructors easily:
+In aid of writing an evaluator, we found it helpful to develop \emph{semantic} notions of the syntax introduced by \Rome. For example, we define a type synonym for application, which is simply Agda application within the identity renaming.
+
+\begin{code}
+_·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
+F ·V V = F id V
+\end{code}
+
+We can further define the constructors of the three canonical forms of row-kinded types:
 
 \begin{code}
 _▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
@@ -943,20 +950,15 @@ ne-R = just ∘ left
 εV = nothing
 \end{code}
 
-\Ni Application of semantic types is simply Agda application within the identity renaming.
 
-\begin{code}
-_·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
-F ·V V = F id V
-\end{code}
 
 \Ni The definition of semantic row mapping varies by the shape of the row \verb!V! over which we are lifting. If \verb!V! is neutral, so too must the mapping of \verb!F! over !V! be neutral. Hence we reify \verb!F! to normal form and leave its mapping in neutral form. If \verb!V! is a labeled row \verb!(l ▹ τ)!, we push the application of \verb!F! over \verb!τ!. Finally, if \verb!V! is the empty row, its mapping is empty.
 
 \begin{code}
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (just (left x)) = just (left (reifyKripke F <$> x))
-_<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = just (right (l , F ·V τ))
-_<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
+_<$>V_ {κ₁ = κ₁} {κ₂} F (just (left x)) = ne-R (reifyKripke F <$> x)
+_<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = (l ▹V (F ·V τ))
+_<$>V_ {κ₁ = κ₁} {κ₂} F nothing = εV
 \end{code}
 
 Although the flap operator \verb!_<?>_! is expressible as a special case of row mapping, we nevertheless find it a useful abstraction. It is defined below in terms of semantic row mapping; we find it likewise helpful to give a type synonym \verb!apply! to the left hand side of this equation.
@@ -980,7 +982,7 @@ Much of the latent computation in \Rome occurs under an outermost $\Pi$ and $\Si
 ΠV {κ = R[ κ ]} x = (λ ρ v → ΠV v) <$>V x
 \end{code} 
 
-\Ni We omit the definition of \verb!ΣV!, as it is identical logic modulo appropriate renaming.
+\Ni We omit the definition of \verb!ΣV!, as it differs only in naming.
 
 \subsection{Evaluation}
 
