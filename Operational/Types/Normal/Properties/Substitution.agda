@@ -86,17 +86,35 @@ subₖNF-comp σ₁ σ₂ τ =
           (sym (reify-≋ (↻-subₖ-eval (⇑ τ) idEnv-≋ (subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))))) 
       (cong ⇓ (subₖ-comp (⇑ τ)))) 
     (↻-⇓-sub σ₂ (subₖ (⇑ ∘ σ₁) (⇑ τ)))
-    
+
+--------------------------------------------------------------------------------
+--               
+
+subₖ-cong-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
+                  τ₁ ≡t τ₂ → subₖ (⇑ ∘ σ) τ₁ ≡t subₖ (⇑ ∘ σ) τ₂
+subₖ-cong-≡t⇑ {σ = σ} eq = subₖ-cong-≡t {σ = ⇑ ∘ σ} eq                  
+
+
+subₖNF-cong-≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
+                ⇑ τ₁ ≡t ⇑ τ₂ → subₖNF σ τ₁ ≡ subₖNF σ τ₂
+subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq = 
+  reify-≋ 
+    (fundC 
+      {τ₁ = subₖ (⇑ ∘ σ) (⇑ τ₁)} 
+      {τ₂ = subₖ (⇑ ∘ σ) (⇑ τ₂)} 
+      idEnv-≋ (subₖ-cong-≡t⇑ {σ = σ} eq))
+
 --------------------------------------------------------------------------------
 -- Substitution over a variable substitutes the variable
 
 subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) → 
               subₖNF σ (idSubst x) ≡ σ x
-subₖNF-var {κ = ★} σ Z = stability (σ Z)
-subₖNF-var {κ = L} σ Z = stability (σ Z)
-subₖNF-var {κ = κ `→ κ₁} σ Z = trans (cong `λ (reify-≋ {! ↻-subₖ-eval     !})) (stability (σ Z))
-subₖNF-var {κ = R[ κ ]} σ Z = stability (σ Z)
-subₖNF-var σ (S x) = trans (reify-≋ {! ↻-subₖ-eval    !}) (stability (σ (S x))) -- stability (σ x)
+subₖNF-var {κ = κ} σ x = trans
+  (reify-≋ (fundC {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
+    (eq-trans 
+      (subₖ-cong-≡t⇑ {σ = σ}  (η-norm-≡t (` x)))
+      eq-refl)))
+  (stability (σ x))
 
 --------------------------------------------------------------------------------
 -- Congruence of normality preserving substitution
@@ -176,23 +194,6 @@ neededIdentity σ τ = subₖ-cong (λ { Z → {!   !}
 neededIdentity' : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
                     subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 
 neededIdentity' σ τ = {!   !}
---------------------------------------------------------------------------------
---               
-
-subₖ-cong-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
-                  τ₁ ≡t τ₂ → subₖ (⇑ ∘ σ) τ₁ ≡t subₖ (⇑ ∘ σ) τ₂
-subₖ-cong-≡t⇑ {σ = σ} eq = subₖ-cong-≡t {σ = ⇑ ∘ σ} eq                  
-
-
-subₖNF-cong-≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
-                ⇑ τ₁ ≡t ⇑ τ₂ → subₖNF σ τ₁ ≡ subₖNF σ τ₂
-subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq = 
-  reify-≋ 
-    (fundC 
-      {τ₁ = subₖ (⇑ ∘ σ) (⇑ τ₁)} 
-      {τ₂ = subₖ (⇑ ∘ σ) (⇑ τ₂)} 
-      idEnv-≋ (subₖ-cong-≡t⇑ {σ = σ} eq))
-
 
 --------------------------------------------------------------------------------
 -- Substituting commutes over β reduction (first statement)
@@ -208,8 +209,12 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
       (subₖNF-cong 
         {σ₁ = subₖNF σ ∘ extendₖNF (η-norm ∘ `) τ₂} 
         {subₖNF (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) ∘ liftsₖNF σ} 
-        (λ { Z → sym (subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z)
-           ; (S x) → {!   !} })
+        (λ { Z     → sym (subₖNF-var (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) Z)
+           ; (S x) → trans 
+              (trans 
+                (subₖNF-var σ x)
+                (sym (subₖNF-id (σ x))))
+              (↻-subₖNF-renₖNF S (extendₖNF idSubst (subₖNF σ τ₂)) (σ x)) })
         τ₁) 
       (subₖNF-comp (liftsₖNF σ) (extendₖNF (η-norm ∘ `) (subₖNF σ τ₂)) τ₁))
 
