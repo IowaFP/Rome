@@ -56,12 +56,12 @@ progress p (M · N)       | Steps M' steps = Steps (M' · N) (ξ-·1 steps)
 progress p (M ·[ τ ]) with progress p M
 progress p (.(Λ V) ·[ τ ]) | Done (V-Λ V) = Steps _ β-Λ
 progress p (M ·[ τ ])      | Steps M' steps = Steps _ (ξ-·[] steps)
-progress p (roll τ M) with progress p M 
-... | Done V         = Done (V-roll τ V) 
-... | Steps M' steps = Steps (roll τ M') (ξ-roll steps) 
-progress p (unroll τ M) with progress p M
-progress p (unroll τ .(roll τ _)) | Done (V-roll F M) = Steps _ β-roll
-progress p (unroll τ M)           | Steps M' steps = Steps _ (ξ-unroll steps)
+progress p (In τ M) with progress p M 
+... | Done V         = Done (V-In τ V) 
+... | Steps M' steps = Steps (In τ M') (ξ-In steps) 
+progress p (Out τ M) with progress p M
+progress p (Out τ .(In τ _)) | Done (V-In F M) = Steps _ β-In
+progress p (Out τ M)           | Steps M' steps = Steps _ (ξ-Out steps)
 progress p (# l) = Done V-#
 progress p (ℓ Π▹ M) with progress p M 
 ... | Done VM = Done (V-Π ℓ M VM)

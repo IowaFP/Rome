@@ -77,13 +77,13 @@ data Term {Δ} Γ : Type Δ ★ → Set where
   ------------------------------------------------------------
   -- Recursive types
 
-  roll : 
+  In : 
          ∀ F → 
          Term Γ (F · μ F) → 
          -----------------
          Term Γ (μ F)
 
-  unroll : 
+  Out : 
            ∀ F → 
            Term Γ (μ F) → 
            --------------

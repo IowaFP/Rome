@@ -29,10 +29,10 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
           (M : Term (Γ ,, κ) τ) → 
           Value (Λ M)
 
-  V-roll : ∀ (F : NormalType Δ (★ `→ ★)) 
+  V-In : ∀ (F : NormalType Δ (★ `→ ★)) 
              {M : Term Γ (F ·' (μ F))} → 
              Value M → 
-             Value (roll F M)
+             Value (In F M)
 
   V-# : ∀ {l : Label} →  
           Value (# l)
@@ -72,15 +72,15 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             ------------------------
             M₁ ·[ τ' ] —→ M₂ ·[ τ' ]
 
-  ξ-unroll : ∀ {F} {M₁ M₂ : Term Γ (μ F)} →
+  ξ-Out : ∀ {F} {M₁ M₂ : Term Γ (μ F)} →
                M₁ —→ M₂ →
                -----------------------
-               unroll F M₁ —→ unroll F M₂
+               Out F M₁ —→ Out F M₂
 
-  ξ-roll : ∀ {F} {M₁ M₂ : Term Γ (F ·' (μ F))} →
+  ξ-In : ∀ {F} {M₁ M₂ : Term Γ (F ·' (μ F))} →
              M₁ —→ M₂ →
              -----------------------
-             roll F M₁ —→ roll F M₂
+             In F M₁ —→ In F M₂
 
   ξ-Π▹ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
             (M₁ M₂ : Term Γ τ) (ℓ : Term Γ ⌊ l ⌋)  → 
@@ -121,10 +121,10 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
           --------------------------
           Λ M ·[ τ₁ ] —→ M β·[ τ₁ ]
 
-  β-roll : ∀ {F} {M : Term Γ (F ·' μ F)} →
+  β-In : ∀ {F} {M : Term Γ (F ·' μ F)} →
 
              -------------------------
-             unroll F (roll F M) —→ M
+             Out F (In F M) —→ M
 
   β-Π/ :  ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
             (M : Term Γ τ) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋) → 

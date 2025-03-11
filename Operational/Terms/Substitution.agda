@@ -49,10 +49,10 @@ sub σ s {.(`∀ _ _)} (Λ {τ = τ} M) =
 sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv 
     (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
-sub σ s {.(μ F)} (roll F M) = 
-  roll (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
-sub σ s {_} (unroll F M) = 
-  conv (sym (subₖNF-cong-·' σ F (μ F))) (unroll (subₖNF σ F) (sub σ s M))
+sub σ s {.(μ F)} (In F M) = 
+  In (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
+sub σ s {_} (Out F M) = 
+  conv (sym (subₖNF-cong-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
 sub σ s {x} (# l) = # l
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l

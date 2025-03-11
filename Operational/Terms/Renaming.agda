@@ -57,12 +57,12 @@ ren P (`λ M) = `λ (ren (lift P) M)
 ren P (M · N) = (ren P M) · (ren P N)
 ren P (Λ M) = Λ (ren (liftKVar P) M)
 ren {ρ = ρ} P (_·[_] {τ₂ = τ₂} M τ) = conv (sym (↻-renₖNF-β ρ τ₂ τ)) ((ren P M) ·[ renₖNF ρ τ ])
-ren {ρ = ρ} P (roll F@(`λ τ) N) = 
-  roll 
+ren {ρ = ρ} P (In F@(`λ τ) N) = 
+  In 
     (renType P F) 
     (conv (↻-renₖNF-β  ρ τ (μ F)) 
       (ren P N))
-ren {ρ = ρ} P (unroll F@(`λ τ) M) = conv (sym (↻-renₖNF-β ρ τ ((μ F)))) (unroll (renType P F) (ren P M))
+ren {ρ = ρ} P (Out F@(`λ τ) M) = conv (sym (↻-renₖNF-β ρ τ ((μ F)))) (Out (renType P F) (ren P M))
 ren P (# l) = # l
 ren P (l Π▹ M) = (ren P l) Π▹ (ren P M)
 ren P (M Π/ l) = ren P M Π/ ren P l
