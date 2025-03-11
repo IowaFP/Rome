@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Semantics.Properties where
+module Rome.Operational.Terms.Semantics.Progress where
 
 open import Rome.Operational.Prelude
 
@@ -50,11 +50,8 @@ progress p (` x) with noVar p x
 
 progress p (`λ M) = Done (V-λ M)
 progress p (Λ M) = Done (V-Λ M)
-
-progress p (M · N) with progress p M 
-progress p (.(`λ M) · N) | Done (V-λ M) with progress p N 
-progress p (.(`λ M) · N) | Done (V-λ M) | Done V' = Steps (M β[ N ]) (β-λ V')
-progress p (M · N)       | Done V       | Steps N' steps = Steps (M · N') (ξ-·2 V steps)
+progress p (M · N) with progress p M
+progress p (.(`λ M) · N) | Done (V-λ M)   = Steps (M β[ N ]) β-λ
 progress p (M · N)       | Steps M' steps = Steps (M' · N) (ξ-·1 steps)
 progress p (M ·[ τ ]) with progress p M
 progress p (.(Λ V) ·[ τ ]) | Done (V-Λ V) = Steps _ β-Λ
@@ -66,26 +63,31 @@ progress p (unroll τ M) with progress p M
 progress p (unroll τ .(roll τ _)) | Done (V-roll F M) = Steps _ β-roll
 progress p (unroll τ M)           | Steps M' steps = Steps _ (ξ-unroll steps)
 progress p (# l) = Done V-#
-progress p (ℓ Π▹ M) = {!   !}
-progress p (_Π/_ {l} M ℓ) with progress p M | progress p ℓ
-... | Done (V-Π ℓ₁ N VN)  | Done Vℓ = Steps N (β-Π/ N ℓ₁ ℓ VN)
-... | Done (V-Π ℓ₁ N VN) | Steps ℓ' ℓ—→ℓ' = Steps ((ℓ₁ Π▹ N) Π/ ℓ') (ξ-Π/₂ M ℓ ℓ' (V-Π ℓ₁ N VN) ℓ—→ℓ')
-... | Steps M' M—→M' | Done Vℓ = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
-... | Steps M' M—→M' | Steps ℓ' ℓ—→ℓ' = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
-
-progress p (ℓ Σ▹ M) = {!   !}
-progress p (ℓ Σ/ M) = {!   !}
+progress p (ℓ Π▹ M) with progress p M 
+... | Done VM = Done (V-Π ℓ M VM)
+... | Steps M' M—→M' = Steps (ℓ Π▹ M') (ξ-Π▹ M M' ℓ M—→M')
+progress p (_Π/_ {l} M ℓ) with progress p M
+... | Done (V-Π ℓ₁ N VN)  = Steps N (β-Π/ N ℓ₁ ℓ VN)
+... | Steps M' M—→M' = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
+progress p (ℓ Σ▹ M) with progress p M 
+... | Done VM = Done (V-Σ ℓ M VM)
+... | Steps M' M—→M' = Steps (ℓ Σ▹ M') (ξ-Σ▹ M M' ℓ M—→M')
+progress p (_Σ/_ {l} M ℓ) with progress p M
+... | Done (V-Σ ℓ₁ N VN)  = Steps N (β-Σ/ N ℓ₁ ℓ VN)
+... | Steps M' M—→M' = Steps (M' Σ/ ℓ) (ξ-Σ/₁ M M' ℓ M—→M')
 
 progress-ε : ∀ {τ} (M : Term ε τ) →
              Progress M
 progress-ε = progress tt
 
-
 -------------------------------------------------------------------------------
--- Tinkering 
+-- Tinkering
 
-_ : Progress (`λ ((# "l" Π▹ # "r") Π/ ` Z) · (# "l"))
-_ = Steps (((# "l" Π▹ # "r") Π/ (# "l"))) (β-λ V-#)
+{-# TERMINATING #-}
+eval : ∀ {τ} → Term ε τ → Term ε τ 
+eval M with progress tt M 
+... | Done x = M
+... | Steps M' x = eval M'
 
-_ : Progress ((# "l" Π▹ # "r") Π/ (# "l"))
-_ = Steps (# "r") (β-Π/ (# "r") (# "l") (# "l") V-#)
+_ : eval ((# "l" Π▹ # "r") Π/ (# "l")) ≡ (# "r")
+_ = refl

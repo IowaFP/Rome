@@ -44,8 +44,8 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value (ℓ Π▹ M)
 
-  V-Σ   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
-            (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
+  V-Σ   : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ τ) → 
 
             Value M → 
             ---------------------
@@ -56,16 +56,11 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
 
 infixr 0 _—→_
 data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
-  
+  -- congruence rules
   ξ-·1 : ∀ {τ₁ τ₂} {M₁ M₂ : Term Γ (τ₁ `→ τ₂)} {N : Term Γ τ₁} →
            M₁ —→ M₂ →
            -----------------
            M₁ · N —→ M₂ · N
-
-  ξ-·2 : ∀ {τ₁ τ₂} {V : Term Γ (τ₁ `→ τ₂)} {N₁ N₂ : Term Γ τ₁} →
-           Value V → N₁ —→ N₂ →
-           -----------------------
-           V · N₁ —→ V · N₂
 
   ξ-Λ : ∀ {τ} {M₁ M₂ : Term (Γ ,, κ) τ} →
          M₁ —→ M₂ →
@@ -87,23 +82,37 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              roll F M₁ —→ roll F M₂
 
+  ξ-Π▹ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M₁ M₂ : Term Γ τ) (ℓ : Term Γ ⌊ l ⌋)  → 
+
+             M₁ —→ M₂ → 
+             -----------------------
+             (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
+
   ξ-Π/₁ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
             (M₁ M₂ : Term Γ (Π (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
-             (M₁ Π/ ℓ) —→ (M₂ Π/ ℓ)            
+             (M₁ Π/ ℓ) —→ (M₂ Π/ ℓ)        
 
-  ξ-Π/₂ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
-            (M : Term Γ (Π (l ▹ τ))) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋)  → 
+  ξ-Σ▹ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M₁ M₂ : Term Γ τ) (ℓ : Term Γ ⌊ l ⌋)  → 
 
-             Value M → ℓ₁ —→ ℓ₂ → 
+             M₁ —→ M₂ → 
              -----------------------
-             (M Π/ ℓ₁) —→ (M Π/ ℓ₂)            
+             (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
-  -- N.b. Call by value.
+  ξ-Σ/₁ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M₁ M₂ : Term Γ (Σ (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
+
+             M₁ —→ M₂ → 
+             -----------------------
+             (M₁ Σ/ ℓ) —→ (M₂ Σ/ ℓ)    
+
+  -- computational rules
   β-λ : ∀ {τ₁ τ₂} {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
-          Value N →
+          
           -----------------------
           (`λ M) · N —→ M β[ N ]
 
@@ -121,7 +130,13 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             (M : Term Γ τ) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋) → 
 
              Value M →
-             -------------------------
+             -----------------------
              ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
 
+  β-Σ/ :  ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M : Term Γ τ) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋) → 
+
+             Value M →
+             -----------------------
+             ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
 
