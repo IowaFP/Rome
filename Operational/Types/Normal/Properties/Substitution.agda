@@ -286,9 +286,12 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 ↻-subₖNF-β σ τ₁ τ₂ =  
   trans 
     (↻-subₖNF-β' σ τ₁ τ₂) 
-    (trans 
-      (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))) 
-      (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
+    (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) 
+      (trans         
+        (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))
+        (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
+
+      
   
 --------------------------------------------------------------------------------
 -- Substitution is congruent over _·'_
