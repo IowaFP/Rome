@@ -72,16 +72,15 @@ lem (T {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)
 _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
 _β[_] {τ₁ = τ₁} {τ₂} M N = 
   conv (subₖNF-id τ₁) 
-  (sub 
-    (η-norm ∘ `) 
+  (sub idSubst 
     (extend 
-      (η-norm ∘ `) 
+      idSubst 
       (conv (sym (subₖNF-id _)) ∘ `) 
       (conv (sym (subₖNF-id τ₂)) N)) 
       M)
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])
-M β·[ τ₂ ] =  sub (extendₖNF (η-norm ∘ `) τ₂) lem M
+M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem M
 
  

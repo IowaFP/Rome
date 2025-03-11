@@ -22,12 +22,34 @@ open import Rome.Operational.Terms.GVars
 
 data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ → Set where
   V-λ : ∀ {τ₁ τ₂} 
-          (M : Term (Γ , τ₂) τ₁) → Value (`λ M)
-  V-Λ : ∀ {τ} 
-          (M : Term (Γ ,, κ) τ) → Value (Λ M)
-  V-roll : ∀  (F : NormalType Δ (★ `→ ★)) {M : Term Γ (F ·' (μ F))} → 
-             Value M → Value (roll F M)
+          (M : Term (Γ , τ₂) τ₁) → 
+          Value (`λ M)
 
+  V-Λ : ∀ {τ} 
+          (M : Term (Γ ,, κ) τ) → 
+          Value (Λ M)
+
+  V-roll : ∀ (F : NormalType Δ (★ `→ ★)) 
+             {M : Term Γ (F ·' (μ F))} → 
+             Value M → 
+             Value (roll F M)
+
+  V-lab : ∀ {l : NormalType Δ L} → 
+            Value (lab l)
+
+  V-Π   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
+            (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
+
+            Value ℓ → Value M → 
+            ---------------------
+            Value (ℓ Π▹ M)
+
+  V-Σ   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
+            (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
+
+            Value ℓ → Value M → 
+            ---------------------
+            Value (ℓ Σ▹ M)
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -65,6 +87,20 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              roll F M₁ —→ roll F M₂
 
+  ξ-Π/₁ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M₁ M₂ : Term Γ (Π (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
+
+             M₁ —→ M₂ → 
+             -----------------------
+             (M₁ Π/ ℓ) —→ (M₂ Π/ ℓ)            
+
+  ξ-Π/₂ : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M : Term Γ (Π (l ▹ τ))) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋)  → 
+
+             Value M → ℓ₁ —→ ℓ₂ → 
+             -----------------------
+             (M Π/ ℓ₁) —→ (M Π/ ℓ₂)            
+
   -- N.b. Call by value.
   β-λ : ∀ {τ₁ τ₂} {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
           Value N →
@@ -80,4 +116,12 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
 
              -------------------------
              unroll F (roll F M) —→ M
+
+  β-Π/ :  ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (M : Term Γ τ) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋) → 
+            Value M → Value ℓ₁ → Value ℓ₂ → 
+
+             -------------------------
+             ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
+
 

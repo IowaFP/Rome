@@ -5,16 +5,16 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 
 import Rome.Operational.Types as Types
-import Rome.Operational.Types.Normal as NTypes
+
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Properties
+open import Rome.Operational.Types.Normal.Properties.Renaming
 
-open import Rome.Operational.Terms.Normal
-
+open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.Substitution
 open import Rome.Operational.Terms.Semantics.Reduction
 
 open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Terms.Normal.GVars
+open import Rome.Operational.Terms.GVars
 
 
 --------------------------------------------------------------------------------
@@ -59,13 +59,22 @@ progress p (M · N)       | Steps M' steps = Steps (M' · N) (ξ-·1 steps)
 progress p (M ·[ τ ]) with progress p M
 progress p (.(Λ V) ·[ τ ]) | Done (V-Λ V) = Steps _ β-Λ
 progress p (M ·[ τ ])      | Steps M' steps = Steps _ (ξ-·[] steps)
-
 progress p (roll τ M) with progress p M 
-... | Done V         = Done (V-roll V)
-... | Steps M' steps = Steps (roll τ M') (ξ-roll steps)
+... | Done V         = Done (V-roll τ V) 
+... | Steps M' steps = Steps (roll τ M') (ξ-roll steps) 
 progress p (unroll τ M) with progress p M
-progress p (unroll τ .(roll τ _)) | Done (V-roll M) = Steps _ β-roll
+progress p (unroll τ .(roll τ _)) | Done (V-roll F M) = Steps _ β-roll
 progress p (unroll τ M)           | Steps M' steps = Steps _ (ξ-unroll steps)
+progress p (lab l) = Done V-lab
+progress p (ℓ Π▹ M) = {!   !}
+progress p (_Π/_ {l} M ℓ) with progress p M | progress p ℓ
+... | Done (V-Π ℓ₁ N Vℓ₁ VN)  | Done Vℓ = Steps N (β-Π/ N ℓ₁ ℓ VN Vℓ₁ Vℓ)
+... | Done (V-Π ℓ₁ N Vℓ₁ VN) | Steps ℓ' ℓ—→ℓ' = Steps ((ℓ₁ Π▹ N) Π/ ℓ') (ξ-Π/₂ M ℓ ℓ' (V-Π ℓ₁ N Vℓ₁ VN) ℓ—→ℓ')
+... | Steps M' M—→M' | Done Vℓ = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
+... | Steps M' M—→M' | Steps ℓ' ℓ—→ℓ' = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
+
+progress p (ℓ Σ▹ M) = {!   !}
+progress p (ℓ Σ/ M) = {!   !}
 
 progress-ε : ∀ {τ} (M : Term ε τ) →
              Progress M
