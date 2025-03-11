@@ -60,7 +60,7 @@ reflect-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {υ} e =
     λ ρ q → reflect-⟦⟧≋ 
     (eq-· 
         (eq-sym (eq-trans (inst (↻-ren-⇑NE ρ υ)) 
-            (cong-renₖ-≡t ρ (eq-sym e)))) 
+            (renₖ-≡t ρ (eq-sym e)))) 
         (reify-⟦⟧≋ q)) 
 reflect-⟦⟧≋ {κ = R[ κ ]} e = e           
 
@@ -88,7 +88,7 @@ subst-⟦⟧≋ : ∀ {τ₁ τ₂ : Type Δ κ} →
 
 subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
-subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (cong-renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
+subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {just (left x)} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {just (right (l , F))} (eq , rel) = eq-trans (eq-sym q) eq , rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {nothing} p = eq-trans (eq-sym q) p
@@ -125,16 +125,16 @@ ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂)
            {V : SemType Δ₁ κ} → 
            ⟦ v ⟧≋ V → 
            ⟦ renₖ ρ v ⟧≋ renSem ρ V
-ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
-ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
+ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
+ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (left V)} rel-v = eq-trans (cong-renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (left V)} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {just (right (l , V))} (eq-v , rel-v) = 
   eq-trans 
-    (cong-renₖ-≡t ρ eq-v) 
+    (renₖ-≡t ρ eq-v) 
     (eq-▹ (inst (sym (↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
     refl-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v)           
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {nothing} rel-v = cong-renₖ-≡t ρ rel-v
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {nothing} rel-v = renₖ-≡t ρ rel-v
 
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments

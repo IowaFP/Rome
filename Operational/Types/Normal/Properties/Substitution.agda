@@ -17,6 +17,7 @@ open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 
 open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Operational.Types.Properties.Equivalence
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
@@ -90,9 +91,9 @@ subₖNF-comp σ₁ σ₂ τ =
 --------------------------------------------------------------------------------
 --               
 
-subₖ-cong-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
+subₖ-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
                   τ₁ ≡t τ₂ → subₖ (⇑ ∘ σ) τ₁ ≡t subₖ (⇑ ∘ σ) τ₂
-subₖ-cong-≡t⇑ {σ = σ} eq = subₖ-cong-≡t {σ = ⇑ ∘ σ} eq                  
+subₖ-≡t⇑ {σ = σ} eq = subₖ-≡t {σ = ⇑ ∘ σ} eq                  
 
 
 subₖNF-cong-≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
@@ -102,7 +103,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
     (fundC 
       {τ₁ = subₖ (⇑ ∘ σ) (⇑ τ₁)} 
       {τ₂ = subₖ (⇑ ∘ σ) (⇑ τ₂)} 
-      idEnv-≋ (subₖ-cong-≡t⇑ {σ = σ} eq))
+      idEnv-≋ (subₖ-≡t⇑ {σ = σ} eq))
 
 --------------------------------------------------------------------------------
 -- Substitution over a variable substitutes the variable
@@ -112,7 +113,7 @@ subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) →
 subₖNF-var {κ = κ} σ x = trans
   (reify-≋ (fundC {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
     (eq-trans 
-      (subₖ-cong-≡t⇑ {σ = σ}  (η-norm-≡t (` x)))
+      (subₖ-≡t⇑ {σ = σ}  (η-norm-≡t (` x)))
       eq-refl)))
   (stability (σ x))
 
@@ -175,26 +176,6 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
   (sym (↻-renₖNF-subₖNF σ S τ)) 
   ((↻-subₖNF-renₖNF S (liftsₖNF σ) τ))
 
-
---------------------------------------------------------------------------------
--- Problem...
--- This simply isn't true with η-normalization. Will need to find another way to 
--- prove main theorem ↻-subₖNF-β; using ↻-subₖNF-β won't go through because 
--- the following identity doesn't hold:
---   ` Z ≡ ⇑ (reify (reflect (` Z)))
--- It only holds that
---  ` Z ≡t ⇑ (reify (reflect (` Z))).
--- Can I make proof go through using the type equivalence?
-
-neededIdentity : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
-                    subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 
-neededIdentity σ τ = {!   !} -- subₖ-cong (λ { Z → {!   !}
-                          --        ; (S x) → {!   !} }) τ
-
-neededIdentity' : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
-                    subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ -- subₖ (liftsₖ (⇑ ∘ σ)) τ ≡ subₖ (⇑ ∘ liftsₖNF ∘ σ) τ 
-neededIdentity' σ τ = {!   !}
-
 --------------------------------------------------------------------------------
 -- Substituting commutes over β reduction (first statement)
 
@@ -223,7 +204,64 @@ neededIdentity' σ τ = {!   !}
 
 ↻-renₖNF-β      : (ρ : Renamingₖ Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                 renₖNF ρ (τ₁ βₖNF[ τ₂ ]) ≡ (renₖNF (liftₖ ρ) τ₁) βₖNF[ (renₖNF ρ τ₂) ]
-↻-renₖNF-β ρ τ₁ τ₂ = {!   !}
+↻-renₖNF-β ρ τ₁ τ₂ = 
+  trans 
+    (sym (↻-renₖNF-subₖNF (extendₖNF idSubst τ₂) ρ τ₁)) 
+    (trans 
+      (subₖNF-cong 
+        {σ₁ = renₖNF ρ ∘ extendₖNF idSubst τ₂} 
+        {σ₂ = extendₖNF idSubst (renₖNF ρ τ₂) ∘ liftₖ ρ} 
+        (λ { Z → refl
+           ; (S x) → trans 
+                (↻-ren-reify 
+                  ρ 
+                  {reflect (` x)} 
+                  {reflect (` x)} 
+                  (reflect-≋ refl)) 
+                (reify-≋ (↻-ren-reflect ρ (` x))) }) 
+        τ₁) 
+      (↻-subₖNF-renₖNF (liftₖ ρ) (extendₖNF idSubst (renₖNF ρ τ₂)) τ₁))
+
+--------------------------------------------------------------------------------
+-- Immediate application of a weakened type has no effect
+
+weakenₖNF-β-id   : ∀ (τ : NormalType Δ ★) {τ₂ : NormalType Δ κ} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
+weakenₖNF-β-id τ {τ₂} = 
+  trans 
+    (trans 
+      (sym (stability τ))
+      (evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ)))))
+    (trans 
+      (fundC 
+        {τ₁ = subₖ ` (⇑ τ)} 
+        {τ₂ = subₖ (⇑ ∘ η-norm ∘ `) (⇑ τ)} 
+        idEnv-≋ 
+        (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ))) 
+      (↻-subₖNF-renₖNF S (extendₖNF idSubst τ₂) τ))
+
+--------------------------------------------------------------------------------
+-- Liftsₖ and liftsₖNF fusion under ≡t
+-- N.b. this law holds definitionally in Chapman et al's development but,
+-- due to η-normalization, only holds w.r.t. type equivalence here. 
+
+liftsₖ-liftsₖNF≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
+                   ∀ (x : KVar (Δ₁ ,, κ₁) κ) →
+                    liftsₖ (⇑ ∘ σ) x ≡t (⇑ ∘ liftsₖNF σ) x
+liftsₖ-liftsₖNF≡t Z = eq-sym ((η-norm-≡t (` Z)))
+liftsₖ-liftsₖNF≡t {σ = σ} (S x) = inst (sym (↻-ren-⇑ S (σ x)))
+
+--------------------------------------------------------------------------------
+-- Substitution of a lifted substitution over τ is eqivalent under _≡t_ to 
+-- substitution of (⇑ ∘ liftsₖNF σ) over τ
+
+subₖ-liftsₖ-≡t : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
+                    subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ
+subₖ-liftsₖ-≡t σ τ = subₖ-cong-≡t liftsₖ-liftsₖNF≡t τ
+
+weaken-⇓ : ∀ {κ'}(τ : Type (Δ₁ ,, κ') κ) → 
+                  ⇓ τ ≡ reify (eval τ (extende (renSem S ∘ idEnv) (reflect (` Z))))
+weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
+                                      ; (S x) → sym-≋ (↻-ren-reflect S (` x)) }) τ)
 
 --------------------------------------------------------------------------------
 -- Substituting a lifted substitution is equivalent to evaluating a lifted environment
@@ -232,13 +270,10 @@ neededIdentity' σ τ = {!   !}
                     subₖNF (liftsₖNF σ) τ 
                   ≡ 
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)) (lifte idEnv)
-↻-lifted-subₖNF-eval  σ τ = {!  !}
-
---------------------------------------------------------------------------------
--- Immediate application of a weakened type has no effect
-
-weakenₖNF-β-id   : ∀ (τ : NormalType Δ ★) {τ₂ : NormalType Δ κ} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
-weakenₖNF-β-id τ {τ₂} = {!↻-weaken-sub  !}
+↻-lifted-subₖNF-eval  σ τ = 
+  trans 
+    (fundC idEnv-≋ (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ))))
+    (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)))
 
 --------------------------------------------------------------------------------
 -- Substitution commutes with β reduction (again, but actually useful declaration).
@@ -248,27 +283,13 @@ weakenₖNF-β-id τ {τ₂} = {!↻-weaken-sub  !}
                   ≡ 
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)) (lifte idEnv)
                     βₖNF[ subₖNF σ τ₂ ]
-↻-subₖNF-β σ τ₁ τ₂ =  completeness
-  {τ₁ =
-   subₖ (λ x → ⇑ (σ x))
-   (⇑
-    (eval
-     (subₖ (λ x → ⇑ (extendₖNF (λ x₁ → reify (reflect (` x₁))) τ₂ x))
-      (⇑ τ₁))
-     (λ x → reflect (` x))))}
-  {τ₂ =
-   subₖ
-   (λ x →
-      ⇑
-      (extendₖNF (λ x₁ → reify (reflect (` x₁)))
-       (reify
-        (eval (subₖ (λ x₁ → ⇑ (σ x₁)) (⇑ τ₂)) (λ x₁ → reflect (` x₁))))
-       x))
-   (⇑
-    (eval (subₖ (liftsₖ (λ x → ⇑ (σ x))) (⇑ τ₁))
-     (extende (λ {κ'} v → renSem S (reflect (` v))) (reflect (` Z)))))}
-  {!   !}
-
+↻-subₖNF-β σ τ₁ τ₂ =  
+  trans 
+    (↻-subₖNF-β' σ τ₁ τ₂) 
+    (trans 
+      (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))) 
+      (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
+  
 --------------------------------------------------------------------------------
 -- Substitution is congruent over _·'_
 
@@ -277,4 +298,4 @@ subₖNF-cong-·' :  ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)
              (v : NormalType Δ₁ κ₁) → 
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
 subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
-  
+

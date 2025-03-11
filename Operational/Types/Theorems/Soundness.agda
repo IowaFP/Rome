@@ -90,7 +90,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {just (left g)} q = λ ρ {v} {V} eq 
              (eq-trans 
                (eq-trans 
                  (inst (subₖ-weaken (renₖ ρ f) v)) 
-                 (cong-renₖ-≡t ρ q)) 
+                 (renₖ-≡t ρ q)) 
                (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
 sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {just (left x)} q = 
     eq-trans 
@@ -109,7 +109,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {just (right (l , f))} (q , sou
     (sound-Π ρ₂ 
       (eq-trans 
         (eq-· 
-          (eq-· eq-refl (cong-renₖ-≡t  ρ₂ q)) 
+          (eq-· eq-refl (renₖ-≡t  ρ₂ q)) 
           eq-refl) 
         (eq-trans 
           (eq-· eq-β eq-refl) 
@@ -194,7 +194,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {f} {just (left g)} q = λ ρ {v} {V} eq 
              (eq-trans 
                (eq-trans 
                  (inst (subₖ-weaken (renₖ ρ f) v)) 
-                 (cong-renₖ-≡t ρ q)) 
+                 (renₖ-≡t ρ q)) 
                (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
 sound-Σ {κ₁ = R[ κ₁ ]} ρ {v} {just (left x)} q = 
     eq-trans 
@@ -215,7 +215,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {just (right (l , f))} (q , sou
     (sound-Σ ρ₂ 
       (eq-trans 
         (eq-· 
-          (eq-· eq-refl (cong-renₖ-≡t  ρ₂ q)) 
+          (eq-· eq-refl (renₖ-≡t  ρ₂ q)) 
           eq-refl) 
         (eq-trans 
           (eq-· eq-β eq-refl) 

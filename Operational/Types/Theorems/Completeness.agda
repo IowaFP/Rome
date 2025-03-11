@@ -207,9 +207,19 @@ fundC {κ = κ} {η₁ = η₁} {η₂} e eq-<$>ε = tt
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
 
+-------------------------------------------------------------------------------
+-- Completeness
+
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fundC idEnv-≋ eq)  
  
  
+ -------------------------------------------------------------------------------
+-- Helper to substitute under an eval
  
- 
+evalCRSubst : ∀ {η₁ η₂ : Env Δ₁ Δ₂}
+    → Env-≋ η₁ η₂
+    → {τ₁ τ₂ : Type Δ₁ κ}
+    → τ₁ ≡ τ₂
+    → (eval τ₁ η₁) ≋ (eval τ₂ η₂)
+evalCRSubst p {τ₁ = τ} refl = idext p τ
