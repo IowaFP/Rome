@@ -161,16 +161,26 @@ renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e)
   
 
 --------------------------------------------------------------------------------
--- Weakening is a special case of renaming (but not we must convert types)
+-- Weakening is a special case of renaming (but we must convert types)
 
-weakenByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
-weakenByType {τ₁ = τ₁} M = conv (renₖNF-id τ₁) (ren ((convVar (sym (renₖNF-id _))) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
+weakenTermByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
+weakenTermByType {τ₁ = τ₁} M = conv (renₖNF-id τ₁) (ren ((convVar (sym (renₖNF-id _))) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
-weakenByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
-weakenByKind = ren (K , K)
+weakenTermByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
+weakenTermByKind = ren (K , K)
 
-weakenByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
-weakenByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convVar (sym (renₖNF-id _))) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)
+weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
+weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convVar (sym (renₖNF-id _))) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)
+
+--------------------------------------------------------------------------------
+-- Weakening of an entailment
+
+weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent (Γ , τ) π 
+weakenEntByType {π = π} M = convEnt (renₖNF-id-pred π) (renEnt (convVar (sym (renₖNF-id _)) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
 
-  
+weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → Ent Γ π → Ent (Γ ,, κ₂) (weakenPredₖNF π)
+weakenEntByKind = renEnt (K , K)
+
+weakenEntByPred : ∀ {π₁ : NormalPred Δ R[ κ₁ ]} {π₂ : NormalPred Δ R[ κ₂ ]} → Ent Γ π₁ → Ent (Γ ,,, π₂) π₁
+weakenEntByPred M = convEnt (renₖNF-id-pred _) (renEnt (convVar (sym (renₖNF-id _)) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)

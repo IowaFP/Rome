@@ -176,6 +176,12 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
   (sym (↻-renₖNF-subₖNF σ S τ)) 
   ((↻-subₖNF-renₖNF S (liftsₖNF σ) τ))
 
+↻-weakenPredₖNF-subPredₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalPred Δ₁ R[ κ ]) {κ'} → 
+                  weakenPredₖNF {κ₁ = κ'} (subPredₖNF σ τ) ≡ subPredₖNF (liftsₖNF σ) (weakenPredₖNF τ)
+↻-weakenPredₖNF-subPredₖNF σ π {κ'} with mapPredHO  (weakenₖNF {κ₁ = κ'} ∘ subₖNF σ) (subₖNF (liftsₖNF σ) ∘ weakenₖNF) (λ τ → ↻-weakenₖNF-subₖNF σ τ {κ'}) π 
+↻-weakenPredₖNF-subPredₖNF σ (ρ₁ · ρ₂ ~ ρ₃) {κ'} | c = c
+↻-weakenPredₖNF-subPredₖNF σ (ρ₁ ≲ ρ₂) {κ'} | c = c
+
 --------------------------------------------------------------------------------
 -- Substituting commutes over β reduction (first statement)
 

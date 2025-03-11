@@ -154,6 +154,30 @@ data NormalType Δ where
       (ρ : NormalType Δ R[ L ]) →
       ------------------
       NormalType Δ L
+--------------------------------------------------------------------------------
+-- Mapping type definitions over predicates 
+
+mapPred : ∀ {Δ₁ Δ₂} {κ₁ κ₂} (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
+          NormalPred Δ₁ R[ κ₁ ] → NormalPred Δ₂ R[ κ₂ ]
+mapPred P (ρ₁ · ρ₂ ~ ρ₃) = P ρ₁ · P ρ₂ ~ P ρ₃
+mapPred P (ρ₁ ≲ ρ₂)      = P ρ₁ ≲ P ρ₂
+
+-- -- predicate transformer
+-- PredPT : ∀ {Δ₁ Δ₂} {κ₁ κ₂}
+--             (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
+--             NormalPred Δ₁ R[ κ₁ ] → NormalPred 
+-- PredPT P (ρ₁ · ρ₂ ~ ρ₃) = {! P ρ₁  !} -- P ρ₁ × P ρ₂ × P ρ₃
+-- PredPT P (ρ₁ ≲ ρ₂) = {!   !} -- P ρ₁ × P ρ₂
+
+mapPredHO : ∀ {Δ₁ Δ₂} {κ₁ κ₂}
+            (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) (Q : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
+            (q : ∀ (τ : NormalType Δ₁ R[ κ₁ ]) → P τ ≡ Q τ) →
+            (π : NormalPred Δ₁ R[ κ₁ ]) → mapPred P π ≡ mapPred Q π
+mapPredHO P Q q (ρ₁ · ρ₂ ~ ρ₃) rewrite 
+  q ρ₁ | q ρ₂ | q ρ₃ = refl
+mapPredHO P Q q (ρ₁ ≲ ρ₂) rewrite 
+  q ρ₁ | q ρ₂ = refl
+
 
 --------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
@@ -183,21 +207,6 @@ row-canonicity (l ▹ τ) = left (l , τ , refl)
 row-canonicity (ne τ) = right (left (τ , refl))
 row-canonicity ε = right (right refl)
 
-
-
-
---------------------------------------------------------------------------------
--- label-canonicity
-
--- label-canonicity : (ℓ : NormalType Δ L) → 
---   ∃[ l ] (ℓ ≡ lab l) or 
---   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΠL (l₁ ▹ l₂))) or
---   ∃[ l₁ ] (∃[ l₂ ] (ℓ ≡ ΣL (l₁ ▹ l₂)))
--- label-canonicity (lab l) = left (l , refl)
--- label-canonicity (ΠL (l₁ ▹ l₂)) = right (left (l₁ , l₂ , refl))
--- label-canonicity (ΣL (l₁ ▹ l₂)) = right (right (l₁ , l₂ , refl))
-
-
 --------------------------------------------------------------------------------
 -- arrow-canonicity
 
@@ -206,9 +215,7 @@ arrow-canonicity (`λ f) = f , refl
 
 
 --------------------------------------------------------------------------------
--- 3.4 Soundness of Type Normalization
---
--- (OMITTED).
+-- Embedding Normal/neutral types back to Types
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑NE : NeutralType Δ κ → Type Δ κ
