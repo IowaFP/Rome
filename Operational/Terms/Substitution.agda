@@ -53,7 +53,7 @@ sub σ s {.(μ F)} (roll F M) =
   roll (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
 sub σ s {_} (unroll F M) = 
   conv (sym (subₖNF-cong-·' σ F (μ F))) (unroll (subₖNF σ F) (sub σ s M))
-sub σ s {x} (lab l) = lab (subₖNF σ l)
+sub σ s {x} (# l) = # l
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ

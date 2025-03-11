@@ -34,20 +34,20 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
              Value M → 
              Value (roll F M)
 
-  V-lab : ∀ {l : NormalType Δ L} → 
-            Value (lab l)
+  V-# : ∀ {l : Label} →  
+          Value (# l)
 
   V-Π   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
             (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
 
-            Value ℓ → Value M → 
+            Value M → 
             ---------------------
             Value (ℓ Π▹ M)
 
   V-Σ   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
             (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
 
-            Value ℓ → Value M → 
+            Value M → 
             ---------------------
             Value (ℓ Σ▹ M)
 
@@ -119,8 +119,8 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
 
   β-Π/ :  ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
             (M : Term Γ τ) (ℓ₁ ℓ₂ : Term Γ ⌊ l ⌋) → 
-            Value M → Value ℓ₁ → Value ℓ₂ → 
 
+             Value M →
              -------------------------
              ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
 

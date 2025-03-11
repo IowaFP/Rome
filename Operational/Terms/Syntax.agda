@@ -92,12 +92,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   ------------------------------------------------------------
   -- Rω labels
 
-  -- labels
-  lab : 
+  -- label constants
+  # : 
 
-        ∀ (l : NormalType Δ L) →
+        ∀ (l : Label) →
         -------------------
-        Term Γ ⌊ l ⌋
+        Term Γ ⌊ lab l ⌋
 
   ------------------------------------------------------------
   -- Rω records

@@ -63,7 +63,7 @@ ren {ρ = ρ} P (roll F@(`λ τ) N) =
     (conv (↻-renₖNF-β  ρ τ (μ F)) 
       (ren P N))
 ren {ρ = ρ} P (unroll F@(`λ τ) M) = conv (sym (↻-renₖNF-β ρ τ ((μ F)))) (unroll (renType P F) (ren P M))
-ren P (lab l) = lab (renType P l)
+ren P (# l) = # l
 ren P (l Π▹ M) = (ren P l) Π▹ (ren P M)
 ren P (M Π/ l) = ren P M Π/ ren P l
 ren P (l Σ▹ M) = (ren P l) Σ▹ (ren P M)
