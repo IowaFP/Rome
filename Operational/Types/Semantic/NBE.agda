@@ -124,16 +124,16 @@ open Xi
   record
   { Ξ★ = Σ ; ΞL = ΣL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
 
-π σ : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
-π = ξ Π-rec
-σ = ξ Σ-rec
+ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+ΠV = ξ Π-rec
+ΣV = ξ Σ-rec
 
 ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
 ξ-Kripke Ξ ρ v = ξ Ξ v
 
-π-Kripke σ-Kripke : KripkeFunction Δ R[ κ ] κ
-π-Kripke = ξ-Kripke Π-rec
-σ-Kripke = ξ-Kripke Σ-rec
+Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+Π-Kripke = ξ-Kripke Π-rec
+Σ-Kripke = ξ-Kripke Σ-rec
 
 --------------------------------------------------------------------------------
 -- Type evaluation.
@@ -166,8 +166,8 @@ eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ}
 
 -- ----------------------------------------
 -- -- Type constants
-eval {κ = κ₁ `→ κ₂} Π η = λ ρ v → π v
-eval {κ = κ₁ `→ κ₂} Σ η = λ ρ v → σ v
+eval {κ = κ₁ `→ κ₂} Π η = Π-Kripke
+eval {κ = κ₁ `→ κ₂} Σ η = Σ-Kripke
 eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 eval ε η = nothing

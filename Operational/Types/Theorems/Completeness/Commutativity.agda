@@ -127,30 +127,30 @@ cong-ξ Ξ {κ = κ₁ `→ κ₂} {f} {g} f≋g  =
 cong-ξ Ξ {κ = R[ κ ]} {x} {y} x≋y = cong-<$> (Unif-ξ Ξ , Unif-ξ Ξ , (λ ρ → cong-ξ Ξ {_})) x≋y
 
 ---------------------------------------
--- instantiations for π
+-- instantiations for Π
 
-↻-renSem-π : ∀ {Δ₁} {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → 
-          V₁ ≋ V₂ → renSem ρ (π V₁) ≋ π (renSem {κ = R[ κ ]} ρ V₂) 
-↻-renSem-π = ↻-renSem-ξ Π-rec
+↻-renSem-Π : ∀ {Δ₁} {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → 
+          V₁ ≋ V₂ → renSem ρ (ΠV V₁) ≋ ΠV (renSem {κ = R[ κ ]} ρ V₂) 
+↻-renSem-Π = ↻-renSem-ξ Π-rec
 
-cong-π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → π τ₁ ≋ π τ₂
-cong-π = cong-ξ Π-rec
+cong-Π : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → ΠV τ₁ ≋ ΠV τ₂
+cong-Π = cong-ξ Π-rec
 
-Unif-π : ∀ {Δ} {κ} → Uniform (π-Kripke {Δ = Δ} {κ = κ})
-Unif-π ρ₁ = ↻-renSem-π
+Unif-Π : ∀ {Δ} {κ} → Uniform (Π-Kripke {Δ = Δ} {κ = κ})
+Unif-Π ρ₁ = ↻-renSem-Π
 
 ---------------------------------------
 -- instantiations for σ
 
-↻-renSem-σ : ∀ {Δ₁} {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → 
-          V₁ ≋ V₂ → renSem ρ (σ V₁) ≋ σ (renSem {κ = R[ κ ]} ρ V₂) 
-↻-renSem-σ = ↻-renSem-ξ Σ-rec
+↻-renSem-Σ : ∀ {Δ₁} {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) → (V₁ V₂ : SemType Δ₁ R[ κ ]) → 
+          V₁ ≋ V₂ → renSem ρ (ΣV V₁) ≋ ΣV (renSem {κ = R[ κ ]} ρ V₂) 
+↻-renSem-Σ = ↻-renSem-ξ Σ-rec
 
-cong-σ : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → σ τ₁ ≋ σ τ₂
-cong-σ = cong-ξ Σ-rec
+cong-Σ : ∀ {τ₁ τ₂ : SemType Δ R[ κ ]} → _≋_ {κ = R[ κ ]} τ₁ τ₂ → ΣV τ₁ ≋ ΣV τ₂
+cong-Σ = cong-ξ Σ-rec
 
-Unif-σ : ∀ {Δ} {κ} → Uniform (σ-Kripke {Δ = Δ} {κ = κ})
-Unif-σ ρ₁ = ↻-renSem-σ
+Unif-Σ : ∀ {Δ} {κ} → Uniform (Σ-Kripke {Δ = Δ} {κ = κ})
+Unif-Σ ρ₁ = ↻-renSem-Σ
 
 
 --------------------------------------------------------------------------------
@@ -223,8 +223,8 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
 ↻-renSem-eval ρ (lab l) e = refl
 ↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = (↻-renSem-eval ρ l e) , (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-renSem-eval ρ τ e)
-↻-renSem-eval ρ Π e = Unif-π , Unif-π , (λ ρ₁ x → cong-π x) 
-↻-renSem-eval ρ Σ e = Unif-σ , Unif-σ , (λ ρ₁ x → cong-σ x) 
+↻-renSem-eval ρ Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-Π x) 
+↻-renSem-eval ρ Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-Σ x) 
 ↻-renSem-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = 
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
@@ -276,13 +276,13 @@ idext {κ = κ} e (lab x) = refl
 idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = (idext e l) , (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
-  Unif-π , 
-  Unif-π , 
-  λ ρ x → cong-π x 
+  Unif-Π , 
+  Unif-Π , 
+  λ ρ x → cong-Π x 
 idext {κ = κ} e Σ =
-  Unif-σ , 
-  Unif-σ , 
-  λ ρ x → cong-σ x 
+  Unif-Σ , 
+  Unif-Σ , 
+  λ ρ x → cong-Σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
 
 --------------------------------------------------------------------------------
@@ -354,8 +354,8 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 ↻-renₖ-eval ρ (lab l) {η₁} {η₂} e = refl
 ↻-renₖ-eval ρ (τ₁ ▹ τ₂) {η₁} {η₂} e = cong-▹ (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
 ↻-renₖ-eval ρ ⌊ τ ⌋ {η₁} {η₂} e = cong ⌊_⌋ (↻-renₖ-eval ρ τ e)
-↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-π , Unif-π , λ ρ x → cong-π x
-↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-σ , Unif-σ , λ ρ x → cong-σ x
+↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ ρ x → cong-Π x
+↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ ρ x → cong-Σ x
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
 
 
@@ -427,8 +427,8 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 ↻-subₖ-eval (lab l) e σ = refl
 ↻-subₖ-eval (τ₁ ▹ τ₂) e σ = (↻-subₖ-eval τ₁ e σ) , (↻-subₖ-eval τ₂ e σ)
 ↻-subₖ-eval ⌊ τ₁ ⌋ e σ = cong ⌊_⌋ (↻-subₖ-eval τ₁ e σ)
-↻-subₖ-eval Π e σ = Unif-π , Unif-π , λ ρ v → cong-π v
-↻-subₖ-eval Σ e σ = Unif-σ , Unif-σ , λ ρ v → cong-σ v
+↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
+↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
 
 ↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renamingₖ Δ₂ Δ₃) 
@@ -451,8 +451,8 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
       (sym-≋ (trans-≋ 
         (third ((fst ∘ snd) (idext e f) id ρ (eval a η₂) (eval a η₂) (refl-≋ᵣ (idext e a))) id (refl-≋ᵣ v)) 
         (third (third (idext (refl-≋ᵣ ∘ e) f) ρ (↻-renSem-eval ρ a (refl-≋ᵣ ∘ e))) id (refl-≋ᵣ v))))
-↻-eval-Kripke Π ρ v e = cong-π v
-↻-eval-Kripke Σ ρ v e = cong-σ v
+↻-eval-Kripke Π ρ v e = cong-Π v
+↻-eval-Kripke Σ ρ v e = cong-Σ v
 
 --------------------------------------------------------------------------------
 -- Evaluating a weakened typed in an extended environment is cancellative

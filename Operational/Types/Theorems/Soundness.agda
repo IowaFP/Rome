@@ -28,7 +28,7 @@ open import Rome.Operational.Types.Theorems.Stability
 --------------------------------------------------------------------------------
 -- Soundness for Π 
        
-sound-Πε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Π · (ε {κ = κ})) (π nothing)
+sound-Πε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Π · (ε {κ = κ})) (ΠV nothing)
 sound-Πε {★} = eq-refl
 sound-Πε {L} = eq-refl
 sound-Πε {κ `→ κ₁} ρ {v} {V} rel-f = 
@@ -43,31 +43,9 @@ sound-Πε {κ `→ κ₁} ρ {v} {V} rel-f =
   sound-Πε)))
 sound-Πε {R[ κ ]} = eq-trans eq-Π eq-<$>ε 
 
-sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π π-Kripke
+sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π Π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
--- I believe this should be able to be written
--- sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {v₁} {V₁} q = λ ρ₂ {v₂} {V₂} eq → 
---    subst-⟦⟧≋ 
---   (eq-sym eq-Π-assoc) 
---   (subst-⟦⟧≋ 
---     (eq-sym 
---       (eq-trans 
---         (eq-· eq-refl 
---           (eq-trans 
---             (eq-· eq-β eq-refl) 
---             eq-β)) 
---           eq-refl)) 
---         (sound-Π ρ₂ 
---           (subst-⟦⟧≋ (eq-<$> 
---             (eq-λ (eq-· 
---               eq-refl 
---               (eq-sym (reify-⟦⟧≋ (ren-⟦⟧≋ S eq))))) 
---             ((eq-sym (inst (subₖ-weaken (ren ρ₂ v₁) v₂))))) 
---             (map-⟦⟧≋ 
---               (λ ρ₃ {v₃} {V₃} rel-v₃ → {!   !}) 
---               (ren-⟦⟧≋ ρ₂ q)))))
--- sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {V} q = {!   !} 
 sound-Π  ρ {v} {nothing} q  = 
   subst-⟦⟧≋ 
     (eq-· eq-refl (eq-sym q)) 
@@ -154,7 +132,7 @@ sound-Π {κ₁ = R[ κ₁ ]} ρ {v} {just (right (l , τ))} (q , rel) =
 --------------------------------------------------------------------------------
 -- Soundness for Σ (identical logic as Π but woefully duplicated)
 
-sound-Σε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Σ · (ε {κ = κ})) (σ nothing)
+sound-Σε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Σ · (ε {κ = κ})) (ΣV nothing)
 sound-Σε {★} = eq-refl
 sound-Σε {L} = eq-refl
 sound-Σε {κ `→ κ₁} ρ {v} {V} rel-f = 
@@ -169,7 +147,7 @@ sound-Σε {κ `→ κ₁} ρ {v} {V} rel-f =
   sound-Σε)))
 sound-Σε {R[ κ ]} = eq-trans eq-Σ eq-<$>ε 
 
-sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ σ-Kripke
+sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ Σ-Kripke
 sound-Σ  ρ {v} {nothing} q  = 
   subst-⟦⟧≋ 
     (eq-· eq-refl (eq-sym q)) 

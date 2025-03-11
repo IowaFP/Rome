@@ -21,9 +21,17 @@ open import Rome.Operational.Types.Theorems.Completeness
 
 data Context : KEnv → Set where
   ε : Context ∅
-  _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
   _,_  : Context Δ → NormalType Δ ★ → Context Δ
+  _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
 
+data PContext : KEnv → Set where
+  ε : PContext ∅
+  _,_ : PContext Δ → NormalPred Δ κ → PContext Δ
+
+data PVar : PContext Δ → ∀ {κ} → NormalPred Δ κ → Set where
+  Z : ∀ {Φ : PContext Δ} {p : NormalPred Δ κ} → PVar (Φ , p) p
+  S : ∀ {Φ : PContext Δ} {π₁ : NormalPred Δ κ} {π₂ : NormalPred Δ κ₂} → 
+        PVar Φ π₁  → PVar (Φ , π₂) π₁
 
 data Var : Context Δ → NormalType Δ ★ → Set where
   Z : ∀ {Γ} {τ : NormalType Δ ★} → Var (Γ , τ) τ
@@ -34,6 +42,7 @@ private
   variable
     τ υ τ₁ τ₂ : NormalType Δ ★
     l l₁ l₂   : NormalType Δ L
+    π π₁ π₂ π₃ : NormalPred Δ κ
     
 data Term {Δ} Γ : NormalType Δ ★ → Set where
   ` : Var Γ τ → 
@@ -86,8 +95,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
 
   ------------------------------------------------------------
   -- Qualified types
-  
-  -- ...
+
+--   `λ : ∀ {τ} {p} → 
+
+--        Term (Γ ,⊩ π) τ₂ → 
+--        --------------
+--        Term Γ (π ⇒ τ₂)
 
   ------------------------------------------------------------
   -- Rω labels
