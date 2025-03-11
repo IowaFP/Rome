@@ -175,10 +175,15 @@ eval ε η = nothing
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization
 
--- NormalType forms.
+-- Normalization algorithm
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+
+-- Reabstraction of a NormalType to the semantic domain
+⇈ : NormalType Δ κ → SemType Δ κ 
+⇈ τ = eval (⇑ τ) idEnv
+
  

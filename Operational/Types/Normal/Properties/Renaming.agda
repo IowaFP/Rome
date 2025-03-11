@@ -167,6 +167,18 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
     sym (renₖNF-comp (S {κ₂ = κ'}) (liftₖ ρ) τ) 
   | renₖNF-comp ρ (S {κ₂ = κ'}) τ = refl
 
+↻-weakenPredₖNF-renPredₖNF  : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (π : NormalPred Δ₁ R[ κ ]) → 
+                renPredₖNF (liftₖ {κ = κ'} ρ) (renPredₖNF S π) ≡ renPredₖNF S (renPredₖNF ρ π)
+↻-weakenPredₖNF-renPredₖNF {κ' = κ'} ρ (ρ₁ · ρ₂ ~ ρ₃) 
+  rewrite 
+    ↻-weakenₖNF-renₖNF {κ' = κ'} ρ ρ₁ 
+  | ↻-weakenₖNF-renₖNF {κ' = κ'} ρ ρ₂ 
+  | ↻-weakenₖNF-renₖNF {κ' = κ'} ρ ρ₃ = refl
+↻-weakenPredₖNF-renPredₖNF {κ' = κ'} ρ (ρ₁ ≲ ρ₂)
+  rewrite 
+    ↻-weakenₖNF-renₖNF {κ' = κ'} ρ ρ₁ 
+  | ↻-weakenₖNF-renₖNF {κ' = κ'} ρ ρ₂ = refl
+
 --------------------------------------------------------------------------------
 -- Renamingₖ commutes with embedding
 

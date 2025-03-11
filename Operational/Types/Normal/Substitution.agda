@@ -44,4 +44,9 @@ _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalT
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
+_<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
+f <$>' ne x = ne (f <$> x)
+f <$>' ε = ε
+f <$>' (l ▹ τ) = l ▹ (f ·' τ)
+
 

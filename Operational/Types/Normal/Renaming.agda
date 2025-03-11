@@ -52,3 +52,5 @@ weakenₖNF = renₖNF S
 weakenₖNE : NeutralType Δ κ₂ → NeutralType (Δ ,, κ₁) κ₂
 weakenₖNE = renₖNE S 
 
+weakenPredₖNF : NormalPred Δ R[ κ₂ ] → NormalPred (Δ ,, κ₁) R[ κ₂ ]
+weakenPredₖNF = renPredₖNF S
