@@ -75,6 +75,13 @@ lemPred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂
 lemPred σ s (ρ₁ · ρ₂ ~ ρ₃) = refl
 lemPred σ s (ρ₁ ≲ ρ₂) = refl
 
+↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+          (F : NormalType Δ₁ (κ₁ `→ κ₂))
+          (ρ : NormalType Δ₁ R[ κ₁ ]) → 
+          ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
+↻-sub-⇓-<$> σ F ρ rewrite stability (subₖNF σ F) | stability (subₖNF σ ρ) = 
+  {!   !}          
+
 --------------------------------------------------------------------------------
 -- Defining substitution of variables in evidence and term variables in terms
 -- and entailments.
@@ -117,7 +124,10 @@ subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
 subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
 subEnt σ s {π} n-ε-R = n-ε-R
 subEnt σ s {π} n-ε-L = n-ε-L
-subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) = convEnt {!sym (lemPred σ s (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂)))!} (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
+subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) = 
+  convEnt 
+    (cong₂ _≲_ (↻-sub-⇓-<$> σ F ρ₁) (↻-sub-⇓-<$> σ F ρ₂)) 
+    (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
 subEnt σ s {π} (n-·lift e) = {!   !}
 
 -- extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
