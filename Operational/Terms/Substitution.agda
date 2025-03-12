@@ -111,14 +111,14 @@ sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) =
 sub σ s {x} (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (lemPred σ s π) (subEnt σ s e) ⟩
 
 subEnt σ (s , p) {π} (n-var x) = p x
-subEnt σ (s , p) {π} n-refl = n-refl
-subEnt σ (s , p) {π} (n-trans e₁ e₂) = n-trans (subEnt σ (s , p) e₁) (subEnt σ (s , p) e₂)
-subEnt σ (s , p) {π} (n-·≲L e) = {!   !}
-subEnt σ (s , p) {π} (n-·≲R e) = {!   !}
-subEnt σ (s , p) {π} n-ε-R = n-ε-R
-subEnt σ (s , p) {π} n-ε-L = n-ε-L
-subEnt σ (s , p) {π} (n-≲lift e) = {!   !}
-subEnt σ (s , p) {π} (n-·lift e) = {!   !}
+subEnt σ s {π} n-refl = n-refl
+subEnt σ s {π} (n-trans e₁ e₂) = n-trans (subEnt σ s e₁) (subEnt σ s e₂)
+subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
+subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
+subEnt σ s {π} n-ε-R = n-ε-R
+subEnt σ s {π} n-ε-L = n-ε-L
+subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) = convEnt {!sym (lemPred σ s (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂)))!} (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
+subEnt σ s {π} (n-·lift e) = {!   !}
 
 -- extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
 --          {τ : NormalType Δ₁ ★} → 
