@@ -90,10 +90,6 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
              Ent Γ (ρ₁ ≲ ρ₂) →
              ---------------------------------
              Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂))
-             
-
--- From an entailment that (l ▹ Unit) ≲ (ne x) derive 
--- (l ▹ F Unit) ≲ ne (F <$> x)
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
