@@ -23,7 +23,6 @@ liftₖ ρ (S x) = S (ρ x)
 
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Δ₁ R[ κ ] → Pred Δ₂ R[ κ ]
-renₖ ρ Unit  = Unit
 renₖ ρ ε  = ε
 renₖ ρ (` x) = ` (ρ x)
 renₖ ρ (`λ τ) = `λ (renₖ (liftₖ ρ) τ)

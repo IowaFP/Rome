@@ -139,6 +139,8 @@ ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
 ren R (M Σ/ l) = ren R M Σ/ ren R l
 ren R (`ƛ τ) = `ƛ (ren (liftPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
+ren {ρ = ρ} R (prj {ρ₂} {ρ₁ = ρ₁} m e) = prj (ren R m) (renEnt R e)
+
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt R n-refl = n-refl

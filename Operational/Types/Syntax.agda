@@ -28,11 +28,6 @@ data Pred Δ where
        
 data Type Δ where
 
-  Unit :
-
-      --------
-      Type Δ ★
-
   ` : 
       (α : KVar Δ κ) →
       --------
@@ -127,22 +122,9 @@ data Type Δ where
 
 
 
---------------------------------------------------------------------------------
--- A predicate grouping Π and Σ 
-
-isRowOp : Type Δ (R[ κ ] `→ κ) → Set
-isRowOp (` α) = ⊥
-isRowOp (`λ t) = ⊥
-isRowOp (t · t₁) = ⊥
-isRowOp Π = ⊤
-isRowOp Σ = ⊤
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors
-
--- row formation
--- _`▹_ : Type Δ L → Type Δ κ → Type Δ R[ κ ] 
--- l `▹ t = `▹` · l · t
 
 -- Record formation
 `Π : Type Δ R[ κ ] → Type Δ κ 
@@ -151,14 +133,6 @@ isRowOp Σ = ⊤
 -- Variant formation
 `Σ : Type Δ R[ κ ] → Type Δ κ 
 `Σ τ = Σ · τ 
-
--- Lifting
--- `↑ : Type Δ (κ₁ `→ κ₂) → Type Δ (R[ κ₁ ] `→ R[ κ₂ ])
--- `↑ f = ↑ · f
-
--- rmap (lifting with an argument)
--- _<$>_ : Type Δ (κ₁ `→ κ₂) → Type Δ R[ κ₁ ] → Type Δ R[ κ₂ ]
--- f <$> m = ↑ · f · m 
 
 --------------------------------------------------------------------------------
 -- Admissable constants
@@ -173,3 +147,6 @@ flap = `λ (`λ ((`λ ((` Z) · (` (S Z)))) <$> (` (S Z))))
 
 _??_ : Type Δ (R[ κ₁ `→ κ₂ ]) → Type Δ κ₁ → Type Δ R[ κ₂ ]
 f ?? a = flap · f · a
+
+Unit : Type Δ ★
+Unit = Π · ε

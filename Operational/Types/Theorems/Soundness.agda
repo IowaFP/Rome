@@ -246,7 +246,6 @@ fundSPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Δ₁ R[ κ ]){σ : Substitutionₖ �
 fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
 
-fundS Unit {σ} {η} e = eq-refl
 fundS (` α) {σ} {η} e = e α
 fundS (`λ τ) {σ} {η} e ρ {v} {V} q = 
   subst-⟦⟧≋ 

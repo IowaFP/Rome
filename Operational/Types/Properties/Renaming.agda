@@ -34,7 +34,6 @@ renₖ-cong :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ 
               (τ : Type Δ₁ κ) → renₖ ρ₁ τ ≡ renₖ ρ₂ τ
 renₖ-cong-pred : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
                   (π : Pred Δ₁ R[ κ ]) → renPredₖ ρ₁ π ≡ renPredₖ ρ₂ π
-renₖ-cong eq Unit = refl
 renₖ-cong eq ε = refl
 renₖ-cong eq (` x) rewrite eq x = refl
 renₖ-cong eq (`λ τ) rewrite renₖ-cong (liftₖ-cong eq) τ = refl 
@@ -57,7 +56,6 @@ renₖ-cong-pred eq (ρ₁ ≲ ρ₂)
 
 renₖ-id : ∀ (τ : Type Δ κ) → renₖ id τ ≡ τ
 renₖ-id-pred : ∀ (π : Pred Δ R[ κ ]) → renPredₖ id π ≡ π
-renₖ-id Unit = refl
 renₖ-id ε = refl
 renₖ-id (` x) = refl
 renₖ-id (`λ τ) rewrite renₖ-cong liftₖ-id τ | renₖ-id τ = refl 
@@ -84,7 +82,6 @@ renₖ-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ �
            ∀ (τ : Type Δ₁ κ) → renₖ (ρ₂ ∘ ρ₁) τ ≡ renₖ ρ₂ (renₖ ρ₁ τ)
 renₖ-comp-pred : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
                 ∀ (π : Pred Δ₁ R[ κ ]) → renPredₖ (ρ₂ ∘ ρ₁) π ≡ renPredₖ ρ₂ (renPredₖ ρ₁ π)
-renₖ-comp _ _   Unit = refl
 renₖ-comp _ _   ε = refl
 renₖ-comp ρ₁ ρ₂ (` x) = refl
 renₖ-comp ρ₁ ρ₂ Π = refl

@@ -57,11 +57,6 @@ data NormalPred Δ where
 
 data NormalType Δ where
 
-  Unit :
-       
-      --------------
-      NormalType Δ ★ 
-
   ne : 
 
       (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
@@ -221,7 +216,6 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
 
-⇑ Unit   = Unit
 ⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
 ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
@@ -245,5 +239,8 @@ arrow-canonicity (`λ f) = f , refl
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
 
 
+--------------------------------------------------------------------------------
+-- Admissable constants
 
-
+UnitNF : NormalType Δ ★
+UnitNF = Π ε

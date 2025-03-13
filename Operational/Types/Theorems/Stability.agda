@@ -48,7 +48,6 @@ stability-β {Δ = Δ} τ =
         η Z = reflect-≋ refl
         η (S x) = ↻-ren-reflect S (` x)
   
-stability Unit = refl
 stability {κ = ★} (ne x) = stabilityNE x
 stability {κ = L} (ne x)       = stabilityNE x
 stability {_} {κ `→ κ₁} (ne x {()})
