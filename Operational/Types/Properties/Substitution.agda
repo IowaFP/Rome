@@ -43,7 +43,6 @@ renₖ-liftₖ-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ 
 subₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡ subₖ σ₂ τ
-subₖ-cong e Unit = refl
 subₖ-cong e ε = refl
 subₖ-cong e (` α) = e α
 subₖ-cong e (`λ τ) = cong `λ (subₖ-cong (liftsₖ-cong e) τ)
@@ -63,7 +62,6 @@ subₖ-cong e Σ = refl
 subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
 
 subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
-subₖ-id Unit = refl
 subₖ-id ε = refl
 subₖ-id (` α) = refl
 subₖ-id (`λ τ) = cong `λ (trans (subₖ-cong  {σ₁ = liftsₖ `} {σ₂ = `} liftsₖ-id τ) (subₖ-id τ))
@@ -95,7 +93,6 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 
 ↻-subₖ-renₖ : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃}  
                 (τ : Type Δ₁ κ) → subₖ (σ ∘ ρ) τ ≡ subₖ σ (renₖ ρ τ)
-↻-subₖ-renₖ {ρ = ρ} {σ} Unit = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} ε = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} (` α) = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
@@ -121,7 +118,6 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 
 ↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
                     subₖ (renₖ ρ ∘ σ) τ ≡ renₖ ρ (subₖ σ τ)
-↻-renₖ-subₖ {σ = σ} {ρ} Unit = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} ε = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} (` α) = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
@@ -159,7 +155,6 @@ liftsₖ-comp σ₁ σ₂ (S x) = trans (sym (↻-renₖ-subₖ (σ₁ x))) (↻
 
 subₖ-comp : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₂ Δ₃}
                 (τ : Type Δ₁ κ) → subₖ (subₖ σ₂ ∘ σ₁) τ ≡ subₖ σ₂ (subₖ σ₁ τ)
-subₖ-comp Unit = refl
 subₖ-comp ε = refl
 subₖ-comp (` α) = refl
 subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) = 

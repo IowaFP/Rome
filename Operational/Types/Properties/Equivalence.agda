@@ -79,7 +79,6 @@ liftsₖ-cong-≡t c (S x) = renₖ-≡t S (c x)
 subₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
                 (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
                  (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡t subₖ σ₂ τ
-subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c Unit = eq-refl 
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (` α) = c α
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`λ τ) = eq-λ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ · τ₁) = eq-· (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)

@@ -194,6 +194,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
           ----------------------------------------
           Term Γ υ
 
+  prj : 
+   
+       (M : Term Γ (Π ρ₂)) → Ent Γ (ρ₁ ≲ ρ₂) → 
+       -------------------------------------
+       Term Γ (Π ρ₁)
+
   --------------
   -- Rω variants
 
@@ -208,6 +214,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
           (M₁ : Term Γ (Σ (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
           ----------------------------------------
           Term Γ υ
+
+  inj : 
+   
+       (M : Term Γ (Σ ρ₁)) → Ent Γ (ρ₁ ≲ ρ₂) → 
+       -------------------------------------
+       Term Γ (Σ ρ₁)
 
 
 --------------------------------------------------------------------------------
@@ -225,5 +237,12 @@ conv refl M = M
 convEnt : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → Ent Γ π₁ → Ent Γ π₂
 convEnt refl e = e
 
-conv-t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → Term Γ (⇓ τ₁) → Term Γ (⇓ τ₂)
-conv-t eq M = conv (completeness eq) M
+conv-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → Term Γ (⇓ τ₁) → Term Γ (⇓ τ₂)
+conv-≡t eq = conv (completeness eq)
+
+--------------------------------------------------------------------------------
+-- Admissable constants
+
+-- Unit term
+uu : Term Γ UnitNF
+uu = prj ((# "l") Π▹ (# "l")) (n-·≲L n-ε-L)

@@ -58,7 +58,7 @@ _ = refl
 Const-U : Type Δ (★ `→ ★)
 Const-U = `λ Unit
 
-_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ Unit
+_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ UnitNF
 _ = refl
 
 ----------------------------------------
@@ -67,7 +67,7 @@ _ = refl
 A₀ : Type Δ R[ ★ ]
 A₀ = (ℓ ▹ Unit)
 
-_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡  (l ▹ Unit)
+_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡  (l ▹ UnitNF)
 _ = refl
 
 ----------------------------------------
@@ -91,7 +91,7 @@ _ = refl
 C₁ : Type Δ ★
 C₁ = `Π (ℓ ▹ Unit)
 
-_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ Unit)
+_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ UnitNF)
 _ = refl
 
 C₂ : Type Δ (★ `→ ★)
@@ -103,7 +103,7 @@ _ = refl
 C₃ : Type Δ ★
 C₃ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ ((app · Const-U) · Unit))))
 
-_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
+_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ UnitNF)))
 _ = refl
 
 
@@ -113,7 +113,7 @@ _ = refl
 NR₀ : Type Δ ★
 NR₀ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} NR₀ ≡ Π (l₁ ▹ (Π (l₂ ▹ Unit)))
+_ : ⇓ {Δ = Δ} NR₀ ≡ Π (l₁ ▹ (Π (l₂ ▹ UnitNF)))
 _ = refl 
 
 NR₁ : Type Δ (★ `→ ★)
@@ -126,7 +126,7 @@ _ = refl
 NR₂ : Type Δ R[ ★ ]
 NR₂ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (((app · Const-U) · Unit))))
 
-_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡  (l₁ ▹ (Π (l₂ ▹ Unit)))
+_ : ∀ {Δ} → ⇓ (NR₂ {Δ}) ≡  (l₁ ▹ (Π (l₂ ▹ UnitNF)))
 _ = refl
 
 NR₃ : Type Δ R[ ★ `→ ★ ]
@@ -138,7 +138,7 @@ _ = refl
 NR₄ : Type Δ R[ R[ ★ ] ]
 NR₄ = `Π (ℓ₁ ▹ (ℓ₂ ▹ (ℓ₃ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} NR₄ ≡  (l₁ ▹ ( (l₂ ▹ (Π (l₃ ▹ Unit)))))
+_ : ⇓ {Δ = Δ} NR₄ ≡  (l₁ ▹ ( (l₂ ▹ (Π (l₃ ▹ UnitNF)))))
 _ = refl
 
 NR₅ : Type Δ R[ R[ ★ `→ ★ ] ]
@@ -161,7 +161,7 @@ _ = refl
 mix₀ : Type Δ ★
 mix₀ = `Π (`Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} mix₀ ≡ Π (l₁ ▹ (Σ (l₂ ▹ Unit)))
+_ : ⇓ {Δ = Δ} mix₀ ≡ Π (l₁ ▹ (Σ (l₂ ▹ UnitNF)))
 _ = refl
 
 
@@ -171,13 +171,13 @@ _ = refl
 lift-λ : Type Δ ★
 lift-λ = `Π (`λ (` Z) <$> (ℓ ▹ Unit))
 
-_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ Unit)
+_ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ UnitNF)
 _ = refl
 
 lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
 lift-λ₂ = `Π (ℓ₁ ▹ (`λ (`λ (` Z) <$> (ℓ₂ ▹ Unit)))) -- `Π (ℓ₁ ▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
-_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ ( (lab "l1" ▹ Π (lab "l2" ▹ Unit)))
+_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ ( (lab "l1" ▹ Π (lab "l2" ▹ UnitNF)))
 _ = refl
 
 lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
@@ -189,7 +189,7 @@ _ = refl
 lift-assoc₁ : Type Δ ★
 lift-assoc₁ =  (Π · (ℓ ▹ `λ (` Z))) · Unit
 
-_ : ⇓ {Δ = Δ} lift-assoc₁ ≡ Π (l ▹ Unit)
+_ : ⇓ {Δ = Δ} lift-assoc₁ ≡ Π (l ▹ UnitNF)
 _ = refl
 
 lift-assoc₂ : Type (Δ ,, (★ `→ ★)) ★
@@ -197,7 +197,7 @@ lift-assoc₂ =  (Π · (ℓ ▹ F)) · Unit
     where
         F = ` Z
 
-_ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π (l ▹ ne (` Z · Unit))
+_ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π (l ▹ ne (` Z · UnitNF))
 _ = refl
 
 lift-assoc₃ : Type (Δ ,, R[ ★ `→ ★ ]) ★

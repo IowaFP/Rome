@@ -57,11 +57,6 @@ data NormalPred Δ where
 
 data NormalType Δ where
 
-  Unit :
-       
-      --------------
-      NormalType Δ ★ 
-
   ne : 
 
       (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
@@ -178,6 +173,10 @@ mapPredHO P Q q (ρ₁ · ρ₂ ~ ρ₃) rewrite
 mapPredHO P Q q (ρ₁ ≲ ρ₂) rewrite 
   q ρ₁ | q ρ₂ = refl
 
+mapPred-id : ∀ (π : NormalPred Δ R[ κ ]) → mapPred id π ≡ π
+mapPred-id (ρ₁ · ρ₂ ~ ρ₃) = refl
+mapPred-id (ρ₁ ≲ ρ₂) = refl
+
 
 --------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
@@ -221,7 +220,6 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
 
-⇑ Unit   = Unit
 ⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
 ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
@@ -245,5 +243,8 @@ arrow-canonicity (`λ f) = f , refl
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
 
 
+--------------------------------------------------------------------------------
+-- Admissable constants
 
-
+UnitNF : NormalType Δ ★
+UnitNF = Π ε

@@ -183,7 +183,6 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     ↻-ren-reify ρ (idext (refl-≋ₗ ∘ P) ρ₁) | reify-≋ (↻-renSem-eval ρ ρ₁ P)
   | ↻-ren-reify ρ (idext (refl-≋ₗ ∘ P) ρ₂) | reify-≋ (↻-renSem-eval ρ ρ₂ P)  = refl
 
-↻-renSem-eval ρ Unit e = refl
 ↻-renSem-eval ρ ε e = tt
 ↻-renSem-eval {κ = κ} ρ (` α) e = ren-≋ ρ (e α)
 ↻-renSem-eval ρ₁ (`λ τ) {η₁} {η₂} e = 
@@ -244,7 +243,6 @@ idext-pred e (ρ₁ ≲ ρ₂) rewrite
     sym (reify-≋ (idext e ρ₁))
   | sym (reify-≋ (idext e ρ₂))  = refl
 
-idext {κ = κ} e Unit = refl
 idext {κ = κ} e ε = tt
 idext {κ = ★} e (` x) = e x
 idext {κ = L} e (` x) = e x
@@ -311,7 +309,6 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
     reify-≋ (↻-renₖ-eval ρ ρ₁ e)
   | reify-≋ (↻-renₖ-eval ρ ρ₂ e)  = refl
 
-↻-renₖ-eval ρ Unit {η₁} {η₂} e = refl
 ↻-renₖ-eval ρ ε {η₁} {η₂} e = tt
 ↻-renₖ-eval ρ (` α) {η₁} {η₂} e = e (ρ α)
 ↻-renₖ-eval ρ (`λ τ) {η₁} {η₂} e = 
@@ -378,7 +375,6 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
     reify-≋ (↻-subₖ-eval ρ₁ e σ) 
   | reify-≋ (↻-subₖ-eval ρ₂ e σ) = refl
 
-↻-subₖ-eval Unit e σ = refl 
 ↻-subₖ-eval ε e σ = tt
 ↻-subₖ-eval (` α) e σ = idext e (σ α)
 ↻-subₖ-eval (`λ τ) {η₁} {η₂} e σ =  

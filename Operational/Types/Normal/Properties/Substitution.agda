@@ -70,6 +70,11 @@ subₖNF-id τ =
         (λ { x → fundC {τ₁ = ⇑ (η-norm (` x))} {τ₂ = ` x} idEnv-≋ (η-norm-≡t (` x)) }) (⇑ τ)))
     (stability τ))
 
+subPredₖNF-id : ∀ (π : NormalPred Δ R[ κ ]) → subPredₖNF idSubst π ≡ π
+subPredₖNF-id π = trans (mapPredHO (λ τ → subₖNF idSubst τ) id subₖNF-id π) (mapPred-id π)
+
+
+
 --------------------------------------------------------------------------------
 -- Substitution respects the functor composition
 
@@ -231,19 +236,27 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Immediate application of a weakened type has no effect
 
-weakenₖNF-β-id   : ∀ (τ : NormalType Δ ★) {τ₂ : NormalType Δ κ} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
+-- TODO: generalize τ to kind κ
+
+weakenₖNF-β-id   : ∀ {κ'} (τ : NormalType Δ κ) {τ₂ : NormalType Δ κ'} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
 weakenₖNF-β-id τ {τ₂} = 
   trans 
     (trans 
       (sym (stability τ))
-      (evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ)))))
+      (reify-≋ (evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ))))))
     (trans 
-      (fundC 
+      (reify-≋ (fundC 
         {τ₁ = subₖ ` (⇑ τ)} 
         {τ₂ = subₖ (⇑ ∘ η-norm ∘ `) (⇑ τ)} 
         idEnv-≋ 
-        (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ))) 
+        (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ)))) 
       (↻-subₖNF-renₖNF S (extendₖNF idSubst τ₂) τ))
+
+-- Use MapPredHO here
+weakenPredₖNF-Β-id : ∀ {κ'} (π : NormalPred Δ R[ κ ]) {τ₂ : NormalType Δ κ'} → π ≡ subPredₖNF (extendₖNF (λ x₁ → η-norm (` x₁)) τ₂) (weakenPredₖNF π)
+weakenPredₖNF-Β-id π {τ₂} with mapPredHO id  (λ τ → (weakenₖNF τ) βₖNF[ τ₂ ]) (λ τ → weakenₖNF-β-id τ {τ₂}) π 
+weakenPredₖNF-Β-id (ρ₁ · ρ₂ ~ ρ₃) {τ₂} | c = c
+weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} | c = c
 
 --------------------------------------------------------------------------------
 -- Liftsₖ and liftsₖNF fusion under ≡t
