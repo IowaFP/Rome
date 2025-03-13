@@ -343,17 +343,19 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
-↻-sub-⇑ σ Unit = {!refl   !}
-↻-sub-⇑ σ (ne x {ground}) = {!   !}
-↻-sub-⇑ σ (`λ τ) = {!   !}
+-- need to define subₖNF-var over ground neutrals
+↻-sub-⇑ σ (ne (` x) {ground}) = {! subₖNF-var σ x  !}
+↻-sub-⇑ σ (ne (x · τ) {ground}) = {!   !}
+↻-sub-⇑ σ (ne (φ <$> x) {ground}) = {!   !}
+↻-sub-⇑ σ (`λ τ) = cong `λ {! !}
 ↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
 ↻-sub-⇑ σ (`∀ κ τ) = {!   !}
-↻-sub-⇑ σ (μ τ) = {!   !}
+↻-sub-⇑ σ (μ τ) = cong μ (↻-sub-⇑ σ τ)
 ↻-sub-⇑ σ (π ⇒ τ) = {!   !}
-↻-sub-⇑ σ ε = {!   !}
+↻-sub-⇑ σ ε = refl
 ↻-sub-⇑ σ (τ ▹ τ₁) = {!   !}
-↻-sub-⇑ σ (lab l) = {!   !}
-↻-sub-⇑ σ ⌊ τ ⌋ = {!   !}
+↻-sub-⇑ σ (lab l) = refl
+↻-sub-⇑ σ ⌊ τ ⌋ = cong ⌊_⌋ (↻-sub-⇑ σ τ)
 ↻-sub-⇑ σ (Π τ) = {!   !}
 ↻-sub-⇑ σ (ΠL τ) = {!   !}
 ↻-sub-⇑ σ (Σ τ) = {!   !}
