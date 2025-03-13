@@ -80,8 +80,13 @@ lemPred σ s (ρ₁ ≲ ρ₂) = refl
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
-↻-sub-⇓-<$> σ F ρ  = trans 
-  {!  !} 
+↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
+  (cong ⇓ 
+     {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
+     {y = subₖ (⇑ ∘ σ) (⇑ F) <$> subₖ (⇑ ∘ σ) (⇑ ρ)} 
+     (cong₂ _<$>_ 
+      (↻-sub-⇑ σ F) 
+      (↻-sub-⇑ σ ρ))) 
   (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
   -- cong ⇓ 
   --   {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}

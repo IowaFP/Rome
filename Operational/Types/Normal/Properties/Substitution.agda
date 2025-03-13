@@ -325,3 +325,27 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 -- stability-<$> f ε = refl
 -- stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
 
+--------------------------------------------------------------------------------
+-- Substitution commutes with embedding
+
+↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
+          ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
+↻-sub-⇑ σ Unit = {!refl   !}
+↻-sub-⇑ σ (ne x {ground}) = {!   !}
+↻-sub-⇑ σ (`λ τ) = {!   !}
+↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
+↻-sub-⇑ σ (`∀ κ τ) = {!   !}
+↻-sub-⇑ σ (μ τ) = {!   !}
+↻-sub-⇑ σ (π ⇒ τ) = {!   !}
+↻-sub-⇑ σ ε = {!   !}
+↻-sub-⇑ σ (τ ▹ τ₁) = {!   !}
+↻-sub-⇑ σ (lab l) = {!   !}
+↻-sub-⇑ σ ⌊ τ ⌋ = {!   !}
+↻-sub-⇑ σ (Π τ) = {!   !}
+↻-sub-⇑ σ (ΠL τ) = {!   !}
+↻-sub-⇑ σ (Σ τ) = {!   !}
+↻-sub-⇑ σ (ΣL τ) = {!   !}
+-- ↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) → 
+--           ⇑NE (subₖNE σ τ) ≡ subₖ σ (⇑NE τ)
+-- ↻-sub-⇑Pred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (π : NormalPred Δ₁ R[ κ ]) → 
+--             ⇑Pred (subPredₖNF σ π) ≡ subPredₖ σ (⇑Pred π) 
