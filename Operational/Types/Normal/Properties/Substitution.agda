@@ -231,12 +231,14 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Immediate application of a weakened type has no effect
 
+-- TODO: generalize τ to kind κ
+
 weakenₖNF-β-id   : ∀ (τ : NormalType Δ ★) {τ₂ : NormalType Δ κ} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
 weakenₖNF-β-id τ {τ₂} = 
   trans 
     (trans 
       (sym (stability τ))
-      (evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ)))))
+      {!(evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ))))!})
     (trans 
       (fundC 
         {τ₁ = subₖ ` (⇑ τ)} 
@@ -244,6 +246,11 @@ weakenₖNF-β-id τ {τ₂} =
         idEnv-≋ 
         (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ))) 
       (↻-subₖNF-renₖNF S (extendₖNF idSubst τ₂) τ))
+
+-- Use MapPredHO here
+weakenPredₖNF-Β-id : ∀ (π : NormalPred Δ R[ κ ]) {τ₂ : NormalType Δ κ} → π ≡ subPredₖNF (extendₖNF (λ x₁ → η-norm (` x₁)) τ₂) (weakenPredₖNF π)
+weakenPredₖNF-Β-id (ρ₁ · ρ₂ ~ ρ₃) {τ₂} = {!weakenₖNF-β-id !}
+weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} = {!!}
 
 --------------------------------------------------------------------------------
 -- Liftsₖ and liftsₖNF fusion under ≡t

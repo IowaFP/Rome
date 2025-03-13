@@ -50,3 +50,9 @@ third = snd ∘ snd
 
 left-inversion : ∀ {A B : Set} {x y : A} → left {B = B} x ≡ left y → x ≡ y
 left-inversion {x = x} {y = y} refl = refl 
+
+--------------------------------------------------------------------------------
+--
+
+cong₃ : ∀ {A B C D : Set} (f : A → B → C → D) {x y u v l m} → x ≡ y → u ≡ v → l ≡ m → f x u l ≡ f y v m
+cong₃ f refl refl refl = refl

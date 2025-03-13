@@ -65,11 +65,6 @@ liftsPred (s , p) =
 --------------------------------------------------------------------------------
 -- These identities pop up as a nuisance! Ideally we'd be rid of them
 
--- Aids! Fix this.
-lem : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) (τ : NormalType _ ★) → 
-        eval (subₖ (λ x₁ → ⇑ (σ x₁)) (⇑ τ)) idEnv ≡ subₖNF σ τ 
-lem σ s τ = refl 
-
 lemPred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) (π : NormalPred _ R[ κ ]) → 
          subPredₖNF σ π ≡ evalPred (subPredₖ (λ x₁ → ⇑ (σ x₁)) (⇑Pred π)) idEnv
 lemPred σ s (ρ₁ · ρ₂ ~ ρ₃) = refl
@@ -79,8 +74,7 @@ lemPred σ s (ρ₁ ≲ ρ₂) = refl
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
-↻-sub-⇓-<$> σ F ρ rewrite stability (subₖNF σ F) | stability (subₖNF σ ρ) = 
-  {!   !}          
+↻-sub-⇓-<$> σ F ρ = {!!}  
 
 --------------------------------------------------------------------------------
 -- Defining substitution of variables in evidence and term variables in terms
@@ -109,14 +103,13 @@ sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
 -- Aids!
 sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) = 
-  `ƛ (conv 
-      (sym (lem σ s τ)) 
-      (subst 
+  `ƛ (subst 
         (λ x → Term (Γ₂ ,,, x) (subₖNF σ τ)) 
         (lemPred σ s π) 
-        (sub σ (liftsPred {σ = σ} s) {τ} M)))
+        (sub σ (liftsPred {σ = σ} s) {τ} M))
 sub σ s {x} (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (lemPred σ s π) (subEnt σ s e) ⟩
 sub σ s (prj M e) = prj (sub σ s M) (subEnt σ s e)
+sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl
@@ -129,17 +122,27 @@ subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) =
   convEnt 
     (cong₂ _≲_ (↻-sub-⇓-<$> σ F ρ₁) (↻-sub-⇓-<$> σ F ρ₂)) 
     (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
-subEnt σ s {π} (n-·lift e) = {!   !}
+subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e) = 
+  convEnt 
+    (cong₃ _·_~_ 
+      (↻-sub-⇓-<$> σ F ρ₁) 
+      (↻-sub-⇓-<$> σ F ρ₂) 
+      (↻-sub-⇓-<$> σ F ρ₃))  
+      (n-·lift {F = subₖNF σ F} (subEnt σ s e))
 
--- extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
---          {τ : NormalType Δ₁ ★} → 
---          (M : Term Γ₂ (subₖNF σ τ)) → 
---          Substitution (Γ₁ , τ) Γ₂ σ
--- extend σ s M Z = M
--- extend σ s M (S x) = s x
+extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
+         {τ : NormalType Δ₁ ★} → 
+         (M : Term Γ₂ (subₖNF σ τ)) → 
+         Substitution (Γ₁ , τ) Γ₂ σ
+extend σ (s , p) M = 
+  (λ { Z    → M 
+    ; (S x) → s x }) , 
+   λ { (T x) → p x } 
 
--- lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
--- lem (K {τ = τ} x) = conv (weakenₖNF-β-id τ) (` x)
+lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
+lem = 
+  (λ { (K {τ = τ} x) → conv (weakenₖNF-β-id τ) (` x) }) , 
+  λ { (K x) → convEnt {! !} (n-var x) }
 
 -- _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
 -- _β[_] {τ₁ = τ₁} {τ₂} M N = 
