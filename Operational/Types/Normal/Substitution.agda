@@ -12,6 +12,10 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
+
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution
 
@@ -47,9 +51,16 @@ _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalT
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
+-- hold my beer 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ne x = ne (f <$> x)
 f <$>' ε = ε
 f <$>' (l ▹ τ) = l ▹ (f ·' τ)
+
+fund-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+fund-<$> f (ne x) = sym (stability (f <$>' ne x))
+fund-<$> f ε = refl
+fund-<$> (`λ f) (l ▹ τ) = cong₂ _▹_ (sym (stability l)) {!   !}
 
 
