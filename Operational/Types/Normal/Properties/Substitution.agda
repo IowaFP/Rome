@@ -344,6 +344,10 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
 -- need to define subₖNF-var over ground neutrals
+-- Also these:
+--   - ↻-⇓-sub σ (⇑ τ) 
+--   - stability (⇓ (subₖ (⇑ ∘ σ) (⇑ τ)))
+↻-sub-⇑ σ τ = {!  !}
 ↻-sub-⇑ σ (ne (` x) {ground}) = {! subₖNF-var σ x  !}
 ↻-sub-⇑ σ (ne (x · τ) {ground}) = {!   !}
 ↻-sub-⇑ σ (ne (φ <$> x) {ground}) = {!   !}
@@ -364,3 +368,4 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 --           ⇑NE (subₖNE σ τ) ≡ subₖ σ (⇑NE τ)
 -- ↻-sub-⇑Pred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (π : NormalPred Δ₁ R[ κ ]) → 
 --             ⇑Pred (subPredₖNF σ π) ≡ subPredₖ σ (⇑Pred π) 
+ 
