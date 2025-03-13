@@ -139,23 +139,26 @@ extend σ (s , p) M =
     ; (S x) → s x }) , 
    λ { (T x) → p x } 
 
-lem : ∀ {τ₂} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ₂)
-lem = 
-  (λ { (K {τ = τ} x) → conv (weakenₖNF-β-id τ) (` x) }) , 
-  λ { (K x) → convEnt {! !} (n-var x) }
+lem : ∀ {τ} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ)
+lem {τ = τ} = 
+  (λ { (K {τ = τ'} x) → conv (weakenₖNF-β-id τ') (` x) }) , 
+  λ { (K {π = π} x) → convEnt (weakenPredₖNF-Β-id π) (n-var x) }
 
--- _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
--- _β[_] {τ₁ = τ₁} {τ₂} M N = 
---   conv (subₖNF-id τ₁) 
---   (sub idSubst 
---     (extend 
---       idSubst 
---       (conv (sym (subₖNF-id _)) ∘ `) 
---       (conv (sym (subₖNF-id τ₂)) N)) 
---       M)
+idSubstitution : Substitution Γ Γ idSubst
+idSubstitution = (λ x → conv (sym (subₖNF-id _) ) (` x)) , λ x → convEnt (sym (subPredₖNF-id _)) (n-var x)
 
--- _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
---          Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])
--- M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem M
+_β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
+_β[_] {τ₁ = τ₁} {τ₂} M N = 
+  conv (subₖNF-id τ₁) 
+  (sub idSubst 
+    (extend 
+      idSubst 
+      idSubstitution
+      (conv (sym (subₖNF-id τ₂)) N)) 
+      M)
+
+_β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
+         Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])
+M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem M
   
    

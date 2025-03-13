@@ -173,6 +173,10 @@ mapPredHO P Q q (ρ₁ · ρ₂ ~ ρ₃) rewrite
 mapPredHO P Q q (ρ₁ ≲ ρ₂) rewrite 
   q ρ₁ | q ρ₂ = refl
 
+mapPred-id : ∀ (π : NormalPred Δ R[ κ ]) → mapPred id π ≡ π
+mapPred-id (ρ₁ · ρ₂ ~ ρ₃) = refl
+mapPred-id (ρ₁ ≲ ρ₂) = refl
+
 
 --------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
