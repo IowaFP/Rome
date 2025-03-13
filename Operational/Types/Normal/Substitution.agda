@@ -15,6 +15,7 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Equivalence
 
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution
@@ -56,11 +57,5 @@ _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → Norma
 f <$>' ne x = ne (f <$> x)
 f <$>' ε = ε
 f <$>' (l ▹ τ) = l ▹ (f ·' τ)
-
-fund-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
-           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
-fund-<$> f (ne x) = sym (stability (f <$>' ne x))
-fund-<$> f ε = refl
-fund-<$> (`λ f) (l ▹ τ) = cong₂ _▹_ (sym (stability l)) {!   !}
 
 

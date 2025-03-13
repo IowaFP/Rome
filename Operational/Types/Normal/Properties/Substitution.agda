@@ -308,3 +308,20 @@ subₖNF-cong-·' :  ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
 subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 
+
+-- ⇑ (f βₖNF[ N ]) ≡t (⇑ f βₖ[ ⇑ N ])
+
+-- stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
+-- stability-·' f N = trans 
+--     (sym (stability (f ·' N))) 
+--     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} {!   !})
+--   where
+--     lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
+--     lem (`λ f) N = eq-trans {! ↻-subₖNF-β  !} (eq-sym eq-β)
+
+-- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+--            f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+-- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+-- stability-<$> f ε = refl
+-- stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
+

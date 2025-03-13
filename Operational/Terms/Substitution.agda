@@ -18,6 +18,7 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE 
+open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
@@ -79,8 +80,13 @@ lemPred σ s (ρ₁ ≲ ρ₂) = refl
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
-↻-sub-⇓-<$> σ F ρ rewrite stability (subₖNF σ F) | stability (subₖNF σ ρ) = 
-  {!   !}          
+↻-sub-⇓-<$> σ F ρ  = trans 
+  {!  !} 
+  (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
+  -- cong ⇓ 
+  --   {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
+  --   {y = subₖ (⇑ ∘ σ) (⇑ (reify (⇈ F <$>V ⇈ ρ)))} 
+  --   {!   !}          
 
 --------------------------------------------------------------------------------
 -- Defining substitution of variables in evidence and term variables in terms

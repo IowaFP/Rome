@@ -85,17 +85,20 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
 
+
+-- foo : ∀ 
+--         (F : NormalType Δ₁ (κ₁ `→ κ₂))
+--         (ρ : NormalType Δ₁ R[ κ₁ ]) → 
+--         ⇓ (⇑ F <$> ⇑ ρ) ≡  ⇑ (⇓ (⇑ F)) <$>V ⇑ (⇓ (⇑ ρ))
+-- foo F ρ = {!   !} 
+
 ↻-ren-⇓-<$> : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ₁ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (renₖNF ρ F) <$> ⇑ (renₖNF ρ ρ₁)) ≡  renₖNF ρ (⇓ (⇑ F <$> ⇑ ρ₁))
-↻-ren-⇓-<$> ρ F ρ₁ = 
-  subst 
-    (λ x → (reify (⇈ (renₖNF ρ F) <$>V eval x idEnv)) ≡ renₖNF ρ (reify (⇈ F <$>V ⇈ ρ₁))) 
-    (sym (↻-ren-⇑ ρ ρ₁))
-    (subst 
-      (λ x → reify ((λ {Δ} → eval x idEnv {Δ}) <$>V eval (renₖ ρ (⇑ ρ₁)) idEnv) ≡ renₖNF ρ (reify (⇈ F <$>V ⇈ ρ₁))) 
-      (sym (↻-ren-⇑ ρ F)) 
+↻-ren-⇓-<$> ρ F ρ₁ rewrite 
+    (↻-ren-⇑ ρ ρ₁) 
+  | (↻-ren-⇑ ρ F) = 
       (trans 
         (reify-≋ 
           (trans-≋ (↻-renₖ-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋) 
@@ -111,7 +114,7 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
             idEnv-≋ 
             (eq-<$> 
               eq-refl 
-              eq-refl))))))         
+              eq-refl)))))         
 
 --------------------------------------------------------------------------------
 -- Renaming definitions
