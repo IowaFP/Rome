@@ -153,7 +153,7 @@ renEnt R (n-·≲L e) = n-·≲L (renEnt R e)
 renEnt R (n-·≲R e) = n-·≲R (renEnt R e)
 renEnt R n-ε-R = n-ε-R
 renEnt R n-ε-L = n-ε-L
-renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e) = 
+renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e) =
   convEnt 
     (cong₂ _≲_ 
       (↻-ren-⇓-<$> ρ F ρ₁) 

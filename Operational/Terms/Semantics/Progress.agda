@@ -35,12 +35,14 @@ progress p (` x) with noVar p x
 ... | ()
 
 progress p (`λ M) = Done (V-λ M)
-progress p (Λ M) = Done (V-Λ M)
+progress p (Λ M) with progress p M 
+... | Done V = Done (V-Λ M V)
+... | Steps M' x = Steps (Λ M') (ξ-Λ x)
 progress p (M · N) with progress p M
 progress p (.(`λ M) · N) | Done (V-λ M)   = Steps (M β[ N ]) β-λ
 progress p (M · N)       | Steps M' steps = Steps (M' · N) (ξ-·1 steps)
 progress p (M ·[ τ ]) with progress p M
-progress p (.(Λ V) ·[ τ ]) | Done (V-Λ V) = Steps _ β-Λ
+progress p (.(Λ _) ·[ τ ]) | Done (V-Λ M VM) = Steps _ β-Λ
 progress p (M ·[ τ ])      | Steps M' steps = Steps _ (ξ-·[] steps)
 progress p (In τ M) with progress p M 
 ... | Done V         = Done (V-In τ V) 
@@ -65,26 +67,36 @@ progress p (`ƛ M) = Done (V-ƛ M)
 progress p (M ·⟨ e ⟩) with progress p M 
 ... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
 ... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
-progress p (prj M e) with progress p M
-progress p {Π (ne x)} (prj M e) | Done (V-Π ℓ N VN) = {! p  !}
-progress p {Π ε} (prj M e) | Done (V-Π ℓ N VN) = Done (V-unit _ M e)
-progress p {Π (l ▹ τ)} (prj M e) | Done (V-Π ℓ N VN) = {!   !}
-... | Done (V-unit ρ M₁ e) = {!   !}
-... | Steps M' x = {!   !}
+-- permitting ρ₁ to be a neutral variable I believe leads to stuckness
+progress p (prj {ρ₁ = ne x} M e₁) = {!   !}
+progress p (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
+progress p (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress p M 
+-- I'm being fucked left and right by a number of cases which should truly not occur.
+-- I suspect the cleverest way here is to make Entailment intrinsically respect
+-- the monoidal structure of rows.
+progress p (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) = {!   !}
+progress p (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) = Done {! M  !}
+progress p (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
+-- with progress p M
+-- ... | Done (V-Π ℓ N VN) = {!   !}
+-- ... | Steps M' x = {!   !}
 progress p (inj M e) = {!   !}
 
-progress-ε : ∀ {τ} (M : Term ε τ) →
-             Progress M
-progress-ε = progress tt
+-- progress-ε : ∀ {τ} (M : Term ε τ) →
+--              Progress M
+-- progress-ε = progress tt
 
 -------------------------------------------------------------------------------
 -- Tinkering
 
 {-# TERMINATING #-}
-eval : ∀ {τ} → Term ε τ → Term ε τ 
+eval : ∀ {τ} → Term ∅ τ → Term ∅ τ 
 eval M with progress tt M 
 ... | Done x = M
 ... | Steps M' x = eval M'
    
+_ : eval uu ≡ uu 
+_ = {! uu  !}
+  
 _ : eval ((# "l" Π▹ # "r") Π/ (# "l")) ≡ (# "r")
 _ = refl

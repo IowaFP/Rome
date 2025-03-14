@@ -149,8 +149,10 @@ data NormalType Δ where
       (ρ : NormalType Δ R[ L ]) →
       ------------------
       NormalType Δ L
+
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
+
 
 mapPred : ∀ {Δ₁ Δ₂} {κ₁ κ₂} (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
           NormalPred Δ₁ R[ κ₁ ] → NormalPred Δ₂ R[ κ₂ ]

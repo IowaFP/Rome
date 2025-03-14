@@ -23,7 +23,7 @@ open import Rome.Operational.Types.Theorems.Stability
 -- First define contexts mapping variables to predicates, types, and kinds
 
 data Context : KEnv → Set where
-  ε : Context ∅
+  ∅ : Context ∅
   _,_  : Context Δ → NormalType Δ ★ → Context Δ
   _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
   _,,,_ : Context Δ → NormalPred Δ R[ κ ] → Context Δ
@@ -50,8 +50,32 @@ data Var : Context Δ → NormalType Δ ★ → Set where
   P : Var Γ τ → Var (Γ ,,, π) τ
 
 --------------------------------------------------------------------------------
+-- No variable restriction on contexts
+
+-- Does the context Γ have any term or entailment variables?
+NoVar : Context Δ → Set
+NoVar ∅ = ⊤
+NoVar (Γ ,,, _) = ⊥
+NoVar (Γ ,, _) = NoVar Γ
+NoVar (Γ , _) = ⊥
+
+-- Contexts s.t. NoVar Γ is true indeed have no term variables,
+noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
+noVar p (K x) = noVar p x
+
+-- nor ent variables.
+noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
+noPVar p (K x) = noPVar p x
+
+--------------------------------------------------------------------------------
 -- Entailment relation on predicates 
 
+-- private
+--   variable 
+--       l l₁ l₂ l₃ : NormalType Δ L 
+--       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
+--       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
+      
 data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
         PVar Γ π → 
@@ -60,7 +84,7 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
 
   n-refl : 
           --------------
-          Ent Γ (ρ ≲ ρ)
+          Ent Γ ((l ▹ τ) ≲ (l ▹ τ))
 
   n-trans : 
           Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
@@ -91,23 +115,17 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
-             {x  y : NormalType Δ R[ κ₂ ]} → 
-             x ≡ ⇓ (⇑ F <$> ⇑ ρ₁) → 
-             y ≡ (⇓ (⇑ F <$> ⇑ ρ₂)) → 
              ---------------------------------
-             Ent Γ (x ≲ y)
+             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂))
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
-               {x y z : NormalType Δ R[ κ₂ ]}
+               
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
-             x ≡ ⇓ (⇑ F <$> ⇑ ρ₁) → 
-             y ≡ ⇓ (⇑ F <$> ⇑ ρ₂) → 
-             z ≡ ⇓ (⇑ F <$> ⇑ ρ₃) → 
              ---------------------
-             Ent Γ (x · y ~ z)
+             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) · ⇓ (⇑ F <$> ⇑ ρ₂) ~ ⇓ (⇑ F <$> ⇑ ρ₃))
 
 
 --------------------------------------------------------------------------------
@@ -258,50 +276,44 @@ uu : Term Γ UnitNF
 uu = prj ((# "l") Π▹ (# "l")) (n-·≲L n-ε-L)
 
 --------------------------------------------------------------------------------
--- No variable restriction on contexts
-
--- Does the context Γ have any term or entailment variables?
-NoVar : Context Δ → Set
-NoVar ε = ⊤
-NoVar (Γ ,,, _) = ⊥
-NoVar (Γ ,, _) = NoVar Γ
-NoVar (Γ , _) = ⊥
-
--- Contexts s.t. NoVar Γ is true indeed have no term variables,
-noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
-noVar p (K x) = noVar p x
-
--- nor ent variables.
-noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
-noPVar p (K x) = noPVar p x
-
---------------------------------------------------------------------------------
 -- Properties of entailment
 
-ε-unique-· : NoVar Γ → Ent Γ (ρ₁ · ρ₂ ~ ε) → ρ₁ ≡ ε × ρ₂ ≡ ε 
-ε-unique-· p (n-var x) = ⊥-elim (noPVar p x)
-ε-unique-· p n-ε-R = refl , refl
-ε-unique-· p n-ε-L = refl , refl
-ε-unique-· {ρ₁ = ρ₁} {ρ₂ = ρ₂} p (n-·lift e x x₁ x₂) = {!  !}
+-- ε-unique-· : NoVar Γ → Ent Γ (ρ₁ · ρ₂ ~ ε) → ρ₁ ≡ ε × ρ₂ ≡ ε 
+-- ε-unique-· p (n-var x) = ⊥-elim (noPVar p x)
+-- ε-unique-· p n-ε-R = refl , refl
+-- ε-unique-· p n-ε-L = refl , refl
+-- ε-unique-· {ρ₁ = ρ₁} {ρ₂ = ρ₂} p (n-·lift {ρ₁ = ρ₃} {ρ₄} {ρ₅} e ρ₁-eq ρ₂-eq ρ₃-eq) = {!   !}
 
--- I suspect this isn't true in general, but rather w.r.t. ≡t
-ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
-ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
-ε-unique-≲ p n-refl = refl
-ε-unique-≲ p (n-trans e e₁) rewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
-ε-unique-≲ p (n-·≲L e) = fst (ε-unique-· p e)
-ε-unique-≲ p (n-·≲R e) = snd (ε-unique-· p e)
-ε-unique-≲ {ρ = ρ} p (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e x y) with trans x (sym (stability-<$> F ρ₁)) | trans y (sym (stability-<$> F ρ₂))
-ε-unique-≲ {ρ = ne x₁} p (n-≲lift {ρ₁ = ne x₂} {ε} {F} e x y) | c | d = {! x₁  !}
-ε-unique-≲ {ρ = ε} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = refl
-ε-unique-≲ {ρ = ρ ▹ ρ₂} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
+-- -- I suspect this isn't true in general, but rather w.r.t. ≡t
+-- ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → (⇑ ρ) ≡t ε
+-- ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
+-- ε-unique-≲ p n-refl = eq-refl
+-- ε-unique-≲ p (n-trans e e₁) = {!   !} -- ewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
+-- ε-unique-≲ p (n-·≲L e) = {!   !} -- fst (ε-unique-· p e)
+-- ε-unique-≲ p (n-·≲R e) = {!   !} -- snd (ε-unique-· p e)
+-- ε-unique-≲ {ρ = ρ} p (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e x y) with trans x (sym (stability-<$> F ρ₁)) | trans y (sym (stability-<$> F ρ₂))
+-- ε-unique-≲ {ρ = ne x₁} p (n-≲lift {ρ₁ = ne x₂} {ε} {F} e x y) | c | d  = {!   !} -- eq-trans {! inst {τ₁ = ⇑NE x₁} {τ₂ = ⇑ F <$> ⇑NE x₂}   !} {! c  !}
+-- ε-unique-≲ {ρ = ε} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
+-- ε-unique-≲ {ρ = ρ ▹ ρ₂} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
 
-≲-refl : NoVar Γ → ∀ (l₁ l₂ : NormalType Δ L) (τ υ :  NormalType Δ R[ κ ]) → Ent Γ ((l₁ ▹ τ) ≲ (l₂ ▹ υ)) → (l₁ ▹ τ) ≡ (l₂ ▹ υ)
-≲-refl p l₁ l₂ τ υ (n-var x) = ⊥-elim (noPVar p x)
-≲-refl p l₁ l₂ τ υ n-refl = refl
-≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ne x} e e₁) = {!   !} 
-≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ε} e e₁) = {!   !}
-≲-refl p l₁ l₃ τ₁ τ₃ (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl p l₁ l₂ τ₁ τ₂ e) (≲-refl p l₂ l₃ τ₂ τ₃ e₁)
-≲-refl p l₁ l₂ τ υ (n-·≲L e) = {!   !}  
-≲-refl p l₁ l₂ τ υ (n-·≲R e) = {!   !}
-≲-refl p l₁ l₂ τ υ (n-≲lift e x y) = {!   !} 
+-- ≲-refl : NoVar Γ → ∀ (l₁ l₂ : NormalType Δ L) (τ υ :  NormalType Δ R[ κ ]) → Ent Γ ((l₁ ▹ τ) ≲ (l₂ ▹ υ)) → (l₁ ▹ τ) ≡ (l₂ ▹ υ)
+-- ≲-refl p l₁ l₂ τ υ (n-var x) = ⊥-elim (noPVar p x)
+-- ≲-refl p l₁ l₂ τ υ n-refl = refl
+-- ≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ne x} e e₁) = {!   !} 
+-- ≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ε} e e₁) = {!   !}
+-- ≲-refl p l₁ l₃ τ₁ τ₃ (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl p l₁ l₂ τ₁ τ₂ e) (≲-refl p l₂ l₃ τ₂ τ₃ e₁)
+-- ≲-refl p l₁ l₂ τ υ (n-·≲L e) = {!   !}  
+-- ≲-refl p l₁ l₂ τ υ (n-·≲R e) = {!   !}
+-- -- ≲-refl p l₁ l₂ τ υ (n-≲lift e x y) = {!   !} 
+
+-- _<$>E_ :  ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
+--             (F : NormalType Δ (κ₁ `→ κ₂)) →
+--             Ent Γ (ρ₁ ≲ ρ₂) → 
+--             ---------------------------------
+--             Ent Γ (F <$>' ρ₁ ≲ F <$>' ρ₂)
+-- _<$>E_ {ρ₁ = ρ₁} {ρ₂} F en@(n-var x) = {! convEnt   !}
+-- _<$>E_ {ρ₁ = ρ₁} {ρ₂} F n-refl = {!   !}
+-- _<$>E_ {ρ₁ = ρ₁} {ρ₂} F (n-trans e e₁) = {!   !}
+-- _<$>E_ {ρ₁ = ρ₁} {ρ₂} F (n-·≲L e) = {!   !}
+-- _<$>E_ {ρ₁ = ρ₁} {ρ₂} F (n-·≲R e) = {!   !}
+  

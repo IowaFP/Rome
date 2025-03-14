@@ -28,6 +28,7 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
 
   V-Λ : ∀ {τ} 
           (M : Term (Γ ,, κ) τ) → 
+          Value M → 
           Value (Λ M)
 
   V-ƛ : ∀ {τ}{π : NormalPred Δ R[ κ ]} 
@@ -55,12 +56,14 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             Value M → 
             ---------------------
             Value (ℓ Σ▹ M)
- 
-  -- This may be problematic as M could be a concatenation, which we would expect to reduce under projection
-  V-unit : ∀ (ρ : NormalType Δ R[ ★ ]) (M : Term Γ (Π ρ)) (e : Ent Γ (ε ≲ ρ)) → 
 
-          -------------- 
-          Value (prj M e)
+  V-Unit : ∀ (M : Term Γ (Π ε)) → Value M 
+ 
+--   -- This may be problematic as M could be a concatenation, which we would expect to reduce under projection
+--   V-unit : ∀ (ρ : NormalType Δ R[ ★ ]) (M : Term Γ (Π ρ)) (e : Ent Γ (ε ≲ ρ)) → 
+
+--           -------------- 
+--           Value (prj M e)
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -77,6 +80,12 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
          M₁ —→ M₂ →
          -----------------------
          (Λ M₁) —→ (Λ M₂)
+
+--   ξ-ƛ : ∀ {τ} {π : NormalPred Δ R[ κ ]} {M₁ M₂ : Term (Γ ,,, π) τ} →
+
+--          M₁ —→ M₂ →
+--          -----------------------
+--          (`ƛ M₁) —→ (`ƛ M₂)
 
   ξ-·[] : ∀ {τ} {τ'} {M₁ M₂ : Term Γ (`∀ κ τ)} →
             M₁ —→ M₂ →
@@ -125,6 +134,13 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              M₁ —→ M₂ → 
              -----------------------
              (M₁ Σ/ ℓ) —→ (M₂ Σ/ ℓ)    
+
+  ξ-prj : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} 
+            (M₁ M₂ : Term Γ (Π ρ₂)) (e : Ent Γ (ρ₁ ≲ ρ₂)) → 
+
+            M₁ —→ M₂ → 
+            ------------ 
+            prj M₁ e —→ prj M₂ e
 
   -- computational rules
   β-λ : ∀ {τ₁ τ₂} {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
