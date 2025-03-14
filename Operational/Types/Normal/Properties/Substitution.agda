@@ -324,23 +324,6 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
 ↻-subₖNF-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 
-
--- ⇑ (f βₖNF[ N ]) ≡t (⇑ f βₖ[ ⇑ N ])
-
--- stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
--- stability-·' f N = trans 
---     (sym (stability (f ·' N))) 
---     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} {!   !})
---   where
---     lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
---     lem (`λ f) N = eq-trans {! ↻-subₖNF-β  !} (eq-sym eq-β)
-
--- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
---            f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
--- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
--- stability-<$> f ε = refl
--- stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
-
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding
 
@@ -348,6 +331,24 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
 ↻-sub-⇑ σ τ = embed-≡t _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
+
+--------------------------------------------------------------------------------
+-- Our syntactic helpers respect evaluation
+
+stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
+stability-·' f N = trans 
+    (sym (stability (f ·' N))) 
+    (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (lem f N))
+  where
+    lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
+    lem (`λ f) N = eq-trans (eq-trans (↻-sub-⇑ (extendₖNF idSubst N) f) (subₖ-cong-≡t (λ { Z → eq-refl
+                                                                                         ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) (eq-sym eq-β)
+
+stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+stability-<$> f ε = refl
+stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>

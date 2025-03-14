@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Syntax where
 
 open import Rome.Operational.Prelude
@@ -11,10 +12,12 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
+open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- First define contexts mapping variables to predicates, types, and kinds
@@ -88,10 +91,11 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
-             (y : NormalPred Δ R[ κ₂ ]) → 
-             y ≡ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂)) → 
+             {x  y : NormalType Δ R[ κ₂ ]} → 
+             x ≡ ⇓ (⇑ F <$> ⇑ ρ₁) → 
+             y ≡ (⇓ (⇑ F <$> ⇑ ρ₂)) → 
              ---------------------------------
-             Ent Γ y
+             Ent Γ (x ≲ y)
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
@@ -278,15 +282,19 @@ noPVar p (K x) = noPVar p x
 ε-unique-· p (n-var x) = ⊥-elim (noPVar p x)
 ε-unique-· p n-ε-R = refl , refl
 ε-unique-· p n-ε-L = refl , refl
-ε-unique-· p (n-·lift e x x₁ x₂) = {! ε-unique-· p   !} , {!   !}
+ε-unique-· {ρ₁ = ρ₁} {ρ₂ = ρ₂} p (n-·lift e x x₁ x₂) = {!  !}
 
+-- I suspect this isn't true in general, but rather w.r.t. ≡t
 ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
 ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
 ε-unique-≲ p n-refl = refl
 ε-unique-≲ p (n-trans e e₁) rewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
 ε-unique-≲ p (n-·≲L e) = fst (ε-unique-· p e)
 ε-unique-≲ p (n-·≲R e) = snd (ε-unique-· p e)
-ε-unique-≲ p (n-≲lift e .(_ ≲ ε) x) = {!   !}
+ε-unique-≲ {ρ = ρ} p (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e x y) with trans x (sym (stability-<$> F ρ₁)) | trans y (sym (stability-<$> F ρ₂))
+ε-unique-≲ {ρ = ne x₁} p (n-≲lift {ρ₁ = ne x₂} {ε} {F} e x y) | c | d = {! x₁  !}
+ε-unique-≲ {ρ = ε} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = refl
+ε-unique-≲ {ρ = ρ ▹ ρ₂} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
 
 ≲-refl : NoVar Γ → ∀ (l₁ l₂ : NormalType Δ L) (τ υ :  NormalType Δ R[ κ ]) → Ent Γ ((l₁ ▹ τ) ≲ (l₂ ▹ υ)) → (l₁ ▹ τ) ≡ (l₂ ▹ υ)
 ≲-refl p l₁ l₂ τ υ (n-var x) = ⊥-elim (noPVar p x)
@@ -294,6 +302,6 @@ noPVar p (K x) = noPVar p x
 ≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ne x} e e₁) = {!   !} 
 ≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ε} e e₁) = {!   !}
 ≲-refl p l₁ l₃ τ₁ τ₃ (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl p l₁ l₂ τ₁ τ₂ e) (≲-refl p l₂ l₃ τ₂ τ₃ e₁)
-≲-refl p l₁ l₂ τ υ (n-·≲L e) = {!   !} 
+≲-refl p l₁ l₂ τ υ (n-·≲L e) = {!   !}  
 ≲-refl p l₁ l₂ τ υ (n-·≲R e) = {!   !}
-≲-refl p l₁ l₂ τ υ (n-≲lift e .((l₁ ▹ τ) ≲ (l₂ ▹ υ)) x) = {!   !} 
+≲-refl p l₁ l₂ τ υ (n-≲lift e x y) = {!   !} 

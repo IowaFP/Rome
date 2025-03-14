@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Semantics.Reduction where
 
 open import Rome.Operational.Prelude
