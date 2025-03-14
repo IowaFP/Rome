@@ -115,8 +115,10 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
+             {y : NormalPred Δ R[ κ₂ ]} → 
+             y ≡ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂)) → 
              ---------------------------------
-             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂))
+             Ent Γ y
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
@@ -287,14 +289,14 @@ uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 -- ε-unique-· p n-ε-L = refl , refl
 -- ε-unique-· {ρ₁ = ρ₁} {ρ₂ = ρ₂} p (n-·lift {ρ₁ = ρ₃} {ρ₄} {ρ₅} e ρ₁-eq ρ₂-eq ρ₃-eq) = {!   !}
 
--- -- I suspect this isn't true in general, but rather w.r.t. ≡t
--- ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → (⇑ ρ) ≡t ε
--- ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
--- ε-unique-≲ p n-refl = eq-refl
--- ε-unique-≲ p (n-trans e e₁) = {!   !} -- ewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
--- ε-unique-≲ p (n-·≲L e) = {!   !} -- fst (ε-unique-· p e)
--- ε-unique-≲ p (n-·≲R e) = {!   !} -- snd (ε-unique-· p e)
--- ε-unique-≲ {ρ = ρ} p (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e x y) with trans x (sym (stability-<$> F ρ₁)) | trans y (sym (stability-<$> F ρ₂))
+-- I suspect this isn't true in general, but rather w.r.t. ≡t
+ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
+ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
+ε-unique-≲ p n-refl = refl
+ε-unique-≲ p (n-trans e e₁)  rewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
+ε-unique-≲ p (n-·≲L e) = {!   !} -- fst (ε-unique-· p e)
+ε-unique-≲ p (n-·≲R e) = {!   !} -- snd (ε-unique-· p e)
+ε-unique-≲ {ρ = ρ} p (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} y e) = {!   !}
 -- ε-unique-≲ {ρ = ne x₁} p (n-≲lift {ρ₁ = ne x₂} {ε} {F} e x y) | c | d  = {!   !} -- eq-trans {! inst {τ₁ = ⇑NE x₁} {τ₂ = ⇑ F <$> ⇑NE x₂}   !} {! c  !}
 -- ε-unique-≲ {ρ = ε} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
 -- ε-unique-≲ {ρ = ρ ▹ ρ₂} p (n-≲lift {ρ₁ = ρ₁} {ε} {F} e x y) | c | d = {!   !}
