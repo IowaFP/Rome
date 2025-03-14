@@ -23,12 +23,14 @@ open import Rome.Operational.Terms.GVars
 -- Does the context Γ have any **type variables**?
 NoVar : Context Δ → Set
 NoVar ε = ⊤
+NoVar (Γ ,,, _) = NoVar Γ
 NoVar (Γ ,, _) = NoVar Γ
 NoVar (Γ , _) = ⊥
 
 -- Contexts s.t. NoVar Γ is true indeed have no type variables.
 noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
-noVar p (T x) = noVar p x
+noVar p (K x) = noVar p x
+noVar p (P x) = noVar p x
 
 --------------------------------------------------------------------------------
 -- Proof of progress.
@@ -75,6 +77,12 @@ progress p (ℓ Σ▹ M) with progress p M
 progress p (_Σ/_ {l} M ℓ) with progress p M
 ... | Done (V-Σ ℓ₁ N VN)  = Steps N (β-Σ/ N ℓ₁ ℓ VN)
 ... | Steps M' M—→M' = Steps (M' Σ/ ℓ) (ξ-Σ/₁ M M' ℓ M—→M')
+progress p (`ƛ x) = {!   !}
+progress p (x ·⟨ x₁ ⟩) = {!   !}
+progress p (prj M e) with progress p M
+... | Done (V-Π ℓ M₁ x) = {!   !}
+... | Steps M' x = {!   !}
+progress p (inj M e) = {!   !}
 
 progress-ε : ∀ {τ} (M : Term ε τ) →
              Progress M
