@@ -351,6 +351,8 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
           ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
 ↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) {g : True (ground? κ)} → 
           ⇑ (subₖNE σ τ) ≡ subₖ (⇑ ∘ σ) (⇑NE τ)
+-- (reify-≋ (fundC idEnv-≋ (eq-sym (soundness (subₖ (⇑ ∘ σ) (⇑ τ))))))
+↻-sub-⇑ σ τ  = trans {!   !} {! subₖNF σ τ  !} 
 ↻-sub-⇑ σ (ne x {g}) = {! subₖNF-var σ   !}
 ↻-sub-⇑ σ (`λ τ) = {!   !}
 ↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
