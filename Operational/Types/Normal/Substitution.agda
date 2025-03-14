@@ -36,6 +36,9 @@ idSubst = η-norm ∘ `
 subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
 
+subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
+subₖNE σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑NE n))
+
 subPredₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 subPredₖNF σ = mapPred (subₖNF σ)
 

@@ -64,29 +64,12 @@ liftsPred (s , p) =
      ; (S x) → weakenEntByPred (p x) }) 
 
 --------------------------------------------------------------------------------
--- These identities pop up as a nuisance! Ideally we'd be rid of them
+-- This identity pops up as a nuisance. Needs renaming and refactoring
 
 lemPred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) (π : NormalPred _ R[ κ ]) → 
          subPredₖNF σ π ≡ evalPred (subPredₖ (λ x₁ → ⇑ (σ x₁)) (⇑Pred π)) idEnv
 lemPred σ s (ρ₁ · ρ₂ ~ ρ₃) = refl
 lemPred σ s (ρ₁ ≲ ρ₂) = refl
-
-↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
-          (F : NormalType Δ₁ (κ₁ `→ κ₂))
-          (ρ : NormalType Δ₁ R[ κ₁ ]) → 
-          ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
-↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
-  (cong ⇓ 
-     {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
-     {y = subₖ (⇑ ∘ σ) (⇑ F) <$> subₖ (⇑ ∘ σ) (⇑ ρ)} 
-     (cong₂ _<$>_ 
-      (↻-sub-⇑ σ F) 
-      (↻-sub-⇑ σ ρ))) 
-  (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
-  -- cong ⇓ 
-  --   {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
-  --   {y = subₖ (⇑ ∘ σ) (⇑ (reify (⇈ F <$>V ⇈ ρ)))} 
-  --   {!   !}          
 
 --------------------------------------------------------------------------------
 -- Defining substitution of variables in evidence and term variables in terms

@@ -96,10 +96,8 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ₁ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (renₖNF ρ F) <$> ⇑ (renₖNF ρ ρ₁)) ≡  renₖNF ρ (⇓ (⇑ F <$> ⇑ ρ₁))
-↻-ren-⇓-<$> ρ F ρ₁ rewrite 
-    (↻-ren-⇑ ρ ρ₁) 
-  | (↻-ren-⇑ ρ F) = 
-      (trans 
+↻-ren-⇓-<$> ρ F ρ₁  = 
+      trans 
         (reify-≋ 
           (trans-≋ (↻-renₖ-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋) 
           (trans-≋ 
@@ -113,8 +111,8 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
             {τ₂ = ⇑ F <$> ⇑ ρ₁} 
             idEnv-≋ 
             (eq-<$> 
-              eq-refl 
-              eq-refl)))))         
+              (↻-ren-⇑ ρ F) 
+              (↻-ren-⇑ ρ ρ₁)))))         
 
 --------------------------------------------------------------------------------
 -- Renaming definitions

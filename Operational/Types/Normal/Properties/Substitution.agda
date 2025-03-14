@@ -122,6 +122,10 @@ subₖNF-var {κ = κ} σ x = trans
       eq-refl)))
   (stability (σ x))
 
+subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
+                      subₖNF σ (ne (` x) {g}) ≡ σ x
+subₖNF-var-ground σ x {g} = stability (σ x)                      
+
 --------------------------------------------------------------------------------
 -- Congruence of normality preserving substitution
 
@@ -341,31 +345,49 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding
 
+
+-- Is this even true?
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
--- need to define subₖNF-var over ground neutrals
--- Also these:
---   - ↻-⇓-sub σ (⇑ τ) 
---   - stability (⇓ (subₖ (⇑ ∘ σ) (⇑ τ)))
-↻-sub-⇑ σ τ = {!  !}
-↻-sub-⇑ σ (ne (` x) {ground}) = {! subₖNF-var σ x  !}
-↻-sub-⇑ σ (ne (x · τ) {ground}) = {!   !}
-↻-sub-⇑ σ (ne (φ <$> x) {ground}) = {!   !}
-↻-sub-⇑ σ (`λ τ) = cong `λ {! !}
+↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) {g : True (ground? κ)} → 
+          ⇑ (subₖNE σ τ) ≡ subₖ (⇑ ∘ σ) (⇑NE τ)
+↻-sub-⇑ σ (ne x {g}) = {! subₖNF-var σ   !}
+↻-sub-⇑ σ (`λ τ) = {!   !}
 ↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
 ↻-sub-⇑ σ (`∀ κ τ) = {!   !}
 ↻-sub-⇑ σ (μ τ) = cong μ (↻-sub-⇑ σ τ)
 ↻-sub-⇑ σ (π ⇒ τ) = {!   !}
 ↻-sub-⇑ σ ε = refl
-↻-sub-⇑ σ (τ ▹ τ₁) = {!   !}
+↻-sub-⇑ σ (l ▹ τ) = cong₂ _▹_ (↻-sub-⇑ σ l) (↻-sub-⇑ σ τ)
 ↻-sub-⇑ σ (lab l) = refl
 ↻-sub-⇑ σ ⌊ τ ⌋ = cong ⌊_⌋ (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (Π τ) = {!   !}
-↻-sub-⇑ σ (ΠL τ) = {!   !}
-↻-sub-⇑ σ (Σ τ) = {!   !}
-↻-sub-⇑ σ (ΣL τ) = {!   !}
--- ↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) → 
---           ⇑NE (subₖNE σ τ) ≡ subₖ σ (⇑NE τ)
+↻-sub-⇑ σ (Π τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
+↻-sub-⇑ σ (ΠL τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
+↻-sub-⇑ σ (Σ τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
+↻-sub-⇑ σ (ΣL τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
+
+↻-sub-⇑NE σ (` α) {g} rewrite subₖNF-var-ground σ α {g} = refl
+↻-sub-⇑NE σ (x · τ) {g} rewrite ↻-sub-⇑ σ τ  = {!   !}
+↻-sub-⇑NE σ (φ <$> x) = {!   !} 
 -- ↻-sub-⇑Pred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (π : NormalPred Δ₁ R[ κ ]) → 
 --             ⇑Pred (subPredₖNF σ π) ≡ subPredₖ σ (⇑Pred π) 
  
+
+--------------------------------------------------------------------------------
+-- Normal substitution over <$> commutes
+-- (but this is painful to state and prove because <$> isn't a binary operator
+-- over normal forms!)
+
+↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+          (F : NormalType Δ₁ (κ₁ `→ κ₂))
+          (ρ : NormalType Δ₁ R[ κ₁ ]) → 
+          ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
+↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
+  (cong ⇓ 
+     {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
+     {y = subₖ (⇑ ∘ σ) (⇑ F) <$> subₖ (⇑ ∘ σ) (⇑ ρ)} 
+     (cong₂ _<$>_ 
+      (↻-sub-⇑ σ F) 
+      (↻-sub-⇑ σ ρ))) 
+  (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
+  

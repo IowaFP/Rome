@@ -8,6 +8,7 @@ open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types
 open import Rome.Operational.Types.Renaming
+open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
@@ -16,9 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness.Relation
-open import Rome.Operational.Types.Theorems.Completeness.Congruence
-open import Rome.Operational.Types.Theorems.Completeness.Commutativity
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -85,6 +85,26 @@ idempotency τ rewrite stability (⇓ τ) = refl
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
      
+
+--------------------------------------------------------------------------------
+-- Another way of stating stability
+
+stability' : ∀ (τ : NormalType Δ κ) → reify (⇈ τ) ≡ τ 
+stability' = stability
+
+--------------------------------------------------------------------------------
+-- Injectivity of embedding
+
+⇑-inj : ∀ (x y : NormalType Δ κ) → ⇑ x ≡ ⇑ y → x ≡ y
+⇑-inj x y eq = 
+  subst 
+    (λ a → a ≡ y) 
+    (stability x) 
+  (subst (λ b → ⇓ (⇑ x) ≡ b) 
+    (stability y) 
+    (reify-≋ (fundC {τ₁ = ⇑ x} {τ₂ = ⇑ y} idEnv-≋ (inst eq)))) 
+
      
+ 
  
  

@@ -23,7 +23,6 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Theorems.Soundness.Relation public
-open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- Soundness for Π 
