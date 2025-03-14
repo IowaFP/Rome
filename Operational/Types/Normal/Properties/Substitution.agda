@@ -314,16 +314,15 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
         (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))
         (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
 
-      
-  
 --------------------------------------------------------------------------------
--- Substitution is congruent over _·'_
+-- Substitution commutes over _·'_
 
-subₖNF-cong-·' :  ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) 
+↻-subₖNF-·' :  
+           ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) 
              (f : NormalType Δ₁ (κ₁ `→ ★))
              (v : NormalType Δ₁ κ₁) → 
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
-subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
+↻-subₖNF-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 
 
 -- ⇑ (f βₖNF[ N ]) ≡t (⇑ f βₖ[ ⇑ N ])
@@ -345,18 +344,13 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding
 
-↻-sub-⇑-duh : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
-          ⇑ (subₖNF σ τ) ≡ ⇑ (⇓ (subₖ (⇑ ∘ σ) (⇑ τ)))
-↻-sub-⇑-duh σ τ = refl 
 
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
-↻-sub-⇑ σ τ = maybs2 _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
+↻-sub-⇑ σ τ = embed-≡t _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
 
 --------------------------------------------------------------------------------
--- Normal substitution over <$> commutes
--- (but this is painful to state and prove because <$> isn't a binary operator
--- over normal forms!)
+-- Normality preserving substitution commutes over <$>
 
 ↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
           (F : NormalType Δ₁ (κ₁ `→ κ₂))

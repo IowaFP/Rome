@@ -64,7 +64,7 @@ liftsPred (s , p) =
      ; (S x) → weakenEntByPred (p x) }) 
 
 --------------------------------------------------------------------------------
--- This identity pops up as a nuisance. Needs renaming and refactoring
+-- This identity pops up as a nuisance. 
 
 lemPred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) (π : NormalPred _ R[ κ ]) → 
          subPredₖNF σ π ≡ evalPred (subPredₖ (λ x₁ → ⇑ (σ x₁)) (⇑Pred π)) idEnv
@@ -88,15 +88,14 @@ sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) =
   conv 
     (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
 sub σ s {.(μ F)} (In F M) = 
-  In (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
+  In (subₖNF σ F) (conv (↻-subₖNF-·' σ F (μ F)) (sub σ s M))
 sub σ s {_} (Out F M) = 
-  conv (sym (subₖNF-cong-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
+  conv (sym (↻-subₖNF-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
 sub σ s {x} (# l) = # l
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
--- Aids!
 sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) = 
   `ƛ (subst 
         (λ x → Term (Γ₂ ,,, x) (subₖNF σ τ)) 
