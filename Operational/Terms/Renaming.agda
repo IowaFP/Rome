@@ -135,7 +135,7 @@ ren {ρ = ρ} R (Out F@(`λ τ) M) =
     (sym (↻-renₖNF-β ρ τ ((μ F)))) 
     (Out (renType R F) (ren R M))
 ren R (Out F@(ne x {()}) τ)
-ren R (# l) = # l
+ren R (# l) = # (renType R l)
 ren R (l Π▹ M) = (ren R l) Π▹ (ren R M)
 ren R (M Π/ l) = ren R M Π/ ren R l
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)

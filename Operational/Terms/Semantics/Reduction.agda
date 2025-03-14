@@ -40,7 +40,7 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
              Value M → 
              Value (In F M)
 
-  V-# : ∀ {l : Label} →  
+  V-# : ∀ {l : NormalType Δ L} →  
           Value (# l)
 
   V-Π   : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
@@ -57,13 +57,14 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value (ℓ Σ▹ M)
 
-  V-Unit : ∀ (M : Term Γ (Π ε)) → Value M 
- 
---   -- This may be problematic as M could be a concatenation, which we would expect to reduce under projection
---   V-unit : ∀ (ρ : NormalType Δ R[ ★ ]) (M : Term Γ (Π ρ)) (e : Ent Γ (ε ≲ ρ)) → 
+  V-Unit : ∀ (M : Term Γ (Π ε)) → 
+           -----------------------
+           Value M 
 
---           -------------- 
---           Value (prj M e)
+
+--------------------------------------------------------------------------------
+-- Canonicity of records
+
 
 --------------------------------------------------------------------------------
 -- Small step semantics.

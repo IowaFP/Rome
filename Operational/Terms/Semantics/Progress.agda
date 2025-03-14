@@ -67,19 +67,19 @@ progress p (`ƛ M) = Done (V-ƛ M)
 progress p (M ·⟨ e ⟩) with progress p M 
 ... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
 ... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
--- permitting ρ₁ to be a neutral variable I believe leads to stuckness
-progress p (prj {ρ₁ = ne x} M e₁) = {!   !}
+-- permitting ρ₁ to be a neutral variable I believe leads to stuckness here?
+progress p (prj {ρ₁ = ne x} M e₁) with progress p M 
+... | Done (V-Π ℓ M₁ x) = {!   !}
+... | Done (V-Unit .M) = {!   !}
+... | Steps M' x = {!   !}
 progress p (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
 progress p (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress p M 
 -- I'm being fucked left and right by a number of cases which should truly not occur.
 -- I suspect the cleverest way here is to make Entailment intrinsically respect
 -- the monoidal structure of rows.
 progress p (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) = {!   !}
-progress p (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) = Done {! M  !}
+progress p (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) = {!   !}
 progress p (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
--- with progress p M
--- ... | Done (V-Π ℓ N VN) = {!   !}
--- ... | Steps M' x = {!   !}
 progress p (inj M e) = {!   !}
 
 -- progress-ε : ∀ {τ} (M : Term ε τ) →
@@ -96,7 +96,7 @@ eval M with progress tt M
 ... | Steps M' x = eval M'
    
 _ : eval uu ≡ uu 
-_ = {! uu  !}
-  
-_ : eval ((# "l" Π▹ # "r") Π/ (# "l")) ≡ (# "r")
+_ = refl
+    
+_ : eval ((♯l Π▹ # (lab "r")) Π/ ♯l) ≡ (# (lab "r"))
 _ = refl

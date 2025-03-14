@@ -84,7 +84,7 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
 
   n-refl : 
           --------------
-          Ent Γ ((l ▹ τ) ≲ (l ▹ τ))
+          Ent Γ (ρ₁ ≲ ρ₁)
 
   n-trans : 
           Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
@@ -203,9 +203,9 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   -- label constants
   # : 
 
-        ∀ (l : Label) →
+        ∀ (l : NormalType Δ L) →
         -------------------
-        Term Γ ⌊ lab l ⌋
+        Term Γ ⌊ l ⌋
 
   -------------
   -- Rω records
@@ -271,9 +271,12 @@ conv-≡t eq = conv (completeness eq)
 --------------------------------------------------------------------------------
 -- Admissable constants
 
+♯l : Term Γ (⌊ lab "l" ⌋)
+♯l = # (lab "l")
+
 -- Unit term
 uu : Term Γ UnitNF
-uu = prj ((# "l") Π▹ (# "l")) (n-·≲L n-ε-L)
+uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 
 --------------------------------------------------------------------------------
 -- Properties of entailment
