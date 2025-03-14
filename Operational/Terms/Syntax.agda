@@ -95,11 +95,15 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+               {x y z : NormalType Δ R[ κ₂ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+             x ≡ ⇓ (⇑ F <$> ⇑ ρ₁) → 
+             y ≡ ⇓ (⇑ F <$> ⇑ ρ₂) → 
+             z ≡ ⇓ (⇑ F <$> ⇑ ρ₃) → 
              ---------------------
-             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) · ⇓ (⇑ F <$> ⇑ ρ₂) ~ ⇓ (⇑ F <$> ⇑ ρ₃))
+             Ent Γ (x · y ~ z)
 
 
 --------------------------------------------------------------------------------
@@ -269,13 +273,19 @@ noPVar p (K x) = noPVar p x
 --------------------------------------------------------------------------------
 -- Properties of entailment
 
-ε-unique : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
-ε-unique p (n-var x) = ⊥-elim (noPVar p x)
-ε-unique p n-refl = refl
-ε-unique p (n-trans e e₁) rewrite ε-unique p e₁ = ε-unique p e
-ε-unique p (n-·≲L e) = {!   !}
-ε-unique p (n-·≲R e) = {!   !}
-ε-unique p (n-≲lift e .(_ ≲ ε) x) = {!   !}
+ε-unique-· : NoVar Γ → Ent Γ (ρ₁ · ρ₂ ~ ε) → ρ₁ ≡ ε × ρ₂ ≡ ε 
+ε-unique-· p (n-var x) = ⊥-elim (noPVar p x)
+ε-unique-· p n-ε-R = refl , refl
+ε-unique-· p n-ε-L = refl , refl
+ε-unique-· p (n-·lift e x x₁ x₂) = {! ε-unique-· p   !} , {!   !}
+
+ε-unique-≲ : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
+ε-unique-≲ p (n-var x) = ⊥-elim (noPVar p x)
+ε-unique-≲ p n-refl = refl
+ε-unique-≲ p (n-trans e e₁) rewrite ε-unique-≲ p e₁ = ε-unique-≲ p e
+ε-unique-≲ p (n-·≲L e) = fst (ε-unique-· p e)
+ε-unique-≲ p (n-·≲R e) = snd (ε-unique-· p e)
+ε-unique-≲ p (n-≲lift e .(_ ≲ ε) x) = {!   !}
 
 ≲-refl : NoVar Γ → ∀ (l₁ l₂ : NormalType Δ L) (τ υ :  NormalType Δ R[ κ ]) → Ent Γ ((l₁ ▹ τ) ≲ (l₂ ▹ υ)) → (l₁ ▹ τ) ≡ (l₂ ▹ υ)
 ≲-refl p l₁ l₂ τ υ (n-var x) = ⊥-elim (noPVar p x)
