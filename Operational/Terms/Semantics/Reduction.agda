@@ -29,6 +29,10 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
           (M : Term (Γ ,, κ) τ) → 
           Value (Λ M)
 
+  V-ƛ : ∀ {τ}{π : NormalPred Δ R[ κ ]} 
+          (M : Term (Γ ,,, π) τ) → 
+          Value (`ƛ M)
+
   V-In : ∀ (F : NormalType Δ (★ `→ ★)) 
              {M : Term Γ (F ·' (μ F))} → 
              Value M → 
@@ -50,6 +54,12 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             Value M → 
             ---------------------
             Value (ℓ Σ▹ M)
+ 
+  -- This may be problematic as M could be a concatenation, which we would expect to reduce under projection
+  V-unit : ∀ (ρ : NormalType Δ R[ ★ ]) (M : Term Γ (Π ρ)) (e : Ent Γ (ε ≲ ρ)) → 
+
+          -------------- 
+          Value (prj M e)
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -71,6 +81,11 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             M₁ —→ M₂ →
             ------------------------
             M₁ ·[ τ' ] —→ M₂ ·[ τ' ]
+
+  ξ-·⟨⟩ : ∀ {τ} {π : NormalPred Δ R[ κ ]} {M₁ M₂ : Term Γ (π ⇒ τ)} {e : Ent Γ π} →
+            M₁ —→ M₂ →
+            ------------------------
+            M₁ ·⟨ e ⟩ —→ M₂ ·⟨ e ⟩
 
   ξ-Out : ∀ {F} {M₁ M₂ : Term Γ (μ F)} →
                M₁ —→ M₂ →
@@ -121,6 +136,11 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
           --------------------------
           Λ M ·[ τ₁ ] —→ M β·[ τ₁ ]
 
+  β-ƛ : ∀ {τ} {π : NormalPred Δ R[ κ ]} {M : Term (Γ ,,, π) τ} {e : Ent Γ π} →
+          
+          -----------------------
+          (`ƛ M) ·⟨ e ⟩ —→ (M βπ[ e ])
+
   β-In : ∀ {F} {M : Term Γ (F ·' μ F)} →
 
              -------------------------
@@ -139,4 +159,11 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              Value M →
              -----------------------
              ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
+
+--   β-prj : ∀ {ρ : NormalType Δ R[ ★ ]} → 
+--             (M : Term Γ τ) (N : Term Γ τ) (e :  Ent Γ (ρ₁ ≲ ρ₂))
+            
+--               →
+--              -----------------------
+--              prj (ℓ₁ Π▹ M) e —→ (ℓ₂ Π▹ N)
 

@@ -88,8 +88,10 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
+             (y : NormalPred Δ R[ κ₂ ]) → 
+             y ≡ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂)) → 
              ---------------------------------
-             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂))
+             Ent Γ y
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
@@ -246,3 +248,41 @@ conv-≡t eq = conv (completeness eq)
 -- Unit term
 uu : Term Γ UnitNF
 uu = prj ((# "l") Π▹ (# "l")) (n-·≲L n-ε-L)
+
+--------------------------------------------------------------------------------
+-- No variable restriction on contexts
+
+-- Does the context Γ have any term or entailment variables?
+NoVar : Context Δ → Set
+NoVar ε = ⊤
+NoVar (Γ ,,, _) = ⊥
+NoVar (Γ ,, _) = NoVar Γ
+NoVar (Γ , _) = ⊥
+
+-- Contexts s.t. NoVar Γ is true indeed have no type variables.
+noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
+noVar p (K x) = noVar p x
+
+noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
+noPVar p (K x) = noPVar p x
+
+--------------------------------------------------------------------------------
+-- Properties of entailment
+
+ε-unique : NoVar Γ → Ent Γ (ρ ≲ ε) → ρ ≡ ε
+ε-unique p (n-var x) = ⊥-elim (noPVar p x)
+ε-unique p n-refl = refl
+ε-unique p (n-trans e e₁) rewrite ε-unique p e₁ = ε-unique p e
+ε-unique p (n-·≲L e) = {!   !}
+ε-unique p (n-·≲R e) = {!   !}
+ε-unique p (n-≲lift e .(_ ≲ ε) x) = {!   !}
+
+≲-refl : NoVar Γ → ∀ (l₁ l₂ : NormalType Δ L) (τ υ :  NormalType Δ R[ κ ]) → Ent Γ ((l₁ ▹ τ) ≲ (l₂ ▹ υ)) → (l₁ ▹ τ) ≡ (l₂ ▹ υ)
+≲-refl p l₁ l₂ τ υ (n-var x) = ⊥-elim (noPVar p x)
+≲-refl p l₁ l₂ τ υ n-refl = refl
+≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ne x} e e₁) = {!   !} 
+≲-refl p l₁ l₂ τ υ (n-trans {ρ₂ = ε} e e₁) = {!   !}
+≲-refl p l₁ l₃ τ₁ τ₃ (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl p l₁ l₂ τ₁ τ₂ e) (≲-refl p l₂ l₃ τ₂ τ₃ e₁)
+≲-refl p l₁ l₂ τ υ (n-·≲L e) = {!   !} 
+≲-refl p l₁ l₂ τ υ (n-·≲R e) = {!   !}
+≲-refl p l₁ l₂ τ υ (n-≲lift e .((l₁ ▹ τ) ≲ (l₂ ▹ υ)) x) = {!   !} 

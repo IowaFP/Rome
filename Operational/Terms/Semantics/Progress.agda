@@ -16,22 +16,6 @@ open import Rome.Operational.Terms.Semantics.Reduction
 open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.GVars
 
-
---------------------------------------------------------------------------------
--- Lemmas.
-
--- Does the context Γ have any **type variables**?
-NoVar : Context Δ → Set
-NoVar ε = ⊤
-NoVar (Γ ,,, _) = NoVar Γ
-NoVar (Γ ,, _) = NoVar Γ
-NoVar (Γ , _) = ⊥
-
--- Contexts s.t. NoVar Γ is true indeed have no type variables.
-noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
-noVar p (K x) = noVar p x
-noVar p (P x) = noVar p x
-
 --------------------------------------------------------------------------------
 -- Proof of progress.
 
@@ -77,10 +61,15 @@ progress p (ℓ Σ▹ M) with progress p M
 progress p (_Σ/_ {l} M ℓ) with progress p M
 ... | Done (V-Σ ℓ₁ N VN)  = Steps N (β-Σ/ N ℓ₁ ℓ VN)
 ... | Steps M' M—→M' = Steps (M' Σ/ ℓ) (ξ-Σ/₁ M M' ℓ M—→M')
-progress p (`ƛ x) = {!   !}
-progress p (x ·⟨ x₁ ⟩) = {!   !}
+progress p (`ƛ M) = Done (V-ƛ M)
+progress p (M ·⟨ e ⟩) with progress p M 
+... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
+... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
 progress p (prj M e) with progress p M
-... | Done (V-Π ℓ M₁ x) = {!   !}
+progress p {Π (ne x)} (prj M e) | Done (V-Π ℓ N VN) = {! p  !}
+progress p {Π ε} (prj M e) | Done (V-Π ℓ N VN) = Done (V-unit _ M e)
+progress p {Π (l ▹ τ)} (prj M e) | Done (V-Π ℓ N VN) = {!   !}
+... | Done (V-unit ρ M₁ e) = {!   !}
 ... | Steps M' x = {!   !}
 progress p (inj M e) = {!   !}
 
@@ -96,6 +85,6 @@ eval : ∀ {τ} → Term ε τ → Term ε τ
 eval M with progress tt M 
 ... | Done x = M
 ... | Steps M' x = eval M'
-
+   
 _ : eval ((# "l" Π▹ # "r") Π/ (# "l")) ≡ (# "r")
 _ = refl
