@@ -104,6 +104,15 @@ stability' = stability
     (stability y) 
     (reify-≋ (fundC {τ₁ = ⇑ x} {τ₂ = ⇑ y} idEnv-≋ (inst eq)))) 
 
+--------------------------------------------------------------------------------
+-- Flippy floppy
+-- (rename me)
+
+maybs : ∀ (x : NormalType Δ κ) (y : Type Δ κ) → ⇑ x ≡ y → x ≡ ⇓ y 
+maybs x y eq = trans (sym (stability x)) (cong ⇓ eq)
+maybs2 : ∀ (x : NormalType Δ κ) (y : Type Δ κ) → x ≡ ⇓ y → ⇑ x ≡t y
+maybs2 x y eq = eq-trans (inst (cong ⇑ eq)) (eq-sym (soundness y)) 
+
      
  
  

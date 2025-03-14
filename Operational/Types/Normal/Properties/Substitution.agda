@@ -345,32 +345,38 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding
 
+↻-sub-⇑-duh : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
+          ⇑ (subₖNF σ τ) ≡ ⇑ (⇓ (subₖ (⇑ ∘ σ) (⇑ τ)))
+↻-sub-⇑-duh σ τ = refl 
 
 -- Is this even true?
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
-          ⇑ (subₖNF σ τ) ≡ subₖ (⇑ ∘ σ) (⇑ τ)
-↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) {g : True (ground? κ)} → 
-          ⇑ (subₖNE σ τ) ≡ subₖ (⇑ ∘ σ) (⇑NE τ)
+          ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
+-- ↻-sub-⇑NE : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) {g : True (ground? κ)} → 
+--           ⇑ (subₖNE σ τ) ≡ subₖ (⇑ ∘ σ) (⇑NE τ)
 -- (reify-≋ (fundC idEnv-≋ (eq-sym (soundness (subₖ (⇑ ∘ σ) (⇑ τ))))))
-↻-sub-⇑ σ τ  = trans {!   !} {! subₖNF σ τ  !} 
-↻-sub-⇑ σ (ne x {g}) = {! subₖNF-var σ   !}
-↻-sub-⇑ σ (`λ τ) = {!   !}
-↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
-↻-sub-⇑ σ (`∀ κ τ) = {!   !}
-↻-sub-⇑ σ (μ τ) = cong μ (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (π ⇒ τ) = {!   !}
-↻-sub-⇑ σ ε = refl
-↻-sub-⇑ σ (l ▹ τ) = cong₂ _▹_ (↻-sub-⇑ σ l) (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (lab l) = refl
-↻-sub-⇑ σ ⌊ τ ⌋ = cong ⌊_⌋ (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (Π τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (ΠL τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (Σ τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
-↻-sub-⇑ σ (ΣL τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
+↻-sub-⇑ σ τ = maybs2 _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) (↻-sub-⇑-duh σ τ))
+-- ↻-sub-⇑ σ (ne x {g}) rewrite ↻-sub-⇑NE σ x {g} = refl
+-- ↻-sub-⇑ σ (`λ τ) = {!   !}
+-- ↻-sub-⇑ σ (τ `→ τ₁) = {!   !}
+-- ↻-sub-⇑ σ (`∀ κ τ) = {!   !}
+-- ↻-sub-⇑ σ (μ τ) = cong μ (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (π ⇒ τ) = {!   !}
+-- ↻-sub-⇑ σ ε = refl
+-- ↻-sub-⇑ σ (l ▹ τ) = cong₂ _▹_ (↻-sub-⇑ σ l) (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (lab l) = refl
+-- ↻-sub-⇑ σ ⌊ τ ⌋ = cong ⌊_⌋ (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (Π τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (ΠL τ) = cong (Π ·_) (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (Σ τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
+-- ↻-sub-⇑ σ (ΣL τ) = cong (Σ ·_) (↻-sub-⇑ σ τ)
 
-↻-sub-⇑NE σ (` α) {g} rewrite subₖNF-var-ground σ α {g} = refl
-↻-sub-⇑NE σ (x · τ) {g} rewrite ↻-sub-⇑ σ τ  = {!   !}
-↻-sub-⇑NE σ (φ <$> x) = {!   !} 
+-- ↻-sub-⇑NE σ (` α) {g} rewrite subₖNF-var-ground σ α {g} = refl
+-- ↻-sub-⇑NE σ (_·_ {★} x τ) {g} = {!   !}
+-- ↻-sub-⇑NE σ (_·_ {L} x τ) {g} = {!   !}
+-- ↻-sub-⇑NE σ (_·_ {κ₁ `→ κ₂} x τ) {g} = {!   !}
+-- ↻-sub-⇑NE σ (_·_ {R[ κ₁ ]} x τ) {g} = {!   !}
+-- ↻-sub-⇑NE σ (φ <$> x) = {!   !} 
 -- ↻-sub-⇑Pred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (π : NormalPred Δ₁ R[ κ ]) → 
 --             ⇑Pred (subPredₖNF σ π) ≡ subPredₖ σ (⇑Pred π) 
  
@@ -385,11 +391,13 @@ subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
           (ρ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
 ↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
-  (cong ⇓ 
-     {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
-     {y = subₖ (⇑ ∘ σ) (⇑ F) <$> subₖ (⇑ ∘ σ) (⇑ ρ)} 
-     (cong₂ _<$>_ 
-      (↻-sub-⇑ σ F) 
-      (↻-sub-⇑ σ ρ))) 
+  -- need to reify here, split on <$>, then use completeness of ↻-sub-⇑ σ
+  {! (completeness (↻-sub-⇑ σ (⇓ (⇑ F <$> ⇑ ρ))))  !}
+  -- (cong ⇓ 
+  --    {x = ⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)}
+  --    {y = subₖ (⇑ ∘ σ) (⇑ F) <$> subₖ (⇑ ∘ σ) (⇑ ρ)} 
+    --  (cong₂ _<$>_ 
+    --   {!   !} 
+    --   {!   !})
   (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
-  
+   
