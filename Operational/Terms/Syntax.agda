@@ -263,10 +263,11 @@ NoVar (Γ ,,, _) = ⊥
 NoVar (Γ ,, _) = NoVar Γ
 NoVar (Γ , _) = ⊥
 
--- Contexts s.t. NoVar Γ is true indeed have no type variables.
+-- Contexts s.t. NoVar Γ is true indeed have no term variables,
 noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
 noVar p (K x) = noVar p x
 
+-- nor ent variables.
 noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
 noPVar p (K x) = noPVar p x
 
