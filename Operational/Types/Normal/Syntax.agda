@@ -150,6 +150,14 @@ data NormalType Δ where
       ------------------
       NormalType Δ L
 
+
+--------------------------------------------------------------------------------
+-- There are no neutral types in empty contexts
+
+noNeutrals : NeutralType ∅ κ → ⊥
+noNeutrals (n · τ) = noNeutrals n
+noNeutrals (φ <$> n) = noNeutrals n
+
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
 

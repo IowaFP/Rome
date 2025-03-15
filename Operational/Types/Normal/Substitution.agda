@@ -51,15 +51,28 @@ extendₖNF σ A (S x) = σ x
 _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalType Δ κ₂
 τ₁ βₖNF[ τ₂ ] = subₖNF (extendₖNF idSubst τ₂) τ₁
 
+--------------------------------------------------------------------------------
 -- Application *is* β-substitution due to canonicity of arrow kinded types
+
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
--- hold my beer 
+--------------------------------------------------------------------------------
+-- Syntactic version of normality-preserving <$> 
+
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ne x = ne (f <$> x)
 f <$>' ε = ε
 f <$>' (l ▹ τ) = l ▹ (f ·' τ)
+
+
+--------------------------------------------------------------------------------
+-- if a mapping results in the empty row then one mapped over the empty row
+
+ε-<$>'  : ∀ {f : NormalType ∅ (κ₁ `→ κ₂)} {ρ : NormalType ∅ R[ κ₁ ]}  → 
+            f <$>' ρ ≡ ε → 
+            ρ ≡ ε
+ε-<$>' {ρ = ε} eq = refl 
 
 -- _·NP_ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) (π : NormalPred Δ R[ κ₁ ]) → 
 --        NormalPred Δ R[ κ₂ ] 
