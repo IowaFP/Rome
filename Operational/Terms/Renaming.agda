@@ -153,17 +153,31 @@ renEnt R (n-·≲L e) = n-·≲L (renEnt R e)
 renEnt R (n-·≲R e) = n-·≲R (renEnt R e)
 renEnt R n-ε-R = n-ε-R
 renEnt R n-ε-L = n-ε-L
-renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e) =
-  convEnt 
-    (cong₂ _≲_ 
-      (↻-ren-⇓-<$> ρ F ρ₁) 
-      (↻-ren-⇓-<$> ρ F ρ₂))
-    (n-≲lift {F = renₖNF ρ F} (renEnt R e))
-renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e) 
+renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
   rewrite 
-    sym (↻-ren-⇓-<$> ρ F ρ₁)
-  | sym (↻-ren-⇓-<$> ρ F ρ₂)
-  | sym (↻-ren-⇓-<$> ρ F ρ₃) = n-·lift {F = renₖNF ρ F} (renEnt R e)
+    eq-ρ₁ 
+  | eq-ρ₂
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  = n-≲lift 
+    {F = renₖNF ρ F} 
+    (renEnt R e) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
+renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ₂ eq-ρ₃)
+  rewrite 
+    eq-ρ₁ 
+  | eq-ρ₂
+  | eq-ρ₃
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  | stability-<$> F ρ₃
+  = n-·lift 
+    {F = renₖNF ρ F} 
+    (renEnt R e) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₃)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₃))))
   
 
 --------------------------------------------------------------------------------
