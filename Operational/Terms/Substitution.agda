@@ -111,17 +111,33 @@ subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
 subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
 subEnt σ s {π} n-ε-R = n-ε-R
 subEnt σ s {π} n-ε-L = n-ε-L
-subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) = 
-  convEnt 
-    (cong₂ _≲_ (↻-sub-⇓-<$> σ F ρ₁) (↻-sub-⇓-<$> σ F ρ₂)) 
-    (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
-subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e) = 
-  convEnt 
-    (cong₃ _·_~_ 
-      (↻-sub-⇓-<$> σ F ρ₁) 
-      (↻-sub-⇓-<$> σ F ρ₂) 
-      (↻-sub-⇓-<$> σ F ρ₃))  
-      (n-·lift {F = subₖNF σ F} (subEnt σ s e))
+subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
+  rewrite
+    ρ₁-eq 
+  | ρ₂-eq 
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ = 
+    n-≲lift 
+    {F = subₖNF σ F} 
+    (subEnt σ s e) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
+  
+subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e  ρ₁-eq ρ₂-eq ρ₃-eq) 
+  rewrite
+    ρ₁-eq 
+  | ρ₂-eq 
+  | ρ₃-eq 
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  | stability-<$> F ρ₃ = 
+    n-·lift 
+    {F = subₖNF σ F} 
+    (subEnt σ s e) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₃)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₃))))
+  
 
 --------------------------------------------------------------------------------
 -- Extending substitutions

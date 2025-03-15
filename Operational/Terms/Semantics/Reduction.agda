@@ -28,7 +28,7 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
 
   V-Λ : ∀ {τ} 
           (M : Term (Γ ,, κ) τ) → 
-          Value M → 
+        --   Value M → 
           Value (Λ M)
 
   V-ƛ : ∀ {τ}{π : NormalPred Δ R[ κ ]} 
@@ -77,10 +77,10 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
            -----------------
            M₁ · N —→ M₂ · N
 
-  ξ-Λ : ∀ {τ} {M₁ M₂ : Term (Γ ,, κ) τ} →
-         M₁ —→ M₂ →
-         -----------------------
-         (Λ M₁) —→ (Λ M₂)
+--   ξ-Λ : ∀ {τ} {M₁ M₂ : Term (Γ ,, κ) τ} →
+--          M₁ —→ M₂ →
+--          -----------------------
+--          (Λ M₁) —→ (Λ M₂)
 
 --   ξ-ƛ : ∀ {τ} {π : NormalPred Δ R[ κ ]} {M₁ M₂ : Term (Γ ,,, π) τ} →
 
@@ -178,10 +178,9 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
 
---   β-prj : ∀ {ρ : NormalType Δ R[ ★ ]} → 
---             (M : Term Γ τ) (N : Term Γ τ) (e :  Ent Γ (ρ₁ ≲ ρ₂))
+  β-prj : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
+            (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (e :  Ent Γ ((l ▹ τ) ≲ (l ▹ τ))) → 
             
---               →
---              -----------------------
---              prj (ℓ₁ Π▹ M) e —→ (ℓ₂ Π▹ N)
+             -----------------------
+             prj (ℓ Π▹ M) e —→ (ℓ Π▹ M)
 
