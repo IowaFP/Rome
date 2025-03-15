@@ -287,7 +287,8 @@ uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 --------------------------------------------------------------------------------
 -- Monoidal properties of entailment
 
-·-impossible :  ∀ {l₁ l₂ l₃ : NormalType ∅ L} {τ₁ τ₂ τ₃ :  NormalType ∅ κ} → Ent ∅ ((l₁ ▹ τ₁) · (l₂ ▹ τ₂) ~ (l₃ ▹ τ₃)) → ⊥ 
+·-impossible :  ∀ {l₁ l₂ l₃ : NormalType ∅ L} {τ₁ τ₂ τ₃ :  NormalType ∅ κ} → 
+                Ent ∅ ((l₁ ▹ τ₁) · (l₂ ▹ τ₂) ~ (l₃ ▹ τ₃)) → ⊥ 
 ·-impossible  (n-·lift {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} e x x₁ x₂) = ·-impossible e
 
 refl-inversion : ∀ (ρ :  NormalType ∅ R[ κ ]) → Ent ∅ (ρ ≲ ρ) → ρ ≡ ρ
@@ -347,7 +348,23 @@ refl-inversion (l ▹ τ) e = refl
   trans x (trans (cong₂ _▹_ (inj-▹ₗ (ε-right-identity e)) (cong (F ·'_) (inj-▹ᵣ (ε-right-identity e)))) (sym x₂))
 
 
-ε-left-identity e = {!   !} 
+ε-left-identity n-ε-R = refl
+ε-left-identity n-ε-L = refl
+ε-left-identity (n-·lift {ρ₁ = ε} {ne x₃} {_} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+ε-left-identity (n-·lift {ρ₁ = ε} {_} {ne x₃} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+ε-left-identity (n-·lift {ρ₁ = ε} {ε} {ε} e x x₁ x₂) = trans x₁ (sym x₂)
+ε-left-identity (n-·lift {ρ₁ = ε} {ε} {ρ₃ ▹ ρ₄} e x x₁ x₂) with  ε-left-identity e  
+... | () 
+ε-left-identity (n-·lift {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ε} e x x₁ x₂) with ε-left-identity e
+... | ()
+ε-left-identity (n-·lift {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ρ₄ ▹ ρ₅} {F} e x x₁ x₂) = 
+  trans 
+    x₁ 
+    (trans 
+      (cong₂ _▹_ 
+        (inj-▹ₗ (ε-left-identity e)) 
+        (cong (F ·'_) (inj-▹ᵣ (ε-left-identity e)))) 
+      (sym x₂)) 
 
 
 
