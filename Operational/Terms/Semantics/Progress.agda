@@ -34,11 +34,9 @@ progress : ∀ {τ} (M : Term ∅ τ) → Progress M
 -- progress (` x) with noVar p x 
 -- ... | ()
 
+
 progress (`λ M) = Done (V-λ M)
 progress (Λ M) = Done (V-Λ M)
--- with progress M 
--- ... | Done V = Done (V-Λ M V)
--- ... | Steps M' x = Steps (Λ M') (ξ-Λ x)
 progress (M · N) with progress M
 progress (.(`λ M) · N) | Done (V-λ M)   = Steps (M β[ N ]) β-λ
 progress (M · N)       | Steps M' steps = Steps (M' · N) (ξ-·1 steps)
@@ -68,7 +66,6 @@ progress (`ƛ M) = Done (V-ƛ M)
 progress (M ·⟨ e ⟩) with progress M 
 ... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
 ... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
--- permitting ρ₁ to be a neutral variable I believe leads to stuckness here?
 progress (prj {ρ₁ = ne x} M e₁) = ⊥-elim (noNeutrals x)
 progress (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
 progress (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress M 
@@ -84,10 +81,6 @@ progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) | ()
 progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done (V-Σ ℓ M₁ x) with ≲-refl _ _ _ _ e 
 ... | refl = Steps M (β-inj ℓ M₁ e)
 progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = Steps (inj M' e) (ξ-inj M M' e x)
-
--- progress-ε : ∀ {τ} (M : Term ε τ) →
---              Progress M
--- progress-ε = progress tt
 
 -------------------------------------------------------------------------------
 -- Tinkering

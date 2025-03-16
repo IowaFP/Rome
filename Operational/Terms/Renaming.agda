@@ -144,6 +144,7 @@ ren R (`ƛ τ) = `ƛ (ren (liftPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
 ren {ρ = ρ} R (prj m e) = prj (ren R m) (renEnt R e)
 ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)
+ren {ρ = ρ} R ((M ⊹ N) e) = ((ren R M) ⊹ (ren R N)) (renEnt R e)
 
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
