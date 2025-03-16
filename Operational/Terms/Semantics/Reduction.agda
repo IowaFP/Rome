@@ -143,6 +143,13 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             ------------ 
             prj M₁ e —→ prj M₂ e
 
+  ξ-inj : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} 
+            (M₁ M₂ : Term Γ (Σ ρ₁)) (e : Ent Γ (ρ₁ ≲ ρ₂)) → 
+
+            M₁ —→ M₂ → 
+            ------------ 
+            inj M₁ e —→ inj M₂ e
+
   -- computational rules
   β-λ : ∀ {τ₁ τ₂} {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
           
@@ -184,7 +191,7 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              prj (ℓ Π▹ M) e —→ (ℓ Π▹ M)
 
-  β-inj : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} {ρ : NormalType Δ R[ κ ]} → 
+  β-inj : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} → 
             (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (e :  Ent Γ ((l ▹ τ) ≲ (l ▹ τ))) → 
             
              -----------------------

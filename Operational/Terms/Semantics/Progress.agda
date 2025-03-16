@@ -83,7 +83,7 @@ progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) with ε-minimum e
 progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) | () 
 progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done (V-Σ ℓ M₁ x) with ≲-refl _ _ _ _ e 
 ... | refl = Steps M (β-inj ℓ M₁ e)
-progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = {!   !}
+progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = Steps (inj M' e) (ξ-inj M M' e x)
 
 -- progress-ε : ∀ {τ} (M : Term ε τ) →
 --              Progress M
