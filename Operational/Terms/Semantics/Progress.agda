@@ -60,6 +60,7 @@ progress (ℓ Π▹ M) with progress M
 ... | Steps M' M—→M' = Steps (ℓ Π▹ M') (ξ-Π▹ M M' ℓ M—→M')
 progress (_Π/_ {l} M ℓ) with progress M
 ... | Done (V-Π ℓ₁ N VN)  = Steps N (β-Π/ N ℓ₁ ℓ VN)
+... | Done (V-⊹ {e = e} M₁ N v v₁) = ⊥-elim (·-impossible e)
 ... | Steps M' M—→M' = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
 progress (prj {ρ₁ = ne x} M e₁) = ⊥-elim (noNeutrals x)
 progress (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
@@ -68,6 +69,7 @@ progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) with �
 progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) | refl = Steps (ℓ Π▹ N) (β-prj ℓ N e)
 progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e 
 ... | ()
+progress (prj {_} {.(_ ▹ _)} M e) | Done (V-⊹ {e = e'} M₁ N x x₁) = {! e'  !}
 progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
 progress ((M ⊹ N) e) with progress M | progress N 
 ... | Done (V-Π ℓ₁ M VM) | Done (V-Π ℓ₂ N VN) = Done (V-⊹ M N VM VN)
