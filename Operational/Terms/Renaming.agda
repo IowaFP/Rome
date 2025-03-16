@@ -26,13 +26,14 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Terms.Syntax
-open import Rome.Operational.Terms.GVars
+-- open import Rome.Operational.Terms.GVars
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 private
   variable
+    Γ Γ₁ Γ₂ Γ₃ : Context Δ
     ρ : Renamingₖ Δ₁ Δ₂
     τ τ₁ τ₂ : NormalType Δ κ
 

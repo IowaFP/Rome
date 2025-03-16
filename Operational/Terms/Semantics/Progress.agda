@@ -14,10 +14,12 @@ open import Rome.Operational.Terms.Substitution
 open import Rome.Operational.Terms.Semantics.Reduction
 
 open import Rome.Operational.Kinds.GVars
+
 open import Rome.Operational.Terms.GVars
+open import Rome.Operational.Terms.Entailment.Properties
 
 --------------------------------------------------------------------------------
--- Proof of progress.
+-- Proof of progress
 
 data Progress {τ} (M : Term Γ τ) : Set where
   Done : 
@@ -34,7 +36,6 @@ progress : ∀ {τ} (M : Term ∅ τ) → Progress M
 -- progress (` x) with noVar p x 
 -- ... | ()
 
-
 progress (`λ M) = Done (V-λ M)
 progress (Λ M) = Done (V-Λ M)
 progress (M · N) with progress M
@@ -49,6 +50,10 @@ progress (In τ M) with progress M
 progress (Out τ M) with progress M
 progress (Out τ .(In τ _)) | Done (V-In F M) = Steps _ β-In
 progress (Out τ M)           | Steps M' steps = Steps _ (ξ-Out steps)
+progress (`ƛ M) = Done (V-ƛ M)
+progress (M ·⟨ e ⟩) with progress M 
+... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
+... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
 progress (# l) = Done V-#
 progress (ℓ Π▹ M) with progress M 
 ... | Done VM = Done (V-Π ℓ M VM)
@@ -56,24 +61,27 @@ progress (ℓ Π▹ M) with progress M
 progress (_Π/_ {l} M ℓ) with progress M
 ... | Done (V-Π ℓ₁ N VN)  = Steps N (β-Π/ N ℓ₁ ℓ VN)
 ... | Steps M' M—→M' = Steps (M' Π/ ℓ) (ξ-Π/₁ M M' ℓ M—→M')
+progress (prj {ρ₁ = ne x} M e₁) = ⊥-elim (noNeutrals x)
+progress (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
+progress (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress M
+progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) with ≲-refl _ _ _ _ e
+progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) | refl = Steps (ℓ Π▹ N) (β-prj ℓ N e)
+progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e 
+... | ()
+progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
+progress ((M ⊹ N) e) with progress M | progress N 
+... | Done (V-Π ℓ M₁ x) | Done (V-Π ℓ₁ M₂ x₁) = {!   !}
+... | Done (V-Π ℓ M₁ x) | Done (V-Unit .N) = {!   !}
+... | Done (V-Unit .M) | Done x₁ = {!   !}
+... | Done x | Steps M' x₁ = {!   !}
+... | Steps M' x | Done x₁ = {!   !}
+... | Steps M' x | Steps M'' x₁ = {!   !}
 progress (ℓ Σ▹ M) with progress M 
 ... | Done VM = Done (V-Σ ℓ M VM)
 ... | Steps M' M—→M' = Steps (ℓ Σ▹ M') (ξ-Σ▹ M M' ℓ M—→M')
 progress (_Σ/_ {l} M ℓ) with progress M
 ... | Done (V-Σ ℓ₁ N VN)  = Steps N (β-Σ/ N ℓ₁ ℓ VN)
 ... | Steps M' M—→M' = Steps (M' Σ/ ℓ) (ξ-Σ/₁ M M' ℓ M—→M')
-progress (`ƛ M) = Done (V-ƛ M)
-progress (M ·⟨ e ⟩) with progress M 
-... | Done (V-ƛ M₁) = Steps (M₁ βπ[ e ]) β-ƛ
-... | Steps M' x = Steps (M' ·⟨ e ⟩) (ξ-·⟨⟩ x)
-progress (prj {ρ₁ = ne x} M e₁) = ⊥-elim (noNeutrals x)
-progress (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
-progress (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress M 
-progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) with ≲-refl _ _ _ _ e
-progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) | refl = Steps (ℓ Π▹ N) (β-prj ℓ N e)
-progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e 
-... | ()
-progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
 progress (inj M e) with progress M 
 progress (inj {ρ₂ = ne x₁} M e) | Done (V-Σ ℓ M₁ x) = ⊥-elim (noNeutrals x₁)
 progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) with ε-minimum e
