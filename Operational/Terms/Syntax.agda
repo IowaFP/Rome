@@ -290,6 +290,9 @@ conv-≡t eq = conv (completeness eq)
 uu : Term Γ UnitNF
 uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 
+hmm : Term Γ (`∀ R[ ★ ] (`∀ R[ ★ ] (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ Π (ne (` (S Z)))))))
+hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
+
 --------------------------------------------------------------------------------
 -- Monoidal properties of entailment
 
