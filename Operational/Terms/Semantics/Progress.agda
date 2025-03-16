@@ -77,7 +77,13 @@ progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) | refl
 progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e 
 ... | ()
 progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
-progress (inj M e) = {!   !}
+progress (inj M e) with progress M 
+progress (inj {ρ₂ = ne x₁} M e) | Done (V-Σ ℓ M₁ x) = ⊥-elim (noNeutrals x₁)
+progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) with ε-minimum e
+progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) | () 
+progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done (V-Σ ℓ M₁ x) with ≲-refl _ _ _ _ e 
+... | refl = Steps M (β-inj ℓ M₁ e)
+progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = {!   !}
 
 -- progress-ε : ∀ {τ} (M : Term ε τ) →
 --              Progress M
@@ -100,6 +106,6 @@ _ = refl
 
 _ : eval (prj (♯l Π▹ ♯l) n-refl) ≡ ((♯l Π▹ ♯l))
 _ = refl
-
+ 
 _ : eval (((((Λ (Λ (`ƛ (`λ (prj {ρ₂ = ne ((` Z))} {ne (` (S Z))}  (` Z) (n-var (T Z))))))) ·[ lab "l" ▹ UnitNF ]) ·[ lab "l" ▹ UnitNF ]) ·⟨ n-refl ⟩) · (♯l Π▹ uu))   ≡ ((♯l Π▹ uu)) 
 _ = refl

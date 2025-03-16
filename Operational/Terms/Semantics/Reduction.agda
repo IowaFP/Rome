@@ -184,3 +184,9 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              prj (ℓ Π▹ M) e —→ (ℓ Π▹ M)
 
+  β-inj : ∀ {l : NormalType Δ L} {τ : NormalType Δ ★} {ρ : NormalType Δ R[ κ ]} → 
+            (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (e :  Ent Γ ((l ▹ τ) ≲ (l ▹ τ))) → 
+            
+             -----------------------
+             inj (ℓ Σ▹ M) e —→ (ℓ Σ▹ M)
+
