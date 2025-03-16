@@ -70,12 +70,13 @@ progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e
 ... | ()
 progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
 progress ((M ⊹ N) e) with progress M | progress N 
-... | Done (V-Π ℓ M₁ x) | Done (V-Π ℓ₁ M₂ x₁) = {!   !}
-... | Done (V-Π ℓ M₁ x) | Done (V-Unit .N) = {!   !}
-... | Done (V-Unit .M) | Done x₁ = {!   !}
-... | Done x | Steps M' x₁ = {!   !}
-... | Steps M' x | Done x₁ = {!   !}
-... | Steps M' x | Steps M'' x₁ = {!   !}
+... | Done (V-Π ℓ₁ M VM) | Done (V-Π ℓ₂ N VN) = Done (V-⊹ M N VM VN)
+... | Done (V-Π ℓ M₁ x) | Done (V-Unit .N) with (ε-right-identity e)
+... | refl  = Steps M (β-Πε-right ℓ M₁ N e)
+progress ((M ⊹ N) e) | Done (V-Unit .M) | Done x₁ = {!   !}
+progress ((M ⊹ N) e) | Done x | Steps M' x₁ = {!   !}
+progress ((M ⊹ N) e) | Steps M' x | Done x₁ = {!   !}
+progress ((M ⊹ N) e) | Steps M' x | Steps M'' x₁ = {!   !}
 progress (ℓ Σ▹ M) with progress M 
 ... | Done VM = Done (V-Σ ℓ M VM)
 ... | Steps M' M—→M' = Steps (ℓ Σ▹ M') (ξ-Σ▹ M M' ℓ M—→M')

@@ -50,12 +50,12 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value (ℓ Π▹ M)
 
---   V-⊹  : ∀ {l : NormalType Δ L} {υ : NormalType Δ ★} → 
---             (ℓ₁ : Term Γ ⌊ l ⌋) → (M : Term Γ υ) → 
+  V-⊹  : -- ∀ 
+           {e : Ent Γ ((l₁ ▹ τ)  · (l₂ ▹ υ) ~ ρ₃)} (M : Term Γ τ) (N : Term Γ υ) → 
 
---             Value M → Value N
---             ---------------------
---             Value ((ℓ Π▹ M ⊹ ℓ₂ Π▹ N) e)
+            Value M → Value N → 
+            ---------------------
+            Value (((ℓ₁ Π▹ M) ⊹ (ℓ₂ Π▹ N)) e)
 
   V-Σ   : ∀ 
             (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ τ) → 
@@ -203,5 +203,13 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             
              -----------------------
              inj (ℓ Σ▹ M) e —→ (ℓ Σ▹ M)
+
+
+  β-Πε-right : ∀ 
+        (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (E : Term Γ (Π ε)) 
+        (e : Ent Γ ((l ▹ τ) · ε ~ (l ▹ τ))) → 
+        
+        ---------------------
+        (((ℓ Π▹ M) ⊹ E) e) —→ (ℓ Π▹ M)
 
  
