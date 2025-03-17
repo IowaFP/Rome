@@ -138,3 +138,18 @@ open import Rome.Operational.Terms.GVars
         (cong (F ·'_) (inj-▹ᵣ (≲-refl e)))) 
       (sym x₁))     
  
+ --------------------------------------------------------------------------------
+-- Problems
+
+no-meaningful-combinations : Ent ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ε or ρ₂ ≡ ε 
+no-meaningful-combinations {ρ₁ = ne x} {ρ₂} {ρ₃} e = ⊥-elim (noNeutrals x)
+no-meaningful-combinations {ρ₁ = ρ₁} {ne x} {ρ₃} e = ⊥-elim (noNeutrals x)
+no-meaningful-combinations {ρ₁ = ρ₁} {ρ₂} {ne x} e = ⊥-elim (noNeutrals x)
+no-meaningful-combinations {ρ₁ = ε} {ρ₂} {ρ₃} e = left refl
+no-meaningful-combinations {ρ₁ = ρ₁} {ε} {ρ₃} e = right refl
+no-meaningful-combinations {ρ₁ = ρ₁ ▹ ρ₄} {ρ₂ ▹ ρ₅} {ε} e = left (ε-minimum (n-·≲L e))
+no-meaningful-combinations {ρ₁ = ρ₁ ▹ ρ₄} {ρ₂ ▹ ρ₅} {ρ₃ ▹ ρ₆} e = ⊥-elim (·-impossible e)
+
+
+
+
