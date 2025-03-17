@@ -116,25 +116,25 @@ open import Rome.Operational.Terms.GVars
 --------------------------------------------------------------------------------
 -- Reflection of labeled row reflexivity to propositional equality
 
-≲-refl :  ∀ (l₁ l₂ : NormalType ∅ L) (τ₁ τ₂ :  NormalType ∅ κ) → Ent ∅ ((l₁ ▹ τ₁) ≲ (l₂ ▹ τ₂)) → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂)
-≲-refl l₁ l₂ τ υ (n-var ())
-≲-refl l₁ l₂ τ υ n-refl = refl
-≲-refl l₁ l₂ τ υ (n-trans {ρ₂ = ne x} e e₁) = ⊥-elim (noNeutrals x) 
-≲-refl l₁ l₂ τ υ (n-trans {ρ₂ = ε} e e₁) with ε-minimum e
+≲-refl :  ∀ {l₁ l₂ : NormalType ∅ L} {τ₁ τ₂ :  NormalType ∅ κ} → Ent ∅ ((l₁ ▹ τ₁) ≲ (l₂ ▹ τ₂)) → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂)
+≲-refl (n-var ())
+≲-refl n-refl = refl
+≲-refl (n-trans {ρ₂ = ne x} e e₁) = ⊥-elim (noNeutrals x) 
+≲-refl (n-trans {ρ₂ = ε} e e₁) with ε-minimum e
 ... | () 
-≲-refl l₁ l₃ τ₁ τ₃ (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl l₁ l₂ τ₁ τ₂ e) (≲-refl l₂ l₃ τ₂ τ₃ e₁)
-≲-refl l₁ l₂ τ υ (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
-≲-refl l₁ l₂ τ υ (n-·≲L {ρ₂ = ε} e) = ε-right-identity e
-≲-refl l₁ l₂ τ₁ τ₂ (n-·≲L {ρ₂ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e)  
-≲-refl l₁ l₂ τ υ (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
-≲-refl l₁ l₂ τ υ (n-·≲R {ρ₁ = ε} e) = ε-left-identity e
-≲-refl l₁ l₂ τ₁ τ₂ (n-·≲R {ρ₁ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e) 
-≲-refl l₁ l₂ τ₁ τ₂ (n-≲lift {ρ₁ = l₃ ▹ τ₃} {l₄ ▹ τ₄} {F} e x x₁) = 
+≲-refl (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl e) (≲-refl e₁)
+≲-refl (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-refl (n-·≲L {ρ₂ = ε} e) = ε-right-identity e
+≲-refl (n-·≲L {ρ₂ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e)  
+≲-refl (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-refl (n-·≲R {ρ₁ = ε} e) = ε-left-identity e
+≲-refl (n-·≲R {ρ₁ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e) 
+≲-refl (n-≲lift {ρ₁ = l₃ ▹ τ₃} {l₄ ▹ τ₄} {F} e x x₁) = 
   trans 
     x 
     (trans 
       (cong₂ _▹_ 
-        (inj-▹ₗ (≲-refl _ _ _ _ e)) 
-        (cong (F ·'_) (inj-▹ᵣ (≲-refl _ _ _ _ e)))) 
+        (inj-▹ₗ (≲-refl e)) 
+        (cong (F ·'_) (inj-▹ᵣ (≲-refl e)))) 
       (sym x₁))     
  

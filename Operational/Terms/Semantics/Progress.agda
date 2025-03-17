@@ -65,11 +65,16 @@ progress (_Π/_ {l} M ℓ) with progress M
 progress (prj {ρ₁ = ne x} M e₁) = ⊥-elim (noNeutrals x)
 progress (prj {ρ₁ = ε} M e) = Done (V-Unit (prj M e))
 progress (prj {ρ₁ = l₂ ▹ τ} M e₁) with progress M
-progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) with ≲-refl _ _ _ _ e
+progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) with ≲-refl e
 progress (prj {_} {.(_ ▹ _)} .(_Π▹_ ℓ N) e) | Done (V-Π ℓ N VN) | refl = Steps (ℓ Π▹ N) (β-prj ℓ N e)
 progress (prj {_} {.(_ ▹ _)} M e) | Done (V-Unit .M) with ε-minimum e 
 ... | ()
-progress (prj {_} {.(_ ▹ _)} M e) | Done (V-⊹ {e = e'} M₁ N x x₁) = {! e'  !}
+progress (prj {ne x₂} {.(_ ▹ _)} .(((ℓ₁ Π▹ M₁) ⊹ (ℓ₂ Π▹ N)) e') e) | Done (V-⊹ {ℓ₁ = ℓ₁} {ℓ₂} {e = e'} M₁ N x x₁) = ⊥-elim (noNeutrals x₂)
+progress (prj {ε} {.(_ ▹ _)} .(((ℓ₁ Π▹ M₁) ⊹ (ℓ₂ Π▹ N)) e') e) | Done (V-⊹ {ℓ₁ = ℓ₁} {ℓ₂} {e = e'} M₁ N x x₁) with ε-minimum e
+... | ()
+-- This is problematic. I could choose to not eliminate ⊥ here and instead let (prj (ℓ₁ Π▹ M₁) ⊹ (ℓ₂ Π◃ M₂)) —→ (ℓ₁ Π▹ M₁)...
+progress (prj {ℓ₃ ▹ τ₃} {.(_ ▹ _)} .(((ℓ₁ Π▹ M₁) ⊹ (ℓ₂ Π▹ N)) e') e) | Done (V-⊹ {ℓ₁ = ℓ₁} {ℓ₂} {e = e'} M₁ N x x₁) with ≲-refl e | ≲-refl (n-·≲L e')
+... | refl | refl = ⊥-elim (·-impossible e')
 progress (prj {ρ₁ = l₂ ▹ τ} M e) | Steps M' x = Steps _ (ξ-prj M M' e  x)
 progress ((M ⊹ N) e) with progress M | progress N 
 ... | Done (V-Π ℓ₁ M VM) | Done (V-Π ℓ₂ N VN) = Done (V-⊹ M N VM VN)
@@ -89,7 +94,7 @@ progress (inj M e) with progress M
 progress (inj {ρ₂ = ne x₁} M e) | Done (V-Σ ℓ M₁ x) = ⊥-elim (noNeutrals x₁)
 progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) with ε-minimum e
 progress (inj {ρ₂ = ε} M e) | Done (V-Σ ℓ M₁ x) | () 
-progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done (V-Σ ℓ M₁ x) with ≲-refl _ _ _ _ e 
+progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done (V-Σ ℓ M₁ x) with ≲-refl e 
 ... | refl = Steps M (β-inj ℓ M₁ e)
 progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = Steps (inj M' e) (ξ-inj M M' e x)
 
@@ -110,6 +115,9 @@ _ = refl
 
 _ : eval (prj (♯l Π▹ ♯l) n-refl) ≡ ((♯l Π▹ ♯l))
 _ = refl
- 
+
+_ : eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-·≲L (n-var Z)))) ≡ {! eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-·≲L (n-var Z))))  !}
+_ = {!   !} 
+  
 _ : eval (((((Λ (Λ (`ƛ (`λ (prj {ρ₂ = ne ((` Z))} {ne (` (S Z))}  (` Z) (n-var (T Z))))))) ·[ lab "l" ▹ UnitNF ]) ·[ lab "l" ▹ UnitNF ]) ·⟨ n-refl ⟩) · (♯l Π▹ uu))   ≡ ((♯l Π▹ uu)) 
 _ = refl

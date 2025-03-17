@@ -298,7 +298,7 @@ hmm : Term Γ
         Π (ne (` (S Z)))))))
 hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
 
--- The small problem here is that there do not exist any types here to give...
+-- The small problem here is that there do not exist any types to give...
 -- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
 -- I am in a bit of trouble if I need to extend to the simple row theory.
 hmm₂ : Term Γ (Π {!   !})
