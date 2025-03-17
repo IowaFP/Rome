@@ -51,11 +51,11 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             Value (ℓ Π▹ M)
 
   V-⊹  : -- ∀ 
-           {e : Ent Γ ((l₁ ▹ τ)  · (l₂ ▹ υ) ~ ρ₃)} (M : Term Γ τ) (N : Term Γ υ) → 
+           {e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)} (M : Term Γ (Π ρ₁)) (N : Term Γ (Π ρ₂)) → 
 
             Value M → Value N → 
             ---------------------
-            Value (((ℓ₁ Π▹ M) ⊹ (ℓ₂ Π▹ N)) e)
+            Value ((M ⊹ N) e)
 
   V-Σ   : ∀ 
             (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ τ) → 
