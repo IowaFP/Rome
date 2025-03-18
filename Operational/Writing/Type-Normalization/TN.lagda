@@ -865,13 +865,15 @@ reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} τ       = just (left τ)
 \end{code}
 
-\Ni Reflection of neutral types at arrow kind must be $\eta$-expanded into a Kripke function. Note here that is necessary to reify the input \verb!v! back to a normal type.
+\Ni Reflection of neutral types at arrow kind are effectively $\eta$-expanded into a Kripke function. Note here that is necessary to reify the input \verb!v! back to a normal type.
 
 \begin{code}
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 \end{code}
 
-\Ni Reification similarly leaves ground types undisturbed. Semantic types at $\star$ and label kind are already in normal form; semantic types at row kind must be translated from their semantic constructors to their \verb!NormalType! constructors. This process simply exhibits (half of) the bijection between the canonical forms of row kinded normal types and the semantic domain at row kind.
+\Ni Reification similarly leaves ground types undisturbed. Semantic types at $\star$ and label kind are already in normal form; semantic types at row kind must be 
+translated from their semantic constructors to their \verb!NormalType! constructors. This process simply exhibits (half of) the bijection between the canonical 
+forms of row kinded normal types and the semantic domain at row kind.
 
 \begin{code}
 reify {κ = ★} τ = τ
@@ -881,14 +883,16 @@ reify {κ = R[ κ ]} (just (right (l , τ))) = l ▹ (reify τ)
 reify {κ = R[ κ ]} nothing = ε
 \end{code}
 
-Semantic functions must be reified from Agda functions back into \verb!NormalType! syntax. This is done by reifying the application of semantic function \verb!F! to the reflection of the $\eta$-expanded variable \verb!` Z!.
+Semantic functions must be reified from Agda functions back into \verb!NormalType! syntax. This is done by reifying the
+ application of semantic function \verb!F! to the reflection of the $\eta$-expanded variable \verb!` Z!.
 
 \begin{code}
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 \end{code}
 
-Observe that neutral types can be forced into $\eta$-long form simply by composing reification and reflection. This will prove helpful later, as the neutral type former \verb!ne! has the same type except restricted to ground kind, but we will need to be able to promote from neutral to normal type at \emph{all} kinds.
+Observe that neutral types can be forced into $\eta$-long form simply by composing reification and reflection. This will prove helpful later, as the neutral type former \verb!ne! has the same 
+type except restricted to ground kind, but we will need to be able to promote from neutral to normal type at \emph{all} kinds.
 
 \begin{code}
 η-norm : NeutralType Δ κ → NormalType Δ κ 
@@ -972,7 +976,10 @@ _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[
 f <?>V a = apply a <$>V f
 \end{code}
 
-Much of the latent computation in \Rome occurs under an outermost $\Pi$ and $\Sigma$ syntax. To this end, we chose to represent $\Pi$ and $\Sigma$ as arrow-kinded type-constants---meaning they will evaluate into Agda functions. This provides an opportunity to concisely abstract their reduction logic. We define a semantic combinator for the $\Pi$ type constant below. The first two equations state that record types at $\star$ and label kind may be formed provided normal bodies; The third equation pushes the $\lambda$-binding of $F$ outside of the record type; the fourth equation states that application \emph{is} mapping at nested row kind.
+Much of the latent computation in \Rome occurs under an outermost $\Pi$ and $\Sigma$ syntax. To this end, we chose to represent $\Pi$ and $\Sigma$ as arrow-kinded type-constants, 
+meaning they will evaluate into Agda functions. This provides an opportunity to concisely abstract their reduction logic. We define a semantic combinator for the $\Pi$ type constant below. 
+The first two equations state that record types at $\star$ and label kind may be formed provided normal bodies; the third equation pushes the $\lambda$-binding of $F$ outside of the record type; 
+the fourth equation states that application \emph{is} mapping at nested row kind.
 
 \begin{code}
 ΠV : SemType Δ R[ κ ] → SemType Δ κ 
@@ -984,11 +991,101 @@ Much of the latent computation in \Rome occurs under an outermost $\Pi$ and $\Si
 
 \Ni We omit the definition of \verb!ΣV!, as it differs only in naming.
 
+\begin{code}[hide]
+ΣV : SemType Δ R[ κ ] → SemType Δ κ 
+ΣV {κ = ★} x = Σ (reify x)
+ΣV {κ = L} x = ΣL (reify x)
+ΣV {κ = κ₁ `→ κ₂} F = λ ρ v → ΣV (renSem ρ F <?>V v)
+ΣV {κ = R[ κ ]} x = (λ ρ v → ΣV v) <$>V x
+\end{code}[hide]
+
 \subsection{Evaluation}
+
+Evaluation reflects a \verb!Type! to the semantic domain, after which reification places the type in normal form. 
+Evaluation is defined by induction on the type structure. 
+
+\begin{code}
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
+\end{code}
+
+\Ni As we have no semantic space for predicates, evaluation of predicates simply places 
+the predicate's component types into normal form.
+
+\begin{code}
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+\end{code}
+
+\Ni We evaluate variables to their image in the environment $\eta$. Applications defer to the semantic combinator \verb!_·V_!; recall that the left-hand applicand $\tau_1$ evaluates to a Kripke \verb!KripkeFunction!, so
+evaluation of $\tau_1 · \tau_2$ is simply application in the Agda function space. 
+
+
+\begin{code}
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+\end{code}
+
+The next four cases are congruent over the type structure. Note that in the \verb!`∀! case, 
+we must lift the environment over the newly bound type variable, and in the \verb!μ! case,
+we must make sure to reify the evaluation of $\tau$ as $\tau$ evaluates to a Kripke function $\mu$ expects a \verb!NormalType!.
+
+
+\begin{code}
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+eval {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η))
+eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
+\end{code} 
+
+\Ni Label constants have no recursive subdata and so need no further evaluation. 
+
+\begin{code}
+eval {κ = L} (lab l) η = lab l
+\end{code} 
+
+\Ni Type-level functions evaluate their bodies in an extended environment. 
+
+\begin{code}
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
+\end{code} 
+
+\Ni The type constants $\Pi$ and $\Sigma$ evaluate directly to their Kripke combinators; observe that the renaming \verb!ρ! is ignored as both \verb!ΠV! and \verb!ΣV! have no free variables. 
+The mapping application \verb!f <$> a! and labeled row \verb!(l ▹ τ)! evaluate to their semantic combinator.
+Finally, the empty row evaluates to \verb!nothing!.
+
+\begin{code}
+eval {κ = κ₁ `→ κ₂} Π η = λ ρ v → ΠV v
+eval {κ = κ₁ `→ κ₂} Σ η = λ ρ v → ΣV v
+eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
+eval ε η = nothing
+\end{code}
+
+We define normalization as the composition of reification and evaluation in the identity environment.
+
+\begin{code}
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
+
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
+\end{code}
+
+It is helpful in future proofs to name the re-abstraction of a normal type back to its
+semantic form: 
+
+
+\begin{code}
+⇈ : NormalType Δ κ → SemType Δ κ 
+⇈ τ = eval (⇑ τ) idEnv
+\end{code}
+
+
 
 \section{Completeness}
 
-\subsection{Type Equivalence}
 \subsection{A logical relation}
 \subsection{The fundamental theorem \& completeness}
 
