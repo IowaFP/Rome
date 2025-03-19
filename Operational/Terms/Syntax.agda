@@ -67,6 +67,7 @@ noVar p (K x) = noVar p x
 noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
 noPVar p (K x) = noPVar p x
 
+-- (λ x. x x) (λ x. x x) ↝ (λ x. x x) (λ x. x x)
 --------------------------------------------------------------------------------
 -- Entailment relation on predicates 
 
@@ -163,11 +164,11 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
 
       Term (Γ ,, κ) τ →
       -----------
-      Term Γ (`∀ κ τ)
+      Term Γ (`∀ τ)
 
   _·[_] : ∀ {τ₂} → 
   
-          Term Γ (`∀ κ τ₂) →
+          Term Γ (`∀ τ₂) →
           (τ₁ : NormalType Δ κ) → 
           ----------------
           Term Γ (τ₂ βₖNF[ τ₁ ])
@@ -260,13 +261,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
        (M : Term Γ (Σ ρ₁)) → Ent Γ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
        Term Γ (Σ ρ₁)
-
+       
   _▿_ : 
 
        (M₁ : Term Γ (Σ ρ₁ `→ τ)) → (M₂ : Term Γ (Σ ρ₂ `→ τ)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
        Term Γ (Π ρ₃ `→ τ)
-
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.
@@ -297,8 +297,8 @@ uu : Term Γ UnitNF
 uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 
 hmm : Term Γ 
-  (`∀ R[ ★ ] 
-    (`∀ R[ ★ ] 
+  (`∀  
+    (`∀  
       (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
         (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
         Π (ne (` (S Z)))))))
