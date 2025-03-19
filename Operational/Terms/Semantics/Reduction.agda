@@ -122,7 +122,7 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
 
-  ξ-Π/₁ : ∀ 
+  ξ-Π/ : ∀ 
             (M₁ M₂ : Term Γ (Π (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
 
              M₁ —→ M₂ → 
@@ -136,7 +136,7 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              -----------------------
              (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
-  ξ-Σ/₁ : ∀ 
+  ξ-Σ/ : ∀ 
             (M₁ M₂ : Term Γ (Σ (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
 
              M₁ —→ M₂ → 
@@ -156,6 +156,20 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
             M₁ —→ M₂ → 
             ------------ 
             inj M₁ e —→ inj M₂ e
+
+  ξ-⊹₁ : ∀
+         (M₁ M₂ : Term Γ (Π ρ₁)) (N : Term Γ (Π ρ₂)) 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+       (M₁ —→ M₂) → 
+       (M₁ ⊹ N) e —→ (M₂ ⊹ N) e
+
+  ξ-⊹₂ : ∀
+         (M : Term Γ (Π ρ₁)) (N₁ N₂ : Term Γ (Π ρ₂)) 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+       (N₁ —→ N₂) → 
+       (M ⊹ N₁) e —→ (M ⊹ N₂) e
 
   -- computational rules
   β-λ : ∀ {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
@@ -193,23 +207,33 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
 
   β-prj : ∀  
-            (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (e :  Ent Γ ((l ▹ τ) ≲ (l ▹ τ))) → 
-            
+            (M : Term Γ (Π ρ)) (e :  Ent Γ (ρ ≲ ρ)) → 
+              
+             Value M → 
              -----------------------
-             prj (ℓ Π▹ M) e —→ (ℓ Π▹ M)
+             prj M e —→ M
 
   β-inj : ∀ 
-            (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (e :  Ent Γ ((l ▹ τ) ≲ (l ▹ τ))) → 
+            (M : Term Γ (Σ ρ)) (e :  Ent Γ (ρ ≲ ρ)) → 
             
+             Value M → 
              -----------------------
-             inj (ℓ Σ▹ M) e —→ (ℓ Σ▹ M)
+             inj M e —→ M
 
 
   β-Πε-right : ∀ 
-        (ℓ : Term Γ ⌊ l ⌋) (M : Term Γ τ) (E : Term Γ (Π ε)) 
-        (e : Ent Γ ((l ▹ τ) · ε ~ (l ▹ τ))) → 
+        (M : Term Γ (Π ρ)) (E : Term Γ (Π ε)) 
+        (e : Ent Γ (ρ · ε ~ ρ)) → 
         
+        Value M → 
         ---------------------
-        (((ℓ Π▹ M) ⊹ E) e) —→ (ℓ Π▹ M)
+        ((M ⊹ E) e) —→ M
 
- 
+
+  β-Πε-left : ∀ 
+        (E : Term Γ (Π ε)) (M : Term Γ (Π ρ))  
+        (e : Ent Γ (ε · ρ ~ ρ)) → 
+        
+        Value M → 
+        ---------------------
+        ((E ⊹ M) e) —→ M
