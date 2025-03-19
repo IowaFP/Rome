@@ -95,6 +95,8 @@
 \newunicodechar{≋}{$\approx$}
 \newunicodechar{ₗ}{$_l$}
 \newunicodechar{ᵣ}{$_r$}
+\newunicodechar{⟦}{$\llbracket$}
+\newunicodechar{⟧}{$\rrbracket$}
 
 \begin{document}
 
@@ -1097,31 +1099,6 @@ soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)
 soundness = bot _
 \end{code}
 
-A final (but no less crucial) property we will show is \emph{stability}: that every normal type is equal to the normalization of its embedding. 
-
-\begin{code}
-stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
-\end{code}
-\begin{code}[hide]
-stability = bot _
---------------------------------------------------------------------------------
--- - stability : ⇑ is right-inverse to ⇓ 
---     or, ⇓ is a split-monomorphism/section.
--- - stabilityNE : eval ∘ ⇑NE  = reflect
---   or, round trips from neutral semantic terms to semantic terms are preserved.
-\end{code}
-
-\Ni It is desirable that a normalization algorithm adheres to this property, as it states effectively that there is "no more work" to be done by re-normalization. Indeed, both idempotency and surjectivity are implied.
-
-\begin{code} 
-idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
-idempotency τ rewrite stability (⇓ τ) = refl
-
-surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
-surjectivity τ = ( ⇑ τ , stability τ ) 
-\end{code}
-
-
 \subsection{A logical relation}
 We will prove completeness using a logical relation on semantic types. We would like to be able to equate semantic types, but they prove to be "too large": in particular, our definition of Kripke functions permit functions which may not respect composition of renaming. The solution is to reason about semantic types modulo a partial equivalence relation (PER) that both respects renamings (which we call \emph{uniformity}) and also equates functions extensionally. We write \verb!τ₁ ≋ τ₂! to denote that the semantic types \verb!τ₁! and \verb!τ₂! are equivalent modulo this relation. For clarity, we give names to the two properties (\emph{uniformity} and \emph{point equality}) we desire related types to hold, and define them mutually recursively.
 
@@ -1197,7 +1174,7 @@ trans-≋ {κ = R[ κ ]} {nothing} {nothing} {nothing} tt tt = tt
 trans-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} {just (right (.l , τ₃))} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
 \end{code}
 
-we commonly invoke two main lemmas. \verb!reflect-≋! states reflects propositional equality to semantic relatability, and \verb!reify-≋! reifies related semantic types propositional equality. We make great use of the latter lemma, which states intuitively that related types should have the same reifications. % We give these theorems without explicit proof, which each required a number of commutativity and congruence lemmas that complicate presentation while delaying the point.
+we commonly invoke two main lemmas. \verb!reflect-≋! reflects propositional equality to semantic equivalence, and \verb!reify-≋! reifies equivalent semantic types to propositional equality. We make great use of the latter lemma, which states intuitively that related types should have the same reifications. One may alternatively think of this lemma as congruence of reification modulo semantic equivalence. 
 
 \begin{code}
 reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
@@ -1208,29 +1185,172 @@ reflect-≋ = bot _
 reify-≋ = bot _
 \end{code}
 
-TODO: congruence and commutativity files.
 
 \subsection{The fundamental theorem \& completeness}
 
-We would like to show that all well-kinded equivalent types inhabit the relation. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments.
+We would like to show that all well-kinded equivalent types have semantically equivalent evaluations. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments. Towards this goal, we first define a point-wise equivalence on semantic environments.
 
 \begin{code}
--- fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
---        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
--- fundC-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
---             Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
+Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
 \end{code}
 
+\Ni We show that related environments remain related when extended with related arguments.
+\begin{code}
+extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 
+            {V₁ V₂ : SemType Δ₂ κ} → 
+            V₁ ≋ V₂ → 
+            Env-≋ (extende η₁ V₁) (extende η₂ V₂)
+\end{code}
+\begin{code}[hide]
+extend-≋ = bot _
+\end{code}
+
+It is easy to show as well that the identity environment relates to itself.
 
 \begin{code}
+idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
+idEnv-≋ x = reflect-≋ refl
+\end{code}
+
+We may now state the fundamental theorem for completeness. Again, as we have no semantic image of predicates, the fundamental theorem for predicates simply asserts that the evaluation of equivalent predicates are propositional equal.
+
+\begin{code}
+fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
+       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fundC-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+\end{code}
+\begin{code}[hide]
+fundC = bot _
+fundC-pred = bot _
+\end{code}
+
+Completeness follows immediatelly as a special case of the fundamental theorem.
+
+\begin{code}
+Completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
+Completeness eq = reify-≋ (fundC idEnv-≋ eq)  
 \end{code}
 
 
 \section{Soundness}
+
+Soundness states that every type is equivalent to its normalization. Intuitively, completeness tells us that all "computation" inherent in the equivalence relation is captured by normalization; coversely, soundness tells us that all computation inherent in the normalization algorithm is declared in the equivalence relation.
+
 \subsection{A logical relation}
+
+We prove soundness by a separate logical relation that relates (unnormalized) types to semantic types. We write \verb!⟦ τ ⟧≋ V! to denote that the type $\tau$ is related to the semantic type $V$. This syntax is inspired by the result we wish to show: that evaluating $\tau$ yields a semantic type $V$. We give the type synonym \verb!SoundKripke! for the functional case.
+
+\begin{code}
+infix 0 ⟦_⟧≋_
+⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
+SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
+\end{code}
+
+In two of the ground cases, \verb!V! is a normal type, and so we simply assert type equivalence with the normal type's embedding.
+\begin{code}
+⟦_⟧≋_ {κ = ★} τ V = τ ≡t ⇑ V
+⟦_⟧≋_ {κ = L} τ V = τ ≡t ⇑ V
+\end{code}
+
+In the row case, we assert (resp.) that (i) if $\tau$ relates to \verb!nothing! then it must be equivalent to the empty row; (ii) if $\tau$ relates to a neutral row then it must be equivalent to a neutral row; and (iii) if $\tau$ relates to a labeled rows then it must be equivalent to a labeled row and that labeled row's component type must relate to itself.
+\begin{code}
+⟦_⟧≋_ {κ = R[ κ ]} τ nothing = τ ≡t ε
+⟦_⟧≋_ {κ = R[ κ ]} τ (just (left n)) = τ ≡t (⇑NE n)
+⟦_⟧≋_ {κ = R[ κ ]} τ (just (right (l , υ))) = (τ ≡t ⇑ (l ▹ reify υ)) × (⟦ ⇑ (reify υ) ⟧≋ υ)
+\end{code}
+
+In the functional case, we assert that logically related functions map related inputs to related outputs.
+
+\begin{code}
+⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
+SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+    (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
+      ⟦ v ⟧≋ V → 
+      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
+\end{code}
+
+\subsection{Properties of the soundness relation}
+
+We reflect type equivalence to the relation and reify the relation to type equivalence as so.
+
+\begin{code}
+reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
+             τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
+reify-⟦⟧≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
+               ⟦ τ ⟧≋ V → τ ≡t ⇑ (reify V)
+\end{code}
+\begin{code}[hide]
+reflect-⟦⟧≋ = bot _
+reify-⟦⟧≋ = bot _
+\end{code}
+
 \subsection{The fundamental theorem \& soundness}
 
+Towards defining the fundamental theorem, we first define a relation between syntactic environments (substitutions) and semantic environments. Intuitively, the substitution $\sigma$ is related to the environment $\eta$ if each type mapped to by $\sigma$ point-wise relates to the semantic type mapped to by $\eta$.
+
+\begin{code}
+⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
+⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+\end{code}
+
+The fundamental theorem for soundness states that the substitution of $\tau$ by $\sigma$ is related to the evaluation of $\tau$ by $\eta$. Intuitively, substitution may be thought of as a syntactic notion of evaluation, and hence we are stating that syntactic and semantic evaluations relate.
+
+\begin{code}
+fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
+\end{code}
+\begin{code}[hide]
+fundS = bot _
+\end{code}
+
+We show that the identity substitution \verb!`! is related to the identity environment:
+
+\begin{code}
+idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
+idSR α = reflect-⟦⟧≋ eq-refl
+\end{code}
+
+
+\Ni and also show that \verb!`! is indeed an identity substitution: it fixes the meaning of the type over which it is substituted.
+
+\begin{code}
+subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
+\end{code}
+
+Soundness follows as a special case of the fundamental theorem.
+
+\begin{code}
+Soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
+Soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundS τ idSR)))   
+\end{code}
+\begin{code}[hide]
+subₖ-id = bot _
+\end{code}
+
+
 \section{Stability}
+
+Stability states that embedding \verb!⇑! is a right-inverse to normalization \verb!⇓!, or, in categorical terms, that \verb!⇓! is a split-monomorphism.
+
+\begin{code}
+stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
+\end{code}
+\begin{code}[hide]
+stability = bot _
+\end{code}
+
+\Ni It is desirable that a normalization algorithm adheres to this property, as it states effectively that there is "no more work" to be done by re-normalization. Indeed, both idempotency and surjectivity are implied.
+
+\begin{code} 
+idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+idempotency τ rewrite stability (⇓ τ) = refl
+
+surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
+surjectivity τ = ( ⇑ τ , stability τ ) 
+\end{code}
+
 
 \section{Remark}
 
