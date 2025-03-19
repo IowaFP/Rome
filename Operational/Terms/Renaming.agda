@@ -26,13 +26,14 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Terms.Syntax
-open import Rome.Operational.Terms.GVars
+-- open import Rome.Operational.Terms.GVars
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 private
   variable
+    Γ Γ₁ Γ₂ Γ₃ : Context Δ
     ρ : Renamingₖ Δ₁ Δ₂
     τ τ₁ τ₂ : NormalType Δ κ
 
@@ -85,17 +86,20 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
 
+
+-- foo : ∀ 
+--         (F : NormalType Δ₁ (κ₁ `→ κ₂))
+--         (ρ : NormalType Δ₁ R[ κ₁ ]) → 
+--         ⇓ (⇑ F <$> ⇑ ρ) ≡  ⇑ (⇓ (⇑ F)) <$>V ⇑ (⇓ (⇑ ρ))
+-- foo F ρ = {!   !} 
+
 ↻-ren-⇓-<$> : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ₁ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (renₖNF ρ F) <$> ⇑ (renₖNF ρ ρ₁)) ≡  renₖNF ρ (⇓ (⇑ F <$> ⇑ ρ₁))
-↻-ren-⇓-<$> ρ F ρ₁ = 
-  subst 
-    (λ x → (reify (⇈ (renₖNF ρ F) <$>V eval x idEnv)) ≡ renₖNF ρ (reify (⇈ F <$>V ⇈ ρ₁))) 
-    (sym (↻-ren-⇑ ρ ρ₁))
-    (subst 
-      (λ x → reify ((λ {Δ} → eval x idEnv {Δ}) <$>V eval (renₖ ρ (⇑ ρ₁)) idEnv) ≡ renₖNF ρ (reify (⇈ F <$>V ⇈ ρ₁))) 
-      (sym (↻-ren-⇑ ρ F)) 
+↻-ren-⇓-<$> ρ F ρ₁ rewrite 
+    (↻-ren-⇑ ρ ρ₁) 
+  | (↻-ren-⇑ ρ F) = 
       (trans 
         (reify-≋ 
           (trans-≋ (↻-renₖ-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋) 
@@ -111,7 +115,7 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
             idEnv-≋ 
             (eq-<$> 
               eq-refl 
-              eq-refl))))))         
+              eq-refl)))))   
 
 --------------------------------------------------------------------------------
 -- Renaming definitions
@@ -132,7 +136,7 @@ ren {ρ = ρ} R (Out F@(`λ τ) M) =
     (sym (↻-renₖNF-β ρ τ ((μ F)))) 
     (Out (renType R F) (ren R M))
 ren R (Out F@(ne x {()}) τ)
-ren R (# l) = # l
+ren R (# l) = # (renType R l)
 ren R (l Π▹ M) = (ren R l) Π▹ (ren R M)
 ren R (M Π/ l) = ren R M Π/ ren R l
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
@@ -141,6 +145,7 @@ ren R (`ƛ τ) = `ƛ (ren (liftPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
 ren {ρ = ρ} R (prj m e) = prj (ren R m) (renEnt R e)
 ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)
+ren {ρ = ρ} R ((M ⊹ N) e) = ((ren R M) ⊹ (ren R N)) (renEnt R e)
 
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
@@ -150,17 +155,31 @@ renEnt R (n-·≲L e) = n-·≲L (renEnt R e)
 renEnt R (n-·≲R e) = n-·≲R (renEnt R e)
 renEnt R n-ε-R = n-ε-R
 renEnt R n-ε-L = n-ε-L
-renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e) = 
-  convEnt 
-    (cong₂ _≲_ 
-      (↻-ren-⇓-<$> ρ F ρ₁) 
-      (↻-ren-⇓-<$> ρ F ρ₂))
-    (n-≲lift {F = renₖNF ρ F} (renEnt R e))
-renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e) 
+renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
   rewrite 
-    sym (↻-ren-⇓-<$> ρ F ρ₁)
-  | sym (↻-ren-⇓-<$> ρ F ρ₂)
-  | sym (↻-ren-⇓-<$> ρ F ρ₃) = n-·lift {F = renₖNF ρ F} (renEnt R e)
+    eq-ρ₁ 
+  | eq-ρ₂
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  = n-≲lift 
+    {F = renₖNF ρ F} 
+    (renEnt R e) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
+renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ₂ eq-ρ₃)
+  rewrite 
+    eq-ρ₁ 
+  | eq-ρ₂
+  | eq-ρ₃
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  | stability-<$> F ρ₃
+  = n-·lift 
+    {F = renₖNF ρ F} 
+    (renEnt R e) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
+    (trans (sym (↻-ren-⇓-<$> ρ F ρ₃)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₃))))
   
 
 --------------------------------------------------------------------------------

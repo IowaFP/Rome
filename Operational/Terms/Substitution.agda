@@ -18,6 +18,7 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE 
+open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
@@ -63,22 +64,15 @@ liftsPred (s , p) =
      ; (S x) → weakenEntByPred (p x) }) 
 
 --------------------------------------------------------------------------------
--- These identities pop up as a nuisance! Ideally we'd be rid of them
+-- This identity pops up as a nuisance. 
 
 lemPred : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) (π : NormalPred _ R[ κ ]) → 
          subPredₖNF σ π ≡ evalPred (subPredₖ (λ x₁ → ⇑ (σ x₁)) (⇑Pred π)) idEnv
 lemPred σ s (ρ₁ · ρ₂ ~ ρ₃) = refl
 lemPred σ s (ρ₁ ≲ ρ₂) = refl
 
-↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
-          (F : NormalType Δ₁ (κ₁ `→ κ₂))
-          (ρ : NormalType Δ₁ R[ κ₁ ]) → 
-          ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
-↻-sub-⇓-<$> σ F ρ = {!!}  
-
 --------------------------------------------------------------------------------
--- Defining substitution of variables in evidence and term variables in terms
--- and entailments.
+-- Substitution of evidence variables in entailments and term variables in terms.
 
 sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {τ} → 
       Term Γ₁ τ → Term Γ₂ (subₖNF σ τ)
@@ -93,15 +87,14 @@ sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) =
   conv 
     (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
 sub σ s {.(μ F)} (In F M) = 
-  In (subₖNF σ F) (conv (subₖNF-cong-·' σ F (μ F)) (sub σ s M))
+  In (subₖNF σ F) (conv (↻-subₖNF-·' σ F (μ F)) (sub σ s M))
 sub σ s {_} (Out F M) = 
-  conv (sym (subₖNF-cong-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
-sub σ s {x} (# l) = # l
+  conv (sym (↻-subₖNF-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
+sub σ s {x} (# l) = # (subₖNF σ l)
 sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
--- Aids!
 sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) = 
   `ƛ (subst 
         (λ x → Term (Γ₂ ,,, x) (subₖNF σ τ)) 
@@ -110,6 +103,7 @@ sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) =
 sub σ s {x} (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (lemPred σ s π) (subEnt σ s e) ⟩
 sub σ s (prj M e) = prj (sub σ s M) (subEnt σ s e)
 sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
+sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
 
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl
@@ -118,44 +112,98 @@ subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
 subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
 subEnt σ s {π} n-ε-R = n-ε-R
 subEnt σ s {π} n-ε-L = n-ε-L
-subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e) = 
-  convEnt 
-    (cong₂ _≲_ (↻-sub-⇓-<$> σ F ρ₁) (↻-sub-⇓-<$> σ F ρ₂)) 
-    (n-≲lift {F = subₖNF σ F} (subEnt σ s e))   
-subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e) = 
-  convEnt 
-    (cong₃ _·_~_ 
-      (↻-sub-⇓-<$> σ F ρ₁) 
-      (↻-sub-⇓-<$> σ F ρ₂) 
-      (↻-sub-⇓-<$> σ F ρ₃))  
-      (n-·lift {F = subₖNF σ F} (subEnt σ s e))
+subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
+  rewrite
+    ρ₁-eq 
+  | ρ₂-eq 
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ = 
+    n-≲lift 
+    {F = subₖNF σ F} 
+    (subEnt σ s e) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
+  
+subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e  ρ₁-eq ρ₂-eq ρ₃-eq) 
+  rewrite
+    ρ₁-eq 
+  | ρ₂-eq 
+  | ρ₃-eq 
+  | stability-<$> F ρ₁ 
+  | stability-<$> F ρ₂ 
+  | stability-<$> F ρ₃ = 
+    n-·lift 
+    {F = subₖNF σ F} 
+    (subEnt σ s e) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
+    (trans (sym (↻-sub-⇓-<$> σ F ρ₃)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₃))))
+  
 
-extend : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
+--------------------------------------------------------------------------------
+-- Extending substitutions
+
+extendByTerm : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
          {τ : NormalType Δ₁ ★} → 
          (M : Term Γ₂ (subₖNF σ τ)) → 
          Substitution (Γ₁ , τ) Γ₂ σ
-extend σ (s , p) M = 
+extendByTerm σ (s , p) M = 
   (λ { Z    → M 
     ; (S x) → s x }) , 
    λ { (T x) → p x } 
+
+extendByEnt : 
+         (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
+         {π : NormalPred Δ₁ R[ κ ]} → 
+         (e : Ent Γ₂ (subPredₖNF σ π)) → 
+         Substitution (Γ₁ ,,, π) Γ₂ σ
+extendByEnt σ (s , p) e = (λ { (P x) → s x }) , λ { Z → e
+                                                  ; (S x) → p x }         
+
+
+--------------------------------------------------------------------------------
+-- Weakening of a substitution by a kind variable
 
 lem : ∀ {τ} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ)
 lem {τ = τ} = 
   (λ { (K {τ = τ'} x) → conv (weakenₖNF-β-id τ') (` x) }) , 
   λ { (K {π = π} x) → convEnt (weakenPredₖNF-Β-id π) (n-var x) }
 
+
+--------------------------------------------------------------------------------
+-- The identity substitution
+
 idSubstitution : Substitution Γ Γ idSubst
 idSubstitution = (λ x → conv (sym (subₖNF-id _) ) (` x)) , λ x → convEnt (sym (subPredₖNF-id _)) (n-var x)
+
+--------------------------------------------------------------------------------
+-- β-reduction of a term by a term
 
 _β[_] : ∀ {τ₁ τ₂} → Term (Γ , τ₂) τ₁ → Term Γ τ₂ → Term Γ τ₁
 _β[_] {τ₁ = τ₁} {τ₂} M N = 
   conv (subₖNF-id τ₁) 
   (sub idSubst 
-    (extend 
+    (extendByTerm 
       idSubst 
       idSubstitution
       (conv (sym (subₖNF-id τ₂)) N)) 
       M)
+
+--------------------------------------------------------------------------------
+-- β-reduction of a term by an entailment
+
+_βπ[_] : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term (Γ ,,, π) τ → Ent Γ π → Term Γ τ
+_βπ[_] {τ = τ} {π} M e = 
+  conv (subₖNF-id τ) 
+    (sub idSubst 
+      (extendByEnt 
+        idSubst 
+        idSubstitution 
+        (convEnt ((sym (subPredₖNF-id π))) e)) 
+        M)
+
+--------------------------------------------------------------------------------
+-- β-reduction of a term by a type
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          Term (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → Term Γ (τ₁ βₖNF[ τ₂ ])

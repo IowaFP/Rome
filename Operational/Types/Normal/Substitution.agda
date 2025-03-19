@@ -15,6 +15,7 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Equivalence
 
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution
@@ -35,6 +36,9 @@ idSubst = η-norm ∘ `
 subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
 
+subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
+subₖNE σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑NE n))
+
 subPredₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 subPredₖNF σ = mapPred (subₖNF σ)
 
@@ -47,20 +51,32 @@ extendₖNF σ A (S x) = σ x
 _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalType Δ κ₂
 τ₁ βₖNF[ τ₂ ] = subₖNF (extendₖNF idSubst τ₂) τ₁
 
+--------------------------------------------------------------------------------
 -- Application *is* β-substitution due to canonicity of arrow kinded types
+
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
--- hold my beer 
+--------------------------------------------------------------------------------
+-- Syntactic version of normality-preserving <$> 
+
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ne x = ne (f <$> x)
 f <$>' ε = ε
 f <$>' (l ▹ τ) = l ▹ (f ·' τ)
 
-fund-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
-           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
-fund-<$> f (ne x) = sym (stability (f <$>' ne x))
-fund-<$> f ε = refl
-fund-<$> (`λ f) (l ▹ τ) = cong₂ _▹_ (sym (stability l)) {!   !}
+
+--------------------------------------------------------------------------------
+-- if a mapping results in the empty row then one mapped over the empty row
+
+ε-<$>'  : ∀ {f : NormalType ∅ (κ₁ `→ κ₂)} {ρ : NormalType ∅ R[ κ₁ ]}  → 
+            f <$>' ρ ≡ ε → 
+            ρ ≡ ε
+ε-<$>' {ρ = ε} eq = refl 
+
+-- _·NP_ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) (π : NormalPred Δ R[ κ₁ ]) → 
+--        NormalPred Δ R[ κ₂ ] 
+-- f ·NP (ρ₁ · ρ₂ ~ ρ₃) = (f <$>' ρ₁) · f <$>' ρ₂ ~ (f <$>' ρ₃)
+-- f ·NP (ρ₁ ≲ ρ₂) = f <$>' ρ₁ ≲ f <$>' ρ₂
 
 

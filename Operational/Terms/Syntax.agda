@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Syntax where
 
 open import Rome.Operational.Prelude
@@ -11,16 +12,18 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
+open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- First define contexts mapping variables to predicates, types, and kinds
 
 data Context : KEnv → Set where
-  ε : Context ∅
+  ∅ : Context ∅
   _,_  : Context Δ → NormalType Δ ★ → Context Δ
   _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
   _,,,_ : Context Δ → NormalPred Δ R[ κ ] → Context Δ
@@ -47,8 +50,32 @@ data Var : Context Δ → NormalType Δ ★ → Set where
   P : Var Γ τ → Var (Γ ,,, π) τ
 
 --------------------------------------------------------------------------------
+-- No variable restriction on contexts
+
+-- Does the context Γ have any term or entailment variables?
+NoVar : Context Δ → Set
+NoVar ∅ = ⊤
+NoVar (Γ ,,, _) = ⊥
+NoVar (Γ ,, _) = NoVar Γ
+NoVar (Γ , _) = ⊥
+
+-- Contexts s.t. NoVar Γ is true indeed have no term variables,
+noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
+noVar p (K x) = noVar p x
+
+-- nor ent variables.
+noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
+noPVar p (K x) = noPVar p x
+
+--------------------------------------------------------------------------------
 -- Entailment relation on predicates 
 
+-- private
+--   variable 
+--       l l₁ l₂ l₃ : NormalType Δ L 
+--       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
+--       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
+      
 data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
         PVar Γ π → 
@@ -57,7 +84,7 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
 
   n-refl : 
           --------------
-          Ent Γ (ρ ≲ ρ)
+          Ent Γ (ρ₁ ≲ ρ₁)
 
   n-trans : 
           Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
@@ -88,17 +115,24 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
+             {x y : NormalType Δ R[ κ₂ ]} → 
+             x ≡ (F <$>' ρ₁) → 
+             y ≡ F <$>' ρ₂ → 
              ---------------------------------
-             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) ≲ ⇓ (⇑ F <$> ⇑ ρ₂))
+             Ent Γ (x ≲ y)
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+               
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
-             ---------------------
-             Ent Γ (⇓ (⇑ F <$> ⇑ ρ₁) · ⇓ (⇑ F <$> ⇑ ρ₂) ~ ⇓ (⇑ F <$> ⇑ ρ₃))
-
+             {x y z : NormalType Δ R[ κ₂ ]} → 
+             x ≡ (F <$>' ρ₁) → 
+             y ≡ F <$>' ρ₂ → 
+             z ≡ F <$>' ρ₃ → 
+             ---------------------------------
+             Ent Γ (x · y ~ z)
 
 --------------------------------------------------------------------------------
 -- Terms with normal types
@@ -175,9 +209,9 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   -- label constants
   # : 
 
-        ∀ (l : Label) →
+        ∀ (l : NormalType Δ L) →
         -------------------
-        Term Γ ⌊ lab l ⌋
+        Term Γ ⌊ l ⌋
 
   -------------
   -- Rω records
@@ -199,6 +233,12 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
        (M : Term Γ (Π ρ₂)) → Ent Γ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
        Term Γ (Π ρ₁)
+  
+  _⊹_ : 
+
+       (M₁ : Term Γ (Π ρ₁)) → (M₂ : Term Γ (Π ρ₂)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) → 
+       ---------------------------------------------------------------------
+       Term Γ (Π ρ₃)
 
   --------------
   -- Rω variants
@@ -243,6 +283,27 @@ conv-≡t eq = conv (completeness eq)
 --------------------------------------------------------------------------------
 -- Admissable constants
 
+♯l : Term Γ (⌊ lab "l" ⌋)
+♯l = # (lab "l")
+
 -- Unit term
 uu : Term Γ UnitNF
-uu = prj ((# "l") Π▹ (# "l")) (n-·≲L n-ε-L)
+uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
+
+hmm : Term Γ 
+  (`∀ R[ ★ ] 
+    (`∀ R[ ★ ] 
+      (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
+        (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
+        Π (ne (` (S Z)))))))
+hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
+
+-- The small problem here is that there do not exist any types to give...
+-- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
+-- I am in a bit of trouble if I need to extend to the simple row theory.
+hmm₂ : Term Γ (Π {!   !})
+hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
+
+
+shit : Term ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
+shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))

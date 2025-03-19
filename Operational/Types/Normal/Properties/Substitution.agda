@@ -122,6 +122,10 @@ subₖNF-var {κ = κ} σ x = trans
       eq-refl)))
   (stability (σ x))
 
+subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
+                      subₖNF σ (ne (` x) {g}) ≡ σ x
+subₖNF-var-ground σ x {g} = stability (σ x)                      
+
 --------------------------------------------------------------------------------
 -- Congruence of normality preserving substitution
 
@@ -310,14 +314,55 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
         (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))
         (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
 
-      
-  
 --------------------------------------------------------------------------------
--- Substitution is congruent over _·'_
+-- Substitution commutes over _·'_
 
-subₖNF-cong-·' :  ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) 
+↻-subₖNF-·' :  
+           ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) 
              (f : NormalType Δ₁ (κ₁ `→ ★))
              (v : NormalType Δ₁ κ₁) → 
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
-subₖNF-cong-·' σ (`λ f) v = ↻-subₖNF-β σ f v
+↻-subₖNF-·' σ (`λ f) v = ↻-subₖNF-β σ f v
 
+--------------------------------------------------------------------------------
+-- Substitution commutes with embedding
+
+
+↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
+          ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
+↻-sub-⇑ σ τ = embed-≡t _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
+
+--------------------------------------------------------------------------------
+-- Our syntactic helpers respect evaluation
+
+stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
+stability-·' f N = trans 
+    (sym (stability (f ·' N))) 
+    (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (lem f N))
+  where
+    lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
+    lem (`λ f) N = eq-trans (eq-trans (↻-sub-⇑ (extendₖNF idSubst N) f) (subₖ-cong-≡t (λ { Z → eq-refl
+                                                                                         ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) (eq-sym eq-β)
+
+stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+stability-<$> f ε = refl
+stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
+
+--------------------------------------------------------------------------------
+-- Normality preserving substitution commutes over <$>
+
+↻-sub-⇓-<$> : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+          (F : NormalType Δ₁ (κ₁ `→ κ₂))
+          (ρ : NormalType Δ₁ R[ κ₁ ]) → 
+          ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
+↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
+  (reify-≋
+     {τ₁ = (⇈ (subₖNF σ F)) <$>V ((⇈ (subₖNF σ ρ)))} 
+     {τ₂ = (eval (subₖ (⇑ ∘ σ) (⇑ F)) idEnv) <$>V (eval (subₖ (⇑ ∘ σ) (⇑ ρ)) idEnv)}  
+     (cong-<$> 
+      (fundC idEnv-≋ (↻-sub-⇑ σ F)) 
+      ((fundC idEnv-≋ (↻-sub-⇑ σ ρ)))))
+  (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
+   
