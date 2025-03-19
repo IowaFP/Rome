@@ -330,7 +330,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
-↻-sub-⇑ σ τ = embed-≡t _ _ (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
+↻-sub-⇑ σ τ = embed-≡t (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
 
 --------------------------------------------------------------------------------
 -- Our syntactic helpers respect evaluation

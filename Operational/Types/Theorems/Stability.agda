@@ -8,6 +8,7 @@ open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types
 open import Rome.Operational.Types.Renaming
+open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
@@ -89,9 +90,14 @@ surjectivity τ = ( ⇑ τ , stability τ )
 -- NormalType and SemType bijectivity
 
 bijectivity₁ :  ∀ (τ : NormalType Δ κ) → reify (⇈ τ) ≡ τ 
-bijectivity₁ τ = stability τ
+bijectivity₁ τ = stability τ 
 
--- bijectivity₂ : ∀ (τ : SemType Δ κ) → ⇈ (reify τ) ≋ τ 
--- bijectivity₂ τ = {!stability (reify τ)!}
+--------------------------------------------------------------------------------
+-- Embedding is injective
  
- 
+⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂
+⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
+
+
+embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
+embed-≡t {τ₁ = τ₁} {τ₂} eq rewrite eq = eq-sym (soundness τ₂) 
