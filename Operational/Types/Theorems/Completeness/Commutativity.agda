@@ -202,7 +202,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     (↻-renSem-app ρ (idext (refl-≋ₗ ∘ e) τ₁) (idext (refl-≋ₗ ∘ e) τ₂))     
     (cong-App (↻-renSem-eval ρ τ₁ e) (↻-renSem-eval ρ τ₂ e))
 ↻-renSem-eval ρ (τ₁ `→ τ₂) e = cong₂ _`→_ (↻-renSem-eval ρ τ₁ e) (↻-renSem-eval ρ τ₂ e)
-↻-renSem-eval ρ (`∀ κ τ) {η₁} {η₂} e = cong (`∀ κ) 
+↻-renSem-eval ρ (`∀ τ) {η₁} {η₂} e = cong (`∀) 
   (trans 
     (↻-renSem-eval (liftₖ ρ) τ {lifte η₁} {lifte η₂} 
       (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl))) 
@@ -267,7 +267,7 @@ idext {κ = κ} e (`λ τ) =
 idext {κ = κ} e (τ₁ · τ₂) = snd (snd (idext e τ₁)) id (idext e τ₂)
 idext {κ = κ} e (τ₁ `→ τ₂) = cong₂ _`→_ (idext e τ₁) (idext e τ₂)
 idext {κ = κ} e (π ⇒ τ) = cong₂ _⇒_ (idext-pred e π) (idext e τ)
-idext {κ = κ} e (`∀ κ₁ τ) = cong (`∀ κ₁) (idext (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) τ)
+idext {κ = κ} e (`∀ τ) = cong (`∀) (idext (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) τ)
 idext {κ = ★} {η₁} {η₂} e (μ τ) with eval τ η₁ | eval τ η₂ | idext e τ
 ... | F | G | (Unif-F , Unif-G , Ext) = cong μ (cong `λ (Ext S refl))
 idext {κ = κ} e (lab x) = refl
@@ -337,7 +337,7 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
         τ)
 ↻-renₖ-eval ρ (τ₁ · τ₂) {η₁} {η₂} e = cong-App (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
 ↻-renₖ-eval ρ (τ₁ `→ τ₂) {η₁} {η₂} e = cong₂ _`→_ (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
-↻-renₖ-eval ρ (`∀ κ τ) {η₁} {η₂} e = cong (`∀ κ) 
+↻-renₖ-eval ρ (`∀ τ) {η₁} {η₂} e = cong (`∀) 
   (trans 
     (↻-renₖ-eval (liftₖ ρ) τ 
       (extend-≋ 
@@ -407,7 +407,7 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
                      (↻-renₖ-eval S (σ x) (extend-≋ (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) (refl-≋ᵣ q))) 
                      (sym-≋ (↻-renSem-eval ρ (σ x) (refl-≋ᵣ ∘ e)))})
       τ)  
-↻-subₖ-eval (`∀ κ τ) e σ = cong (`∀ κ) 
+↻-subₖ-eval (`∀ τ) e σ = cong (`∀) 
   (trans 
     (↻-subₖ-eval τ (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) (liftsₖ σ) ) 
     (idext 

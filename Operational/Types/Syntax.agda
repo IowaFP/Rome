@@ -55,7 +55,7 @@ data Type Δ where
 
   `∀    :
       
-         (κ : Kind) → (τ : Type (Δ ,, κ) ★) →
+         {κ : Kind} → (τ : Type (Δ ,, κ) ★) →
          -------------
          Type Δ ★
 

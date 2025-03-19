@@ -43,7 +43,7 @@ fundC e (eq-sym eq) = sym-≋ (fundC (sym-≋ ∘ e) eq)
 fundC e (eq-trans eq₁ eq₂) = trans-≋ (fundC (refl-≋ₗ ∘ e) eq₁) (fundC e eq₂)
 fundC e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fundC e eq-τ) (fundC e eq-υ)
 fundC {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fundC e eq₁) (fundC e eq₂)
-fundC e (eq-∀ eq) = cong (`∀ _) (fundC (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
+fundC e (eq-∀ eq) = cong `∀ (fundC (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
 fundC {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fundC e eq
 ... | y | y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
 fundC e (eq-⌊⌋ eq) rewrite fundC e eq = refl

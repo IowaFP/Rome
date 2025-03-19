@@ -44,7 +44,7 @@ renₖNF-cong eq (τ₁ `→ τ₂) rewrite
 renₖNF-cong eq (π ⇒ τ) rewrite 
     renₖNF-cong-pred eq π 
   | renₖNF-cong eq τ = refl  
-renₖNF-cong eq (`∀ κ τ) rewrite 
+renₖNF-cong eq (`∀ τ) rewrite 
   renₖNF-cong (liftₖ-cong eq) τ = refl 
 renₖNF-cong eq (μ τ) rewrite renₖNF-cong eq τ = refl
 renₖNF-cong eq ε = refl
@@ -88,7 +88,7 @@ renₖNF-id (τ₁ `→ τ₂) rewrite
 renₖNF-id (π ⇒ τ) rewrite 
     renₖNF-id-pred π 
   | renₖNF-id τ = refl  
-renₖNF-id (`∀ κ τ) rewrite 
+renₖNF-id (`∀ τ) rewrite 
     renₖNF-cong liftₖ-id τ 
   | renₖNF-id τ = refl
 renₖNF-id (μ τ) rewrite renₖNF-id τ = refl
@@ -135,7 +135,7 @@ renₖNF-comp ρ₁ ρ₂ (τ₁ `→ τ₂) rewrite
 renₖNF-comp ρ₁ ρ₂ (π ⇒ τ) rewrite
     renₖNF-comp-pred ρ₁ ρ₂ π 
   | renₖNF-comp ρ₁ ρ₂ τ = refl  
-renₖNF-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
+renₖNF-comp ρ₁ ρ₂ (`∀ τ) rewrite
   (trans (renₖNF-cong (liftₖ-comp ρ₁ ρ₂) τ) (renₖNF-comp (liftₖ ρ₁) (liftₖ ρ₂) τ)) = refl
 renₖNF-comp ρ₁ ρ₂ (μ τ) rewrite renₖNF-comp ρ₁ ρ₂ τ = refl
 renₖNF-comp ρ₁ ρ₂ ε = refl
@@ -190,7 +190,7 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
 ↻-ren-⇑ ρ (ne x) = ↻-ren-⇑NE ρ x
 ↻-ren-⇑ ρ (`λ τ) = cong `λ (↻-ren-⇑ (liftₖ ρ) τ)
 ↻-ren-⇑ ρ (τ₁ `→ τ₂) = cong₂ _`→_ (↻-ren-⇑ ρ τ₁) (↻-ren-⇑ ρ τ₂) 
-↻-ren-⇑ ρ (`∀ κ τ) = cong (`∀ κ) (↻-ren-⇑ (liftₖ ρ) τ)
+↻-ren-⇑ ρ (`∀ τ) = cong (`∀) (↻-ren-⇑ (liftₖ ρ) τ)
 ↻-ren-⇑ ρ (μ τ) = cong μ (↻-ren-⇑ ρ τ)
 ↻-ren-⇑ ρ (π ⇒ τ) = cong₂ _⇒_ (↻-ren-⇑Pred ρ π) (↻-ren-⇑ ρ τ)
 ↻-ren-⇑ ρ (lab l) = refl

@@ -40,7 +40,7 @@ renₖ-cong eq (`λ τ) rewrite renₖ-cong (liftₖ-cong eq) τ = refl
 renₖ-cong eq (τ₁ · τ₂) rewrite renₖ-cong eq τ₁ | renₖ-cong eq τ₂ = refl
 renₖ-cong eq (τ₁ `→ τ₂) rewrite renₖ-cong eq τ₁ | renₖ-cong eq τ₂ = refl
 renₖ-cong eq (π ⇒ τ) rewrite renₖ-cong-pred eq π | renₖ-cong eq τ = refl
-renₖ-cong eq (`∀ κ τ) rewrite renₖ-cong (liftₖ-cong eq) τ = refl 
+renₖ-cong eq (`∀ τ) rewrite renₖ-cong (liftₖ-cong eq) τ = refl 
 renₖ-cong eq (μ F) rewrite renₖ-cong eq F = refl 
 renₖ-cong eq Π = refl 
 renₖ-cong eq Σ = refl 
@@ -62,7 +62,7 @@ renₖ-id (`λ τ) rewrite renₖ-cong liftₖ-id τ | renₖ-id τ = refl
 renₖ-id (τ₁ · τ₂) rewrite renₖ-id τ₁ | renₖ-id τ₂ = refl
 renₖ-id (τ₁ `→ τ₂) rewrite renₖ-id τ₁ | renₖ-id τ₂ = refl
 renₖ-id (π ⇒ ρ) rewrite renₖ-id-pred π | renₖ-id ρ  = refl
-renₖ-id (`∀ κ τ) rewrite renₖ-cong liftₖ-id τ | renₖ-id τ = refl
+renₖ-id (`∀ τ) rewrite renₖ-cong liftₖ-id τ | renₖ-id τ = refl
 renₖ-id (μ F) rewrite renₖ-id F = refl
 renₖ-id Π = refl
 renₖ-id Σ = refl
@@ -94,7 +94,7 @@ renₖ-comp ρ₁ ρ₂ (τ₁ · τ₂) rewrite
 renₖ-comp ρ₁ ρ₂ (τ₁ `→ τ₂) rewrite
     renₖ-comp ρ₁ ρ₂ τ₁ 
   | renₖ-comp ρ₁ ρ₂ τ₂ = refl
-renₖ-comp ρ₁ ρ₂ (`∀ κ τ) rewrite
+renₖ-comp ρ₁ ρ₂ (`∀ τ) rewrite
   (trans (renₖ-cong (liftₖ-comp ρ₁ ρ₂) τ) (renₖ-comp (liftₖ ρ₁) (liftₖ ρ₂) τ)) = refl
 renₖ-comp ρ₁ ρ₂ (μ F) rewrite
   renₖ-comp ρ₁ ρ₂ F = refl

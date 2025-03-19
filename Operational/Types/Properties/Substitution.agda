@@ -48,7 +48,7 @@ subₖ-cong e (` α) = e α
 subₖ-cong e (`λ τ) = cong `λ (subₖ-cong (liftsₖ-cong e) τ)
 subₖ-cong e (τ₁ · τ₂) = cong₂ _·_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
 subₖ-cong e (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
-subₖ-cong e (`∀ κ τ) = cong (`∀ κ) (subₖ-cong (liftsₖ-cong e) τ)
+subₖ-cong e (`∀ τ) = cong (`∀) (subₖ-cong (liftsₖ-cong e) τ)
 subₖ-cong e (μ τ) = cong μ (subₖ-cong e τ)
 subₖ-cong e ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
   subₖ-cong e ρ₁ | subₖ-cong e ρ₂ | subₖ-cong e ρ₃ | subₖ-cong e τ = refl
@@ -67,7 +67,7 @@ subₖ-id (` α) = refl
 subₖ-id (`λ τ) = cong `λ (trans (subₖ-cong  {σ₁ = liftsₖ `} {σ₂ = `} liftsₖ-id τ) (subₖ-id τ))
 subₖ-id (τ₁ · τ₂) = cong₂ _·_ (subₖ-id τ₁) (subₖ-id τ₂)
 subₖ-id (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-id τ₁) (subₖ-id τ₂)
-subₖ-id (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong liftsₖ-id τ) (subₖ-id τ))
+subₖ-id (`∀ τ) = cong (`∀) (trans (subₖ-cong liftsₖ-id τ) (subₖ-id τ))
 subₖ-id (μ τ) = cong μ (subₖ-id τ)
 subₖ-id ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
   subₖ-id ρ₁ | subₖ-id ρ₂ | subₖ-id ρ₃ | subₖ-id τ = refl
@@ -98,7 +98,7 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-subₖ-renₖ {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
 ↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂)
 ↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {ρ = ρ} {σ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
+↻-subₖ-renₖ {ρ = ρ} {σ} (`∀ τ) = cong (`∀) (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
 ↻-subₖ-renₖ {ρ = ρ} {σ} (μ τ) = cong μ (↻-subₖ-renₖ τ)
 ↻-subₖ-renₖ {ρ = ρ} {σ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
     ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₁ 
@@ -123,7 +123,7 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
 ↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
 ↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} (`∀ κ τ) = cong (`∀ κ) (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {ρ} (`∀ τ) = cong (`∀) (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
 ↻-renₖ-subₖ {σ = σ} {ρ} (μ τ) = cong μ (↻-renₖ-subₖ τ)
 ↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
     ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 
@@ -163,8 +163,8 @@ subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) =
     (subₖ-comp {σ₁ = liftsₖ σ₁} {σ₂ = liftsₖ σ₂} τ)))
 subₖ-comp (τ₁ · τ₂) = cong₂ _·_ (subₖ-comp τ₁) (subₖ-comp τ₂)
 subₖ-comp (τ₁ `→ τ₂) = cong₂ _`→_ (subₖ-comp τ₁) (subₖ-comp τ₂)
-subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ κ τ) =   
-  cong (`∀ κ) ((trans 
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ τ) =   
+  cong (`∀) ((trans 
     (subₖ-cong (liftsₖ-comp σ₁ σ₂) τ) 
     (subₖ-comp {σ₁ = liftsₖ σ₁} {σ₂ = liftsₖ σ₂} τ)))
 subₖ-comp (μ τ) = cong μ (subₖ-comp τ)

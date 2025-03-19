@@ -53,7 +53,7 @@ stability {κ = L} (ne x)       = stabilityNE x
 stability {_} {κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
 stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
-stability (`∀ κ τ) = cong (`∀ κ) (stability-β τ)
+stability (`∀ τ) = cong (`∀) (stability-β τ)
 stability (μ τ)  rewrite stability τ = refl
 stability (lab x)                             = refl
 stability ⌊ τ ⌋ rewrite stability τ           = refl

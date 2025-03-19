@@ -261,7 +261,7 @@ fundS (τ₁ · τ₂) {σ} {η} e  =
     (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) 
     (fundS τ₁ e id (fundS τ₂ e))
 fundS (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fundS τ₁ e) (fundS τ₂ e)
-fundS (`∀ κ τ) {σ} {η} e = eq-∀ (fundS τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
+fundS (`∀ τ) {σ} {η} e = eq-∀ (fundS τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
 fundS (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = subₖ σ τ}) 

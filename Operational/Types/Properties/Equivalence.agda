@@ -83,7 +83,7 @@ subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (` α) = c α
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`λ τ) = eq-λ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ · τ₁) = eq-· (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ `→ τ₁) = eq-→ (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
-subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`∀ κ τ)  = eq-∀ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
+subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`∀ τ)  = eq-∀ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (μ τ)  = eq-μ (subₖ-cong-≡t c τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) = 
     eq-⇒ 

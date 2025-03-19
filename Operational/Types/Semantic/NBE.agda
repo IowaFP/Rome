@@ -149,7 +149,7 @@ eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
 eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
-eval {κ = ★} (`∀ κ τ) η = `∀ _ (eval τ (lifte η))
+eval {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η))
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
 
