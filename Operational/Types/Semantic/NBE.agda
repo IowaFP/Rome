@@ -89,19 +89,6 @@ _<$>V_ {κ₁ = κ₁} {κ₂} F (just (left x)) = just (left (reifyKripke F <$>
 _<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = just (right (l , F ·V τ))
 _<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
 
--- --------------------------------------------------------------------------------
--- -- Semantic complement
-
-_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-just (left x) ─V just (left y) = ne-R (x ─₁ ne y)
-just (left x) ─V just (right (l , τ)) = ne-R (x ─₁ (reify (just (right (l , τ)))))
-just (right (l , τ)) ─V just (left x) = ne-R (reify (just (right (l , τ))) ─₂ x)
--- Need decidable equality of NormalTypes, here... but maybe that's not so hard?
-just (right (l₁ , τ₁)) ─V just (right (l₂ , τ₂)) = {!!}
-just ρ ─V nothing = just ρ
-nothing ─V just x = nothing
-nothing ─V nothing = nothing
-
 --------------------------------------------------------------------------------
 -- Semantic flap
 
@@ -183,7 +170,6 @@ eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 eval ε η = nothing
-eval (n ─ n₁) η = {!!}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization

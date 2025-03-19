@@ -37,7 +37,6 @@ renₖ ρ (lab x) = lab x
 renₖ ρ (l ▹ τ) = renₖ ρ l ▹ renₖ ρ τ
 renₖ ρ ⌊ ℓ ⌋ = ⌊ (renₖ ρ ℓ) ⌋
 renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
-renₖ ρ (ρ₂ ─ ρ₁) = renₖ ρ ρ₂ ─  renₖ ρ ρ₁
 
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 

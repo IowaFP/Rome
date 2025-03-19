@@ -33,8 +33,6 @@ renₖNE-cong eq (ν · τ) rewrite
 -- renₖNE-cong eq (Π τ) rewrite renₖNE-cong eq τ = refl 
 -- renₖNE-cong eq (Σ τ) rewrite renₖNE-cong eq τ = refl 
 renₖNE-cong eq (x <$> τ) rewrite renₖNF-cong eq x | renₖNE-cong eq τ = refl
-renₖNE-cong eq (x ─₁ τ) rewrite renₖNE-cong eq x | renₖNF-cong eq τ = refl
-renₖNE-cong eq (x ─₂ τ) rewrite renₖNF-cong eq x | renₖNE-cong eq τ = refl
 
 renₖNF-cong eq (ne ν) rewrite 
   renₖNE-cong eq ν = refl
@@ -79,8 +77,6 @@ renₖNE-id (τ₁ · τ₂) rewrite
 -- renₖNE-id (Π τ) rewrite renₖNE-id τ = refl
 -- renₖNE-id (Σ τ) rewrite renₖNE-id τ = refl
 renₖNE-id (x <$> τ) rewrite renₖNF-id x | renₖNE-id τ = refl 
-renₖNE-id (x ─₁ τ) rewrite renₖNE-id x | renₖNF-id τ = refl 
-renₖNE-id (x ─₂ τ) rewrite renₖNF-id x | renₖNE-id τ = refl 
 
 renₖNF-id (ne ν) rewrite renₖNE-id ν = refl
 renₖNF-id (`λ τ) rewrite 
@@ -129,8 +125,6 @@ renₖNE-comp ρ₁ ρ₂ (ν · τ) rewrite
 -- renₖNE-comp ρ₁ ρ₂ (Π τ)    rewrite renₖNE-comp ρ₁ ρ₂ τ = refl
 -- renₖNE-comp ρ₁ ρ₂ (Σ τ)    rewrite renₖNE-comp ρ₁ ρ₂ τ = refl
 renₖNE-comp ρ₁ ρ₂ (x <$> τ) rewrite renₖNF-comp ρ₁ ρ₂ x  | renₖNE-comp ρ₁ ρ₂ τ  = refl
-renₖNE-comp ρ₁ ρ₂ (x ─₁ τ) rewrite renₖNE-comp ρ₁ ρ₂ x  | renₖNF-comp ρ₁ ρ₂ τ  = refl
-renₖNE-comp ρ₁ ρ₂ (x ─₂ τ) rewrite renₖNF-comp ρ₁ ρ₂ x  | renₖNE-comp ρ₁ ρ₂ τ  = refl
 
 renₖNF-comp ρ₁ ρ₂ (ne ν) rewrite renₖNE-comp ρ₁ ρ₂ ν  = refl
 renₖNF-comp ρ₁ ρ₂ (`λ τ)  rewrite
@@ -210,8 +204,6 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
 ↻-ren-⇑NE ρ (` α) = refl
 ↻-ren-⇑NE ρ (τ₁ · τ₂) = cong₂ _·_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)
 ↻-ren-⇑NE ρ (φ <$> τ) = cong₂ _<$>_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
-↻-ren-⇑NE ρ (φ ─₁ τ) = cong₂ _─_ (↻-ren-⇑NE ρ φ) (↻-ren-⇑ ρ τ)
-↻-ren-⇑NE ρ (φ ─₂ τ) = cong₂ _─_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
 
 ↻-ren-⇑Pred ρ (ρ₁ · ρ₂ ~ ρ₃) rewrite 
     ↻-ren-⇑ ρ ρ₁ 

@@ -120,8 +120,6 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
-  _─_ : Type Δ R[ κ ] → Type Δ R[ κ ] →
-        Type Δ R[ κ ]
 
 --------------------------------------------------------------------------------
 -- Lifting of type operators over predicates

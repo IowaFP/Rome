@@ -41,12 +41,6 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
-  _─₁_ : NeutralType Δ R[ κ ] → (NormalType Δ L × NormalType Δ κ) →
-        NeutralType Δ R[ κ ]
-
-  _─₂_ : (NormalType Δ L × NormalType Δ κ) → NeutralType Δ R[ κ ] →
-        NeutralType Δ R[ κ ]
-
 data NormalPred Δ where
 
   _·_~_ : 
@@ -163,8 +157,6 @@ data NormalType Δ where
 noNeutrals : NeutralType ∅ κ → ⊥
 noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
-noNeutrals (n ─₁ x) = noNeutrals n
-noNeutrals (x ─₂ n) = noNeutrals n
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -256,8 +248,6 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
-⇑NE (n ─₁ τ) = ⇑NE n ─ ⇑ τ
-⇑NE (τ ─₂ n) = ⇑ τ ─ ⇑NE n
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
@@ -267,4 +257,8 @@ arrow-canonicity (`λ f) = f , refl
 
 UnitNF : NormalType Δ ★
 UnitNF = Π ε
+
+--------------------------------------------------------------------------------
+-- Embedding is injective
+
 
