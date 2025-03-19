@@ -165,9 +165,9 @@ eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ}
 
 -- ----------------------------------------
 -- -- Type constants
-eval {κ = κ₁ `→ κ₂} Π η = Π-Kripke
-eval {κ = κ₁ `→ κ₂} Σ η = Σ-Kripke
-eval {κ = R[ κ₂ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
+eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
+eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 eval ε η = nothing
 

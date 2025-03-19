@@ -45,7 +45,7 @@ PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G =
 
 Uniform {Δ₁} {κ₁} {κ₂} F = 
   ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
-  V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (F (ρ₂ ∘ ρ₁) (renSem ρ₂ V₂))
+  V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (renKripke ρ₁ F ρ₂ (renSem ρ₂ V₂))
 
 --------------------------------------------------------------------------------
 -- Pointwise PER for environments

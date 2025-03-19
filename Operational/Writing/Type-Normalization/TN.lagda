@@ -92,6 +92,9 @@
 \newunicodechar{∈}{$\in$}
 \newunicodechar{⇑}{$\Uparrow$}
 \newunicodechar{⇓}{$\Downarrow$}
+\newunicodechar{≋}{$\approx$}
+\newunicodechar{ₗ}{$_l$}
+\newunicodechar{ᵣ}{$_r$}
 
 \begin{document}
 
@@ -814,7 +817,7 @@ SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 \end{code}
 
-\Ni We interpret rows as either \verb!nothing! (the empty row), \verb!just (left x)! for neutral \verb!x!, or \verb!just (right (l , τ))! for normal \verb!l! and \verb!τ!. This corresponds directly with rows having these exact normal forms. (In general, we should expect a bijection between the types \verb!NormalType Δ κ! and \verb!SemType Δ κ!.)
+\Ni We interpret rows as either \verb!nothing! (the empty row), \verb!just (left x)! for neutral \verb!x!, or \verb!just (right (l , τ))! for normal \verb!l! and \verb!τ!. These cases correspond precisely to the three canonical forms of types with row kind.
 
 \begin{code}
 SemType Δ R[ κ ] = Maybe 
@@ -823,7 +826,7 @@ SemType Δ R[ κ ] = Maybe
 \end{code}
 
 \subsection{Renaming \& substitution}
-Renaming is defined over semantic types in an obvious fashion. Definitions are again surprising and omitted. Substitution is unnecessary, as type functions are interpreted into an Agda function space.
+Renaming is defined over semantic types in an obvious fashion. Definitions are omitted except in the functional case.
 
 
 \begin{code}
@@ -831,14 +834,23 @@ renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
 \end{code}
 
+\Ni Because \Rome functions are interpreted into Kripke function spaces, renaming of arrow-kinded types is simply composition by the function's renaming.
+
 \begin{code}[hide]
 open import Function
+\end{code}
+\begin{code}
 renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 
+renSem {κ = κ `→ κ₁} ρ F = renKripke ρ F
+\end{code}
+
+
+
+\begin{code}[hide]
 renSem {κ = ★} ρ τ = renₖNF ρ τ
 renSem {κ = L} ρ τ = renₖNF ρ τ
-renSem {κ = κ `→ κ₁} ρ F = renKripke ρ F
 renSem {κ = R[ κ ]} ρ (just (left x)) = just (left (renₖNE ρ x))
 renSem {κ = R[ κ ]} ρ (just (right (l , τ))) = just (right (renₖNF ρ l , renSem ρ τ))
 renSem {κ = R[ κ ]} ρ nothing = nothing
@@ -871,7 +883,7 @@ reflect {κ = R[ κ ]} τ       = just (left τ)
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 \end{code}
 
-\Ni Reification similarly leaves ground types undisturbed. Semantic types at $\star$ and label kind are already in normal form; semantic types at row kind must be translated from their semantic constructors to their \verb!NormalType! constructors. This process simply exhibits (half of) the bijection between the canonical forms of row kinded normal types and the semantic domain at row kind.
+\Ni Reification similarly leaves ground types undisturbed. Semantic types at $\star$ and label kind are already in normal form; semantic types at row kind must be translated from their semantic constructors to their \verb!NormalType! constructors.
 
 \begin{code}
 reify {κ = ★} τ = τ
@@ -895,7 +907,7 @@ Observe that neutral types can be forced into $\eta$-long form simply by composi
 η-norm = reify ∘ reflect
 \end{code}
 
-Towards writing an evaluator, we define a semantic environment as function mapping kinding variables to semantic types.
+Towards writing an evaluator, we define a semantic environment as a function mapping type variables to semantic types.
 
 \begin{code}
 Env : KEnv → KEnv → Set
@@ -961,7 +973,7 @@ _<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = (l ▹V (F ·V τ))
 _<$>V_ {κ₁ = κ₁} {κ₂} F nothing = εV
 \end{code}
 
-Although the flap operator \verb!_<?>_! is expressible as a special case of row mapping, we nevertheless find it a useful abstraction. It is defined below in terms of semantic row mapping; we find it likewise helpful to give a type synonym \verb!apply! to the left hand side of this equation.
+Although the flap operator \verb!_<?>_! is expressible as a special case of row mapping, we nevertheless find it a useful abstraction to express as a semantic function. It is defined below in terms of semantic row mapping; we find it likewise helpful to give a type synonym \verb!apply! to the left hand side of this equation.
 
 \begin{code}
 apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
@@ -982,15 +994,237 @@ Much of the latent computation in \Rome occurs under an outermost $\Pi$ and $\Si
 ΠV {κ = R[ κ ]} x = (λ ρ v → ΠV v) <$>V x
 \end{code} 
 
-\Ni We omit the definition of \verb!ΣV!, as it differs only in naming.
+\Ni We can turn the semantic helper \verb!ΠV! into a true Kripke function easily:
+
+\begin{code}
+Π-Kripke : KripkeFunction Δ R[ κ ] κ
+Π-Kripke = λ ρ v → ΠV v
+\end{code}
+\begin{code}[hide]
+ΣV : SemType Δ R[ κ ] → SemType Δ κ 
+ΣV {κ = ★} x = Σ (reify x)
+ΣV {κ = L} x = ΣL (reify x)
+ΣV {κ = κ₁ `→ κ₂} F = λ ρ v → ΣV (renSem ρ F <?>V v)
+ΣV {κ = R[ κ ]} x = (λ ρ v → ΣV v) <$>V x
+Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+Σ-Kripke = λ ρ v → ΣV v
+\end{code}
+
+\Ni We omit the definitions of \verb!ΣV! and \verb!Σ-Kripke!, as they are identical modulo the use of \verb!Π! constants.
 
 \subsection{Evaluation}
 
-\section{Completeness}
+We now write an evaluator that translates \verb!Type!s to semantic types; that is, translating syntactic forms to the semantic domain. A normalizer composes reification with evaluation. One can see this in the definition of \verb!evalPred!, the predicate normalizer. (Predicates must be fully normalized as they do not have a semantic image.)
 
-\subsection{Type Equivalence}
+\begin{code}
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
+
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+\end{code}
+
+Evaluation is defined by induction over the type structure. The first three cases have types which may occur at any kind. The variable case simply uses the environment to perform a lookup; application defers to our semantic combinator \verb!_·V_!; and evaluation of arrow types is defined recursively.
+
+\begin{code}
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+\end{code}
+
+\Ni The next four cases are for types that only occur at kind $\star$. The qualified type and label singleton cases proceed by recursion over the type structure. For \verb!`∀!-bound types, we must lift the environment $\eta$ appropriately. In the $\mu$ case, $\tau$ has kind $\star \to \star$ and so its evaluation must be reified back to \verb!NormalType!.
+
+\begin{code}
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ eval τ η ⌋
+eval {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η))
+eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+\end{code}
+
+
+\Ni There is only one type with exclusively label kind. Its definition is unsurprising (it houses only a \verb!String! label).
+
+\begin{code}
+eval {κ = L} (lab l) η = lab l
+\end{code}
+
+
+\Ni We evaluate $\lambda$-bound functions by evaluating their bodies in environments extended by the meaning their input $v$. Note that we are building a Kripke function and so \verb!ρ! is a renaming from $\Delta_1$ to $\Delta_2$ and \verb!v! is an input of type \verb!SemType Δ₂ κ₁!.
+
+\begin{code}
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
+\end{code}
+
+\Ni Lastly, we define evaluation over the row-kinded constants and operators. As $\Pi$ and $\Sigma$ are represented as type constants in the \verb!Type! syntax, they translate directly to the Kripke functions we defined for $\Pi$ and $\Sigma$ as semantic helpers. Likewise, the row mapping and labeled-row cases are interpreted immediately and desirably by their semantic helpers.
+
+\begin{code}
+eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
+eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
+eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
+eval ε η = εV
+\end{code}
+
+Finally, we define a normalizer as the reification of evaluation.
+
+\begin{code}
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
+
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
+\end{code}
+
+\section{Correctness}
+
+We desire a normalization algorithm to remove the need for explicit type conversion proofs in terms: two types are equal iff they reduce to the same normal form, and so a normalization algorithm effectively gives a decision procedure for type equivalence. It next falls upon us to verify that this normalization algorithm indeed respects our syntactic account of type equivalence. How we do so is fairly routine to other normalization-by-evaluation efforts. We first show that the algorithm is complete with respect to syntactic type equivalence:
+
+\begin{code}
+completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
+\end{code}
+\begin{code}[hide]
+postulate
+  bot : ∀ (X : Set) → X
+completeness = bot _
+\end{code}
+
+\Ni Completeness here states that equivalent types normalize to the same types. Conversely, soundness states that every type is equivalent to its normalization. (In particular, every type is equivalent to the normalization of its embedding.)
+
+\begin{code}
+soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
+\end{code}
+\begin{code}[hide]
+soundness = bot _
+\end{code}
+
+A final (but no less crucial) property we will show is \emph{stability}: that every normal type is equal to the normalization of its embedding. 
+
+\begin{code}
+stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
+\end{code}
+\begin{code}[hide]
+stability = bot _
+--------------------------------------------------------------------------------
+-- - stability : ⇑ is right-inverse to ⇓ 
+--     or, ⇓ is a split-monomorphism/section.
+-- - stabilityNE : eval ∘ ⇑NE  = reflect
+--   or, round trips from neutral semantic terms to semantic terms are preserved.
+\end{code}
+
+\Ni It is desirable that a normalization algorithm adheres to this property, as it states effectively that there is "no more work" to be done by re-normalization. Indeed, both idempotency and surjectivity are implied.
+
+\begin{code} 
+idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+idempotency τ rewrite stability (⇓ τ) = refl
+
+surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
+surjectivity τ = ( ⇑ τ , stability τ ) 
+\end{code}
+
+
 \subsection{A logical relation}
+We will prove completeness using a logical relation on semantic types. We would like to be able to equate semantic types, but they prove to be "too large": in particular, our definition of Kripke functions permit functions which may not respect composition of renaming. The solution is to reason about semantic types modulo a partial equivalence relation (PER) that both respects renamings (which we call \emph{uniformity}) and also equates functions extensionally. We write \verb!τ₁ ≋ τ₂! to denote that the semantic types \verb!τ₁! and \verb!τ₂! are equivalent modulo this relation. For clarity, we give names to the two properties (\emph{uniformity} and \emph{point equality}) we desire related types to hold, and define them mutually recursively.
+
+\begin{code}
+_≋_ : SemType Δ κ → SemType Δ κ → Set
+PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
+Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
+\end{code}
+
+
+\Ni We define \verb!_≋_! recursively over the kind of its equated types. In the first two cases, \verb!τ₁! and \verb!τ₂! are normal types, which we equate propositionally. In the third case, we assert that Kripke functions \verb!F! and \verb!G! are uniform and point-equal to one another. Uniformity asserts a certain commutativity of renaming: you may either rename the result of applying \verb!F! to \verb!V₁!, or you may rename \verb!F! before applying it to a renamed input. point equality on Kripke functions \verb!F! and \verb!G! asserts that \verb!F! and \verb!G! take related inputs to related outputs. The latter property is what one should expect of a logical relation; the former property can be attributed to \citet{ChapmanKNW19}, who in turn attribute \citet{AllaisBM13}. 
+
+\begin{code}
+Uniform {Δ₁} {κ₁} {κ₂} F = 
+  ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
+  V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (renKripke ρ₁ F ρ₂ (renSem ρ₂ V₂))
+
+PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
+  ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
+  V₁ ≋ V₂ → F ρ V₁ ≋ G ρ V₂
+
+_≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
+_≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
+_≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
+  Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
+\end{code}
+
+The last six cases are over row kinded semantic types. The first case states that neutral rows must be propositionally equal; the second states that two rows of the form $(\Row {l_1} {\tau_1})$ and $(\Row {l_2} {\tau_2})$ are related iff their labels are equal and their types are related. The third case states that the empty row is related to itself (which is always true). All other cases are nonsensical, and so are set to $\bot$.
+
+\begin{code}
+_≋_ {κ = R[ κ ]} (just (left x)) (just (left y))                   = x ≡ y
+_≋_ {κ = R[ κ ]} (just (right (l₁ , τ₁))) (just (right (l₂ , τ₂))) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {κ = R[ κ ]} nothing nothing                                   = ⊤
+_≋_ {κ = R[ κ ]} (just _) (just _)                                 = ⊥
+_≋_ {κ = R[ κ ]} (just _) nothing                                  = ⊥
+_≋_ {κ = R[ κ ]} nothing (just _)                                  = ⊥
+\end{code}
+
+
+\subsubsection{Properties of the completeness relation}
+
+The completeness relation forms a \emph{partial equivalence relation} (PER). As uniformity is a unary property, it follows quickly that \verb!_≋_! cannot be reflexive, but a limited form of reflexivity does hold: provided that \verb!V! is related to \emph{some} other \verb!V'!, it relates to itself. The other properties (symmetry and transitivity) are simple enough to show. We introduce two helpers, \verb!refl-≋ₗ! and \verb!refl-≋ᵣ! to describe left and right reflexive projections.
+
+\begin{code}
+refl-≋ₗ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₁ ≋ V₁
+refl-≋ᵣ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₂ ≋ V₂
+sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ}      → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
+trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
+\end{code}
+\begin{code}[hide]
+sym-≋ {κ = ★}  refl = refl
+sym-≋ {κ = L}  refl = refl
+sym-≋ {κ = κ `→ κ₁} 
+  {F} {G} 
+  (Unif-F , (Unif-G , Ext)) = 
+     Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
+sym-≋ {κ = R[ κ ]} {just (left x)} {just (left x₁)} q = sym q
+sym-≋ {κ = R[ κ ]} {nothing} {nothing} q = tt
+sym-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (_ , τ₂))} (refl , q) = refl , (sym-≋ q)
+
+refl-≋ₗ q = trans-≋ q (sym-≋ q)
+refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
+
+trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H} 
+  (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
+    unif-F , 
+    unif-H , 
+    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
+trans-≋ {κ = R[ κ ]} {just (left x)} {just (left _)} {just (left _)} refl refl = refl
+trans-≋ {κ = R[ κ ]} {nothing} {nothing} {nothing} tt tt = tt
+trans-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} {just (right (.l , τ₃))} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
+\end{code}
+
+we commonly invoke two main lemmas. \verb!reflect-≋! states reflects propositional equality to semantic relatability, and \verb!reify-≋! reifies related semantic types propositional equality. We make great use of the latter lemma, which states intuitively that related types should have the same reifications. % We give these theorems without explicit proof, which each required a number of commutativity and congruence lemmas that complicate presentation while delaying the point.
+
+\begin{code}
+reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
+reify-≋    : ∀ {τ₁ τ₂ : SemType Δ κ}     → τ₁ ≋ τ₂ → reify τ₁   ≡ reify τ₂
+\end{code}
+\begin{code}[hide]
+reflect-≋ = bot _
+reify-≋ = bot _
+\end{code}
+
+TODO: congruence and commutativity files.
+
 \subsection{The fundamental theorem \& completeness}
+
+We would like to show that all well-kinded equivalent types inhabit the relation. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments.
+
+\begin{code}
+-- fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
+--        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+-- fundC-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+--             Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+\end{code}
+
+
+\begin{code}
+\end{code}
+
 
 \section{Soundness}
 \subsection{A logical relation}

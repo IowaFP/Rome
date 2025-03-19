@@ -16,9 +16,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness.Relation
-open import Rome.Operational.Types.Theorems.Completeness.Congruence
-open import Rome.Operational.Types.Theorems.Completeness.Commutativity
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -85,6 +84,14 @@ idempotency τ rewrite stability (⇓ τ) = refl
 surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
 surjectivity τ = ( ⇑ τ , stability τ ) 
      
-     
+
+--------------------------------------------------------------------------------
+-- NormalType and SemType bijectivity
+
+bijectivity₁ :  ∀ (τ : NormalType Δ κ) → reify (⇈ τ) ≡ τ 
+bijectivity₁ τ = stability τ
+
+-- bijectivity₂ : ∀ (τ : SemType Δ κ) → ⇈ (reify τ) ≋ τ 
+-- bijectivity₂ τ = {!stability (reify τ)!}
  
  
