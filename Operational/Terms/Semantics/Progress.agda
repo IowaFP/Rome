@@ -102,6 +102,11 @@ progress (inj {ρ₂ = ρ₂ ▹ ρ₃} M e) | Done v@(V-Σ ℓ M₁ x) with ≲
 ... | refl = Steps M (β-inj M e v)
 progress (inj {ρ₂ = ρ₂} M e) | Steps M' x = Steps (inj M' e) (ξ-inj M M' e x)
 
+progress ((f ▿ g) e) with progress f | progress g 
+... | Steps f' s | _ = Steps ((f' ▿ g) e) (ξ-▿₁ f f' g e s)
+... | _ | Steps g' s = Steps ((f ▿ g') e) (ξ-▿₂ f g g' e s)
+... | Done v₁ | Done v₂ = Done (V-▿ f g v₁ v₂)
+
 -------------------------------------------------------------------------------
 -- Tinkering
 

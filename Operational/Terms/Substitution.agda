@@ -104,6 +104,7 @@ sub σ s {x} (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (
 sub σ s (prj M e) = prj (sub σ s M) (subEnt σ s e)
 sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
+sub σ s ((M ▿ N) e) = (sub σ s M ▿ sub σ s N) (subEnt σ s e)
 
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl

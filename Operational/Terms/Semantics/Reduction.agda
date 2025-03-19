@@ -57,6 +57,13 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value ((M ⊹ N) e)
 
+  V-▿  : 
+           {e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)} (M : Term Γ (Σ ρ₁ `→ τ)) (N : Term Γ (Σ ρ₂ `→ τ)) → 
+
+            Value M → Value N → 
+            ---------------------
+            Value ((M ▿ N) e)
+
   V-Σ   : ∀ 
             (ℓ : Term Γ ⌊ l ⌋) → (M : Term Γ τ) → 
 
@@ -170,6 +177,20 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
     
        (N₁ —→ N₂) → 
        (M ⊹ N₁) e —→ (M ⊹ N₂) e
+
+  ξ-▿₁ : ∀
+         (M₁ M₂ : Term Γ (Σ ρ₁ `→ τ)) (N : Term Γ (Σ ρ₂ `→ τ)) 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+       (M₁ —→ M₂) → 
+       (M₁ ▿ N) e —→ (M₂ ▿ N) e
+
+  ξ-▿₂ : ∀
+         (M : Term Γ (Σ ρ₁ `→ τ)) (N₁ N₂ : Term Γ (Σ ρ₂ `→ τ)) 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+       (N₁ —→ N₂) → 
+       (M ▿ N₁) e —→ (M ▿ N₂) e
 
   -- computational rules
   β-λ : ∀ {M : Term (Γ , τ₁) τ₂} {N : Term Γ τ₁} →
