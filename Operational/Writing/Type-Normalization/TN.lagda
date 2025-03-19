@@ -95,6 +95,8 @@
 \newunicodechar{≋}{$\approx$}
 \newunicodechar{ₗ}{$_l$}
 \newunicodechar{ᵣ}{$_r$}
+\newunicodechar{↻}{$\circlearrowright$}
+
 
 \begin{document}
 
@@ -721,6 +723,8 @@ weakenₖNE = renₖNE S
 \end{code}
 
 
+
+
 \subsection{Properties of normal types}
 We use Agda to confirm the desired canonicity properties. First, we wish for arrow kinds to be canonically formed by $\lambda$-abstractions. This can be shown easily by induction on arrow-kinded \verb!f!.
 
@@ -1197,34 +1201,156 @@ trans-≋ {κ = R[ κ ]} {nothing} {nothing} {nothing} tt tt = tt
 trans-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} {just (right (.l , τ₃))} (refl , q₁) (refl , q₂) = refl , (trans-≋ q₁ q₂)
 \end{code}
 
-we commonly invoke two main lemmas. \verb!reflect-≋! states reflects propositional equality to semantic relatability, and \verb!reify-≋! reifies related semantic types propositional equality. We make great use of the latter lemma, which states intuitively that related types should have the same reifications. % We give these theorems without explicit proof, which each required a number of commutativity and congruence lemmas that complicate presentation while delaying the point.
+we commonly invoke two main lemmas. \verb!reflect-≋! reflects
+propositional equality to semantic equivalence, and \verb!reify-≋! reifies
+equivalent semantic types to propositional equality. We make great use of the latter
+lemma, which states intuitively that related types should have the same
+reifications. One may alternatively think of this lemma as congruence of
+reification modulo semantic equivalence.
 
 \begin{code}
 reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
 reify-≋    : ∀ {τ₁ τ₂ : SemType Δ κ}     → τ₁ ≋ τ₂ → reify τ₁   ≡ reify τ₂
 \end{code}
-\begin{code}[hide]
-reflect-≋ = bot _
-reify-≋ = bot _
+
+These lemmas are straightforward to define when neutral forms are left unperturbed, as is the case in \citet{ChapmanKNW19}. Because our development lets reflect and reify $\eta$-expand types, we need to define (mutually recursively) that renaming commutes with reification:
+\begin{code}
+↻-ren-reflect  : 
+  ∀ (ρ : Renamingₖ Δ₁ Δ₂) (τ : NeutralType Δ₁ κ) → 
+    (renSem ρ (reflect τ)) ≋ (reflect (renₖNE ρ τ))
 \end{code}
 
-TODO: congruence and commutativity files.
+\Ni and that renaming commutes with reification of semantic types.
+
+\begin{code}
+↻-ren-reify : ∀ {Δ₁} {Δ₂} {κ} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
+                V₁ ≋ V₂ →  renₖNF ρ (reify V₁) ≡ reify (renSem ρ V₂)
+\end{code}
+
+Additionally, the use of Kripke functions---and the definition of semantic application as the use of a Kripke function in an identity renaming---makes it necessary to show that renaming respects functor identity and composition laws.
+
+\begin{code}
+renₖ-id : ∀ (τ : Type Δ κ) → renₖ id τ ≡ τ
+renₖ-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
+           ∀ (τ : Type Δ₁ κ) → renₖ (ρ₂ ∘ ρ₁) τ ≡ renₖ ρ₂ (renₖ ρ₁ τ)
+\end{code}
+\begin{code}[hide]
+renₖ-id-pred : ∀ (π : Pred Δ R[ κ ]) → renPredₖ id π ≡ π
+renₖ-id _ = bot _
+renₖ-comp = bot _
+renₖ-id-pred = bot _
+\end{code}
+
+\Ni We show these properties additionally for normal types, neutral types, and semantic types.
+
+\begin{code}
+renₖNF-id    : ∀ (τ : NormalType Δ κ) → renₖNF id τ ≡ τ
+renₖNE-id : ∀ (τ : NeutralType Δ κ) → renₖNE id τ ≡ τ
+renₖNF-comp     : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
+                  (τ : NormalType Δ₁ κ) → renₖNF (ρ₂ ∘ ρ₁) τ ≡ renₖNF ρ₂ (renₖNF ρ₁ τ)
+renₖNE-comp  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
+                (τ : NeutralType Δ₁ κ) → renₖNE (ρ₂ ∘ ρ₁) τ ≡ renₖNE ρ₂ (renₖNE ρ₁ τ)
+renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V 
+renSem-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
+             (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))
+\end{code}
+\begin{code}[hide]
+renₖNF-id = bot _
+renₖNE-id = bot _
+renₖNF-comp = bot _
+renₖNE-comp  = bot _
+renSem-id = bot _
+renSem-comp = bot _
+↻-ren-reflect ρ τ = bot _
+↻-ren-reify ρ {V₁} {V₂} _ = bot _
+\end{code}
+
+
+We define reflection of semantic equality by induction over the kind of the type in question; it is straightforward to define in the ground cases:
+
+\begin{code}
+reflect-≋ {κ = ★} refl = refl
+reflect-≋ {κ = L} refl = refl
+reflect-≋ {κ = R[ κ ]} q = q
+\end{code}
+
+\Ni in the arrow case, we have an obligation to show that the reflection of neutral term $f : \kappa_1 \to \kappa_2$ is uniform and point-equal to itself. Here we must invoke our commutatitivity lemmas.
+
+\begin{code}
+reflect-≋ {κ = κ `→ κ₁} {f} refl = 
+  Unif-f , Unif-f , PE-f
+  where
+    Unif-f : Uniform (λ ρ v → reflect (renₖNE ρ f · reify v))
+    Unif-f ρ₁ ρ₂ V₁ V₂ q = 
+      trans-≋ 
+        (↻-ren-reflect ρ₂ (renₖNE ρ₁ f · reify V₁)) 
+        (reflect-≋ (cong₂ _·_ (sym (renₖNE-comp ρ₁ ρ₂ f)) 
+          (↻-ren-reify ρ₂ q)))
+
+    PE-f : PointEqual-≋ 
+      (λ ρ v → reflect (renₖNE ρ f · reify v)) 
+      (λ ρ v → reflect (renₖNE ρ f · reify v))
+    PE-f ρ v = reflect-≋ (cong₂ _·_ refl (reify-≋ v))
+\end{code}
+
+Likewise, the reification of semantic equality is straightforward in two of the ground cases:
+\begin{code}
+reify-≋ {κ = ★}  sem-eq = sem-eq
+reify-≋ {κ = L} sem-eq = sem-eq
+\end{code}
+
+In the arrow case, we have an obligation to show that two $\eta$-expanded bodies are equivalent, for which we reflect their semantic equivalence via \verb!reflect-≋!.
+
+\begin{code}
+reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
+  ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
+\end{code}
+
+For the row cases, we (resp.) assert that neutral rows are equal; that labeled rows have semantically equivalent bodies; and that the empty rows are equal.
+
+\begin{code}
+reify-≋ {κ = R[ κ ]} {just (left τ₁)} {just (left τ₂)} refl = refl 
+reify-≋ {κ = R[ κ ]} {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = cong (l ▹_) (reify-≋ q)
+reify-≋ {κ = R[ κ ]} {nothing} {nothing} tt = refl
+\end{code}
 
 \subsection{The fundamental theorem \& completeness}
 
-We would like to show that all well-kinded equivalent types inhabit the relation. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments.
+We would like to show that all well-kinded equivalent types have semantically equivalent evaluations. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments. Towards this goal, we first define a point-wise equivalence on semantic environments.
 
 \begin{code}
--- fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
---        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
--- fundC-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
---             Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
+Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+\end{code}
+
+\Ni We show that related environments have related extensions.
+\begin{code}
+extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 
+            {V₁ V₂ : SemType Δ₂ κ} → 
+            V₁ ≋ V₂ → 
+            Env-≋ (extende η₁ V₁) (extende η₂ V₂)
+extend-≋ p q Z = q
+extend-≋ p q (S v) = p v
 \end{code}
 
 
-\begin{code}
-\end{code}
+We may now state the fundamental theorem for completeness. Again, as we have no semantic image of predicates, the fundamental theorem for predicates simply asserts that the evaluation of equivalent predicates are propositional equal.
 
+\begin{code}
+fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
+       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fundC-pred : ∀ {π₁ π₂ : Pred Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+\end{code}
+The definition for predicates follows immediately from the fundamental theorem holding for each predicate's component types.
+\begin{code}
+fundC-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundC e τ₁)) (reify-≋ (fundC e τ₂))
+fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
+    reify-≋ (fundC e τ₁) 
+  | reify-≋ (fundC e τ₂) 
+  | reify-≋ (fundC e τ₃) = refl
+fundC = bot _
+\end{code}
 
 \section{Soundness}
 \subsection{A logical relation}

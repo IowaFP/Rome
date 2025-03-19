@@ -12,14 +12,16 @@ BIBTEX = bibtex
 
 #----------------------------------------------------------------
 
-all: pdf
+all: agda pdf bib pdf pdf
 
-pdf:  
+agda: 
 	agda --latex --latex-dir . ${LAGDA}
-	${LATEX} ${DOC}
+
+bib : 
 	bibtex ${DOC}
+pdf:  
 	${LATEX} ${DOC}
-	${LATEX} ${DOC}
+
 
 #----------------------------------------------------------------
 
