@@ -102,4 +102,4 @@ bijectivity₁ τ = stability τ
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
 
 embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
-embed-≡t {τ₁ = τ₁} {τ₂} eq rewrite eq = eq-sym (soundness τ₂) 
+embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
