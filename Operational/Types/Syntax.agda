@@ -13,6 +13,19 @@ infixr 5 _≲_
 data Pred Δ : Kind → Set
 data Type Δ : Kind → Set 
 
+-- data SimpleRowTheory Δ : Kind → Set where 
+--        ε : SimpleRowTheory Δ R[ κ ] 
+
+--        (_▹_⨾_) : (ℓ : Label) → (τ : Type Δ κ) → 
+--                  (ρ : SimpleRowTheory Δ R[ κ ]) → {ℓ ∉ labels ρ} 
+--                  ----------------------------------------------- 
+--                  SimpleRowTheory Δ R[ κ ]
+
+open import Data.Fin
+
+-- data FinLabel : ℕ → Set where
+--        Z : Label → Fin (suc n)
+
 data Pred Δ where
   _·_~_ : 
 
@@ -77,6 +90,10 @@ data Type Δ where
 
   ------------------------------------------------------------------
   -- Rω business
+
+  row : SimpleRowTheory Δ R[ κ ] → 
+        ----------------------
+        Type Δ R[ κ ]
 
   -- labels
   lab :
