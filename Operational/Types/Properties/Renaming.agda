@@ -48,6 +48,7 @@ renₖ-cong eq (lab _) = refl
 renₖ-cong eq (l ▹ τ) rewrite renₖ-cong eq l | renₖ-cong eq τ = refl
 renₖ-cong eq ⌊ τ ⌋ rewrite renₖ-cong eq τ = refl
 renₖ-cong eq (f <$> a) rewrite renₖ-cong eq f | renₖ-cong eq a = refl
+renₖ-cong eq (n₁ ─ n₂) rewrite renₖ-cong eq n₁ | renₖ-cong eq n₂ = refl
 
 renₖ-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖ-cong eq ρ₁ | renₖ-cong eq ρ₂ | renₖ-cong eq ρ₃ = refl
@@ -71,6 +72,7 @@ renₖ-id (l ▹ τ) rewrite renₖ-id l | renₖ-id τ = refl
 renₖ-id ⌊ τ ⌋ rewrite renₖ-id τ = refl
 -- renₖ-id (↑ τ) rewrite renₖ-id τ = refl
 renₖ-id (f <$> a) rewrite renₖ-id f | renₖ-id a = refl
+renₖ-id (n₂ ─ n₁) rewrite renₖ-id n₂ | renₖ-id n₁ = refl
 
 renₖ-id-pred (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖ-id ρ₁ | renₖ-id ρ₂ | renₖ-id ρ₃ = refl
@@ -104,6 +106,7 @@ renₖ-comp ρ₁ ρ₂ ⌊ τ ⌋ rewrite
     renₖ-comp ρ₁ ρ₂ τ = refl
 renₖ-comp ρ₁ ρ₂ (f <$> a) rewrite renₖ-comp ρ₁ ρ₂ f | renₖ-comp ρ₁ ρ₂ a = refl
 renₖ-comp ρ₁ ρ₂ (π ⇒ τ) rewrite renₖ-comp-pred ρ₁ ρ₂ π | renₖ-comp ρ₁ ρ₂ τ = refl
+renₖ-comp ρ₁ ρ₂ (n₂ ─ n₁) rewrite renₖ-comp ρ₁ ρ₂ n₁ | renₖ-comp ρ₁ ρ₂ n₂ = refl
 
 renₖ-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖ-comp ρ ρ' ρ₁ | renₖ-comp ρ ρ' ρ₂ | renₖ-comp ρ ρ' ρ₃ = refl

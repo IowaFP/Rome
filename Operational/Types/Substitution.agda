@@ -35,6 +35,7 @@ subₖ σ (lab x) = lab x
 subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
+subₖ σ (ρ₂ ─ ρ₁) = subₖ σ ρ₂ ─  subₖ σ ρ₁
 
 
 subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
