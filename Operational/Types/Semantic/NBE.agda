@@ -6,12 +6,11 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Properties.Decidability
-
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 
@@ -96,11 +95,9 @@ _<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
 just (left x) ─V just (left y) = ne-R (x ─₁ ne y)
 just (left x) ─V just (right (l , τ)) = ne-R (x ─₁ (reify (just (right (l , τ)))))
-just (right (l , τ)) ─V just (left x) = ne-R ((l ▹ reify τ) ─₂ x)
+just (right (l , τ)) ─V just (left x) = ne-R (reify (just (right (l , τ))) ─₂ x)
 -- Need decidable equality of NormalTypes, here... but maybe that's not so hard?
-just (right (l₁ , τ₁)) ─V just (right (l₂ , τ₂)) with (l₁ ▹ reify τ₁) ≡? (l₂ ▹ reify τ₂) 
-... | yes p = εV
-... | no  p = just (right (l₁ , τ₁))
+just (right (l₁ , τ₁)) ─V just (right (l₂ , τ₂)) = {!!}
 just ρ ─V nothing = just ρ
 nothing ─V just x = nothing
 nothing ─V nothing = nothing
@@ -186,7 +183,7 @@ eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 eval ε η = nothing
-eval (ρ₁ ─ ρ₂) η = eval ρ₁ η ─V eval ρ₂ η
+eval (n ─ n₁) η = {!!}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization

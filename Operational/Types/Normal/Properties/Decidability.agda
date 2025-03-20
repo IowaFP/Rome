@@ -10,6 +10,12 @@ open import Rome.Operational.Types.Substitution
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
+open import Rome.Operational.Types.Semantic.NBE
+
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Equivalence
 
 open import Data.String.Properties using (_≟_)
 
@@ -23,45 +29,24 @@ _≡p?_ : ∀ (ρ₁ ρ₂ : NormalPred Δ R[ κ ]) → Dec (ρ₁ ≡ ρ₂)
 ` x ≡NE? ` y with x ≡var? y 
 ... | yes refl = yes refl 
 ... | no  p = no (λ { refl → p refl }) 
+` x ≡NE? (d · τ) = no (λ ())
+` x ≡NE? (φ <$> d) = no (λ ()) 
+(x · τ) ≡NE? ` α = no (λ ())
 (_·_ {κ₁} x τ₁) ≡NE? (_·_ {κ₂} y τ₂) with κ₁ ≡k? κ₂ 
 ... | no  q = no (λ { refl → q refl })
 ... | yes refl with x ≡NE? y | τ₁ ≡? τ₂ 
 ... | yes refl | yes refl = yes refl
 ... | _ | no q = no (λ { refl → q refl })
 ... | no p  | _ = no (λ { refl → p refl })
+(x · τ) ≡NE? (φ <$> y) = no (λ ())
+(φ <$> x) ≡NE? ` α = no (λ ())
+(φ <$> x) ≡NE? (y · τ) = no (λ ())
 (_<$>_ {κ₁} f x) ≡NE? (_<$>_ {κ₂} g y) with κ₁ ≡k? κ₂ 
 ... | no  q = no (λ { refl → q refl })
 ... | yes refl with f ≡? g | x ≡NE? y
 ... | yes refl | yes refl = yes refl
 ... | _ | no q = no (λ { refl → q refl })
 ... | no p  | _ = no (λ { refl → p refl })
-(x ─₁ ρ) ≡NE? (y ─₁ ρ₁) with x ≡NE? y 
-... | yes refl = map′ (cong (x ─₁_)) (λ { refl → refl }) (ρ ≡? ρ₁)
-... | no p = no ( λ { refl → p refl } )
-(ρ ─₂ x) ≡NE? (ρ₁ ─₂ y) with x ≡NE? y 
-... | yes refl = map′ (cong (_─₂ x)) (λ { refl → refl }) (ρ ≡? ρ₁)
-... | no p = no ( λ { refl → p refl } )
-` x ≡NE? (d · τ) = no (λ ())
-` x ≡NE? (φ <$> d) = no (λ ()) 
-(x · τ) ≡NE? ` α = no (λ ())
-(x · τ) ≡NE? (φ <$> y) = no (λ ())
-(φ <$> x) ≡NE? ` α = no (λ ())
-(φ <$> x) ≡NE? (y · τ) = no (λ ())
-` α ≡NE? (y ─₁ ρ) = no (λ ())
-` α ≡NE? (ρ ─₂ y) = no (λ ())
-(x · τ) ≡NE? (y ─₁ ρ) = no (λ ())
-(x · τ) ≡NE? (ρ ─₂ y) = no (λ ())
-(φ <$> x) ≡NE? (y ─₁ ρ) = no (λ ())
-(φ <$> x) ≡NE? (ρ ─₂ y) = no (λ ())
-(x ─₁ ρ) ≡NE? ` α = no (λ ())
-(x ─₁ ρ) ≡NE? (y · τ) = no (λ ())
-(x ─₁ ρ) ≡NE? (φ <$> y) = no (λ ())
-(x ─₁ ρ) ≡NE? (ρ₁ ─₂ y) = no (λ ())
-(ρ ─₂ x) ≡NE? ` α = no (λ ())
-(ρ ─₂ x) ≡NE? (y · τ) = no (λ ())
-(ρ ─₂ x) ≡NE? (φ <$> y) = no (λ ())
-(ρ ─₂ x) ≡NE? (y ─₁ ρ₁) = no (λ ())
-
 
 
 --------------------------------------------------------------------------------
@@ -182,3 +167,15 @@ lab l ≡? ΣL τ₂ = no (λ ())
 ΣL τ₁ ≡? ne x = no (λ ())
 ΣL τ₁ ≡? lab l = no (λ ())
 ΣL τ₁ ≡? ΠL τ₂ = no (λ ())
+
+--------------------------------------------------------------------------------
+-- Type equivalence is decidable
+
+_≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
+τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
+... | yes p = yes 
+    (eq-trans 
+        (soundness τ₁) 
+        (embed-≡t p))
+... | no  p = no (λ x → p (completeness x))
+ 
