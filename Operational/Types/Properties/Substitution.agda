@@ -60,7 +60,6 @@ subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
 subₖ-cong e Π = refl
 subₖ-cong e Σ = refl
 subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
-subₖ-cong e (τ ─ τ₁) = cong₂ _─_ (subₖ-cong e τ) (subₖ-cong e τ₁)
 
 subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
 subₖ-id ε = refl
@@ -80,7 +79,6 @@ subₖ-id ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-id τ)
 subₖ-id Π = refl
 subₖ-id Σ = refl
 subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
-subₖ-id (τ₁ ─ τ₂) = cong₂ _─_ (subₖ-id τ₁) (subₖ-id τ₂)
 
 
 -------------------------------------------------------------------------------
@@ -117,7 +115,6 @@ subₖ-id (τ₁ ─ τ₂) = cong₂ _─_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-subₖ-renₖ {ρ = ρ} {σ} Π = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} Σ = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ ─ τ₂) = cong₂ _─_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
 
 ↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
                     subₖ (renₖ ρ ∘ σ) τ ≡ renₖ ρ (subₖ σ τ)
@@ -143,7 +140,6 @@ subₖ-id (τ₁ ─ τ₂) = cong₂ _─_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-renₖ-subₖ {σ = σ} {ρ} Π = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} Σ = refl
 ↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ ─ τ₂) = cong₂ _─_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
 
 subₖ-weaken : ∀ (τ : Type Δ κ₁) (v : Type Δ κ₂) → 
              subₖ (extendₖ ` v) (renₖ S τ) ≡ τ 
@@ -187,7 +183,6 @@ subₖ-comp ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-comp τ)
 subₖ-comp Π = refl
 subₖ-comp Σ = refl
 subₖ-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-comp τ₁) (subₖ-comp τ₂)
-subₖ-comp (n₂ ─ n₁) = cong₂ _─_ (subₖ-comp n₂) (subₖ-comp n₁)
 
 -------------------------------------------------------------------------------
 -- 
