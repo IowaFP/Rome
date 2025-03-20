@@ -98,6 +98,8 @@ bijectivity₁ τ = stability τ
 ⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂
 ⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
 
+--------------------------------------------------------------------------------
+-- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
 
 embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
 embed-≡t {τ₁ = τ₁} {τ₂} eq rewrite eq = eq-sym (soundness τ₂) 

@@ -176,6 +176,6 @@ _≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
 ... | yes p = yes 
     (eq-trans 
         (soundness τ₁) 
-        (embed-≡t {τ₁ = ⇓ τ₁} {τ₂ = τ₂} p))
+        (embed-≡t p))
 ... | no  p = no (λ x → p (completeness x))
  
