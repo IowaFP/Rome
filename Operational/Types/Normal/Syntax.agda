@@ -19,8 +19,13 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 -- - NormalType types are types precluded from any applications (barring neutral forms).
 
 infixr 1 _▹_
+
+
 data NormalType (Δ : KEnv) : Kind → Set
 data NormalPred (Δ : KEnv) : Kind → Set
+RowValue : NormalType Δ R[ κ ] → Set
+rowValue? : ∀ (τ : NormalType Δ R[ κ ]) → Dec (RowValue τ)
+
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -41,10 +46,10 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
-  _─₁_ : NeutralType Δ R[ κ ] → (NormalType Δ L × NormalType Δ κ) →
+  _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) → 
         NeutralType Δ R[ κ ]
 
-  _─₂_ : (NormalType Δ L × NormalType Δ κ) → NeutralType Δ R[ κ ] →
+  _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] →
         NeutralType Δ R[ κ ]
 
 data NormalPred Δ where
@@ -160,6 +165,17 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- There are no neutral types in empty contexts
 
+RowValue (ne x) = ⊥
+RowValue ε = ⊤
+RowValue (τ ▹ τ₁) = ⊤
+
+rowValue? (ne x) = no (λ ())
+rowValue? ε = yes tt
+rowValue? (τ ▹ τ₁) = yes tt
+
+--------------------------------------------------------------------------------
+-- There are no neutral types in empty contexts
+
 noNeutrals : NeutralType ∅ κ → ⊥
 noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
@@ -256,8 +272,8 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
-⇑NE (n ─₁ τ) = ⇑NE n ─ ⇑ τ
-⇑NE (τ ─₂ n) = ⇑ τ ─ ⇑NE n
+⇑NE (n ─₁ ρ) = ⇑NE n ─ (⇑ ρ)
+⇑NE (ρ ─₂ n) = ⇑ ρ ─ ⇑NE n
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
@@ -268,3 +284,4 @@ arrow-canonicity (`λ f) = f , refl
 UnitNF : NormalType Δ ★
 UnitNF = Π ε
 
+ 

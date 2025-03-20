@@ -13,6 +13,8 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Substitution
 
+open import Rome.Operational.Types.Normal.Properties.Decidability
+
 
 --------------------------------------------------------------------------------
 -- Renaming respects type equivalence
@@ -165,3 +167,16 @@ subₖ-≡t {σ = σ} {τ₁ = (Σ · (l ▹ `λ τ))} {υ} (eq-Σλ {l = l} {τ
                 eq-refl)))
 subₖ-≡t {σ} eq-Π-assoc = eq-Π-assoc
 subₖ-≡t {σ} eq-Σ-assoc = eq-Σ-assoc
+
+
+--------------------------------------------------------------------------------
+-- Type equivalence is decidable
+
+_≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
+τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
+... | yes p = yes 
+    (eq-trans 
+        (soundness τ₁) 
+        (embed-≡t p))
+... | no  p = no (λ x → p (completeness x))
+ 

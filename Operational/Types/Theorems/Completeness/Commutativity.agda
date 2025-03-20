@@ -228,7 +228,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
-
+↻-renSem-eval ρ (ρ₂ ─ ρ₁) e = {!ρ₂ ρ₁   !}
 -- ------------------------------------------------------------------------------
 -- idext 
 
