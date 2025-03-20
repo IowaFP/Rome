@@ -3,6 +3,7 @@ module Rome.Operational.Types.Normal.Properties.Decidability where
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
+open import Rome.Operational.Kinds.Decidability
 
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Substitution
@@ -16,44 +17,14 @@ open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Equivalence
 
---------------------------------------------------------------------------------
--- Decidability of kind equality
-
-_≡k?_ : ∀ (κ₁ κ₂ : Kind) → Dec (κ₁ ≡ κ₂)
-★ ≡k? ★ = yes refl
-★ ≡k? L = no (λ ())
-★ ≡k? (κ₂ `→ κ₃) = no (λ ())
-★ ≡k? R[ κ₂ ] = no (λ ())
-L ≡k? ★ = no (λ ())
-L ≡k? L = yes refl
-L ≡k? (κ₂ `→ κ₃) = no (λ ())
-L ≡k? R[ κ₂ ] = no (λ ())
-(κ₁ `→ κ₂) ≡k? ★ = no (λ ())
-(κ₁ `→ κ₂) ≡k? L = no (λ ())
-(κ₁ `→ κ₂) ≡k? (κ₃ `→ κ₄) with κ₁ ≡k? κ₃ |  κ₂ ≡k? κ₄ 
-... | yes refl | yes refl = yes refl
-... | _ | no q = no (λ { refl → q refl })
-... | no p | _ = no (λ { refl → p refl })
-(κ₁ `→ κ₂) ≡k? R[ κ₃ ] = no (λ ())
-R[ κ₁ ] ≡k? ★ = no (λ ())
-R[ κ₁ ] ≡k? L = no (λ ())
-R[ κ₁ ] ≡k? (κ₂ `→ κ₃) = no (λ ())
-R[ κ₁ ] ≡k? R[ κ₂ ] = map′ (cong R[_]) (λ { refl → refl }) (κ₁ ≡k? κ₂)
-
---------------------------------------------------------------------------------
--- Decidability of variable equality
-
-_≡var?_ : ∀ (x y : KVar Δ κ) → Dec (x ≡ y)
-Z ≡var? Z = yes refl
-Z ≡var? S y = no (λ ())
-S x ≡var? Z = no (λ ()) 
-S x ≡var? S y = map′ (cong S) (λ { refl → refl }) (x ≡var? y)
+open import Data.String.Properties using (_≟_)
 
 --------------------------------------------------------------------------------
 -- Decidability of NeutralType equality
 
 _≡NE?_ : ∀ (τ₁ τ₂ : NeutralType Δ κ) → Dec (τ₁ ≡ τ₂) 
 _≡?_ : ∀ (τ₁ τ₂ : NormalType Δ κ) → Dec (τ₁ ≡ τ₂)
+_≡p?_ : ∀ (ρ₁ ρ₂ : NormalPred Δ R[ κ ]) → Dec (ρ₁ ≡ ρ₂)
 
 ` x ≡NE? ` y with x ≡var? y 
 ... | yes refl = yes refl 
@@ -79,6 +50,20 @@ _≡?_ : ∀ (τ₁ τ₂ : NormalType Δ κ) → Dec (τ₁ ≡ τ₂)
 
 
 --------------------------------------------------------------------------------
+-- Decidability of NormalPred equality
+
+(ρ₁ ≲ ρ₂) ≡p? (ρ₃ ≲ ρ₄) with ρ₁ ≡? ρ₃ 
+... | yes refl = map′ (cong (ρ₁ ≲_)) (λ { refl → refl })  (ρ₂ ≡? ρ₄)
+... | no  p = no (λ { refl → p refl })
+(ρ₁ · ρ₂ ~ ρ₃) ≡p? (ρ₄ · ρ₅ ~ ρ₆) with ρ₁ ≡? ρ₄
+... | no  p = no (λ { refl → p refl })
+... | yes refl with ρ₂ ≡? ρ₅ 
+...            | yes refl = map′ (cong (ρ₁ · ρ₂ ~_)) (λ { refl → refl })  (ρ₃ ≡? ρ₆)
+...            | no p = no (λ { refl → p refl })
+(ρ₁ · ρ₂ ~ ρ₃) ≡p? (ρ₄ ≲ ρ₅) = no (λ ())
+(ρ₁ ≲ ρ₂) ≡p? (ρ₃ · ρ₄ ~ ρ₅) = no (λ ())
+
+--------------------------------------------------------------------------------
 -- Decidability of NormalType equality
 
 _≡?_ {κ = ★} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
@@ -86,21 +71,27 @@ _≡?_ {κ = L} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (
 _≡?_ {κ = R[ κ ]} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
 `λ τ₁ ≡? `λ τ₂ = map′ (cong `λ) (λ { refl → refl }) (τ₁ ≡? τ₂)
 μ τ₁ ≡? μ τ₂ = map′ (cong μ) (λ { refl → refl})  (τ₁ ≡? τ₂)
-(π ⇒ τ₁) ≡? (π₁ ⇒ τ₂) = {!  !}
-`∀ τ₁ ≡? `∀ τ₂ = {! no (λ ())  !}
-(τ₁ `→ τ₂) ≡? (τ₃ `→ τ₄) = {!   !}
+(_⇒_ {κ₁ = κ₁} π₁ τ₁) ≡? (_⇒_ {κ₁ = κ₂} π₂ τ₂) with κ₁ ≡k? κ₂
+... | no p = no (λ { refl → p refl })
+... | yes refl with π₁ ≡p? π₂ 
+...                 | yes refl = map′ (cong (π₁ ⇒_)) (λ { refl → refl })  (τ₁ ≡? τ₂)
+...                 | no p  = no (λ { refl → p refl })
+`∀ {κ₁} τ₁ ≡? `∀ {κ₂} τ₂ with κ₁ ≡k? κ₂ 
+... | yes refl = map′ (cong (`∀ {κ = κ₁})) (λ { refl → refl })  (τ₁ ≡? τ₂)
+... | no  p = no (λ { refl → p refl })
+(τ₁ `→ τ₂) ≡? (τ₃ `→ τ₄) with τ₁ ≡? τ₃
+... | no  p = no (λ { refl → p  refl })
+... | yes refl = map′ (cong (τ₁ `→_)) (λ { refl → refl }) (τ₂ ≡? τ₄)
 ε ≡? ε = yes refl
-(l₁ ▹ τ₁) ≡? (l₂ ▹ τ₂) with l₁ ≡? l₂ | τ₁ ≡? τ₂ 
-... | yes refl | yes refl = yes refl
-... | yes p | no q = no (λ x → q (inj-▹ᵣ x))
-... | no p | yes q = no (λ x → p (inj-▹ₗ x))
-... | no p | no q = no (λ x → p (inj-▹ₗ x))
-Π τ₁ ≡? Π τ₂ = {!   !}
-lab l ≡? lab l₁ = {!   !}
-⌊ τ₁ ⌋ ≡? ⌊ τ₂ ⌋ = {!   !}
-ΠL τ₁ ≡? ΠL τ₂ = {!   !}
-Σ τ₁ ≡? Σ τ₂ = {!   !}
-ΣL τ₁ ≡? ΣL τ₂ = {!   !}
+(l₁ ▹ τ₁) ≡? (l₂ ▹ τ₂) with l₁ ≡? l₂
+... | no  p = no (λ { refl → p  refl })
+... | yes refl = map′ (cong (l₁ ▹_)) (λ { refl → refl }) (τ₁ ≡? τ₂)
+Π τ₁ ≡? Π τ₂ = map′ (cong Π) (λ { refl → refl }) (τ₁ ≡? τ₂)
+lab l₁ ≡? lab l₂ = map′ (cong lab) (λ { refl → refl }) (l₁ ≟ l₂)
+⌊ τ₁ ⌋ ≡? ⌊ τ₂ ⌋ = map′ (cong ⌊_⌋) (λ { refl → refl }) (τ₁ ≡? τ₂)
+ΠL τ₁ ≡? ΠL τ₂ = map′ (cong ΠL) (λ { refl → refl }) (τ₁ ≡? τ₂)
+Σ τ₁ ≡? Σ τ₂ = map′ (cong Σ) (λ { refl → refl }) (τ₁ ≡? τ₂)
+ΣL τ₁ ≡? ΣL τ₂ = map′ (cong ΣL) (λ { refl → refl }) (τ₁ ≡? τ₂)
 -- nuisance cases
 (τ₁ ▹ τ₂) ≡? ne x = no (λ ())
 (τ₁ ▹ τ₂) ≡? ε = no (λ ())
@@ -177,6 +168,8 @@ lab l ≡? ΣL τ₂ = no (λ ())
 ΣL τ₁ ≡? lab l = no (λ ())
 ΣL τ₁ ≡? ΠL τ₂ = no (λ ())
 
+--------------------------------------------------------------------------------
+-- Type equivalence is decidable
 
 _≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
 τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)

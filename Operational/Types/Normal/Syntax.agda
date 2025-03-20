@@ -77,7 +77,7 @@ data NormalType Δ where
 
   `∀    :
       
-      {κ : Kind} → (τ : NormalType (Δ ,, κ) ★) →
+      (τ : NormalType (Δ ,, κ) ★) →
       --------------------------------------
       NormalType Δ ★
 
