@@ -262,9 +262,26 @@ emptySubset? : {U : Set}{P : U → Set} (p : ListableSub U P) →
          Dec (∀ (x : U) → ¬ (x ∈ fst p))   
 emptySubset? {U} {P} (xs , _) = DecEmpty xs
 
--- this seems more interesting 
+TrueP : X → Set 
+TrueP _ = ⊤ 
 
-emptySubset?' : {U : Set}{P : U → Set} (p : ListableSub U P) → 
-         Dec (∀ (x : U) → Empty (P x))   
-emptySubset?' {U} {P} (xs , intoList , fromList) = {!   !}
+-- Listable sets are trivial listable subsets
+listable→ListableSub : Listable X → ListableSub X TrueP
+listable→ListableSub (xs , c) = xs , ((λ x _ → c x) , (λ x _ → tt)) 
+
+-- The always true predicate (λ _ → ⊤) is a special 
+-- case of the situation where (P x) is a mere Proposition
+-- for all x. If P is a mere proposition then a ListableSub of X under P
+-- is equivalent to the set of all x such that P x holds.
+propToListableSub : {P : X → Set} → 
+                 ((x : X) → MProp (P x)) → 
+                 Listable (Σ[ x ∈ X ] (P x)) → 
+                 ListableSub X P 
+propToListableSub {X} {P} mp ([] , c) = [] , ((λ x px → {!   !}) , {!   !})
+propToListableSub {X} {P} mp (x ∷ xs , c) = {!   !}
+
+
+
+
+ 
   
