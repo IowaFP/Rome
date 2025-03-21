@@ -5,8 +5,9 @@ module Rome.Operational.FinSet where
 ------------------------------------------------------------------------------------------------
 -- 1. Introduction 
 
-open import Rome.Operational.Prelude hiding (_∈_ ; ∥_∥)
+open import Rome.Operational.Prelude hiding (_∈_ ; ∥_∥ ; _∈?_)
 open import Data.List.Membership.Propositional
+open import Data.List.Relation.Unary.Any.Properties
 open import Data.List
 
 module Pauli where 
@@ -106,6 +107,11 @@ private
 All : (X : Set) → List X → Set
 All X xs = (x : X) → x ∈ xs
 
+elimDec : ∀ {A B : Set} → Dec A → (A → B) → (¬ A → B) → B 
+elimDec (yes p) y n = y p 
+elimDec (no p) y n = n p 
+
+
 -- "Decidable" in agda std lib 
 DecEq : (X : Set) → Set 
 DecEq X = ∀ (x y : X) → Dec (x ≡ y)
@@ -123,6 +129,9 @@ deq2din X d x (y ∷ xs) with d x y
 ...         | no  q = no (λ { (here px) → p px
                             ; (there x) → q x })
 
+_∈?_ : ∀ {X} {d : DecEq X} (x : X) → (xs : List X) → Dec (x ∈ xs)
+_∈?_ {X} {d} x xs = deq2din X d x xs
+
 din2deq : ∀ X → DecIn X → DecEq X                         
 din2deq X i x y with i x (y ∷ [])  
 ... | yes (here px) = yes px 
@@ -138,23 +147,54 @@ NoDup {X} xs = (x : X) → MProp (x ∈ xs)
 Empty : (X : Set) → Set 
 Empty X = All X [] 
 
-empty? : Dec (Empty X)
-empty? {X} = {!   !} 
+NonEmpty : (X : Set) → Set 
+NonEmpty X = X
 
--- I don't believe this is true unless ¬ (Empty X)
+NonEmptyToNegEmpty : NonEmpty X → (¬ Empty X) 
+NonEmptyToNegEmpty x p with p x 
+... | () 
+
+-- Need some classical axiom here
+NegEmptyToNonEmpty : (¬ Empty X) → NonEmpty X 
+NegEmptyToNonEmpty p = {!   !}
+
+-- I don't believe this is true unless X is nonempty
 deq2dall : DecEq X → (xs : List X) → Dec (All X xs)
-deq2dall {X} d [] = no (λ { p  → {!    !} }) 
+-- Can all (x : X) be in the empty list?
+-- Yes if X is empty, no if X is nonempty.
+deq2dall {X} d [] = {!  All !} 
 deq2dall d (x ∷ xs) = {! deq2din _ d x  xs   !}
 
-deq2dall' : DecEq X → (¬ (Empty X)) → (xs : List X) → Dec (All X xs)
-deq2dall' {X} d ne [] = no (λ p → ne p)
-deq2dall' d ne (x ∷ xs) with deq2dall' d ne xs 
+deq2dall' : DecEq X → NonEmpty X → (xs : List X) → Dec (All X xs)
+deq2dall' {X} d ne [] = no (NonEmptyToNegEmpty ne)
+deq2dall' {X} d ne (x ∷ xs) with deq2dall' d ne xs 
 ... | yes p = yes (λ x → there (p x))
-... | no  p = no (λ q → p (λ y → {! q y  !}))
+... | no  p = no (λ allInXs → {! p  !})
+
+-- no λ allInXs → p (λ y → help allInXs y)
+--     where 
+--         help : (allInXs : All X (x ∷ xs)) (y : X) → (Any (y ≡_) xs)
+--         help allInXs y with allInXs y 
+--         ... | here refl = {! allInXs y  !}
+--         ... | there c = {!   !}
+
+
+absurdAny : ∀ {A : Set} {x : X} {xs : List X} {p : x ∈ xs} → there p ≡ here refl → A 
+absurdAny ()
 
 de2dnd : DecEq X → (xs : List X) → Dec (NoDup xs)
-de2dnd d xs = {!   !}
-
+de2dnd _≡?_ [] = yes (λ { x ()  })
+de2dnd {X} _≡?_ (x ∷ xs) with _∈?_ {X} {_≡?_} x xs 
+... | yes p = no (λ noDup → absurdAny (noDup x (there p) (here refl)))
+... | no  p with (de2dnd _≡?_ xs) 
+...         | yes noDup = yes (λ { y (here refl) (here refl) → refl
+                             ; y (here refl) (there p₂) → ⊥-elim (p p₂)
+                             ; y (there p₁) (here refl) → ⊥-elim (p p₁)
+                             ; y (there p₁) (there p₂) → cong there (noDup y p₁ p₂) } ) 
+...         | no  yesDup = no (λ noDup → yesDup (λ { y (here refl) (here refl) → refl
+                                                   ; y (here refl) (there p₂) → there-injective (noDup y (there (here refl)) (there (there p₂)))
+                                                   ; y (there p₁) (here refl) → there-injective (noDup y (there (there p₁)) (there (here refl)))
+                                                   ; y (there p₁) (there p₂)  → there-injective (noDup y (there (there p₁)) (there (there p₂))) })) 
 
 ∥_∥ : Dec X → Set 
 ∥ yes p ∥ = ⊤ 
@@ -208,3 +248,23 @@ listable-to-DecEq = {!   !}
 listableJunkSub : (U : Set) → (U → Set) → Set 
 listableJunkSub U P = Σ[ xs ∈ List U ] 
                       ((x : U) → P x → x ∈ xs)
+
+ListableSub : (U : Set) → (U → Set) → Set 
+ListableSub U P = Σ[ xs ∈ List U ] 
+                  ((x : U) → P x → x ∈ xs) × 
+                  ((x : U) → x ∈ xs → P x)                 
+
+DecEmpty : (xs : List X) → Dec (∀ (x : X) → ¬ (x ∈ xs))
+DecEmpty [] = yes (λ { x () })
+DecEmpty (x ∷ xs) = no (λ p → p x (here refl))
+
+emptySubset? : {U : Set}{P : U → Set} (p : ListableSub U P) → 
+         Dec (∀ (x : U) → ¬ (x ∈ fst p))   
+emptySubset? {U} {P} (xs , _) = DecEmpty xs
+
+-- this seems more interesting 
+
+emptySubset?' : {U : Set}{P : U → Set} (p : ListableSub U P) → 
+         Dec (∀ (x : U) → Empty (P x))   
+emptySubset?' {U} {P} (xs , intoList , fromList) = {!   !}
+  
