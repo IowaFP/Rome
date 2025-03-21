@@ -23,8 +23,17 @@ data Type Δ : Kind → Set
 
 open import Data.Fin
 
--- data FinLabel : ℕ → Set where
---        Z : Label → Fin (suc n)
+-- what I *want* here is a representation of functions 
+-- with finite label domains to types such that
+-- - duplicates are disallowed
+-- - order is propositionally irrelevant 
+-- The first I can get, the second, not so sure...
+
+-- data LabelSet : Bool → Set where 
+--        plain : List String → LabelSet true
+          -- use decidable equality here 
+--        noDup : (xs : List String) → {True (nd? xs)} → 
+--                LabelSet false
 
 data Pred Δ where
   _·_~_ : 
@@ -91,9 +100,9 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  row : SimpleRowTheory Δ R[ κ ] → 
-        ----------------------
-        Type Δ R[ κ ]
+--   row : SimpleRowTheory Δ R[ κ ] → 
+--         ----------------------
+--         Type Δ R[ κ ]
 
   -- labels
   lab :
