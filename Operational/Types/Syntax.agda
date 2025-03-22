@@ -4,6 +4,9 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
+open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
+
+
 --------------------------------------------------------------------------------
 -- Types
 
@@ -12,16 +15,23 @@ infixl 5 _·_
 infixr 5 _≲_
 data Pred Δ : Kind → Set
 data Type Δ : Kind → Set 
+data SimpleRow Δ : Kind → Set 
+       
 
--- data SimpleRowTheory Δ : Kind → Set where 
---        ε : SimpleRowTheory Δ R[ κ ] 
+labels : SimpleRow Δ κ → List Label 
+data SimpleRow Δ where 
+       ε : SimpleRow Δ R[ κ ] 
 
---        (_▹_⨾_) : (ℓ : Label) → (τ : Type Δ κ) → 
---                  (ρ : SimpleRowTheory Δ R[ κ ]) → {ℓ ∉ labels ρ} 
---                  ----------------------------------------------- 
---                  SimpleRowTheory Δ R[ κ ]
+       _▹_⨾_ : ∀ (ℓ : Label) → 
+                  (τ : Type Δ κ) →
+                  (ρ : SimpleRow Δ R[ κ ]) → {noDup : True (ℓ ∉? labels ρ)} → 
+                  ----------------------------------------------- 
+                  SimpleRow Δ R[ κ ]
 
-open import Data.Fin
+labels ε = []
+labels (ℓ ▹ τ ⨾ ρ) = ℓ ∷ labels ρ 
+
+-- open import Data.Fin
 
 -- what I *want* here is a representation of functions 
 -- with finite label domains to types such that
@@ -100,9 +110,9 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
---   row : SimpleRowTheory Δ R[ κ ] → 
---         ----------------------
---         Type Δ R[ κ ]
+  row : SimpleRow Δ R[ κ ] → 
+        ----------------------
+        Type Δ R[ κ ]
 
   -- labels
   lab :
@@ -182,3 +192,4 @@ f ?? a = flap · f · a
 
 Unit : Type Δ ★
 Unit = Π · ε
+ 
