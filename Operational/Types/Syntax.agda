@@ -15,20 +15,25 @@ infixl 5 _·_
 infixr 5 _≲_
 data Pred Δ : Kind → Set
 data Type Δ : Kind → Set 
-data SimpleRow Δ : Kind → Set 
+data SimpleRow (Ty : KEnv → Kind → Set) Δ : Kind → Set
        
 
-labels : SimpleRow Δ κ → List Label 
-data SimpleRow Δ where 
-       ε : SimpleRow Δ R[ κ ] 
+labels : ∀ {Ty : KEnv → Kind → Set} → SimpleRow Ty Δ R[ κ ] → List Label 
+
+infixr 0 _▹_⨾_
+data SimpleRow Ty Δ where 
+       _▹_ : 
+              Label → Ty Δ κ  → 
+              ------------------------
+              SimpleRow Ty Δ R[ κ ]
 
        _▹_⨾_ : ∀ (ℓ : Label) → 
-                  (τ : Type Δ κ) →
-                  (ρ : SimpleRow Δ R[ κ ]) → {noDup : True (ℓ ∉? labels ρ)} → 
+                  (τ : Ty Δ κ) →
+                  (ρ : SimpleRow Ty Δ R[ κ ]) → {noDup : True (ℓ ∉? labels ρ)} → 
                   ----------------------------------------------- 
-                  SimpleRow Δ R[ κ ]
+                  SimpleRow Ty Δ R[ κ ]
 
-labels ε = []
+labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⨾ ρ) = ℓ ∷ labels ρ 
 
 -- open import Data.Fin
@@ -110,7 +115,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  row : SimpleRow Δ R[ κ ] → 
+  ⦅_⦆ : SimpleRow Type Δ R[ κ ] → 
         ----------------------
         Type Δ R[ κ ]
 
@@ -192,4 +197,7 @@ f ?? a = flap · f · a
 
 Unit : Type Δ ★
 Unit = Π · ε
+
+sr : Type Δ R[ ★ ] 
+sr = ⦅ "a" ▹ Unit ⨾ "b" ▹ (Σ · ε) ⨾ "c" ▹ ((`λ (` Z)) · Unit) ⨾ "d" ▹ Unit ⦆
  
