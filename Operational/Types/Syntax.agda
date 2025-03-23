@@ -13,10 +13,16 @@ open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ 
 
 infixl 5 _·_
 infixr 5 _≲_
-data Pred Δ : Kind → Set
+data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
 data Type Δ : Kind → Set 
 data SimpleRow (Ty : KEnv → Kind → Set) Δ : Kind → Set
        
+
+--------------------------------------------------------------------------------
+-- Simple rows
+--
+-- Simple rows are indexed by an abstract Ty : KEnv → Kind → Set
+-- so that they can be reused later by NormalType.
 
 labels : ∀ {Ty : KEnv → Kind → Set} → SimpleRow Ty Δ R[ κ ] → List Label 
 
@@ -36,32 +42,41 @@ data SimpleRow Ty Δ where
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
--- open import Data.Fin
+-- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
+-- without violating termination checking.
+mapSimpleRow : ∀ {Ty : KEnv → Kind → Set} → 
+                 (f : Ty Δ₁ κ₁ → Ty Δ₂ κ₂)  → 
+                 SimpleRow Ty Δ₁ R[ κ₁ ] → SimpleRow Ty Δ₂ R[ κ₂ ]
+labelsFixedByMap : ∀ {Ty : KEnv → Kind → Set} → 
+                     (f : Ty Δ₁ κ₁ → Ty Δ₂ κ₂) → 
+                     (sr : SimpleRow Ty Δ₁ R[ κ₁ ]) → 
+                     labels (mapSimpleRow f sr) ≡ labels sr
 
--- what I *want* here is a representation of functions 
--- with finite label domains to types such that
--- - duplicates are disallowed
--- - order is propositionally irrelevant 
--- The first I can get, the second, not so sure...
+mapSimpleRow f (ℓ ▹ τ) = ℓ ▹ (f τ)
+mapSimpleRow f ((ℓ ▹ τ ⸴ ρ) {noDup}) = 
+       (ℓ ▹ (f τ) ⸴ mapSimpleRow f ρ) 
+       {subst 
+         (λ x → True (ℓ ∉? x)) 
+         (sym (labelsFixedByMap f ρ)) 
+         noDup}
+labelsFixedByMap f (ℓ ▹ τ) = refl
+labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
 
--- data LabelSet : Bool → Set where 
---        plain : List String → LabelSet true
-          -- use decidable equality here 
---        noDup : (xs : List String) → {True (nd? xs)} → 
---                LabelSet false
+--------------------------------------------------------------------------------
+-- Predicates
 
-data Pred Δ where
+data Pred Ty Δ where
   _·_~_ : 
 
-       (ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]) → 
+       (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → 
        --------------------- 
-       Pred Δ R[ κ ]
+       Pred Ty Δ R[ κ ]
 
   _≲_ : 
 
-       (ρ₁ ρ₂ : Type Δ R[ κ ]) →
+       (ρ₁ ρ₂ : Ty Δ R[ κ ]) →
        ----------
-       Pred Δ R[ κ ]  
+       Pred Ty Δ R[ κ ]  
        
 data Type Δ where
 
@@ -107,7 +122,7 @@ data Type Δ where
 
   _⇒_ : 
 
-         (π : Pred Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
+         (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
          ---------------------
          Type Δ ★       
 
@@ -161,14 +176,6 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
-
---------------------------------------------------------------------------------
--- Lifting of type operators over predicates
-
-_·P_ : ∀ (f : Type Δ (κ₁ `→ κ₂)) (π : Pred Δ R[ κ₁ ]) → 
-       Pred Δ R[ κ₂ ] 
-f ·P (ρ₁ · ρ₂ ~ ρ₃) = (f <$> ρ₁) · f <$> ρ₂ ~ (f <$> ρ₃)
-f ·P (ρ₁ ≲ ρ₂) = f <$> ρ₁ ≲ f <$> ρ₂
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors

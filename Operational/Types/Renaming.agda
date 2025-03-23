@@ -22,7 +22,7 @@ liftₖ ρ Z = Z
 liftₖ ρ (S x) = S (ρ x)
 
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Δ₁ R[ κ ] → Pred Δ₂ R[ κ ]
+renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Type Δ₁ R[ κ ] → Pred Type Δ₂ R[ κ ]
 renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 labelsFixedByRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (renRowₖ ρ sr) ≡ labels sr
 

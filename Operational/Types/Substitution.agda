@@ -20,7 +20,7 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
+subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
 subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 labelsFixedBySub : (ρ : Substitutionₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (subRowₖ ρ sr) ≡ labels sr
 subₖ σ ε = ε

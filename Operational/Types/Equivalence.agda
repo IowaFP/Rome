@@ -14,7 +14,7 @@ open import Rome.Operational.Types.Renaming
 
 infix 0 _≡t_
 infix 0 _≡p_
-data _≡p_ : Pred Δ R[ κ ] → Pred Δ R[ κ ] → Set
+data _≡p_ : Pred Type Δ R[ κ ] → Pred Type Δ R[ κ ] → Set
 data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set
 data _≡t_ : Type Δ κ → Type Δ κ → Set 
 
@@ -22,7 +22,7 @@ private
     variable
         l l₁ l₂ l₃ : Type Δ L
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
-        π₁ π₂    : Pred Δ R[ κ ]
+        π₁ π₂    : Pred Type Δ R[ κ ]
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
 
 data _≡p_ where
@@ -48,7 +48,8 @@ data _≡r_ where
 
     _eq-▹_⸴_ : ∀ {ℓ₁ ℓ₂ ρ₁ ρ₂} → 
 
-            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ →  ρ₁ ≡r ρ₂ → {nd₁ : True (ℓ₁ ∉? labels ρ₁)} → {nd₂ : True (ℓ₂ ∉? labels ρ₂)} → 
+            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ →  ρ₁ ≡r ρ₂ → {
+            nd₁ : True (ℓ₁ ∉? labels ρ₁)} → {nd₂ : True (ℓ₂ ∉? labels ρ₂)} → 
             ---------------------------------
             ((ℓ₁ ▹ τ₁ ⸴ ρ₁) {nd₁}) ≡r ((ℓ₂ ▹ τ₂ ⸴ ρ₂) {nd₂})
 

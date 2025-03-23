@@ -20,7 +20,10 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 
 infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
-data NormalPred (Δ : KEnv) : Kind → Set
+
+NormalPred : KEnv → Kind → Set 
+NormalPred = Pred NormalType
+
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -41,19 +44,6 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
-data NormalPred Δ where
-
-  _·_~_ : 
-
-       (ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]) → 
-       --------------------- 
-       NormalPred Δ R[ κ ]
-
-  _≲_ : 
-
-       (ρ₁ ρ₂ : NormalType Δ R[ κ ]) →
-       ----------
-       NormalPred Δ R[ κ ]  
 
 data NormalType Δ where
 
@@ -99,6 +89,10 @@ data NormalType Δ where
   ------------------------------------------------------------------
   -- Rω business
 
+
+  ⦅_⦆ : SimpleRow NormalType Δ R[ κ ] → 
+        ----------------------
+       NormalType Δ R[ κ ]
   ε : 
 
       ------------------  
@@ -209,12 +203,14 @@ inj-▹ᵣ refl = refl
 -- Rows are either neutral or labeled types
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
+    Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] (ρ ≡ ⦅ sr ⦆ ) or 
     ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ))) or 
     Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
     ρ ≡ ε 
-row-canonicity (l ▹ τ) = left (l , τ , refl)
-row-canonicity (ne τ) = right (left (τ , refl))
-row-canonicity ε = right (right refl)
+row-canonicity (l ▹ τ) = right (left (l , τ , refl))
+row-canonicity (ne τ) = right (right (left (τ , refl)))
+row-canonicity ε = right (right (right refl))
+row-canonicity ⦅ ρ ⦆ = left (ρ , refl)
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -227,8 +223,11 @@ arrow-canonicity (`λ f) = f , refl
 -- Embedding Normal/neutral types back to Types
 
 ⇑ : NormalType Δ κ → Type Δ κ
+⇑Row : SimpleRow NormalType Δ R[ κ ] → SimpleRow Type Δ R[ κ ]
+labelsFixedByEmbedding : (sr : SimpleRow NormalType Δ₁ R[ κ ]) → labels (⇑Row sr) ≡ labels sr
+
 ⇑NE : NeutralType Δ κ → Type Δ κ
-⇑Pred : NormalPred Δ R[ κ ] → Pred Δ R[ κ ] 
+⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
 
 ⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
@@ -244,6 +243,13 @@ arrow-canonicity (`λ f) = f , refl
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
+⇑ (⦅ ρ ⦆) = ⦅ ⇑Row ρ ⦆
+⇑Row (ℓ ▹ τ) = ℓ ▹ (⇑ τ)
+⇑Row ((ℓ ▹ τ ⸴ ρ) {noDup}) = (ℓ ▹ ⇑ τ ⸴ ⇑Row ρ) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByEmbedding ρ)) noDup}
+
+labelsFixedByEmbedding (ℓ ▹ τ) = refl
+labelsFixedByEmbedding (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByEmbedding ρ = refl
+
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
