@@ -20,21 +20,21 @@ data SimpleRow (Ty : KEnv → Kind → Set) Δ : Kind → Set
 
 labels : ∀ {Ty : KEnv → Kind → Set} → SimpleRow Ty Δ R[ κ ] → List Label 
 
-infixr 0 _▹_⨾_
+infixr 0 _▹_⸴_
 data SimpleRow Ty Δ where 
        _▹_ : 
               Label → Ty Δ κ  → 
               ------------------------
               SimpleRow Ty Δ R[ κ ]
 
-       _▹_⨾_ : ∀ (ℓ : Label) → 
+       _▹_⸴_ : ∀ (ℓ : Label) → 
                   (τ : Ty Δ κ) →
                   (ρ : SimpleRow Ty Δ R[ κ ]) → {noDup : True (ℓ ∉? labels ρ)} → 
                   ----------------------------------------------- 
                   SimpleRow Ty Δ R[ κ ]
 
 labels (ℓ ▹ τ) = ℓ ∷ []
-labels (ℓ ▹ τ ⨾ ρ) = ℓ ∷ labels ρ 
+labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
 -- open import Data.Fin
 
@@ -199,5 +199,5 @@ Unit : Type Δ ★
 Unit = Π · ε
 
 sr : Type Δ R[ ★ ] 
-sr = ⦅ "a" ▹ Unit ⨾ "b" ▹ (Σ · ε) ⨾ "c" ▹ ((`λ (` Z)) · Unit) ⨾ "d" ▹ Unit ⦆
+sr = ⦅ "a" ▹ Unit ⸴ "b" ▹ (Σ · ε) ⸴ "c" ▹ ((`λ (` Z)) · Unit) ⸴ "d" ▹ Unit ⦆
  
