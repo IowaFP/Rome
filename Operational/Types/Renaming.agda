@@ -22,9 +22,9 @@ liftₖ ρ Z = Z
 liftₖ ρ (S x) = S (ρ x)
 
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Δ₁ R[ κ ] → Pred Δ₂ R[ κ ]
-labelsFixed : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (renRowₖ ρ sr) ≡ labels sr
+renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
+labelsFixedByRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (renRowₖ ρ sr) ≡ labels sr
 
 renₖ ρ ε  = ε
 renₖ ρ (` x) = ` (ρ x)
@@ -43,10 +43,10 @@ renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
 renₖ ρ ⦅ ρ₁ ⦆ = ⦅ renRowₖ ρ ρ₁ ⦆
 
 renRowₖ ρ (ℓ ▹ τ) = ℓ ▹ (renₖ ρ τ)
-renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁) {noDup}) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixed ρ ρ₁)) noDup}
+renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁) {noDup}) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ ρ₁)) noDup}
 
-labelsFixed ρ (ℓ ▹ τ) = refl
-labelsFixed ρ (ℓ ▹ τ ⸴ ρ₁) rewrite labelsFixed ρ ρ₁ = refl
+labelsFixedByRen ρ (ℓ ▹ τ) = refl
+labelsFixedByRen ρ (ℓ ▹ τ ⸴ ρ₁) rewrite labelsFixedByRen ρ ρ₁ = refl
 
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 

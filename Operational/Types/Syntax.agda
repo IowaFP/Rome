@@ -36,12 +36,6 @@ data SimpleRow Ty Δ where
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
--- mapRow :  ∀ {Ty : KEnv → Kind → Set} → (Ty Δ₁ κ₁ → Ty Δ₂ κ₂) → SimpleRow Ty Δ₁ R[ κ₁ ] → SimpleRow Ty Δ₂ R[ κ₂ ]
--- mapRow f (ℓ ▹ τ) = ℓ ▹ f τ
--- mapRow f ((ℓ ▹ τ ⸴ r) {noDup}) with (mapRow f r)
--- ... | ℓ₁ ▹ τ₁ = {!   !}
--- ... | ℓ₁ ▹ τ₁ ⸴ c = {!   !} -- (ℓ ▹ (f τ) ⸴ (mapRow f r)) {{!  (mapRow f r) !}}
-
 -- open import Data.Fin
 
 -- what I *want* here is a representation of functions 
@@ -204,6 +198,7 @@ f ?? a = flap · f · a
 Unit : Type Δ ★
 Unit = Π · ε
 
+-- Example simple row
 sr : Type Δ R[ ★ ] 
 sr = ⦅ "a" ▹ Unit ⸴ "b" ▹ (Σ · ε) ⸴ "c" ▹ ((`λ (` Z)) · Unit) ⸴ "d" ▹ Unit ⦆
   

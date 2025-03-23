@@ -21,6 +21,8 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 -- variables in τ with the types mapped to by σ.
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Δ₁ κ → Pred Δ₂ κ
+subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
+labelsFixedBySub : (ρ : Substitutionₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (subRowₖ ρ sr) ≡ labels sr
 subₖ σ ε = ε
 subₖ σ (` x) = σ x
 subₖ σ (`λ τ) = `λ (subₖ (liftsₖ σ) τ)
@@ -35,6 +37,13 @@ subₖ σ (lab x) = lab x
 subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
+subₖ ρ ⦅ ρ₁ ⦆ = ⦅ subRowₖ ρ ρ₁ ⦆
+
+subRowₖ σ (ℓ ▹ τ) = ℓ ▹ (subₖ σ τ)
+subRowₖ σ ((ℓ ▹ τ ⸴ ρ) {noDup}) = (ℓ ▹ (subₖ σ τ) ⸴ subRowₖ σ ρ) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedBySub σ ρ)) noDup}
+
+labelsFixedBySub σ (ℓ ▹ τ) = refl
+labelsFixedBySub σ (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedBySub σ ρ = refl
 
 
 subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
