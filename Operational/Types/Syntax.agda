@@ -54,6 +54,9 @@ data SimpleRow Ty Δ where
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
+simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
+simpleRow2 Ty Δ κ = ∃[ n ] (Fin n → Ty Δ κ)
+
 
 -- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
 -- without violating termination checking.
