@@ -26,6 +26,18 @@ data SimpleRow (Ty : KEnv → Kind → Set) Δ : Kind → Set
 
 labels : ∀ {Ty : KEnv → Kind → Set} → SimpleRow Ty Δ R[ κ ] → List Label 
 
+noDuplicate :  ∀ {Ty : KEnv → Kind → Set} → Label → SimpleRow Ty Δ R[ κ ] → Set
+noDuplicate ℓ ρ = True (ℓ ∉? labels ρ)
+
+MereProp : ∀ (A : Set) → Set 
+MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
+
+noDuplicateMereProp : ∀ {Ty : KEnv → Kind → Set} (ℓ : Label) → (ρ : SimpleRow Ty Δ R[ κ ]) → 
+                      MereProp (True (ℓ ∉? labels ρ))
+noDuplicateMereProp ℓ ρ p₁ p₂ with ℓ ∈? labels ρ 
+... | yes p = refl                      
+... | no  p = refl                      
+
 infixr 0 _▹_⸴_
 data SimpleRow Ty Δ where 
        _▹_ : 
@@ -41,6 +53,7 @@ data SimpleRow Ty Δ where
 
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
+
 
 -- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
 -- without violating termination checking.
