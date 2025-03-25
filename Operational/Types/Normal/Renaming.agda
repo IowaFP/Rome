@@ -15,6 +15,7 @@ open import Rome.Operational.Types.Normal.Syntax
 
 renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
+renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 
 
@@ -36,11 +37,13 @@ renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (ΠL τ) = ΠL (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF ρ (ΣL τ) = ΣL (renₖNF ρ τ)
+renₖNF r ⦅ ρ ⦆ = ⦅ renRowₖNF r ρ ⦆
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
--- renRow ρ (l ▹ τ) = (renₖNF ρ l) ▹ (renₖNF ρ τ)
+renRowₖNF _ [] = []
+renRowₖNF r (τ ∷ ρ) = renₖNF r τ ∷ renRowₖNF r ρ
 
 --------------------------------------------------------------------------------
 -- Weakening

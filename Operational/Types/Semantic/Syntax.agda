@@ -24,4 +24,5 @@ SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ κ ] = Maybe 
   ((NeutralType Δ R[ κ ]) or 
-  (NormalType Δ L × SemType Δ κ))
+  (NormalType Δ L × SemType Δ κ) or 
+  List (SemType Δ κ))
