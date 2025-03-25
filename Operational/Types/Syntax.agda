@@ -54,8 +54,9 @@ data SimpleRow Ty Δ where
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
-simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
-simpleRow2 Ty Δ κ = ∃[ n ] (Fin n → Ty Δ κ)
+
+-- data SimpleRow3 (U : Set) (Ty : KEnv → Kind → Set) (eq : DecidableEquality U) : KEnv → Kind → Set where 
+--        row : ∀ Δ κ → (xs : List (U × Ty Δ κ)) → {noDup : True (nd? (labels xs))} → 
 
 
 -- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
@@ -77,6 +78,27 @@ mapSimpleRow f ((ℓ ▹ τ ⸴ ρ) {noDup}) =
          noDup}
 labelsFixedByMap f (ℓ ▹ τ) = refl
 labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
+
+--------------------------------------------------------------------------------
+-- Easier simple rows 
+-- 
+-- We show alternatively that one can define a finite map
+
+simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
+labels2 : ∀ {Ty : KEnv → Kind → Set} → (n : ℕ) → 
+          (Fin n → Label × Ty Δ κ) → List Label
+labels2  zero f = []
+labels2 (suc n) f = fst (f (# n)) ∷ (labels2 {! n  !} f) 
+
+NoDup : List Label → Set
+NoDup xs = ∀ (x : Label) → MereProp (x ∈ xs)
+
+noDup? : (xs : List Label) → Dec (NoDup xs)
+noDup? xs = {!   !} 
+
+simpleRow2 Ty Δ κ = ∃[ n ] 
+                   (Σ[ ρ ∈ (Fin n → (Label × Ty Δ κ)) ] {! True (noDup? (labels2 ρ))   !})
+
 
 --------------------------------------------------------------------------------
 -- Predicates

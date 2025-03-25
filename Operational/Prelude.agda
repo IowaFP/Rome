@@ -3,7 +3,7 @@ module Rome.Operational.Prelude where
 open import Agda.Primitive public
 
 open import Data.Fin 
-  using (Fin) 
+  using (Fin ; #_) 
   renaming (zero to fzero ; suc to fsuc) public
 open import Data.Unit hiding (_≟_) public
 open import Data.Empty public
@@ -27,6 +27,7 @@ Label = String
 
 open import Function using (_∘_) public
 open import Relation.Binary.PropositionalEquality as Eq public
+open import Relation.Binary.Definitions using (Decidable ; DecidableEquality) public
 open import Relation.Nullary using (¬_) public
 open import Relation.Nullary.Negation using (contradiction; contraposition) public
 open import Relation.Nullary using (Dec; yes; no ; map′) public
