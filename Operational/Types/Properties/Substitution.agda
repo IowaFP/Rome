@@ -45,7 +45,7 @@ subₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ 
               (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡ subₖ σ₂ τ
 subRowₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
-              (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡ subRowₖ σ₂ ρ
+              (ρ : SimpleRow Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡ subRowₖ σ₂ ρ
 subₖ-cong e ε = refl
 subₖ-cong e (` α) = e α
 subₖ-cong e (`λ τ) = cong `λ (subₖ-cong (liftsₖ-cong e) τ)
@@ -63,18 +63,17 @@ subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
 subₖ-cong e Π = refl
 subₖ-cong e Σ = refl
 subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
-subₖ-cong {σ₁ = σ₁} e (⦅ ρ ⦆ x) with subRowₖ-cong e ρ | wfRowSub σ₁ ρ x
-... | eq | _  rewrite eq = cong-SimpleRow _
+subₖ-cong {σ₁ = σ₁} e ⦅ ρ ⦆ = {!!}
 
-subRowₖ-cong eq (ℓ ▹ τ) rewrite subₖ-cong eq τ = refl
-subRowₖ-cong {σ₁ = σ₁} {σ₂} eq (ℓ ▹ τ ⸴ ρ) rewrite 
+subRowₖ-cong eq [] = refl
+subRowₖ-cong {σ₁ = σ₁} {σ₂} eq (τ ∷ ρ) rewrite 
   subₖ-cong eq τ | subRowₖ-cong eq ρ = refl
 
 -------------------------------------------------------------------------------
 -- Substitution respects identities
 
 subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
-subRowₖ-id : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → subRowₖ ` ρ ≡ ρ
+subRowₖ-id : ∀ (ρ : SimpleRow Δ R[ κ ]) → subRowₖ ` ρ ≡ ρ
 
 subₖ-id ε = refl
 subₖ-id (` α) = refl
@@ -93,70 +92,80 @@ subₖ-id ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-id τ)
 subₖ-id Π = refl
 subₖ-id Σ = refl
 subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
-subₖ-id (⦅ ρ ⦆ wf) with subRowₖ-id ρ | wfRowSub ` ρ wf
-... | eq | _  rewrite eq = cong-SimpleRow ρ 
+subₖ-id ⦅ ρ ⦆ = {!!}
 
-subRowₖ-id (ℓ ▹ τ) rewrite subₖ-id τ = refl
-subRowₖ-id (ℓ ▹ τ ⸴ ρ) rewrite 
+subRowₖ-id [] = refl
+subRowₖ-id (τ ∷ ρ) rewrite 
   subₖ-id τ | subRowₖ-id ρ = refl
 
 -------------------------------------------------------------------------------
 -- subₖstitution and renₖaming commute
 
-↻-subₖ-renₖ : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃}  
-                (τ : Type Δ₁ κ) → subₖ (σ ∘ ρ) τ ≡ subₖ σ (renₖ ρ τ)
-↻-subₖ-renₖ {ρ = ρ} {σ} ε = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} (` α) = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} (`λ τ) = cong `λ (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
-↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂)
-↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {ρ = ρ} {σ} (`∀ τ) = cong (`∀) (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
-↻-subₖ-renₖ {ρ = ρ} {σ} (μ τ) = cong μ (↻-subₖ-renₖ τ)
-↻-subₖ-renₖ {ρ = ρ} {σ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₁ 
-  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₂ 
-  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₃ 
-  | ↻-subₖ-renₖ {ρ = ρ} {σ} τ = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₁ 
-  | ↻-subₖ-renₖ {ρ = ρ} {σ} ρ₂ 
-  | ↻-subₖ-renₖ {ρ = ρ} {σ} τ = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} (lab l) = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {ρ = ρ} {σ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-subₖ-renₖ τ)
-↻-subₖ-renₖ {ρ = ρ} {σ} Π = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} Σ = refl
-↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {ρ = r} {σ} (⦅ ρ ⦆ x) = {!!}
+↻-subₖ-renₖ : ∀ {r : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃}  
+                (τ : Type Δ₁ κ) → subₖ (σ ∘ r) τ ≡ subₖ σ (renₖ r τ)
+↻-subRowₖ-renRowₖ : ∀ {r : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃}  
+                (τ : SimpleRow Δ₁ R[ κ ]) → subRowₖ (σ ∘ r) τ ≡ subRowₖ σ (renRowₖ r τ)
+↻-subₖ-renₖ {r = r} {σ} ε = refl
+↻-subₖ-renₖ {r = r} {σ} (` α) = refl
+↻-subₖ-renₖ {r = r} {σ} (`λ τ) = cong `λ (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
+↻-subₖ-renₖ {r = r} {σ} (τ₁ · τ₂) = cong₂ _·_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂)
+↻-subₖ-renₖ {r = r} {σ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {r = r} {σ} (`∀ τ) = cong (`∀) (trans (subₖ-cong liftsₖ-liftₖ τ) (↻-subₖ-renₖ τ))
+↻-subₖ-renₖ {r = r} {σ} (μ τ) = cong μ (↻-subₖ-renₖ τ)
+↻-subₖ-renₖ {r = r} {σ} ((r₁ · r₂ ~ r₃) ⇒ τ) rewrite 
+    ↻-subₖ-renₖ {r = r} {σ} r₁ 
+  | ↻-subₖ-renₖ {r = r} {σ} r₂ 
+  | ↻-subₖ-renₖ {r = r} {σ} r₃ 
+  | ↻-subₖ-renₖ {r = r} {σ} τ = refl
+↻-subₖ-renₖ {r = r} {σ} ((r₁ ≲ r₂) ⇒ τ) rewrite 
+    ↻-subₖ-renₖ {r = r} {σ} r₁ 
+  | ↻-subₖ-renₖ {r = r} {σ} r₂ 
+  | ↻-subₖ-renₖ {r = r} {σ} τ = refl
+↻-subₖ-renₖ {r = r} {σ} (lab l) = refl
+↻-subₖ-renₖ {r = r} {σ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {r = r} {σ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-subₖ-renₖ τ)
+↻-subₖ-renₖ {r = r} {σ} Π = refl
+↻-subₖ-renₖ {r = r} {σ} Σ = refl
+↻-subₖ-renₖ {r = r} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {r = r} {σ} ⦅ ρ ⦆ rewrite ↻-subRowₖ-renRowₖ {r = r} {σ = σ} ρ = refl
 
-↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
-                    subₖ (renₖ ρ ∘ σ) τ ≡ renₖ ρ (subₖ σ τ)
-↻-renₖ-subₖ {σ = σ} {ρ} ε = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (` α) = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
-↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ · τ₂) = cong₂ _·_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} (`∀ τ) = cong (`∀) (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
-↻-renₖ-subₖ {σ = σ} {ρ} (μ τ) = cong μ (↻-renₖ-subₖ τ)
-↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 
-  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₂ 
-  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₃ 
-  | ↻-renₖ-subₖ {σ = σ} {ρ} τ = refl
-↻-renₖ-subₖ {σ = σ} {ρ} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    ↻-renₖ-subₖ {σ = σ} {ρ} ρ₁ 
-  | ↻-renₖ-subₖ {σ = σ} {ρ} ρ₂ 
-  | ↻-renₖ-subₖ {σ = σ} {ρ} τ = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (lab l) = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {ρ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-renₖ-subₖ τ)
-↻-renₖ-subₖ {σ = σ} {ρ} Π = refl
-↻-renₖ-subₖ {σ = σ} {ρ} Σ = refl
-↻-renₖ-subₖ {σ = σ} {ρ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-subRowₖ-renRowₖ [] = refl
+↻-subRowₖ-renRowₖ {r = r} {σ} (τ ∷ ρ) rewrite ↻-subₖ-renₖ {r = r} {σ} τ | ↻-subRowₖ-renRowₖ {r = r} {σ} ρ = refl 
+
+↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{r : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
+                    subₖ (renₖ r ∘ σ) τ ≡ renₖ r (subₖ σ τ)
+↻-renRowₖ-subRowₖ   : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{r : Renamingₖ Δ₂ Δ₃}(τ : SimpleRow Δ₁ R[ κ ]) →
+                        subRowₖ (renₖ r ∘ σ) τ ≡ renRowₖ r (subRowₖ σ τ)
+↻-renₖ-subₖ {σ = σ} {r} ε = refl
+↻-renₖ-subₖ {σ = σ} {r} (` α) = refl
+↻-renₖ-subₖ {σ = σ} {r} (`λ τ) = cong `λ (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {r} (τ₁ · τ₂) = cong₂ _·_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {r} (τ₁ `→ τ₂) = cong₂ _`→_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {r} (`∀ τ) = cong (`∀) (trans (subₖ-cong renₖ-liftₖ-liftsₖ τ) (↻-renₖ-subₖ τ))
+↻-renₖ-subₖ {σ = σ} {r} (μ τ) = cong μ (↻-renₖ-subₖ τ)
+↻-renₖ-subₖ {σ = σ} {r} ((r₁ · r₂ ~ r₃) ⇒ τ) rewrite 
+    ↻-renₖ-subₖ {σ = σ} {r} r₁ 
+  | ↻-renₖ-subₖ {σ = σ} {r} r₂ 
+  | ↻-renₖ-subₖ {σ = σ} {r} r₃ 
+  | ↻-renₖ-subₖ {σ = σ} {r} τ = refl
+↻-renₖ-subₖ {σ = σ} {r} ((r₁ ≲ r₂) ⇒ τ) rewrite 
+    ↻-renₖ-subₖ {σ = σ} {r} r₁ 
+  | ↻-renₖ-subₖ {σ = σ} {r} r₂ 
+  | ↻-renₖ-subₖ {σ = σ} {r} τ = refl
+↻-renₖ-subₖ {σ = σ} {r} (lab l) = refl
+↻-renₖ-subₖ {σ = σ} {r} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {r} ⌊ τ ⌋ = cong ⌊_⌋ (↻-renₖ-subₖ τ)
+↻-renₖ-subₖ {σ = σ} {r} Π = refl
+↻-renₖ-subₖ {σ = σ} {r} Σ = refl
+↻-renₖ-subₖ {σ = σ} {r} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
+↻-renₖ-subₖ {σ = σ} {r} ⦅ ρ ⦆ rewrite ↻-renRowₖ-subRowₖ {σ = σ} {r} ρ = refl
+
+↻-renRowₖ-subRowₖ {σ = σ} {r} [] = refl
+↻-renRowₖ-subRowₖ {σ = σ} {r} (τ ∷ ρ) rewrite ↻-renₖ-subₖ {σ = σ} {r} τ | ↻-renRowₖ-subRowₖ {σ = σ} {r} ρ = refl
 
 subₖ-weaken : ∀ (τ : Type Δ κ₁) (v : Type Δ κ₂) → 
              subₖ (extendₖ ` v) (renₖ S τ) ≡ τ 
-subₖ-weaken τ v = trans (sym (↻-subₖ-renₖ {ρ = S} {σ = extendₖ ` v} τ)) (subₖ-id τ)
+subₖ-weaken τ v = trans (sym (↻-subₖ-renₖ {r = S} {σ = extendₖ ` v} τ)) (subₖ-id τ)
 
 -------------------------------------------------------------------------------
 -- Arrow functor law for liftsₖ & subₖ (needs commutativity of subₖ and renₖ)
@@ -168,6 +177,8 @@ liftsₖ-comp σ₁ σ₂ (S x) = trans (sym (↻-renₖ-subₖ (σ₁ x))) (↻
 
 subₖ-comp : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₂ Δ₃}
                 (τ : Type Δ₁ κ) → subₖ (subₖ σ₂ ∘ σ₁) τ ≡ subₖ σ₂ (subₖ σ₁ τ)
+subRowₖ-comp : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₂ Δ₃}
+                (τ : SimpleRow Δ₁ R[ κ ]) → subRowₖ (subₖ σ₂ ∘ σ₁) τ ≡ subRowₖ σ₂ (subRowₖ σ₁ τ)
 subₖ-comp ε = refl
 subₖ-comp (` α) = refl
 subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`λ τ) = 
@@ -181,14 +192,14 @@ subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (`∀ τ) =
     (subₖ-cong (liftsₖ-comp σ₁ σ₂) τ) 
     (subₖ-comp {σ₁ = liftsₖ σ₁} {σ₂ = liftsₖ σ₂} τ)))
 subₖ-comp (μ τ) = cong μ (subₖ-comp τ)
-subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite 
-    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
-  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
-  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₃ 
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((r₁ · r₂ ~ r₃) ⇒ τ) rewrite 
+    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} r₁ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} r₂ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} r₃ 
   | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
-subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite 
-    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₁ 
-  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ρ₂ 
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} ((r₁ ≲ r₂) ⇒ τ) rewrite 
+    subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} r₁ 
+  | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} r₂ 
   | subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} τ = refl
 subₖ-comp (lab l) = refl
 subₖ-comp (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-comp τ₁) (subₖ-comp τ₂)
@@ -196,25 +207,30 @@ subₖ-comp ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-comp τ)
 subₖ-comp Π = refl
 subₖ-comp Σ = refl
 subₖ-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-comp τ₁) (subₖ-comp τ₂)
+subₖ-comp ⦅ ρ ⦆ = cong ⦅_⦆ (subRowₖ-comp ρ)
+
+subRowₖ-comp [] = refl
+subRowₖ-comp (τ ∷ ρ) = cong₂ _∷_ (subₖ-comp τ) (subRowₖ-comp ρ)
+
 
 -------------------------------------------------------------------------------
 -- 
 
-renₖ-subₖ-id : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (ρ : Renamingₖ Δ₂ Δ₃) 
-                (τ :  Type Δ₂ κ) → renₖ ρ τ ≡ subₖ (` ∘ ρ) τ
-renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
+renₖ-subₖ-id : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (r : Renamingₖ Δ₂ Δ₃) 
+                (τ :  Type Δ₂ κ) → renₖ r τ ≡ subₖ (` ∘ r) τ
+renₖ-subₖ-id σ r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
 
 -------------------------------------------------------------------------------
 -- Renamingₖ commutes with β-reduction
 
-↻-renₖ-β      : (ρ : Renamingₖ Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
-                renₖ ρ (τ₁ βₖ[ τ₂ ]) ≡ (renₖ (liftₖ ρ) τ₁) βₖ[ (renₖ ρ τ₂) ]  
-↻-renₖ-β ρ τ₁ τ₂ = 
+↻-renₖ-β      : (r : Renamingₖ Δ₁ Δ₂) (τ₁ : Type (Δ₁ ,, κ₁) κ₂) (τ₂ : Type Δ₁ κ₁) → 
+                renₖ r (τ₁ βₖ[ τ₂ ]) ≡ (renₖ (liftₖ r) τ₁) βₖ[ (renₖ r τ₂) ]  
+↻-renₖ-β r τ₁ τ₂ = 
   trans 
     (sym (↻-renₖ-subₖ τ₁)) 
     (trans 
       (subₖ-cong (λ { Z → refl ; (S x) → refl }) τ₁) 
-      (↻-subₖ-renₖ {ρ = liftₖ ρ} {extendₖ ` (renₖ ρ τ₂)} τ₁))                  
+      (↻-subₖ-renₖ {r = liftₖ r} {extendₖ ` (renₖ r τ₂)} τ₁))                  
 
 -------------------------------------------------------------------------------
 -- Substitution commutes with β-reduction 
@@ -227,6 +243,6 @@ renₖ-subₖ-id σ ρ τ = trans (cong (renₖ ρ) (sym (subₖ-id τ))) (trans
     (trans 
       (subₖ-cong (λ { Z → refl
                     ; (S x) → trans 
-                        (sym (↻-subₖ-renₖ {ρ = S} {extendₖ ` (subₖ σ τ₂)} (σ x))) 
+                        (sym (↻-subₖ-renₖ {r = S} {extendₖ ` (subₖ σ τ₂)} (σ x))) 
                         (subₖ-id (σ x)) }) τ₁) 
       (subₖ-comp {σ₁ = extendₖ ` τ₂} {σ} τ₁))

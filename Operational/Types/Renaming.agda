@@ -23,47 +23,29 @@ liftₖ ρ (S x) = S (ρ x)
 
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Type Δ₁ R[ κ ] → Pred Type Δ₂ R[ κ ]
-renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
-labelsFixedByRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (renRowₖ ρ sr) ≡ labels sr
-wfRowRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → WFRow sr →  WFRow (renRowₖ ρ sr)
-wfRowRen ρ sr WFsr rewrite labelsFixedByRen ρ sr = WFsr 
+renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Δ₁ R[ κ ] → SimpleRow Δ₂ R[ κ ]
 
-renₖ ρ ε  = ε
-renₖ ρ (` x) = ` (ρ x)
-renₖ ρ (`λ τ) = `λ (renₖ (liftₖ ρ) τ)
-renₖ ρ (τ₁ · τ₂) = (renₖ ρ τ₁) · (renₖ ρ τ₂)
-renₖ ρ (τ₁ `→ τ₂) = (renₖ ρ τ₁) `→ (renₖ ρ τ₂)
-renₖ ρ (π ⇒ τ) = renPredₖ ρ π ⇒ renₖ ρ τ 
-renₖ ρ (`∀ τ) = `∀ (renₖ (liftₖ ρ) τ)
-renₖ ρ (μ F) = μ (renₖ ρ F)
-renₖ ρ (Π ) = Π 
-renₖ ρ Σ = Σ
-renₖ ρ (lab x) = lab x
-renₖ ρ (l ▹ τ) = renₖ ρ l ▹ renₖ ρ τ
-renₖ ρ ⌊ ℓ ⌋ = ⌊ (renₖ ρ ℓ) ⌋
-renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
-renₖ ρ (⦅ sr ⦆ noDup) = ⦅ renRowₖ ρ sr ⦆ (wfRowRen ρ sr noDup)
-
-renRowₖ ρ (ℓ ▹ τ) = ℓ ▹ (renₖ ρ τ)
-renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁)) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) -- {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ ρ₁)) noDup}
-
-labelsFixedByRen ρ (ℓ ▹ τ) = refl
-labelsFixedByRen ρ (ℓ ▹ τ ⸴ ρ₁) rewrite labelsFixedByRen ρ ρ₁ = refl
+renₖ r ε  = ε
+renₖ r (` x) = ` (r x)
+renₖ r (`λ τ) = `λ (renₖ (liftₖ r) τ)
+renₖ r (τ₁ · τ₂) = (renₖ r τ₁) · (renₖ r τ₂)
+renₖ r (τ₁ `→ τ₂) = (renₖ r τ₁) `→ (renₖ r τ₂)
+renₖ r (π ⇒ τ) = renPredₖ r π ⇒ renₖ r τ 
+renₖ r (`∀ τ) = `∀ (renₖ (liftₖ r) τ)
+renₖ r (μ F) = μ (renₖ r F)
+renₖ r (Π ) = Π 
+renₖ r Σ = Σ
+renₖ r (lab x) = lab x
+renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
+renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋
+renₖ r (f <$> m) = renₖ r f <$> renₖ r m
+renₖ r ⦅ xs ⦆ = ⦅ renRowₖ r xs ⦆
 
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 
 
+renRowₖ r [] = [] 
+renRowₖ r (x ∷ xs) = renₖ r x ∷ renRowₖ r xs
+
 weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S
-
-weakenRowₖ : SimpleRow Type Δ R[ κ₂ ] → SimpleRow Type (Δ ,, κ₁) R[ κ₂ ] 
-weakenRowₖ = renRowₖ S 
-
---------------------------------------------------------------------------------
--- Just proving a petty point 
-
-RenRowIsMap : (ρ : Renamingₖ Δ₁ Δ₂) → 
-              (sr : SimpleRow Type Δ₁ R[ κ ]) → 
-              renRowₖ ρ sr ≡ mapSimpleRow (renₖ ρ) sr
-RenRowIsMap ρ (ℓ ▹ τ) = refl
-RenRowIsMap ρ (ℓ ▹ τ ⸴ sr₁) rewrite RenRowIsMap ρ sr₁ = refl

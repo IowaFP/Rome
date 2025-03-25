@@ -17,7 +17,7 @@ SimpleRow : KEnv → Kind → Set
 SimpleRow Δ ★ = ⊥
 SimpleRow Δ L = ⊥
 SimpleRow Δ (_ `→ _) = ⊥
-SimpleRow Δ R[ κ ] = ∃[ n ](Fin n → Type Δ κ)
+SimpleRow Δ R[ κ ] = List (Type Δ κ)
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -87,7 +87,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (ρ : SimpleRow Δ R[ κ ]) →
+  ⦅_⦆ : SimpleRow Δ R[ κ ] →
         ----------------------
         Type Δ R[ κ ]
 
@@ -164,10 +164,10 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ 4 , 
-       (λ { 
-            fzero → Unit 
-          ; (fsuc fzero) →  Σ · ε 
-          ; (fsuc (fsuc fzero)) → ((`λ (` Z)) · Unit)
-          ; (fsuc (fsuc (fsuc fzero))) → Unit }) ⦆
+sr = ⦅ Unit ∷ (Σ · ε) ∷ ((`λ (` Z)) · Unit) ∷ Unit ∷ [] ⦆
+       -- (λ { 
+       --      fzero → Unit 
+       --    ; (fsuc fzero) →  Σ · ε 
+       --    ; (fsuc (fsuc fzero)) → ((`λ (` Z)) · Unit)
+       --    ; (fsuc (fsuc (fsuc fzero))) → Unit }) ⦆
   

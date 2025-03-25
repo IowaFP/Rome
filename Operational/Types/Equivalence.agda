@@ -15,7 +15,6 @@ open import Rome.Operational.Types.Renaming
 infix 0 _≡t_
 infix 0 _≡p_
 data _≡p_ : Pred Type Δ R[ κ ] → Pred Type Δ R[ κ ] → Set
-data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set
 data _≡t_ : Type Δ κ → Type Δ κ → Set 
 
 private
@@ -24,6 +23,22 @@ private
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
         π₁ π₂    : Pred Type Δ R[ κ ]
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
+
+data _≡r_ : List (Type Δ κ) → List (Type Δ κ) → Set where 
+
+  eq-[] : 
+    
+    _≡r_  {Δ = Δ} {κ = κ} [] []
+  eq-cons : {xs ys : List (Type Δ κ)} → 
+
+            τ₁ ≡t τ₂ → xs ≡r ys → 
+            -----------------------
+            (τ₁ ∷ xs) ≡r (τ₂ ∷ ys)
+
+-- [] ≡r [] = ⊤
+-- [] ≡r (x ∷ ρ₂) = ⊥
+-- (x ∷ ρ₁) ≡r [] = ⊥
+-- (x ∷ ρ₁) ≡r (y ∷ ρ₂) = (x ≡t y) × ρ₁ ≡r ρ₂ 
 
 data _≡p_ where
 
@@ -38,19 +53,6 @@ data _≡p_ where
         τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ → 
         -----------------------------------
         τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
-
-data _≡r_ where
-    _eq-▹_ : ∀ {ℓ₁ ℓ₂} → 
-
-            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → 
-            --------------------
-            (ℓ₁ ▹ τ₁) ≡r (ℓ₂ ▹ τ₂)
-
-    _eq-▹_⸴_ : ∀ {ℓ₁ ℓ₂ ρ₁ ρ₂} → 
-
-            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → ρ₁ ≡r ρ₂ →
-            ---------------------------------
-            (ℓ₁ ▹ τ₁ ⸴ ρ₁) ≡r (ℓ₂ ▹ τ₂ ⸴ ρ₂)
 
 data _≡t_ where 
 
@@ -132,8 +134,9 @@ data _≡t_ where
         (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
     
     eq-row : 
-        ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]}  → ρ₁ ≡r ρ₂ → (nd₁ : WFRow ρ₁) (nd₂ : WFRow ρ₂) → 
-        ⦅ ρ₁ ⦆ nd₁ ≡t ⦅ ρ₂ ⦆ nd₂
+        ∀ (ρ₁ ρ₂ : List (Type Δ κ)) → ρ₁ ≡r ρ₂ → 
+        -------------------------------------------
+        ⦅ ρ₁ ⦆ ≡t ⦅ ρ₂ ⦆
 
   -- -------------------------------------
   -- η-laws  
