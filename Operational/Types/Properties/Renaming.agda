@@ -35,11 +35,11 @@ renₖ-cong :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ 
 renₖ-cong-pred : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
                   (π : Pred Type Δ₁ R[ κ ]) → renPredₖ ρ₁ π ≡ renPredₖ ρ₂ π
 renₖ-cong-row : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
-                  (ρ : SimpleRow Type Δ₁ R[ κ ]) → renRowₖ ρ₁ ρ ≡ renRowₖ ρ₂ ρ           
-renₖ-cong-row-step : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
-                  (ℓ : Label) (τ : Type Δ₁ κ) (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
-                  {nd₁ nd₂ : True (ℓ ∉? labels ρ)} → 
-                  renRowₖ ρ₁ ((ℓ ▹ τ ⸴ ρ) {nd₁}) ≡ renRowₖ ρ₂ ((ℓ ▹ τ ⸴ ρ) {nd₂})
+                  (ρ : SimpleRow Type Δ₁ R[ κ ]) → renRowₖ ρ₁ ρ ≡ renRowₖ ρ₂ ρ -- × WfRow (renRowₖ ρ₁ ρ) → WfRow (renRowₖ ρ₂ ρ)          
+-- renₖ-cong-row-step : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
+--                   (ℓ : Label) (τ : Type Δ₁ κ) (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
+--                   {nd₁ nd₂ : True (ℓ ∉? labels ρ)} → 
+--                   renRowₖ ρ₁ ((ℓ ▹ τ ⸴ ρ) {nd₁}) ≡ renRowₖ ρ₂ ((ℓ ▹ τ ⸴ ρ) {nd₂})
                   
 renₖ-cong eq ε = refl
 renₖ-cong eq (` x) rewrite eq x = refl
@@ -55,17 +55,21 @@ renₖ-cong eq (lab _) = refl
 renₖ-cong eq (l ▹ τ) rewrite renₖ-cong eq l | renₖ-cong eq τ = refl
 renₖ-cong eq ⌊ τ ⌋ rewrite renₖ-cong eq τ = refl
 renₖ-cong eq (f <$> a) rewrite renₖ-cong eq f | renₖ-cong eq a = refl
-renₖ-cong eq ⦅ ρ ⦆ rewrite renₖ-cong-row eq ρ = refl
+renₖ-cong {ρ₁ = ρ₁} {ρ₂} eq (⦅ ρ ⦆ nd) with renₖ-cong-row eq ρ 
+... | c = {!   !} 
+  -- subst (λ (y , wfY) → ⦅ y ⦆ wfY ≡ ⦅ renRowₖ ρ₂ ρ ⦆ (wfRowRen ρ₂ ρ nd)) 
+  -- {! sym (renₖ-cong-row eq ρ)  !} -- (sym (renₖ-cong-row eq ρ))
+  -- {! (renₖ-cong-row eq ρ)  !}
 
 renₖ-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖ-cong eq ρ₁ | renₖ-cong eq ρ₂ | renₖ-cong eq ρ₃ = refl
 renₖ-cong-pred eq (ρ₁ ≲ ρ₂) 
   rewrite renₖ-cong eq ρ₁ | renₖ-cong eq ρ₂ = refl
 
-renₖ-cong-row-step {ρ₁ = ρ₁} {ρ₂} eq ℓ τ ρ@(ℓ₁ ▹ τ₁) {nd₁} {nd₂} 
-  with renₖ ρ₁ τ | renₖ ρ₁ τ₁ | renₖ-cong eq τ | renₖ-cong eq τ₁ | noDuplicateMereProp ℓ ρ nd₁ nd₂
-...  | _         | _         | refl           | refl | refl = refl
-renₖ-cong-row-step eq ℓ τ (ℓ₁ ▹ τ₁ ⸴ ρ) {nd₁} {nd₂} = {!   !} 
+-- renₖ-cong-row-step {ρ₁ = ρ₁} {ρ₂} eq ℓ τ ρ@(ℓ₁ ▹ τ₁) {nd₁} {nd₂} 
+--   with renₖ ρ₁ τ | renₖ ρ₁ τ₁ | renₖ-cong eq τ | renₖ-cong eq τ₁ | noDuplicateMereProp ℓ ρ nd₁ nd₂
+-- ...  | _         | _         | refl           | refl | refl = refl
+-- renₖ-cong-row-step eq ℓ τ (ℓ₁ ▹ τ₁ ⸴ ρ) {nd₁} {nd₂} = {!   !} 
 
 ev-cong : ∀ {A B : Set} → 
           (P : A → Set) (f : (a : A) → P a → B) → 
@@ -74,8 +78,8 @@ ev-cong : ∀ {A B : Set} →
 ev-cong P f refl = cong (f _) {!   !} 
 
 renₖ-cong-row eq (ℓ ▹ τ) rewrite renₖ-cong eq τ = refl
-renₖ-cong-row {ρ₁ = ρ₁} {ρ₂} eq ((ℓ ▹ τ ⸴ ρ) {nd}) with renₖ ρ₁ τ | renₖ-cong eq τ 
-... | _ | refl = ev-cong 
+renₖ-cong-row {ρ₁ = ρ₁} {ρ₂} eq (ℓ ▹ τ ⸴ ρ) rewrite 
+  renₖ-cong eq τ | renₖ-cong-row eq ρ = refl
   -- subst 
   --   (λ x → (ℓ ▹ renₖ ρ₂ τ ⸴ x) {{!    !}} ≡ (ℓ ▹ renₖ ρ₂ τ ⸴ renRowₖ ρ₂ ρ) 
   --   {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ₂ ρ)) nd}) 
@@ -146,4 +150,4 @@ renₖ-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
 ↻-liftₖ-weaken : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
                 renₖ (liftₖ {κ = κ'} ρ) (renₖ S τ) ≡ renₖ S (renₖ ρ τ)
 ↻-liftₖ-weaken {κ' = κ'} ρ τ rewrite sym (renₖ-comp (S {κ₂ = κ'}) (liftₖ ρ) τ) | renₖ-comp ρ (S {κ₂ = κ'}) τ = refl
-   
+    

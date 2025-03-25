@@ -25,6 +25,8 @@ renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Type Δ₁ R[ κ ] → Pred Type Δ₂ R[ κ ]
 renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 labelsFixedByRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → labels (renRowₖ ρ sr) ≡ labels sr
+wfRowRen : (ρ : Renamingₖ Δ₁ Δ₂) → (sr : SimpleRow Type Δ₁ R[ κ ]) → WFRow sr →  WFRow (renRowₖ ρ sr)
+wfRowRen ρ sr WFsr rewrite labelsFixedByRen ρ sr = WFsr 
 
 renₖ ρ ε  = ε
 renₖ ρ (` x) = ` (ρ x)
@@ -40,7 +42,7 @@ renₖ ρ (lab x) = lab x
 renₖ ρ (l ▹ τ) = renₖ ρ l ▹ renₖ ρ τ
 renₖ ρ ⌊ ℓ ⌋ = ⌊ (renₖ ρ ℓ) ⌋
 renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
-renₖ ρ (⦅ sr ⦆ noDup) = ⦅ renRowₖ ρ sr ⦆ (subst (λ x → True (noDup? x)) (sym (labelsFixedByRen ρ sr)) noDup) 
+renₖ ρ (⦅ sr ⦆ noDup) = ⦅ renRowₖ ρ sr ⦆ (wfRowRen ρ sr noDup)
 
 renRowₖ ρ (ℓ ▹ τ) = ℓ ▹ (renₖ ρ τ)
 renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁)) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) -- {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ ρ₁)) noDup}

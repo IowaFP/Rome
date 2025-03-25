@@ -73,7 +73,8 @@ noDup? (x ∷ xs) with _∈?_ x xs
                                                    ; y (here refl) (there p₂) → there-injective (noDup y (there (here refl)) (there (there p₂)))
                                                    ; y (there p₁) (here refl) → there-injective (noDup y (there (there p₁)) (there (here refl)))
                                                    ; y (there p₁) (there p₂)  → there-injective (noDup y (there (there p₁)) (there (there p₂))) })) 
-
+WFRow : ∀ {Ty} → SimpleRow Ty Δ R[ κ ] → Set
+WFRow ρ = True (noDup? (labels ρ))
 
 
 -- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
@@ -176,7 +177,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (ρ : SimpleRow Type Δ R[ κ ]) → (True (noDup? (labels ρ))) →
+  ⦅_⦆ : (ρ : SimpleRow Type Δ R[ κ ]) → WFRow ρ →
         ----------------------
         Type Δ R[ κ ]
 
