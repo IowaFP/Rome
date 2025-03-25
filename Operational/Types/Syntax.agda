@@ -13,11 +13,11 @@ infixr 5 _≲_
 data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
 data Type Δ : Kind → Set 
 
-SimpleRow : KEnv → Kind → Set 
-SimpleRow Δ ★ = ⊥
-SimpleRow Δ L = ⊥
-SimpleRow Δ (_ `→ _) = ⊥
-SimpleRow Δ R[ κ ] = List (Type Δ κ)
+SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set 
+SimpleRow Ty Δ ★ = ⊥
+SimpleRow Ty Δ L = ⊥
+SimpleRow Ty Δ (_ `→ _) = ⊥
+SimpleRow Ty Δ R[ κ ] = List (Ty Δ κ)
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -87,7 +87,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : SimpleRow Δ R[ κ ] →
+  ⦅_⦆ : SimpleRow Type Δ R[ κ ] →
         ----------------------
         Type Δ R[ κ ]
 

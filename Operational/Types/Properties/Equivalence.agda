@@ -21,7 +21,7 @@ renₖ-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renamingₖ Δ₁ Δ₂) →
                 τ ≡t υ → renₖ ρ τ ≡t renₖ ρ υ 
 renₖ-≡p : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} (ρ : Renamingₖ Δ₁ Δ₂) → 
                 π₁ ≡p π₂ → renPredₖ ρ π₁ ≡p renPredₖ ρ π₂
-renₖ-≡r : ∀ {ρ₁ ρ₂ : SimpleRow Δ₁ R[ κ ]} (r : Renamingₖ Δ₁ Δ₂) → 
+renₖ-≡r : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} (r : Renamingₖ Δ₁ Δ₂) → 
                 ρ₁ ≡r ρ₂ → renRowₖ r ρ₁ ≡r renRowₖ r ρ₂
 
 renₖ-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
@@ -87,7 +87,7 @@ subₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  →
                  (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡t subₖ σ₂ τ
 subRowₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
                 (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
-                 (ρ : SimpleRow Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡r subRowₖ σ₂ ρ
+                 (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡r subRowₖ σ₂ ρ
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (` α) = c α
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`λ τ) = eq-λ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ · τ₁) = eq-· (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
@@ -120,7 +120,7 @@ subRowₖ-cong-≡t c (τ ∷ ρ) = eq-cons (subₖ-cong-≡t c τ) (subRowₖ-c
 
 subₖ-≡t :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
                   τ₁ ≡t τ₂ → subₖ σ τ₁ ≡t subₖ σ τ₂
-subₖ-≡r :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {ρ₁ ρ₂ : SimpleRow Δ₁ R[ κ ]} →
+subₖ-≡r :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} →
                   ρ₁ ≡r ρ₂ → subRowₖ σ ρ₁ ≡r subRowₖ σ ρ₂
 
 

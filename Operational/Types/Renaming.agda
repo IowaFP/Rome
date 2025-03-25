@@ -23,7 +23,7 @@ liftₖ ρ (S x) = S (ρ x)
 
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Type Δ₁ R[ κ ] → Pred Type Δ₂ R[ κ ]
-renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Δ₁ R[ κ ] → SimpleRow Δ₂ R[ κ ]
+renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 
 renₖ r ε  = ε
 renₖ r (` x) = ` (r x)

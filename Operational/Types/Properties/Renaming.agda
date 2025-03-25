@@ -65,7 +65,7 @@ renRowₖ-cong eq (x ∷ xs) rewrite renₖ-cong eq x | renRowₖ-cong eq xs = r
 
 renₖ-id : ∀ (τ : Type Δ κ) → renₖ id τ ≡ τ
 renPredₖ-id : ∀ (π : Pred Type Δ R[ κ ]) → renPredₖ id π ≡ π
-renRowₖ-id : ∀ (ρ : SimpleRow Δ R[ κ ]) → renRowₖ id ρ ≡ ρ
+renRowₖ-id : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → renRowₖ id ρ ≡ ρ
 
 renₖ-id ε = refl
 renₖ-id (` x) = refl
@@ -98,7 +98,7 @@ renₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂ Δ�
 renPredₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂ Δ₃) → 
                 ∀ (π : Pred Type Δ₁ R[ κ ]) → renPredₖ (r₂ ∘ r₁) π ≡ renPredₖ r₂ (renPredₖ r₁ π)
 renRowₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂ Δ₃) → 
-                ∀ (ρ : SimpleRow Δ₁ R[ κ ]) → renRowₖ (r₂ ∘ r₁) ρ ≡ renRowₖ r₂ (renRowₖ r₁ ρ)
+                ∀ (ρ : SimpleRow Type Δ₁ R[ κ ]) → renRowₖ (r₂ ∘ r₁) ρ ≡ renRowₖ r₂ (renRowₖ r₁ ρ)
 
 renₖ-comp _ _   ε = refl
 renₖ-comp r₁ r₂ (` x) = refl

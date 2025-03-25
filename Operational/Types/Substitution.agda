@@ -21,7 +21,7 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 -- variables in τ with the types mapped to by σ.
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
-subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Δ₁ R[ κ ] → SimpleRow Δ₂ R[ κ ]
+subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
 subₖ σ ε = ε
 subₖ σ (` x) = σ x
 subₖ σ (`λ τ) = `λ (subₖ (liftsₖ σ) τ)

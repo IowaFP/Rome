@@ -224,7 +224,6 @@ arrow-canonicity (`λ f) = f , refl
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑Row : SimpleRow NormalType Δ R[ κ ] → SimpleRow Type Δ R[ κ ]
-labelsFixedByEmbedding : (sr : SimpleRow NormalType Δ₁ R[ κ ]) → labels (⇑Row sr) ≡ labels sr
 
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
@@ -244,11 +243,8 @@ labelsFixedByEmbedding : (sr : SimpleRow NormalType Δ₁ R[ κ ]) → labels (�
 ⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆) = ⦅ ⇑Row ρ ⦆
-⇑Row (ℓ ▹ τ) = ℓ ▹ (⇑ τ)
-⇑Row ((ℓ ▹ τ ⸴ ρ) {noDup}) = (ℓ ▹ ⇑ τ ⸴ ⇑Row ρ) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByEmbedding ρ)) noDup}
-
-labelsFixedByEmbedding (ℓ ▹ τ) = refl
-labelsFixedByEmbedding (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByEmbedding ρ = refl
+⇑Row [] = []
+⇑Row (τ ∷ ρ) = (⇑ τ ∷ ⇑Row ρ)
 
 
 ⇑NE (` x) = ` x
