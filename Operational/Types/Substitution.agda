@@ -37,14 +37,13 @@ subₖ σ (lab x) = lab x
 subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
-subₖ ρ ⦅ ρ₁ ⦆ = ⦅ subRowₖ ρ ρ₁ ⦆
+subₖ σ (⦅ sr ⦆ noDup) = ⦅ subRowₖ σ sr ⦆ (subst (λ x → True (noDup? x)) ((sym (labelsFixedBySub σ sr))) noDup) 
 
 subRowₖ σ (ℓ ▹ τ) = ℓ ▹ (subₖ σ τ)
-subRowₖ σ ((ℓ ▹ τ ⸴ ρ) {noDup}) = (ℓ ▹ (subₖ σ τ) ⸴ subRowₖ σ ρ) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedBySub σ ρ)) noDup}
+subRowₖ σ (ℓ ▹ τ ⸴ ρ) = (ℓ ▹ (subₖ σ τ) ⸴ subRowₖ σ ρ)
 
 labelsFixedBySub σ (ℓ ▹ τ) = refl
 labelsFixedBySub σ (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedBySub σ ρ = refl
-
 
 subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
 subPredₖ σ (ρ₁ ≲ ρ₂) = (subₖ σ ρ₁) ≲ (subₖ σ ρ₂) 

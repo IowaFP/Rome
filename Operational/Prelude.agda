@@ -23,6 +23,8 @@ open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.String hiding (_≈_ ; map) public
 open import Data.List using (List ; [] ;  _∷_ ; map) public
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
+open import Data.List.Relation.Unary.Any.Properties public
+
 Label = String
 
 open import Function using (_∘_) public

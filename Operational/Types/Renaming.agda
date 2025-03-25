@@ -40,10 +40,10 @@ renₖ ρ (lab x) = lab x
 renₖ ρ (l ▹ τ) = renₖ ρ l ▹ renₖ ρ τ
 renₖ ρ ⌊ ℓ ⌋ = ⌊ (renₖ ρ ℓ) ⌋
 renₖ ρ (f <$> m) = renₖ ρ f <$> renₖ ρ m
-renₖ ρ ⦅ ρ₁ ⦆ = ⦅ renRowₖ ρ ρ₁ ⦆
+renₖ ρ (⦅ sr ⦆ noDup) = ⦅ renRowₖ ρ sr ⦆ (subst (λ x → True (noDup? x)) (sym (labelsFixedByRen ρ sr)) noDup) 
 
 renRowₖ ρ (ℓ ▹ τ) = ℓ ▹ (renₖ ρ τ)
-renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁) {noDup}) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ ρ₁)) noDup}
+renRowₖ ρ ((ℓ ▹ τ ⸴ ρ₁)) = (ℓ ▹ (renₖ ρ τ) ⸴ renRowₖ ρ ρ₁) -- {subst (λ x → True (ℓ ∉? x)) (sym (labelsFixedByRen ρ ρ₁)) noDup}
 
 labelsFixedByRen ρ (ℓ ▹ τ) = refl
 labelsFixedByRen ρ (ℓ ▹ τ ⸴ ρ₁) rewrite labelsFixedByRen ρ ρ₁ = refl
@@ -57,3 +57,11 @@ weakenₖ = renₖ S
 weakenRowₖ : SimpleRow Type Δ R[ κ₂ ] → SimpleRow Type (Δ ,, κ₁) R[ κ₂ ] 
 weakenRowₖ = renRowₖ S 
 
+--------------------------------------------------------------------------------
+-- Just proving a petty point 
+
+RenRowIsMap : (ρ : Renamingₖ Δ₁ Δ₂) → 
+              (sr : SimpleRow Type Δ₁ R[ κ ]) → 
+              renRowₖ ρ sr ≡ mapSimpleRow (renₖ ρ) sr
+RenRowIsMap ρ (ℓ ▹ τ) = refl
+RenRowIsMap ρ (ℓ ▹ τ ⸴ sr₁) rewrite RenRowIsMap ρ sr₁ = refl

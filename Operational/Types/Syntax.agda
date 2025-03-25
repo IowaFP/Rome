@@ -47,16 +47,33 @@ data SimpleRow Ty Δ where
 
        _▹_⸴_ : ∀ (ℓ : Label) → 
                   (τ : Ty Δ κ) →
-                  (ρ : SimpleRow Ty Δ R[ κ ]) → {noDup : True (ℓ ∉? labels ρ)} → 
+                  (ρ : SimpleRow Ty Δ R[ κ ]) → -- {noDup : True (ℓ ∉? labels ρ)} → 
                   ----------------------------------------------- 
                   SimpleRow Ty Δ R[ κ ]
 
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
+NoDup : List Label → Set
+NoDup xs = ∀ (x : Label) → MereProp (x ∈ xs)
 
--- data SimpleRow3 (U : Set) (Ty : KEnv → Kind → Set) (eq : DecidableEquality U) : KEnv → Kind → Set where 
---        row : ∀ Δ κ → (xs : List (U × Ty Δ κ)) → {noDup : True (nd? (labels xs))} → 
+absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
+absurd∈ ()
+
+noDup? : (xs : List Label) → Dec (NoDup xs)
+noDup? [] = yes (λ { x ()  })
+noDup? (x ∷ xs) with _∈?_ x xs 
+... | yes p = no (λ noDup → absurd∈ (noDup x (there p) (here refl)))
+... | no p with noDup? xs 
+...         | yes noDup = yes (λ { y (here refl) (here refl) → refl
+                             ; y (here refl) (there p₂) → ⊥-elim (p p₂)
+                             ; y (there p₁) (here refl) → ⊥-elim (p p₁)
+                             ; y (there p₁) (there p₂) → cong there (noDup y p₁ p₂) } ) 
+...         | no  yesDup = no (λ noDup → yesDup (λ { y (here refl) (here refl) → refl
+                                                   ; y (here refl) (there p₂) → there-injective (noDup y (there (here refl)) (there (there p₂)))
+                                                   ; y (there p₁) (here refl) → there-injective (noDup y (there (there p₁)) (there (here refl)))
+                                                   ; y (there p₁) (there p₂)  → there-injective (noDup y (there (there p₁)) (there (there p₂))) })) 
+
 
 
 -- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
@@ -70,12 +87,8 @@ labelsFixedByMap : ∀ {Ty : KEnv → Kind → Set} →
                      labels (mapSimpleRow f sr) ≡ labels sr
 
 mapSimpleRow f (ℓ ▹ τ) = ℓ ▹ (f τ)
-mapSimpleRow f ((ℓ ▹ τ ⸴ ρ) {noDup}) = 
+mapSimpleRow f ((ℓ ▹ τ ⸴ ρ)) = 
        (ℓ ▹ (f τ) ⸴ mapSimpleRow f ρ) 
-       {subst 
-         (λ x → True (ℓ ∉? x)) 
-         (sym (labelsFixedByMap f ρ)) 
-         noDup}
 labelsFixedByMap f (ℓ ▹ τ) = refl
 labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
 
@@ -84,20 +97,15 @@ labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
 -- 
 -- We show alternatively that one can define a finite map
 
-simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
-labels2 : ∀ {Ty : KEnv → Kind → Set} → (n : ℕ) → 
-          (Fin n → Label × Ty Δ κ) → List Label
-labels2  zero f = []
-labels2 (suc n) f = fst (f (# n)) ∷ (labels2 {! n  !} f) 
+-- simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
+-- labels2 : ∀ {Ty : KEnv → Kind → Set} → (n : ℕ) → 
+--           (Fin n → Label × Ty Δ κ) → List Label
+-- labels2  zero f = []
+-- labels2 (suc n) f = fst (f (# n)) ∷ (labels2 {! n  !} f) 
 
-NoDup : List Label → Set
-NoDup xs = ∀ (x : Label) → MereProp (x ∈ xs)
 
-noDup? : (xs : List Label) → Dec (NoDup xs)
-noDup? xs = {!   !} 
-
-simpleRow2 Ty Δ κ = ∃[ n ] 
-                   (Σ[ ρ ∈ (Fin n → (Label × Ty Δ κ)) ] {! True (noDup? (labels2 ρ))   !})
+-- simpleRow2 Ty Δ κ = ∃[ n ] 
+--                    (Σ[ ρ ∈ (Fin n → (Label × Ty Δ κ)) ] {! True (noDup? (labels2 ρ))   !})
 
 
 --------------------------------------------------------------------------------
@@ -168,7 +176,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : SimpleRow Type Δ R[ κ ] → 
+  ⦅_⦆ : (ρ : SimpleRow Type Δ R[ κ ]) → (True (noDup? (labels ρ))) →
         ----------------------
         Type Δ R[ κ ]
 
@@ -245,5 +253,5 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ "a" ▹ Unit ⸴ "b" ▹ (Σ · ε) ⸴ "c" ▹ ((`λ (` Z)) · Unit) ⸴ "d" ▹ Unit ⦆
+sr = ⦅ "a" ▹ Unit ⸴ "b" ▹ (Σ · ε) ⸴ "c" ▹ ((`λ (` Z)) · Unit) ⸴ "d" ▹ Unit ⦆ tt
   
