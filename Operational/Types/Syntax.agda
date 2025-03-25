@@ -4,9 +4,6 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
-
-
 --------------------------------------------------------------------------------
 -- Types
 
@@ -26,18 +23,6 @@ data SimpleRow (Ty : KEnv → Kind → Set) Δ : Kind → Set
 
 labels : ∀ {Ty : KEnv → Kind → Set} → SimpleRow Ty Δ R[ κ ] → List Label 
 
-noDuplicate :  ∀ {Ty : KEnv → Kind → Set} → Label → SimpleRow Ty Δ R[ κ ] → Set
-noDuplicate ℓ ρ = True (ℓ ∉? labels ρ)
-
-MereProp : ∀ (A : Set) → Set 
-MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
-
-noDuplicateMereProp : ∀ {Ty : KEnv → Kind → Set} (ℓ : Label) → (ρ : SimpleRow Ty Δ R[ κ ]) → 
-                      MereProp (True (ℓ ∉? labels ρ))
-noDuplicateMereProp ℓ ρ p₁ p₂ with ℓ ∈? labels ρ 
-... | yes p = refl                      
-... | no  p = refl                      
-
 infixr 0 _▹_⸴_
 data SimpleRow Ty Δ where 
        _▹_ : 
@@ -54,12 +39,13 @@ data SimpleRow Ty Δ where
 labels (ℓ ▹ τ) = ℓ ∷ []
 labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ 
 
+--------------------------------------------------------------------------------
+-- NoDuplicate predicate on simple rows
+
 NoDup : List Label → Set
 NoDup xs = ∀ (x : Label) → MereProp (x ∈ xs)
 
-absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
-absurd∈ ()
-
+-- The NoDup predicate is decidable
 noDup? : (xs : List Label) → Dec (NoDup xs)
 noDup? [] = yes (λ { x ()  })
 noDup? (x ∷ xs) with _∈?_ x xs 
@@ -73,12 +59,29 @@ noDup? (x ∷ xs) with _∈?_ x xs
                                                    ; y (here refl) (there p₂) → there-injective (noDup y (there (here refl)) (there (there p₂)))
                                                    ; y (there p₁) (here refl) → there-injective (noDup y (there (there p₁)) (there (here refl)))
                                                    ; y (there p₁) (there p₂)  → there-injective (noDup y (there (there p₁)) (there (there p₂))) })) 
+
+--------------------------------------------------------------------------------
+-- Simple rows are well formed if they contain no duplicates
+
 WFRow : ∀ {Ty} → SimpleRow Ty Δ R[ κ ] → Set
 WFRow ρ = True (noDup? (labels ρ))
 
+-- Any proof that ρ has no duplicates is identical
+MerePropWFRow : ∀ {Ty} (ρ : SimpleRow Ty Δ R[ κ ])  → MereProp (WFRow ρ)
+MerePropWFRow (ℓ ▹ τ) p₁ p₂ = refl
+MerePropWFRow (ℓ ▹ τ ⸴ ρ) p₁ p₂ with ℓ ∈? labels ρ
+... | yes p = refl
+... | no p  with labels ρ | noDup? (labels ρ)
+...              | c | yes q = refl
+...              | c | no  q = refl
 
--- It is easy to show that mapping preserves labels, but won't be possible to *use* mapSimpleRow
--- without violating termination checking.
+
+--------------------------------------------------------------------------------
+-- Mapping over simple rows
+-- 
+-- It is easy to show that mapping preserves labels... but it won't be possible 
+-- to *use* mapSimpleRow without violating termination checking.
+
 mapSimpleRow : ∀ {Ty : KEnv → Kind → Set} → 
                  (f : Ty Δ₁ κ₁ → Ty Δ₂ κ₂)  → 
                  SimpleRow Ty Δ₁ R[ κ₁ ] → SimpleRow Ty Δ₂ R[ κ₂ ]
@@ -92,22 +95,6 @@ mapSimpleRow f ((ℓ ▹ τ ⸴ ρ)) =
        (ℓ ▹ (f τ) ⸴ mapSimpleRow f ρ) 
 labelsFixedByMap f (ℓ ▹ τ) = refl
 labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
-
---------------------------------------------------------------------------------
--- Easier simple rows 
--- 
--- We show alternatively that one can define a finite map
-
--- simpleRow2 : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
--- labels2 : ∀ {Ty : KEnv → Kind → Set} → (n : ℕ) → 
---           (Fin n → Label × Ty Δ κ) → List Label
--- labels2  zero f = []
--- labels2 (suc n) f = fst (f (# n)) ∷ (labels2 {! n  !} f) 
-
-
--- simpleRow2 Ty Δ κ = ∃[ n ] 
---                    (Σ[ ρ ∈ (Fin n → (Label × Ty Δ κ)) ] {! True (noDup? (labels2 ρ))   !})
-
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -223,6 +210,14 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
+
+--------------------------------------------------------------------------------
+-- Any identical rows with differing well-formedness proofs are indeed
+-- still identical.
+
+cong-SimpleRow : (sr : SimpleRow Type Δ R[ κ ]) {wf₁ : WFRow sr} {wf₂ : WFRow sr} → 
+                ⦅ sr ⦆ wf₁ ≡ ⦅ sr ⦆ wf₂
+cong-SimpleRow sr {wf₁} {wf₂} rewrite MerePropWFRow sr wf₁ wf₂ = refl
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors

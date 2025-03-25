@@ -24,6 +24,7 @@ open import Data.String hiding (_≈_ ; map) public
 open import Data.List using (List ; [] ;  _∷_ ; map) public
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
 open import Data.List.Relation.Unary.Any.Properties public
+open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
 
 Label = String
 
@@ -41,9 +42,6 @@ module Reasoning where
 id : ∀ {A : Set} → A → A
 id x = x
 
--- _≈_ : ∀ {A B} {P : A → Set} (f₁ f₂ : P A → P B) → Set
--- _≈_ {A} {_} {P} f₁ f₂ = ∀ (x : P A) → f₁ x ≡ f₂ x
-
 third : ∀ {A B C : Set} → A × B × C → C
 third = snd ∘ snd
 
@@ -58,3 +56,19 @@ left-inversion {x = x} {y = y} refl = refl
 
 cong₃ : ∀ {A B C D : Set} (f : A → B → C → D) {x y u v l m} → x ≡ y → u ≡ v → l ≡ m → f x u l ≡ f y v m
 cong₃ f refl refl refl = refl
+
+
+--------------------------------------------------------------------------------
+-- Mere propositions 
+--
+-- A type A is a *mere proposition* if it is term irrelevant: any two inhabitants
+-- are equal.
+
+MereProp : ∀ (A : Set) → Set 
+MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
+
+--------------------------------------------------------------------------------
+-- Absurd elimination of Any type
+
+absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
+absurd∈ ()

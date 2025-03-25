@@ -38,11 +38,14 @@ renₖ-liftₖ-liftsₖ Z = refl
 renₖ-liftₖ-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ x))) (renₖ-comp S (liftₖ ρ) (σ x))                    
 
 -------------------------------------------------------------------------------
--- Functor laws for substitution
+-- Substitution respects congruence
 
 subₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
               (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡ subₖ σ₂ τ
+subRowₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
+              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡ subRowₖ σ₂ ρ
 subₖ-cong e ε = refl
 subₖ-cong e (` α) = e α
 subₖ-cong e (`λ τ) = cong `λ (subₖ-cong (liftsₖ-cong e) τ)
@@ -60,8 +63,19 @@ subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
 subₖ-cong e Π = refl
 subₖ-cong e Σ = refl
 subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
+subₖ-cong {σ₁ = σ₁} e (⦅ ρ ⦆ x) with subRowₖ-cong e ρ | wfRowSub σ₁ ρ x
+... | eq | _  rewrite eq = cong-SimpleRow _
+
+subRowₖ-cong eq (ℓ ▹ τ) rewrite subₖ-cong eq τ = refl
+subRowₖ-cong {σ₁ = σ₁} {σ₂} eq (ℓ ▹ τ ⸴ ρ) rewrite 
+  subₖ-cong eq τ | subRowₖ-cong eq ρ = refl
+
+-------------------------------------------------------------------------------
+-- Substitution respects identities
 
 subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
+subRowₖ-id : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → subRowₖ ` ρ ≡ ρ
+
 subₖ-id ε = refl
 subₖ-id (` α) = refl
 subₖ-id (`λ τ) = cong `λ (trans (subₖ-cong  {σ₁ = liftsₖ `} {σ₂ = `} liftsₖ-id τ) (subₖ-id τ))
@@ -79,14 +93,12 @@ subₖ-id ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-id τ)
 subₖ-id Π = refl
 subₖ-id Σ = refl
 subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
+subₖ-id (⦅ ρ ⦆ wf) with subRowₖ-id ρ | wfRowSub ` ρ wf
+... | eq | _  rewrite eq = cong-SimpleRow ρ 
 
-
--------------------------------------------------------------------------------
--- lifting a substitution fixes points
-
--- sub-lift-fp : ∀ {σ : Substitutionₖ Δ₁ Δ₂} (τ : Type Δ₁ κ₂) → 
---                 subₖ (liftsₖ σ) (weakenₖ τ) ≡ subₖ σ τ
--- sub-lift-fp τ = ?
+subRowₖ-id (ℓ ▹ τ) rewrite subₖ-id τ = refl
+subRowₖ-id (ℓ ▹ τ ⸴ ρ) rewrite 
+  subₖ-id τ | subRowₖ-id ρ = refl
 
 -------------------------------------------------------------------------------
 -- subₖstitution and renₖaming commute
@@ -115,6 +127,7 @@ subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 ↻-subₖ-renₖ {ρ = ρ} {σ} Π = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} Σ = refl
 ↻-subₖ-renₖ {ρ = ρ} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
+↻-subₖ-renₖ {ρ = r} {σ} (⦅ ρ ⦆ x) = {!!}
 
 ↻-renₖ-subₖ         : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(τ : Type Δ₁ κ) →
                     subₖ (renₖ ρ ∘ σ) τ ≡ renₖ ρ (subₖ σ τ)
