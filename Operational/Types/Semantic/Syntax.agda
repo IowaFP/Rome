@@ -31,7 +31,7 @@ Row Δ R[ κ ] = ∃[ n ](Fin n → SemType Δ κ)
 
 -- row extension
 _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
-τ ⨾⨾ (n , P) = (suc n , λ { fzero → τ
+τ ⨾⨾ (n , P) = (suc n , λ { fzero → τ 
                          ; (fsuc m) → P m })
 
 -- the empty row                                  

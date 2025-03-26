@@ -17,8 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Soundness
+-- open import Rome.Operational.Types.Theorems.Completeness
+-- open import Rome.Operational.Types.Theorems.Soundness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -30,6 +30,7 @@ open import Rome.Operational.Types.Theorems.Soundness
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
 stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
+stabilityRow : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → reifyRow (evalRow (⇑Row ρ) idEnv) ≡ ρ
 
 stabilityNE {κ = κ} (` x) = refl
 stabilityNE {Δ} {κ} (τ₁ · τ₂) 
@@ -37,35 +38,43 @@ stabilityNE {Δ} {κ} (τ₁ · τ₂)
 stabilityNE {κ = R[ κ ]} (F <$> τ) 
   rewrite stabilityNE τ | stability F = refl
 
-stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
-      (eval (⇑ τ)
-       (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
-      ≡ τ
-stability-β {Δ = Δ} τ = 
-    trans (reify-≋ (idext η (⇑ τ))) (stability τ)
-    where
-        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
-        η Z = reflect-≋ refl
-        η (S x) = ↻-ren-reflect S (` x)
+-- stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
+--       (eval (⇑ τ)
+--        (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
+--       ≡ τ
+-- stability-β {Δ = Δ} τ = 
+--     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+--     where
+--         η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+--         η Z = reflect-≋ refl
+--         η (S x) = ↻-ren-reflect S (` x)
   
 stability {κ = ★} (ne x) = stabilityNE x
-stability {κ = L} (ne x)       = stabilityNE x
+stability {κ = L} (ne x)       = {! stabilityNE x  !}
 stability {_} {κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
-stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
-stability (`∀ τ) = cong (`∀) (stability-β τ)
+-- stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
+-- stability (`∀ τ) = cong (`∀) (stability-β τ)
 stability (μ τ)  rewrite stability τ = refl
-stability (lab x)                             = refl
+-- stability (lab x)                             = refl
 stability ⌊ τ ⌋ rewrite stability τ           = refl
 stability (τ₁ `→ τ₂) 
     rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
-stability (l ▹ τ) rewrite stability l | stability τ = refl 
-stability ε = refl
+-- stability (l ▹ τ) rewrite stability l | stability τ = refl 
+-- stability ε = refl
 stability (Π x)  rewrite stability x = refl
-stability (ΠL x) rewrite stability x = refl
+stability (ΠL x) rewrite stability x = {!   !}
 stability (Σ x)  rewrite stability x = refl
-stability (ΣL x) rewrite stability x = refl
+stability (ΣL x) rewrite stability x = {!   !}
+stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
+
+-- need to show that reify (λ { fzero → ... ; fsuc n → ... }) i pushes the reification through to body of row.
+-- But that isn't all of it... Need to also make sure I have the order right in row extension. Might need to be reversed.
+stabilityRow [] = refl
+stabilityRow (x ∷ ρ) with ⇓ (⇑ x) | stability x 
+... | _ | refl = {! stabilityRow ρ  !}
+
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl
@@ -101,5 +110,5 @@ bijectivity₁ τ = stability τ
 --------------------------------------------------------------------------------
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
 
-embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
-embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
+-- embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
+-- embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 

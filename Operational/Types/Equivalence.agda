@@ -29,6 +29,7 @@ data _≡r_ : List (Type Δ κ) → List (Type Δ κ) → Set where
   eq-[] : 
     
     _≡r_  {Δ = Δ} {κ = κ} [] []
+    
   eq-cons : {xs ys : List (Type Δ κ)} → 
 
             τ₁ ≡t τ₂ → xs ≡r ys → 

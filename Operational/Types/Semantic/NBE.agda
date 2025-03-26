@@ -29,17 +29,20 @@ reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
 ↓ : ∀ {A : Set} {n} → (Fin (suc n) → A) → Fin n → A 
-↓ P n = P (fsuc n)
+↓ P n = P (inject₁ n)
 
-reifyRow : (n : ℕ) → (Fin n → SemType Δ κ) → List (NormalType Δ κ)
-reifyRow zero P = []
-reifyRow (suc n) P = reify (P (fromℕ n)) ∷ (reifyRow n (↓ P))
+reifyRow' : (n : ℕ) → (Fin n → SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow' zero P = []
+reifyRow' (suc n) P = reify (P (fromℕ n)) ∷ (reifyRow' n (↓ P))
+
+reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
+reifyRow (n , P) = reifyRow' n P 
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = ΠL ⦅ [] ⦆
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right (n , P)) = ⦅ reifyRow n P ⦆
+reify {κ = R[ κ ]} (right ρ) = ⦅ reifyRow ρ ⦆
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -183,5 +186,12 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 -- Reabstraction of a NormalType to the semantic domain
 ⇈ : NormalType Δ κ → SemType Δ κ 
 ⇈ τ = eval (⇑ τ) idEnv
+
+----------------------------------------
+-- Testing reification / evaluation of simple rows 
+
+
+-- I think (reifyRow ∘ evalRow) is reversing the order of the row.
+_ : {! sr  !}
 
  

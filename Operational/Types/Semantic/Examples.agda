@@ -21,18 +21,18 @@ open import Rome.Operational.Types.Semantic.NBE
 -- Labels.
 
 ℓ ℓ₁ ℓ₂ ℓ₃ : Type Δ L
-l l₁ l₂ l₃ : NormalType Δ L
+-- l l₁ l₂ l₃ : NormalType Δ L
 ℓ  = lab "l"
-l  = lab "l"
+-- l  = lab "l"
 
 ℓ₁ = lab "l1"
-l₁ = lab "l1"
+-- l₁ = lab "l1"
 
 ℓ₂ = lab "l2"
-l₂ = lab "l2"
+-- l₂ = lab "l2"
 
 ℓ₃ = lab "l3"
-l₃ = lab "l3"
+-- l₃ = lab "l3"
 
 ----------------------------------------
 -- Some function types.
@@ -60,6 +60,9 @@ Const-U = `λ Unit
 
 _ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ {! ⇓ Const-U !}
 _ = refl
+
+
+
 
 -- ----------------------------------------
 -- -- Simple terms.
