@@ -64,6 +64,9 @@ renₖNF-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃)
 renₖNF-cong-pred eq (ρ₁ ≲ ρ₂) 
   rewrite renₖNF-cong eq ρ₁ | renₖNF-cong eq ρ₂ = refl
 
+renₖNF-cong-row eq [] = refl
+renₖNF-cong-row eq (τ ∷ ρ) rewrite renₖNF-cong eq τ | renₖNF-cong-row eq ρ = refl
+
 --------------------------------------------------------------------------------
 -- Renamingₖ preserves identities (functor law #1)
 renₖNF-id    : ∀ (τ : NormalType Δ κ) → renₖNF id τ ≡ τ
@@ -109,6 +112,9 @@ renₖNF-id-pred (ρ₁ · ρ₂ ~ ρ₃)
 renₖNF-id-pred (ρ₁ ≲ ρ₂) 
   rewrite renₖNF-id ρ₁ | renₖNF-id ρ₂ = refl
 
+renₖNF-id-row [] = refl
+renₖNF-id-row (τ ∷ ρ) rewrite renₖNF-id τ | renₖNF-id-row ρ = refl
+
 --------------------------------------------------------------------------------
 -- Renamingₖ preserves Composition (functor law #2)
 
@@ -150,12 +156,14 @@ renₖNF-comp ρ₁ ρ₂ (ΣL x) rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ ⦅ ρ ⦆ rewrite renₖNF-comp-row ρ₁ ρ₂ ρ = refl
 
 
--- renₖNF-comp-row ρ₁ ρ₂ (l ▹ τ) rewrite renₖNF-comp ρ₁ ρ₂ l | renₖNF-comp ρ₁ ρ₂ τ = refl
 
 renₖNF-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ | renₖNF-comp ρ ρ' ρ₃ = refl
 renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂) 
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ = refl
+
+renₖNF-comp-row r₁ r₂ [] = refl
+renₖNF-comp-row r₁ r₂ (τ ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ | renₖNF-comp-row r₁ r₂ ρ = refl
 
 --------------------------------------------------------------------------------
 -- Weakening commutes with renaming
@@ -216,3 +224,6 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
   | ↻-ren-⇑ ρ ρ₂
   | ↻-ren-⇑ ρ ρ₃ = refl
 ↻-ren-⇑Pred ρ (ρ₁ ≲ ρ₂) = cong₂ _≲_ (↻-ren-⇑ ρ ρ₁) (↻-ren-⇑ ρ ρ₂)
+
+↻-ren-⇑Row r [] = refl
+↻-ren-⇑Row r (τ ∷ ρ) rewrite ↻-ren-⇑ r τ | ↻-ren-⇑Row r ρ = refl
