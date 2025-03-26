@@ -15,6 +15,11 @@ open import Rome.Operational.Types.Normal.Renaming
 --------------------------------------------------------------------------------
 -- Semantic types.
 
+data RowSemType (A : Set) : KEnv → Kind → Set where 
+  εV : RowSemType A Δ R[ κ ]
+  neV : NeutralType Δ R[ κ ] → RowSemType A Δ R[ κ ]
+  _▹V_ : NormalType Δ L → A → RowSemType A Δ R[ κ ]
+  -- ⦅_⦆V : List A → RowSemType A Δ κ
 SemType : KEnv → Kind → Set
 KripkeFunction : KEnv → Kind → Kind → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
@@ -22,7 +27,8 @@ KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ →
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
-SemType Δ R[ κ ] = Maybe 
-  ((NeutralType Δ R[ κ ]) or 
-  (NormalType Δ L × SemType Δ κ) or 
-  List (SemType Δ κ))
+SemType Δ R[ κ ] = RowSemType (SemType Δ κ) Δ R[ κ ]
+  -- Maybe 
+  -- ((NeutralType Δ R[ κ ]) or
+  -- (NormalType Δ L × SemType Δ κ) or 
+  -- List (SemType Δ κ))

@@ -6,7 +6,8 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Rome.Operational.Types
+open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Renaming
 
@@ -47,9 +48,9 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
-↻-renSem-<$> ρ {V₁} {V₂} v {just (left x)} {just (left _)} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
-↻-renSem-<$> ρ {V₁} {V₂} v {nothing} {nothing} tt = tt
-↻-renSem-<$> ρ {V₁} {V₂} v {just (right (l , τ₁))} {just (right (.l , τ₂))} (refl , q) = refl , (↻-renSem-app ρ v q)
+↻-renSem-<$> ρ {V₁} {V₂} v {neV x} {neV _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
+↻-renSem-<$> ρ {V₁} {V₂} v {εV} {εV} tt = tt
+↻-renSem-<$> ρ {V₁} {V₂} v {l ▹V τ₁} {.l ▹V τ₂} (refl , q) = refl , (↻-renSem-app ρ v q)
 
 --------------------------------------------------------------------------------
 -- Uniformity of <?>V
@@ -168,11 +169,11 @@ Unif-Σ ρ₁ = ↻-renSem-Σ
 
 ↻-renSem-eval : ∀ (ρ : Renamingₖ Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
-↻-renSem-eval-pred : ∀ (ρ : Renamingₖ Δ₂ Δ₃) (π : Pred Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+↻-renSem-eval-pred : ∀ (ρ : Renamingₖ Δ₂ Δ₃) (π : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renPredₖNF ρ (evalPred π η₁)) ≡ evalPred π (renSem ρ ∘ η₂)
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
-idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Δ₁ R[ κ ]) →
+idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Type Δ₁ R[ κ ]) →
                evalPred π η₁ ≡ evalPred π η₂
 
 ↻-renSem-eval-pred ρ (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} P rewrite 
@@ -298,7 +299,7 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 
 ↻-renₖ-eval : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → {η₁ η₂ : Env Δ₂ Δ₃} → 
                   (e : Env-≋ η₁ η₂) → eval (renₖ ρ τ) η₁ ≋ eval τ (η₂ ∘ ρ)
-↻-renₖ-eval-pred : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (τ : Pred Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₂ Δ₃} → 
+↻-renₖ-eval-pred : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (τ : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₂ Δ₃} → 
                   (e : Env-≋ η₁ η₂) → evalPred (renPredₖ ρ τ) η₁ ≡ evalPred τ (η₂ ∘ ρ)
 
 ↻-renₖ-eval-pred ρ (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} e rewrite
@@ -364,7 +365,7 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 ↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
                     eval (subₖ σ τ) η₁ ≋ eval τ (λ x → eval (σ x) η₂)
-↻-subₖ-eval-pred : ∀ (π : Pred Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
                     evalPred (subPredₖ σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
 ↻-subₖ-eval-pred (ρ₁ · ρ₂ ~ ρ₃) e σ rewrite 

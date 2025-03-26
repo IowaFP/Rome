@@ -6,7 +6,7 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Rome.Operational.Types as Types
+open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Renaming
 
@@ -38,9 +38,9 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
   (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ κ ]} {V₁ = just (left _)} {just (left _)} ρ refl = refl
-ren-≋ {κ = R[ κ ]} {V₁ = nothing} {nothing} ρ tt = tt
-ren-≋ {κ = R[ κ ]} {V₁ = just (right (l , τ₁))} {just (right (l , τ₂))} ρ (refl , q) = refl , (ren-≋ ρ q)
+ren-≋ {κ = R[ κ ]} {V₁ = neV _} {neV _} ρ refl = refl
+ren-≋ {κ = R[ κ ]} {V₁ = εV} {εV} ρ tt = tt
+ren-≋ {κ = R[ κ ]} {V₁ = _ ▹V τ₁} {_ ▹V τ₂} ρ (refl , q) = refl , (ren-≋ ρ q)
 
 --------------------------------------------------------------------------------
 -- Application respects ≋
@@ -70,9 +70,9 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> v {just (left x)} {just (left _)} refl = cong (_<$> x) (reify-≋ v)
-cong-<$> v {nothing} {nothing} tt = tt
-cong-<$> v {just (right (l , τ₁))} {just (right (l , τ₂))} (refl , w) = refl , (cong-App v w)
+cong-<$> v {neV x} {neV _} refl = cong (_<$> x) (reify-≋ v)
+cong-<$> v {εV} {εV} tt = tt
+cong-<$> v {l ▹V τ₁} {l ▹V τ₂} (refl , w) = refl , (cong-App v w)
 
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.

@@ -22,7 +22,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} τ       = just (left τ)
+reflect {κ = R[ κ ]} τ       = neV τ
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -31,9 +31,9 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
-reify {κ = R[ κ ]} (just (left x)) = ne x
-reify {κ = R[ κ ]} (just (right (l , τ))) = l ▹ (reify τ)
-reify {κ = R[ κ ]} nothing = ε
+reify {κ = R[ κ ]} (neV x) = ne x
+reify {κ = R[ κ ]} (l ▹V τ) = l ▹ (reify τ)
+reify {κ = R[ κ ]} εV = ε
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -64,18 +64,6 @@ idEnv : Env Δ Δ
 idEnv = reflect ∘ `
 
 --------------------------------------------------------------------------------
--- Semantic helpers for row-kind construction
-
-_▹V_ : SemType Δ L → SemType Δ κ → SemType Δ R[ κ ]
-_▹V_ {κ = κ} ℓ τ = just (right (ℓ , τ))
-
-ne-R : NeutralType Δ R[ κ ] → SemType Δ R[ κ ]
-ne-R = just ∘ left
-
-εV : SemType Δ R[ κ ] 
-εV = nothing
-
---------------------------------------------------------------------------------
 -- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
@@ -85,9 +73,9 @@ F ·V V = F id V
 -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_ {κ₁ = κ₁} {κ₂} F (just (left x)) = just (left (reifyKripke F <$> x))
-_<$>V_ {κ₁ = κ₁} {κ₂} F (just (right (l , τ))) = just (right (l , F ·V τ))
-_<$>V_ {κ₁ = κ₁} {κ₂} F nothing = nothing
+_<$>V_ {κ₁ = κ₁} {κ₂} F (neV x) = neV (reifyKripke F <$> x)
+_<$>V_ {κ₁ = κ₁} {κ₂} F (l ▹V τ) = l ▹V (F ·V τ)
+_<$>V_ {κ₁ = κ₁} {κ₂} F εV = εV
 
 --------------------------------------------------------------------------------
 -- Semantic flap
@@ -139,7 +127,7 @@ open Xi
 -- Type evaluation.
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-evalPred : Pred Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
+evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ] 
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
@@ -169,7 +157,8 @@ eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
-eval ε η = nothing
+eval ε η = εV
+eval ⦅ ρ ⦆ η = {!!}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization

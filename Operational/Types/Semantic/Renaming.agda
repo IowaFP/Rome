@@ -25,9 +25,9 @@ renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renSem {κ = ★} ρ τ = renₖNF ρ τ
 renSem {κ = L} ρ τ = renₖNF ρ τ
 renSem {κ = κ `→ κ₁} ρ F = renKripke ρ F
-renSem {κ = R[ κ ]} ρ (just (left x)) = just (left (renₖNE ρ x))
-renSem {κ = R[ κ ]} ρ (just (right (l , τ))) = just (right (renₖNF ρ l , renSem ρ τ))
-renSem {κ = R[ κ ]} ρ nothing = nothing
+renSem {κ = R[ κ ]} ρ (neV x) = neV (renₖNE ρ x)
+renSem {κ = R[ κ ]} ρ (l ▹V τ) = (renₖNF ρ l ▹V renSem ρ τ)
+renSem {κ = R[ κ ]} ρ εV = εV
 
 --------------------------------------------------------------------------------
 -- Weakening
@@ -42,16 +42,16 @@ renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V
 renSem-id {κ = ★} V = renₖNF-id V
 renSem-id {κ = L} V = renₖNF-id V
 renSem-id {κ = κ `→ κ₁} F = refl
-renSem-id {κ = R[ κ ]} (just (left x)) = cong (just ∘ left) (renₖNE-id x) -- renₖNE-id x
-renSem-id {κ = R[ κ ]} (just (right (l , τ))) = cong (just ∘ right) (cong₂ _,_ (renₖNF-id l) (renSem-id τ)) -- renₖNE-id x
-renSem-id {κ = R[ κ ]} nothing = refl
+renSem-id {κ = R[ κ ]} (neV x) = cong neV (renₖNE-id x) -- renₖNE-id x
+renSem-id {κ = R[ κ ]} (l ▹V τ) = (cong₂ _▹V_ (renₖNF-id l) (renSem-id τ)) -- renₖNE-id x
+renSem-id {κ = R[ κ ]} εV = refl
 
 renSem-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
              (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))
 renSem-comp {κ = ★} ρ₁ ρ₂ V = renₖNF-comp _ _ _
 renSem-comp {κ = L} ρ₁ ρ₂ V = renₖNF-comp _ _ _
 renSem-comp {κ = κ `→ κ₁} ρ₁ ρ₂ F = refl
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (just (left x)) = cong (just ∘ left) (renₖNE-comp _ _ _)
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (just (right (l , τ))) = cong (just ∘ right) (cong₂ _,_ (renₖNF-comp _ _ _) (renSem-comp _ _ _))
-renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ nothing = refl
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (neV x) = cong neV (renₖNE-comp _ _ _)
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (l ▹V τ) = (cong₂ _▹V_ (renₖNF-comp _ _ _) (renSem-comp _ _ _))
+renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ εV = refl
 
