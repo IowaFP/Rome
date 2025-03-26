@@ -18,7 +18,7 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 --         (And hence cannot reduce).
 -- - NormalType types are types precluded from any applications (barring neutral forms).
 
-infixr 1 _▹_
+-- infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
 
 NormalPred : KEnv → Kind → Set 
@@ -93,25 +93,20 @@ data NormalType Δ where
   ⦅_⦆ : SimpleRow NormalType Δ R[ κ ] → 
         ----------------------
        NormalType Δ R[ κ ]
-  ε : 
 
-      ------------------  
-      NormalType Δ R[ κ ]
-
-
-  _▹_ : 
+--   _▹_ : 
       
-      (l : NormalType Δ L) → 
-      (τ : NormalType Δ κ) → 
-      ---------------------------
-      NormalType Δ R[ κ ]
+--       (l : NormalType Δ L) → 
+--       (τ : NormalType Δ κ) → 
+--       ---------------------------
+--       NormalType Δ R[ κ ]
 
-  -- labels
-  lab :
+--   -- labels
+--   lab :
     
-      (l : Label) → 
-      --------
-      NormalType Δ L
+--       (l : Label) → 
+--       --------
+--       NormalType Δ L
 
   -- label constant formation
   ⌊_⌋ :
@@ -189,11 +184,11 @@ mapPred-id (ρ₁ ≲ ρ₂) = refl
 inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
 inj-ne refl = refl
 
-inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
-inj-▹ₗ refl = refl
+-- inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
+-- inj-▹ₗ refl = refl
 
-inj-▹ᵣ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → τ₁ ≡ τ₂
-inj-▹ᵣ refl = refl
+-- inj-▹ᵣ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → τ₁ ≡ τ₂
+-- inj-▹ᵣ refl = refl
 
 -- inj-row : ∀ {ρ₁ ρ₂ : Row Δ R[ κ ]} → row ρ₁ ≡ row ρ₂ → ρ₁ ≡ ρ₂
 -- inj-row refl = refl
@@ -204,19 +199,26 @@ inj-▹ᵣ refl = refl
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
     Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] (ρ ≡ ⦅ sr ⦆ ) or 
-    ∃[ l ] Σ[ τ ∈ NormalType Δ κ ] ((ρ ≡ (l ▹ τ))) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
-    ρ ≡ ε 
-row-canonicity (l ▹ τ) = right (left (l , τ , refl))
-row-canonicity (ne τ) = right (right (left (τ , refl)))
-row-canonicity ε = right (right (right refl))
-row-canonicity ⦅ ρ ⦆ = left (ρ , refl)
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
+row-canonicity ⦅ x ⦆ = left (x , refl) 
+row-canonicity (ne x) = right (x , refl)
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
 
 arrow-canonicity : (f : NormalType Δ (κ₁ `→ κ₂)) → ∃[ τ ] (f ≡ `λ τ)
 arrow-canonicity (`λ f) = f , refl
+
+--------------------------------------------------------------------------------
+-- label canonicity
+
+label-canonicity : (l : NormalType Δ L) → 
+                    ∃[ l₁ ] (l ≡ ΠL l₁) or
+                    ∃[ l₂ ] (l ≡ ΣL l₂) or
+                    ∃[ x  ] (l ≡ ne x)
+label-canonicity (ne x) = right (right (x , refl))
+label-canonicity (ΠL l) = left (l , refl)
+label-canonicity (ΣL l) = right (left (l , refl))
 
 
 --------------------------------------------------------------------------------
@@ -228,14 +230,14 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
 
-⇑ ε   = ε
+-- ⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
-⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
+-- ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ τ) = `∀ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
-⇑ (lab l) = lab l
+-- ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 ⇑ (Π x) = Π · ⇑ x
 ⇑ (ΠL x) = Π · ⇑ x
@@ -258,7 +260,7 @@ arrow-canonicity (`λ f) = f , refl
 -- Admissable constants
 
 UnitNF : NormalType Δ ★
-UnitNF = Π ε
+UnitNF = Π ⦅ [] ⦆
 
 --------------------------------------------------------------------------------
 -- Embedding is injective

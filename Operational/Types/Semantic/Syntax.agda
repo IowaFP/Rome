@@ -12,23 +12,41 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 
---------------------------------------------------------------------------------
--- Semantic types.
 
-data RowSemType (A : Set) : KEnv → Kind → Set where 
-  εV : RowSemType A Δ R[ κ ]
-  neV : NeutralType Δ R[ κ ] → RowSemType A Δ R[ κ ]
-  _▹V_ : NormalType Δ L → A → RowSemType A Δ R[ κ ]
-  ⦅_⦆V : List A → RowSemType A Δ κ
+--------------------------------------------------------------------------------
+-- Semantic types (signatures)
+  
 SemType : KEnv → Kind → Set
 KripkeFunction : KEnv → Kind → Kind → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
+--------------------------------------------------------------------------------
+-- Semantic Rows
+
+Row : KEnv → Kind → Set 
+Row Δ ★ = ⊥ 
+Row Δ L = ⊥ 
+Row Δ (_ `→ _) = ⊥ 
+Row Δ R[ κ ] = ∃[ n ](Fin n → SemType Δ κ)
+
+-- row extension
+_⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+τ ⨾⨾ (n , P) = (suc n , λ { fzero → τ
+                         ; (fsuc m) → P m })
+
+-- the empty row                                  
+εV : Row Δ R[ κ ] 
+εV = 0 , λ ()
+
+-- Singleton rows
+⁅_⁆ : SemType Δ κ → Row Δ R[ κ ] 
+⁅ τ ⁆ = 1 , λ { fzero → τ }
+
+--------------------------------------------------------------------------------
+-- Semantic types (definition)
+
+
 SemType Δ ★ = NormalType Δ ★
-SemType Δ L = NormalType Δ L
+SemType Δ L = ⊤
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
-SemType Δ R[ κ ] = RowSemType (SemType Δ κ) Δ R[ κ ]
-  -- Maybe 
-  -- ((NeutralType Δ R[ κ ]) or
-  -- (NormalType Δ L × SemType Δ κ) or 
-  -- List (SemType Δ κ))
+SemType Δ R[ κ ] = NeutralType Δ R[ κ ] or Row Δ R[ κ ]

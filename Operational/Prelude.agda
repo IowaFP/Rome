@@ -3,7 +3,7 @@ module Rome.Operational.Prelude where
 open import Agda.Primitive public
 
 open import Data.Fin 
-  using (Fin ; #_) 
+  using (Fin ; #_ ; fromℕ) 
   renaming (zero to fzero ; suc to fsuc) public
 open import Data.Unit hiding (_≟_) public
 open import Data.Empty public
@@ -20,8 +20,8 @@ open Product
   public
 
 open import Data.Nat using (ℕ ; zero ; suc) public
-open import Data.String hiding (_≈_ ; map) public
-open import Data.List using (List ; [] ;  _∷_ ; map) public
+open import Data.String hiding (_≈_ ; map ; length) public
+open import Data.List using (List ; [] ;  _∷_ ; map ; length) public
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
 open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
 open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
