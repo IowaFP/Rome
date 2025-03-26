@@ -19,7 +19,7 @@ data RowSemType (A : Set) : KEnv → Kind → Set where
   εV : RowSemType A Δ R[ κ ]
   neV : NeutralType Δ R[ κ ] → RowSemType A Δ R[ κ ]
   _▹V_ : NormalType Δ L → A → RowSemType A Δ R[ κ ]
-  -- ⦅_⦆V : List A → RowSemType A Δ κ
+  ⦅_⦆V : List A → RowSemType A Δ κ
 SemType : KEnv → Kind → Set
 KripkeFunction : KEnv → Kind → Kind → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)

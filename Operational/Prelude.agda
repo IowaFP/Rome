@@ -23,7 +23,7 @@ open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.String hiding (_≈_ ; map) public
 open import Data.List using (List ; [] ;  _∷_ ; map) public
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
-open import Data.List.Relation.Unary.Any.Properties public
+open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
 open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
 
 Label = String

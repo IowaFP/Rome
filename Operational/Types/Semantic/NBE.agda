@@ -34,6 +34,7 @@ reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (neV x) = ne x
 reify {κ = R[ κ ]} (l ▹V τ) = l ▹ (reify τ)
 reify {κ = R[ κ ]} εV = ε
+reify {κ = R[ κ ]} ⦅ ρ ⦆V = ⦅ map reify ρ ⦆
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -76,6 +77,7 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 _<$>V_ {κ₁ = κ₁} {κ₂} F (neV x) = neV (reifyKripke F <$> x)
 _<$>V_ {κ₁ = κ₁} {κ₂} F (l ▹V τ) = l ▹V (F ·V τ)
 _<$>V_ {κ₁ = κ₁} {κ₂} F εV = εV
+_<$>V_ {κ₁ = κ₁} {κ₂} F ⦅ ρ ⦆V = ⦅ map (F ·V_) ρ ⦆V 
 
 --------------------------------------------------------------------------------
 -- Semantic flap
@@ -158,7 +160,11 @@ eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = (eval l η) ▹V (eval τ η) 
 eval ε η = εV
-eval ⦅ ρ ⦆ η = {!!}
+eval ⦅ ρ ⦆ η = ⦅ go ρ ⦆V
+  where
+    go : List (Type _ _) → List (SemType _ _)
+    go [] = [] 
+    go (x ∷ xs) = eval x η ∷ go xs
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Type normalization
