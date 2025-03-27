@@ -6,7 +6,9 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Rome.Operational.Types
+open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Renaming 
+
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Substitution
 open import Rome.Operational.Types.Properties.Equivalence

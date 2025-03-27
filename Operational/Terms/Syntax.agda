@@ -83,6 +83,7 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
         -----------
         Ent Γ π 
 
+  -- Todo: Show refl and trans are admissable
   n-refl : 
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
