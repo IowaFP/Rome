@@ -37,7 +37,6 @@ renRowₖ-cong : ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} →  r₁ ≈ r₂ �
 renPredₖ-cong : ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} →  r₁ ≈ r₂ → 
                   (π : Pred Type Δ₁ R[ κ ]) → renPredₖ r₁ π ≡ renPredₖ r₂ π
                   
-renₖ-cong eq ε = refl
 renₖ-cong eq (` x) rewrite eq x = refl
 renₖ-cong eq (`λ τ) rewrite renₖ-cong (liftₖ-cong eq) τ = refl 
 renₖ-cong eq (τ₁ · τ₂) rewrite renₖ-cong eq τ₁ | renₖ-cong eq τ₂ = refl
@@ -67,7 +66,6 @@ renₖ-id : ∀ (τ : Type Δ κ) → renₖ id τ ≡ τ
 renPredₖ-id : ∀ (π : Pred Type Δ R[ κ ]) → renPredₖ id π ≡ π
 renRowₖ-id : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → renRowₖ id ρ ≡ ρ
 
-renₖ-id ε = refl
 renₖ-id (` x) = refl
 renₖ-id (`λ τ) rewrite renₖ-cong liftₖ-id τ | renₖ-id τ = refl 
 renₖ-id (τ₁ · τ₂) rewrite renₖ-id τ₁ | renₖ-id τ₂ = refl
@@ -100,7 +98,6 @@ renPredₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂
 renRowₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂ Δ₃) → 
                 ∀ (ρ : SimpleRow Type Δ₁ R[ κ ]) → renRowₖ (r₂ ∘ r₁) ρ ≡ renRowₖ r₂ (renRowₖ r₁ ρ)
 
-renₖ-comp _ _   ε = refl
 renₖ-comp r₁ r₂ (` x) = refl
 renₖ-comp r₁ r₂ Π = refl
 renₖ-comp r₁ r₂ Σ = refl

@@ -22,7 +22,7 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
 subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
-subₖ σ ε = ε
+-- subₖ σ ε = ε
 subₖ σ (` x) = σ x
 subₖ σ (`λ τ) = `λ (subₖ (liftsₖ σ) τ)
 subₖ σ (τ₁ · τ₂) = (subₖ σ τ₁) · (subₖ σ τ₂)

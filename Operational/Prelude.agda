@@ -21,7 +21,7 @@ open Product
 
 open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.String hiding (_≈_ ; map ; length) public
-open import Data.List using (List ; [] ;  _∷_ ; map ; length) public
+open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length) public
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
 open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
 open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
@@ -29,7 +29,8 @@ open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ 
 Label = String
 
 open import Function using (_∘_) public
-open import Relation.Binary.PropositionalEquality as Eq public
+open import Relation.Binary.PropositionalEquality as Eq 
+  renaming ([_] to [[_]]) public 
 open import Relation.Binary.Definitions using (Decidable ; DecidableEquality) public
 open import Relation.Nullary using (¬_) public
 open import Relation.Nullary.Negation using (contradiction; contraposition) public

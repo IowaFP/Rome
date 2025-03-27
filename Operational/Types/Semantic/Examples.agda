@@ -35,6 +35,26 @@ open import Rome.Operational.Types.Semantic.NBE
 -- l₃ = lab "l3"
 
 ----------------------------------------
+-- Important types
+
+wand : Type Δ ★ 
+wand = `∀ (`∀ (`∀ (`∀ (`∀ 
+    (((ℓ' ▹ τ) ≲ ρ₃) ⇒ ((ρ₁ · ρ₂ ~ ρ₃) ⇒ ((Π · ρ₁) `→ ((Π · ρ₂) `→ τ))))))))
+    where  
+        τ  = ` Z 
+        ℓ' = ` (S Z)
+        ρ₃ = ` (S (S Z))
+        ρ₂ = ` (S (S (S Z)))
+        ρ₁ = ` (S (S (S (S Z))))
+
+
+record-prj : Type ∅ ★
+record-prj = `∀ (`Π (ℓ ▹ ` Z) `→ ` Z)
+
+_ : ⇓ record-prj ≡ `∀ (Π ⦅ [ (ne (` Z)) ] ⦆ `→ ne (` Z))
+_ = refl
+
+----------------------------------------
 -- Some function types.
 
 app : Type Δ ((★ `→ ★) `→ ★ `→ ★)
@@ -58,7 +78,7 @@ _ = refl
 Const-U : Type Δ (★ `→ ★)
 Const-U = `λ Unit
 
-_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ {! ⇓ Const-U !}
+_ : ∀ {Δ} → ⇓ (Const-U {Δ}) ≡ `λ UnitNF
 _ = refl
 
 
@@ -67,63 +87,63 @@ _ = refl
 -- ----------------------------------------
 -- -- Simple terms.
 
--- A₀ : Type Δ R[ ★ ]
--- A₀ = (ℓ ▹ Unit)
+A₀ : Type Δ R[ ★ ]
+A₀ = (ℓ ▹ Unit)
 
--- _ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡  (l ▹ UnitNF)
--- _ = refl
+_ : ∀ {Δ} → ⇓ (A₀ {Δ}) ≡  ⦅ UnitNF ∷ [] ⦆
+_ = refl
 
 -- ----------------------------------------
 -- -- Row-kinded function types.
 
--- Id-R : Type Δ R[ ★ `→ ★ ]
--- Id-R = ℓ ▹ (`λ (` Z))
+Id-R : Type Δ R[ ★ `→ ★ ]
+Id-R = ℓ ▹ (`λ (` Z))
 
--- _ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡  (l ▹ (`λ (ne (` Z))))
--- _ = refl
+_ : ∀ {Δ} → ⇓ (Id-R {Δ}) ≡  ⦅ [ `λ (ne (` Z)) ] ⦆
+_ = refl
 
--- app-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
--- app-R = ℓ₁ ▹ app
+app-R : Type Δ R[ ((★ `→ ★) `→ ★ `→ ★) ]
+app-R = ℓ₁ ▹ app
 
--- _ : ∀ {Δ} → ⇓ (app-R {Δ}) ≡  ((l₁ ▹ ⇓ app))
--- _ = refl
+_ : ∀ {Δ} → ⇓ (app-R {Δ}) ≡  ⦅ [ ⇓ app ] ⦆
+_ = refl
 
 -- ----------------------------------------
 -- -- Function types with congruences. 
 
--- C₁ : Type Δ ★
--- C₁ = `Π (ℓ ▹ Unit)
+C₁ : Type Δ ★
+C₁ = `Π (ℓ ▹ Unit)
 
--- _ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π (l ▹ UnitNF)
--- _ = refl
+_ : ∀ {Δ} → ⇓ (C₁ {Δ}) ≡ Π ⦅ [ UnitNF ] ⦆
+_ = refl
 
--- C₂ : Type Δ (★ `→ ★)
--- C₂ = `Π (ℓ ▹ (`λ (` Z)))
+C₂ : Type Δ (★ `→ ★)
+C₂ = `Π (ℓ ▹ (`λ (` Z)))
 
--- _ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ `λ (Π (l ▹ (ne (` Z))))
--- _ = refl 
+_ : ∀ {Δ} → ⇓ (C₂ {Δ}) ≡ `λ (Π ⦅ [ ne (` Z) ] ⦆)
+_ = refl 
 
--- C₃ : Type Δ ★
--- C₃ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ ((app · Const-U) · Unit))))
+C₃ : Type Δ ★
+C₃ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ ((app · Const-U) · Unit))))
 
--- _ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π (l₁ ▹ (Π (l₂ ▹ UnitNF)))
--- _ = refl
+_ : ∀ {Δ} → ⇓ (C₃ {Δ}) ≡ Π ⦅ [ (Π ⦅ [ UnitNF ] ⦆) ] ⦆ 
+_ = refl
 
 
 -- ----------------------------------------
 -- -- Unreduced Π applications
 
--- NR₀ : Type Δ ★
--- NR₀ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+NR₀ : Type Δ ★
+NR₀ = `Π (`Π (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
--- _ : ⇓ {Δ = Δ} NR₀ ≡ Π (l₁ ▹ (Π (l₂ ▹ UnitNF)))
--- _ = refl 
+_ : ⇓ {Δ = Δ} NR₀ ≡ Π ⦅ [ (Π ⦅ [ UnitNF ] ⦆) ] ⦆ 
+_ = refl 
 
--- NR₁ : Type Δ (★ `→ ★)
--- NR₁ = `Π (ℓ₁ ▹ (`Π (ℓ₂ ▹ ID)))
+NR₁ : Type Δ (L `→ L `→ ★ `→ ★)
+NR₁ = `λ (`λ (`Π (` Z ▹ (`Π (` (S Z) ▹ ID)))))
 
--- _ : ⇓ {Δ = Δ} NR₁ ≡ `λ (Π (l₁ ▹ (Π (l₂ ▹ (ne (` Z))))))
--- _ = refl
+_ : ⇓ {Δ = Δ} NR₁ ≡ `λ (`λ (`λ (Π ⦅ [ Π ⦅ [ ne (` Z) ] ⦆ ] ⦆)))
+_ = refl
 
 
 -- NR₂ : Type Δ R[ ★ ]
@@ -161,64 +181,65 @@ _ = refl
 -- -- -- ----------------------------------------
 -- -- -- -- Mixed Π and Σ w/ unreduced computation
 
--- mix₀ : Type Δ ★
--- mix₀ = `Π (`Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
+mix₀ : Type Δ ★
+mix₀ = `Π (`Σ (ℓ₁ ▹ (ℓ₂ ▹ Unit)))
 
--- _ : ⇓ {Δ = Δ} mix₀ ≡ Π (l₁ ▹ (Σ (l₂ ▹ UnitNF)))
--- _ = refl
+_ : ⇓ {Δ = Δ} mix₀ ≡ Π ⦅ [ Σ ⦅ [ UnitNF ] ⦆ ] ⦆
+_ = refl
 
 
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Lifting nonsense
 
--- lift-λ : Type Δ ★
--- lift-λ = `Π (`λ (` Z) <$> (ℓ ▹ Unit))
+lift-λ : Type Δ ★
+lift-λ = `Π (`λ (` Z) <$> (ℓ ▹ Unit))
 
--- _ : ⇓ {Δ = Δ} lift-λ ≡ Π (lab "l" ▹ UnitNF)
--- _ = refl
+_ : ⇓ {Δ = Δ} lift-λ ≡ Π ⦅ [ UnitNF ] ⦆
+_ = refl
 
--- lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
--- lift-λ₂ = `Π (ℓ₁ ▹ (`λ (`λ (` Z) <$> (ℓ₂ ▹ Unit)))) -- `Π (ℓ₁ ▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
+lift-λ₂  : Type Δ ((★ `→ ★) `→ R[ ★ ])
+lift-λ₂ = `Π (ℓ₁ ▹ (`λ (`λ (` Z) <$> (ℓ₂ ▹ Unit)))) -- `Π (ℓ₁ ▹ (`λ  (↑ · (` Z)) · (ℓ₂ ▹ Unit)))
 
--- _ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ ( (lab "l1" ▹ Π (lab "l2" ▹ UnitNF)))
--- _ = refl
+_ : ⇓ {Δ = Δ} lift-λ₂ ≡ `λ ⦅ [ Π ⦅ [ UnitNF ] ⦆ ] ⦆
+_ = refl
 
--- lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
--- lift-var = `λ (`λ (` Z) <$> (` Z))
+lift-var : Type Δ (R[ ★ ] `→ R[ ★ ])
+lift-var = `λ (`λ (` Z) <$> (` Z))
 
--- _ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
--- _ = refl 
+_ : ⇓ {Δ = Δ} lift-var ≡ `λ (ne (`λ (ne (` Z)) <$> ` Z))
+_ = refl 
 
--- lift-assoc₁ : Type Δ ★
--- lift-assoc₁ =  (Π · (ℓ ▹ `λ (` Z))) · Unit
+lift-assoc₁ : Type Δ ★
+lift-assoc₁ =  (Π · (ℓ ▹ `λ (` Z))) · Unit
 
--- _ : ⇓ {Δ = Δ} lift-assoc₁ ≡ Π (l ▹ UnitNF)
--- _ = refl
+_ : ⇓ {Δ = Δ} lift-assoc₁ ≡ Π ⦅ [ UnitNF ] ⦆
+_ = refl
 
--- lift-assoc₂ : Type (Δ ,, (★ `→ ★)) ★
--- lift-assoc₂ =  (Π · (ℓ ▹ F)) · Unit 
---     where
---         F = ` Z
+lift-assoc₂ : Type (Δ ,, (★ `→ ★)) ★
+lift-assoc₂ =  (Π · (ℓ ▹ F)) · Unit 
+    where
+        F = ` Z
 
--- _ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π (l ▹ ne (` Z · UnitNF))
--- _ = refl
+_ : ⇓ {Δ = Δ ,, (★ `→ ★)} lift-assoc₂ ≡ Π ⦅ [ ne (` Z · UnitNF) ] ⦆
+_ = refl
 
--- lift-assoc₃ : Type (Δ ,, R[ ★ `→ ★ ]) ★
--- lift-assoc₃ =  (Π · F) · Unit
---     where
---         F = ` Z
+lift-assoc₃ : Type (Δ ,, R[ ★ `→ ★ ]) ★
+lift-assoc₃ =  (Π · F) · Unit
+    where
+        F = ` Z
 
--- lift-assoc₃' : Type (Δ ,, R[ ★ `→ ★ ]) ★
--- lift-assoc₃' =  Π · (F ?? Unit)
---     where
---         F = ` Z
+lift-assoc₃' : Type (Δ ,, R[ ★ `→ ★ ]) ★
+lift-assoc₃' =  Π · (F ?? Unit)
+    where
+        F = ` Z
 
--- _ : ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃ ≡ ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃'
--- _ = refl
+_ : ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃ ≡ ⇓ {Δ = Δ ,, R[ ★ `→ ★ ]} lift-assoc₃'
+_ = refl
 
 
 -- --------------------------------------------------------------------------------
 -- -- Simple rows
 
--- _ : Type Δ ★
--- _ = (`∀ (((` Z) ≲ ⦅ Unit ∷ Unit ∷ [] ⦆) ⇒ ((Π · (` Z)) `→ Unit)))
+_ : Type Δ ★
+_ = (`∀ (((` Z) ≲ ⦅ Unit ∷ Unit ∷ [] ⦆) ⇒ ((Π · (` Z)) `→ Unit)))
+ 

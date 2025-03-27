@@ -138,7 +138,7 @@ eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 evalRow : List (Type Δ₁ κ) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 
-evalRow [] η = 0 , λ ()
+evalRow [] η = εV
 evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η) 
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
@@ -170,7 +170,6 @@ eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval {κ = _} (l ▹ τ) η = right ⁅ eval τ η ⁆
-eval ε η = right (0 , (λ ()))
 eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 
 --------------------------------------------------------------------------------
@@ -191,7 +190,5 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 -- Testing reification / evaluation of simple rows 
 
 
--- I think (reifyRow ∘ evalRow) is reversing the order of the row.
-_ : {! sr  !}
 
  
