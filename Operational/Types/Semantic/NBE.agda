@@ -31,12 +31,14 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 ↓ : ∀ {A : Set} {n} → (Fin (suc n) → A) → Fin n → A 
 ↓ P n = P (inject₁ n)
 
+-- I may need snoc lists
 reifyRow' : (n : ℕ) → (Fin n → SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P = []
-reifyRow' (suc n) P = reify (P (fromℕ n)) ∷ (reifyRow' n (↓ P))
+reifyRow' (suc n) P = reifyRow' n (↓ P) ++ [ reify (P (fromℕ n)) ]
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
-reifyRow (n , P) = reifyRow' n P 
+reifyRow (n , P) = reifyRow' n P
+
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = ΠL ⦅ [] ⦆
@@ -139,7 +141,7 @@ evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ �
 evalRow : List (Type Δ₁ κ) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 
 evalRow [] η = εV
-evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η) 
+evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η)
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
@@ -189,6 +191,9 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 ----------------------------------------
 -- Testing reification / evaluation of simple rows 
 
+example : SimpleRow NormalType Δ R[ κ ] 
+example = {! reifyRow (evalRow ( (Π · ⦅ [ Unit ] ⦆) ∷ Unit ∷ (Σ · ε) ∷ [])  idEnv)  !}
 
 
+ 
  

@@ -72,8 +72,14 @@ stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
 -- need to show that reify (λ { fzero → ... ; fsuc n → ... }) i pushes the reification through to body of row.
 -- But that isn't all of it... Need to also make sure I have the order right in row extension. Might need to be reversed.
 stabilityRow [] = refl
-stabilityRow (x ∷ ρ) with ⇓ (⇑ x) | stability x 
-... | _ | refl = {! stabilityRow ρ  !}
+stabilityRow ρ with evalRow (⇑Row ρ) idEnv | inspect (λ x → evalRow (⇑Row x) idEnv) ρ
+stabilityRow [] | zero , P | [[ eq ]] = refl
+...  | (suc n , P) | [[ eq ]] with reifyRow' n (↓ P) 
+stabilityRow (x ∷ []) | suc n , P | [[ eq ]] | [] = cong₂ _∷_ {!   !} refl
+stabilityRow (x ∷ x₁ ∷ ρ) | suc n , P | [[ eq ]] | [] = {!   !}
+stabilityRow (x₁ ∷ ρ) | suc n , P | [[ eq ]] | x ∷ c = {!   !} 
+-- ... | [] = {!   !}
+-- ... | x₁ ∷ cs = {!   !}
 
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
@@ -104,11 +110,5 @@ bijectivity₁ τ = stability τ
 --------------------------------------------------------------------------------
 -- Embedding is injective
  
-⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂
+⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂     
 ⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
-
---------------------------------------------------------------------------------
--- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
-
--- embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
--- embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 

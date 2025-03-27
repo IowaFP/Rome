@@ -322,4 +322,8 @@ idSR α = reflect-⟦⟧≋ eq-refl
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
 soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundS τ idSR)))   
   
- 
+ --------------------------------------------------------------------------------
+-- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
+
+-- embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
+-- embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 

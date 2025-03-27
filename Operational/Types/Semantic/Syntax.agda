@@ -32,7 +32,7 @@ Row Δ R[ κ ] = ∃[ n ](Fin n → SemType Δ κ)
 -- row extension
 _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 τ ⨾⨾ (n , P) = (suc n , λ { fzero → τ 
-                         ; (fsuc m) → P m })
+                          ; (fsuc x) → P x })
 
 -- the empty row                                  
 εV : Row Δ R[ κ ] 
@@ -48,5 +48,5 @@ _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = ⊤
-SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
+SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
 SemType Δ R[ κ ] = NeutralType Δ R[ κ ] or Row Δ R[ κ ]
