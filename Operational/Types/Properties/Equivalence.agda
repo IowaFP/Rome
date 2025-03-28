@@ -104,7 +104,6 @@ subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ((ρ₁ ≲ ρ₂) ⇒ τ) =
         (subₖ-cong-≡t c τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (lab l)  = eq-refl
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ⌊ τ ⌋ = eq-⌊⌋ (subₖ-cong-≡t c τ)
-subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ε = eq-refl
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ ▹ τ₁) = eq-▹ (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁) 
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ <$> τ₁) = eq-<$> (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c Π  = eq-refl    

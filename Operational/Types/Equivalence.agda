@@ -36,11 +36,6 @@ data _≡r_ : List (Type Δ κ) → List (Type Δ κ) → Set where
             -----------------------
             (τ₁ ∷ xs) ≡r (τ₂ ∷ ys)
 
--- [] ≡r [] = ⊤
--- [] ≡r (x ∷ ρ₂) = ⊥
--- (x ∷ ρ₁) ≡r [] = ⊥
--- (x ∷ ρ₁) ≡r (y ∷ ρ₂) = (x ≡t y) × ρ₁ ≡r ρ₂ 
-
 data _≡p_ where
 
   _eq-≲_ : 
