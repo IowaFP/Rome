@@ -83,7 +83,25 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
         -----------
         Ent Γ π 
 
-  -- Todo: Show refl and trans are admissable
+  -- Todo: Show refl and trans are admissable. I want to replace all rules really with rules like these:
+  -- n-≲ : 
+  --         (∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ ys) → 
+  --         --------------------------------------------
+  --         Ent Γ (⦅ xs  ⦆ ≲ ⦅ ys ⦆)
+
+  -- n-≲ : 
+  --         (∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ zs) → 
+  --         (∀ (y : NormalType Δ κ) → y ∈ ys → y ∈ zs) → 
+  --         (∀ (z : NormalType Δ κ) → z ∈ zs → (z ∈ xs or z ∈ ys)) → 
+  --         --------------------------------------------
+  --         Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
+
+  -- or you could do 
+
+  --         zs ≡ xs ++ ys → 
+  --         --------------------------------------------
+  --         Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
+
   n-refl : 
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
