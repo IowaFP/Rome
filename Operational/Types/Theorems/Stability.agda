@@ -69,15 +69,26 @@ stability (Σ x)  rewrite stability x = refl
 stability (ΣL x) rewrite stability x = {!   !}
 stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
 
+
+reifyRow'lem : ∀ (n : ℕ) (P : Fin (suc n) → SemType Δ κ)  → reifyRow' (suc n) P ≡ reify (P fzero) ∷ (reifyRow'  n (↓ P)) 
+reifyRow'lem zero P = refl
+reifyRow'lem (suc n) P rewrite reifyRow'lem n (↓ P) = cong₂ _∷_ refl (trans (cong₂ _++_ {x = reifyRow' n (P ∘ inject₁ ∘ inject₁)} {_}
+   {[ reify (P (fsuc (fromℕ n))) ]}
+   {[ reify (P (inject₁ (fromℕ n))) ]} refl {!   !}) (reifyRow'lem n (↓ P))) 
+
 -- need to show that reify (λ { fzero → ... ; fsuc n → ... }) i pushes the reification through to body of row.
 -- But that isn't all of it... Need to also make sure I have the order right in row extension. Might need to be reversed.
 stabilityRow [] = refl
 stabilityRow ρ with evalRow (⇑Row ρ) idEnv | inspect (λ x → evalRow (⇑Row x) idEnv) ρ
 stabilityRow [] | zero , P | [[ eq ]] = refl
-...  | (suc n , P) | [[ eq ]] with reifyRow' n (↓ P) 
-stabilityRow (x ∷ []) | suc n , P | [[ eq ]] | [] = cong₂ _∷_ {!   !} refl
-stabilityRow (x ∷ x₁ ∷ ρ) | suc n , P | [[ eq ]] | [] = {!   !}
-stabilityRow (x₁ ∷ ρ) | suc n , P | [[ eq ]] | x ∷ c = {!   !} 
+stabilityRow (x ∷ []) | suc zero , P | [[ refl ]] = cong₂ _∷_ (stability x) refl
+stabilityRow (x ∷ ρ) | suc n , P | [[ eq₁ ]] with evalRow (⇑Row ρ) idEnv | inspect (λ x → evalRow (⇑Row x) idEnv) ρ
+stabilityRow (x ∷ ρ) | suc n , P | [[ refl ]] | m , Q | [[ refl ]] = trans (reifyRow'lem n P) (cong₂ _∷_ (stability x) {! stabilityRow ρ  !})
+
+-- -- stabilityRow (x ∷ []) | suc zero , P | [[ refl ]] | [] = 
+-- stabilityRow (x ∷ []) | suc zero , P | [[ refl ]] | [] = cong₂ _∷_ (stability x) refl
+-- stabilityRow (x ∷ x₁ ∷ ρ) | suc (suc n) , P | [[ refl ]] | [] rewrite stability x | stabilityRow ρ = {! stability x  !}
+-- stabilityRow (x₁ ∷ ρ) | suc n , P | [[ eq ]] | x ∷ c = {!   !}
 -- ... | [] = {!   !}
 -- ... | x₁ ∷ cs = {!   !}
 
@@ -110,5 +121,5 @@ bijectivity₁ τ = stability τ
 --------------------------------------------------------------------------------
 -- Embedding is injective
  
-⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂     
+⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂               
 ⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
