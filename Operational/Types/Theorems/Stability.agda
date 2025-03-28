@@ -50,7 +50,7 @@ stabilityNE {κ = R[ κ ]} (F <$> τ)
 --         η (S x) = ↻-ren-reflect S (` x)
   
 stability {κ = ★} (ne x) = stabilityNE x
-stability {κ = L} (ne x)       = {! stabilityNE x  !}
+stability {κ = L} (ne x) rewrite stabilityNE x        = refl
 stability {_} {κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
 -- stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
@@ -64,9 +64,9 @@ stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl
 -- stability (l ▹ τ) rewrite stability l | stability τ = refl 
 -- stability ε = refl
 stability (Π x)  rewrite stability x = refl
-stability (ΠL x) rewrite stability x = {! x  !}
+stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
-stability (ΣL x) rewrite stability x = {!   !}
+stability (ΣL x) rewrite stability x = refl
 stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
 
 stabilityRow [] = refl
@@ -100,5 +100,5 @@ bijectivity₁ τ = stability τ
 --------------------------------------------------------------------------------
 -- Embedding is injective
  
-⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂                 
+⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂                   
 ⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))

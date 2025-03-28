@@ -27,7 +27,7 @@ renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ)
 renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 
 renSem {κ = ★} r τ = renₖNF r τ
-renSem {κ = L} r τ = tt
+renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
 renSem {κ = R[ κ ]} r (right (n , P)) = right (n , (λ m → renSem r (P m)))

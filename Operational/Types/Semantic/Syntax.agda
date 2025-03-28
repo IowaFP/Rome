@@ -46,6 +46,6 @@ _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 
 
 SemType Δ ★ = NormalType Δ ★
-SemType Δ L = ⊤
+SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
 SemType Δ R[ κ ] = NeutralType Δ R[ κ ] or Row Δ R[ κ ]

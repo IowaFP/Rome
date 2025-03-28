@@ -21,17 +21,13 @@ reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
-reflect {κ = L} τ            = tt
+reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} τ       = left τ
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
-↓ : ∀ {A : Set} {n} → (Fin (suc n) → A) → Fin n → A 
-↓ P n = P (inject₁ n)
-
--- I may need snoc lists
 reifyRow' : (n : ℕ) → (Fin n → SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
 reifyRow' (suc n) P = reify (P fzero) ∷ reifyRow' n (P ∘ fsuc) 
@@ -39,9 +35,8 @@ reifyRow' (suc n) P = reify (P fzero) ∷ reifyRow' n (P ∘ fsuc)
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
 
-
 reify {κ = ★} τ = τ
-reify {κ = L} τ = ΠL ⦅ [] ⦆
+reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
 reify {κ = R[ κ ]} (right ρ) = ⦅ reifyRow ρ ⦆
@@ -111,7 +106,7 @@ record Xi : Set where
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
-ξ {κ = L} Ξ x = tt
+ξ {κ = L} Ξ x = Ξ .ΞL (reify x)
 ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
 ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
 
@@ -158,7 +153,7 @@ eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
 ----------------------------------------
 -- Label evaluation.
 
-eval {κ = L} (lab l) η = tt
+eval {κ = L} (lab l) η = ΠL ⦅ [] ⦆
 
 ----------------------------------------
 -- function evaluation.
