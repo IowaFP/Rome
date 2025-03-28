@@ -27,6 +27,8 @@ open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ;
 open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
 open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
 open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
+import Data.Vec as Vec using (Vec; tabulate)
+open Vec public
 
 Label = String
 

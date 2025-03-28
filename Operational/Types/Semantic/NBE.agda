@@ -33,8 +33,8 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
 -- I may need snoc lists
 reifyRow' : (n : ℕ) → (Fin n → SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
-reifyRow' zero P = []
-reifyRow' (suc n) P = reifyRow' n (↓ P) ++ [ reify (P (fromℕ n)) ]
+reifyRow' zero P    = []
+reifyRow' (suc n) P = reify (P fzero) ∷ reifyRow' n (P ∘ fsuc) 
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
@@ -85,7 +85,7 @@ F ·V V = F id V
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
-_<$>V_  F (right (n , P)) = right ((n , λ m → F ·V (P m)))
+_<$>V_  F (right (n , P)) = right ((n , F id ∘ P))
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -103,8 +103,8 @@ f <?>V a = apply a <$>V f
 
 record Xi : Set where 
   field
-    Ξ★ : ∀ {Δ'} → NormalType  Δ' R[ ★ ] → NormalType Δ' ★
-    ΞL : ∀ {Δ'} → NormalType Δ' R[ L ] → NormalType Δ' L
+    Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
+    ΞL : ∀ {Δ} → NormalType Δ R[ L ] → NormalType Δ L
     ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
     ren-L : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → renₖNF ρ (ΞL τ) ≡  ΞL (renₖNF ρ τ)
 
@@ -191,8 +191,10 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 ----------------------------------------
 -- Testing reification / evaluation of simple rows 
 
-example : SimpleRow NormalType Δ R[ κ ] 
-example = {! reifyRow (evalRow ( (Π · ⦅ [ Unit ] ⦆) ∷ Unit ∷ (Σ · ε) ∷ [])  idEnv)  !}
+-- example : SimpleRow NormalType Δ R[ ★ ] 
+-- example = reifyRow (evalRow ((Π · ⦅ [] ⦆) ∷ (Σ  · ⦅ [] ⦆) ∷ []) idEnv)
+-- _ : _
+-- _ = {! example  !}
 
 
  

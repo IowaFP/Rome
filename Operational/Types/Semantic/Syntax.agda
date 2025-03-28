@@ -29,10 +29,9 @@ Row Δ L = ⊥
 Row Δ (_ `→ _) = ⊥ 
 Row Δ R[ κ ] = ∃[ n ](Fin n → SemType Δ κ)
 
--- row extension
 _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
-τ ⨾⨾ (n , P) = (suc n , λ { fzero → τ 
-                          ; (fsuc x) → P x })
+τ ⨾⨾ (n , P) =  suc n , λ { fzero → τ 
+                          ; (fsuc x) → P x }
 
 -- the empty row                                  
 εV : Row Δ R[ κ ] 

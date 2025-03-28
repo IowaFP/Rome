@@ -180,30 +180,30 @@ reify-≋ {κ = R[ κ ]} {l ▹V τ₁} {_ ▹V τ₂} (refl , q) = cong (l ▹_
 reify-≋ {κ = R[ κ ]} {εV} {εV} tt = refl
 
 
-reify-≋-inj    : ∀ {τ₁ υ₁ τ₂ υ₂ : SemType Δ κ} → 
-  τ₁ ≋ υ₁ → 
-  τ₂ ≋ υ₂ → 
-  υ₁ ≋ υ₂ →
-  reify τ₁ ≡ reify τ₂ → 
-  τ₁ ≋ τ₂
-reify-≋-inj {κ = ★} r₁ r₂ r₃ eq = eq
-reify-≋-inj {κ = L} r₁ r₂ r₃ eq = eq
-reify-≋-inj {κ = κ `→ κ₁} {τ₁} {υ₁} {τ₂} {υ₂} r₁ r₂ r₃ eq = 
-  fst r₁ , 
-  fst r₂ , 
-  λ ρ {V₁} {V₂} v → 
-    trans-≋ 
-      (third r₁ ρ v) 
-    (trans-≋ (third r₃ ρ (sym-≋ v))
-      (sym-≋ (third r₂ ρ (sym-≋ v))))
-reify-≋-inj {κ = R[ κ ]} {neV x} {_} {neV x₁} r₁ r₂ r₃ refl = refl
-reify-≋-inj {κ = R[ κ ]} {l₁ ▹V τ₁} {l₂ ▹V τ₂} {l₃ ▹V τ₃} {l₄ ▹V τ₄} (_ , r₁) (_ , r₂) r₃ eq = 
-  (inj-▹ₗ eq) , (reify-≋-inj r₁ r₂ (snd r₃) (inj-▹ᵣ eq))
-reify-≋-inj {κ = R[ κ ]} {neV x} {_} {εV} r₁ r₂ r₃ ()
-reify-≋-inj {κ = R[ κ ]} {_ ▹V _} {_} {εV} r₁ r₂ r₃ ()
-reify-≋-inj {κ = R[ κ ]} {εV} {_} {neV x} r₁ r₂ r₃ ()
-reify-≋-inj {κ = R[ κ ]} {εV} {_} {_ ▹V _} r₁ r₂ r₃ ()
-reify-≋-inj {κ = R[ κ ]} {εV} {_} {εV} r₁ r₂ r₃ eq = tt
+-- reify-≋-inj    : ∀ {τ₁ υ₁ τ₂ υ₂ : SemType Δ κ} → 
+--   τ₁ ≋ υ₁ → 
+--   τ₂ ≋ υ₂ → 
+--   υ₁ ≋ υ₂ →
+--   reify τ₁ ≡ reify τ₂ → 
+--   τ₁ ≋ τ₂
+-- reify-≋-inj {κ = ★} r₁ r₂ r₃ eq = eq
+-- reify-≋-inj {κ = L} r₁ r₂ r₃ eq = eq
+-- reify-≋-inj {κ = κ `→ κ₁} {τ₁} {υ₁} {τ₂} {υ₂} r₁ r₂ r₃ eq = 
+--   fst r₁ , 
+--   fst r₂ , 
+--   λ ρ {V₁} {V₂} v → 
+--     trans-≋ 
+--       (third r₁ ρ v) 
+--     (trans-≋ (third r₃ ρ (sym-≋ v))
+--       (sym-≋ (third r₂ ρ (sym-≋ v))))
+-- reify-≋-inj {κ = R[ κ ]} {neV x} {_} {neV x₁} r₁ r₂ r₃ refl = refl
+-- reify-≋-inj {κ = R[ κ ]} {l₁ ▹V τ₁} {l₂ ▹V τ₂} {l₃ ▹V τ₃} {l₄ ▹V τ₄} (_ , r₁) (_ , r₂) r₃ eq = 
+--   (inj-▹ₗ eq) , (reify-≋-inj r₁ r₂ (snd r₃) (inj-▹ᵣ eq))
+-- reify-≋-inj {κ = R[ κ ]} {neV x} {_} {εV} r₁ r₂ r₃ ()
+-- reify-≋-inj {κ = R[ κ ]} {_ ▹V _} {_} {εV} r₁ r₂ r₃ ()
+-- reify-≋-inj {κ = R[ κ ]} {εV} {_} {neV x} r₁ r₂ r₃ ()
+-- reify-≋-inj {κ = R[ κ ]} {εV} {_} {_ ▹V _} r₁ r₂ r₃ ()
+-- reify-≋-inj {κ = R[ κ ]} {εV} {_} {εV} r₁ r₂ r₃ eq = tt
 
 
 --------------------------------------------------------------------------------
