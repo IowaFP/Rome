@@ -52,14 +52,10 @@ cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
 cong-App {V₁ = F} {G} (unif-F , unif-G , Ext) q = Ext id q           
 
 -- --------------------------------------------------------------------------------
--- -- Labeled rows respect ≋
+-- -- Singleton formation respects ≋
 
--- cong-▹ : ∀ {L₁ L₂ : NormalType Δ L} → 
---            _≋_ {κ = L} L₁ L₂ → 
---            {W₁ W₂ : SemType Δ κ} → 
---            W₁ ≋ W₂ → 
---            _≋_ {κ = R[ κ ]} (L₁ ▹V W₁)  (L₂ ▹V W₂)
--- cong-▹ {κ = κ} ℓ w = ℓ , w
+cong-⁅⁆ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → (right ⁅ V₁ ⁆) ≋ (right ⁅ V₂ ⁆)
+cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { refl fzero → v })
 
 -- --------------------------------------------------------------------------------
 -- -- Mapping respects ≋
