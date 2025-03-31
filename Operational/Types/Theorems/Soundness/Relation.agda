@@ -36,12 +36,18 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {κ = ★} τ V = τ ≡t ⇑ V
 ⟦_⟧≋_ {κ = L} τ V = τ ≡t ⇑ V
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
-⟦_⟧≋_ {κ = R[ κ ]} τ v = {!   !}
+⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) = 
+  Σ[ ρ ∈ SimpleRow Type Δ R[ κ ] ] 
+  Σ[ pf ∈ length ρ ≡ n ] 
+    ((τ ≡t ⦅ ρ ⦆)   × 
+     (length ρ ≡ n) × 
+    (∀ (i : Fin n) →  ⟦ (lookup ρ (subst-Fin (sym pf) i)) ⟧≋ (P i)))
 
--- SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
---     (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
---       ⟦ v ⟧≋ V → 
---       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
+SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+    (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
+      ⟦ v ⟧≋ V → 
+      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
 
 -- --------------------------------------------------------------------------------
 -- -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 

@@ -49,7 +49,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
 ↻-renSem-<$> ρ {V₁} {V₂} v {left x} {left _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
-↻-renSem-<$> ρ {V₁} {V₂} v {right (n , P)} {right (_ , Q)} (refl , eq) = refl , λ { refl → ↻-renSem-app ρ v ∘ eq refl }
+↻-renSem-<$> ρ {V₁} {V₂} v {right (n , P)} {right (_ , Q)} (refl , eq) = refl , ↻-renSem-app ρ v ∘ eq
 
 --------------------------------------------------------------------------------
 -- Uniformity of <?>V
@@ -220,7 +220,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     (reify-≋ (↻-renSem-eval ρ τ (refl-≋ᵣ ∘ e))))
 ↻-renSem-eval ρ (π ⇒ τ) e = cong₂ _⇒_ (↻-renSem-eval-pred ρ π e) (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ (lab l) e = refl
-↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = refl , (λ { refl fzero → ↻-renSem-eval ρ τ e })
+↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = refl , (λ { fzero → ↻-renSem-eval ρ τ e })
 ↻-renSem-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-Π x) 
 ↻-renSem-eval ρ Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-Σ x) 
@@ -228,9 +228,9 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
-↻-renSem-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , (λ { refl () })
+↻-renSem-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , (λ { () })
 ↻-renSem-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow ρ η₁ | ↻-renSem-eval r ⦅ ρ ⦆ e 
-... | (n , P) | refl , d = refl , (λ { refl fzero → ↻-renSem-eval r x e ; refl (fsuc i) → d refl i })
+... | (n , P) | refl , eq = refl , (λ { fzero → ↻-renSem-eval r x e ; (fsuc i) → eq i })
 
 -- ------------------------------------------------------------------------------
 -- idext 
@@ -284,9 +284,9 @@ idext {κ = κ} e Σ =
   Unif-Σ , 
   λ ρ x → cong-Σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
-idext {κ = R[ κ ]} e ⦅ [] ⦆ = refl , λ { _ () }
+idext {κ = R[ κ ]} e ⦅ [] ⦆ = refl , λ { () }
 idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | idext e ⦅ ρ ⦆ 
-... | n , P | refl , eq = refl , (λ { refl fzero → idext e x ; refl (fsuc i) → eq refl i })
+... | n , P | refl , eq = refl , (λ { fzero → idext e x ; (fsuc i) → eq i })
 
 
 --------------------------------------------------------------------------------
@@ -359,11 +359,11 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ ρ x → cong-Π x
 ↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ ρ x → cong-Σ x
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
-↻-renₖ-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , λ { _ () }
+↻-renₖ-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , λ { () }
 ↻-renₖ-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-eval r ⦅ ρ ⦆ e 
 ... | n , P | (refl , eq) = 
-  refl , (λ { refl fzero    → ↻-renₖ-eval r x e 
-            ; refl (fsuc i) → eq refl i })
+  refl , (λ { fzero    → ↻-renₖ-eval r x e 
+            ; (fsuc i) → eq i })
 
 
 --------------------------------------------------------------------------------
@@ -435,11 +435,11 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
 ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { _ () })
+↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { () })
 ↻-subₖ-eval ⦅ x ∷ ρ ⦆ {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-eval ⦅ ρ ⦆ e σ
 ... | n , P | (refl , eq) =
-  refl , (λ { refl fzero    → ↻-subₖ-eval x e σ
-            ; refl (fsuc i) → eq refl i })
+  refl , (λ { fzero    → ↻-subₖ-eval x e σ
+            ; (fsuc i) → eq i })
 
 ↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renamingₖ Δ₂ Δ₃) 
                 {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 

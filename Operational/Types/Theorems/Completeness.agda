@@ -85,18 +85,18 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
 fundC e (eq-▹ eq-l eq-τ) = cong-⁅⁆ (fundC e eq-τ)
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
-fundC e (eq-Π▹ {τ = τ}) = refl , (λ { refl fzero → cong-Π (idext e τ) })
-fundC e (eq-Σ▹ {τ = τ}) = refl , (λ { refl fzero → cong-Σ (idext e τ) })
+fundC e (eq-Π▹ {τ = τ}) = refl , (λ { fzero → cong-Π (idext e τ) })
+fundC e (eq-Σ▹ {τ = τ}) = refl , (λ { fzero → cong-Σ (idext e τ) })
 fundC e (eq-Πλ {l = l} {τ}) =  
   fst (idext e (Π · (l ▹ `λ τ))) , 
   fst (snd (idext e (`λ (Π · (weakenₖ l ▹ τ))))) , 
-  λ ρ v → cong-Π (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
+  λ ρ v → cong-Π (refl , (λ { fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
 fundC e (eq-Σλ {l = l} {τ = τ}) =
   fst (idext e (Σ · (l ▹ `λ τ))) , 
   fst (snd (idext e (`λ (Σ · (weakenₖ l ▹ τ))))) , 
-  λ ρ v → cong-Σ (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
+  λ ρ v → cong-Σ (refl , (λ { fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
 fundC e (eq-▹$ {τ = τ} {F}) = 
-  refl , (λ { refl fzero → cong-App (idext e F) (idext e τ) })
+  refl , (λ { fzero → cong-App (idext e F) (idext e τ) })
 fundC e (eq-Π-assoc {ρ = ρ} {τ}) = 
   cong-Π 
     (cong-<$> 
@@ -110,18 +110,18 @@ fundC e (eq-Σ-assoc {ρ = ρ} {τ}) =
 fundC e (eq-Π {τ = τ}) = cong-<$> (idext e Π) (idext e τ) 
 fundC e (eq-Σ {τ = τ}) = cong-<$> (idext e Σ) (idext e τ) 
 fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
-fundC e (eq-map {ρ = []}) = refl , (λ { refl () })
+fundC e (eq-map {ρ = []}) = refl , (λ { () })
 fundC {η₁ = η₁} e (eq-map {F = F} {ρ = x ∷ ρ}) 
   with evalRow ρ η₁ | fundC e (eq-map {F = F} {ρ})
 ... |  n , P        | refl , eq = 
-  refl , (λ { refl fzero → cong-App  (idext e F) (idext e x)
-            ; refl (fsuc i) → eq refl i })
-fundC e (eq-row eq-[]) = refl , (λ { _ () })
+  refl , (λ { fzero → cong-App  (idext e F) (idext e x)
+            ; (fsuc i) → eq i })
+fundC e (eq-row eq-[]) = refl , (λ { () })
 fundC {η₁ = η₁} e (eq-row (eq-cons {xs = xs} {ys} x eq-ρ)) 
   with evalRow xs η₁ | fundC e (eq-row eq-ρ)
 ... |  (n , P)       | refl , eq = 
-  refl , λ { refl fzero → fundC e x
-           ; refl (fsuc i) → eq refl i }
+  refl , λ { fzero → fundC e x
+           ; (fsuc i) → eq i }
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

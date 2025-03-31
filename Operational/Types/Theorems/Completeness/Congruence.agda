@@ -39,7 +39,7 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
 ren-≋ {κ = R[ κ ]} {V₁ = left x} {left y} ρ refl = refl
-ren-≋ {κ = R[ κ ]} {V₁ = right (n , P)} {right (m , Q)} ρ (refl , eq) = refl , λ { refl → (ren-≋ ρ) ∘ eq refl }
+ren-≋ {κ = R[ κ ]} {V₁ = right (n , P)} {right (m , Q)} ρ (refl , eq) = refl ,(ren-≋ ρ) ∘ eq
 
 -- --------------------------------------------------------------------------------
 -- -- Application respects ≋
@@ -55,7 +55,7 @@ cong-App {V₁ = F} {G} (unif-F , unif-G , Ext) q = Ext id q
 -- -- Singleton formation respects ≋
 
 cong-⁅⁆ : ∀ {V₁ V₂ : SemType Δ κ} → V₁ ≋ V₂ → (right ⁅ V₁ ⁆) ≋ (right ⁅ V₂ ⁆)
-cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { refl fzero → v })
+cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { fzero → v })
 
 -- --------------------------------------------------------------------------------
 -- -- Mapping respects ≋
@@ -66,7 +66,7 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
 cong-<$> v {left x} {left x₁} refl = cong (_<$> x) (reify-≋ v)
-cong-<$> v {right (n , P)} {right (m , Q)} (refl , eq) =  refl , λ { refl → cong-App v ∘ eq refl } 
+cong-<$> v {right (n , P)} {right (m , Q)} (refl , eq) =  refl , cong-App v ∘ eq 
 
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.

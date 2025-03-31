@@ -27,9 +27,6 @@ _≋_ : SemType Δ κ → SemType Δ κ → Set
 PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
 Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
 
-subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
-subst-Row refl f = f
-
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
@@ -38,7 +35,7 @@ _≋_ {Δ₁} {R[ κ ]} (left x) (left y) = x ≡ y
 _≋_ {Δ₁} {R[ κ ]} (left x) (right y) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (right y) (left x) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (right (n , P)) (right (m , Q)) = 
-  (n ≡ m) × (∀ (eq : n ≡ m) (i : Fin m) → (subst-Row eq P) i ≋ Q i)
+  Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) → (subst-Row pf P) i ≋ Q i)
 
 PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
@@ -81,7 +78,7 @@ sym-≋ {κ = κ `→ κ₁}
   (Unif-F , (Unif-G , Ext)) = 
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
 sym-≋ {κ = R[ κ ]} {left x} {left x₁} q = sym q
-sym-≋ {κ = R[ κ ]} {right (n , P)} {right (m , Q)} (eq , eq-ρ) = sym eq , λ { refl i → sym-≋ (eq-ρ refl i)  }
+sym-≋ {κ = R[ κ ]} {right (n , P)} {right (m , Q)} (refl , eq-ρ) = refl , λ { i → sym-≋ (eq-ρ i)  }
 
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
@@ -94,7 +91,7 @@ trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H}
     unif-H , 
     λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
 trans-≋ {κ = R[ κ ]} {left x} {left x₁} refl q = q
-trans-≋ {κ = R[ κ ]} {right (n , P)} {right (m , Q)} {right (o , R)} (refl , rel₁) (refl , rel₂) = refl , λ { refl i → trans-≋ (rel₁ refl i) (rel₂ refl i) }
+trans-≋ {κ = R[ κ ]} {right (n , P)} {right (m , Q)} {right (o , R)} (refl , rel₁) (refl , rel₂) = refl , λ { i → trans-≋ (rel₁ i) (rel₂ i) }
 
 -- --------------------------------------------------------------------------------
 -- -- Pointwise extensionality (accordingly) forms a PER
@@ -179,7 +176,7 @@ reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
 reify-≋ {κ = R[ κ ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ κ ]} {right (zero , P)} {right (_ , Q)} (refl , eq) = refl
 reify-≋ {κ = R[ κ ]} {right (suc n , P)} {right (_ , Q)} (refl , eq) = 
-  cong ⦅_⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq refl i) 
+  cong ⦅_⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq i) 
 
 reifyRow-≋ {n = zero} P Q eq = refl
 reifyRow-≋ {n = suc n} P Q eq = 
@@ -212,7 +209,7 @@ reifyRow-≋ {n = suc n} P Q eq =
         (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflect (liftₖ ρ) (` Z))))))
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {left x} {left y} refl = refl
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {right (n , P)} {right (_ , Q)} (refl , eq) = 
-  cong ⦅_⦆ (↻-ren-reifyRow P Q ρ λ i → eq refl i)
+  cong ⦅_⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)
 
 ↻-ren-reifyRow {n = zero} P Q ρ eq = refl
 ↻-ren-reifyRow {n = suc n} P Q ρ eq = 
@@ -255,7 +252,7 @@ renSem-id-≋ {κ = ★} refl = renₖNF-id _
 renSem-id-≋ {κ = L} refl = renₖNF-id _
 renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
 renSem-id-≋ {κ = R[ κ ]} {left x} {left y} refl = renₖNE-id x
-renSem-id-≋ {κ = R[ κ ]} {right (n , P)} {right (n , Q)} (refl , eq) = refl , (λ { refl → renSem-id-≋ ∘ (eq refl) })
+renSem-id-≋ {κ = R[ κ ]} {right (n , P)} {right (n , Q)} (refl , eq) = refl , renSem-id-≋ ∘ eq
 
 renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
@@ -266,7 +263,7 @@ renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext)
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
 renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left x} {left y} refl = renₖNE-comp _ _ _
-renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (n , P)} {right (_ , Q)} (refl , eq) = refl , λ { refl → renSem-comp-≋ ρ₁ ρ₂ ∘ (eq refl) }
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (n , P)} {right (_ , Q)} (refl , eq) = refl , renSem-comp-≋ ρ₁ ρ₂ ∘ eq
 
 ↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → 
