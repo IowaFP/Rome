@@ -30,11 +30,7 @@ renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
-renSem {κ = R[ κ ]} r (right (n , P)) = right (n , (λ m → renSem r (P m)))
--- renSem {κ = R[ κ ]} r (neV x) = neV (renₖNE r x)
--- renSem {κ = R[ κ ]} r (l ▹V τ) = (renₖNF r l ▹V renSem r τ)
--- renSem {κ = R[ κ ]} r εV = εV
--- renSem {κ = R[ κ ]} r ⦅ ρ ⦆V = ⦅ (map (renSem r) ρ) ⦆V
+renSem {κ = R[ κ ]} r (right (n , P)) = right (n , renSem r ∘ P)
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening
@@ -45,14 +41,16 @@ weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
 -- --------------------------------------------------------------------------------
 -- -- Functor laws for renaming as a functorial action
 
--- renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V 
+renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V 
 -- map-id' : ∀ {A : Set} (f : A → A) → (∀ (x : A) → f x ≡ x) → (xs : List A) → map f xs ≡ xs
 -- map-id' f eq [] = refl
 -- map-id' f eq (x ∷ xs) rewrite eq x | map-id' f eq xs = refl
 
--- renSem-id {κ = ★} V = renₖNF-id V
--- renSem-id {κ = L} V = renₖNF-id V
--- renSem-id {κ = κ `→ κ₁} F = refl
+renSem-id {κ = ★} V = renₖNF-id V
+renSem-id {κ = L} V = renₖNF-id V
+renSem-id {κ = κ `→ κ₁} F = refl
+renSem-id {κ = R[ κ ]} (left x) = cong left (renₖNE-id x)
+renSem-id {κ = R[ κ ]} (right (n , P)) = cong (right ∘ (n ,_)) {!!}
 -- renSem-id {κ = R[ κ ]} (neV x) = cong neV (renₖNE-id x) -- renₖNE-id x
 -- renSem-id {κ = R[ κ ]} (l ▹V τ) = (cong₂ _▹V_ (renₖNF-id l) (renSem-id τ)) -- renₖNE-id x
 -- renSem-id {κ = R[ κ ]} εV = refl
