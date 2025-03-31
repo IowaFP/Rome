@@ -24,13 +24,13 @@ private
         π₁ π₂    : Pred Type Δ R[ κ ]
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
 
-data _≡r_ : List (Type Δ κ) → List (Type Δ κ) → Set where 
+data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set where 
 
   eq-[] : 
     
     _≡r_  {Δ = Δ} {κ = κ} [] []
     
-  eq-cons : {xs ys : List (Type Δ κ)} → 
+  eq-cons : {xs ys : SimpleRow Type Δ R[ κ ]} → 
 
             τ₁ ≡t τ₂ → xs ≡r ys → 
             -----------------------
@@ -130,7 +130,7 @@ data _≡t_ where
         (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
     
     eq-row : 
-        ∀ (ρ₁ ρ₂ : List (Type Δ κ)) → ρ₁ ≡r ρ₂ → 
+        ∀ {ρ₁ ρ₂ : List (Type Δ κ)} → ρ₁ ≡r ρ₂ → 
         -------------------------------------------
         ⦅ ρ₁ ⦆ ≡t ⦅ ρ₂ ⦆
 
@@ -214,6 +214,10 @@ data _≡t_ where
 
 inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
 inst refl = eq-refl
+
+instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
+instᵣ {ρ₁ = []} refl = eq-[]
+instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl (instᵣ refl)
 
 
 -------------------------------------------------------------------------------

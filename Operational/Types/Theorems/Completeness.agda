@@ -116,9 +116,9 @@ fundC {η₁ = η₁} e (eq-map {F = F} {ρ = x ∷ ρ})
 ... |  n , P        | refl , eq = 
   refl , (λ { refl fzero → cong-App  (idext e F) (idext e x)
             ; refl (fsuc i) → eq refl i })
-fundC e (eq-row ρ₁ ρ₂ eq-[]) = refl , (λ { _ () })
-fundC {η₁ = η₁} e (eq-row ρ₁ ρ₂ (eq-cons {xs = xs} {ys} x eq-ρ)) 
-  with evalRow xs η₁ | fundC e (eq-row xs ys eq-ρ)
+fundC e (eq-row eq-[]) = refl , (λ { _ () })
+fundC {η₁ = η₁} e (eq-row (eq-cons {xs = xs} {ys} x eq-ρ)) 
+  with evalRow xs η₁ | fundC e (eq-row eq-ρ)
 ... |  (n , P)       | refl , eq = 
   refl , λ { refl fzero → fundC e x
            ; refl (fsuc i) → eq refl i }

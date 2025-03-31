@@ -134,3 +134,11 @@ renRowₖ-comp r₁ r₂ (τ ∷ r) rewrite
                 renₖ (liftₖ {κ = κ'} r) (renₖ S τ) ≡ renₖ S (renₖ r τ)
 ↻-liftₖ-weaken {κ' = κ'} r τ rewrite sym (renₖ-comp (S {κ₂ = κ'}) (liftₖ r) τ) | renₖ-comp r (S {κ₂ = κ'}) τ = refl
     
+
+--------------------------------------------------------------------------------
+-- Renaming commutes with mapping over rows
+
+↻-ren-map : ∀ (r : Renamingₖ Δ₁ Δ₂) (F : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → 
+              map (renₖ r F ·_) (renRowₖ r ρ) ≡ renRowₖ r (map (F ·_) ρ)
+↻-ren-map φ F [] = refl 
+↻-ren-map φ F (x ∷ ρ) = cong (_ ∷_) (↻-ren-map φ F ρ)

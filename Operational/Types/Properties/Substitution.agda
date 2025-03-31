@@ -245,3 +245,11 @@ renₖ-subₖ-id σ r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (
                         (sym (↻-subₖ-renₖ {r = S} {extendₖ ` (subₖ σ τ₂)} (σ x))) 
                         (subₖ-id (σ x)) }) τ₁) 
       (subₖ-comp {σ₁ = extendₖ ` τ₂} {σ} τ₁))
+
+--------------------------------------------------------------------------------
+-- Substitution commutes with mapping over rows
+
+↻-sub-map : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (F : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → 
+              map (subₖ σ F ·_) (subRowₖ σ ρ) ≡ subRowₖ σ (map (F ·_) ρ)
+↻-sub-map σ F [] = refl 
+↻-sub-map σ F (x ∷ ρ) = cong (_ ∷_) (↻-sub-map σ F ρ)
