@@ -81,138 +81,44 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                 ((↻-subₖ-eval τ₁ (sym-≋ ∘ e) (extendₖ ` τ₂))) 
                 (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
-fundC e (eq-▹ eq-l eq-τ) rewrite fundC e eq-l = cong-⁅⁆ (fundC e eq-τ) -- cong-▹ refl (fundC e eq-τ)
+fundC e (eq-▹ eq-l eq-τ) rewrite fundC e eq-l = cong-⁅⁆ (fundC e eq-τ)
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
 fundC {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π▹ {l = l} {τ}) = refl , (λ { refl fzero → cong-Π (idext e τ) })
 fundC {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ▹ {l = l} {τ}) = refl , (λ { refl fzero → cong-Σ (idext e τ) })
 -- clean this shit up
 fundC {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {κ₁ = κ₁} {κ₂ = κ₂} {l = l} {τ = τ}) =  
-  (λ { ρ₁ ρ₂ V₁ V₂ q → {!↻-renSem-Π ρ₂!} })  , 
-  {!!} , 
-  {!!}
-    -- (λ ρ₁ ρ₂ V₁ V₂ q → 
-    -- trans-≋ 
-    --     (↻-renSem-Π ρ₂ 
-    --         (renₖNF ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₁))) 
-    --         (renₖNF ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₂))) 
-    --         (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ e) (ren-≋ id q)) τ))) 
-    --     (cong-Π 
-    --         ((sym-≋ {κ = L} (renₖNF-comp {κ = L} ρ₁ ρ₂ (eval l η₁))) , 
-    --         (trans-≋ 
-    --             (↻-renSem-eval ρ₂ τ (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ₁ ∘ e) (ren-≋ id (refl-≋ᵣ q)) )) 
-    --             (idext (λ { Z     → renSem-comp-≋ ρ₂ id (renSem-id-≋ (refl-≋ᵣ q))
-    --                       ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (e x)) }) τ))))) , 
-    -- (λ ρ₁ ρ₂ V₁ V₂ q → 
-    -- trans-≋ 
-    --     (↻-renSem-Π ρ₂ 
-    --         (eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
-    --         ((eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-    --         (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
-    --     (cong-Π 
-    --         ((trans 
-    --             (↻-renSem-eval ρ₂ (weakenₖ l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-    --             (idext (λ { Z     →  ren-≋ ρ₂ q
-    --                       ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weakenₖ l))) , 
-    --         trans-≋ 
-    --             (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
-    --             (idext (λ { Z     → ren-≋ ρ₂ q
-    --                       ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) τ)))) , 
-    -- λ ρ v → 
-    -- cong-Π 
-    --     ((trans 
-    --         (↻-renSem-eval ρ l e) 
-    --         (sym (trans 
-    --             (↻-renₖ-eval S l (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
-    --             (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) ,
-    --     idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ)
-fundC {η₁ = η₁} {η₂ = η₂} e (eq-Σλ {l = l} {τ = τ}) = {!!}
-    -- (λ ρ₁ ρ₂ V₁ V₂ q → 
-    -- trans-≋ 
-    --     (↻-renSem-Σ ρ₂ 
-    --         (renₖNF ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₁))) 
-    --         (renₖNF ρ₁ (eval l η₁) ▹V eval τ (extende _ (renSem id V₂))) 
-    --         (refl , (idext (extend-≋ (ren-≋ ρ₁ ∘ e) (ren-≋ id q)) τ))) 
-    --     (cong-Σ 
-    --         ((sym-≋ {κ = L} (renₖNF-comp {κ = L} ρ₁ ρ₂ (eval l η₁))) , 
-    --         (trans-≋ 
-    --             (↻-renSem-eval ρ₂ τ (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ₁ ∘ e) (ren-≋ id (refl-≋ᵣ q)) )) 
-    --             (idext (λ { Z     → renSem-comp-≋ ρ₂ id (renSem-id-≋ (refl-≋ᵣ q))
-    --                       ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (e x)) }) τ))))) , 
-    -- (λ ρ₁ ρ₂ V₁ V₂ q → 
-    -- trans-≋ 
-    --     (↻-renSem-Σ ρ₂ 
-    --         (eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁)) 
-    --         ((eval (weakenₖ l ▹ τ) (extende (λ {κ} v' → renSem ρ₁ (η₂ v')) V₁))) 
-    --         (refl , idext (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)) τ)) 
-    --     (cong-Σ 
-    --         ((trans 
-    --             (↻-renSem-eval ρ₂ (weakenₖ l) (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q))) 
-    --             (idext (λ { Z     →  ren-≋ ρ₂ q
-    --                       ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) (weakenₖ l))) , 
-    --         trans-≋ 
-    --             (↻-renSem-eval ρ₂ τ ((extend-≋ (ren-≋ ρ₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ₗ q)))) 
-    --             (idext (λ { Z     → ren-≋ ρ₂ q
-    --                       ; (S x) → (sym-≋ ∘ (renSem-comp-≋ ρ₁ ρ₂) ∘ refl-≋ᵣ ∘ e) x }) τ)))) , 
-    -- λ ρ v → 
-    -- cong-Σ 
-    --     ((trans 
-    --         (↻-renSem-eval ρ l e) 
-    --         (sym (trans 
-    --             (↻-renₖ-eval S l (extend-≋ (refl-≋ᵣ ∘ ren-≋ ρ ∘ e) (refl-≋ᵣ v)))
-    --             (idext (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) l)))) ,
-    --     idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ)
-fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = {!!} 
-    -- (idext e l) , 
-    -- cong-App 
-    --   {V₁ = eval F η₁} 
-    --   {V₂ = eval F η₂} 
-    --   (idext e F) 
-    --   {W₁ = eval τ η₁} 
-    --   {W₂ = eval τ η₂} 
-    --   (idext e τ)
--- Todo: use renSem-id-≋ 
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) = {!!} -- 
--- with eval ρ η₁ | eval ρ η₂ | idext e ρ
--- ... | just (right (l , F)) | just (right (.l , G)) | refl , q rewrite 
---       renₖNF-id l 
---     | renSem-id {κ = κ₁ `→ κ₂} F 
---     | renSem-id {κ = κ₁ `→ κ₂} G = cong-Π 
---         (refl , third q id (ren-≋ id (idext e τ)))
--- ... | just (left x) | just (left .x) | refl rewrite renₖNE-id x = 
---     cong-Π 
---         (cong (_<$> x) 
---             (cong `λ 
---                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
---                     (reify-≋ (ren-≋ S (idext e τ))))))
--- ... | nothing | nothing | _ = cong-Π tt
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) = {!!} -- 
--- with eval ρ η₁ | eval ρ η₂ | idext e ρ
--- ... | just (right (l , F)) | just (right (.l , G)) | refl , q rewrite 
---       renₖNF-id l 
---     | renSem-id {κ = κ₁ `→ κ₂} F 
---     | renSem-id {κ = κ₁ `→ κ₂} G = cong-Σ 
---         (refl , third q id (ren-≋ id (idext e τ)))
--- ... | just (left x) | just (left .x) | refl rewrite renₖNE-id x = 
---     cong-Σ 
---         (cong (_<$> x) 
---             (cong `λ 
---                 (cong (reify ∘ reflect ∘ (` Z ·_)) 
---                     (reify-≋ (ren-≋ S (idext e τ))))))
--- ... | nothing | nothing | _ = cong-Σ tt    
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π {τ = τ}) = {!!} 
-
--- with eval τ η₁ | eval τ η₂ | idext e τ 
--- ... | just (left _) | just (left _) | refl = refl
--- ... | just (right (l , τ)) | just (right (_ , υ)) | refl , q = refl , (cong-Π q)
--- ... | nothing | nothing | _ = tt
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ {τ = τ}) = {!!} 
--- with eval τ η₁ | eval τ η₂ | idext e τ 
--- ... | just (left _) | just (left _) | refl = refl
--- ... | just (right (l , τ)) | just (right (_ , υ)) | refl , q = refl , (cong-Σ q)
--- ... | nothing | nothing | _ = tt
+  fst (idext e (Π · (l ▹ `λ τ))) , 
+  fst (snd (idext e (`λ (Π · (weakenₖ l ▹ τ))))) , 
+  λ ρ v → cong-Π (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
+fundC {η₁ = η₁} {η₂ = η₂} e (eq-Σλ {l = l} {τ = τ}) =
+  fst (idext e (Σ · (l ▹ `λ τ))) , 
+  fst (snd (idext e (`λ (Σ · (weakenₖ l ▹ τ))))) , 
+  λ ρ v → cong-Σ (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
+fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = 
+  refl , (λ { refl fzero → cong-App (idext e F) (idext e τ) })
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) = 
+  cong-Π 
+    (cong-<$> 
+      (cong-apply (idext e τ))
+      (ren-≋ id (idext e ρ))) 
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) =
+  cong-Σ 
+    (cong-<$> 
+      (cong-apply (idext e τ))
+      (ren-≋ id (idext e ρ))) 
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π {τ = τ}) = cong-<$> (idext e Π) (idext e τ) 
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ {τ = τ}) = cong-<$> (idext e Σ) (idext e τ) 
 fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
-fundC {κ = κ} {η₁ = η₁} {η₂} e eq-map = {!!}
-fundC e (eq-row ρ₁ ρ₂ eq-ρ) = {!!}
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-map {ρ = []}) = refl , (λ { refl () })
+fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-map {F = F} {ρ = x ∷ ρ}) with evalRow ρ η₁ | fundC e (eq-map {F = F} {ρ})
+... | n , P | refl , eq = refl , (λ { refl fzero → cong-App  (idext e F) (idext e x)
+                                    ; refl (fsuc i) → eq refl i })
+fundC e (eq-row ρ₁ ρ₂ eq-[]) = refl , (λ { _ () })
+fundC {η₁ = η₁} e (eq-row ρ₁ ρ₂ (eq-cons {xs = xs} {ys} x eq-ρ)) 
+  with evalRow xs η₁ | fundC e (eq-row xs ys eq-ρ)
+... |  (n , P)       | refl , eq = 
+  refl , λ { refl fzero → fundC e x
+           ; refl (fsuc i) → eq refl i }
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
