@@ -41,11 +41,13 @@ fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
 fundC {τ₁ = τ} e eq-refl = idext e τ
 fundC e (eq-sym eq) = sym-≋ (fundC (sym-≋ ∘ e) eq)
 fundC e (eq-trans eq₁ eq₂) = trans-≋ (fundC (refl-≋ₗ ∘ e) eq₁) (fundC e eq₂)
-fundC e (eq-→ {τ₁ = τ₁} {υ₁ = υ₁} eq-τ eq-υ) = cong₂ _`→_ (fundC e eq-τ) (fundC e eq-υ)
+fundC e (eq-→ eq-τ eq-υ) = cong₂ _`→_ (fundC e eq-τ) (fundC e eq-υ)
 fundC {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fundC e eq₁) (fundC e eq₂)
 fundC e (eq-∀ eq) = cong `∀ (fundC (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
-fundC {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) with eval τ η₁ | eval υ η₂ | fundC e eq
-... | y | y₁ | Unif-F , Unif-G , Ext = cong μ (cong `λ (Ext S refl))
+fundC {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) 
+  with eval τ η₁ | eval υ η₂ | fundC e eq
+... |  y         | y₁        | Unif-F , Unif-G , Ext = 
+  cong μ (cong `λ (Ext S refl))
 fundC e (eq-⌊⌋ eq) rewrite fundC e eq = refl
 fundC e (eq-λ {τ = τ} {υ = υ} eq) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
@@ -81,38 +83,39 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                 ((↻-subₖ-eval τ₁ (sym-≋ ∘ e) (extendₖ ` τ₂))) 
                 (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
-fundC e (eq-▹ eq-l eq-τ) rewrite fundC e eq-l = cong-⁅⁆ (fundC e eq-τ)
+fundC e (eq-▹ eq-l eq-τ) = cong-⁅⁆ (fundC e eq-τ)
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
-fundC {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Π▹ {l = l} {τ}) = refl , (λ { refl fzero → cong-Π (idext e τ) })
-fundC {κ = R[ κ ]} {η₁ = η₁} {η₂ = η₂} e (eq-Σ▹ {l = l} {τ}) = refl , (λ { refl fzero → cong-Σ (idext e τ) })
--- clean this shit up
-fundC {η₁ = η₁} {η₂ = η₂} e (eq-Πλ {κ₁ = κ₁} {κ₂ = κ₂} {l = l} {τ = τ}) =  
+fundC e (eq-Π▹ {τ = τ}) = refl , (λ { refl fzero → cong-Π (idext e τ) })
+fundC e (eq-Σ▹ {τ = τ}) = refl , (λ { refl fzero → cong-Σ (idext e τ) })
+fundC e (eq-Πλ {l = l} {τ}) =  
   fst (idext e (Π · (l ▹ `λ τ))) , 
   fst (snd (idext e (`λ (Π · (weakenₖ l ▹ τ))))) , 
   λ ρ v → cong-Π (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
-fundC {η₁ = η₁} {η₂ = η₂} e (eq-Σλ {l = l} {τ = τ}) =
+fundC e (eq-Σλ {l = l} {τ = τ}) =
   fst (idext e (Σ · (l ▹ `λ τ))) , 
   fst (snd (idext e (`λ (Σ · (weakenₖ l ▹ τ))))) , 
   λ ρ v → cong-Σ (refl , (λ { refl fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
-fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ} {F}) = 
+fundC e (eq-▹$ {τ = τ} {F}) = 
   refl , (λ { refl fzero → cong-App (idext e F) (idext e τ) })
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) = 
+fundC e (eq-Π-assoc {ρ = ρ} {τ}) = 
   cong-Π 
     (cong-<$> 
       (cong-apply (idext e τ))
       (ren-≋ id (idext e ρ))) 
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ-assoc {κ₁ = κ₁} {κ₂ = κ₂} {ρ = ρ} {τ}) =
+fundC e (eq-Σ-assoc {ρ = ρ} {τ}) =
   cong-Σ 
     (cong-<$> 
       (cong-apply (idext e τ))
       (ren-≋ id (idext e ρ))) 
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Π {τ = τ}) = cong-<$> (idext e Π) (idext e τ) 
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-Σ {τ = τ}) = cong-<$> (idext e Σ) (idext e τ) 
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-map {ρ = []}) = refl , (λ { refl () })
-fundC {κ = κ} {η₁ = η₁} {η₂} e (eq-map {F = F} {ρ = x ∷ ρ}) with evalRow ρ η₁ | fundC e (eq-map {F = F} {ρ})
-... | n , P | refl , eq = refl , (λ { refl fzero → cong-App  (idext e F) (idext e x)
-                                    ; refl (fsuc i) → eq refl i })
+fundC e (eq-Π {τ = τ}) = cong-<$> (idext e Π) (idext e τ) 
+fundC e (eq-Σ {τ = τ}) = cong-<$> (idext e Σ) (idext e τ) 
+fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
+fundC e (eq-map {ρ = []}) = refl , (λ { refl () })
+fundC {η₁ = η₁} e (eq-map {F = F} {ρ = x ∷ ρ}) 
+  with evalRow ρ η₁ | fundC e (eq-map {F = F} {ρ})
+... |  n , P        | refl , eq = 
+  refl , (λ { refl fzero → cong-App  (idext e F) (idext e x)
+            ; refl (fsuc i) → eq refl i })
 fundC e (eq-row ρ₁ ρ₂ eq-[]) = refl , (λ { _ () })
 fundC {η₁ = η₁} e (eq-row ρ₁ ρ₂ (eq-cons {xs = xs} {ys} x eq-ρ)) 
   with evalRow xs η₁ | fundC e (eq-row xs ys eq-ρ)
