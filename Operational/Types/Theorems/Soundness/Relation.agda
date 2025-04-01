@@ -22,6 +22,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 
 open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Properties.Equivalence
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
@@ -38,9 +39,9 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {κ = L} τ V = τ ≡t ⇑ V
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
-⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ V@(right (n , P)) = 
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) = 
   Σ[ pf ∈ n ≡ length (⇑Row (reifyRow (n , P))) ]
-    (τ ≡t ⇑ (reify V)) × 
+    (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
     (∀ (i : Fin n) → 
         ⟦ (lookup (⇑Row (reifyRow (n , P))) (subst-Fin pf i)) ⟧≋ P i)
 
@@ -96,7 +97,6 @@ subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q)
 subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (len , eq , I) = len , (eq-sym (eq-trans (eq-sym eq) q) , I)
--- -- subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {nothing} p = eq-trans (eq-sym q) p
 
 --------------------------------------------------------------------------------
 -- Stability rule for reification
@@ -124,6 +124,16 @@ refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 --------------------------------------------------------------------------------
 -- renaming respects _≋_
 
+↻-renₖ-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
+                  renₖ ρ (⇑ (reify V)) ≡t ⇑ (reify (renSem ρ V)) 
+↻-renₖ-reify ρ V = eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify V)))) {! ↻-ren-reify  !} 
+                  
+↻-ren-reifyRow' : ∀ {n} (P : Fin n → SemType Δ₁ κ) →  
+                        (ρ : Renamingₖ Δ₁ Δ₂) → 
+                        renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , (renSem ρ ∘ P))
+↻-ren-reifyRow' {n = zero} P ρ = refl
+↻-ren-reifyRow' {n = suc n} P ρ with P fzero 
+... | V = {!   !}
 
 ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
@@ -134,7 +144,15 @@ ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , V)} (len , eq , I) = trans len {!     !} , {!   !} , {!   !}
+-- ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (zero , P)} rel-v@(len , eq , I) = refl , renₖ-≡t ρ eq , λ ()
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} rel-v@(len , eq , I) = 
+  -- cong suc (sym (length-⇑-reify n _)) , 
+  -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) {!   !} , 
+  -- {!   !}
+  sym (length-⇑-reify n _) , 
+  eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) {! refl-⟦⟧≋     !}))) , -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) ((eq-trans (inst (cong ⦅_⦆ (sym (↻-ren-⇑Row ρ _)))) {! eq  !})) , 
+  λ { fzero → subst-⟦⟧≋ {! ↻-ren-reify  !} (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
+    ; (fsuc x) → {!   !} }
 --   eq-trans 
 --     (renₖ-≡t ρ eq-v) 
 --     (eq-▹ (inst (sym (↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
@@ -176,5 +194,5 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env �
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
-   
-   
+    
+     

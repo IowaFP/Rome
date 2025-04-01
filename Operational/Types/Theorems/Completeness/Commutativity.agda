@@ -474,4 +474,24 @@ weaken-extend : ∀ (τ : Type Δ₁ κ₁) →
                   V ≋ V →
                   eval (weakenₖ τ) (extende η₁ V) ≋ eval τ η₂
 weaken-extend τ {η₁} {η₂} e {V} v = ↻-renₖ-eval S τ {extende η₁ V} {extende η₂ V} (extend-≋ e v)   
- 
+
+--------------------------------------------------------------------------------
+-- The length of a reified row is the index of the row 
+
+length-reify : (n : ℕ) (P : Fin n → SemType Δ κ) → 
+                 length (reifyRow (n , P)) ≡ n
+length-reify zero P = refl
+length-reify (suc n) P = cong suc (length-reify n (P ∘ fsuc))
+
+--------------------------------------------------------------------------------
+-- Length of a row is preserved by embedding
+
+length-⇑ : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → 
+            length (⇑Row xs) ≡ length xs
+length-⇑ [] = refl
+length-⇑ (x ∷ xs) = cong suc (length-⇑ xs)
+
+-- Combining the two above 
+length-⇑-reify : ∀ (n : ℕ) (P : Fin n → SemType Δ κ) → 
+                  length (⇑Row (reifyRow (n , P))) ≡ n
+length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)        
