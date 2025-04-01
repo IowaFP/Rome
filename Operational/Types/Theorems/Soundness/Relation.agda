@@ -124,16 +124,30 @@ refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 --------------------------------------------------------------------------------
 -- renaming respects _≋_
 
+sr-to-cr : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+        ⟦ v ⟧≋ V → 
+        eval v idEnv ≋ V 
+sr-to-cr {κ = ★} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
+sr-to-cr {κ = L} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
+sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-V = 
+  fst (↻-renSem-eval id f idEnv-≋) , 
+  {! rel-V  !} , 
+  {!   !} 
+sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
+sr-to-cr {κ = R[ κ ]} {v = v} {right y} rel-V = {!   !}
+
 ↻-renₖ-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
+                  ∀ {v} → ⟦ v ⟧≋ V → 
                   renₖ ρ (⇑ (reify V)) ≡t ⇑ (reify (renSem ρ V)) 
-↻-renₖ-reify ρ V = eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify V)))) {! ↻-ren-reify  !} 
+↻-renₖ-reify ρ V {v} rel-v = eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify V)))) {! ↻-ren-reify  !} 
                   
 ↻-ren-reifyRow' : ∀ {n} (P : Fin n → SemType Δ₁ κ) →  
                         (ρ : Renamingₖ Δ₁ Δ₂) → 
+                        ∀ {v} → 
+                        ⟦ v ⟧≋ (right (n , P)) → 
                         renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , (renSem ρ ∘ P))
-↻-ren-reifyRow' {n = zero} P ρ = refl
-↻-ren-reifyRow' {n = suc n} P ρ with P fzero 
-... | V = {!   !}
+↻-ren-reifyRow' {n = zero} P ρ eq = refl
+↻-ren-reifyRow' {n = suc n} P ρ eq = cong₂ _∷_ {!   !} {!   !} 
 
 ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
@@ -144,15 +158,12 @@ ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
--- ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (zero , P)} rel-v@(len , eq , I) = refl , renₖ-≡t ρ eq , λ ()
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} rel-v@(len , eq , I) = 
-  -- cong suc (sym (length-⇑-reify n _)) , 
-  -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) {!   !} , 
-  -- {!   !}
   sym (length-⇑-reify n _) , 
-  eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) {! ren-⟦⟧≋ (refl-⟦⟧≋     !}))) , -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) ((eq-trans (inst (cong ⦅_⦆ (sym (↻-ren-⇑Row ρ _)))) {! eq  !})) , 
+  eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row ((↻-ren-reifyRow' P ρ rel-v)))))) , 
   λ { fzero → subst-⟦⟧≋ (reify-⟦⟧≋ (ren-⟦⟧≋ ρ {⇑ (reify (P fzero))} {P fzero} (refl-⟦⟧≋ (I fzero)))) (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
     ; (fsuc x) → subst-⟦⟧≋ {!   !} (ren-⟦⟧≋ ρ (I (fsuc x))) }
+    
 --   eq-trans 
 --     (renₖ-≡t ρ eq-v) 
 --     (eq-▹ (inst (sym (↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
@@ -194,5 +205,5 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env �
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
-    
+     
       
