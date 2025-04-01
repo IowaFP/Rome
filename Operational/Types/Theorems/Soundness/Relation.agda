@@ -96,7 +96,7 @@ subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym 
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (len , eq , I) = len , (eq-sym (eq-trans (eq-sym eq) q) , I)
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (len , eq , I) = len , eq-sym (eq-trans (eq-sym eq) q) , I
 
 --------------------------------------------------------------------------------
 -- Stability rule for reification
@@ -150,9 +150,9 @@ ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} rel-v@(len , eq , I) =
   -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) {!   !} , 
   -- {!   !}
   sym (length-⇑-reify n _) , 
-  eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) {! refl-⟦⟧≋     !}))) , -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) ((eq-trans (inst (cong ⦅_⦆ (sym (↻-ren-⇑Row ρ _)))) {! eq  !})) , 
-  λ { fzero → subst-⟦⟧≋ {! ↻-ren-reify  !} (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
-    ; (fsuc x) → {!   !} }
+  eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) {! ren-⟦⟧≋ (refl-⟦⟧≋     !}))) , -- eq-trans (renₖ-≡t ρ (reify-⟦⟧≋ rel-v)) ((eq-trans (inst (cong ⦅_⦆ (sym (↻-ren-⇑Row ρ _)))) {! eq  !})) , 
+  λ { fzero → subst-⟦⟧≋ (reify-⟦⟧≋ (ren-⟦⟧≋ ρ {⇑ (reify (P fzero))} {P fzero} (refl-⟦⟧≋ (I fzero)))) (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
+    ; (fsuc x) → subst-⟦⟧≋ {!   !} (ren-⟦⟧≋ ρ (I (fsuc x))) }
 --   eq-trans 
 --     (renₖ-≡t ρ eq-v) 
 --     (eq-▹ (inst (sym (↻-ren-⇑ ρ l))) (reify-⟦⟧≋ (ren-⟦⟧≋ ρ rel-v))) , 
@@ -195,4 +195,4 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env �
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
     
-     
+      
