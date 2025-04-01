@@ -124,17 +124,28 @@ refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 --------------------------------------------------------------------------------
 -- renaming respects _≋_
 
+cr-to-sr : ∀ {V₁ V₂ : SemType Δ κ} → 
+            V₁ ≋ V₂ → 
+            ⟦ ⇑ (reify V₁) ⟧≋ V₂ 
+
 sr-to-cr : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
         ⟦ v ⟧≋ V → 
         eval v idEnv ≋ V 
+        
 sr-to-cr {κ = ★} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
 sr-to-cr {κ = L} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
 sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-V = 
   fst (↻-renSem-eval id f idEnv-≋) , 
-  {! rel-V  !} , 
+  {!   !} , 
   {!   !} 
 sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
 sr-to-cr {κ = R[ κ ]} {v = v} {right y} rel-V = {!   !}
+
+
+cr-to-sr {κ = ★} refl = eq-refl
+cr-to-sr {κ = L} refl = eq-refl
+cr-to-sr {κ = κ `→ κ₁} rel-v₁ = λ ρ {v₂} {V₂} rel-v₂ → {!   !}
+cr-to-sr {κ = R[ κ ]} rel-V = {!   !}            
 
 ↻-renₖ-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
                   ∀ {v} → ⟦ v ⟧≋ V → 
