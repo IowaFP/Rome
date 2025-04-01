@@ -17,8 +17,7 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
--- open import Rome.Operational.Types.Theorems.Completeness
--- open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Completeness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 
@@ -38,31 +37,28 @@ stabilityNE {Δ} {κ} (τ₁ · τ₂)
 stabilityNE {κ = R[ κ ]} (F <$> τ) 
   rewrite stabilityNE τ | stability F = refl
 
--- stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
---       (eval (⇑ τ)
---        (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
---       ≡ τ
--- stability-β {Δ = Δ} τ = 
---     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
---     where
---         η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
---         η Z = reflect-≋ refl
---         η (S x) = ↻-ren-reflect S (` x)
+stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
+      (eval (⇑ τ)
+       (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
+      ≡ τ
+stability-β {Δ = Δ} τ = 
+    trans (reify-≋ (idext η (⇑ τ))) (stability τ)
+    where
+        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η Z = reflect-≋ refl
+        η (S x) = ↻-ren-reflect S (` x)
   
 stability {κ = ★} (ne x) = stabilityNE x
 stability {κ = L} (ne x) rewrite stabilityNE x        = refl
 stability {_} {κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
--- stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
--- stability (`∀ τ) = cong (`∀) (stability-β τ)
+stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
+stability (`∀ τ) = cong (`∀) (stability-β τ)
 stability (μ τ)  rewrite stability τ = refl
--- stability (lab x)                             = refl
 stability ⌊ τ ⌋ rewrite stability τ           = refl
 stability (τ₁ `→ τ₂) 
     rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
--- stability (l ▹ τ) rewrite stability l | stability τ = refl 
--- stability ε = refl
 stability (Π x)  rewrite stability x = refl
 stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl

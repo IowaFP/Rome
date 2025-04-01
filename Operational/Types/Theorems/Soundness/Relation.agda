@@ -21,8 +21,8 @@ open import Rome.Operational.Types.Semantic.NBE
 
 
 open import Rome.Operational.Types.Equivalence
-open import Rome.Operational.Types.Theorems.Completeness.Commutativity
--- open import Rome.Operational.Types.Normal.Properties.Postulates
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- Soundness of type normalization: 
@@ -40,46 +40,92 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) = 
   Σ[ ρ ∈ SimpleRow Type Δ R[ κ ] ] 
   Σ[ pf ∈ length ρ ≡ n ] 
-    ((τ ≡t ⦅ ρ ⦆)   × 
-     (length ρ ≡ n) × 
-    (∀ (i : Fin n) →  ⟦ (lookup ρ (subst-Fin (sym pf) i)) ⟧≋ (P i)))
+    (τ ≡t ⦅ ρ ⦆) ×
+    (∀ (i : Fin n) → ⟦ (lookup ρ (subst-Fin (sym pf) i)) ⟧≋ (P i))
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
 
--- --------------------------------------------------------------------------------
--- -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
--- -- - Types related under _≋_ have reifications equivalent under _≡t_
+--------------------------------------------------------------------------------
+-- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
+-- - Types related under _≋_ have reifications equivalent under _≡t_
 
--- reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
---              τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
--- reify-⟦⟧≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
---                ⟦ τ ⟧≋ V → τ ≡t ⇑ (reify V)
+reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
+             τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
+reify-⟦⟧≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
+               ⟦ τ ⟧≋ V → τ ≡t ⇑ (reify V)
+reifyRow-⟦⟧≋ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → 
+                 (n : ℕ) → 
+                 (P : Fin n → SemType Δ κ) → 
+                 ⟦ ⦅ xs ⦆ ⟧≋ right ((n , P)) → 
+                 xs ≡r ⇑Row (reifyRow' n P)
 
--- reflect-⟦⟧≋ {κ = ★} e = e  
--- reflect-⟦⟧≋ {κ = L} e = e 
--- reflect-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = 
---     λ ρ q → reflect-⟦⟧≋ 
---     (eq-· 
---         (eq-sym (eq-trans (inst (↻-ren-⇑NE ρ υ)) 
---             (renₖ-≡t ρ (eq-sym e)))) 
---         (reify-⟦⟧≋ q)) 
--- reflect-⟦⟧≋ {κ = R[ κ ]} e = e           
+-- sameRow : ∀ (xs : SimpleRow Type Δ R[ κ ]) → 
+--                  (n : ℕ) → 
+--                  (P : Fin n → SemType Δ κ) → 
+--                  ⟦ ⦅ xs ⦆ ⟧≋ right ((n , P)) → 
+--                  xs ≡ evalRow 
 
--- reify-⟦⟧≋ {κ = ★} {τ} {V} e = e 
--- reify-⟦⟧≋ {κ = L} {τ} {V} e = e
--- reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e = 
---     eq-trans 
---         eq-η 
---         (eq-λ (eq-trans 
---             (reify-⟦⟧≋ (e S (reflect-⟦⟧≋ eq-refl))) 
---             eq-refl))
--- reify-⟦⟧≋ {κ = R[ κ ]} {τ} {nothing} e = e
--- reify-⟦⟧≋ {κ = R[ κ ]} {τ} {just (left n)} e = e 
--- reify-⟦⟧≋ {κ = R[ κ ]} {τ} {just (right (l , υ))} e = fst e 
-        
+reflect-⟦⟧≋ {κ = ★} e = e  
+reflect-⟦⟧≋ {κ = L} e = e 
+reflect-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {υ} e = 
+    λ ρ q → reflect-⟦⟧≋ 
+    (eq-· 
+        (eq-sym (eq-trans (inst (↻-ren-⇑NE ρ υ)) 
+            (renₖ-≡t ρ (eq-sym e)))) 
+        (reify-⟦⟧≋ q)) 
+reflect-⟦⟧≋ {κ = R[ κ ]} e = e
+
+reify-⟦⟧≋ {κ = ★} {τ} {V} e = e 
+reify-⟦⟧≋ {κ = L} {τ} {V} e = e
+reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e = 
+    eq-trans 
+        eq-η 
+        (eq-λ (eq-trans 
+            (reify-⟦⟧≋ (e S (reflect-⟦⟧≋ eq-refl))) 
+            eq-refl))
+
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {left x} e = e
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (n , P)} (xs , refl , eq , I) = eq-trans eq (eq-row (reifyRow-⟦⟧≋ xs n P (xs , refl , eq-refl , I)))
+-- reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (0 , P)} ([] , refl , eq , I) = eq
+-- reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} ((x ∷ xs) , pf@refl , eq , I) = 
+--   eq-trans 
+--     eq 
+--     (eq-row 
+--       (eq-cons 
+--         (reify-⟦⟧≋ (I fzero)) 
+--         (reifyRow-⟦⟧≋ xs n (P ∘ fsuc) (xs , refl , eq-refl , λ { i → I (fsuc i) }))))
+
+--------------------------------------------------------------------------------
+-- Properties of row equivalence & reification lemma for rows
+
+empty-unique-t : ∀ (xs : SimpleRow Type Δ R[ κ ]) → ⦅ [] ⦆ ≡t ⦅ xs ⦆ → xs ≡ []
+empty-unique-t  xs eq with completeness eq 
+empty-unique-t [] eq | _ = refl 
+
+empty-unique-r : ∀ (xs : SimpleRow Type Δ R[ κ ]) → [] ≡r xs → xs ≡ []
+empty-unique-r xs eq with completeness (eq-row eq)
+empty-unique-r [] eq | _ = refl 
+
+-- canonical-⦅⦆ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {ρ : Type Δ R[ κ ]} → ⦅ xs ⦆ ≡t ρ → ∃[ ys ] ((⦅ xs ⦆ ≡t ⦅ ys ⦆) × ρ ≡ ⦅ ys ⦆) -- (xs ≡r zs) × (zs ≡r ys) 
+inj-⦅⦆t : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → ⦅ xs ⦆ ≡t ⦅ ys ⦆ → xs ≡r ys
+inj-⦅⦆t {xs = xs} {ys} eq-refl = eq-reflᵣ xs
+inj-⦅⦆t {xs = xs} {ys} (eq-sym eq) = eq-symᵣ (inj-⦅⦆t eq)
+inj-⦅⦆t {xs = xs} {ys} (eq-trans {τ₂ = τ₂} eq₁ eq₂) with ⇓ τ₂ | completeness eq₁
+... | ⦅ x₁ ⦆ | d = {!   !}
+inj-⦅⦆t {xs = xs} {ys} (eq-row eq) = eq
+
+
+-- inj-⦅⦆t {xs = xs} {ys} eq with completeness eq
+-- ... | _ = {! eq  !} 
+
+
+reifyRow-⟦⟧≋ xs n P (ys , refl , eq , I) with completeness eq
+reifyRow-⟦⟧≋ [] .(length []) P ([] , refl , eq , I) | _ = eq-[]
+reifyRow-⟦⟧≋ (x ∷ xs) .(length (y ∷ ys)) P (y ∷ ys , refl , eq , I) | _ = {! eq  !} -- eq-cons (eq-trans {!   !} (reify-⟦⟧≋ (I fzero))) {!   !}
+
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Equivalent types relate to the same semantic types
 
@@ -175,4 +221,5 @@ SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =
 --              ⟦ σ₁ ⟧≋e η →
 --              ⟦ σ₂ ⟧≋e η
 -- substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
- 
+   
+   

@@ -42,7 +42,7 @@ _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
 subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
-subst-Fin refl x = x
+subst-Fin eq x = cast eq x
 
 subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
 subst-Row refl f = f

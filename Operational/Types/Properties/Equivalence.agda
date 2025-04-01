@@ -194,3 +194,21 @@ subₖ-≡t {σ = σ} (eq-map {F = F} {ρ = x ∷ ρ}) =
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons x eq) = eq-cons (subₖ-≡t x) (subₖ-≡r eq )
+
+
+-- --------------------------------------------------------------------------------
+-- -- Properties of row equivalence
+
+
+
+eq-reflᵣ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → xs ≡r xs 
+eq-reflᵣ [] = eq-[]
+eq-reflᵣ (x ∷ xs) = eq-cons eq-refl (eq-reflᵣ xs) 
+
+eq-symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs 
+eq-symᵣ eq-[] = eq-[]
+eq-symᵣ (eq-cons x eq) = eq-cons (eq-sym x) (eq-symᵣ eq) 
+
+eq-transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
+eq-transᵣ eq-[] eq-[] = eq-[]
+eq-transᵣ (eq-cons eq-hd₁ eq-tl₁) (eq-cons eq-hd₂ eq-tl₂) = eq-cons (eq-trans eq-hd₁ eq-hd₂) (eq-transᵣ eq-tl₁ eq-tl₂)
