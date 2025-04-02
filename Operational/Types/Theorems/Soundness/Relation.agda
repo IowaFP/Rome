@@ -35,15 +35,15 @@ infix 0 ⟦_⟧≋_
 SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
 
 
-⟦_⟧≋_ {κ = ★} τ V = τ ≡t ⇑ V
-⟦_⟧≋_ {κ = L} τ V = τ ≡t ⇑ V
+⟦_⟧≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
+⟦_⟧≋_ {κ = L} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) = 
   Σ[ pf ∈ n ≡ length (⇑Row (reifyRow (n , P))) ]
     (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
     (∀ (i : Fin n) → 
-        ⟦ (lookup (⇑Row (reifyRow (n , P))) (subst-Fin pf i)) ⟧≋ P i)
+        ⟦ (lookup (⇑Row (reifyRow (n , P))) (cast pf i)) ⟧≋ P i)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
@@ -145,7 +145,31 @@ sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-V =
         (ren-≋ ρ₂ (sym-≋ (sr-to-cr (rel-V ρ₁  {⇑ (reify V₁)} {V₁} (cr-to-sr (refl-≋ₗ x)))))) 
         (trans-≋ 
           (↻-renSem-eval ρ₂ (renₖ ρ₁ f · (⇑ (reify V₁))) idEnv-≋)
-          {!rel-V (ρ₂ ∘ ρ₁)!})) 
+          (trans-≋ 
+            (cong-App 
+              {V₁ = eval (renₖ ρ₁ f) (renSem ρ₂ ∘ idEnv)} 
+              {eval f (idEnv ∘ ρ₂ ∘ ρ₁)} 
+              (↻-renₖ-eval ρ₁ f {η₁ = renSem ρ₂ ∘ idEnv} {idEnv ∘ ρ₂} (↻-ren-reflect ρ₂ ∘ `) ) 
+              (idext (ren-≋ ρ₂ ∘ idEnv-≋ ) (⇑ (reify V₁))) ) 
+            (sym-≋ 
+              (cong-App 
+                {V₁ = eval (renₖ (ρ₂ ∘ ρ₁) f) idEnv} 
+                (↻-renₖ-eval (ρ₂ ∘ ρ₁) f idEnv-≋) 
+                {eval (⇑ (reify (renSem ρ₂ V₁))) idEnv} 
+                {eval (⇑ (reify V₁)) (renSem ρ₂ ∘ idEnv)} 
+                (trans-≋ 
+                  (subst 
+                    (λ y → eval (⇑ y) idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
+                    (↻-ren-reify ρ₂ (refl-≋ₗ x)) 
+                    (subst 
+                      (λ y → eval y idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
+                      (sym (↻-ren-⇑ ρ₂ (reify V₁))) 
+                      (trans-≋ 
+                        (↻-renₖ-eval ρ₂ (⇑ (reify V₁)) idEnv-≋) 
+                        (trans-≋ 
+                          (idext (sym-≋ ∘ ↻-ren-reflect ρ₂ ∘ `) (⇑ (reify V₁))) 
+                          (sym-≋ (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋)))))) 
+                  (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋ ))))))) 
       (sr-to-cr (rel-V (ρ₂ ∘ ρ₁) {⇑ (reify (renSem ρ₂ V₁))} {renSem ρ₂ V₂} (cr-to-sr (ren-≋ ρ₂ x))))  ) , 
   {!   !} 
 sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
