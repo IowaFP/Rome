@@ -14,10 +14,10 @@ data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
 data Type Δ : Kind → Set 
 
 SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set 
-SimpleRow Ty Δ ★ = ⊥
-SimpleRow Ty Δ L = ⊥
+SimpleRow Ty Δ ★        = ⊥
+SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ] = List (Ty Δ κ)
+SimpleRow Ty Δ R[ κ ]   = List (Ty Δ κ)
 
 --------------------------------------------------------------------------------
 -- Predicates

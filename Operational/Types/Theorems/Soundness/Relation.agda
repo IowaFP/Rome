@@ -131,16 +131,27 @@ cr-to-sr : ∀ {V₁ V₂ : SemType Δ κ} →
 sr-to-cr : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
         ⟦ v ⟧≋ V → 
         eval v idEnv ≋ V 
+sr-to-cr-refl : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+        ⟦ v ⟧≋ V → 
+        V ≋ V 
         
 sr-to-cr {κ = ★} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
 sr-to-cr {κ = L} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
 sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-V = 
   fst (↻-renSem-eval id f idEnv-≋) , 
-  {!   !} , 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+      (trans-≋ 
+        (ren-≋ ρ₂ (sym-≋ (sr-to-cr (rel-V ρ₁  {⇑ (reify V₁)} {V₁} (cr-to-sr (refl-≋ₗ x)))))) 
+        (trans-≋ 
+          (↻-renSem-eval ρ₂ (renₖ ρ₁ f · (⇑ (reify V₁))) idEnv-≋)
+          {!rel-V (ρ₂ ∘ ρ₁)!})) 
+      (sr-to-cr (rel-V (ρ₂ ∘ ρ₁) {⇑ (reify (renSem ρ₂ V₁))} {renSem ρ₂ V₂} (cr-to-sr (ren-≋ ρ₂ x))))  ) , 
   {!   !} 
 sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
 sr-to-cr {κ = R[ κ ]} {v = v} {right y} rel-V = {!   !}
 
+sr-to-cr-refl rel = refl-≋ᵣ (sr-to-cr rel)
 
 cr-to-sr {κ = ★} refl = eq-refl
 cr-to-sr {κ = L} refl = eq-refl
@@ -150,7 +161,7 @@ cr-to-sr {κ = R[ κ ]} rel-V = {!   !}
 ↻-renₖ-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
                   ∀ {v} → ⟦ v ⟧≋ V → 
                   renₖ ρ (⇑ (reify V)) ≡t ⇑ (reify (renSem ρ V)) 
-↻-renₖ-reify ρ V {v} rel-v = eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify V)))) {! ↻-ren-reify  !} 
+↻-renₖ-reify ρ V {v} rel-v = eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify V)))) {!  !} 
                   
 ↻-ren-reifyRow' : ∀ {n} (P : Fin n → SemType Δ₁ κ) →  
                         (ρ : Renamingₖ Δ₁ Δ₂) → 
@@ -158,7 +169,10 @@ cr-to-sr {κ = R[ κ ]} rel-V = {!   !}
                         ⟦ v ⟧≋ (right (n , P)) → 
                         renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , (renSem ρ ∘ P))
 ↻-ren-reifyRow' {n = zero} P ρ eq = refl
-↻-ren-reifyRow' {n = suc n} P ρ eq = cong₂ _∷_ {!   !} {!   !} 
+↻-ren-reifyRow' {n = suc n} P ρ (len , eq , I) = 
+  cong₂ _∷_ 
+    (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl (I fzero)))
+    (↻-ren-reifyRow' {n = n} (P ∘ fsuc) ρ ({!!} , ({!!} , {!!}))) 
 
 ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
