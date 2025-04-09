@@ -153,7 +153,7 @@ eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
 ----------------------------------------
 -- Label evaluation.
 
-eval {κ = L} (lab l) η = ΠL ⦅ [] ⦆
+eval {κ = L} (lab l) η = lab l
 
 ----------------------------------------
 -- function evaluation.

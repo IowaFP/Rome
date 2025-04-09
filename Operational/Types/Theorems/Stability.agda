@@ -64,6 +64,7 @@ stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
 stability (ΣL x) rewrite stability x = refl
 stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
+stability (lab l) = refl
 
 stabilityRow [] = refl
 stabilityRow (x ∷ ρ) = cong₂ _∷_ (stability x) (stabilityRow ρ)

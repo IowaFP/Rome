@@ -102,11 +102,11 @@ data NormalType Δ where
 --       NormalType Δ R[ κ ]
 
 --   -- labels
---   lab :
+  lab :
     
---       (l : Label) → 
---       --------
---       NormalType Δ L
+      (l : Label) → 
+      --------
+      NormalType Δ L
 
   -- label constant formation
   ⌊_⌋ :
@@ -212,13 +212,13 @@ arrow-canonicity (`λ f) = f , refl
 --------------------------------------------------------------------------------
 -- label canonicity
 
-label-canonicity : (l : NormalType Δ L) → 
-                    ∃[ l₁ ] (l ≡ ΠL l₁) or
-                    ∃[ l₂ ] (l ≡ ΣL l₂) or
-                    ∃[ x  ] (l ≡ ne x)
-label-canonicity (ne x) = right (right (x , refl))
-label-canonicity (ΠL l) = left (l , refl)
-label-canonicity (ΣL l) = right (left (l , refl))
+-- label-canonicity : (l : NormalType Δ L) → 
+--                     ∃[ l₁ ] (l ≡ ΠL l₁) or
+--                     ∃[ l₂ ] (l ≡ ΣL l₂) or
+--                     ∃[ x  ] (l ≡ ne x)
+-- label-canonicity (ne x) = right (right (x , refl))
+-- label-canonicity (ΠL l) = left (l , refl)
+-- label-canonicity (ΣL l) = right (left (l , refl))
 
 
 --------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ label-canonicity (ΣL l) = right (left (l , refl))
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ τ) = `∀ (⇑ τ)
 ⇑ (μ τ) = μ (⇑ τ)
--- ⇑ (lab l) = lab l
+⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 ⇑ (Π x) = Π · ⇑ x
 ⇑ (ΠL x) = Π · ⇑ x
