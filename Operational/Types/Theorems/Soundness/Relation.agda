@@ -40,8 +40,7 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) =
-  (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
-  (∀ (i : Fin n) → P i ≋ P i)
+  (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆)
   -- Σ[ pf ∈ n ≡ length (⇑Row (reifyRow (n , P))) ]
   --   (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
   --   (∀ (i : Fin n) → 
@@ -81,8 +80,8 @@ reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             eq-refl))
 
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {left x} e = e
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (zero , P)} (eq , I) = eq
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} (eq , I) = eq-trans eq (eq-row (eq-cons eq-refl (eq-reflᵣ _)))
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (zero , P)} eq = eq
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} eq = eq-trans eq (eq-row (eq-cons eq-refl (eq-reflᵣ _)))
 
 --------------------------------------------------------------------------------
 -- Equivalent types relate to the same semantic types
@@ -98,7 +97,7 @@ subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym 
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (eq , I) = eq-sym (eq-trans (eq-sym eq) q) , I
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} eq = eq-sym (eq-trans (eq-sym eq) q)
 
 --------------------------------------------------------------------------------
 -- Stability rule for reification
@@ -106,7 +105,22 @@ subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (eq , I
 refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
                 ⟦ v ⟧≋ V  →
                ⟦ ⇑ (reify V) ⟧≋ V 
-refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v            
+refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
+
+
+-- wellFuckit : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
+--                ⇑ (renₖNF ρ (reify V)) ≡
+--                ⇑ (reify (renSem ρ V))
+-- wellFuckit {κ = ★} ρ V = refl
+-- wellFuckit {κ = L} ρ V = refl
+-- wellFuckit {κ = κ₁ `→ κ₂} ρ F = cong `λ (trans (wellFuckit (liftₖ ρ) (F S (idEnv Z))) {!!})
+-- wellFuckit {κ = R[ κ ]} ρ (left x) = refl
+-- wellFuckit {κ = R[ κ ]} ρ (right (n , P)) = cong ⦅_⦆ (cong ⇑Row {!!})
+-- ren-row-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+--                 renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
+--                 ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))            
+-- ren-row-reify ρ zero P = eq-[]
+-- ren-row-reify ρ (suc n) P = eq-cons (eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify (P fzero))))) {!↻-ren-reify!}) {!!}
     
 -- --------------------------------------------------------------------------------
 -- -- 1. (cr-to-sr) Equivalent semantic types are related under SR
@@ -196,7 +210,7 @@ ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} rel-v@(eq , I) = (eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row (↻-ren-reifyRow P P ρ I)))))) , (λ { i → ren-≋ ρ (I i) })
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} eq = eq-trans (renₖ-≡t ρ eq) (eq-row {!!}) -- (eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row (↻-ren-reifyRow P P ρ I)))))) , (λ { i → ren-≋ ρ (I i) })
   -- sym (length-⇑-reify n _) , 
   -- eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row {!↻-ren-reifyRow P P ρ !})))) , 
   -- λ { fzero → subst-⟦⟧≋ (reify-⟦⟧≋ (ren-⟦⟧≋ ρ {⇑ (reify (P fzero))} {P fzero} (refl-⟦⟧≋ (I fzero)))) (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
