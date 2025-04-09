@@ -122,7 +122,7 @@ fundC {η₁ = η₁} e (eq-row (eq-cons {xs = xs} {ys} x eq-ρ))
 ... |  (n , P)       | refl , eq = 
   refl , λ { fzero → fundC e x
            ; (fsuc i) → eq i }
-fundC e (eq-labTy eq) = {!!} -- refl , (λ { fzero → idext e τ })
+fundC e (eq-labTy {τ = τ}) = refl , (λ { fzero → idext e τ })
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl

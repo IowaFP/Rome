@@ -67,7 +67,7 @@ renₖ-≡t {τ = τ} {υ} r (eq-map {F = F} {ρ = x ∷ ρ}) =
     eq-trans 
         (eq-map {F = renₖ r F} {ρ = renₖ r x ∷ renRowₖ r ρ}) 
         (eq-row (eq-cons eq-refl (instᵣ (↻-ren-map r F ρ))))
-renₖ-≡t r (eq-labTy {κ = κ} eq) = eq-labTy (renₖ-≡t r eq)
+renₖ-≡t r eq-labTy = eq-labTy
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r eq-[] = eq-[]
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons x eq) = eq-cons (renₖ-≡t _ x) (renₖ-≡r r eq )
 
@@ -191,7 +191,7 @@ subₖ-≡t {σ = σ} (eq-map {F = F} {ρ = x ∷ ρ}) =
     eq-trans 
         (eq-map {F = subₖ σ F} {ρ = subₖ σ x ∷ subRowₖ σ ρ}) 
         (eq-row (eq-cons eq-refl (instᵣ (↻-sub-map σ F ρ))))
-subₖ-≡t (eq-labTy eq) = eq-labTy (subₖ-≡t eq)
+subₖ-≡t eq-labTy = eq-labTy
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons x eq) = eq-cons (subₖ-≡t x) (subₖ-≡r eq )

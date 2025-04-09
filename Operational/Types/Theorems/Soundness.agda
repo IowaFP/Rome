@@ -308,7 +308,7 @@ fundS (μ τ) {σ} {η} e = eq-μ
         (eq-λ (fundS τ e S eq-refl)))
 fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
 fundS (lab l) {σ} {η} e = eq-refl
-fundS (l ▹ τ) {σ} {η} e = eq-labTy (reify-⟦⟧≋ (fundS τ e)) , λ { fzero → fundC (λ { x → {!reify-⟦⟧≋ (e x)!} }) eq-refl } -- {!fundS τ e!} , (λ { fzero → {!fundC !} })
+fundS (l ▹ τ) {σ} {η} e = eq-trans (eq-▹ eq-refl ((reify-⟦⟧≋ (fundS τ e)))) eq-labTy , λ { fzero → {!!} }
   -- (eq-▹ 
   --   (fundS l e) 
   --   (reify-⟦⟧≋ (fundS τ e))) , 
