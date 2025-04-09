@@ -40,7 +40,7 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) =
-  (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆)
+  τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆
   -- Σ[ pf ∈ n ≡ length (⇑Row (reifyRow (n , P))) ]
   --   (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
   --   (∀ (i : Fin n) → 
@@ -107,20 +107,11 @@ refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} →
                ⟦ ⇑ (reify V) ⟧≋ V 
 refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 
-
--- wellFuckit : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (V : SemType Δ₁ κ) → 
---                ⇑ (renₖNF ρ (reify V)) ≡
---                ⇑ (reify (renSem ρ V))
--- wellFuckit {κ = ★} ρ V = refl
--- wellFuckit {κ = L} ρ V = refl
--- wellFuckit {κ = κ₁ `→ κ₂} ρ F = cong `λ (trans (wellFuckit (liftₖ ρ) (F S (idEnv Z))) {!!})
--- wellFuckit {κ = R[ κ ]} ρ (left x) = refl
--- wellFuckit {κ = R[ κ ]} ρ (right (n , P)) = cong ⦅_⦆ (cong ⇑Row {!!})
--- ren-row-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
---                 renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
---                 ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))            
--- ren-row-reify ρ zero P = eq-[]
--- ren-row-reify ρ (suc n) P = eq-cons (eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify (P fzero))))) {!↻-ren-reify!}) {!!}
+ren-row-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+                renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
+                ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))            
+ren-row-reify ρ zero P = eq-[]
+ren-row-reify ρ (suc n) P = eq-cons (eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify (P fzero))))) {!↻-ren-reify!}) {!!}
     
 -- --------------------------------------------------------------------------------
 -- -- 1. (cr-to-sr) Equivalent semantic types are related under SR
