@@ -32,6 +32,8 @@ open import Rome.Operational.Types.Theorems.Stability
 
 infix 0 ⟦_⟧≋_
 ⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
+⟦_⟧r≋_ : ∀ {κ} → SimpleRow Type Δ R[ κ ] → Row Δ R[ κ ] → Set
+
 -- data ⟦_⟧r≋_ : ∀ {κ} → SimpleRow Type Δ R[ κ ] → Row Δ R[ κ ] → Set where
 --   rel-empty   : ∀ {Δ} {κ} → ⟦ [] ⟧r≋ (εV {Δ} {κ})
 --   rel-cons  : ∀ (τ : Type Δ κ) (V : SemType Δ κ) (xs : SimpleRow Type Δ R[ κ ]) (ρ : Row Δ R[ κ ]) → 
@@ -45,9 +47,12 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) =
     let xs = ⇑Row (reifyRow (n , P)) in 
-    (τ ≡t ⦅ xs ⦆) × 
-    (∀ (i : Fin n) → 
-        ⟦ (lookup xs ( cast (sym (length-⇑-reify n P)) i)) ⟧≋ P i)
+    (τ ≡t ⦅ xs ⦆) × ⟦ xs ⟧r≋ (n , P)
+
+⟦ [] ⟧r≋ (zero , P) = ⊤
+⟦ [] ⟧r≋ (suc n , P) = ⊥
+⟦ x ∷ ρ ⟧r≋ (zero , P) = ⊥
+⟦ x ∷ ρ ⟧r≋ (suc n , P) =  (⟦ x ⟧≋ P fzero) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
@@ -200,40 +205,36 @@ sr-to-cr-refl rel = refl-≋ᵣ (sr-to-cr rel)
 
 
 
-↻-renRowₖ-reifyRow-≡r : ∀ (n : ℕ) (P : Fin n → SemType Δ₁ κ) → (ρ : Renamingₖ Δ₁ Δ₂) → 
-        (I : (i : Fin n) →
-        ⟦ lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i) ⟧≋ P i) → 
-        renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
-        ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))
-↻-renRowₖ-reifyRow-≡r zero P ρ I = eq-[]
-↻-renRowₖ-reifyRow-≡r (suc n) P ρ I = 
-  eq-cons 
-    (inst (trans (sym (↻-ren-⇑ ρ (reify (P fzero)))) (cong ⇑ (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl (I fzero)))))) 
-    (↻-renRowₖ-reifyRow-≡r n (λ x → P (fsuc x)) ρ (λ i → I (fsuc i))) -- (hmm n (λ x → P (fsuc x)) ρ)
-
-
-↻-renRowₖ-reifyRow-over-lookup : 
-  ∀ (n : ℕ) (P : Fin n → SemType Δ₁ κ) → (ρ : Renamingₖ Δ₁ Δ₂) → 
-   (I : (i : Fin n) →
-     ⟦ lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i) ⟧≋ P i) → 
-   (i : Fin n) → 
-   renₖ ρ (lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i)) ≡t
-      lookup (⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))) (cast ((sym (length-⇑-reify n (renSem ρ ∘ P)))) i)
-↻-renRowₖ-reifyRow-over-lookup (suc n) P ρ I fzero = (inst (trans (sym (↻-ren-⇑ ρ (reify (P fzero)))) (cong ⇑ (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl (I fzero)))))) 
-↻-renRowₖ-reifyRow-over-lookup (suc n) P ρ I (fsuc i) = ↻-renRowₖ-reifyRow-over-lookup n (P ∘ fsuc) ρ (I ∘ fsuc) i
+↻-renRowₖ-reifyRow : ∀ (n : ℕ) (P : Fin n → SemType Δ₁ κ) → (ρ : Renamingₖ Δ₁ Δ₂) → 
+        ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
+        renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡ ⇑Row (reifyRow (n , renSem ρ ∘ P))
+↻-renRowₖ-reifyRow zero P ρ tt = refl
+↻-renRowₖ-reifyRow (suc n) P ρ (rel-fzero , rel-fsuc) = 
+  cong₂ _∷_ 
+    (trans 
+      (sym (↻-ren-⇑ ρ (reify (P fzero)))) 
+      (cong ⇑ (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl rel-fzero)))) 
+    (↻-renRowₖ-reifyRow n (λ x → P (fsuc x)) ρ rel-fsuc)
 
 ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
            {V : SemType Δ₁ κ} → 
            ⟦ v ⟧≋ V → 
            ⟦ renₖ ρ v ⟧≋ renSem ρ V
+
+ren-⟦⟧r≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
+             (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+           ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
+           ⟦ ⇑Row (reifyRow (n , renSem ρ ∘ P)) ⟧r≋ (n , renSem ρ ∘ P)
+
 ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} (eq , I) = 
-  (eq-trans (renₖ-≡t ρ eq) (eq-row (↻-renRowₖ-reifyRow-≡r n P ρ I))) , 
-    λ { i → subst-⟦⟧≋ (↻-renRowₖ-reifyRow-over-lookup n P ρ I i) (ren-⟦⟧≋ ρ (I i)) } 
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} (eq , rel) = eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (↻-renRowₖ-reifyRow n P ρ rel))) , ren-⟦⟧r≋ ρ n P rel
+
+ren-⟦⟧r≋ ρ zero P rel = tt
+ren-⟦⟧r≋ ρ (suc n) P (rel-fzero , rel-fsuc) = (refl-⟦⟧≋ (ren-⟦⟧≋ ρ rel-fzero)) , (ren-⟦⟧r≋ ρ n (λ x → P (fsuc x)) rel-fsuc)
 
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
