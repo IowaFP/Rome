@@ -32,6 +32,10 @@ open import Rome.Operational.Types.Theorems.Stability
 
 infix 0 ⟦_⟧≋_
 ⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
+-- data ⟦_⟧r≋_ : ∀ {κ} → SimpleRow Type Δ R[ κ ] → Row Δ R[ κ ] → Set where
+--   rel-empty   : ∀ {Δ} {κ} → ⟦ [] ⟧r≋ (εV {Δ} {κ})
+--   rel-cons  : ∀ (τ : Type Δ κ) (V : SemType Δ κ) (xs : SimpleRow Type Δ R[ κ ]) (ρ : Row Δ R[ κ ]) → 
+--               ⟦ τ ⟧≋ V → ⟦ xs ⟧r≋ ρ → ⟦ (τ ∷ xs)  ⟧r≋ (V ⨾⨾ ρ)
 SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
 
 
@@ -40,20 +44,22 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) =
-  τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆
-  -- Σ[ pf ∈ n ≡ length (⇑Row (reifyRow (n , P))) ]
-  --   (τ ≡t ⦅ ⇑Row (reifyRow (n , P)) ⦆) × 
-  --   (∀ (i : Fin n) → 
-  --       ⟦ (lookup (⇑Row (reifyRow (n , P))) (cast pf i)) ⟧≋ P i)
+    let xs = ⇑Row (reifyRow (n , P)) in 
+    (τ ≡t ⦅ xs ⦆) × 
+    (∀ (i : Fin n) → 
+        ⟦ (lookup xs ( cast (sym (length-⇑-reify n P)) i)) ⟧≋ P i)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
-    (∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
+    ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
-      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
+      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V)
 
---------------------------------------------------------------------------------
--- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
--- - Types related under _≋_ have reifications equivalent under _≡t_
+
+
+
+-- --------------------------------------------------------------------------------
+-- -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
+-- -- - Types related under _≋_ have reifications equivalent under _≡t_
 
 reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
              τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
@@ -80,11 +86,11 @@ reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             eq-refl))
 
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {left x} e = e
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (zero , P)} eq = eq
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} eq = eq-trans eq (eq-row (eq-cons eq-refl (eq-reflᵣ _)))
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (zero , P)} (eq , I) = eq
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} (eq , I) = eq-trans eq (eq-row (eq-cons eq-refl (eq-reflᵣ _)))
 
---------------------------------------------------------------------------------
--- Equivalent types relate to the same semantic types
+-- --------------------------------------------------------------------------------
+-- -- Equivalent types relate to the same semantic types
 
 subst-⟦⟧≋ : ∀ {τ₁ τ₂ : Type Δ κ} → 
   τ₁ ≡t τ₂ → 
@@ -97,100 +103,124 @@ subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym 
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans (eq-sym q) rel
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} eq = eq-sym (eq-trans (eq-sym eq) q)
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (eq , I) = eq-sym (eq-trans (eq-sym eq) q) , I
 
---------------------------------------------------------------------------------
--- Stability rule for reification
+-- --------------------------------------------------------------------------------
+-- -- Stability rule for reification
 
 refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
                 ⟦ v ⟧≋ V  →
                ⟦ ⇑ (reify V) ⟧≋ V 
 refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 
-ren-row-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
-                renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
-                ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))            
-ren-row-reify ρ zero P = eq-[]
-ren-row-reify ρ (suc n) P = eq-cons (eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify (P fzero))))) {!↻-ren-reify!}) {!!}
+-- ren-row-reify : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+--                 renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
+--                 ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))            
+-- ren-row-reify ρ zero P = eq-[]
+-- ren-row-reify ρ (suc n) P = eq-cons (eq-trans (eq-sym (inst (↻-ren-⇑ ρ (reify (P fzero))))) {!!}) {!!}
     
--- --------------------------------------------------------------------------------
--- -- 1. (cr-to-sr) Equivalent semantic types are related under SR
--- -- 2. (sr-to-cr) If type v relates to SemType V then the evaluation of v is 
--- --    equivalent to V.
+--------------------------------------------------------------------------------
+-- 1. (cr-to-sr) Equivalent semantic types are related under SR
+-- 2. (sr-to-cr) If type v relates to SemType V then the evaluation of v is 
+--    equivalent to V.
 
--- cr-to-sr : ∀ {V₁ V₂ : SemType Δ κ} → 
---             V₁ ≋ V₂ → 
---             ⟦ ⇑ (reify V₁) ⟧≋ V₂ 
+cr-to-sr : ∀ {V₁ V₂ : SemType Δ κ} → 
+            V₁ ≋ V₂ → 
+            ⟦ ⇑ (reify V₁) ⟧≋ V₂ 
 
--- sr-to-cr : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
---         ⟦ v ⟧≋ V → 
---         eval v idEnv ≋ V 
-
--- --------------------------------------------------------------------------------
--- -- Any semantic type in the soundness relation is equivalent to itself 
--- -- under the completeness relation.
-
--- sr-to-cr-refl : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
---         ⟦ v ⟧≋ V → 
---         V ≋ V 
-
--- sr-to-cr-refl rel = refl-≋ᵣ (sr-to-cr rel)
-
--- --------------------------------------------------------------------------------
--- -- cr-to-sr definition
-
--- cr-to-sr {κ = ★} refl = eq-refl
--- cr-to-sr {κ = L} refl = eq-refl
--- cr-to-sr {κ = κ₁ `→ κ₂} {V₁ = F} {V₂ = G} rel-F = λ ρ {v₂} {V₂} rel-v₂ → subst-⟦⟧≋ {! reify-≋ rel-F  !} {!   !} -- subst-⟦⟧≋ (eq-· {! eq-η  !} {!   !}) {!   !}
--- cr-to-sr {κ = R[ κ ]} rel-V = {!   !}   
-
--- --------------------------------------------------------------------------------
--- -- sr-to-cr definition
-
--- sr-to-cr {κ = ★} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
--- sr-to-cr {κ = L} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
--- sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-F = 
---   fst (↻-renSem-eval id f idEnv-≋) , 
---   (λ ρ₁ ρ₂ V₁ V₂ x → 
---     trans-≋ 
---       (trans-≋ 
---         (ren-≋ ρ₂ (sym-≋ (sr-to-cr (rel-F ρ₁  {⇑ (reify V₁)} {V₁} (cr-to-sr (refl-≋ₗ x)))))) 
---         (trans-≋ 
---           (↻-renSem-eval ρ₂ (renₖ ρ₁ f · (⇑ (reify V₁))) idEnv-≋)
---           (trans-≋ 
---             (cong-App 
---               {V₁ = eval (renₖ ρ₁ f) (renSem ρ₂ ∘ idEnv)} 
---               {eval f (idEnv ∘ ρ₂ ∘ ρ₁)} 
---               (↻-renₖ-eval ρ₁ f {η₁ = renSem ρ₂ ∘ idEnv} {idEnv ∘ ρ₂} (↻-ren-reflect ρ₂ ∘ `) ) 
---               (idext (ren-≋ ρ₂ ∘ idEnv-≋ ) (⇑ (reify V₁))) ) 
---             (sym-≋ 
---               (cong-App 
---                 {V₁ = eval (renₖ (ρ₂ ∘ ρ₁) f) idEnv} 
---                 (↻-renₖ-eval (ρ₂ ∘ ρ₁) f idEnv-≋) 
---                 {eval (⇑ (reify (renSem ρ₂ V₁))) idEnv} 
---                 {eval (⇑ (reify V₁)) (renSem ρ₂ ∘ idEnv)} 
---                 (trans-≋ 
---                   (subst 
---                     (λ y → eval (⇑ y) idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
---                     (↻-ren-reify ρ₂ (refl-≋ₗ x)) 
---                     (subst 
---                       (λ y → eval y idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
---                       (sym (↻-ren-⇑ ρ₂ (reify V₁))) 
---                       (trans-≋ 
---                         (↻-renₖ-eval ρ₂ (⇑ (reify V₁)) idEnv-≋) 
---                         (trans-≋ 
---                           (idext (sym-≋ ∘ ↻-ren-reflect ρ₂ ∘ `) (⇑ (reify V₁))) 
---                           (sym-≋ (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋)))))) 
---                   (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋ ))))))) 
---       (sr-to-cr (rel-F (ρ₂ ∘ ρ₁) {⇑ (reify (renSem ρ₂ V₁))} {renSem ρ₂ V₂} (cr-to-sr (ren-≋ ρ₂ x))))  ) , 
---   λ ρ {V₁} {V₂} rel-V → trans-≋ {! fundC {τ₁ = f} {f} idEnv-≋ eq-refl !} (sr-to-cr-refl (rel-F ρ (cr-to-sr rel-V))) 
--- sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
--- sr-to-cr {κ = R[ κ ]} {v = v} {right y} rel-V = {!   !}
-
-
+sr-to-cr : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+        ⟦ v ⟧≋ V → 
+        eval v idEnv ≋ V 
 
 --------------------------------------------------------------------------------
--- renaming respects _≋_
+-- Any semantic type in the soundness relation is equivalent to itself 
+-- under the completeness relation.
+
+sr-to-cr-refl : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+        ⟦ v ⟧≋ V → 
+        V ≋ V 
+
+sr-to-cr-refl rel = refl-≋ᵣ (sr-to-cr rel)
+
+-- -- --------------------------------------------------------------------------------
+-- -- -- cr-to-sr definition
+
+-- -- cr-to-sr {κ = ★} refl = eq-refl
+-- -- cr-to-sr {κ = L} refl = eq-refl
+-- -- cr-to-sr {κ = κ₁ `→ κ₂} {V₁ = F} {V₂ = G} rel-F = λ ρ {v₂} {V₂} rel-v₂ → subst-⟦⟧≋ {! reify-≋ rel-F  !} {!   !} -- subst-⟦⟧≋ (eq-· {! eq-η  !} {!   !}) {!   !}
+-- -- cr-to-sr {κ = R[ κ ]} rel-V = {!   !}   
+
+-- -- --------------------------------------------------------------------------------
+-- -- -- sr-to-cr definition
+
+-- -- sr-to-cr {κ = ★} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
+-- -- sr-to-cr {κ = L} {v = v} {V} rel-V = trans (completeness rel-V) (stability V)
+-- -- sr-to-cr {κ = κ₁ `→ κ₂} {v = f} {F} rel-F = 
+-- --   fst (↻-renSem-eval id f idEnv-≋) , 
+-- --   (λ ρ₁ ρ₂ V₁ V₂ x → 
+-- --     trans-≋ 
+-- --       (trans-≋ 
+-- --         (ren-≋ ρ₂ (sym-≋ (sr-to-cr (rel-F ρ₁  {⇑ (reify V₁)} {V₁} (cr-to-sr (refl-≋ₗ x)))))) 
+-- --         (trans-≋ 
+-- --           (↻-renSem-eval ρ₂ (renₖ ρ₁ f · (⇑ (reify V₁))) idEnv-≋)
+-- --           (trans-≋ 
+-- --             (cong-App 
+-- --               {V₁ = eval (renₖ ρ₁ f) (renSem ρ₂ ∘ idEnv)} 
+-- --               {eval f (idEnv ∘ ρ₂ ∘ ρ₁)} 
+-- --               (↻-renₖ-eval ρ₁ f {η₁ = renSem ρ₂ ∘ idEnv} {idEnv ∘ ρ₂} (↻-ren-reflect ρ₂ ∘ `) ) 
+-- --               (idext (ren-≋ ρ₂ ∘ idEnv-≋ ) (⇑ (reify V₁))) ) 
+-- --             (sym-≋ 
+-- --               (cong-App 
+-- --                 {V₁ = eval (renₖ (ρ₂ ∘ ρ₁) f) idEnv} 
+-- --                 (↻-renₖ-eval (ρ₂ ∘ ρ₁) f idEnv-≋) 
+-- --                 {eval (⇑ (reify (renSem ρ₂ V₁))) idEnv} 
+-- --                 {eval (⇑ (reify V₁)) (renSem ρ₂ ∘ idEnv)} 
+-- --                 (trans-≋ 
+-- --                   (subst 
+-- --                     (λ y → eval (⇑ y) idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
+-- --                     (↻-ren-reify ρ₂ (refl-≋ₗ x)) 
+-- --                     (subst 
+-- --                       (λ y → eval y idEnv ≋ renSem ρ₂ (eval (⇑ (reify V₁)) idEnv)) 
+-- --                       (sym (↻-ren-⇑ ρ₂ (reify V₁))) 
+-- --                       (trans-≋ 
+-- --                         (↻-renₖ-eval ρ₂ (⇑ (reify V₁)) idEnv-≋) 
+-- --                         (trans-≋ 
+-- --                           (idext (sym-≋ ∘ ↻-ren-reflect ρ₂ ∘ `) (⇑ (reify V₁))) 
+-- --                           (sym-≋ (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋)))))) 
+-- --                   (↻-renSem-eval ρ₂ (⇑ (reify V₁)) idEnv-≋ ))))))) 
+-- --       (sr-to-cr (rel-F (ρ₂ ∘ ρ₁) {⇑ (reify (renSem ρ₂ V₁))} {renSem ρ₂ V₂} (cr-to-sr (ren-≋ ρ₂ x))))  ) , 
+-- --   λ ρ {V₁} {V₂} rel-V → trans-≋ {! fundC {τ₁ = f} {f} idEnv-≋ eq-refl !} (sr-to-cr-refl (rel-F ρ (cr-to-sr rel-V))) 
+-- -- sr-to-cr {κ = R[ κ ]} {v = v} {left x} rel-V = {!   !}
+-- -- sr-to-cr {κ = R[ κ ]} {v = v} {right y} rel-V = {!   !}
+
+
+
+-- --------------------------------------------------------------------------------
+-- -- renaming respects _≋_
+
+
+
+↻-renRowₖ-reifyRow-≡r : ∀ (n : ℕ) (P : Fin n → SemType Δ₁ κ) → (ρ : Renamingₖ Δ₁ Δ₂) → 
+        (I : (i : Fin n) →
+        ⟦ lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i) ⟧≋ P i) → 
+        renRowₖ ρ (⇑Row (reifyRow (n , P))) ≡r
+        ⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))
+↻-renRowₖ-reifyRow-≡r zero P ρ I = eq-[]
+↻-renRowₖ-reifyRow-≡r (suc n) P ρ I = 
+  eq-cons 
+    (inst (trans (sym (↻-ren-⇑ ρ (reify (P fzero)))) (cong ⇑ (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl (I fzero)))))) 
+    (↻-renRowₖ-reifyRow-≡r n (λ x → P (fsuc x)) ρ (λ i → I (fsuc i))) -- (hmm n (λ x → P (fsuc x)) ρ)
+
+
+↻-renRowₖ-reifyRow-over-lookup : 
+  ∀ (n : ℕ) (P : Fin n → SemType Δ₁ κ) → (ρ : Renamingₖ Δ₁ Δ₂) → 
+   (I : (i : Fin n) →
+     ⟦ lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i) ⟧≋ P i) → 
+   (i : Fin n) → 
+   renₖ ρ (lookup (⇑Row (reifyRow (n , P))) (cast (sym (length-⇑-reify n P)) i)) ≡t
+      lookup (⇑Row (reifyRow (n , (λ x → renSem ρ (P x))))) (cast ((sym (length-⇑-reify n (renSem ρ ∘ P)))) i)
+↻-renRowₖ-reifyRow-over-lookup (suc n) P ρ I fzero = (inst (trans (sym (↻-ren-⇑ ρ (reify (P fzero)))) (cong ⇑ (↻-ren-reify ρ {P fzero} {P fzero} (sr-to-cr-refl (I fzero)))))) 
+↻-renRowₖ-reifyRow-over-lookup (suc n) P ρ I (fsuc i) = ↻-renRowₖ-reifyRow-over-lookup n (P ∘ fsuc) ρ (I ∘ fsuc) i
 
 ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
@@ -201,12 +231,10 @@ ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {left V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑NE ρ V))))
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} eq = eq-trans (renₖ-≡t ρ eq) (eq-row {!!}) -- (eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row (↻-ren-reifyRow P P ρ I)))))) , (λ { i → ren-≋ ρ (I i) })
-  -- sym (length-⇑-reify n _) , 
-  -- eq-trans (renₖ-≡t ρ eq) (inst (cong ⦅_⦆ (trans (sym (↻-ren-⇑Row ρ _)) (cong ⇑Row {!↻-ren-reifyRow P P ρ !})))) , 
-  -- λ { fzero → subst-⟦⟧≋ (reify-⟦⟧≋ (ren-⟦⟧≋ ρ {⇑ (reify (P fzero))} {P fzero} (refl-⟦⟧≋ (I fzero)))) (ren-⟦⟧≋ ρ (refl-⟦⟧≋ (I fzero)))
-  --   ; (fsuc x) → subst-⟦⟧≋ {!   !} (ren-⟦⟧≋ ρ (I (fsuc x))) }
-    
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {right (n , P)} (eq , I) = 
+  (eq-trans (renₖ-≡t ρ eq) (eq-row (↻-renRowₖ-reifyRow-≡r n P ρ I))) , 
+    λ { i → subst-⟦⟧≋ (↻-renRowₖ-reifyRow-over-lookup n P ρ I i) (ren-⟦⟧≋ ρ (I i)) } 
+
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
