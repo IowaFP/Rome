@@ -95,9 +95,6 @@ fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ�
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
-
--- fundSRow : ∀ {Δ₁ Δ₂ κ}(τ : SimpleRow Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
---           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
           
 fundSPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
@@ -164,8 +161,8 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
       need : ∀ (n : ℕ) (P : Fin (suc n) → SemType _ _) →  
              (rel-fzero : ⟦ ⇑ (reify (P fzero)) ⟧≋ P fzero) →
              (rel-fsuc : ⟦ ⇑Row (reifyRow' n (λ x → P (fsuc x))) ⟧r≋
-            (n , (λ x → P (fsuc x)))) → 
-             ⟦ map (_·_ (subₖ σ τ₁)) (⇑Row (reifyRow' n (λ x → P (fsuc x)))) ⟧r≋ (n , (λ x → eval τ₁ η id (P (fsuc x))))
+            (n , P ∘ fsuc)) → 
+             ⟦ map (_·_ (subₖ σ τ₁)) (⇑Row (reifyRow' n (P ∘ fsuc))) ⟧r≋ (n , (λ x → eval τ₁ η id (P (fsuc x))))
       need zero P _ _ = tt
       need (suc n) P rel-fz (rel-one , rel-fsuc) = 
         subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id rel-one) , 
