@@ -148,26 +148,29 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
 ... | right (suc n , P) | [[ eq ]] | eqₜ , rel-fzero , rel-fsuc = 
     (eq-trans 
       (eq-<$> 
-        eq-refl 
+        eq-refl
         eqₜ) 
     (eq-trans 
       eq-map 
-      (eq-row 
-        (eq-cons 
-          {!reify-⟦⟧≋ (fundS (τ₁ · (⇑ (reify (P fzero)))) e)!} 
-          -- need to split off into lemma
-          {!!})))) , 
-    {!!} , 
-    {!!}
-  -- (eq-trans 
-  --   (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundS τ₁ e {Δ})) eqₜ) 
-  --   (eq-trans 
-  --     eq-map 
-  --     (eq-row 
-  --     (eq-cons 
-  --       (eq-trans eq-β {!fundSRow !}) 
-  --       {!!})))) , 
-  -- {!fundS τ₁ e id !}
+      (eq-row (eq-cons 
+        (eq-trans 
+          (eq-· 
+            (inst (sym (renₖ-id (subₖ σ τ₁)))) eq-refl) 
+            (reify-⟦⟧≋ (fundS τ₁ e id rel-fzero))) 
+          (reify-⟦⟧r≋ (need n P rel-fzero rel-fsuc)))))) , 
+    refl-⟦⟧≋ (fundS τ₁ e id rel-fzero) , 
+    refl-⟦⟧r≋ (need n P rel-fzero rel-fsuc)
+    where
+      need : ∀ (n : ℕ) (P : Fin (suc n) → SemType _ _) →  
+             (rel-fzero : ⟦ ⇑ (reify (P fzero)) ⟧≋ P fzero) →
+             (rel-fsuc : ⟦ ⇑Row (reifyRow' n (λ x → P (fsuc x))) ⟧r≋
+            (n , (λ x → P (fsuc x)))) → 
+             ⟦ map (_·_ (subₖ σ τ₁)) (⇑Row (reifyRow' n (λ x → P (fsuc x)))) ⟧r≋ (n , (λ x → eval τ₁ η id (P (fsuc x))))
+      need zero P _ _ = tt
+      need (suc n) P rel-fz (rel-one , rel-fsuc) = 
+        subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id rel-one) , 
+        need n (P ∘ fsuc) rel-one rel-fsuc  
+
 
 -- ... | just (right (l , V)) | [ eq ] | (eq₂ , rel-v) = 
 --   eq-trans 
