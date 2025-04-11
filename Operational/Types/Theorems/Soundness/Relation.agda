@@ -112,12 +112,30 @@ subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {left x} rel = eq-trans
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {right (n , P)} (eq , I) = eq-sym (eq-trans (eq-sym eq) q) , I
 
 -- --------------------------------------------------------------------------------
+-- -- Equivalent rows relate to the same semantic rows
+
+subst-⟦⟧r≋ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → 
+  xs ≡r ys → 
+  {ρ : Row Δ R[ κ ]} → 
+  ⟦ xs ⟧r≋ ρ → 
+  ---------
+  ⟦ ys ⟧r≋ ρ
+
+subst-⟦⟧r≋ eq-[] rel = rel
+subst-⟦⟧r≋ (eq-cons eq-x eq-xs) {suc n , P} (rel-x , rel-xs) = subst-⟦⟧≋ eq-x rel-x , subst-⟦⟧r≋ eq-xs rel-xs
+
+-- --------------------------------------------------------------------------------
 -- -- Stability rule for reification
 
 refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
                 ⟦ v ⟧≋ V  →
                ⟦ ⇑ (reify V) ⟧≋ V 
 refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
+
+refl-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {ρ : Row Δ R[ κ ]} → 
+                ⟦ xs ⟧r≋ ρ  →
+               ⟦ ⇑Row (reifyRow ρ) ⟧r≋ ρ
+refl-⟦⟧r≋ {κ = κ} rel = subst-⟦⟧r≋ (reify-⟦⟧r≋ rel) rel
     
 -- --------------------------------------------------------------------------------
 -- -- 1. (cr-to-sr) Equivalent semantic types are related under SR

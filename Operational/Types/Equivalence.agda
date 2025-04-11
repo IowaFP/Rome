@@ -219,6 +219,16 @@ instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ →
 instᵣ {ρ₁ = []} refl = eq-[]
 instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl (instᵣ refl)
 
+-------------------------------------------------------------------------------
+-- ≡r forms an equivalence relation
+
+symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
+symᵣ eq-[] = eq-[]
+symᵣ (eq-cons x eq) = eq-cons (eq-sym x) (symᵣ eq)
+
+transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
+transᵣ eq-[] eq-[] = eq-[]
+transᵣ (eq-cons eq-τ₁ eq-xs) (eq-cons eq-τ₂ eq-ys) = eq-cons (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
 
 -------------------------------------------------------------------------------
 -- Admissable but informative rules
