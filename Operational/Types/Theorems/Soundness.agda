@@ -146,15 +146,29 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
 ... | right (zero , P) | [[ eq ]] | eqₜ , rel = (eq-trans (eq-<$> eq-refl eqₜ) eq-map) , tt
 ... | right (suc n , P) | [[ eq ]] | eqₜ , rel-fzero , rel-fsuc = 
-  (eq-trans 
-    (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundS τ₁ e {Δ})) eqₜ) 
+    (eq-trans 
+      (eq-<$> 
+        eq-refl 
+        eqₜ) 
     (eq-trans 
       eq-map 
       (eq-row 
-      (eq-cons 
-        {!eq-β!} 
-        {!!})))) , 
-  {!!}
+        (eq-cons 
+          {!reify-⟦⟧≋ (fundS (τ₁ · (⇑ (reify (P fzero)))) e)!} 
+          -- need to split off into lemma
+          {!!})))) , 
+    {!!} , 
+    {!!}
+  -- (eq-trans 
+  --   (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundS τ₁ e {Δ})) eqₜ) 
+  --   (eq-trans 
+  --     eq-map 
+  --     (eq-row 
+  --     (eq-cons 
+  --       (eq-trans eq-β {!fundSRow !}) 
+  --       {!!})))) , 
+  -- {!fundS τ₁ e id !}
+
 -- ... | just (right (l , V)) | [ eq ] | (eq₂ , rel-v) = 
 --   eq-trans 
 --     (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundS τ₁ e {Δ})) eq₂) 
