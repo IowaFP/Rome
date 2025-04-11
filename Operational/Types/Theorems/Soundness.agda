@@ -49,7 +49,7 @@ sound-Πε {R[ κ ]} = (eq-trans eq-Π eq-map) , tt -- (λ ())
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π Π-Kripke
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
-sound-Π {κ₁ = κ `→ κ₁} ρ {f} {left g} q = λ ρ {v} {V} eq → 
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ {v} {V} eq → 
   subst-⟦⟧≋ 
   (eq-sym (eq-Π-assoc {ρ = renₖ ρ f} {τ = v})) 
   (subst-⟦⟧≋ 
@@ -79,7 +79,22 @@ sound-Π {κ₁ = R[ κ ]} ρ {v} {left x} q =
                     eq-η 
                     (eq-λ (reify-⟦⟧≋ (sound-Π id eq-refl)))) 
                 eq-refl))
-sound-Π {κ₁ = κ} ρ {v} {right (n , P)} (eq , rel) = {!n!}
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {right (n , P)} (eq , rel) = {!!}
+sound-Π {κ₁ = R[ κ ]} ρ {v} {right (zero , P)} (eq , rel) = 
+  (eq-trans eq-Π (eq-trans (eq-<$> eq-refl eq) eq-map)) , 
+  tt
+sound-Π {κ₁ = R[ κ ]} ρ {v} {right (suc n , P)} (eq , rel-fzero , rel-fsuc) = 
+  eq-trans 
+    (eq-· eq-refl eq) 
+  (eq-trans 
+    eq-Π 
+  (eq-trans 
+    eq-map 
+    (eq-row (eq-cons 
+      (reify-⟦⟧≋ (sound-Π id rel-fzero)) 
+      {!!})))) , 
+  refl-⟦⟧≋ (sound-Π id rel-fzero) , 
+  refl-⟦⟧r≋ {!!}
 
 --------------------------------------------------------------------------------
 -- Soundness for Σ (identical logic as Π but woefully duplicated)
