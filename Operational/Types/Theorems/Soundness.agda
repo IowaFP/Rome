@@ -173,6 +173,7 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
     refl-⟦⟧≋ (fundS τ₁ e id rel-fzero) , 
     refl-⟦⟧r≋ (need n P rel-fzero rel-fsuc)
     where
+      -- This helper lemma should be abstracted; the pattern above is reused for Π-soundness
       need : ∀ (n : ℕ) (P : Fin (suc n) → SemType _ _) →  
              (rel-fzero : ⟦ ⇑ (reify (P fzero)) ⟧≋ P fzero) →
              (rel-fsuc : ⟦ ⇑Row (reifyRow' n (λ x → P (fsuc x))) ⟧r≋
