@@ -53,15 +53,7 @@ weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
 -- renSem-id {κ = L} V = renₖNF-id V
 -- renSem-id {κ = κ `→ κ₁} F = refl
 -- renSem-id {κ = R[ κ ]} (left x) = cong left (renₖNE-id x)
--- renSem-id {κ = R[ κ ]} (right (n , P)) = cong (right ∘ (n ,_)) {!!}
--- renSem-id {κ = R[ κ ]} (neV x) = cong neV (renₖNE-id x) -- renₖNE-id x
--- renSem-id {κ = R[ κ ]} (l ▹V τ) = (cong₂ _▹V_ (renₖNF-id l) (renSem-id τ)) -- renₖNE-id x
--- renSem-id {κ = R[ κ ]} εV = refl
--- renSem-id {κ = R[ κ ]} ⦅ xs ⦆V  = 
---   cong ⦅_⦆V 
---   (trans 
---     (map-cong renSem-id xs) 
---     (map-id xs))
+-- renSem-id {κ = R[ κ ]} (right (n , P))  = cong right (cong (n ,_) {!renSem-id !})
 
 -- renSem-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
 --              (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))

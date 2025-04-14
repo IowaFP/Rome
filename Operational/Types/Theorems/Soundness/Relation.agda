@@ -181,6 +181,10 @@ ren-⟦⟧r≋ ρ (suc n) P (rel-fzero , rel-fsuc) =
 ⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
 ⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
+-- Identity relation
+idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
+idSR α = reflect-⟦⟧≋ eq-refl
+
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments
 

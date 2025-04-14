@@ -28,25 +28,48 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness.Relation public
 
+
 --------------------------------------------------------------------------------
 -- Soundness for Π 
-       
-sound-Πε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Π · (ε {κ = κ})) (ΠV (right εV))
-sound-Πε {★} = eq-refl
-sound-Πε {L} = eq-refl
-sound-Πε {κ `→ κ₁} ρ {v} {V} rel-f = 
-  subst-⟦⟧≋ 
-    (eq-sym eq-Π-assoc) 
-  (subst-⟦⟧≋ 
-    (eq-sym (eq-· eq-refl (eq-· eq-β eq-refl) ))
-  (subst-⟦⟧≋ 
-    (eq-sym (eq-· eq-refl eq-β)) 
-  (subst-⟦⟧≋ 
-    (eq-sym (eq-· eq-refl eq-map)) 
-  sound-Πε)))
-sound-Πε {R[ κ ]} = (eq-trans eq-Π eq-map) , tt -- (λ ())
 
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π Π-Kripke
+map-Π : ∀ (n : ℕ) (P : Fin n → SemType Δ R[ κ ]) → 
+        (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
+        ⟦ map (_·_ Π) (⇑Row (reifyRow' n P)) ⟧r≋ (n , ΠV ∘ P)
+
+map-fuckit : ∀ (n : ℕ) (P : Fin n → KripkeFunction Δ₁ κ₁ κ₂) → 
+               (φ : Renamingₖ Δ₁ Δ₂) → 
+               (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
+               (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
+               (rel-v : ⟦ v ⟧≋ V) → 
+             ⟦ map (_·_ (`λ (` Z · weakenₖ v)))
+               (subRowₖ (extendₖ ` v)
+                 (renRowₖ S (renRowₖ φ (⇑Row (reifyRow (n , P))))))
+             ⟧r≋ (n , (λ x → apply V id (renKripke (λ x₁ → id (φ x₁)) (P x))))
+map-fuckit zero P φ rel v V rel-v = tt
+map-fuckit (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v = 
+  subst-⟦⟧≋ 
+    (eq-sym eq-β) 
+  (subst-⟦⟧≋ 
+    (eq-sym eq-β) 
+  (subst-⟦⟧≋ 
+    (inst (subₖ-comp (renₖ (liftₖ S)
+            (renₖ (liftₖ φ) (⇑ (reify (P fzero S (reflect (` Z))))))))) 
+  (subst-⟦⟧≋ 
+    (inst (↻-subₖ-renₖ (renₖ (liftₖ φ) (⇑ (reify (P fzero S (reflect (` Z)))))))) 
+  (subst-⟦⟧≋ 
+    (inst (↻-subₖ-renₖ (⇑ (reify (P fzero S (reflect (` Z))))) )) 
+  (subst-⟦⟧≋ 
+    (inst (subₖ-cong {σ₁ = extendₖ (` ∘ φ) v} (λ { Z → sym (subₖ-weaken v _) ; (S x) → refl })  (⇑ (reify (P fzero S (reflect (` Z))))))) 
+  (subst-⟦⟧≋ 
+    (eq-trans 
+      eq-β 
+    (eq-trans 
+      (inst (sym (↻-subₖ-renₖ {r = liftₖ φ} {σ = extendₖ ` (renₖ id v)} (⇑ (reify (P fzero S (reflect (` Z)))))))) 
+    (inst (subₖ-cong (λ { Z → renₖ-id v ; (S x) → refl }) (⇑ (reify (P fzero S (reflect (` Z))))))))) 
+  (rel-fzero φ (ren-⟦⟧≋ id rel-v)))))))) , 
+  (map-fuckit n (P ∘ fsuc) φ rel-fsuc v V rel-v)
+
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ {v} {V} eq → 
@@ -79,39 +102,131 @@ sound-Π {κ₁ = R[ κ ]} ρ {v} {left x} q =
                     eq-η 
                     (eq-λ (reify-⟦⟧≋ (sound-Π id eq-refl)))) 
                 eq-refl))
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {right (n , P)} (eq , rel) = {!!}
-sound-Π {κ₁ = R[ κ ]} ρ {v} {right (zero , P)} (eq , rel) = 
-  (eq-trans eq-Π (eq-trans (eq-<$> eq-refl eq) eq-map)) , 
-  tt
-sound-Π {κ₁ = R[ κ ]} ρ {v} {right (suc n , P)} (eq , rel-fzero , rel-fsuc) = 
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {right (n , P)} (eq , rel) ρ₂ {v} {V} rel-v = 
+  subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) (sound-Π ρ₂ {renₖ ρ₂ f ?? v} 
+  ((eq-trans 
+    (eq-· 
+      (eq-· 
+        eq-refl 
+        (renₖ-≡t ρ₂ eq)) 
+      eq-refl) 
+  (eq-trans 
+    (eq-· eq-β eq-refl) 
+  (eq-trans 
+    eq-β 
+  (eq-trans 
+    eq-map 
+  (eq-row 
+    (reify-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v)))
+sound-Π {κ₁ = R[ κ ]} ρ {v} {right (n , P)} (eq , rel) = 
   eq-trans 
     (eq-· eq-refl eq) 
   (eq-trans 
     eq-Π 
   (eq-trans 
     eq-map 
-    (eq-row (eq-cons 
-      (reify-⟦⟧≋ (sound-Π id rel-fzero)) 
-      {!!})))) , 
-  refl-⟦⟧≋ (sound-Π id rel-fzero) , 
-  refl-⟦⟧r≋ {!!}
+    (eq-row (reify-⟦⟧r≋ (map-Π n P rel))))) , 
+  refl-⟦⟧r≋ (map-Π n P rel)
+
+map-Π zero P rel = tt
+map-Π (suc n) P (rel-fzero , rel-fsuc) = (sound-Π id rel-fzero) , (map-Π n (P ∘ fsuc) rel-fsuc)
 
 --------------------------------------------------------------------------------
 -- Soundness for Σ (identical logic as Π but woefully duplicated)
 
-sound-Σε : ∀ {κ} {Δ} → ⟦_⟧≋_ {Δ = Δ} {κ = κ} (Σ · (ε {κ = κ})) {!!}
+
+--------------------------------------------------------------------------------
+-- Soundness for Π 
 
 sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ Σ-Kripke
+map-Σ : ∀ (n : ℕ) (P : Fin n → SemType Δ R[ κ ]) → 
+        (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
+        ⟦ map (_·_ Σ) (⇑Row (reifyRow' n P)) ⟧r≋ (n , ΣV ∘ P)
+
+sound-Σ {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
+sound-Σ {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
+sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {f} {left g} q = λ ρ {v} {V} eq → 
+  subst-⟦⟧≋ 
+  (eq-sym (eq-Σ-assoc {ρ = renₖ ρ f} {τ = v})) 
+  (subst-⟦⟧≋ 
+    (eq-sym 
+      (eq-trans 
+        (eq-· eq-refl 
+          (eq-trans 
+            (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
+            eq-β)) 
+          eq-refl)) 
+        (sound-Σ ρ
+           {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
+           (eq-<$> 
+             (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
+             (eq-trans 
+               (eq-trans 
+                 (inst (subₖ-weaken (renₖ ρ f) v)) 
+                 (renₖ-≡t ρ q)) 
+               (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
+sound-Σ {κ₁ = R[ κ ]} ρ {v} {left x} q =
+ eq-trans 
+        (eq-· eq-refl q) 
+        (eq-trans 
+            eq-Σ 
+            (eq-<$> 
+                (eq-trans 
+                    eq-η 
+                    (eq-λ (reify-⟦⟧≋ (sound-Σ id eq-refl)))) 
+                eq-refl))
+sound-Σ {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {right (n , P)} (eq , rel) ρ₂ {v} {V} rel-v = 
+  subst-⟦⟧≋ (eq-sym (eq-Σ-assoc)) (sound-Σ ρ₂ {renₖ ρ₂ f ?? v} 
+  ((eq-trans 
+    (eq-· 
+      (eq-· 
+        eq-refl 
+        (renₖ-≡t ρ₂ eq)) 
+      eq-refl) 
+  (eq-trans 
+    (eq-· eq-β eq-refl) 
+  (eq-trans 
+    eq-β 
+  (eq-trans 
+    eq-map 
+  (eq-row 
+    (reify-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v)))
+sound-Σ {κ₁ = R[ κ ]} ρ {v} {right (n , P)} (eq , rel) = 
+  eq-trans 
+    (eq-· eq-refl eq) 
+  (eq-trans 
+    eq-Σ 
+  (eq-trans 
+    eq-map 
+    (eq-row (reify-⟦⟧r≋ (map-Σ n P rel))))) , 
+  refl-⟦⟧r≋ (map-Σ n P rel)
+
+map-Σ zero P rel = tt
+map-Σ (suc n) P (rel-fzero , rel-fsuc) = (sound-Σ id rel-fzero) , (map-Σ n (P ∘ fsuc) rel-fsuc)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
+
 
 fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
+
+fundS-map-app : ∀ (n : ℕ) (P : Fin n → SemType Δ₂ κ₁) →  
+                (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
+                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
+                {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
+                ⟦ σ ⟧≋e η → 
+                ⟦ map (_·_ (subₖ σ τ₁)) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → eval τ₁ η id (P x)))
+
+
+fundS-map-app zero P _ _ _ = tt
+fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
+        subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id rel-fzero) , 
+        fundS-map-app n (P ∘ fsuc) τ₁ rel-fsuc e
           
-fundSPred : ∀ {Δ₁ Δ₂ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
 fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
@@ -173,7 +288,6 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
     refl-⟦⟧≋ (fundS τ₁ e id rel-fzero) , 
     refl-⟦⟧r≋ (need n P rel-fzero rel-fsuc)
     where
-      -- This helper lemma should be abstracted; the pattern above is reused for Π-soundness
       need : ∀ (n : ℕ) (P : Fin (suc n) → SemType _ _) →  
              (rel-fzero : ⟦ ⇑ (reify (P fzero)) ⟧≋ P fzero) →
              (rel-fsuc : ⟦ ⇑Row (reifyRow' n (λ x → P (fsuc x))) ⟧r≋
@@ -213,9 +327,6 @@ fundS ⦅ x ∷ xs ⦆ {σ} {η} e | rel-x , rel-xs =
   (eq-row (eq-cons (reify-⟦⟧≋ (fundS x e)) (reify-⟦⟧r≋ rel-xs))) , 
   (refl-⟦⟧≋ (fundS x e)) , 
   refl-⟦⟧r≋ rel-xs
-
-idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
-idSR α = reflect-⟦⟧≋ eq-refl
 
 --------------------------------------------------------------------------------
 -- Soundness claim  
