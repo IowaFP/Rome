@@ -134,10 +134,6 @@ map-Π (suc n) P (rel-fzero , rel-fsuc) = (sound-Π id rel-fzero) , (map-Π n (P
 --------------------------------------------------------------------------------
 -- Soundness for Σ (identical logic as Π but woefully duplicated)
 
-
---------------------------------------------------------------------------------
--- Soundness for Π 
-
 sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ Σ-Kripke
 map-Σ : ∀ (n : ℕ) (P : Fin n → SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
@@ -271,57 +267,15 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
     (eq-trans 
       (reify-⟦⟧≋ (fundS τ₂ e)) 
       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
-... | right (zero , P) | [[ eq ]] | eqₜ , rel = (eq-trans (eq-<$> eq-refl eqₜ) eq-map) , tt
-... | right (suc n , P) | [[ eq ]] | eqₜ , rel-fzero , rel-fsuc = 
+... | right (n , P) | [[ eq ]] | eqₜ , rel = 
     (eq-trans 
       (eq-<$> 
         eq-refl
         eqₜ) 
     (eq-trans 
       eq-map 
-      (eq-row (eq-cons 
-        (eq-trans 
-          (eq-· 
-            (inst (sym (renₖ-id (subₖ σ τ₁)))) eq-refl) 
-            (reify-⟦⟧≋ (fundS τ₁ e id rel-fzero))) 
-          (reify-⟦⟧r≋ (need n P rel-fzero rel-fsuc)))))) , 
-    refl-⟦⟧≋ (fundS τ₁ e id rel-fzero) , 
-    refl-⟦⟧r≋ (need n P rel-fzero rel-fsuc)
-    where
-      need : ∀ (n : ℕ) (P : Fin (suc n) → SemType _ _) →  
-             (rel-fzero : ⟦ ⇑ (reify (P fzero)) ⟧≋ P fzero) →
-             (rel-fsuc : ⟦ ⇑Row (reifyRow' n (λ x → P (fsuc x))) ⟧r≋
-            (n , P ∘ fsuc)) → 
-             ⟦ map (_·_ (subₖ σ τ₁)) (⇑Row (reifyRow' n (P ∘ fsuc))) ⟧r≋ (n , (λ x → eval τ₁ η id (P (fsuc x))))
-      need zero P _ _ = tt
-      need (suc n) P rel-fz (rel-one , rel-fsuc) = 
-        subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id rel-one) , 
-        need n (P ∘ fsuc) rel-one rel-fsuc  
-
-
--- ... | just (right (l , V)) | [ eq ] | (eq₂ , rel-v) = 
---   eq-trans 
---     (eq-<$> (reify-⟦⟧≋ (λ {Δ} → fundS τ₁ e {Δ})) eq₂) 
---     (eq-trans 
---       eq-▹$ 
---       (eq-▹ 
---         eq-refl 
---         (eq-trans 
---           (eq-· 
---             (eq-trans 
---               (eq-λ 
---                 (eq-sym (reify-⟦⟧≋ (fundS τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
---                 (eq-trans 
---                   (eq-sym eq-η) 
---                   (eq-trans 
---                     (inst (subₖ-cong (λ {κ} x → refl) τ₁)) 
---                     (eq-trans 
---                       eq-refl 
---                       (inst (sym (renₖ-id (subₖ σ τ₁)))))))) 
---               (reify-⟦⟧≋ (rel-v))) 
---           (reify-⟦⟧≋ (fundS τ₁ e id rel-v))))) , 
---   refl-⟦⟧≋ (fundS τ₁ e id rel-v)
-fundS ⦅ xs ⦆ {σ} {η} e with fundSRow xs e 
+      (eq-row (reify-⟦⟧r≋ (fundS-map-app n P τ₁ rel e) )))) , 
+    refl-⟦⟧r≋ (fundS-map-app n P τ₁ rel e)  
 fundS ⦅ [] ⦆ {σ} {η} e | c = eq-refl , tt
 fundS ⦅ x ∷ xs ⦆ {σ} {η} e | rel-x , rel-xs = 
   (eq-row (eq-cons (reify-⟦⟧≋ (fundS x e)) (reify-⟦⟧r≋ rel-xs))) , 
