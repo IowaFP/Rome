@@ -62,17 +62,15 @@ _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType 
 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ne x = ne (f <$> x)
-f <$>' ε = ε
-f <$>' (l ▹ τ) = l ▹ (f ·' τ)
-
+f <$>' ⦅ xs ⦆ = ⦅  map (f ·'_) xs ⦆
 
 --------------------------------------------------------------------------------
 -- if a mapping results in the empty row then one mapped over the empty row
 
 ε-<$>'  : ∀ {f : NormalType ∅ (κ₁ `→ κ₂)} {ρ : NormalType ∅ R[ κ₁ ]}  → 
-            f <$>' ρ ≡ ε → 
-            ρ ≡ ε
-ε-<$>' {ρ = ε} eq = refl 
+            f <$>' ρ ≡ ⦅ [] ⦆ → 
+            ρ ≡ ⦅ [] ⦆
+ε-<$>' {ρ = ⦅ [] ⦆} eq = refl
 
 -- _·NP_ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) (π : NormalPred Δ R[ κ₁ ]) → 
 --        NormalPred Δ R[ κ₂ ] 

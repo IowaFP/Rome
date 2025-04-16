@@ -180,8 +180,8 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
 -- Reabstraction of a NormalType to the semantic domain
-⇈ : NormalType Δ κ → SemType Δ κ 
-⇈ τ = eval (⇑ τ) idEnv
+↓ : NormalType Δ κ → SemType Δ κ 
+↓ τ = eval (⇑ τ) idEnv
 
 ----------------------------------------
 -- Testing reification / evaluation of simple rows 

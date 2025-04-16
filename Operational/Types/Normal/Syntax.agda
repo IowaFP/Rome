@@ -257,6 +257,12 @@ arrow-canonicity (`λ f) = f , refl
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
 
 --------------------------------------------------------------------------------
+-- Erased "labeled" types
+
+_▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
+l ▹' τ = ⦅ [ τ ] ⦆
+
+--------------------------------------------------------------------------------
 -- Admissable constants
 
 UnitNF : NormalType Δ ★

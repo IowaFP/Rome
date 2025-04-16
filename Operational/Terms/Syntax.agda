@@ -76,6 +76,9 @@ noPVar p (K x) = noPVar p x
 --       l l₁ l₂ l₃ : NormalType Δ L 
 --       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
 --       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
+
+_⊆_ : SimpleRow NormalType Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] → Set 
+_⊆_ {Δ = Δ} {κ = κ} xs ys = ∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ ys
       
 data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
@@ -83,25 +86,18 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
         -----------
         Ent Γ π 
 
-  -- Todo: Show refl and trans are admissable. I want to replace all rules really with rules like these:
-  -- n-≲ : 
-  --         (∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ ys) → 
-  --         --------------------------------------------
-  --         Ent Γ (⦅ xs  ⦆ ≲ ⦅ ys ⦆)
+  n-≲ :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
 
-  -- n-≲ : 
-  --         (∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ zs) → 
-  --         (∀ (y : NormalType Δ κ) → y ∈ ys → y ∈ zs) → 
-  --         (∀ (z : NormalType Δ κ) → z ∈ zs → (z ∈ xs or z ∈ ys)) → 
-  --         --------------------------------------------
-  --         Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
+          xs ⊆ ys → 
+          --------------------------------------------
+          Ent Γ (⦅ xs  ⦆ ≲ ⦅ ys ⦆)
 
-  -- or you could do 
-
-  --         zs ≡ xs ++ ys → 
-  --         --------------------------------------------
-  --         Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
-
+  n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
+          xs ⊆ zs → 
+          ys ⊆ zs → 
+          (∀ (z : NormalType Δ κ) → z ∈ zs → (z ∈ xs or z ∈ ys)) → 
+          --------------------------------------------
+          Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
   n-refl : 
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
@@ -124,12 +120,12 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
   n-ε-R : 
              
         -------------------------
-        Ent Γ (ρ · ε ~ ρ)
+        Ent Γ (ρ · ⦅ [] ⦆ ~ ρ)
 
   n-ε-L : 
 
         -------------------------
-        Ent Γ (ε · ρ ~ ρ)  
+        Ent Γ (⦅ [] ⦆ · ρ ~ ρ)  
 
   n-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
@@ -240,11 +236,11 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   _Π▹_ : 
           (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
-          Term Γ (Π (l ▹ υ))
+          Term Γ (Π (l ▹' υ))
 
   -- Record singleton elimination
   _Π/_ :
-          (M₁ : Term Γ (Π (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+          (M₁ : Term Γ (Π (l ▹' υ))) (M₂ : Term Γ ⌊ l ⌋) →
           ----------------------------------------
           Term Γ υ
 
@@ -267,11 +263,11 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
   _Σ▹_ : 
           (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
-          Term Γ (Σ (l ▹ υ))
+          Term Γ (Σ (l ▹' υ))
 
   -- Record singleton elimination
   _Σ/_ :
-          (M₁ : Term Γ (Σ (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+          (M₁ : Term Γ (Σ (l ▹' υ))) (M₂ : Term Γ ⌊ l ⌋) →
           ----------------------------------------
           Term Γ υ
 
@@ -308,27 +304,27 @@ conv-≡t eq = conv (completeness eq)
 --------------------------------------------------------------------------------
 -- Admissable constants
 
-♯l : Term Γ (⌊ lab "l" ⌋)
-♯l = # (lab "l")
+-- ♯l : Term Γ (⌊ lab "l" ⌋)
+-- ♯l = # (lab "l")
 
--- Unit term
-uu : Term Γ UnitNF
-uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
+-- -- Unit term
+-- uu : Term Γ UnitNF
+-- uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
 
-hmm : Term Γ 
-  (`∀  
-    (`∀  
-      (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
-        (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
-        Π (ne (` (S Z)))))))
-hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
+-- hmm : Term Γ 
+--   (`∀  
+--     (`∀  
+--       (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
+--         (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
+--         Π (ne (` (S Z)))))))
+-- hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
 
--- The small problem here is that there do not exist any types to give...
--- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
--- I am in a bit of trouble if I need to extend to the simple row theory.
-hmm₂ : Term Γ (Π {!   !})
-hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
+-- -- The small problem here is that there do not exist any types to give...
+-- -- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
+-- -- I am in a bit of trouble if I need to extend to the simple row theory.
+-- hmm₂ : Term Γ (Π {!   !})
+-- hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
 
 
-shit : Term ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
-shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))
+-- shit : Term ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
+-- shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))

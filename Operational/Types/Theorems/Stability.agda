@@ -91,7 +91,7 @@ surjectivity τ = ( ⇑ τ , stability τ )
 --------------------------------------------------------------------------------
 -- NormalType and SemType bijectivity
 
-bijectivity₁ :  ∀ (τ : NormalType Δ κ) → reify (⇈ τ) ≡ τ 
+bijectivity₁ :  ∀ (τ : NormalType Δ κ) → reify (↓ τ) ≡ τ 
 bijectivity₁ τ = stability τ 
 
 --------------------------------------------------------------------------------

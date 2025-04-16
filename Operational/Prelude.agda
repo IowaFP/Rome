@@ -24,9 +24,12 @@ open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.Nat.Properties using (suc-injective) public
 open import Data.String hiding (_≈_ ; map ; length ; _++_) public
 open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ; _++_; lookup) public
-open import Data.List.Relation.Unary.Any using (Any ; here ; there) public
+open import Data.List.Relation.Unary.Any 
+  using (Any ; here ; there) 
+  renaming (map to map-any) public
 open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
-open import Data.List.Membership.DecPropositional (_≟_) using (_∈_ ; _∈?_ ; _∉_ ; _∉?_) public
+open import Data.List.Membership.Propositional using (_∈_ ; _∉_ ) public
+-- open import Data.List.Membership.DecPropositional using (_∈?_ ; _∉?_) public
 import Data.Vec as Vec using (Vec; tabulate)
 open Vec public
 
@@ -40,6 +43,7 @@ open import Relation.Nullary using (¬_) public
 open import Relation.Nullary.Negation using (contradiction; contraposition) public
 open import Relation.Nullary using (Dec; yes; no ; map′) public
 open import Relation.Nullary.Decidable using (True ; toWitness ; fromWitness) public renaming (⌊_⌋ to ∥_∥)
+-- open import Relation.Unary using (_⊆_) public
 
 module Reasoning where
   open Eq.≡-Reasoning public
@@ -75,5 +79,5 @@ MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type
 
-absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
-absurd∈ ()
+-- absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
+-- absurd∈ ()

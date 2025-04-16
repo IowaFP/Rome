@@ -7,7 +7,8 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Rome.Operational.Types
+open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Properties.Substitution
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Equivalence
@@ -168,7 +169,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
     (sym (↻-⇓-sub (σ ∘ ρ) (⇑ τ))) 
     (cong ⇓
        (trans 
-        (↻-subₖ-renₖ {ρ = ρ} {σ = ⇑ ∘ σ} (⇑ τ)) 
+        (↻-subₖ-renₖ {r = ρ} {σ = ⇑ ∘ σ} (⇑ τ)) 
         (cong 
           (subₖ (⇑ ∘ σ)) 
           (subst 
@@ -343,12 +344,11 @@ stability-·' f N = trans
     lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
     lem (`λ f) N = eq-trans (eq-trans (↻-sub-⇑ (extendₖNF idSubst N) f) (subₖ-cong-≡t (λ { Z → eq-refl
                                                                                          ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) (eq-sym eq-β)
-
-stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
-           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
-stability-<$> f (ne x) = sym (stability (f <$>' ne x))
-stability-<$> f ε = refl
-stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
+-- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+--            f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+-- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+-- stability-<$> f ε = refl
+-- stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>
@@ -359,8 +359,8 @@ stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f 
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
 ↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
   (reify-≋
-     {τ₁ = (⇈ (subₖNF σ F)) <$>V ((⇈ (subₖNF σ ρ)))} 
-     {τ₂ = (eval (subₖ (⇑ ∘ σ) (⇑ F)) idEnv) <$>V (eval (subₖ (⇑ ∘ σ) (⇑ ρ)) idEnv)}  
+     {V₁ = (↓ (subₖNF σ F)) <$>V ((↓ (subₖNF σ ρ)))} 
+     {V₂ = (eval (subₖ (⇑ ∘ σ) (⇑ F)) idEnv) <$>V (eval (subₖ (⇑ ∘ σ) (⇑ ρ)) idEnv)}  
      (cong-<$> 
       (fundC idEnv-≋ (↻-sub-⇑ σ F)) 
       ((fundC idEnv-≋ (↻-sub-⇑ σ ρ)))))

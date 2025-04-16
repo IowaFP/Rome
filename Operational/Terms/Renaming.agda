@@ -107,8 +107,8 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
             (idext (sym-≋ ∘ ↻-ren-reflect ρ ∘ `) (⇑ F <$> ⇑ ρ₁)) 
             (sym-≋ (↻-renSem-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋))))) 
         (sym (↻-ren-reify ρ 
-          {V₁ = (⇈ F <$>V ⇈ ρ₁)} 
-          {V₂ = (⇈ F <$>V ⇈ ρ₁)} 
+          {V₁ = (↓ F <$>V ↓ ρ₁)} 
+          {V₂ = (↓ F <$>V ↓ ρ₁)} 
           (fundC 
             {τ₁ = ⇑ F <$> ⇑ ρ₁} 
             {τ₂ = ⇑ F <$> ⇑ ρ₁} 
