@@ -26,6 +26,7 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.Entailment.Properties
 -- open import Rome.Operational.Terms.GVars
 
 open import Rome.Operational.Types.Theorems.Completeness
@@ -136,7 +137,7 @@ ren {ρ = ρ} R (Out F@(`λ τ) M) =
     (sym (↻-renₖNF-β ρ τ ((μ F)))) 
     (Out (renType R F) (ren R M))
 ren R (Out F@(ne x {()}) τ)
-ren R (# l) = # (renType R l)
+ren R (# l) = (# (renType R l))
 ren R (l Π▹ M) = (ren R l) Π▹ (ren R M)
 ren R (M Π/ l) = ren R M Π/ ren R l
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
@@ -150,6 +151,12 @@ ren {ρ = ρ} R ((M ▿ N) e) = ((ren R M) ▿ (ren R N)) (renEnt R e)
 
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
+renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) rewrite 
+  renRowₖNF-isMap φ xs | renRowₖNF-isMap φ ys = n-≲ (⊆-map-mono (renₖNF φ) i)
+renEnt {ρ = φ} {π} R (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) rewrite 
+    renRowₖNF-isMap φ xs 
+  | renRowₖNF-isMap φ ys
+  | renRowₖNF-isMap φ zs = n-· (⊆-map-mono (renₖNF φ) i₁) (⊆-map-mono (renₖNF φ) i₂) (⊆-map-mono-or (renₖNF φ) i₃)
 renEnt R n-refl = n-refl
 renEnt R (n-trans e₁ e₂) = n-trans (renEnt R e₁) (renEnt R e₂)
 renEnt R (n-·≲L e) = n-·≲L (renEnt R e)

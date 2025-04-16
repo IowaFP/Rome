@@ -35,15 +35,15 @@ open import Rome.Operational.Terms.GVars
           xs ⊆ ys → ys ⊆ zs → xs ⊆ zs
 ⊆-trans i₁ i₂ = λ x → i₂ x ∘ i₁ x
 
-map-∈ :  ∀ {xs : SimpleRow NormalType Δ R[ κ₁ ]} {x : NormalType Δ κ₁} → 
-             (f : NormalType Δ κ₁ → NormalType Δ κ₂) → 
+map-∈ :  ∀ {xs : SimpleRow NormalType Δ₁ R[ κ₁ ]} {x : NormalType Δ₁ κ₁} → 
+             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
              x ∈ xs → 
              f x ∈ map f xs
 map-∈ f (here refl) = here refl
 map-∈ f (there x∈xs) = there (map-∈ f x∈xs)
 
-⊆-map-mono : ∀ {xs ys : SimpleRow NormalType Δ R[ κ₁ ]} → 
-             (f : NormalType Δ κ₁ → NormalType Δ κ₂) → 
+⊆-map-mono : ∀ {xs ys : SimpleRow NormalType Δ₁ R[ κ₁ ]} → 
+             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
              xs ⊆ ys → 
              map f xs ⊆ map f ys 
 ⊆-map-mono {xs = []} {[]} f i = λ { x () }
@@ -59,8 +59,8 @@ absurd-left-elim (right y) = y
 absurd-right-elim : ∀ {A B : Set}{x : B} → A or x ∈ [] → A
 absurd-right-elim (left x) = x
 
-⊆-map-mono-or : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ₁ ]} → 
-             (f : NormalType Δ κ₁ → NormalType Δ κ₂) → 
+⊆-map-mono-or : ∀ {xs ys zs : SimpleRow NormalType Δ₁ R[ κ₁ ]} → 
+             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
              (∀ x → x ∈ xs → x ∈ ys or x ∈ zs) → 
              (∀ fx → fx ∈ map f xs → fx ∈ map f ys or fx ∈ map f zs)
 ⊆-map-mono-or {xs = x ∷ xs} {[]} {zs} f i fx fx∈ with i x (here refl) 

@@ -344,11 +344,17 @@ stability-·' f N = trans
     lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
     lem (`λ f) N = eq-trans (eq-trans (↻-sub-⇑ (extendₖNF idSubst N) f) (subₖ-cong-≡t (λ { Z → eq-refl
                                                                                          ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) (eq-sym eq-β)
--- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
---            f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
--- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
--- stability-<$> f ε = refl
--- stability-<$> f (l ▹ τ) = cong₂ _▹_ (sym (stability l)) (stability-·' f τ)
+stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
+                map (_·'_ f) xs ≡ reifyRow
+                                    (evalRow (⇑Row xs) idEnv .fst ,
+                                     (λ x → eval (⇑ f) idEnv id (evalRow (⇑Row xs) idEnv .snd x)))
+stability-map f [] = refl
+stability-map f (x ∷ xs) = (cong₂ _∷_ (stability-·' f x) (stability-map f xs))
+
+stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+stability-<$> f ⦅ xs ⦆ = cong ⦅_⦆ (stability-map f xs)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>
