@@ -138,6 +138,13 @@ evalRow : List (Type Δ₁ κ) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 evalRow [] η = εV
 evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η)
 
+-- quick proof
+⇓Row-isMap : ∀ (xs : SimpleRow Type Δ₁ R[ κ ]) (η : Env Δ₁ Δ₂) → 
+                      reifyRow (evalRow xs η) ≡ map (λ τ → reify (eval τ η)) xs
+⇓Row-isMap [] η = refl
+⇓Row-isMap (x ∷ xs) η = cong₂ _∷_ refl (⇓Row-isMap xs η)
+
+
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
 

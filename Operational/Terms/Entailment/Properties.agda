@@ -25,7 +25,7 @@ open import Rome.Operational.Terms.GVars
 
 
 -- --------------------------------------------------------------------------------
--- Basic properties of list inclusion
+-- List inclusion forms a pre-order
 
 ⊆-refl : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} → 
          xs ⊆ xs 
@@ -35,17 +35,26 @@ open import Rome.Operational.Terms.GVars
           xs ⊆ ys → ys ⊆ zs → xs ⊆ zs
 ⊆-trans i₁ i₂ = λ x → i₂ x ∘ i₁ x
 
-map-∈ :  ∀ {xs : SimpleRow NormalType Δ₁ R[ κ₁ ]} {x : NormalType Δ₁ κ₁} → 
-             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
+-- --------------------------------------------------------------------------------
+-- related elements are mapped
+
+
+map-∈ :  ∀ {A B : Set}{xs : List A} {x : A} → 
+             (f : A → B) → 
              x ∈ xs → 
              f x ∈ map f xs
 map-∈ f (here refl) = here refl
 map-∈ f (there x∈xs) = there (map-∈ f x∈xs)
 
-⊆-map-mono : ∀ {xs ys : SimpleRow NormalType Δ₁ R[ κ₁ ]} → 
-             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
+-- --------------------------------------------------------------------------------
+-- map f is monomorphic over _⊆_
+
+
+⊆-map-mono : ∀ {A B : Set} {xs ys : List A} → 
+             (f : A → B) → 
              xs ⊆ ys → 
              map f xs ⊆ map f ys 
+
 ⊆-map-mono {xs = []} {[]} f i = λ { x () }
 ⊆-map-mono {xs = []} {x ∷ ys} f i = λ { x () }
 ⊆-map-mono {xs = x ∷ xs} {[]} f i with i x (here refl)
@@ -59,8 +68,8 @@ absurd-left-elim (right y) = y
 absurd-right-elim : ∀ {A B : Set}{x : B} → A or x ∈ [] → A
 absurd-right-elim (left x) = x
 
-⊆-map-mono-or : ∀ {xs ys zs : SimpleRow NormalType Δ₁ R[ κ₁ ]} → 
-             (f : NormalType Δ₁ κ₁ → NormalType Δ₂ κ₂) → 
+⊆-map-mono-or : ∀ {A B : Set} {xs ys zs : List A} → 
+             (f : A → B) → 
              (∀ x → x ∈ xs → x ∈ ys or x ∈ zs) → 
              (∀ fx → fx ∈ map f xs → fx ∈ map f ys or fx ∈ map f zs)
 ⊆-map-mono-or {xs = x ∷ xs} {[]} {zs} f i fx fx∈ with i x (here refl) 
@@ -71,6 +80,16 @@ absurd-right-elim (left x) = x
 ... | left x∈yys  = left (map-∈ f x∈yys)
 ... | right x∈zzs = right (map-∈ f x∈zzs)
 ⊆-map-mono-or {xs = x ∷ xs} {y ∷ ys} {z ∷ zs} f i fx (there fx∈) = ⊆-map-mono-or f (λ x₁ z₁ → i x₁ (there z₁)) fx fx∈
+
+-- --------------------------------------------------------------------------------
+-- Containment is preserved under embedding 
+
+⊆-⇑Row : ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+             xs ⊆ ys → 
+             ⇑Row xs ⊆ ⇑Row ys
+⊆-⇑Row {xs = xs} {ys} i rewrite 
+    ⇑Row-isMap xs 
+  | ⇑Row-isMap ys = ⊆-map-mono ⇑ i   
 
 -- --------------------------------------------------------------------------------
 -- Constructive reflexivity of row inclusion

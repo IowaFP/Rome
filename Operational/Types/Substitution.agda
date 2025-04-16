@@ -41,6 +41,11 @@ subₖ σ ⦅ xs ⦆ = ⦅ subRowₖ σ xs ⦆
 subRowₖ σ [] = [] 
 subRowₖ σ (x ∷ xs) = subₖ σ x ∷ subRowₖ σ xs
 
+subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
+                  subRowₖ σ xs ≡ map (subₖ σ) xs
+subRowₖ-isMap σ [] = refl
+subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)
+
 subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
 subPredₖ σ (ρ₁ ≲ ρ₂) = (subₖ σ ρ₁) ≲ (subₖ σ ρ₂) 
 

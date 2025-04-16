@@ -25,6 +25,7 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.Entailment.Properties
 open import Rome.Operational.Terms.GVars
 open import Rome.Operational.Terms.Renaming
 
@@ -106,6 +107,14 @@ sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
 sub σ s ((M ▿ N) e) = (sub σ s M ▿ sub σ s N) (subEnt σ s e)
 
+-- ⊆-map-mono (subₖ (⇑ ∘ σ)) (⊆-⇑Row i)
+-- reify-evalRow-isMap
+subEnt σ s {π} (n-≲ {xs = xs} {ys} i) rewrite 
+    subRowₖ-isMap (⇑ ∘ σ) (⇑Row xs) 
+  | subRowₖ-isMap (⇑ ∘ σ) (⇑Row ys) 
+  | ⇓Row-isMap (map (subₖ (λ x → ⇑ (σ x))) (⇑Row xs)) idEnv 
+  | ⇓Row-isMap (map (subₖ (λ x → ⇑ (σ x))) (⇑Row ys)) idEnv  = n-≲ (⊆-map-mono ⇓ (⊆-map-mono (subₖ (⇑ ∘ σ)) (⊆-⇑Row i)))
+subEnt σ s {π} (n-· i₁ i₂ i₃) = {!!}
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl
 subEnt σ s {π} (n-trans e₁ e₂) = n-trans (subEnt σ s e₁) (subEnt σ s e₂)

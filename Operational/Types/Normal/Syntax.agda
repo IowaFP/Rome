@@ -248,6 +248,10 @@ arrow-canonicity (`λ f) = f , refl
 ⇑Row [] = []
 ⇑Row (τ ∷ ρ) = (⇑ τ ∷ ⇑Row ρ)
 
+⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
+               ⇑Row xs ≡ map ⇑ xs
+⇑Row-isMap [] = refl
+⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)

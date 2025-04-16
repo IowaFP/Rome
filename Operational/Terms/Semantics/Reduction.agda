@@ -5,7 +5,7 @@ open import Rome.Operational.Prelude
 
 open import Rome.Operational.Kinds.Syntax
 
-import Rome.Operational.Types as Types
+import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming

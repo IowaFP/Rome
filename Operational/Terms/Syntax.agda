@@ -77,8 +77,8 @@ noPVar p (K x) = noPVar p x
 --       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
 --       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
 
-_⊆_ : SimpleRow NormalType Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] → Set 
-_⊆_ {Δ = Δ} {κ = κ} xs ys = ∀ (x : NormalType Δ κ) → x ∈ xs → x ∈ ys
+_⊆_ : ∀ {A : Set} → List A → List A → Set 
+_⊆_ {A} xs ys = ∀ (x : A) → x ∈ xs → x ∈ ys
       
 data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
