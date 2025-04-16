@@ -276,9 +276,10 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
       eq-map 
       (eq-row (reify-⟦⟧r≋ (fundS-map-app n P τ₁ rel e) )))) , 
     refl-⟦⟧r≋ (fundS-map-app n P τ₁ rel e)  
-fundS ⦅ [] ⦆ {σ} {η} e | c = eq-refl , tt
-fundS ⦅ x ∷ xs ⦆ {σ} {η} e | rel-x , rel-xs = 
-  (eq-row (eq-cons (reify-⟦⟧≋ (fundS x e)) (reify-⟦⟧r≋ rel-xs))) , 
+fundS ⦅ xs ⦆ {σ} {η} e with fundSRow xs e
+fundS ⦅ [] ⦆ {σ} {η} e | tt = eq-refl , tt
+fundS ⦅ x ∷ xs ⦆ {σ} {η} e | rel-x , rel-xs =
+  eq-row (eq-cons (reify-⟦⟧≋ (fundS x e)) (reify-⟦⟧r≋ rel-xs)) , 
   (refl-⟦⟧≋ (fundS x e)) , 
   refl-⟦⟧r≋ rel-xs
 
