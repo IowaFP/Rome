@@ -279,7 +279,7 @@ data Term {Δ} Γ : NormalType Δ ★ → Set where
 
        (M₁ : Term Γ (Σ ρ₁ `→ τ)) → (M₂ : Term Γ (Σ ρ₂ `→ τ)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
-       Term Γ (Π ρ₃ `→ τ)
+       Term Γ (Σ ρ₃ `→ τ)
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.
@@ -302,12 +302,12 @@ conv-≡t eq = conv (completeness eq)
 --------------------------------------------------------------------------------
 -- Admissable constants
 
--- ♯l : Term Γ (⌊ lab "l" ⌋)
--- ♯l = # (lab "l")
+♯l : Term Γ (⌊ lab "l" ⌋)
+♯l = # (lab "l")
 
--- -- Unit term
--- uu : Term Γ UnitNF
--- uu = prj (♯l Π▹ ♯l) (n-·≲L n-ε-L)
+-- Unit term
+uu : Term Γ UnitNF
+uu = prj (♯l Π▹ ♯l) (n-≲ λ { x () })
 
 -- hmm : Term Γ 
 --   (`∀  

@@ -5,7 +5,7 @@ open import Rome.Operational.Prelude
 
 open import Rome.Operational.Kinds.Syntax
 
-import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
@@ -50,8 +50,8 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value (ℓ Π▹ M)
 
-  V-⊹  : -- ∀ 
-           {e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)} (M : Term Γ (Π ρ₁)) (N : Term Γ (Π ρ₂)) → 
+  V-⊹  : ∀ 
+           {e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)}  (M : Term Γ (Π ρ₁)) (N : Term Γ (Π ρ₂)) → 
 
             Value M → Value N → 
             ---------------------
@@ -71,7 +71,7 @@ data Value {Δ} {Γ : Context Δ} : ∀ {τ : NormalType Δ ★} → Term Γ τ 
             ---------------------
             Value (ℓ Σ▹ M)
 
-  V-Unit : ∀ (M : Term Γ (Π ε)) → 
+  V-Unit : ∀ (M : Term Γ (Π εNF)) → 
            -----------------------
            Value M 
 
@@ -130,7 +130,7 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
 
   ξ-Π/ : ∀ 
-            (M₁ M₂ : Term Γ (Π (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
+            (M₁ M₂ : Term Γ (Π (l ▹' τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
@@ -144,7 +144,7 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
   ξ-Σ/ : ∀ 
-            (M₁ M₂ : Term Γ (Σ (l ▹ τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
+            (M₁ M₂ : Term Γ (Σ (l ▹' τ))) (ℓ : Term Γ ⌊ l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
@@ -242,19 +242,19 @@ data _—→_ : ∀ {τ} → Term Γ τ → Term Γ τ → Set where
              inj M e —→ M
 
 
-  β-Πε-right : ∀ 
-        (M : Term Γ (Π ρ)) (E : Term Γ (Π ε)) 
-        (e : Ent Γ (ρ · ε ~ ρ)) → 
+--   β-Πε-right : ∀ 
+--         (M : Term Γ (Π ρ)) (E : Term Γ (Π ε)) 
+--         (e : Ent Γ (ρ · ε ~ ρ)) → 
         
-        Value M → 
-        ---------------------
-        ((M ⊹ E) e) —→ M
+--         Value M → 
+--         ---------------------
+--         ((M ⊹ E) e) —→ M
 
 
-  β-Πε-left : ∀ 
-        (E : Term Γ (Π ε)) (M : Term Γ (Π ρ))  
-        (e : Ent Γ (ε · ρ ~ ρ)) → 
+--   β-Πε-left : ∀ 
+--         (E : Term Γ (Π ε)) (M : Term Γ (Π ρ))  
+--         (e : Ent Γ (ε · ρ ~ ρ)) → 
         
-        Value M → 
-        ---------------------
-        ((E ⊹ M) e) —→ M
+--         Value M → 
+--         ---------------------
+--         ((E ⊹ M) e) —→ M
