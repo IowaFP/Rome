@@ -26,11 +26,11 @@ open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Terms.Syntax
-open import Rome.Operational.Terms.Entailment.Properties
--- open import Rome.Operational.Terms.GVars
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
+
+open import Rome.Operational.Containment
 
 private
   variable

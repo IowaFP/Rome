@@ -138,11 +138,12 @@ evalRow : List (Type Δ₁ κ) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 evalRow [] η = εV
 evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η)
 
--- quick proof
-⇓Row-isMap : ∀ (xs : SimpleRow Type Δ₁ R[ κ ]) (η : Env Δ₁ Δ₂) → 
+-- Throw a hook, a jab, and a boot
+-- I sneak a *quick proof*, then I fire another boot
+⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
                       reifyRow (evalRow xs η) ≡ map (λ τ → reify (eval τ η)) xs
-⇓Row-isMap [] η = refl
-⇓Row-isMap (x ∷ xs) η = cong₂ _∷_ refl (⇓Row-isMap xs η)
+⇓Row-isMap η [] = refl
+⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
 
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
@@ -182,6 +183,9 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 -- Normalization algorithm
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
+
+⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
+⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)

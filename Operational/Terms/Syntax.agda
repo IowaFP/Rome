@@ -19,6 +19,8 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
+open import Rome.Operational.Containment
+
 --------------------------------------------------------------------------------
 -- First define contexts mapping variables to predicates, types, and kinds
 
@@ -67,7 +69,6 @@ noVar p (K x) = noVar p x
 noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : PVar Γ π) → ⊥
 noPVar p (K x) = noPVar p x
 
--- (λ x. x x) (λ x. x x) ↝ (λ x. x x) (λ x. x x)
 --------------------------------------------------------------------------------
 -- Entailment relation on predicates 
 
@@ -76,9 +77,6 @@ noPVar p (K x) = noPVar p x
 --       l l₁ l₂ l₃ : NormalType Δ L 
 --       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
 --       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
-
-_⊆_ : ∀ {A : Set} → List A → List A → Set 
-_⊆_ {A} xs ys = ∀ (x : A) → x ∈ xs → x ∈ ys
       
 data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
@@ -95,7 +93,7 @@ data Ent (Γ : Context Δ) : NormalPred Δ R[ κ ] → Set where
   n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
           xs ⊆ zs → 
           ys ⊆ zs → 
-          (∀ (z : NormalType Δ κ) → z ∈ zs → (z ∈ xs or z ∈ ys)) → 
+          zs ⊆[ xs ⊹ ys ]  → 
           --------------------------------------------
           Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
   n-refl : 
