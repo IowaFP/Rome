@@ -111,6 +111,18 @@ open import Rome.Operational.Containment
 ε-minimum (n-·≲R e) = snd (ε-sum e)
 
 -- --------------------------------------------------------------------------------
+-- -- If two rows combine to be the empty type then both are the empty row
+
+singleton-sum : Ent ∅ (ρ₁ · ρ₂ ~ ⦅ [ τ ] ⦆) → ρ₁ ≡ ⦅ [ τ ] ⦆ or ρ₂ ≡ ⦅ [ τ ] ⦆
+singleton-sum {τ = τ} (n-· {xs = []} {[]} i₁ i₂ i₃) = ∈-elim (absurd-left-elim (i₃ τ (here refl)))
+singleton-sum {τ = τ} (n-· {xs = []} {y ∷ ys} i₁ i₂ i₃) = {!   !}
+singleton-sum {τ = τ} (n-· {xs = x ∷ xs} {[]} i₁ i₂ i₃) = {!   !}
+singleton-sum {τ = τ} (n-· {xs = x ∷ xs} {x₁ ∷ ys} i₁ i₂ i₃) = {!   !} 
+singleton-sum n-ε-R = {!   !}
+singleton-sum n-ε-L = {!   !}
+singleton-sum (n-·lift e x x₁ x₂) = {!   !}
+
+-- --------------------------------------------------------------------------------
 -- -- ε is the *unique* right identity
 
 -- ε-right-unique : Ent ∅ (ρ₁ · ρ₂ ~ ρ₁) → ρ₂ ≡ ε

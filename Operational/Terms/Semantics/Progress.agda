@@ -37,9 +37,11 @@ progress (`λ M) = Done (V-λ M)
 
 progress (M · N) with progress M | progress N 
 ... | Done (V-λ _)         | _  = Steps _ β-λ
-... | Done (V-▿ m n VM VN) | Done (V-Σ ℓ o VO) = {!   !}
-... | Done (V-▿ m n x x₁)  | Steps M' x₂ = {!   !}
 ... | Steps M' s           | n = Steps (M' · N) (ξ-·1 s)
+... | Done (V-▿ m n x x₁)  | Steps M' x₂ = {!   !}
+progress (M · N) | Done (V-▿ {e = e} m n VM VN) | Done (V-Σ ℓ o VO) with singleton-sum e 
+... | left refl = Steps (m · (ℓ Σ▹ o)) {!   !}
+... | right eq = {!   !}
 
 progress (Λ M) = Done (V-Λ M)
 
