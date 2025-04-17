@@ -30,14 +30,17 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation public
 
 
 --------------------------------------------------------------------------------
--- Soundness for Π 
+-- Soundness for Π and other operations
 
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π Π-Kripke
+
+-- Mapping Π over a row relates to pre-composition by semantic Π
 map-Π : ∀ (n : ℕ) (P : Fin n → SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
         ⟦ map (_·_ Π) (⇑Row (reifyRow' n P)) ⟧r≋ (n , ΠV ∘ P)
 
-map-fuckit : ∀ (n : ℕ) (P : Fin n → KripkeFunction Δ₁ κ₁ κ₂) → 
+-- Mapping _apply_ over a row is semantic application
+map-apply : ∀ (n : ℕ) (P : Fin n → KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
@@ -46,8 +49,8 @@ map-fuckit : ∀ (n : ℕ) (P : Fin n → KripkeFunction Δ₁ κ₁ κ₂) →
                (subRowₖ (extendₖ ` v)
                  (renRowₖ S (renRowₖ φ (⇑Row (reifyRow (n , P))))))
              ⟧r≋ (n , (λ x → apply V id (renKripke (λ x₁ → id (φ x₁)) (P x))))
-map-fuckit zero P φ rel v V rel-v = tt
-map-fuckit (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v = 
+map-apply zero P φ rel v V rel-v = tt
+map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v = 
   subst-⟦⟧≋ 
     (eq-sym eq-β) 
   (subst-⟦⟧≋ 
@@ -68,7 +71,7 @@ map-fuckit (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
       (inst (sym (↻-subₖ-renₖ {r = liftₖ φ} {σ = extendₖ ` (renₖ id v)} (⇑ (reify (P fzero S (reflect (` Z)))))))) 
     (inst (subₖ-cong (λ { Z → renₖ-id v ; (S x) → refl }) (⇑ (reify (P fzero S (reflect (` Z))))))))) 
   (rel-fzero φ (ren-⟦⟧≋ id rel-v)))))))) , 
-  (map-fuckit n (P ∘ fsuc) φ rel-fsuc v V rel-v)
+  (map-apply n (P ∘ fsuc) φ rel-fsuc v V rel-v)
 
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
@@ -117,7 +120,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {right (n , P)} (eq , rel) ρ₂ {
   (eq-trans 
     eq-map 
   (eq-row 
-    (reify-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v)))
+    (reify-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v)))
 sound-Π {κ₁ = R[ κ ]} ρ {v} {right (n , P)} (eq , rel) = 
   eq-trans 
     (eq-· eq-refl eq) 
@@ -186,7 +189,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {right (n , P)} (eq , rel) ρ₂ {
   (eq-trans 
     eq-map 
   (eq-row 
-    (reify-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-fuckit n P ρ₂ rel v V rel-v)))
+    (reify-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v)))
 sound-Σ {κ₁ = R[ κ ]} ρ {v} {right (n , P)} (eq , rel) = 
   eq-trans 
     (eq-· eq-refl eq) 
@@ -209,6 +212,7 @@ fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ�
 fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
 
+-- mapping an application over a row is application of the semantic row.
 fundS-map-app : ∀ (n : ℕ) (P : Fin n → SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 

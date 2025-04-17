@@ -152,11 +152,11 @@ ren {ρ = ρ} R ((M ▿ N) e) = ((ren R M) ▿ (ren R N)) (renEnt R e)
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) rewrite 
-  renRowₖNF-isMap φ xs | renRowₖNF-isMap φ ys = n-≲ (⊆-map-mono (renₖNF φ) i)
+  renRowₖNF-isMap φ xs | renRowₖNF-isMap φ ys = n-≲ (⊆-map (renₖNF φ) i)
 renEnt {ρ = φ} {π} R (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) rewrite 
     renRowₖNF-isMap φ xs 
   | renRowₖNF-isMap φ ys
-  | renRowₖNF-isMap φ zs = n-· (⊆-map-mono (renₖNF φ) i₁) (⊆-map-mono (renₖNF φ) i₂) (⊆-map-mono-or (renₖNF φ) i₃)
+  | renRowₖNF-isMap φ zs = n-· (⊆-map (renₖNF φ) i₁) (⊆-map (renₖNF φ) i₂) (⊆-map-or (renₖNF φ) i₃)
 renEnt R n-refl = n-refl
 renEnt R (n-trans e₁ e₂) = n-trans (renEnt R e₁) (renEnt R e₂)
 renEnt R (n-·≲L e) = n-·≲L (renEnt R e)

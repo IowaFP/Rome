@@ -156,13 +156,6 @@ mapPred : ∀ {Δ₁ Δ₂} {κ₁ κ₂} (P : NormalType Δ₁ R[ κ₁ ] → N
 mapPred P (ρ₁ · ρ₂ ~ ρ₃) = P ρ₁ · P ρ₂ ~ P ρ₃
 mapPred P (ρ₁ ≲ ρ₂)      = P ρ₁ ≲ P ρ₂
 
--- -- predicate transformer
--- PredPT : ∀ {Δ₁ Δ₂} {κ₁ κ₂}
---             (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
---             NormalPred Δ₁ R[ κ₁ ] → NormalPred 
--- PredPT P (ρ₁ · ρ₂ ~ ρ₃) = {! P ρ₁  !} -- P ρ₁ × P ρ₂ × P ρ₃
--- PredPT P (ρ₁ ≲ ρ₂) = {!   !} -- P ρ₁ × P ρ₂
-
 mapPredHO : ∀ {Δ₁ Δ₂} {κ₁ κ₂}
             (P : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) (Q : NormalType Δ₁ R[ κ₁ ] → NormalType Δ₂ R[ κ₂ ]) → 
             (q : ∀ (τ : NormalType Δ₁ R[ κ₁ ]) → P τ ≡ Q τ) →
@@ -183,16 +176,6 @@ mapPred-id (ρ₁ ≲ ρ₂) = refl
 
 inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
 inj-ne refl = refl
-
--- inj-▹ₗ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → l₁ ≡ l₂
--- inj-▹ₗ refl = refl
-
--- inj-▹ᵣ : ∀ {l₁ l₂ : NormalType Δ L} {τ₁ τ₂ : NormalType Δ κ} → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂) → τ₁ ≡ τ₂
--- inj-▹ᵣ refl = refl
-
--- inj-row : ∀ {ρ₁ ρ₂ : Row Δ R[ κ ]} → row ρ₁ ≡ row ρ₂ → ρ₁ ≡ ρ₂
--- inj-row refl = refl
-
 
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
@@ -261,7 +244,10 @@ arrow-canonicity (`λ f) = f , refl
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
 
 --------------------------------------------------------------------------------
--- Erased "labeled" types
+-- row "constructors"
+
+εNF : NormalType Δ R[ κ ]
+εNF = ⦅ [] ⦆
 
 _▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
 l ▹' τ = ⦅ [ τ ] ⦆

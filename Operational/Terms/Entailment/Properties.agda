@@ -36,8 +36,7 @@ open import Rome.Operational.Terms.GVars
 ⊆-trans i₁ i₂ = λ x → i₂ x ∘ i₁ x
 
 -- --------------------------------------------------------------------------------
--- related elements are mapped
-
+-- related elements are mapped together
 
 map-∈ :  ∀ {A B : Set}{xs : List A} {x : A} → 
              (f : A → B) → 
@@ -47,20 +46,26 @@ map-∈ f (here refl) = here refl
 map-∈ f (there x∈xs) = there (map-∈ f x∈xs)
 
 -- --------------------------------------------------------------------------------
--- map f is monomorphic over _⊆_
+-- We often arise in contexts with absurd memberships
+
+∈-elim : ∀ {A C : Set} {x : A} → 
+          x ∈ [] → C
+∈-elim () 
+
+-- --------------------------------------------------------------------------------
+-- map f is monotonic over _⊆_
 
 
-⊆-map-mono : ∀ {A B : Set} {xs ys : List A} → 
+⊆-map : ∀ {A B : Set} {xs ys : List A} → 
              (f : A → B) → 
              xs ⊆ ys → 
              map f xs ⊆ map f ys 
 
-⊆-map-mono {xs = []} {[]} f i = λ { x () }
-⊆-map-mono {xs = []} {x ∷ ys} f i = λ { x () }
-⊆-map-mono {xs = x ∷ xs} {[]} f i with i x (here refl)
-... | ()
-⊆-map-mono {xs = x ∷ xs} {y ∷ ys} f i z (here refl) = map-∈ f (i x (here refl)) 
-⊆-map-mono {xs = x ∷ xs} {y ∷ ys} f i z (there z∈fxs) = ⊆-map-mono f (λ x₁ z₁ → i x₁ (there z₁)) z z∈fxs
+⊆-map {xs = []} {[]} f i = λ { x () }
+⊆-map {xs = []} {x ∷ ys} f i = λ { x () }
+⊆-map {xs = x ∷ xs} {[]} f i = ∈-elim (i x (here refl))
+⊆-map {xs = x ∷ xs} {y ∷ ys} f i z (here refl) = map-∈ f (i x (here refl)) 
+⊆-map {xs = x ∷ xs} {y ∷ ys} f i z (there z∈fxs) = ⊆-map f (λ x₁ z₁ → i x₁ (there z₁)) z z∈fxs
 
 absurd-left-elim : ∀ {A B : Set}{x : A} → x ∈ [] or B → B 
 absurd-left-elim (right y) = y
@@ -68,18 +73,18 @@ absurd-left-elim (right y) = y
 absurd-right-elim : ∀ {A B : Set}{x : B} → A or x ∈ [] → A
 absurd-right-elim (left x) = x
 
-⊆-map-mono-or : ∀ {A B : Set} {xs ys zs : List A} → 
+⊆-map-or : ∀ {A B : Set} {xs ys zs : List A} → 
              (f : A → B) → 
              (∀ x → x ∈ xs → x ∈ ys or x ∈ zs) → 
              (∀ fx → fx ∈ map f xs → fx ∈ map f ys or fx ∈ map f zs)
-⊆-map-mono-or {xs = x ∷ xs} {[]} {zs} f i fx fx∈ with i x (here refl) 
-... | right y = right (⊆-map-mono f (λ x x∈xs → absurd-left-elim (i x x∈xs)) fx fx∈)
-⊆-map-mono-or {xs = x ∷ xs} {y ∷ ys} {[]} f i fx fx∈ with i x (here refl) 
-... | left h = left (⊆-map-mono f (λ x x∈xs → absurd-right-elim (i x x∈xs)) fx fx∈)
-⊆-map-mono-or {xs = x ∷ xs} {y ∷ ys} {z ∷ zs} f i fx (here refl) with i x (here refl) 
+⊆-map-or {xs = x ∷ xs} {[]} {zs} f i fx fx∈ with i x (here refl) 
+... | right y = right (⊆-map f (λ x x∈xs → absurd-left-elim (i x x∈xs)) fx fx∈)
+⊆-map-or {xs = x ∷ xs} {y ∷ ys} {[]} f i fx fx∈ with i x (here refl) 
+... | left h = left (⊆-map f (λ x x∈xs → absurd-right-elim (i x x∈xs)) fx fx∈)
+⊆-map-or {xs = x ∷ xs} {y ∷ ys} {z ∷ zs} f i fx (here refl) with i x (here refl) 
 ... | left x∈yys  = left (map-∈ f x∈yys)
 ... | right x∈zzs = right (map-∈ f x∈zzs)
-⊆-map-mono-or {xs = x ∷ xs} {y ∷ ys} {z ∷ zs} f i fx (there fx∈) = ⊆-map-mono-or f (λ x₁ z₁ → i x₁ (there z₁)) fx fx∈
+⊆-map-or {xs = x ∷ xs} {y ∷ ys} {z ∷ zs} f i fx (there fx∈) = ⊆-map-or f (λ x₁ z₁ → i x₁ (there z₁)) fx fx∈
 
 -- --------------------------------------------------------------------------------
 -- Containment is preserved under embedding 
@@ -89,7 +94,7 @@ absurd-right-elim (left x) = x
              ⇑Row xs ⊆ ⇑Row ys
 ⊆-⇑Row {xs = xs} {ys} i rewrite 
     ⇑Row-isMap xs 
-  | ⇑Row-isMap ys = ⊆-map-mono ⇑ i   
+  | ⇑Row-isMap ys = ⊆-map ⇑ i   
 
 -- --------------------------------------------------------------------------------
 -- Constructive reflexivity of row inclusion
@@ -128,13 +133,13 @@ absurd-right-elim (left x) = x
 ≲-inv (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
 ≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₂
-≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆} {⦅ ys ⦆} {F} n refl refl) = ⊆-map-mono (F ·'_) (≲-inv n)
+≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆} {⦅ ys ⦆} {F} n refl refl) = ⊆-map (F ·'_) (≲-inv n)
 
 ·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
 ·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
 ·-inv n-ε-L = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
 ·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆} {⦅ x₄ ⦆} {⦅ x₅ ⦆} {F} e refl refl refl) with ·-inv e
-... | i₁ , i₂ , i₃ =  ⊆-map-mono (F ·'_) i₁ , (⊆-map-mono (F ·'_) i₂) , ⊆-map-mono-or (F ·'_) i₃
+... | i₁ , i₂ , i₃ =  ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
 
 -- --------------------------------------------------------------------------------
 -- Entailment of inclusion is transitive
@@ -153,31 +158,29 @@ absurd-right-elim (left x) = x
 -- --------------------------------------------------------------------------------
 -- -- If two rows combine to be the empty type then both are the empty row
 
--- ε-sum : Ent ∅ (ρ₁ · ρ₂ ~ ε) → ρ₁ ≡ ε × ρ₂ ≡ ε 
--- ε-sum n-ε-R = refl , refl
--- ε-sum n-ε-L = refl , refl
--- ε-sum (n-·lift {ρ₁ = ne x} {ρ₄} {ε} e ρ₁-eq ρ₂-eq ρ₃-eq) = ⊥-elim (noNeutrals x)
--- ε-sum (n-·lift {ρ₁ = ε} {ne x} {ε} e ρ₁-eq ρ₂-eq ρ₃-eq) = ⊥-elim (noNeutrals x)
--- ε-sum (n-·lift {ρ₁ = ε} {ε} {ε} e ρ₁-eq ρ₂-eq ρ₃-eq) = ρ₁-eq , ρ₂-eq
--- ε-sum (n-·lift {ρ₁ = ε} {l ▹ τ} {ε} e ρ₁-eq ρ₂-eq ρ₃-eq) with ε-sum e 
--- ... | () 
--- ε-sum (n-·lift {ρ₁ = ρ₃ ▹ ρ₅} {ρ₄} {ε} e ρ₁-eq ρ₂-eq ρ₃-eq) with ε-sum e 
--- ... | ()
+ε-sum : Ent ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
+ε-sum (n-· {xs = []} {[]} i₁ i₂ i₃) = refl , refl
+ε-sum (n-· {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
+ε-sum (n-· {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
+ε-sum n-ε-R = refl , refl
+ε-sum n-ε-L = refl , refl
+ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
+... | refl , refl = eq₁ , eq₂
 
 -- --------------------------------------------------------------------------------
 -- -- ε forms a least upper bound on rows
 
--- ε-minimum :  Ent ∅ (ρ ≲ ε) → ρ ≡ ε
--- ε-minimum (n-var ())
--- ε-minimum n-refl = refl
--- ε-minimum (n-trans e e₁) rewrite ε-minimum e₁ = ε-minimum e 
--- ε-minimum {ρ = ρ} (n-·≲L e) = fst (ε-sum e)
--- ε-minimum (n-·≲R e) = snd (ε-sum e)
--- ε-minimum {ρ = ρ} (n-≲lift {ρ₁ = ne x₁} {ε} {F} e x y) = ⊥-elim (noNeutrals x₁) 
--- ε-minimum {ρ = ρ} (n-≲lift {ρ₁ = ε} {ε} {F} e x y) = x
--- ε-minimum {ρ = ρ} (n-≲lift {ρ₁ = l ▹ τ} {ε} {f} e x y) with ε-minimum e
--- ... | () 
-
+ε-minimum :  Ent ∅ (ρ ≲ εNF) → ρ ≡ εNF
+ε-minimum (n-≲ {xs = []} i) = refl
+ε-minimum (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
+ε-minimum (n-≲lift {ρ₁ = ne x} _ _ _) = ⊥-elim (noNeutrals x)
+ε-minimum (n-≲lift {ρ₁ = ⦅ xs ⦆} {⦅ [] ⦆} n refl refl) with ε-minimum n 
+... | refl = refl
+ε-minimum (n-var ())
+ε-minimum n-refl = refl
+ε-minimum (n-trans e e₁) rewrite ε-minimum e₁ = ε-minimum e 
+ε-minimum {ρ = ρ} (n-·≲L e) = fst (ε-sum e)
+ε-minimum (n-·≲R e) = snd (ε-sum e)
 
 -- --------------------------------------------------------------------------------
 -- -- ε is the *unique* right identity
