@@ -1,6 +1,6 @@
 {-# OPTIONS --allow-unsolved-metas #-}
 
-module Rome.Operational.Terms.Renaming where
+module Rome.Operational.Terms.Normal.Renaming where
 
 open import Rome.Operational.Prelude
 
@@ -25,7 +25,7 @@ open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Renaming
 
-open import Rome.Operational.Terms.Syntax
+open import Rome.Operational.Terms.Normal.Syntax
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
@@ -34,7 +34,7 @@ open import Rome.Operational.Containment
 
 private
   variable
-    Γ Γ₁ Γ₂ Γ₃ : Context Δ
+    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ
     ρ : Renamingₖ Δ₁ Δ₂
     τ τ₁ τ₂ : NormalType Δ κ
 
@@ -44,9 +44,9 @@ private
 
 Renaming : ∀ Γ₁ Γ₂ → Renamingₖ Δ₁ Δ₂ → Set
 Renaming Γ₁ Γ₂ ρ = 
-  (∀ {τ : NormalType _ ★} → Var Γ₁ τ → Var Γ₂ (renₖNF ρ τ))
+  (∀ {τ : NormalType _ ★} → NormalVar Γ₁ τ → NormalVar Γ₂ (renₖNF ρ τ))
   ×
-  (∀ {κ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → PVar Γ₂ (renPredₖNF ρ π))
+  (∀ {κ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalPVar Γ₂ (renPredₖNF ρ π))
 
 renType : ∀ {Γ₁ Γ₂} {ρ : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ ρ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renType {ρ = ρ} R = renₖNF ρ
@@ -63,8 +63,8 @@ lift (r , p) =
      ; (S x) → S (r x) }) , 
    λ { (T x) → T (p x) }
 
-liftPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
-liftPVar (r , p) = 
+liftNormalPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
+liftNormalPVar (r , p) = 
   (λ { (P x) → P (r x) }) , 
   λ { Z → Z
     ; (S x) → S (p x) }
@@ -78,11 +78,11 @@ liftKVar {ρ = ρ} (r , p)  =
 -- Renaming terms
 
 ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
-      Term Γ₁ τ →
-      Term Γ₂ (renₖNF ρ τ)
+      NormalTerm Γ₁ τ →
+      NormalTerm Γ₂ (renₖNF ρ τ)
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
-      Ent Γ₁ π →
-      Ent Γ₂ (renPredₖNF ρ π)
+      NormalEnt Γ₁ π →
+      NormalEnt Γ₂ (renPredₖNF ρ π)
 
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
@@ -137,12 +137,12 @@ ren {ρ = ρ} R (Out F@(`λ τ) M) =
     (sym (↻-renₖNF-β ρ τ ((μ F)))) 
     (Out (renType R F) (ren R M))
 ren R (Out F@(ne x {()}) τ)
-ren R (# l) = (# (renType R l))
+ren R ♯l = ♯l
 ren R (l Π▹ M) = (ren R l) Π▹ (ren R M)
 ren R (M Π/ l) = ren R M Π/ ren R l
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
 ren R (M Σ/ l) = ren R M Σ/ ren R l
-ren R (`ƛ τ) = `ƛ (ren (liftPVar R) τ)
+ren R (`ƛ τ) = `ƛ (ren (liftNormalPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
 ren {ρ = ρ} R (prj m e) = prj (ren R m) (renEnt R e)
 ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)
@@ -193,24 +193,24 @@ renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-�
 --------------------------------------------------------------------------------
 -- Weakening is a special case of renaming (but we must convert types)
 
-weakenTermByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
+weakenTermByType : NormalTerm Γ τ₁ → NormalTerm (Γ , τ₂) τ₁
 weakenTermByType {τ₁ = τ₁} M = conv (renₖNF-id τ₁) (ren ((convVar (sym (renₖNF-id _))) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
-weakenTermByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
+weakenTermByKind : ∀ {τ : NormalType Δ ★} → NormalTerm Γ τ → NormalTerm (Γ ,, κ) (weakenₖNF τ)
 weakenTermByKind = ren (K , K)
 
-weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
+weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → NormalTerm Γ τ → NormalTerm (Γ ,,, π) τ
 weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convVar (sym (renₖNF-id _))) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)
 
 --------------------------------------------------------------------------------
 -- Weakening of an entailment
 
-weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent (Γ , τ) π 
+weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt (Γ , τ) π 
 weakenEntByType {π = π} M = convEnt (renₖNF-id-pred π) (renEnt (convVar (sym (renₖNF-id _)) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
 
-weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → Ent Γ π → Ent (Γ ,, κ₂) (weakenPredₖNF π)
+weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → NormalEnt Γ π → NormalEnt (Γ ,, κ₂) (weakenPredₖNF π)
 weakenEntByKind = renEnt (K , K)
 
-weakenEntByPred : ∀ {π₁ : NormalPred Δ R[ κ₁ ]} {π₂ : NormalPred Δ R[ κ₂ ]} → Ent Γ π₁ → Ent (Γ ,,, π₂) π₁
+weakenEntByPred : ∀ {π₁ : NormalPred Δ R[ κ₁ ]} {π₂ : NormalPred Δ R[ κ₂ ]} → NormalEnt Γ π₁ → NormalEnt (Γ ,,, π₂) π₁
 weakenEntByPred M = convEnt (renₖNF-id-pred _) (renEnt (convVar (sym (renₖNF-id _)) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)

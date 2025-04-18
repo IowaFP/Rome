@@ -49,3 +49,6 @@ renRowₖ r (x ∷ xs) = renₖ r x ∷ renRowₖ r xs
 
 weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S
+
+weakenPredₖ : Pred Type Δ R[ κ₂ ] → Pred Type (Δ ,, κ₁) R[ κ₂ ]
+weakenPredₖ = renPredₖ S

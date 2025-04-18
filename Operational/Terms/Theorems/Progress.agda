@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Semantics.Progress where
+module Rome.Operational.Terms.Theorems.Progress where
 
 open import Rome.Operational.Prelude
 
@@ -8,30 +8,30 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
 
-open import Rome.Operational.Terms.Syntax
-open import Rome.Operational.Terms.Substitution
-open import Rome.Operational.Terms.Semantics.Reduction
+open import Rome.Operational.Terms.Normal.Syntax
+open import Rome.Operational.Terms.Normal.Substitution
+open import Rome.Operational.Terms.Normal.Reduction
 
 open import Rome.Operational.Kinds.GVars
 
-open import Rome.Operational.Terms.GVars
-open import Rome.Operational.Terms.Entailment.Properties
+open import Rome.Operational.Terms.Normal.GVars
+open import Rome.Operational.Terms.Normal.Entailment.Properties
 
 --------------------------------------------------------------------------------
 -- Proof of progress
 
-data Progress {τ} (M : Term Γ τ) : Set where
+data Progress {τ} (M : NormalTerm Γ τ) : Set where
   Done : 
          Value M → 
          ----------
          Progress M
 
   Steps : 
-          (M' : Term Γ τ) → (M —→ M') → 
+          (M' : NormalTerm Γ τ) → (M —→ M') → 
           --------------------------------------
           Progress M
 
-progress : ∀ {τ} (M : Term ∅ τ) → Progress M
+progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 
 progress (`λ M) = Done (V-λ M)
 
@@ -50,7 +50,7 @@ progress (In F c) = {!   !}
 progress (Out F c) = {!   !}
 progress (`ƛ c) = {!   !}
 progress (c ·⟨ x ⟩) = {!   !}
-progress (# l) = {!   !}
+progress ♯l = Done V-#
 progress (c Π▹ c₁) = {!   !}
 progress (c Π/ c₁) = {!   !}
 progress (prj c x) = {!   !}
@@ -143,7 +143,7 @@ progress ((c ▿ c₁) x) = {!   !}
 -- Tinkering
 
 -- {-# TERMINATING #-}
--- eval : ∀ {τ} → Term ∅ τ → Term ∅ τ 
+-- eval : ∀ {τ} → NormalTerm ∅ τ → NormalTerm ∅ τ 
 -- eval M with progress M 
 -- ... | Done x = M
 -- ... | Steps M' x = eval M'

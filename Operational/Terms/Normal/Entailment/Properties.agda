@@ -1,5 +1,5 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Operational.Terms.Entailment.Properties where
+module Rome.Operational.Terms.Normal.Entailment.Properties where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
@@ -19,8 +19,8 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
-open import Rome.Operational.Terms.Syntax
-open import Rome.Operational.Terms.GVars
+open import Rome.Operational.Terms.Normal.Syntax
+open import Rome.Operational.Terms.Normal.GVars
 
 open import Rome.Operational.Containment
 
@@ -28,7 +28,7 @@ open import Rome.Operational.Containment
 -- Constructive reflexivity of row inclusion
 
 ≲-refl : ∀ {ρ₁ : SimpleRow NormalType ∅ R[ κ ]} → 
-         Ent ∅ (⦅ ρ₁ ⦆ ≲ ⦅ ρ₁ ⦆)
+         NormalEnt ∅ (⦅ ρ₁ ⦆ ≲ ⦅ ρ₁ ⦆)
 ≲-refl = n-≲ (λ x x∈xs → x∈xs) 
 
 -- --------------------------------------------------------------------------------
@@ -36,14 +36,14 @@ open import Rome.Operational.Containment
 
 
 ≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]} → 
-         Ent ∅ (⦅ ρ₁ ⦆ ≲ ⦅ ρ₂ ⦆) → ρ₁ ⊆ ρ₂
+         NormalEnt ∅ (⦅ ρ₁ ⦆ ≲ ⦅ ρ₂ ⦆) → ρ₁ ⊆ ρ₂
 
 -- --------------------------------------------------------------------------------
 -- Inversion of combination
 
 
 ·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow NormalType ∅ R[ κ ]} → 
-         Ent ∅ (⦅ ρ₁ ⦆ · ⦅ ρ₂ ⦆ ~ ⦅ ρ₃ ⦆) → 
+         NormalEnt ∅ (⦅ ρ₁ ⦆ · ⦅ ρ₂ ⦆ ~ ⦅ ρ₃ ⦆) → 
          ρ₁ ⊆ ρ₃ × 
          ρ₂ ⊆ ρ₃ × 
          (∀ x → x ∈ ρ₃ → x ∈ ρ₁ or x ∈ ρ₂)
@@ -70,23 +70,23 @@ open import Rome.Operational.Containment
 ... | i₁ , i₂ , i₃ =  ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
 
 -- --------------------------------------------------------------------------------
--- Entailment of inclusion is transitive
+-- NormalEntailment of inclusion is transitive
 
 -- n-trans : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]} → 
---          Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) → Ent Γ (ρ₁ ≲ ρ₃)
+--          NormalEnt Γ (ρ₁ ≲ ρ₂) → NormalEnt Γ (ρ₂ ≲ ρ₃) → NormalEnt Γ (ρ₁ ≲ ρ₃)
 -- n-trans {ρ₁ = ρ₁} {ρ₂} {ρ₃} ρ₁≲ρ₂ ρ₂≲ρ₃ = {!ρ₁ ρ₂ ρ₃!}
 
 -- --------------------------------------------------------------------------------
 -- -- The sum of two labeled rows is not a labeled row
 
 -- ·-impossible :  ∀ {l₁ l₂ l₃ : NormalType ∅ L} {τ₁ τ₂ τ₃ :  NormalType ∅ κ} → 
---                 Ent ∅ ((l₁ ▹ τ₁) · (l₂ ▹ τ₂) ~ (l₃ ▹ τ₃)) → ⊥ 
+--                 NormalEnt ∅ ((l₁ ▹ τ₁) · (l₂ ▹ τ₂) ~ (l₃ ▹ τ₃)) → ⊥ 
 -- ·-impossible  (n-·lift {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} e x x₁ x₂) = ·-impossible e
 
 -- --------------------------------------------------------------------------------
 -- -- If two rows combine to be the empty type then both are the empty row
 
-ε-sum : Ent ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
+ε-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
 ε-sum (n-· {xs = []} {[]} i₁ i₂ i₃) = refl , refl
 ε-sum (n-· {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
 ε-sum (n-· {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
@@ -98,7 +98,7 @@ open import Rome.Operational.Containment
 -- --------------------------------------------------------------------------------
 -- -- ε forms a least upper bound on rows
 
-ε-minimum :  Ent ∅ (ρ ≲ εNF) → ρ ≡ εNF
+ε-minimum :  NormalEnt ∅ (ρ ≲ εNF) → ρ ≡ εNF
 ε-minimum (n-≲ {xs = []} i) = refl
 ε-minimum (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
 ε-minimum (n-≲lift {ρ₁ = ne x} _ _ _) = ⊥-elim (noNeutrals x)
@@ -113,7 +113,7 @@ open import Rome.Operational.Containment
 -- --------------------------------------------------------------------------------
 -- -- If two rows combine to be the empty type then both are the empty row
 
-singleton-sum : Ent ∅ (ρ₁ · ρ₂ ~ ⦅ [ τ ] ⦆) → ρ₁ ≡ ⦅ [ τ ] ⦆ or ρ₂ ≡ ⦅ [ τ ] ⦆
+singleton-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ ⦅ [ τ ] ⦆) → ρ₁ ≡ ⦅ [ τ ] ⦆ or ρ₂ ≡ ⦅ [ τ ] ⦆
 singleton-sum {τ = τ} (n-· {xs = []} {[]} i₁ i₂ i₃) = ∈-elim (absurd-left-elim (i₃ τ (here refl)))
 singleton-sum {τ = τ} (n-· {xs = []} {y ∷ ys} i₁ i₂ i₃) = {!   !}
 singleton-sum {τ = τ} (n-· {xs = x ∷ xs} {[]} i₁ i₂ i₃) = {!   !}
@@ -125,7 +125,7 @@ singleton-sum (n-·lift e x x₁ x₂) = {!   !}
 -- --------------------------------------------------------------------------------
 -- -- ε is the *unique* right identity
 
--- ε-right-unique : Ent ∅ (ρ₁ · ρ₂ ~ ρ₁) → ρ₂ ≡ ε
+-- ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₁) → ρ₂ ≡ ε
 -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-R = refl
 -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L = refl
 -- ε-right-unique {ρ₁ = ne x} {_} (n-·lift e _ _ _) = ⊥-elim (noNeutrals x)
@@ -139,8 +139,8 @@ singleton-sum (n-·lift e x x₁ x₂) = {!   !}
 -- --------------------------------------------------------------------------------
 -- -- Reflection of combination equality to propositional equality
 
--- ε-right-identity : Ent ∅ (ρ₁ · ε ~ ρ₂) → ρ₁ ≡ ρ₂
--- ε-left-identity : Ent ∅ (ε · ρ₁ ~ ρ₂) → ρ₁ ≡ ρ₂
+-- ε-right-identity : NormalEnt ∅ (ρ₁ · ε ~ ρ₂) → ρ₁ ≡ ρ₂
+-- ε-left-identity : NormalEnt ∅ (ε · ρ₁ ~ ρ₂) → ρ₁ ≡ ρ₂
 
 -- ε-right-identity n-ε-R = refl
 -- ε-right-identity n-ε-L = refl
@@ -178,7 +178,7 @@ singleton-sum (n-·lift e x x₁ x₂) = {!   !}
 -- --------------------------------------------------------------------------------
 -- -- Reflection of labeled row reflexivity to propositional equality
 
--- ≲-refl :  ∀ {l₁ l₂ : NormalType ∅ L} {τ₁ τ₂ :  NormalType ∅ κ} → Ent ∅ ((l₁ ▹ τ₁) ≲ (l₂ ▹ τ₂)) → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂)
+-- ≲-refl :  ∀ {l₁ l₂ : NormalType ∅ L} {τ₁ τ₂ :  NormalType ∅ κ} → NormalEnt ∅ ((l₁ ▹ τ₁) ≲ (l₂ ▹ τ₂)) → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂)
 -- ≲-refl (n-var ())
 -- ≲-refl n-refl = refl
 -- ≲-refl (n-trans {ρ₂ = ne x} e e₁) = ⊥-elim (noNeutrals x) 
@@ -203,7 +203,7 @@ singleton-sum (n-·lift e x x₁ x₂) = {!   !}
 --  --------------------------------------------------------------------------------
 -- -- Problems
 
--- no-meaningful-combinations : Ent ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ε or ρ₂ ≡ ε 
+-- no-meaningful-combinations : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ε or ρ₂ ≡ ε 
 -- no-meaningful-combinations {ρ₁ = ne x} {ρ₂} {ρ₃} e = ⊥-elim (noNeutrals x)
 -- no-meaningful-combinations {ρ₁ = ρ₁} {ne x} {ρ₃} e = ⊥-elim (noNeutrals x)
 -- no-meaningful-combinations {ρ₁ = ρ₁} {ρ₂} {ne x} e = ⊥-elim (noNeutrals x)
