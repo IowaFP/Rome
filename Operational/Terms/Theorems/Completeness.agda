@@ -50,12 +50,12 @@ open import Rome.Operational.Containment
 ⇓Term (`ƛ M) = {!!}
 ⇓Term (M ·⟨ x ⟩) = {!!}
 ⇓Term (# ℓ) = # (⇓ ℓ)
-⇓Term (M Π▹ M₁) = {!!}
-⇓Term (M Π/ M₁) = {!!}
+⇓Term (l Π▹ M) = (⇓Term l) Π▹ ⇓Term M
+⇓Term (M Π/ M₁) = ⇓Term M Π/ ⇓Term M₁
 ⇓Term (prj M x) = {!!}
 ⇓Term ((M ⊹ M₁) x) = {!!}
-⇓Term (M Σ▹ M₁) = {!!}
-⇓Term (M Σ/ M₁) = {!!}
-⇓Term (inj M x) = {!!}
+⇓Term (M Σ▹ M₁) = ⇓Term M Σ▹ ⇓Term M₁
+⇓Term (M Σ/ M₁) = ⇓Term M Σ/ ⇓Term M₁
+⇓Term (inj M x) = ⇓Term M
 ⇓Term ((M ▿ M₁) x) = {!!}
 ⇓Term (convert eq M) = conv (completeness eq) (⇓Term M)
