@@ -23,9 +23,7 @@ renₖNE ρ (` x) = ` (ρ x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
 renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
 
--- renₖNF ρ ε   = ε
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
--- renₖNF ρ (l ▹ τ) = (renₖNF ρ l) ▹ (renₖNF ρ τ)
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
 renₖNF ρ (τ₁ `→ τ₂) = (renₖNF ρ τ₁) `→ (renₖNF ρ τ₂)
 renₖNF ρ (π ⇒ τ) = renPredₖNF ρ π ⇒ renₖNF ρ τ

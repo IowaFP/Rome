@@ -256,7 +256,7 @@ fundS (μ τ) {σ} {η} e = eq-μ
         (eq-η {f = subₖ σ τ}) 
         (eq-λ (fundS τ e S eq-refl)))
 fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
-fundS (lab l) {σ} {η} e = eq-refl
+fundS (lab l) {σ} {η} e = {!!}
 fundS (l ▹ τ) {σ} {η} e = eq-trans (eq-▹ eq-refl ((reify-⟦⟧≋ (fundS τ e)))) eq-labTy , (refl-⟦⟧≋ (fundS τ e)) , tt
 fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
 fundS Π {σ} {η} e = sound-Π

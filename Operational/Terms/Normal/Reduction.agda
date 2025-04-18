@@ -40,8 +40,8 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
              Value M → 
              Value (In F M)
 
-  V-# :
-          Value ♯l
+  V-# :   ∀ {l : NormalType Δ L} → 
+          Value (# l)
 
   V-Π   : ∀ (ℓ : NormalTerm Γ ⌊ l ⌋) 
             (M : NormalTerm Γ υ) → 

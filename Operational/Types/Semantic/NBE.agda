@@ -184,6 +184,9 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
 
+⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
+⇓Pred π = evalPred π idEnv
+
 ⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
 ⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
@@ -193,15 +196,3 @@ eval ⦅ ρ ⦆ η = right (evalRow ρ η)
 -- Reabstraction of a NormalType to the semantic domain
 ↓ : NormalType Δ κ → SemType Δ κ 
 ↓ τ = eval (⇑ τ) idEnv
-
-----------------------------------------
--- Testing reification / evaluation of simple rows 
-
--- example : SimpleRow NormalType Δ R[ ★ ] 
--- example = reifyRow (evalRow ((Π · ⦅ [] ⦆) ∷ (Σ  · ⦅ [] ⦆) ∷ []) idEnv)
--- _ : _
--- _ = {! example  !}
-
-
- 
- 

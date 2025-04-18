@@ -213,9 +213,7 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
 
--- ⇑ ε   = ε
 ⇑ (ne x) = ⇑NE x
--- ⇑ (l ▹ τ) = (⇑ l) ▹ (⇑ τ)
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
 ⇑ (`∀ τ) = `∀ (⇑ τ)

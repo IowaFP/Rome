@@ -221,11 +221,11 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
   -- Rω labels
 
   -- label constants
-  ♯l : 
+  # : 
 
-   
+        ∀ (ℓ : NormalType Δ L) → 
         -------------------
-        NormalTerm Γ ⌊ (ΠL εNF) ⌋
+        NormalTerm Γ ⌊ ℓ ⌋
 
   -------------
   -- Rω records
@@ -305,21 +305,24 @@ conv-≡t eq = conv (completeness eq)
 -- Admissable constants
 
 
+ll : NormalType Δ L 
+ll = ΠL εNF
+
 -- Unit term
 uu : NormalTerm Γ UnitNF
-uu = prj (♯l Π▹ ♯l) (n-≲ λ { x () })
+uu = prj (# ll Π▹ (# ll)) (n-≲ λ { x () }) -- (♯l Π▹ ♯l) (n-≲ λ { x () })
 
-shit : NormalTerm Γ UnitNF 
-shit = (♯l Π▹ uu) Π/ ♯l
+-- shit : NormalTerm Γ UnitNF 
+-- shit = (♯l Π▹ uu) Π/ ♯l
 
-shit₂ : NormalTerm Γ ((Π ⦅ [ UnitNF ] ⦆) `→ UnitNF) 
-shit₂ = `λ ((` Z) Π/ ♯l)
+-- shit₂ : NormalTerm Γ ((Π ⦅ [ UnitNF ] ⦆) `→ UnitNF) 
+-- shit₂ = `λ ((` Z) Π/ ♯l)
 
-withLabelVar : NormalTerm Γ 
-  (`∀ {κ = L} 
-    (`∀ {κ = ★} 
-      (`∀ {κ = R[ ★ ]} ((⦅ [ (ne (` (S Z))) ] ⦆ ≲ ne (` Z)) ⇒ (⌊ (ne (` (S (S Z)))) ⌋ `→ (Π (ne (` Z))) `→ (ne (` (S Z)))))))) 
-withLabelVar = Λ (Λ (Λ (`ƛ (`λ (`λ ((prj (` Z) (n-var (T (T Z)))) Π/ ♯l)))))) 
+-- withLabelVar : NormalTerm Γ 
+--   (`∀ {κ = L} 
+--     (`∀ {κ = ★} 
+--       (`∀ {κ = R[ ★ ]} ((⦅ [ (ne (` (S Z))) ] ⦆ ≲ ne (` Z)) ⇒ (⌊ (ne (` (S (S Z)))) ⌋ `→ (Π (ne (` Z))) `→ (ne (` (S Z)))))))) 
+-- withLabelVar = Λ (Λ (Λ (`ƛ (`λ (`λ ((prj (` Z) (n-var (T (T Z)))) Π/ ♯l)))))) 
 
 -- hmm : NormalTerm Γ 
 --   (`∀  
