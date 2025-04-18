@@ -289,6 +289,9 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
 convVar : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → τ₁ ≡ τ₂ → NormalVar Γ τ₁ → NormalVar Γ τ₂
 convVar refl v = v
 
+convVar-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → NormalVar Γ (⇓ τ₁) → NormalVar Γ (⇓ τ₂)
+convVar-≡t eq x = convVar (completeness eq) x 
+
 convPVar : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalPVar Γ π₁ → NormalPVar Γ π₂
 convPVar refl v = v
 

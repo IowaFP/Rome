@@ -21,6 +21,8 @@ open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Operational.Types.Semantic.Syntax
+open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Syntax
@@ -39,15 +41,30 @@ open import Rome.Operational.Containment
 --------------------------------------------------------------------------------
 -- 
 
+⇓Var : ∀ {Γ} {τ : Type Δ ★} → Var Γ τ → NormalVar (⇓Ctx Γ) (⇓ τ)
+⇓Var Z = Z
+⇓Var (S x) = S (⇓Var x)
+⇓Var (K {τ = τ} x) = 
+  convVar 
+    (trans 
+      (↻-renSem-eval S τ idEnv-≋) 
+      (trans (idext (↻-ren-reflect S ∘ `) τ) (sym (↻-renₖ-eval S τ idEnv-≋)))) 
+    (K (⇓Var x))
+⇓Var (P x) = P (⇓Var x)
+
 ⇓Term : ∀ {Γ : Context Δ} {τ : Type Δ ★} → Term Γ τ → NormalTerm (⇓Ctx Γ) (⇓ τ)
-⇓Term (` x) = {!!}
-⇓Term (`λ M) = {!!}
-⇓Term (M · M₁) = {!!}
-⇓Term (Λ M) = {!!}
-⇓Term (M ·[ τ₁ ]) = {!!}
+⇓Term (` x) = ` (⇓Var x)
+⇓Term (`λ M) = `λ (⇓Term M)
+⇓Term (M · N) = ⇓Term M · ⇓Term N
+⇓Term (Λ {τ = τ} M) = Λ 
+  (conv 
+    (idext 
+      (λ { Z → reflect-≋ refl ; (S x) → sym-≋ (↻-ren-reflect S (` x)) }) τ) 
+    (⇓Term M))
+⇓Term (M ·[ τ ]) = conv {!!} (⇓Term M ·[ ⇓ τ ])
 ⇓Term (In F M) = {!!}
 ⇓Term (Out F M) = {!!}
-⇓Term (`ƛ M) = {!!}
+⇓Term (`ƛ M) = `ƛ (⇓Term M)
 ⇓Term (M ·⟨ x ⟩) = {!!}
 ⇓Term (# ℓ) = # (⇓ ℓ)
 ⇓Term (l Π▹ M) = (⇓Term l) Π▹ ⇓Term M

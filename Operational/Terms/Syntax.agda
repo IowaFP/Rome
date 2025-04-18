@@ -294,6 +294,3 @@ convPVar' refl v = v
 
 convEnt' : ∀ {Γ} {π₁ π₂ : Pred Type Δ R[ κ ]} → π₁ ≡ π₂ → Ent Γ π₁ → Ent Γ π₂
 convEnt' refl e = e
-
--- conv-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → NormalTerm Γ (⇓ τ₁) → NormalTerm Γ (⇓ τ₂)
--- conv-≡t eq = conv (completeness eq)
