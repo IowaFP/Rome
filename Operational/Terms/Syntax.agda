@@ -127,11 +127,8 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
                {F : Type Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
-             {x y : Type Δ R[ κ₂ ]} → 
-             x ≡ (F <$> ρ₁) → 
-             y ≡ F <$> ρ₂ → 
              ---------------------------------
-             Ent Γ (x ≲ y)
+             Ent Γ (F <$> ρ₁ ≲ F <$> ρ₂)
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
@@ -139,12 +136,12 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
                {F : Type Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
-             {x y z : Type Δ R[ κ₂ ]} → 
-             x ≡ (F <$> ρ₁) → 
-             y ≡ F <$> ρ₂ → 
-             z ≡ F <$> ρ₃ → 
              ---------------------------------
-             Ent Γ (x · y ~ z)
+             Ent Γ ((F <$> ρ₁) · (F <$> ρ₂) ~ (F <$> ρ₃))
+
+  convert : π₁ ≡p π₂ → Ent Γ π₁ → 
+            -----------------------
+            Ent Γ π₂
 
 --------------------------------------------------------------------------------
 -- Terms with normal types
@@ -279,5 +276,24 @@ data Term {Δ} Γ : Type Δ ★ → Set where
        ---------------------------------------------------------------------
        Term Γ ((Σ · ρ₃) `→ τ)
 
-  conv : τ₁ ≡t τ₂ → Term Γ τ₁ → 
-         Term Γ τ₂
+  convert : τ₁ ≡t τ₂ → Term Γ τ₁ → 
+            ------------------------
+            Term Γ τ₂
+
+--------------------------------------------------------------------------------
+-- Conversion lemmas
+
+convVar' : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡ τ₂ → Var Γ τ₁ → Var Γ τ₂
+convVar' refl v = v
+
+conv' : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡ τ₂ → Term Γ τ₁ → Term Γ τ₂
+conv' refl v = v
+
+convPVar' : ∀ {Γ} {π₁ π₂ : Pred Type Δ R[ κ ]} → π₁ ≡ π₂ → PVar Γ π₁ → PVar Γ π₂
+convPVar' refl v = v
+
+convEnt' : ∀ {Γ} {π₁ π₂ : Pred Type Δ R[ κ ]} → π₁ ≡ π₂ → Ent Γ π₁ → Ent Γ π₂
+convEnt' refl e = e
+
+-- conv-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → NormalTerm Γ (⇓ τ₁) → NormalTerm Γ (⇓ τ₂)
+-- conv-≡t eq = conv (completeness eq)
