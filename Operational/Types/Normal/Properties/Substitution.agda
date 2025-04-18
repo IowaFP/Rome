@@ -334,6 +334,22 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 ↻-sub-⇑ σ τ = embed-≡t (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
 
 --------------------------------------------------------------------------------
+-- Embedding commutes with β-reduction
+
+↻-β-⇑ : ∀ (τ₁ : NormalType (Δ ,, κ₁) κ₂) (τ₂ : NormalType Δ κ₁) → 
+        ⇑ (τ₁ βₖNF[ τ₂ ]) ≡t (⇑ τ₁) βₖ[ ⇑ τ₂ ]
+↻-β-⇑ τ₁ τ₂ = 
+  embed-≡t {τ₁ = τ₁ βₖNF[ τ₂ ]} {⇑ τ₁ βₖ[ ⇑ τ₂ ]} 
+  (reify-≋ 
+  (fundC {τ₁ = subₖ (λ x → ⇑ (extendₖNF idSubst τ₂ x)) (⇑ τ₁)}
+         {⇑ τ₁ βₖ[ ⇑ τ₂ ]} 
+         idEnv-≋ 
+         (subₖ-cong-≡t 
+           (λ { Z → eq-refl ; (S x) → η-norm-≡t (` x) }) 
+           (⇑ τ₁))))
+
+
+--------------------------------------------------------------------------------
 -- Our syntactic helpers respect evaluation
 
 stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)

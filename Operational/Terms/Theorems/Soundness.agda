@@ -87,7 +87,7 @@ open import Rome.Operational.Containment
 ⇑Term (`λ M) = `λ (⇑Term M)
 ⇑Term (M · N) = ⇑Term M · ⇑Term N
 ⇑Term (Λ M) = Λ (⇑Term M) 
-⇑Term (_·[_] {τ₂ = τ₂} M τ) = (convert {!↻-sub-⇑   !} ((⇑Term M) ·[ (⇑ τ) ]))
+⇑Term (_·[_] {τ₂ = τ₂} M τ) = (convert (eq-sym (↻-β-⇑ τ₂ τ)) ((⇑Term M) ·[ (⇑ τ) ]))
 ⇑Term (In F M) = In (⇑ F) (convert (embed-≡t (stability-·' F (μ F))) (⇑Term M))
 ⇑Term (Out F M) = convert (eq-sym (embed-≡t (stability-·' F (μ F)))) (Out (⇑ F) (⇑Term M))
 ⇑Term (`ƛ M) = `ƛ (⇑Term M)
