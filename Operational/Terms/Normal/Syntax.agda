@@ -273,7 +273,7 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
    
        (M : NormalTerm Γ (Σ ρ₁)) → NormalEnt Γ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
-       NormalTerm Γ (Σ ρ₁)
+       NormalTerm Γ (Σ ρ₂)
        
   _▿_ : 
 

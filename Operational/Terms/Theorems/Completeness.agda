@@ -39,6 +39,13 @@ open import Rome.Operational.Containment
 ⇓Ctx (Γ ,,, π) = ⇓Ctx Γ ,,, ⇓Pred π
 
 --------------------------------------------------------------------------------
+-- Lemmas
+
+↻-·-⇓ : ∀ (F : Type Δ (κ₁ `→ κ₂)) (τ : Type Δ κ₁) → 
+          ⇓ (F · τ) ≡ ⇓ F ·' ⇓ τ 
+↻-·-⇓ F τ = {!!}
+
+--------------------------------------------------------------------------------
 -- 
 
 ⇓Var : ∀ {Γ} {τ : Type Δ ★} → Var Γ τ → NormalVar (⇓Ctx Γ) (⇓ τ)
@@ -61,18 +68,18 @@ open import Rome.Operational.Containment
     (idext 
       (λ { Z → reflect-≋ refl ; (S x) → sym-≋ (↻-ren-reflect S (` x)) }) τ) 
     (⇓Term M))
-⇓Term (M ·[ τ ]) = conv {!!} (⇓Term M ·[ ⇓ τ ])
-⇓Term (In F M) = {!!}
-⇓Term (Out F M) = {!!}
+⇓Term (_·[_] {τ₂ = τ'} M τ) = conv {! !} (⇓Term M ·[ ⇓ τ ])
+⇓Term (In F M) = In (⇓ F) (conv (↻-·-⇓ F (μ F)) (⇓Term M))
+⇓Term (Out F M) = conv (sym (↻-·-⇓ F (μ F))) (Out (⇓ F) (⇓Term M))
 ⇓Term (`ƛ M) = `ƛ (⇓Term M)
-⇓Term (M ·⟨ x ⟩) = {!!}
+⇓Term (M ·⟨ x ⟩) = (⇓Term M) ·⟨ {!!} ⟩
 ⇓Term (# ℓ) = # (⇓ ℓ)
 ⇓Term (l Π▹ M) = (⇓Term l) Π▹ ⇓Term M
-⇓Term (M Π/ M₁) = ⇓Term M Π/ ⇓Term M₁
-⇓Term (prj M x) = {!!}
-⇓Term ((M ⊹ M₁) x) = {!!}
-⇓Term (M Σ▹ M₁) = ⇓Term M Σ▹ ⇓Term M₁
-⇓Term (M Σ/ M₁) = ⇓Term M Σ/ ⇓Term M₁
-⇓Term (inj M x) = ⇓Term M
-⇓Term ((M ▿ M₁) x) = {!!}
+⇓Term (M Π/ l) = ⇓Term M Π/ ⇓Term l
+⇓Term (prj M x) = prj (⇓Term M) {!!}
+⇓Term ((M ⊹ N) x) = {!!}
+⇓Term (M Σ▹ N) = ⇓Term M Σ▹ ⇓Term N
+⇓Term (M Σ/ N) = ⇓Term M Σ/ ⇓Term N
+⇓Term (inj M e) = inj (⇓Term M) {!!}
+⇓Term ((M ▿ N) e) = {!!}
 ⇓Term (convert eq M) = conv (completeness eq) (⇓Term M)
