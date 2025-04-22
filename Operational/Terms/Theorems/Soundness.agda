@@ -67,8 +67,7 @@ open import Rome.Operational.Containment
 ⇑Ent n-ε-R = n-ε-R
 ⇑Ent n-ε-L = n-ε-L
 ⇑Ent (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F = F} e refl refl) = 
-  convEnt' 
-    (cong₂ _≲_ 
+      (cong₂ _≲_ 
       (cong ⇑ (sym (stability-<$> F ρ₁))) 
       (cong ⇑ (sym (stability-<$> F ρ₂)))) 
   (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-≲lift (⇑Ent e)))

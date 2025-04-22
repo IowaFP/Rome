@@ -83,6 +83,7 @@ absurd-right-elim (left x) = x
 
 IsMap : ∀ (f* : List A → List B) → (f : A → B) → Set 
 IsMap {A} f* f = ∀ (xs : List A) → f* xs ≡ map f xs 
+
 -- --------------------------------------------------------------------------------
 -- Containment is preserved by f* if f* is a map
 

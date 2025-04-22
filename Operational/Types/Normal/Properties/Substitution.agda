@@ -350,18 +350,42 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 
 
 --------------------------------------------------------------------------------
--- Our syntactic helpers respect evaluation
+-- Normalization commutes with β-reduction
+
+↻-β-⇓ : ∀ (τ₁ : Type (Δ ,, κ) ★) (τ₂ : Type Δ κ) → 
+        ⇓ (τ₁ βₖ[ τ₂ ]) ≡ (⇓ τ₁) βₖNF[ ⇓ τ₂ ]
+↻-β-⇓ τ₁ τ₂ = 
+  reify-≋ 
+  (fundC 
+    {τ₁ = subₖ (extendₖ ` τ₂) τ₁}
+    {τ₂ = subₖ (λ x → ⇑ (extendₖNF idSubst (⇓ τ₂) x)) (⇑ (eval τ₁ idEnv))}
+    idEnv-≋ 
+      (eq-trans 
+        (subₖ-cong-≡t (λ { Z → soundness τ₂ ; (S x) → eq-sym (η-norm-≡t (` x)) }) τ₁) 
+        (subₖ-≡t (soundness τ₁))))
+
+--------------------------------------------------------------------------------
+-- _·'_ commutes with embedding
+
+↻-·'-⇑ : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
+↻-·'-⇑ (`λ f) N = 
+  eq-trans 
+    (eq-trans 
+      (↻-sub-⇑ (extendₖNF idSubst N) f) 
+      (subₖ-cong-≡t (λ { Z → eq-refl
+                       ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) 
+    (eq-sym eq-β)
+
+--------------------------------------------------------------------------------
+-- _·'_ and _<$>'_ are stable (Denormalization followed by renormalization yields themselves)
 
 stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
 stability-·' f N = trans 
     (sym (stability (f ·' N))) 
-    (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (lem f N))
-  where
-    lem : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → ⇑ (f ·' N) ≡t ⇑ f · ⇑ N
-    lem (`λ f) N = eq-trans (eq-trans (↻-sub-⇑ (extendₖNF idSubst N) f) (subₖ-cong-≡t (λ { Z → eq-refl
-                                                                                         ; (S x) → η-norm-≡t  (` x) }) (⇑ f))) (eq-sym eq-β)
+    (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
+
 stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
-           f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+                  f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
                 map (_·'_ f) xs ≡ reifyRow
                                     (evalRow (⇑Row xs) idEnv .fst ,
