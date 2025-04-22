@@ -80,9 +80,9 @@ open import Rome.Operational.Containment
       (trans (idext-pred (↻-ren-reflect S ∘ `) π) (sym (↻-renₖ-eval-pred S π idEnv-≋)))) 
     (K (⇓PVar x))
 
-
 ⇓Term : ∀ {Γ : Context Δ} {τ : Type Δ ★} → Term Γ τ → NormalTerm (⇓Ctx Γ) (⇓ τ)
 ⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → NormalEnt (⇓Ctx Γ) (⇓Pred π)
+
 ⇓Ent (n-var x) = n-var (⇓PVar x)
 ⇓Ent (n-≲ i) = n-≲ (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i)
 ⇓Ent (n-· i₁ i₂ i₃) = n-· 
@@ -101,7 +101,13 @@ open import Rome.Operational.Containment
     (⇓Ent n) 
     (↻-<$>-⇓ F ρ₁) 
     (↻-<$>-⇓ F ρ₂)
-⇓Ent (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} n) = n-·lift {F = ⇓ F} (⇓Ent n) (↻-<$>-⇓ F ρ₁) (↻-<$>-⇓ F ρ₂) (↻-<$>-⇓ F ρ₃)
+⇓Ent (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} n) = 
+  n-·lift 
+    {F = ⇓ F} 
+    (⇓Ent n) 
+    (↻-<$>-⇓ F ρ₁) 
+    (↻-<$>-⇓ F ρ₂) 
+    (↻-<$>-⇓ F ρ₃)
 ⇓Ent {π = π₂} (convert {π₁ = π₁} eq n) = convEnt (fundC-pred idEnv-≋ eq) (⇓Ent n)
 
 ⇓Term (` x) = ` (⇓Var x)
@@ -128,10 +134,10 @@ open import Rome.Operational.Containment
 ⇓Term (# ℓ) = # (⇓ ℓ)
 ⇓Term (l Π▹ M) = (⇓Term l) Π▹ ⇓Term M
 ⇓Term (M Π/ l) = ⇓Term M Π/ ⇓Term l
-⇓Term (prj M x) = prj (⇓Term M) {!!}
-⇓Term ((M ⊹ N) x) = {!!}
+⇓Term (prj M n) = prj (⇓Term M) (⇓Ent n)
+⇓Term ((M ⊹ N) n) = (⇓Term M ⊹ ⇓Term N) (⇓Ent n)
 ⇓Term (M Σ▹ N) = ⇓Term M Σ▹ ⇓Term N
 ⇓Term (M Σ/ N) = ⇓Term M Σ/ ⇓Term N
-⇓Term (inj M e) = inj (⇓Term M) {!!}
-⇓Term ((M ▿ N) e) = {!!}
+⇓Term (inj M n) = inj (⇓Term M) (⇓Ent n)
+⇓Term ((M ▿ N) n) = (⇓Term M ▿ ⇓Term N) (⇓Ent n)
 ⇓Term (convert eq M) = conv (completeness eq) (⇓Term M)
