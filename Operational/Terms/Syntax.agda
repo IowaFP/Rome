@@ -144,8 +144,13 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
             Ent Γ π₂
 
 --------------------------------------------------------------------------------
--- Terms with normal types
+-- Terms indexed by Type
 
+SynT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★
+SynT ρ φ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
+
+AnaT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★ → Type Δ ★
+AnaT ρ φ τ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
 
 data Term {Δ} Γ : Type Δ ★ → Set where
   ` : Var Γ τ → 
@@ -195,6 +200,10 @@ data Term {Δ} Γ : Type Δ ★ → Set where
            Term Γ (μ F) → 
            --------------
            Term Γ (F · (μ F))
+
+  fix : Term Γ (τ `→ τ) → 
+        ------------------
+        Term Γ τ 
 
   ------------------
   -- Qualified types
@@ -249,6 +258,18 @@ data Term {Δ} Γ : Type Δ ★ → Set where
        ---------------------------------------------------------------------
        Term Γ (Π · ρ₃)
 
+  syn : 
+    
+        (ρ : Type Δ R[ κ ]) → (φ : Type Δ (κ `→ ★)) → (M : Term Γ (SynT ρ φ)) → 
+        ------------------------------------------------------------------
+        Term Γ (Π · (φ <$> ρ))
+
+  ana : 
+    
+        (ρ : Type Δ R[ κ ]) (φ : Type Δ (κ `→ ★)) (τ : Type Δ ★) → (M : Term Γ (AnaT ρ φ τ)) → 
+        ------------------------------------------------------------------
+        Term Γ ((Σ · (φ <$> ρ)) `→ τ)
+
   --------------
   -- Rω variants
 
@@ -276,6 +297,8 @@ data Term {Δ} Γ : Type Δ ★ → Set where
        ---------------------------------------------------------------------
        Term Γ ((Σ · ρ₃) `→ τ)
 
+  ----------------------------------------
+  -- Conversion
   convert : τ₁ ≡t τ₂ → Term Γ τ₁ → 
             ------------------------
             Term Γ τ₂

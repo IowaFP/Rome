@@ -19,6 +19,8 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
+open import Rome.Operational.Terms.Syntax using (AnaT ; SynT)
+
 open import Rome.Operational.Containment
 
 --------------------------------------------------------------------------------
@@ -201,6 +203,10 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
            --------------
            NormalTerm Γ (F ·' (μ F))
 
+  fix : NormalTerm Γ (τ `→ τ) → 
+        ------------------
+        NormalTerm Γ τ 
+
   ------------------
   -- Qualified types
 
@@ -253,6 +259,18 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
        (M₁ : NormalTerm Γ (Π ρ₁)) → (M₂ : NormalTerm Γ (Π ρ₂)) → NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
        NormalTerm Γ (Π ρ₃)
+
+  syn : 
+    
+        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
+        ------------------------------------------------------------------
+        NormalTerm Γ (⇓ (Π · (⇑ φ <$> ⇑ ρ)))
+
+  ana : 
+    
+        (ρ : NormalType Δ R[ κ ]) (φ : NormalType Δ (κ `→ ★)) (τ : NormalType Δ ★) → (M : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) → 
+        ------------------------------------------------------------------
+        NormalTerm Γ ((⇓ (Σ · (⇑ φ <$> ⇑ ρ))) `→ τ)
 
   --------------
   -- Rω variants

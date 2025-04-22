@@ -20,12 +20,17 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
+open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Properties.Equivalence
+
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Syntax
+
+open import Rome.Operational.Terms.Theorems.Soundness
 
 open import Rome.Operational.Containment
 
@@ -141,3 +146,19 @@ open import Rome.Operational.Containment
 ⇓Term (inj M n) = inj (⇓Term M) (⇓Ent n)
 ⇓Term ((M ▿ N) n) = (⇓Term M ▿ ⇓Term N) (⇓Ent n)
 ⇓Term (convert eq M) = conv (completeness eq) (⇓Term M)
+⇓Term (fix M) = fix (⇓Term M)
+⇓Term (syn ρ φ M) = 
+  conv 
+    (completeness {τ₁ = Π · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))} {τ₂ = Π · (φ <$> ρ)}
+       (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ))))) 
+  (syn (⇓ ρ) (⇓ φ) (conv 
+    (completeness     
+    {τ₁ = SynT ρ φ} 
+    {τ₂ = SynT (⇑ (⇓ ρ)) (⇑ (⇓ φ))} 
+    (eq-∀ (eq-∀ (eq-⇒ (eq-refl eq-≲ renₖ-≡t S (renₖ-≡t S (soundness ρ))) (eq-→ eq-refl (eq-· (renₖ-≡t S (renₖ-≡t S (soundness φ))) eq-refl)))))) 
+  (⇓Term M)))
+⇓Term (ana ρ φ τ M) = {!!}
+
+--------------------------------------------------------------------------------
+-- CompletenessT 
+
