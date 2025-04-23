@@ -6,6 +6,7 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
@@ -13,6 +14,8 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Normal.Substitution
+
+open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
@@ -72,9 +75,19 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
             Value (ℓ Σ▹ M)
 
   V-Unit : ∀ (M : NormalTerm Γ (Π εNF)) → 
-           -----------------------
+
+           -------
            Value M 
 
+  V-fix : ∀ (M : NormalTerm Γ (τ `→ τ)) → 
+
+          -------------
+          Value (fix M)
+
+  V-syn : ∀ (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
+
+          -----------------
+          Value (syn ρ φ M)
 
 --------------------------------------------------------------------------------
 -- Canonicity of records

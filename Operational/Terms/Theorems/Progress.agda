@@ -34,31 +34,27 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 
 progress (`λ M) = Done (V-λ M)
-
-progress (M · N) with progress M | progress N 
-... | Done (V-λ _)         | _  = Steps _ β-λ
-... | Steps M' s           | n = Steps (M' · N) (ξ-·1 s)
-... | Done (V-▿ m n x x₁)  | Steps M' x₂ = {!   !}
-progress (M · N) | Done (V-▿ {e = e} m n VM VN) | Done (V-Σ ℓ o VO) with singleton-sum e 
-... | left refl = Steps (m · (ℓ Σ▹ o)) {!   !}
-... | right eq = {!   !}
-
+progress (M · N) with progress M 
+... | Done x = {!x!}
+... | Steps M' x = {!!}
 progress (Λ M) = Done (V-Λ M)
-
-progress (c ·[ τ₁ ]) = {!   !}
-progress (In F c) = {!   !}
-progress (Out F c) = {!   !}
-progress (`ƛ c) = {!   !}
-progress (c ·⟨ x ⟩) = {!   !}
-progress (# l) = Done V-#
-progress (c Π▹ c₁) = {!   !}
-progress (c Π/ c₁) = {!   !}
-progress (prj c x) = {!   !}
-progress ((c ⊹ c₁) x) = {!   !}
-progress (c Σ▹ c₁) = {!   !}
-progress (c Σ/ c₁) = {!   !}
-progress (inj c x) = {!   !}
-progress ((c ▿ c₁) x) = {!   !} 
+progress (M ·[ N ]) = {!!}
+progress (In F M) = {!!}
+progress (Out F M) = {!!}
+progress (fix M) = {!!}
+progress (`ƛ M) = {!!}
+progress (M ·⟨ x ⟩) = {!!}
+progress (# ℓ) = Done V-#
+progress (M Π▹ N) = {!!}
+progress (M Π/ N) = {!!}
+progress (prj M n) = {!!}
+progress ((M ⊹ M₁) n) = {!!}
+progress (syn ρ φ M) = {!!}
+progress (ana ρ φ τ M) = {!!}
+progress (M Σ▹ N) = {!!}
+progress (M Σ/ N) = {!!}
+progress (inj M n) = {!!}
+progress ((M ▿ N) n) = {!!}
 
 
 --------------------------------------------------------------------------------
