@@ -14,6 +14,7 @@ open import Rome.Operational.Types.Normal.Syntax
 
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Equivalence
+open import Rome.Operational.Types.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -115,7 +116,10 @@ doublelift r τ =
 doublelifts : ∀ {κ₁ κ₂} (σ : Substitutionₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
                subₖ (liftsₖ {κ = κ₁} (liftsₖ {κ = κ₂} σ)) (weakenₖ (weakenₖ τ)) ≡ 
                weakenₖ (weakenₖ (subₖ σ τ))
-doublelifts σ τ = {!!}
+doublelifts σ τ = 
+  trans 
+    (↻-liftsₖ-weaken (liftsₖ σ) (renₖ S τ)) 
+    (cong (renₖ S) (↻-liftsₖ-weaken σ τ))
 
 ↻-sub-syn : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (ρ : Type Δ₁ R[ κ ]) (φ : Type Δ₁ (κ `→ ★)) → 
             SynT (subₖ σ ρ) (subₖ σ φ) ≡ 

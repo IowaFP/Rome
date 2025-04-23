@@ -213,6 +213,17 @@ subRowₖ-comp (τ ∷ ρ) = cong₂ _∷_ (subₖ-comp τ) (subRowₖ-comp ρ)
 
 
 -------------------------------------------------------------------------------
+-- lifting commutes with weakening
+
+↻-liftsₖ-weaken : ∀ {κ'} (σ : Substitutionₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
+                subₖ (liftsₖ {κ = κ'} σ) (renₖ S τ) ≡ renₖ S (subₖ σ τ)
+↻-liftsₖ-weaken {κ' = κ'} σ τ = 
+  trans 
+    (sym (↻-subₖ-renₖ {r = S} {σ = liftsₖ σ} τ)) 
+    (↻-renₖ-subₖ {σ = σ} {r = S} τ)
+
+
+-------------------------------------------------------------------------------
 -- 
 
 renₖ-subₖ-id : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (r : Renamingₖ Δ₂ Δ₃) 
