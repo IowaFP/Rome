@@ -10,6 +10,8 @@ open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Equivalence
 
+open import Rome.Operational.Types.Normal.Syntax
+
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Equivalence
 
@@ -78,6 +80,7 @@ AnaT-cong-≡t eq₁ eq₂ eq₃ =
         (eq-· (renₖ-≡t S (renₖ-≡t S eq₂)) eq-refl) 
         (renₖ-≡t S (renₖ-≡t S eq₃))))))
 
+
 --------------------------------------------------------------------------------
 -- Renaming commutes over syn and ana
 
@@ -105,3 +108,34 @@ doublelift r τ =
   (cong₂ _`→_ refl (cong₂ _`→_ 
     (cong₂ _·_ (doublelift r φ) refl) 
     (doublelift r τ)))))
+
+--------------------------------------------------------------------------------
+-- Substitution commutes over syn and ana
+
+doublelifts : ∀ {κ₁ κ₂} (σ : Substitutionₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
+               subₖ (liftsₖ {κ = κ₁} (liftsₖ {κ = κ₂} σ)) (weakenₖ (weakenₖ τ)) ≡ 
+               weakenₖ (weakenₖ (subₖ σ τ))
+doublelifts σ τ = {!!}
+
+↻-sub-syn : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (ρ : Type Δ₁ R[ κ ]) (φ : Type Δ₁ (κ `→ ★)) → 
+            SynT (subₖ σ ρ) (subₖ σ φ) ≡ 
+            subₖ σ (SynT ρ φ)
+↻-sub-syn σ ρ φ = 
+  cong `∀ (cong `∀ (cong₂ _⇒_ (cong₂ _≲_ refl 
+    (sym (doublelifts σ ρ))) 
+  (cong₂ _`→_ refl (cong₂ _·_ 
+    (sym (doublelifts σ φ)) refl))))
+
+↻-sub-ana : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (ρ : Type Δ₁ R[ κ ]) (φ : Type Δ₁ (κ `→ ★)) (τ : Type Δ₁ ★) → 
+            AnaT (subₖ σ ρ) (subₖ σ φ) (subₖ σ τ) ≡ 
+            subₖ σ (AnaT ρ φ τ) 
+↻-sub-ana σ ρ φ τ = 
+  cong `∀ (cong `∀ (cong₂ _⇒_ (cong₂ _≲_ refl 
+    (sym (doublelifts σ ρ))) 
+  (cong₂ _`→_ refl (cong₂ _`→_ 
+    (cong₂ _·_ (sym (doublelifts σ φ)) refl) 
+    (sym (doublelifts σ τ))))))
+
+
+
+

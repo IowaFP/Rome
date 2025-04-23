@@ -7,6 +7,8 @@ open import Rome.Operational.Kinds.GVars
 
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Renaming
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Equivalence 
 
@@ -108,9 +110,30 @@ sub σ s (prj M e) = prj (sub σ s M) (subEnt σ s e)
 sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
 sub σ s ((M ▿ N) e) = (sub σ s M ▿ sub σ s N) (subEnt σ s e)
+sub σ s (fix M) = fix (sub σ s M)
+sub σ s (syn ρ φ M) = 
+  conv (cong Π (↻-sub-⇓-<$> σ φ ρ)) 
+    (syn (subₖNF σ ρ) (subₖNF σ φ) 
+    (conv
+      (trans 
+        (trans 
+          (sym (↻-⇓-sub σ (SynT (⇑ ρ) (⇑ φ))) ) 
+          (cong ⇓ (sym (↻-sub-syn (⇑ ∘ σ) (⇑ ρ) (⇑ φ))))) 
+        (completeness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
+      (sub σ s M)))
+sub σ s (ana ρ φ τ M) = 
+  conv 
+    (cong₂ _`→_ (cong Σ (↻-sub-⇓-<$> σ φ ρ)) refl) 
+    (ana (subₖNF σ ρ) (subₖNF σ φ) (subₖNF σ τ) 
+    (conv 
+      ((trans 
+        (trans 
+          (sym (↻-⇓-sub σ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ) 
+          (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
+        (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
+      (sub σ s M)))
 
--- ⊆-map (subₖ (⇑ ∘ σ)) (⊆-⇑Row i)
--- reify-evalRow-isMap
+
 subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 
   n-≲ 
     (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
