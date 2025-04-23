@@ -61,7 +61,33 @@ open import Rome.Operational.Containment
   (sym (stability-<$> (⇓ F) (⇓ ρ)))
 
 --------------------------------------------------------------------------------
--- 
+-- SynT respects type equivalence
+
+SynT-cong : ∀ {ρ₁ ρ₂ : Type Δ R[ κ ]} {φ₁ φ₂ : Type Δ (κ `→ ★)} → ρ₁ ≡t ρ₂ → φ₁ ≡t φ₂ → 
+            SynT ρ₁ φ₁ ≡t SynT ρ₂ φ₂
+SynT-cong eq₁ eq₂ = 
+  eq-∀ (eq-∀ (eq-⇒ 
+    (eq-refl eq-≲ (renₖ-≡t S (renₖ-≡t S eq₁))) 
+    (eq-→ 
+      eq-refl 
+      (eq-· 
+        (renₖ-≡t S (renₖ-≡t S eq₂)) 
+        eq-refl))))
+
+AnaT-cong : ∀ {ρ₁ ρ₂ : Type Δ R[ κ ]} {φ₁ φ₂ : Type Δ (κ `→ ★)} {τ₁ τ₂ : Type Δ ★} → 
+              ρ₁ ≡t ρ₂ → φ₁ ≡t φ₂ → τ₁ ≡t τ₂ → 
+              AnaT ρ₁ φ₁ τ₁ ≡t AnaT ρ₂ φ₂ τ₂
+AnaT-cong eq₁ eq₂ eq₃ = 
+  eq-∀ (eq-∀ (eq-⇒ 
+    (eq-refl eq-≲ (renₖ-≡t S (renₖ-≡t S eq₁))) 
+    (eq-→ 
+      eq-refl 
+      (eq-→ 
+        (eq-· (renₖ-≡t S (renₖ-≡t S eq₂)) eq-refl) 
+        (renₖ-≡t S (renₖ-≡t S eq₃))))))
+
+--------------------------------------------------------------------------------
+-- Variables
 
 ⇓Var : ∀ {Γ} {τ : Type Δ ★} → Var Γ τ → NormalVar (⇓Ctx Γ) (⇓ τ)
 ⇓Var Z = Z
@@ -84,6 +110,9 @@ open import Rome.Operational.Containment
       (↻-renSem-eval-pred S π idEnv-≋) 
       (trans (idext-pred (↻-ren-reflect S ∘ `) π) (sym (↻-renₖ-eval-pred S π idEnv-≋)))) 
     (K (⇓PVar x))
+
+--------------------------------------------------------------------------------
+-- Completeness of terms and entailments
 
 ⇓Term : ∀ {Γ : Context Δ} {τ : Type Δ ★} → Term Γ τ → NormalTerm (⇓Ctx Γ) (⇓ τ)
 ⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → NormalEnt (⇓Ctx Γ) (⇓Pred π)
@@ -153,11 +182,14 @@ open import Rome.Operational.Containment
        (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ))))) 
   (syn (⇓ ρ) (⇓ φ) (conv 
     (completeness     
-    {τ₁ = SynT ρ φ} 
-    {τ₂ = SynT (⇑ (⇓ ρ)) (⇑ (⇓ φ))} 
-    (eq-∀ (eq-∀ (eq-⇒ (eq-refl eq-≲ renₖ-≡t S (renₖ-≡t S (soundness ρ))) (eq-→ eq-refl (eq-· (renₖ-≡t S (renₖ-≡t S (soundness φ))) eq-refl)))))) 
+      (SynT-cong (soundness ρ) (soundness φ))) 
   (⇓Term M)))
-⇓Term (ana ρ φ τ M) = {!!}
+⇓Term (ana ρ φ τ M) = 
+  conv 
+    (completeness {τ₁ = (Σ · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))) `→ τ} {τ₂ = (Σ · (φ <$> ρ)) `→ τ} 
+    (eq-→ (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ)))) eq-refl)) 
+  (ana (⇓ ρ) (⇓ φ) (⇓ τ) (conv 
+    (completeness (AnaT-cong (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
 
 --------------------------------------------------------------------------------
 -- CompletenessT 
