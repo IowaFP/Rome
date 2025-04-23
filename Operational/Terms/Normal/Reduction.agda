@@ -89,6 +89,11 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
           -----------------
           Value (syn ρ φ M)
 
+  V-ana : ∀ (ρ : NormalType Δ R[ κ ]) (φ : NormalType Δ (κ `→ ★)) (τ : NormalType Δ ★) (M : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) → 
+
+          -----------------
+          Value (ana ρ φ τ M)
+
 --------------------------------------------------------------------------------
 -- Canonicity of records
 

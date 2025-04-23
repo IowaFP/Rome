@@ -5,6 +5,10 @@ open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 
 open import Rome.Operational.Types.Syntax
+
+open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Operational.Types.Semantic.Syntax
+
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
 
@@ -35,7 +39,10 @@ progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 
 progress (`λ M) = Done (V-λ M)
 progress (M · N) with progress M 
-... | Done x = {!x!}
+... | Done (V-λ M₁) = {!!}
+... | Done (V-▿ M₁ N₁ x x₁) = {!!}
+... | Done (V-fix M₁) = {!!}
+... | Done (V-ana ρ φ _ M₁) = {!!}
 ... | Steps M' x = {!!}
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ N ]) = {!!}
