@@ -192,5 +192,13 @@ AnaT-cong eq₁ eq₂ eq₃ =
     (completeness (AnaT-cong (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
 
 --------------------------------------------------------------------------------
--- CompletenessT 
+-- Repeated conversion of normalTerms to-then-from Terms can have indices stabilized
 
+stability-Ctx : ∀ (Γ : NormalContext Δ) → Γ ≡ ⇓Ctx (⇑Ctx Γ)
+stability-Ctx ∅ = refl
+stability-Ctx (Γ , x) = cong₂ _,_ (stability-Ctx Γ) (sym (stability x))
+stability-Ctx (Γ ,, κ) rewrite sym (stability-Ctx Γ) = refl
+stability-Ctx (Γ ,,, x) rewrite sym (stability-Ctx Γ) | (stabilityPred x) = refl
+
+stabilize : ∀ {Γ} {τ : NormalType Δ ★} (M : NormalTerm (⇓Ctx (⇑Ctx Γ)) (⇓ (⇑ τ))) → NormalTerm Γ τ 
+stabilize {Γ = Γ} {τ} M rewrite sym (stability-Ctx Γ) | stability τ = M 
