@@ -95,10 +95,6 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
           Value (ana ρ φ τ M)
 
 --------------------------------------------------------------------------------
--- Canonicity of records
-
-
---------------------------------------------------------------------------------
 -- Small step semantics.
 
 infixr 0 _—→_
@@ -259,6 +255,11 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -----------------------
              inj M e —→ M
 
+
+  β-fix : ∀ (M : NormalTerm Γ (τ `→ τ)) → 
+
+          -------------
+          fix M —→ (M · fix M)
 
 --   β-Πε-right : ∀ 
 --         (M : NormalTerm Γ (Π ρ)) (E : NormalTerm Γ (Π ε)) 

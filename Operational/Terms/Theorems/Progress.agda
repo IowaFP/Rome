@@ -21,6 +21,8 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
+open import Effect.Monad.Identity
+
 --------------------------------------------------------------------------------
 -- Proof of progress
 
@@ -35,13 +37,15 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
           --------------------------------------
           Progress M
 
+
+
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 
 progress (`λ M) = Done (V-λ M)
 progress (M · N) with progress M 
 ... | Done (V-λ M₁) = {!!}
 ... | Done (V-▿ M₁ N₁ x x₁) = {!!}
-... | Done (V-fix M₁) = {!!}
+... | Done (V-fix M') = {!!}
 ... | Done (V-ana ρ φ _ M₁) = {!!}
 ... | Steps M' x = {!!}
 progress (Λ M) = Done (V-Λ M)
