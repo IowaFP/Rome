@@ -7,6 +7,8 @@ open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
 
+open import Rome.Operational.Types.SynAna
+
 open import Rome.Operational.Types.Equivalence
 
 open import Rome.Operational.Types.Normal.Syntax
@@ -19,7 +21,6 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
-open import Rome.Operational.Terms.Syntax using (AnaT ; SynT)
 
 open import Rome.Operational.Containment
 

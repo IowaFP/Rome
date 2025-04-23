@@ -8,6 +8,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
 
@@ -22,12 +23,16 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Properties.Equivalence
 
 open import Rome.Operational.Types.Renaming
+
+open import Rome.Operational.Terms.Syntax
 
 open import Rome.Operational.Terms.Normal.Syntax
 
 open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Containment
@@ -87,13 +92,6 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
 
-
--- foo : ∀ 
---         (F : NormalType Δ₁ (κ₁ `→ κ₂))
---         (ρ : NormalType Δ₁ R[ κ₁ ]) → 
---         ⇓ (⇑ F <$> ⇑ ρ) ≡  ⇑ (⇓ (⇑ F)) <$>V ⇑ (⇓ (⇑ ρ))
--- foo F ρ = {!   !} 
-
 ↻-ren-⇓-<$> : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ₁ : NormalType Δ₁ R[ κ₁ ]) → 
@@ -125,7 +123,10 @@ ren (r , p) (` x) = ` (r x)
 ren R (`λ M) = `λ (ren (lift R) M)
 ren R (M · N) = (ren R M) · (ren R N)
 ren R (Λ M) = Λ (ren (liftKVar R) M)
-ren {ρ = ρ} R (_·[_] {τ₂ = τ₂} M τ) = conv (sym (↻-renₖNF-β ρ τ₂ τ)) ((ren R M) ·[ renₖNF ρ τ ])
+ren {ρ = ρ} R (_·[_] {τ₂ = τ₂} M τ) = 
+  conv 
+    (sym (↻-renₖNF-β ρ τ₂ τ)) 
+    ((ren R M) ·[ renₖNF ρ τ ])
 ren {ρ = ρ} R (In F@(`λ τ) N) = 
   In 
     (renType R F) 
@@ -149,8 +150,19 @@ ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)
 ren {ρ = ρ} R ((M ⊹ N) e) = ((ren R M) ⊹ (ren R N)) (renEnt R e)
 ren {ρ = ρ} R ((M ▿ N) e) = ((ren R M) ▿ (ren R N)) (renEnt R e)
 ren {ρ = ρ} R (fix M) = fix (ren R M)
-ren {ρ = r} R (syn ρ φ M) = syn {!renType R ρ!} {!!} {!ren R M!}
-ren {ρ = r} R (ana ρ φ τ M) = {!!}
+ren {ρ = r} R (syn ρ φ M) = 
+  conv (cong Π (↻-ren-⇓-<$> r φ ρ)) 
+    (syn (renₖNF r ρ) (renₖNF r φ) 
+  (conv (cong ⇓ (sym (SynT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ))))
+  (conv-≡t (inst (↻-ren-syn r (⇑ ρ) (⇑ φ)) ) (conv (↻-ren-⇓ r (SynT (⇑ ρ) (⇑ φ))) (ren R M)))))
+ren {ρ = r} R (ana ρ φ τ M) = 
+  conv 
+    (cong₂ _`→_ (cong Σ (↻-ren-⇓-<$> r φ ρ)) refl) 
+  (ana (renₖNF r ρ) (renₖNF r φ) (renₖNF r τ) 
+    (conv 
+      ((cong ⇓ (sym (AnaT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ) (↻-ren-⇑ r τ)))))
+    (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
+    (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) rewrite 

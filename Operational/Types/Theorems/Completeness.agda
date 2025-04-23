@@ -133,8 +133,18 @@ idEnv-≋ x = reflect-≋ refl
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fundC idEnv-≋ eq)  
  
+
+--------------------------------------------------------------------------------
+-- renaming commutes with ⇓ 
+
+↻-ren-⇓ : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → renₖNF r (⇓ τ) ≡ ⇓ (renₖ r τ)
+↻-ren-⇓ r τ = 
+  trans 
+    (↻-ren-reify r {V₁ = eval τ idEnv} {V₂ = eval τ idEnv} (fundC {τ₁ = τ} idEnv-≋ eq-refl)) 
+    (reify-≋ (trans-≋ (↻-renSem-eval r τ idEnv-≋) 
+  (trans-≋ (idext (λ { x → ↻-ren-reflect r (` x) }) τ) (sym-≋ (↻-renₖ-eval r τ idEnv-≋)))))
  
- -------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 -- Helper to substitute under an eval
  
 evalCRSubst : ∀ {η₁ η₂ : Env Δ₁ Δ₂}

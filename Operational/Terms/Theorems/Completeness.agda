@@ -6,6 +6,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Equivalence
@@ -59,32 +60,6 @@ open import Rome.Operational.Containment
   (completeness 
     (eq-<$> (soundness F) (soundness ρ))) 
   (sym (stability-<$> (⇓ F) (⇓ ρ)))
-
---------------------------------------------------------------------------------
--- SynT respects type equivalence
-
-SynT-cong : ∀ {ρ₁ ρ₂ : Type Δ R[ κ ]} {φ₁ φ₂ : Type Δ (κ `→ ★)} → ρ₁ ≡t ρ₂ → φ₁ ≡t φ₂ → 
-            SynT ρ₁ φ₁ ≡t SynT ρ₂ φ₂
-SynT-cong eq₁ eq₂ = 
-  eq-∀ (eq-∀ (eq-⇒ 
-    (eq-refl eq-≲ (renₖ-≡t S (renₖ-≡t S eq₁))) 
-    (eq-→ 
-      eq-refl 
-      (eq-· 
-        (renₖ-≡t S (renₖ-≡t S eq₂)) 
-        eq-refl))))
-
-AnaT-cong : ∀ {ρ₁ ρ₂ : Type Δ R[ κ ]} {φ₁ φ₂ : Type Δ (κ `→ ★)} {τ₁ τ₂ : Type Δ ★} → 
-              ρ₁ ≡t ρ₂ → φ₁ ≡t φ₂ → τ₁ ≡t τ₂ → 
-              AnaT ρ₁ φ₁ τ₁ ≡t AnaT ρ₂ φ₂ τ₂
-AnaT-cong eq₁ eq₂ eq₃ = 
-  eq-∀ (eq-∀ (eq-⇒ 
-    (eq-refl eq-≲ (renₖ-≡t S (renₖ-≡t S eq₁))) 
-    (eq-→ 
-      eq-refl 
-      (eq-→ 
-        (eq-· (renₖ-≡t S (renₖ-≡t S eq₂)) eq-refl) 
-        (renₖ-≡t S (renₖ-≡t S eq₃))))))
 
 --------------------------------------------------------------------------------
 -- Variables
@@ -182,14 +157,14 @@ AnaT-cong eq₁ eq₂ eq₃ =
        (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ))))) 
   (syn (⇓ ρ) (⇓ φ) (conv 
     (completeness     
-      (SynT-cong (soundness ρ) (soundness φ))) 
+      (SynT-cong-≡t (soundness ρ) (soundness φ))) 
   (⇓Term M)))
 ⇓Term (ana ρ φ τ M) = 
   conv 
     (completeness {τ₁ = (Σ · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))) `→ τ} {τ₂ = (Σ · (φ <$> ρ)) `→ τ} 
     (eq-→ (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ)))) eq-refl)) 
   (ana (⇓ ρ) (⇓ φ) (⇓ τ) (conv 
-    (completeness (AnaT-cong (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
+    (completeness (AnaT-cong-≡t (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
 
 --------------------------------------------------------------------------------
 -- Repeated conversion of normalTerms to-then-from Terms can have indices stabilized

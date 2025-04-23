@@ -6,6 +6,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Equivalence

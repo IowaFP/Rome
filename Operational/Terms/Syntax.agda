@@ -6,10 +6,12 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Properties.Equivalence
 
 open import Rome.Operational.Types.Semantic.NBE
 
@@ -145,12 +147,6 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
 
 --------------------------------------------------------------------------------
 -- Terms indexed by Type
-
-SynT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★
-SynT ρ φ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
-
-AnaT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★ → Type Δ ★
-AnaT ρ φ τ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
 
 data Term {Δ} Γ : Type Δ ★ → Set where
   ` : Var Γ τ → 
