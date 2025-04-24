@@ -164,6 +164,9 @@ ren {ρ = r} R (ana ρ φ τ M) =
     (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
     (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
 ren R (comp M n) = comp (ren R M) (renEnt R n)
+ren R ⦅ ⦅⦆ ⦆ = ⦅ ⦅⦆ ⦆
+ren R ⦅ cons M xs ⦆ = ⦅ cons (ren R M) {!!} ⦆
+ren R (⟨ M ⟩ x) = {!!}
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) rewrite 
