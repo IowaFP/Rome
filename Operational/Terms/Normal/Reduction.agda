@@ -79,11 +79,6 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
            -------
            Value M 
 
-  V-fix : ∀ (M : NormalTerm Γ (τ `→ τ)) → 
-
-          -------------
-          Value (fix M)
-
   V-syn : ∀ (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
 
           -----------------

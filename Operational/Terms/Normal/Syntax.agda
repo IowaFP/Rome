@@ -305,6 +305,8 @@ data NormalTerm {Δ} Γ : NormalType Δ ★ → Set where
         (M : NormalTerm Γ ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ)) → NormalEnt Γ (ρ₁ ≲ ρ₃) → 
         NormalTerm Γ τ
 
+
+
 --------------------------------------------------------------------------------
 -- Conversion helpers.
 
