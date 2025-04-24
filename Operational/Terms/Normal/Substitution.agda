@@ -132,6 +132,7 @@ sub σ s (ana ρ φ τ M) =
           (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
+sub σ s (comp M n) = comp (sub σ s M) (subEnt σ s n)
 
 
 subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 

@@ -230,14 +230,13 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
   β-Π/ :  ∀ 
             (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ l ⌋) → 
 
-             Value M →
+
              -----------------------
              ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
 
   β-Σ/ :  ∀ 
             (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ l ⌋) → 
 
-             Value M →
              -----------------------
              ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
 
@@ -259,7 +258,7 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
   β-fix : ∀ (M : NormalTerm Γ (τ `→ τ)) → 
 
           -------------
-          fix M —→ (M · fix M)
+          fix M —→ M · (fix M)
 
 --   β-Πε-right : ∀ 
 --         (M : NormalTerm Γ (Π ρ)) (E : NormalTerm Γ (Π ε)) 

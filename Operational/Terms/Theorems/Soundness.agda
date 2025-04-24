@@ -122,5 +122,5 @@ open import Rome.Operational.Containment
       eq-refl) 
   (ana (⇑ ρ) (⇑ φ) (⇑ τ) 
     (convert (eq-sym (soundness (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) (⇑Term M)))
-
+⇑Term (comp M n) = comp (⇑Term M) (⇑Ent n)
 

@@ -165,6 +165,7 @@ open import Rome.Operational.Containment
     (eq-→ (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ)))) eq-refl)) 
   (ana (⇓ ρ) (⇓ φ) (⇓ τ) (conv 
     (completeness (AnaT-cong-≡t (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
+⇓Term (comp M n) = comp (⇓Term M) (⇓Ent n)
 
 --------------------------------------------------------------------------------
 -- Repeated conversion of normalTerms to-then-from Terms can have indices stabilized

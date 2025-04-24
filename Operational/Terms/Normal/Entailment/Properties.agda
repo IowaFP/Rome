@@ -69,6 +69,39 @@ open import Rome.Operational.Containment
 ·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆} {⦅ x₄ ⦆} {⦅ x₅ ⦆} {F} e refl refl refl) with ·-inv e
 ... | i₁ , i₂ , i₃ =  ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
 
+
+--------------------------------------------------------------------------------
+-- Normalizing entailments to contain just simple rows.
+-- Combined with inversion above, this gives us normal forms for entailments (n-≲ and n-·).
+
+norm₁ : NormalEnt ∅ (ρ₁ ≲ ρ₂) → ∃[ xs ] (∃[ ys ] (
+        ρ₁ ≡ ⦅ xs ⦆ × 
+        ρ₂ ≡ ⦅ ys ⦆))
+norm₂ : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ∃[ xs ] (∃[ ys ] (∃[ zs ] (
+        ρ₁ ≡ ⦅ xs ⦆ × 
+        ρ₂ ≡ ⦅ ys ⦆ × 
+        ρ₃ ≡ ⦅ zs ⦆)))
+
+norm₁ (n-≲ {xs = xs} {ys} i) = xs , (ys , (refl , (refl)))
+norm₁ {ρ₁ = ne x} n-refl = ⊥-elim (noNeutrals x)
+norm₁ {ρ₁ = ⦅ xs ⦆} n-refl = xs , (xs , (refl , (refl)))
+norm₁ {ρ₁ = ρ₁} (n-trans {ρ₂ = ρ₂} {ρ₃ = ρ₃} n₁ n₂) with norm₁ n₁ | norm₁ n₂ 
+... | (xs , ys , refl , refl) | (ys , zs , refl , refl) = xs , zs , refl , refl 
+norm₁ (n-·≲L n) with norm₂ n 
+... | xs , ys , zs , refl , refl , refl  = xs , zs , refl , refl
+norm₁ (n-·≲R n) with norm₂ n 
+... | xs , ys , zs , refl , refl , refl = ys , zs , refl , refl
+norm₁ (n-≲lift {F = F} n eq₁ eq₂) with norm₁ n 
+... | xs , ys , refl , refl = map (F ·'_) xs , (map (F ·'_) ys , (eq₁ , eq₂))
+
+norm₂ (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) = xs , (ys , (zs , (refl , refl , refl)))
+norm₂ {ρ₁ = ne x} n-ε-R = ⊥-elim (noNeutrals x)
+norm₂ {ρ₁ = ⦅ xs ⦆} n-ε-R = xs , [] , xs , refl , refl , refl
+norm₂ {ρ₂ = ne x} n-ε-L = ⊥-elim (noNeutrals x)
+norm₂ {ρ₂ = ⦅ xs ⦆} n-ε-L = [] , xs , xs , refl , refl , refl
+norm₂ (n-·lift {F = F} n eq₁ eq₂ eq₃) with norm₂ n 
+... | xs , ys , zs , refl , refl , refl = map (F ·'_) xs , map (F ·'_) ys , map (F ·'_) zs , eq₁ , eq₂ , eq₃
+
 -- --------------------------------------------------------------------------------
 -- NormalEntailment of inclusion is transitive
 
