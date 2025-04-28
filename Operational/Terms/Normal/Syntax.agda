@@ -156,8 +156,9 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
 
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set
 data Record {Δ} (Γ : NormalContext Δ) : SimpleRow NormalType Δ R[ ★ ] → Set where
-  ∅ : Record Γ []
-  _⨾_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → NormalTerm Γ τ → Record Γ xs → Record Γ (τ ∷ xs)
+  ∅   : Record Γ []
+  _⨾_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → NormalTerm Γ τ → 
+          Record Γ xs → Record Γ (τ ∷ xs)
 
 data NormalTerm {Δ} Γ where
   ` : NormalVar Γ τ → 
@@ -318,11 +319,9 @@ data NormalTerm {Δ} Γ where
           NormalTerm Γ (Π ⦅ xs ⦆)
 
   ⟨_⟩ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → 
-        NormalTerm Γ τ → τ ∈ xs → 
-        ---------------------------
+        NormalTerm Γ τ → [ τ ] ⊆ xs → 
+        -------------------------------------------
         NormalTerm Γ (Σ ⦅ xs ⦆) 
-
-
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.
