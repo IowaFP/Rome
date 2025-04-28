@@ -182,10 +182,11 @@ inj-ne refl = refl
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
     Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] (ρ ≡ ⦅ sr ⦆ ) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
+    ∃[ l ] (∃[ τ ] (ρ ≡ (l ▹ τ)))
 row-canonicity ⦅ x ⦆ = left (x , refl) 
-row-canonicity ⦅ x ⦆ = left (x , refl) 
-row-canonicity (ne x) = right (x , refl)
+row-canonicity (ne x) = right (left (x , refl))
+row-canonicity (l ▹ τ) = right (right (l , (τ , refl)))
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -226,6 +227,7 @@ arrow-canonicity (`λ f) = f , refl
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
+⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
 ⇑ (⦅ ρ ⦆) = ⦅ ⇑Row ρ ⦆
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
