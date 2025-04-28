@@ -19,23 +19,12 @@ SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
 SimpleRow Ty Δ ★        = ⊥
 SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
+SimpleRow Ty Δ R[ κ ]   = List (Ty Δ L × Ty Δ κ)
 
 open import Data.String using (_<_)
 
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
-Ordered [] = ⊤
-Ordered (x ∷ []) = ⊤
-Ordered ((l₁ , _) ∷ (l₂ , _) ∷ xs) = (l₁ < l₂) × (Ordered xs)
-
 ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
-ordered? [] = yes tt
-ordered? (x ∷ []) = yes tt
-ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
-... | yes p | yes q  = yes (p , q)
-... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
-... | no p  | yes q  = no (λ { (x , _) → p x})
-... | no  p | no  q  = no (λ { (x , _) → p x})
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -151,6 +140,27 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
+Ordered [] = ⊤
+Ordered (x ∷ []) = ⊤
+Ordered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+Ordered _ = ⊥
+
+ordered? [] = yes tt
+ordered? (x ∷ []) = yes tt
+ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
+... | yes p | yes q  = yes (p , q)
+... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
+... | no p  | yes q  = no (λ { (x , _) → p x})
+... | no  p | no  q  = no (λ { (x , _) → p x})
+ordered? ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
+
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
 
@@ -171,33 +181,35 @@ data Type Δ where
 Unit : Type Δ ★
 Unit = Π · ε
 
+sing : Type (Δ ,, L) R[ ★ ] 
+sing = ⦅ [ (` Z , Unit) ] ⦆ tt
 -- Example simple row
-sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
+sr : Type (Δ ,, L) R[ ★ ] 
+sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "e" , Unit) ∷ [] ⦆ tt
 
---------------------------------------------------------------------------------
--- Delabeling
+-- --------------------------------------------------------------------------------
+-- -- Delabeling
 
-import Rome.Operational.Types.Syntax as Types
-delabel : Type Δ κ → Types.Type Δ κ 
-delabelPred : Pred Type Δ κ → Types.Pred Types.Type Δ κ 
-delabelRow : SimpleRow Type Δ R[ κ ] → Types.SimpleRow Types.Type Δ R[ κ ]
+-- import Rome.Operational.Types.Syntax as Types
+-- delabel : Type Δ κ → Types.Type Δ κ 
+-- delabelPred : Pred Type Δ κ → Types.Pred Types.Type Δ κ 
+-- delabelRow : SimpleRow Type Δ R[ κ ] → Types.SimpleRow Types.Type Δ R[ κ ]
 
-delabelPred (ρ₁ · ρ₂ ~ ρ₃) = Types._·_~_ (delabel ρ₁)  (delabel ρ₂) (delabel ρ₃)
-delabelPred (ρ₁ ≲ ρ₂) = Types._≲_ (delabel ρ₁) (delabel ρ₂)
+-- delabelPred (ρ₁ · ρ₂ ~ ρ₃) = Types._·_~_ (delabel ρ₁)  (delabel ρ₂) (delabel ρ₃)
+-- delabelPred (ρ₁ ≲ ρ₂) = Types._≲_ (delabel ρ₁) (delabel ρ₂)
 
-delabel (` α) = Types.` α
-delabel (`λ τ) = Types.`λ (delabel τ)
-delabel (τ₁ · τ₂) = delabel τ₁ Types.· delabel τ₂
-delabel (τ₁ `→ τ₂) = delabel τ₁ Types.`→ delabel τ₂
-delabel (`∀ τ) = Types.`∀ (delabel τ)
-delabel (μ τ) = Types.μ (delabel τ)
-delabel (π ⇒ τ) = (delabelPred π) Types.⇒ (delabel τ)
-delabel (⦅ [] ⦆ x) = Types.⦅ [] ⦆
-delabel (⦅ xs ⦆ _) = {!!}
-delabel (lab l) = {!!}
-delabel ⌊ τ ⌋ = {!!}
-delabel (τ ▹ τ₁) = {!!}
-delabel (τ <$> τ₁) = {!!}
-delabel Π = {!!}
-delabel Σ = {!!}
+-- delabel (` α) = Types.` α
+-- delabel (`λ τ) = Types.`λ (delabel τ)
+-- delabel (τ₁ · τ₂) = delabel τ₁ Types.· delabel τ₂
+-- delabel (τ₁ `→ τ₂) = delabel τ₁ Types.`→ delabel τ₂
+-- delabel (`∀ τ) = Types.`∀ (delabel τ)
+-- delabel (μ τ) = Types.μ (delabel τ)
+-- delabel (π ⇒ τ) = (delabelPred π) Types.⇒ (delabel τ)
+-- delabel (⦅ [] ⦆ x) = Types.⦅ [] ⦆
+-- delabel (⦅ xs ⦆ _) = {!!}
+-- delabel (lab l) = {!!}
+-- delabel ⌊ τ ⌋ = {!!}
+-- delabel (τ ▹ τ₁) = {!!}
+-- delabel (τ <$> τ₁) = {!!}
+-- delabel Π = {!!}
+-- delabel Σ = {!!}

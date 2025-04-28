@@ -94,12 +94,12 @@ data NormalType Δ where
         ----------------------
        NormalType Δ R[ κ ]
 
---   _▹_ : 
+  _▹_ : 
       
---       (l : NormalType Δ L) → 
---       (τ : NormalType Δ κ) → 
---       ---------------------------
---       NormalType Δ R[ κ ]
+      (l : NormalType Δ L) → 
+      (τ : NormalType Δ κ) → 
+      ---------------------------
+      NormalType Δ R[ κ ]
 
 --   -- labels
   lab :
@@ -184,6 +184,7 @@ row-canonicity : (ρ : NormalType Δ R[ κ ]) →
     Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] (ρ ≡ ⦅ sr ⦆ ) or 
     Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
 row-canonicity ⦅ x ⦆ = left (x , refl) 
+row-canonicity ⦅ x ⦆ = left (x , refl) 
 row-canonicity (ne x) = right (x , refl)
 
 --------------------------------------------------------------------------------
@@ -227,10 +228,10 @@ arrow-canonicity (`λ f) = f , refl
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆) = ⦅ ⇑Row ρ ⦆
 ⇑Row [] = []
-⇑Row (τ ∷ ρ) = (⇑ τ ∷ ⇑Row ρ)
+⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
 
 ⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-               ⇑Row xs ≡ map ⇑ xs
+               ⇑Row xs ≡ map (over ⇑) xs
 ⇑Row-isMap [] = refl
 ⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
 
@@ -247,8 +248,8 @@ arrow-canonicity (`λ f) = f , refl
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆
 
-_▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
-l ▹' τ = ⦅ [ τ ] ⦆
+_▹'_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
+l ▹' τ = ⦅ [ (l , τ) ] ⦆
 
 --------------------------------------------------------------------------------
 -- Admissable constants
