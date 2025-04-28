@@ -63,13 +63,13 @@ renₖ-≡t {τ = τ} {υ} ρ eq-Σ = eq-Σ
 renₖ-≡t {τ = τ} {υ} ρ (eq-<$> t u) = eq-<$> (renₖ-≡t ρ t) (renₖ-≡t ρ u)
 renₖ-≡t {τ = τ} {υ} r (eq-row x) = eq-row (renₖ-≡r r x)
 renₖ-≡t {τ = τ} {υ} r (eq-map {F = F} {ρ = []}) = eq-map {F = renₖ r F} {ρ = []}
-renₖ-≡t {τ = τ} {υ} r (eq-map {F = F} {ρ = x ∷ ρ}) = 
+renₖ-≡t {τ = τ} {υ} r (eq-map {F = F} {ρ = (l , τ') ∷ ρ}) = 
     eq-trans 
-        (eq-map {F = renₖ r F} {ρ = renₖ r x ∷ renRowₖ r ρ}) 
-        (eq-row (eq-cons eq-refl (instᵣ (↻-ren-map r F ρ))))
+        (eq-map) 
+        (eq-row (eq-cons refl eq-refl (instᵣ (↻-ren-map r F ρ))))
 renₖ-≡t r eq-labTy = eq-labTy
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r eq-[] = eq-[]
-renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons x eq) = eq-cons (renₖ-≡t _ x) (renₖ-≡r r eq )
+renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons l x eq) = eq-cons l (renₖ-≡t _ x) (renₖ-≡r r eq )
 
 renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-≲ eq₂) = renₖ-≡t ρ eq₁ eq-≲ renₖ-≡t ρ eq₂
 renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (renₖ-≡t ρ eq₁) eq-· (renₖ-≡t ρ eq₂) ~ (renₖ-≡t ρ eq₃)
@@ -115,7 +115,7 @@ subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c Σ  = eq-refl
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ⦅ ρ ⦆ = eq-row (subRowₖ-cong-≡t c ρ)
 
 subRowₖ-cong-≡t c [] = eq-[]
-subRowₖ-cong-≡t c (τ ∷ ρ) = eq-cons (subₖ-cong-≡t c τ) (subRowₖ-cong-≡t c ρ)
+subRowₖ-cong-≡t c ((l , τ) ∷ ρ) = eq-cons refl (subₖ-cong-≡t c τ) (subRowₖ-cong-≡t c ρ)
 
 
 --------------------------------------------------------------------------------
@@ -187,14 +187,14 @@ subₖ-≡t {σ} eq-Π-assoc = eq-Π-assoc
 subₖ-≡t {σ} eq-Σ-assoc = eq-Σ-assoc
 subₖ-≡t {σ} (eq-row x) =  eq-row (subₖ-≡r x)
 subₖ-≡t {σ = σ} (eq-map {F = F} {ρ = []}) = eq-map
-subₖ-≡t {σ = σ} (eq-map {F = F} {ρ = x ∷ ρ}) = 
+subₖ-≡t {σ = σ} (eq-map {F = F} {ρ = (l , τ) ∷ ρ}) = 
     eq-trans 
-        (eq-map {F = subₖ σ F} {ρ = subₖ σ x ∷ subRowₖ σ ρ}) 
-        (eq-row (eq-cons eq-refl (instᵣ (↻-sub-map σ F ρ))))
+        (eq-map {F = subₖ σ F} {ρ = (l , subₖ σ τ) ∷ subRowₖ σ ρ}) 
+        (eq-row (eq-cons refl eq-refl (instᵣ (↻-sub-map σ F ρ))))
 subₖ-≡t eq-labTy = eq-labTy
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
-subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons x eq) = eq-cons (subₖ-≡t x) (subₖ-≡r eq )
+subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons l x eq) = eq-cons l (subₖ-≡t x) (subₖ-≡r eq )
 
 
 -- --------------------------------------------------------------------------------
@@ -204,12 +204,12 @@ subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons x eq) = eq-cons (subₖ-≡t x) (su
 
 eq-reflᵣ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → xs ≡r xs 
 eq-reflᵣ [] = eq-[]
-eq-reflᵣ (x ∷ xs) = eq-cons eq-refl (eq-reflᵣ xs) 
+eq-reflᵣ (x ∷ xs) = eq-cons refl eq-refl (eq-reflᵣ xs) 
 
 eq-symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs 
 eq-symᵣ eq-[] = eq-[]
-eq-symᵣ (eq-cons x eq) = eq-cons (eq-sym x) (eq-symᵣ eq) 
+eq-symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (eq-symᵣ eq) 
 
 eq-transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 eq-transᵣ eq-[] eq-[] = eq-[]
-eq-transᵣ (eq-cons eq-hd₁ eq-tl₁) (eq-cons eq-hd₂ eq-tl₂) = eq-cons (eq-trans eq-hd₁ eq-hd₂) (eq-transᵣ eq-tl₁ eq-tl₂)
+eq-transᵣ (eq-cons eq-l₁ eq-hd₁ eq-tl₁) (eq-cons eq-l₂ eq-hd₂ eq-tl₂) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-hd₁ eq-hd₂) (eq-transᵣ eq-tl₁ eq-tl₂)

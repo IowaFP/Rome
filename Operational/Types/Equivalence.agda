@@ -20,6 +20,7 @@ data _≡t_ : Type Δ κ → Type Δ κ → Set
 private
     variable
         l l₁ l₂ l₃ : Type Δ L
+        ℓ ℓ₁ ℓ₂ ℓ₃ : Label
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
         π₁ π₂    : Pred Type Δ R[ κ ]
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
@@ -32,9 +33,9 @@ data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set wh
     
   eq-cons : {xs ys : SimpleRow Type Δ R[ κ ]} → 
 
-            τ₁ ≡t τ₂ → xs ≡r ys → 
+            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → xs ≡r ys → 
             -----------------------
-            (τ₁ ∷ xs) ≡r (τ₂ ∷ ys)
+            ((ℓ₁ , τ₁) ∷ xs) ≡r ((ℓ₂ , τ₂) ∷ ys)
 
 data _≡p_ where
 
@@ -130,7 +131,7 @@ data _≡t_ where
         (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
     
     eq-row : 
-        ∀ {ρ₁ ρ₂ : List (Type Δ κ)} → ρ₁ ≡r ρ₂ → 
+        ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → 
         -------------------------------------------
         ⦅ ρ₁ ⦆ ≡t ⦅ ρ₂ ⦆
 
@@ -152,10 +153,10 @@ data _≡t_ where
         ----------------------------
         ((`λ τ₁) · τ₂) ≡t (τ₁ βₖ[ τ₂ ])
 
-    eq-labTy : ∀ {l : Type Δ L} {τ : Type Δ κ} → 
+    eq-labTy : 
 
         -------------------------------------------
-        (l ▹ τ) ≡t ⦅ [ τ ] ⦆
+        (lab ℓ ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆
 
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
 
@@ -165,7 +166,7 @@ data _≡t_ where
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} → 
 
          -------------------------------
-         F <$> ⦅ ρ ⦆ ≡t ⦅ map (F ·_) ρ ⦆
+         F <$> ⦅ ρ ⦆ ≡t ⦅ map (over (F ·_)) ρ ⦆
 
     eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]} → 
 
@@ -217,30 +218,30 @@ inst refl = eq-refl
 
 instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
 instᵣ {ρ₁ = []} refl = eq-[]
-instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl (instᵣ refl)
+instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons refl eq-refl (instᵣ refl)
 
 -------------------------------------------------------------------------------
 -- ≡r forms an equivalence relation
 
 symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
 symᵣ eq-[] = eq-[]
-symᵣ (eq-cons x eq) = eq-cons (eq-sym x) (symᵣ eq)
+symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
 
 transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 transᵣ eq-[] eq-[] = eq-[]
-transᵣ (eq-cons eq-τ₁ eq-xs) (eq-cons eq-τ₂ eq-ys) = eq-cons (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
+transᵣ (eq-cons l₁ eq-τ₁ eq-xs) (eq-cons l₂ eq-τ₂ eq-ys) = eq-cons (trans l₁ l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
 
--------------------------------------------------------------------------------
--- Admissable but informative rules
+-- -------------------------------------------------------------------------------
+-- -- Admissable but informative rules
 
-eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
+-- eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
 
-        ----------------------------
-        Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
-eq-Π² = eq-· eq-refl eq-Π▹ 
+--         ----------------------------
+--         Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
+-- eq-Π² = eq-· eq-refl eq-Π▹ 
 
 
-eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} → 
-        -------------------------------------------
-        Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
-eq-Πℓ² = eq-Π▹
+-- eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} → 
+--         -------------------------------------------
+--         Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
+-- eq-Πℓ² = eq-Π▹

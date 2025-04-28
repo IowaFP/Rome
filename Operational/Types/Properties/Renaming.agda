@@ -33,7 +33,7 @@ liftₖ-cong eq (S x) = cong S (eq x)
 renₖ-cong :  ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} →  r₁ ≈ r₂ → 
               (τ : Type Δ₁ κ) → renₖ r₁ τ ≡ renₖ r₂ τ
 renRowₖ-cong : ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} →  r₁ ≈ r₂ → 
-                  (xs : List (Type Δ₁ κ)) → renRowₖ r₁ xs ≡ renRowₖ r₂ xs
+                  (xs : SimpleRow Type Δ₁ R[ κ ]) → renRowₖ r₁ xs ≡ renRowₖ r₂ xs
 renPredₖ-cong : ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} →  r₁ ≈ r₂ → 
                   (π : Pred Type Δ₁ R[ κ ]) → renPredₖ r₁ π ≡ renPredₖ r₂ π
                   
@@ -57,7 +57,7 @@ renPredₖ-cong eq (r₁ ≲ r₂)
   rewrite renₖ-cong eq r₁ | renₖ-cong eq r₂ = refl
 
 renRowₖ-cong eq [] = refl
-renRowₖ-cong eq (x ∷ xs) rewrite renₖ-cong eq x | renRowₖ-cong eq xs = refl
+renRowₖ-cong eq ((l , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ refl (renₖ-cong eq τ)) (renRowₖ-cong eq xs)
 
 -- --------------------------------------------------------------------------------
 -- -- Renamingₖ respects identities.
@@ -86,7 +86,7 @@ renPredₖ-id (ρ₁ ≲ ρ₂)
   rewrite renₖ-id ρ₁ | renₖ-id ρ₂ = refl 
 
 renRowₖ-id [] = refl
-renRowₖ-id (x ∷ xs) rewrite renₖ-id x | renRowₖ-id xs = refl
+renRowₖ-id ((l , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ refl (renₖ-id τ)) (renRowₖ-id xs)
 
 -- --------------------------------------------------------------------------------
 -- -- Renamingₖ respects composition.
@@ -127,8 +127,7 @@ renPredₖ-comp r r' (r₁ ≲ r₂)
   rewrite renₖ-comp r r' r₁ | renₖ-comp r r' r₂ = refl 
 
 renRowₖ-comp r₁ r₂ [] = refl
-renRowₖ-comp r₁ r₂ (τ ∷ r) rewrite 
-  renₖ-comp r₁ r₂ τ | renRowₖ-comp r₁ r₂ r = refl
+renRowₖ-comp r₁ r₂ ((l , τ) ∷ r) = cong₂ _∷_ (cong₂ _,_ refl (renₖ-comp r₁ r₂ τ)) (renRowₖ-comp r₁ r₂ r)
 
 ↻-liftₖ-weaken : ∀ {κ'} (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
                 renₖ (liftₖ {κ = κ'} r) (renₖ S τ) ≡ renₖ S (renₖ r τ)
@@ -139,6 +138,6 @@ renRowₖ-comp r₁ r₂ (τ ∷ r) rewrite
 -- Renaming commutes with mapping over rows
 
 ↻-ren-map : ∀ (r : Renamingₖ Δ₁ Δ₂) (F : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → 
-              map (renₖ r F ·_) (renRowₖ r ρ) ≡ renRowₖ r (map (F ·_) ρ)
+              map (over (renₖ r F ·_)) (renRowₖ r ρ) ≡ renRowₖ r (map (over (F ·_)) ρ)
 ↻-ren-map φ F [] = refl 
 ↻-ren-map φ F (x ∷ ρ) = cong (_ ∷_) (↻-ren-map φ F ρ)

@@ -22,7 +22,7 @@ open import Data.Product.Properties using (,-injectiveʳ ; ,-injectiveˡ) public
 
 open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.Nat.Properties using (suc-injective) public
-open import Data.String hiding (_≈_ ; map ; length ; _++_) public
+open import Data.String hiding (_≈_ ; map ; length ; _++_ ; _<_) public
 open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ; _++_; lookup) public
 open import Data.List.Relation.Unary.Any 
   using (Any ; here ; there) 

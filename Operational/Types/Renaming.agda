@@ -39,13 +39,13 @@ renₖ r (lab x) = lab x
 renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
 renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋
 renₖ r (f <$> m) = renₖ r f <$> renₖ r m
-renₖ r ⦅ xs ⦆ = ⦅ renRowₖ r xs ⦆
+renₖ r (⦅ xs ⦆) = ⦅ renRowₖ r xs ⦆
 
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 
 
 renRowₖ r [] = [] 
-renRowₖ r (x ∷ xs) = renₖ r x ∷ renRowₖ r xs
+renRowₖ r ((l , τ) ∷ xs) = (l , renₖ r τ) ∷ renRowₖ r xs -- renₖ r x ∷ renRowₖ r xs
 
 weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S
