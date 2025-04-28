@@ -88,6 +88,10 @@ ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) →
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       NormalEnt Γ₁ π →
       NormalEnt Γ₂ (renPredₖNF ρ π)
+renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
+            (Ρ : Renaming Γ₁ Γ₂ ρ) → 
+            Record Γ₁ xs →
+            Record Γ₂ (renRowₖNF ρ xs)
 
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
@@ -164,9 +168,11 @@ ren {ρ = r} R (ana ρ φ τ M) =
     (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
     (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
 ren R (comp M n) = comp (ren R M) (renEnt R n)
-ren R ⦅ ⦅⦆ ⦆ = ⦅ ⦅⦆ ⦆
-ren R ⦅ cons M xs ⦆ = ⦅ cons (ren R M) {!!} ⦆
-ren R (⟨ M ⟩ x) = {!!}
+ren R ⦅ xs ⦆ = ⦅ renRecord R xs ⦆
+ren {ρ = r} R (⟨ M ⟩ x) = ⟨ ren R M ⟩ ( ⊆-cong (renₖNF r) (renRowₖNF r) (renRowₖNF-isMap r) x)
+
+renRecord {ρ = r} R ∅ = ∅
+renRecord {ρ = r} R (x ⨾ xs) = ren R x ⨾ renRecord R xs
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) rewrite 

@@ -133,6 +133,11 @@ sub σ s (ana ρ φ τ M) =
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
 sub σ s (comp M n) = comp (sub σ s M) (subEnt σ s n)
+sub σ s ⦅ ρ ⦆ = {!!}
+sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
+  (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
+    (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
+    (⊆-cong ⇑ ⇑Row ⇑Row-isMap i)))
 
 
 subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 
