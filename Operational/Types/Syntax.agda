@@ -21,6 +21,10 @@ SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
 SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 
+open import Data.String using (_<_)
+
+Ordered : SimpleRow Type Δ R[ κ ] → Set 
+ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -90,7 +94,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) →
+  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) {ordered : True (ordered? xs)} →
         ----------------------
         Type Δ R[ κ ]
 
@@ -136,6 +140,19 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
+
+Ordered [] = ⊤
+Ordered (x ∷ []) = ⊤
+Ordered ((l₁ , _) ∷ (l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+
+ordered? [] = yes tt
+ordered? (x ∷ []) = yes tt
+ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
+... | yes p | yes q  = yes (p , q)
+... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
+... | no p  | yes q  = no (λ { (x , _) → p x})
+... | no  p | no  q  = no (λ { (x , _) → p x})
+
 --------------------------------------------------------------------------------
 -- Over helper
 
@@ -178,7 +195,7 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("a" , Unit) ∷ [] ⦆
+sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆
        -- (λ { 
        --      fzero → Unit 
        --    ; (fsuc fzero) →  Σ · ε 
