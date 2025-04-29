@@ -51,6 +51,9 @@ data _≡p_ where
         -----------------------------------
         τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
 
+Ξλ-ordered : ∀ (ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]) (oρ : Ordered ρ) → 
+                  Ordered (map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ)
+
 data _≡t_ where 
 
   -- -------------------------------------
@@ -191,15 +194,15 @@ data _≡t_ where
          ----------------------------
          Σ · ρ ≡t Σ <$> ρ
 
---     eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
+    eq-Πλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)}  → 
 
---         -------------------------------------------
---         Π · (l ▹ `λ τ) ≡t `λ (Π · (weakenₖ l ▹ τ))
+        -------------------------------------------
+        Π · (⦅ ρ ⦆ {oρ}) ≡t `λ (Π · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ {fromWitness (Ξλ-ordered ρ (toWitness oρ))}) 
 
---     eq-Σλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
+    eq-Σλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)} → 
 
---         -------------------------------------------
---         Σ · (l ▹ `λ τ) ≡t `λ (Σ · (weakenₖ l ▹ τ))
+        -------------------------------------------
+        Σ · (⦅ ρ ⦆ {oρ}) ≡t `λ (Σ · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ {fromWitness (Ξλ-ordered ρ (toWitness oρ))}) 
         
     eq-Π-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
 
@@ -211,26 +214,31 @@ data _≡t_ where
         ----------------------------
         (Σ · ρ) · τ ≡t Σ · (ρ ?? τ)
         
+
+Ξλ-ordered [] oρ = tt
+Ξλ-ordered (x ∷ []) oρ = tt
+Ξλ-ordered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ρ oρ
+
 -- -------------------------------------------------------------------------------
 -- -- Lifting propositional equality to type equivalence
 
--- inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
--- inst refl = eq-refl
+inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
+inst refl = eq-refl
 
--- instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
--- instᵣ {ρ₁ = []} refl = eq-[]
--- instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons refl eq-refl (instᵣ refl)
+instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
+instᵣ {ρ₁ = []} refl = eq-[]
+instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl eq-refl (instᵣ refl)
 
 -- -------------------------------------------------------------------------------
 -- -- ≡r forms an equivalence relation
 
--- symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
--- symᵣ eq-[] = eq-[]
--- symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
+symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
+symᵣ eq-[] = eq-[]
+symᵣ (eq-cons l x eq) = eq-cons (eq-sym l) (eq-sym x) (symᵣ eq)
 
--- transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
--- transᵣ eq-[] eq-[] = eq-[]
--- transᵣ (eq-cons l₁ eq-τ₁ eq-xs) (eq-cons l₂ eq-τ₂ eq-ys) = eq-cons (trans l₁ l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
+transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
+transᵣ eq-[] eq-[] = eq-[]
+transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (eq-trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
 
 -- -- -------------------------------------------------------------------------------
 -- -- -- Admissable but informative rules
