@@ -50,14 +50,14 @@ renₖ-cong eq (lab _) = refl
 -- renₖ-cong eq (l ▹ τ) rewrite renₖ-cong eq l | renₖ-cong eq τ = refl
 renₖ-cong eq ⌊ τ ⌋ rewrite renₖ-cong eq τ = refl
 renₖ-cong eq (f <$> a) rewrite renₖ-cong eq f | renₖ-cong eq a = refl
-renₖ-cong {r₁ = r₁} {r₂} eq (⦅ xs ⦆ oρ) = {!!}
+renₖ-cong {r₁ = r₁} {r₂} eq (⦅ ρ ⦆ oρ) = cong-SimpleRow (renRowₖ-cong eq ρ) 
 renPredₖ-cong eq (r₁ · r₂ ~ r₃) 
   rewrite renₖ-cong eq r₁ | renₖ-cong eq r₂ | renₖ-cong eq r₃ = refl
 renPredₖ-cong eq (r₁ ≲ r₂) 
   rewrite renₖ-cong eq r₁ | renₖ-cong eq r₂ = refl
 
 renRowₖ-cong eq [] = refl
-renRowₖ-cong eq ((l , τ) ∷ xs) = {!!} -- cong₂ _∷_ (cong₂ _,_ refl (renₖ-cong eq τ)) (renRowₖ-cong eq xs)
+renRowₖ-cong eq ((l , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ (renₖ-cong eq l)  (renₖ-cong eq τ)) (renRowₖ-cong eq xs)
 
 -- --------------------------------------------------------------------------------
 -- -- Renamingₖ respects identities.
@@ -79,14 +79,14 @@ renₖ-id (lab _) = refl
 -- renₖ-id (l ▹ τ) rewrite renₖ-id l | renₖ-id τ = refl
 renₖ-id ⌊ τ ⌋ rewrite renₖ-id τ = refl
 renₖ-id (f <$> a) rewrite renₖ-id f | renₖ-id a = refl
-renₖ-id (⦅ ρ ⦆ oρ) = {!cong₂ !}
+renₖ-id (⦅ ρ ⦆ oρ)  =  cong-SimpleRow (renRowₖ-id ρ)
 renPredₖ-id (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖ-id ρ₁ | renₖ-id ρ₂ | renₖ-id ρ₃ = refl
 renPredₖ-id (ρ₁ ≲ ρ₂)
   rewrite renₖ-id ρ₁ | renₖ-id ρ₂ = refl 
 
 renRowₖ-id [] = refl
-renRowₖ-id ((l , τ) ∷ xs) = {!!} -- cong₂ _∷_ (cong₂ _,_ refl (renₖ-id τ)) (renRowₖ-id xs)
+renRowₖ-id ((l , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ (renₖ-id l) (renₖ-id τ)) (renRowₖ-id xs)
 
 -- --------------------------------------------------------------------------------
 -- -- Renamingₖ respects composition.
@@ -119,7 +119,7 @@ renₖ-comp r₁ r₂ ⌊ τ ⌋ rewrite
     renₖ-comp r₁ r₂ τ = refl
 renₖ-comp r₁ r₂ (f <$> a) rewrite renₖ-comp r₁ r₂ f | renₖ-comp r₁ r₂ a = refl
 renₖ-comp r₁ r₂ (π ⇒ τ) rewrite renPredₖ-comp r₁ r₂ π | renₖ-comp r₁ r₂ τ = refl
-renₖ-comp r₁ r₂ (⦅ ρ ⦆ oρ) = {!!} -- rewrite renRowₖ-comp r₁ r₂ ρ = refl
+renₖ-comp r₁ r₂ (⦅ ρ ⦆ oρ) = cong-SimpleRow (renRowₖ-comp r₁ r₂ ρ) 
 
 renPredₖ-comp r r' (r₁ · r₂ ~ r₃) 
   rewrite renₖ-comp r r' r₁ | renₖ-comp r r' r₂ | renₖ-comp r r' r₃ = refl
@@ -127,7 +127,7 @@ renPredₖ-comp r r' (r₁ ≲ r₂)
   rewrite renₖ-comp r r' r₁ | renₖ-comp r r' r₂ = refl 
 
 renRowₖ-comp r₁ r₂ [] = refl
-renRowₖ-comp r₁ r₂ ((l , τ) ∷ r) = {!!} -- cong₂ _∷_ (cong₂ _,_ refl (renₖ-comp r₁ r₂ τ)) (renRowₖ-comp r₁ r₂ r)
+renRowₖ-comp r₁ r₂ ((l , τ) ∷ r) = cong₂ _∷_ (cong₂ _,_ (renₖ-comp r₁ r₂ l) (renₖ-comp r₁ r₂ τ)) (renRowₖ-comp r₁ r₂ r)
 
 ↻-liftₖ-weaken : ∀ {κ'} (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → 
                 renₖ (liftₖ {κ = κ'} r) (renₖ S τ) ≡ renₖ S (renₖ r τ)

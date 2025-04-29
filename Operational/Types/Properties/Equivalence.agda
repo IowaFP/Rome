@@ -33,7 +33,7 @@ renₖ-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (renₖ-≡t ρ e)
 renₖ-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (renₖ-≡t (liftₖ ρ) e)
 renₖ-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
 renₖ-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (renₖ-≡t ρ e)
-renₖ-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
+-- renₖ-≡t {τ = τ} {υ} ρ (eq-▹ e e₁) = eq-▹ (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
 renₖ-≡t {τ = τ} {υ} ρ (eq-⇒ x e) = eq-⇒ (renₖ-≡p ρ x) (renₖ-≡t ρ e)
 renₖ-≡t {τ = τ} {.(`λ (weakenₖ τ · ` Z))} ρ eq-η = 
     eq-trans 

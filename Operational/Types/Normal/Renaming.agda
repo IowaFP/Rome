@@ -37,7 +37,7 @@ renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (ΠL τ) = ΠL (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF ρ (ΣL τ) = ΣL (renₖNF ρ τ)
-renₖNF r (⦅ ρ ⦆ {oρ}) = ⦅ renRowₖNF r ρ ⦆ {oρ = fromWitness (orderedRenRowₖNF r ρ (toWitness oρ))}
+renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)

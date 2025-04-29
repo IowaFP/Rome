@@ -141,6 +141,9 @@ data Type Δ where
           Type Δ (R[ κ ] `→ κ)
 
 
+--------------------------------------------------------------------------------
+-- Simple row well-formedness
+
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
 Ordered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
@@ -161,6 +164,31 @@ ordered? ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ xs) = 
 ordered? ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
 ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
 ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
+
+MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → MereProp (True (ordered? ρ))
+MerePropOrdered [] p₁ p₂ = refl
+MerePropOrdered (x ∷ []) p₁ p₂ = refl
+MerePropOrdered ((lab l , τ₁) ∷ (lab l₁ , τ₂) ∷ ρ) p₁ p₂ with l <? l₁ | ordered? ρ 
+... | yes p | yes q =  refl
+... | yes p | no  q =  refl
+... | no p  | yes q = refl
+... | no p  | no  q = refl
+MerePropOrdered ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((` α , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((lab l , snd₁) ∷ (` α , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ ρ) p₁ p₂ = refl
+
+cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
+                 sr₁ ≡ sr₂ → 
+                ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
+cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite MerePropOrdered sr₁ wf₁ wf₂ = refl
+
+--------------------------------------------------------------------------------
+-- Helpers for mapping over the tuples inside rows
 
 fmap× : ∀ {Ty : KEnv → Kind → Set} → (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
 fmap× f (x , y) = f x , f y

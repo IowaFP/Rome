@@ -25,15 +25,18 @@ renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → Kri
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 
 renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
-renRow : Renamingₖ Δ₁ Δ₂ → Row Δ₁ R[ κ ] → Row Δ₂ R[ κ ]
+renRow : ∀ {n} → Renamingₖ Δ₁ Δ₂ → 
+         (Fin n → NormalType Δ₁ L × SemType Δ₁ κ) → 
+          Fin n → NormalType Δ₂ L × SemType Δ₂ κ
 
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
-renSem {κ = R[ κ ]} r (right (n , P)) = right (n , renSem r ∘ P)
+renSem {κ = R[ κ ]} r (right (n , P)) = right (n , renRow r P)
 
-renRow φ (n , P) = n , renSem φ ∘ P 
+renRow r P x with P x 
+... | l , τ = renSem {κ = L} r l , renSem r τ
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening

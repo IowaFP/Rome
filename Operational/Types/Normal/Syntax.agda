@@ -173,6 +173,35 @@ normalOrdered? ((ΣL τ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
 normalOrdered? ((ΣL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
 normalOrdered? ((ΣL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
 
+NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
+NormalMerePropOrdered [] p₁ p₂ = refl
+NormalMerePropOrdered (x ∷ []) p₁ p₂ = refl
+NormalMerePropOrdered ((lab l , τ₁) ∷ (lab l₁ , τ₂) ∷ ρ) p₁ p₂ with l <? l₁ | normalOrdered? ρ 
+... | yes p | yes q =  refl
+... | yes p | no  q =  refl
+... | no p  | yes q = refl
+... | no p  | no  q = refl
+NormalMerePropOrdered ((ne x , snd₁) ∷ (ne x₁ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ne x , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ne x , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ne x , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((lab l , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((lab l , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((lab l , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+
+cong-NormalSimpleRow : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
+                 sr₁ ≡ sr₂ → 
+                _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂)
+cong-NormalSimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+
 
 --------------------------------------------------------------------------------
 -- There are no neutral types in empty contexts
@@ -216,9 +245,9 @@ inj-ne refl = refl
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
     Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] 
-      (Σ[ oρ ∈ True (normalOrdered? sr) ] (ρ ≡ ⦅ sr ⦆ {oρ})) or 
+      (Σ[ oρ ∈ True (normalOrdered? sr) ] (ρ ≡ ⦅ sr ⦆ oρ)) or 
     Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
-row-canonicity (⦅ x ⦆ {oρ}) = left (x , oρ , refl) 
+row-canonicity (⦅ x ⦆ oρ) = left (x , oρ , refl) 
 row-canonicity (ne x) = right (x , refl)
 
 --------------------------------------------------------------------------------
@@ -264,7 +293,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 -- ⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
-⇑ (⦅ ρ ⦆ {oρ}) = ⦅ ⇑Row ρ ⦆ {ordered = fromWitness (Ordered⇑ ρ (toWitness oρ)) }
+⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
 
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((⇑ l , ⇑ τ) ∷ ⇑Row ρ)
@@ -289,18 +318,13 @@ Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l
 -- row "constructors"
 
 εNF : NormalType Δ R[ κ ]
-εNF = ⦅ [] ⦆
+εNF = ⦅ [] ⦆ tt
 
 _▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
-l ▹' τ = ⦅ [ (l , τ) ] ⦆
+l ▹' τ = ⦅ [ (l , τ) ] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Admissable constants
 
 UnitNF : NormalType Δ ★
-UnitNF = Π ⦅ [] ⦆
-
---------------------------------------------------------------------------------
--- Embedding is injective
-
-
+UnitNF = Π (⦅ [] ⦆ tt)
