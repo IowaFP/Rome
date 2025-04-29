@@ -22,7 +22,7 @@ open import Data.Product.Properties using (,-injectiveʳ ; ,-injectiveˡ) public
 
 open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.Nat.Properties using (suc-injective) public
-open import Data.String hiding (_≈_ ; map ; length ; _++_ ; _<_) public
+open import Data.String hiding (_≈_ ; map ; length ; _++_) public
 open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ; _++_; lookup) public
 open import Data.List.Relation.Unary.Any 
   using (Any ; here ; there) 
@@ -48,11 +48,26 @@ open import Relation.Nullary.Decidable using (True ; toWitness ; fromWitness) pu
 module Reasoning where
   open Eq.≡-Reasoning public
 
+--------------------------------------------------------------------------------
+-- common functions
+
 id : ∀ {A : Set} → A → A
 id x = x
 
+--------------------------------------------------------------------------------
+-- Pair helpers
+
 third : ∀ {A B C : Set} → A × B × C → C
 third = snd ∘ snd
+
+overᵣ : ∀ {A B C : Set} → (A → B) → C × A → C × B
+overᵣ f (l , τ) = (l , f τ)
+
+overₗ : ∀ {A B C : Set} → (A → B) → A × C → B × C
+overₗ f (l , τ) = (f l , τ)
+
+both :  ∀ {A B : Set} → (A → B) → A × A → B × B
+both f (x , y) = (f x , f y)
 
 ------------------------------------------------------------------------------
 -- Some lemmas I couldn't find elsewhere

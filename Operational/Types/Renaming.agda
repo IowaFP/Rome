@@ -38,7 +38,7 @@ renₖ r (μ F) = μ (renₖ r F)
 renₖ r (Π ) = Π 
 renₖ r Σ = Σ
 renₖ r (lab x) = lab x
-renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
+-- renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
 renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋
 renₖ r (f <$> m) = renₖ r f <$> renₖ r m
 renₖ r (⦅ xs ⦆ {oxs}) = ⦅ renRowₖ r xs ⦆ {ordered = fromWitness (orderedRenRowₖ r xs (toWitness oxs))}
@@ -47,11 +47,11 @@ renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ re
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 
 
 renRowₖ r [] = [] 
-renRowₖ r ((l , τ) ∷ xs) = (l , renₖ r τ) ∷ renRowₖ r xs
+renRowₖ r ((l , τ) ∷ xs) = (renₖ r l , renₖ r τ) ∷ renRowₖ r xs
 
 orderedRenRowₖ r [] oxs = tt
 orderedRenRowₖ r ((l , τ) ∷ []) oxs = tt
-orderedRenRowₖ r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖ r xs oxs
+orderedRenRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖ r xs oxs
 
 weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S

@@ -19,7 +19,7 @@ SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
 SimpleRow Ty Δ ★        = ⊥
 SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
+SimpleRow Ty Δ R[ κ ]   = List (Ty Δ L × Ty Δ κ)
 
 open import Data.String using (_<_)
 
@@ -117,10 +117,10 @@ data Type Δ where
 --     Type Δ R[ κ ]
 
   -- Row formation
-  _▹_ :
-         (l : Type Δ L) → (τ : Type Δ κ) → 
-         -------------------
-         Type Δ R[ κ ]
+  -- _▹_ :
+  --        (l : Type Δ L) → (τ : Type Δ κ) → 
+  --        -------------------
+  --        Type Δ R[ κ ]
 
   _<$>_ : 
 
@@ -143,21 +143,33 @@ data Type Δ where
 
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
-Ordered ((l₁ , _) ∷ (l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+Ordered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+Ordered _ = ⊥
 
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
-ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
+ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
+ordered? ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
 
---------------------------------------------------------------------------------
--- Over helper
+fmap× : ∀ {Ty : KEnv → Kind → Set} → (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
+fmap× f (x , y) = f x , f y
 
-over : ∀ {A B : Set} → (A → B) → Label × A → Label × B
-over f (l , τ) = (l , f τ)
+map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
+              Ordered ρ → Ordered (map (overᵣ f) ρ)
+map-overᵣ [] f oρ = tt
+map-overᵣ (x ∷ []) f oρ = tt
+map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ρ f oρ)
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
@@ -195,7 +207,7 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆
+sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "d" , Unit) ∷ [] ⦆
        -- (λ { 
        --      fzero → Unit 
        --    ; (fsuc fzero) →  Σ · ε 

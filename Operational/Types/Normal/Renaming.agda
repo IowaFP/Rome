@@ -17,6 +17,8 @@ renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
+orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalType Δ₁ R[ κ ]) → NormalOrdered xs → 
+                 NormalOrdered (renRowₖNF r xs)
 
 
 renₖNE ρ (` x) = ` (ρ x)
@@ -35,18 +37,22 @@ renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (ΠL τ) = ΠL (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF ρ (ΣL τ) = ΣL (renₖNF ρ τ)
-renₖNF r ⦅ ρ ⦆ = ⦅ renRowₖNF r ρ ⦆
+renₖNF r (⦅ ρ ⦆ {oρ}) = ⦅ renRowₖNF r ρ ⦆ {oρ = fromWitness (orderedRenRowₖNF r ρ (toWitness oρ))}
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
 renRowₖNF _ [] = []
-renRowₖNF r (τ ∷ ρ) = renₖNF r τ ∷ renRowₖNF r ρ
+renRowₖNF r ((l , τ) ∷ ρ) = (renₖNF r l , renₖNF r τ) ∷ renRowₖNF r ρ
 
-renRowₖNF-isMap : ∀ (φ : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-                  renRowₖNF φ xs ≡ map (renₖNF φ) xs
-renRowₖNF-isMap φ [] = refl
-renRowₖNF-isMap φ (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap φ xs)
+orderedRenRowₖNF r [] oxs = tt
+orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
+orderedRenRowₖNF r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r xs oxs
+
+renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
+                  renRowₖNF r xs ≡ map (λ (l , τ) → renₖNF r l , renₖNF r τ) xs 
+renRowₖNF-isMap r [] = refl
+renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)
 
 --------------------------------------------------------------------------------
 -- Weakening

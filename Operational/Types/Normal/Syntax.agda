@@ -24,6 +24,9 @@ data NormalType (Δ : KEnv) : Kind → Set
 NormalPred : KEnv → Kind → Set 
 NormalPred = Pred NormalType
 
+NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set 
+normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
+
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -90,16 +93,16 @@ data NormalType Δ where
   -- Rω business
 
 
-  ⦅_⦆ : SimpleRow NormalType Δ R[ κ ] → 
+  ⦅_⦆ : (ρ : SimpleRow NormalType Δ R[ κ ]) → {oρ : True (normalOrdered? ρ)} →
         ----------------------
        NormalType Δ R[ κ ]
 
-  _▹_ : 
+  -- _▹_ : 
       
-      (l : NormalType Δ L) → 
-      (τ : NormalType Δ κ) → 
-      ---------------------------
-      NormalType Δ R[ κ ]
+  --     (l : NormalType Δ L) → 
+  --     (τ : NormalType Δ κ) → 
+  --     ---------------------------
+  --     NormalType Δ R[ κ ]
 
 --   -- labels
   lab :
@@ -138,6 +141,37 @@ data NormalType Δ where
       (ρ : NormalType Δ R[ L ]) →
       ------------------
       NormalType Δ L
+
+--------------------------------------------------------------------------------
+-- Ordered predicate
+
+NormalOrdered [] = ⊤
+NormalOrdered (x ∷ []) = ⊤
+NormalOrdered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × NormalOrdered xs
+NormalOrdered _ = ⊥
+
+normalOrdered? [] = yes tt
+normalOrdered? (x ∷ []) = yes tt
+normalOrdered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? xs
+... | yes p | yes q  = yes (p , q)
+... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
+... | no p  | yes q  = no (λ { (x , _) → p x})
+... | no  p | no  q  = no (λ { (x , _) → p x})
+normalOrdered? ((ne x , snd₁) ∷ (ne x₁ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ne x , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ne x , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ne x , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((lab l , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((lab l , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((lab l , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΠL τ , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΠL τ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΠL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΠL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΣL τ , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΣL τ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΣL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
+normalOrdered? ((ΣL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
 
 
 --------------------------------------------------------------------------------
@@ -181,12 +215,11 @@ inj-ne refl = refl
 -- Rows are either neutral or labeled types
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
-    Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] (ρ ≡ ⦅ sr ⦆ ) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ)) or 
-    ∃[ l ] (∃[ τ ] (ρ ≡ (l ▹ τ)))
-row-canonicity ⦅ x ⦆ = left (x , refl) 
-row-canonicity (ne x) = right (left (x , refl))
-row-canonicity (l ▹ τ) = right (right (l , (τ , refl)))
+    Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] 
+      (Σ[ oρ ∈ True (normalOrdered? sr) ] (ρ ≡ ⦅ sr ⦆ {oρ})) or 
+    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
+row-canonicity (⦅ x ⦆ {oρ}) = left (x , oρ , refl) 
+row-canonicity (ne x) = right (x , refl)
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -215,6 +248,9 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
 
+Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ → 
+             Ordered (⇑Row ρ)
+
 ⇑ (ne x) = ⇑NE x
 ⇑ (`λ τ) = `λ (⇑ τ)
 ⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
@@ -227,13 +263,18 @@ arrow-canonicity (`λ f) = f , refl
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
-⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
-⇑ (⦅ ρ ⦆) = ⦅ ⇑Row ρ ⦆
+-- ⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
+⇑ (⦅ ρ ⦆ {oρ}) = ⦅ ⇑Row ρ ⦆ {ordered = fromWitness (Ordered⇑ ρ (toWitness oρ)) }
+
 ⇑Row [] = []
-⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
+⇑Row ((l , τ) ∷ ρ) = ((⇑ l , ⇑ τ) ∷ ⇑Row ρ)
+
+Ordered⇑ [] oρ = tt
+Ordered⇑ (x ∷ []) oρ = tt
+Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ρ oρ
 
 ⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-               ⇑Row xs ≡ map (over ⇑) xs
+               ⇑Row xs ≡ map (λ { (l , τ) → ⇑ l , ⇑ τ }) xs
 ⇑Row-isMap [] = refl
 ⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
 
@@ -250,7 +291,7 @@ arrow-canonicity (`λ f) = f , refl
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆
 
-_▹'_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
+_▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
 l ▹' τ = ⦅ [ (l , τ) ] ⦆
 
 --------------------------------------------------------------------------------
