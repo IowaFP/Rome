@@ -47,6 +47,11 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
+  _▹_ : 
+
+      (l : NeutralType Δ L) → (NormalType Δ κ) → 
+      NeutralType Δ R[ κ ]
+
 
 data NormalType Δ where
 
@@ -209,6 +214,7 @@ cong-NormalSimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMere
 noNeutrals : NeutralType ∅ κ → ⊥
 noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
+noNeutrals (l ▹ τ) = noNeutrals l
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -259,7 +265,11 @@ arrow-canonicity (`λ f) = f , refl
 --------------------------------------------------------------------------------
 -- label canonicity
 
--- label-canonicity : (l : NormalType Δ L) → 
+-- label-canonicity : (l : NormalType Δ L) → ⊤ 
+-- label-canonicity (ne x) = {!!}
+-- label-canonicity (lab l) = {!!}
+-- label-canonicity (ΠL l) = {!!}
+-- label-canonicity (ΣL l) = {!!}
 --                     ∃[ l₁ ] (l ≡ ΠL l₁) or
 --                     ∃[ l₂ ] (l ≡ ΣL l₂) or
 --                     ∃[ x  ] (l ≡ ne x)
@@ -310,6 +320,7 @@ Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
+⇑NE (l ▹ τ) = ⦅ [ ⇑NE l , ⇑ τ ] ⦆ tt
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

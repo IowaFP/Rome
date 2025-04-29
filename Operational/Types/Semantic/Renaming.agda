@@ -10,7 +10,7 @@ open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Properties.Renaming
+-- open import Rome.Operational.Types.Normal.Properties.Renaming
 
 open import Rome.Operational.Types.Semantic.Syntax
 
@@ -26,8 +26,8 @@ renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ)
 
 renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renRow : ∀ {n} → Renamingₖ Δ₁ Δ₂ → 
-         (Fin n → NormalType Δ₁ L × SemType Δ₁ κ) → 
-          Fin n → NormalType Δ₂ L × SemType Δ₂ κ
+         (Fin n → Label × SemType Δ₁ κ) → 
+          Fin n → Label × SemType Δ₂ κ
 
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
@@ -36,7 +36,7 @@ renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
 renSem {κ = R[ κ ]} r (right (n , P)) = right (n , renRow r P)
 
 renRow r P x with P x 
-... | l , τ = renSem {κ = L} r l , renSem r τ
+... | l , τ = l , renSem r τ
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening

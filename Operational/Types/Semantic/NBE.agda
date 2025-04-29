@@ -28,9 +28,9 @@ reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
-reifyRow' : (n : ℕ) → (Fin n → SemType Δ L × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
-reifyRow' (suc n) P = overᵣ reify (P (fzero)) ∷ reifyRow' n (P ∘ fsuc)
+reifyRow' (suc n) P = {!!} -- overᵣ reify (P (fzero)) ∷ reifyRow' n (P ∘ fsuc)
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
@@ -39,7 +39,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
+reify {κ = R[ κ ]} (right  ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -92,6 +92,21 @@ infixr 0 _<?>V_
 _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
 f <?>V a = apply a <$>V f
 
+
+--------------------------------------------------------------------------------
+-- Complement
+
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+left x ─V left x₁ = {!!}
+left x ─V right y = {!!}
+right y ─V left x = {!!}
+right (zero , P) ─V right (zero , Q) = right εV
+right (zero , P) ─V right (suc m , Q) = right εV
+right (suc n , P) ─V right (zero , Q) = right (suc n , P)
+right (suc n , P) ─V right (suc m , Q) = right ({!!} , {!!})
+  where
+    count : Fin (suc n) → Fin (suc m) → ℕ → ℕ
+    count i j k = {!fst (P i) ≟ ?!}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- (Generic) Semantic combinators for Π/Σ
@@ -176,9 +191,13 @@ eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 -- eval {κ = _} (l ▹ τ) η = right ⁅ eval τ η ⁆
 eval (⦅ ρ ⦆ oρ) η with toWitness oρ 
-eval (⦅ [] ⦆ oρ) η | c = {!!}
-eval (⦅ (l , τ) ∷ [] ⦆ oρ) η | c = right ⁅ eval l η , eval τ η ⁆
-eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | c = {!!}
+eval (⦅ [] ⦆ oρ) η | c = right εV
+eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | c = right ((l₁ , eval τ₁ η) ⨾⨾ ((l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
+eval (⦅ (l , τ) ∷ [] ⦆ oρ) η | c with eval l η 
+... | ne x = left (x ▹ (reify (eval τ η)))
+... | lab l₁ = right ⁅ l₁ , eval τ η ⁆
+... | ΠL d = {!!}
+... | ΣL d = {!!}
 
 --------------------------------------------------------------------------------
 -- Type normalization
