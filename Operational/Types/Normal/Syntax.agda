@@ -93,7 +93,7 @@ data NormalType Δ where
   -- Rω business
 
 
-  ⦅_⦆ : (ρ : SimpleRow NormalType Δ R[ κ ]) → {oρ : True (normalOrdered? ρ)} →
+  ⦅_⦆ : (ρ : SimpleRow NormalType Δ R[ κ ]) → (oρ : True (normalOrdered? ρ)) →
         ----------------------
        NormalType Δ R[ κ ]
 

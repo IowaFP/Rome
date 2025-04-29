@@ -94,7 +94,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) {ordered : True (ordered? xs)} →
+  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
         ----------------------
         Type Δ R[ κ ]
 
@@ -175,7 +175,7 @@ map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l�
 -- The empty row is the empty simple row
 
 ε : Type Δ R[ κ ]
-ε = ⦅ [] ⦆
+ε = ⦅ [] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors
@@ -207,7 +207,7 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "d" , Unit) ∷ [] ⦆
+sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "d" , Unit) ∷ [] ⦆ tt
        -- (λ { 
        --      fzero → Unit 
        --    ; (fsuc fzero) →  Σ · ε 

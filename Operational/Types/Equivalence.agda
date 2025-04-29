@@ -139,7 +139,7 @@ data _≡t_ where
   
         ρ₁ ≡r ρ₂ → 
         -------------------------------------------
-        ⦅ ρ₁ ⦆ {oρ₁} ≡t ⦅ ρ₂ ⦆ {oρ₂}
+        ⦅ ρ₁ ⦆ oρ₁ ≡t ⦅ ρ₂ ⦆ oρ₂
 
   -- -------------------------------------
   -- η-laws  
@@ -172,7 +172,7 @@ data _≡t_ where
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
 
          -------------------------------
-         F <$> (⦅ ρ ⦆ {oρ}) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ {fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ))}
+         F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))
 
     -- eq-Π▹ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
 
@@ -197,12 +197,12 @@ data _≡t_ where
     eq-Πλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)}  → 
 
         -------------------------------------------
-        Π · (⦅ ρ ⦆ {oρ}) ≡t `λ (Π · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ {fromWitness (Ξλ-ordered ρ (toWitness oρ))}) 
+        Π · (⦅ ρ ⦆ oρ) ≡t `λ (Π · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
 
     eq-Σλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)} → 
 
         -------------------------------------------
-        Σ · (⦅ ρ ⦆ {oρ}) ≡t `λ (Σ · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ {fromWitness (Ξλ-ordered ρ (toWitness oρ))}) 
+        Σ · (⦅ ρ ⦆ oρ) ≡t `λ (Σ · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
         
     eq-Π-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
 

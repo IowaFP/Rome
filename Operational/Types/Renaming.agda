@@ -41,7 +41,7 @@ renₖ r (lab x) = lab x
 -- renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
 renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋
 renₖ r (f <$> m) = renₖ r f <$> renₖ r m
-renₖ r (⦅ xs ⦆ {oxs}) = ⦅ renRowₖ r xs ⦆ {ordered = fromWitness (orderedRenRowₖ r xs (toWitness oxs))}
+renₖ r (⦅ xs ⦆ oxs) = ⦅ renRowₖ r xs ⦆ (fromWitness (orderedRenRowₖ r xs (toWitness oxs)))
 
 renPredₖ ρ (ρ₁ · ρ₂ ~ ρ₃) = renₖ ρ ρ₁ · renₖ ρ ρ₂ ~ renₖ ρ ρ₃
 renPredₖ ρ (ρ₁ ≲ ρ₂) = (renₖ ρ ρ₁) ≲ (renₖ ρ ρ₂) 
