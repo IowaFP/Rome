@@ -30,7 +30,8 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
 reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
-reifyRow' (suc n) P = {!!} -- overᵣ reify (P (fzero)) ∷ reifyRow' n (P ∘ fsuc)
+reifyRow' (suc n) P with P fzero
+... | (l , τ) = (lab l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
@@ -40,6 +41,12 @@ reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
 reify {κ = R[ κ ]} (right  ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
+
+-- This is almost provable
+pfft : ∀ (ρ : Row Δ R[ κ ]) → NormalOrdered (reifyRow ρ)
+pfft (zero , P) = tt
+pfft (suc zero , P) = tt
+pfft (suc (suc n) , P) = {!!} 
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -80,7 +87,7 @@ F ·V V = F id V
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
-_<$>V_  F (right (n , P)) = {!!} -- right ((n , F id ∘ P))
+_<$>V_  F (right (n , P)) = right (n , (overᵣ (F id) ∘ P))
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -96,17 +103,17 @@ f <?>V a = apply a <$>V f
 --------------------------------------------------------------------------------
 -- Complement
 
-_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-left x ─V left x₁ = {!!}
-left x ─V right y = {!!}
-right y ─V left x = {!!}
-right (zero , P) ─V right (zero , Q) = right εV
-right (zero , P) ─V right (suc m , Q) = right εV
-right (suc n , P) ─V right (zero , Q) = right (suc n , P)
-right (suc n , P) ─V right (suc m , Q) = right ({!!} , {!!})
-  where
-    count : Fin (suc n) → Fin (suc m) → ℕ → ℕ
-    count i j k = {!fst (P i) ≟ ?!}
+-- _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+-- left x ─V left x₁ = {!!}
+-- left x ─V right y = {!!}
+-- right y ─V left x = {!!}
+-- right (zero , P) ─V right (zero , Q) = right εV
+-- right (zero , P) ─V right (suc m , Q) = right εV
+-- right (suc n , P) ─V right (zero , Q) = right (suc n , P)
+-- right (suc n , P) ─V right (suc m , Q) = right ({!!} , {!!})
+--   where
+--     count : Fin (suc n) → Fin (suc m) → ℕ → ℕ
+--     count i j k = {!fst (P i) ≟ ?!}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- (Generic) Semantic combinators for Π/Σ
