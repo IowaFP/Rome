@@ -166,21 +166,7 @@ ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
 ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
 
 MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → MereProp (True (ordered? ρ))
-MerePropOrdered [] p₁ p₂ = refl
-MerePropOrdered (x ∷ []) p₁ p₂ = refl
-MerePropOrdered ((lab l , τ₁) ∷ (lab l₁ , τ₂) ∷ ρ) p₁ p₂ with l <? l₁ | ordered? ρ 
-... | yes p | yes q =  refl
-... | yes p | no  q =  refl
-... | no p  | yes q = refl
-... | no p  | no  q = refl
-MerePropOrdered ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((` α , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((lab l , snd₁) ∷ (` α , snd₂) ∷ ρ) p₁ p₂ = refl
-MerePropOrdered ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ ρ) p₁ p₂ = refl
+MerePropOrdered ρ = Dec→MereProp (Ordered ρ) (ordered? ρ)
 
 cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
                  sr₁ ≡ sr₂ → 

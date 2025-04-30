@@ -179,28 +179,7 @@ normalOrdered? ((ΣL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
 normalOrdered? ((ΣL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
 
 NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
-NormalMerePropOrdered [] p₁ p₂ = refl
-NormalMerePropOrdered (x ∷ []) p₁ p₂ = refl
-NormalMerePropOrdered ((lab l , τ₁) ∷ (lab l₁ , τ₂) ∷ ρ) p₁ p₂ with l <? l₁ | normalOrdered? ρ 
-... | yes p | yes q =  refl
-... | yes p | no  q =  refl
-... | no p  | yes q = refl
-... | no p  | no  q = refl
-NormalMerePropOrdered ((ne x , snd₁) ∷ (ne x₁ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ne x , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ne x , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ne x , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((lab l , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((lab l , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((lab l , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΠL l₁ , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ne x , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (lab l , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ΠL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
-NormalMerePropOrdered ((ΣL l₁ , snd₁) ∷ (ΣL l₂ , snd₂) ∷ ρ) p₁ p₂ = refl
+NormalMerePropOrdered ρ = Dec→MereProp (NormalOrdered ρ) (normalOrdered? ρ)
 
 cong-NormalSimpleRow : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
                  sr₁ ≡ sr₂ → 

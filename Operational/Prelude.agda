@@ -91,6 +91,10 @@ cong₃ f refl refl refl = refl
 MereProp : ∀ (A : Set) → Set 
 MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
 
+Dec→MereProp : ∀ (P : Set) → (d : Dec P) → MereProp (True d)
+Dec→MereProp P (yes d) p₁ p₂ = refl
+Dec→MereProp P (no  d) p₁ p₂ = refl
+
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type
 

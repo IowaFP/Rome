@@ -9,16 +9,24 @@ open import Data.String using (_<_; _<?_)
 postulate
   any : ∀ {A : Set} → A
 
---------------------------------------------------------------------------------
+-- =============================================================================
+-- Constraining Types with Predicates
+--   (presentation 04/30/25)
+--
+-- =============================================================================
+-- 
 -- Today I'll present on a technique in "restricting" a datatype to just certain
--- forms. In particular, we are going to restrict the shape of rows by a predicate
--- that adheres to the following judgment:
+-- forms. In particular, we are going to try to model the following typing judgment:
 --
 --   Δ ⊢ ξᵢ : L    Δ ⊢ τᵢ : κ    ∀ i < j. ξᵢ < ξⱼ
 --  --------------------------------------------
 --              Δ ⊢ {ξᵢ ▹ τᵢ} : R[ κ ]
 --
 -- Where _<_ is a total ordering on strings (the type of concrete labels).
+--
+-- (For this exercise, your task is to mechanize a language intrinsically by
+--  using inductive data to represent typing/kinding judgments. Imagine you see
+--  this judgment on paper. How do you represent it in your AST?)
 --
 -- Firstly, let's think on the challenges in representing this judgment in Agda:
 -- - 1. I cannot iterate over i, but I need to assert *all* of the judgments
@@ -27,8 +35,7 @@ postulate
 
 
 --------------------------------------------------------------------------------
--- Types
-
+-- We define types and predicates, which I have presented before.
 
 infixl 5 _·_
 infixr 5 _≲_
