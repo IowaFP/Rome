@@ -32,9 +32,10 @@ Row Δ R[ κ ] =
     (∀ (i j : Fin n) → i ≺ j → P i .fst < P j .fst))
 
 _⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
-τ ⨾⨾ (n , P , o) =  (suc n) , 
-  ((λ { fzero → τ ; (fsuc x) → P x  }) , 
-  λ { fzero (fsuc j) i<j → {!o !} ; (fsuc i) (fsuc j) i<j → o i j {!!} }) -- suc n , λ { fzero    → τ 
+(l , τ) ⨾⨾ (n , P , o) =  
+  (suc n) , 
+  ((λ { fzero → (l , τ) ; (fsuc x) → P x  }) , 
+  λ { fzero (fsuc j) i<j → {!o j !} ; (fsuc i) (fsuc j) (s≤s i<j) → o i j i<j }) -- suc n , λ { fzero    → τ 
                     --      ; (fsuc x) → P x }
 
 -- -- the empty row                                  
