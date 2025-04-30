@@ -28,9 +28,9 @@ reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
-reifyRow' : (n : ℕ) → (Fin n → SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
-reifyRow' (suc n) P = reify (P fzero) ∷ reifyRow' n (P ∘ fsuc) 
+reifyRow' (suc n) P = {!!} -- (P fzero) ∷ reifyRow' n (P ∘ fsuc) 
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
@@ -39,7 +39,7 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right ρ) = ⦅ reifyRow ρ ⦆
+reify {κ = R[ κ ]} (right (left ρ)) = ⦅ reifyRow ρ ⦆
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -75,12 +75,61 @@ idEnv = reflect ∘ `
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 F ·V V = F id V
 
+--------------------------------------------------------------------------------
+-- -- Semantic complement
+
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+ρ₂ ─V ρ₁ = {!!} 
+
+compl : ∀ {n m} → 
+        (P : Fin n → Label × SemType Δ κ) (Q : Fin m → Label × SemType Δ κ) → Row Δ R[ κ ]
+
+_─v_ : Row Δ R[ κ ] → Row Δ R[ κ ] → Row Δ R[ κ ]
+(zero , P) ─v (zero , Q) = εV
+(zero , P) ─v (suc m , Q) = εV
+(suc n , P) ─v (zero , Q) = (suc n , P)
+(suc n , P) ─v (suc m , Q) = compl P Q
+
+_∈Row_ : ∀ {m} → Label → (Q : Fin m → Label × SemType Δ κ) → Bool
+_∈Row_ {m = zero} l Q = false
+_∈Row_ {m = suc m} l Q with l ≟ Q fzero .fst
+... | yes p = true
+... | no  p =  l ∈Row (Q ∘ fsuc)
+
+compl {n = zero} {m} P Q = εV
+compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
+... | true = compl (P ∘ fsuc) Q 
+... | false = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
+
+--------------------------------------------------------------------------------
+-- Testing compl operator
+
+p : Fin 5 → Label × SemType ∅ ★
+p fzero = "a" , UnitNF
+p (fsuc fzero) = "b" , UnitNF
+p (fsuc (fsuc fzero)) = "c" , UnitNF
+p (fsuc (fsuc (fsuc fzero))) = "e" , UnitNF
+p (fsuc (fsuc (fsuc (fsuc fzero)))) = "f" , UnitNF
+
+q : Fin 3 → Label × SemType ∅ ★
+q fzero = "b" , UnitNF
+q (fsuc fzero) = "a" , UnitNF
+q (fsuc (fsuc fzero)) = "d" , UnitNF
+
+x : Bool
+x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
+
+y : Row ∅ R[ ★ ]
+y = compl {Δ = ∅} {κ = ★} q p
+_ = {!y!}
+
 -- -- --------------------------------------------------------------------------------
 -- -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
-_<$>V_  F (right (n , P)) = right ((n , F id ∘ P))
+_<$>V_  F (right (left (n , P))) = {!!} -- right ((n , F id ∘ P))
+_<$>V_  F (right (right (l , τ))) = {!!} -- right ((n , F id ∘ P))
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -133,15 +182,15 @@ open Xi
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
-evalRow : List (Type Δ₁ κ) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
+evalRow : SimpleRow Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 
 evalRow [] η = εV
-evalRow ρ@(x ∷ xs) η = (eval x η) ⨾⨾ (evalRow xs η)
+evalRow ρ@(x ∷ xs) η = {!!} -- (eval x η) ⨾⨾ (evalRow xs η)
 
 -- Throw a hook, a jab, and a boot
 -- I sneak a *quick proof*, then I fire another boot
 ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
-                      reifyRow (evalRow xs η) ≡ map (λ τ → reify (eval τ η)) xs
+                      reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → (l , reify (eval τ η))}) xs
 ⇓Row-isMap η [] = refl
 ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
 
@@ -174,8 +223,12 @@ eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ}
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
-eval {κ = _} (l ▹ τ) η = right ⁅ eval τ η ⁆
-eval ⦅ ρ ⦆ η = right (evalRow ρ η)
+eval {κ = _} (l ▹ τ) η  with eval l η 
+... | ne x   = {!!}
+... | lab l₁ = {!!}
+... | ΠL c   = {!!}
+... | ΣL c   = {!!}
+eval ⦅ ρ ⦆ η = right (left (evalRow ρ η))
 
 --------------------------------------------------------------------------------
 -- Type normalization

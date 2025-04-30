@@ -39,10 +39,10 @@ subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
 subₖ σ ⦅ xs ⦆ = ⦅ subRowₖ σ xs ⦆
 
 subRowₖ σ [] = [] 
-subRowₖ σ (x ∷ xs) = subₖ σ x ∷ subRowₖ σ xs
+subRowₖ σ ((l , τ) ∷ xs) = (l , subₖ σ τ) ∷ subRowₖ σ xs
 
 subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
-                  subRowₖ σ xs ≡ map (subₖ σ) xs
+                  subRowₖ σ xs ≡ map (overᵣ (subₖ σ)) xs
 subRowₖ-isMap σ [] = refl
 subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)
 

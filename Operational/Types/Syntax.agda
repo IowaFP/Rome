@@ -17,7 +17,7 @@ SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
 SimpleRow Ty Δ ★        = ⊥
 SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Ty Δ κ)
+SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 
 --------------------------------------------------------------------------------
 -- Predicates
@@ -134,6 +134,12 @@ data Type Δ where
           Type Δ (R[ κ ] `→ κ)
 
 --------------------------------------------------------------------------------
+-- Helpers for mapping over the tuples inside rows
+
+fmap× : ∀ {Ty : KEnv → Kind → Set} → (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
+fmap× f (x , y) = f x , f y
+
+--------------------------------------------------------------------------------
 -- The empty row is the empty simple row
 
 ε : Type Δ R[ κ ]
@@ -169,10 +175,4 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ Unit ∷ (Σ · ε) ∷ ((`λ (` Z)) · Unit) ∷ Unit ∷ [] ⦆
-       -- (λ { 
-       --      fzero → Unit 
-       --    ; (fsuc fzero) →  Σ · ε 
-       --    ; (fsuc (fsuc fzero)) → ((`λ (` Z)) · Unit)
-       --    ; (fsuc (fsuc (fsuc fzero))) → Unit }) ⦆
-  
+sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆

@@ -41,10 +41,10 @@ renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ �
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
 renRowₖNF _ [] = []
-renRowₖNF r (τ ∷ ρ) = renₖNF r τ ∷ renRowₖNF r ρ
+renRowₖNF r ((l , τ) ∷ ρ) = (l , renₖNF r τ) ∷ renRowₖNF r ρ
 
 renRowₖNF-isMap : ∀ (φ : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-                  renRowₖNF φ xs ≡ map (renₖNF φ) xs
+                  renRowₖNF φ xs ≡ map (overᵣ (renₖNF φ)) xs
 renRowₖNF-isMap φ [] = refl
 renRowₖNF-isMap φ (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap φ xs)
 
