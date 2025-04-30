@@ -46,7 +46,7 @@ reify {κ = R[ κ ]} (right  ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ �
 pfft : ∀ (ρ : Row Δ R[ κ ]) → NormalOrdered (reifyRow ρ)
 pfft (zero , P) = tt
 pfft (suc zero , P) = tt
-pfft (suc (suc n) , P) = {!!} 
+pfft (suc (suc n) , P) = {!P fzero!} 
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
