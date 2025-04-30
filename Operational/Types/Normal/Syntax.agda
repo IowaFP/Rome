@@ -151,12 +151,18 @@ data NormalType Δ where
 -- Ordered predicate
 
 NormalOrdered [] = ⊤
-NormalOrdered (x ∷ []) = ⊤
+NormalOrdered ((ne x , _) ∷ []) = ⊤
+NormalOrdered ((lab l , _) ∷ []) = ⊤
+NormalOrdered ((ΠL fst₁ , snd₁) ∷ []) = ⊥
+NormalOrdered ((ΣL fst₁ , snd₁) ∷ []) = ⊥
 NormalOrdered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × NormalOrdered xs
 NormalOrdered _ = ⊥
 
 normalOrdered? [] = yes tt
-normalOrdered? (x ∷ []) = yes tt
+normalOrdered? ((ne x , τ) ∷ []) = yes tt
+normalOrdered? ((lab l , τ) ∷ []) = yes tt
+normalOrdered? ((ΠL l , τ) ∷ []) = no (λ ())
+normalOrdered? ((ΣL l , τ) ∷ []) = no (λ ())
 normalOrdered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? xs
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
@@ -217,12 +223,12 @@ mapPred-id : ∀ (π : NormalPred Δ R[ κ ]) → mapPred id π ≡ π
 mapPred-id (ρ₁ · ρ₂ ~ ρ₃) = refl
 mapPred-id (ρ₁ ≲ ρ₂) = refl
 
-
 --------------------------------------------------------------------------------
 -- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
 -- constructors.
 
-inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
+inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → 
+         ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
 inj-ne refl = refl
 
 --------------------------------------------------------------------------------
@@ -310,8 +316,11 @@ Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆ tt
 
-_▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
-l ▹' τ = ⦅ [ (l , τ) ] ⦆ tt
+_▹'_ : NeutralType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
+x ▹' τ = ⦅ [ (ne x , τ) ] ⦆ tt
+
+_▹''_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
+l ▹'' τ = ⦅ [ (lab l , τ) ] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Admissable constants

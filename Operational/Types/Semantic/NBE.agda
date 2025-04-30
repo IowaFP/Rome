@@ -199,11 +199,12 @@ eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 -- eval {κ = _} (l ▹ τ) η = right ⁅ eval τ η ⁆
 eval (⦅ ρ ⦆ oρ) η with toWitness oρ 
 eval (⦅ [] ⦆ oρ) η | c = right εV
-eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | c = right ((l₁ , eval τ₁ η) ⨾⨾ ((l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
+eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | (l₁<l₂ , _) = 
+  right ((l₁ , eval τ₁ η) ⨾⨾ ((l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
 eval (⦅ (l , τ) ∷ [] ⦆ oρ) η | c with eval l η 
 ... | ne x = left (x ▹ (reify (eval τ η)))
 ... | lab l₁ = right ⁅ l₁ , eval τ η ⁆
-... | ΠL d = {!!}
+... | ΠL d = {!c!}
 ... | ΣL d = {!!}
 
 --------------------------------------------------------------------------------
