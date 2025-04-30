@@ -44,6 +44,14 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
+  _─₁_ : NeutralType Δ R[ κ ] → NormalType Δ R[ κ ] → 
+        ----------------------------------------------
+        NeutralType Δ R[ κ ]
+
+  _─₂_ : NormalType Δ R[ κ ] → NeutralType Δ R[ κ ] → 
+        ----------------------------------------------
+        NeutralType Δ R[ κ ]
+
 
 data NormalType Δ where
 
@@ -146,6 +154,8 @@ data NormalType Δ where
 noNeutrals : NeutralType ∅ κ → ⊥
 noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
+noNeutrals (n ─₁ _) = noNeutrals n
+noNeutrals (_ ─₂ n) = noNeutrals n
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -171,11 +181,18 @@ mapPred-id (ρ₁ ≲ ρ₂) = refl
 
 
 --------------------------------------------------------------------------------
--- The year is 2025 and I have no generic way of deriving injectivity lemmas for 
--- constructors.
+-- injectivity ne constructor
 
-inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g : True (ground? κ)} → ne e₁ {ground = g} ≡ ne e₂ {ground = g} → e₁ ≡ e₂
-inj-ne refl = refl
+inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g₁ g₂ : True (ground? κ)} → ne e₁ {g₁} ≡ ne e₂ {ground = g₂} → e₁ ≡ e₂
+inj-ne {κ = κ} {g₁ = g₁} {g₂ = g₂} refl rewrite Dec→MereProp (Ground κ) (ground? κ) g₁ g₂ = refl
+
+--------------------------------------------------------------------------------
+-- Congruene for ne constructor
+
+cong-ne : ∀ {x y : NeutralType Δ κ} {g₁ : True (ground? κ)} {g₂ : True (ground? κ)} →
+          x ≡ y → ne x {g₁} ≡ ne y {g₂}
+cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→MereProp (Ground κ) (ground? κ) g₁ g₂ = refl
+
 
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
@@ -237,9 +254,12 @@ arrow-canonicity (`λ f) = f , refl
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
+⇑NE (ρ₂ ─₁ ρ₁) = (⇑NE ρ₂) ─ (⇑ ρ₁)
+⇑NE (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NE ρ₁)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
+
 
 --------------------------------------------------------------------------------
 -- row "constructors"

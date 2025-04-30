@@ -27,9 +27,9 @@ Row : KEnv → Kind → Set
 Row Δ ★ = ⊥ 
 Row Δ L = ⊥ 
 Row Δ (_ `→ _) = ⊥ 
-Row Δ R[ κ ] = ∃[ n ](Fin n → Label × SemType Δ κ)
+Row Δ R[ κ ] = ∃[ n ](Fin n → NormalType Δ L × SemType Δ κ)
 
-_⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+_⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
                           ; (fsuc x) → P x }
 
@@ -38,7 +38,7 @@ _⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 εV = 0 , λ ()
 
 -- Singleton rows
-⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
+⁅_⁆ : NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] 
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
 subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
@@ -57,4 +57,3 @@ SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ κ ] = 
      NeutralType Δ R[ κ ] 
   or Row Δ R[ κ ]
-  or (NormalType Δ L × SemType Δ κ)

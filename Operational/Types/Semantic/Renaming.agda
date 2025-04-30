@@ -31,10 +31,9 @@ renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
-renSem {κ = R[ κ ]} r (right (left (n , P))) = right (left (n , (overᵣ (renSem r)) ∘ P))
-renSem {κ = R[ κ ]} r (right (right (l , τ))) = (right ∘ right) (renₖNF r l , renSem r τ)
+renSem {κ = R[ κ ]} r (right (n , P)) = right (n , (λ i → (renSem {κ = L} r ((P i) .fst)) , (renSem r (P i .snd))))
 
-renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P 
+renRow φ (n , P) = n , fmap× {Ty = SemType} (renSem φ) ∘ P 
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening

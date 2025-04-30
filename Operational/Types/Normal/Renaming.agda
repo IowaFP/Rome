@@ -22,6 +22,8 @@ renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPr
 renₖNE ρ (` x) = ` (ρ x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
 renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
+renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ (renₖNF r ρ₁)
+renₖNE r (ρ₂ ─₂ ρ₁) = renₖNF r ρ₂ ─₂ (renₖNE r ρ₁)
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
