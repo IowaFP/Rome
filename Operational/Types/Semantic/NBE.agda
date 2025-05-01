@@ -31,7 +31,11 @@ reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
 reifyRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero    P = []
-reifyRow' (suc n) P = {!P fzero!} ∷ {!!} -- (P fzero) ∷ reifyRow' n (P ∘ fsuc) 
+reifyRow' (suc n) P with P fzero 
+... | ne x , V = {!!}
+... | lab l , V = (l , (reify V)) ∷ (reifyRow' n (P ∘ fsuc))
+... | ΠL l , V = {!!}
+... | ΣL l , V = {!!}
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
