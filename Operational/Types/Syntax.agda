@@ -19,6 +19,11 @@ SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
 SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 
+-- data SimpleRow' (Ty : KEnv → Kind → Set) : KEnv → Kind → Set  where
+  
+--      _▹_  : Ty Δ L → Ty Δ κ → Ty Δ R[ κ ] 
+--      _;;_ : Label → 
+
 --------------------------------------------------------------------------------
 -- Predicates
 
