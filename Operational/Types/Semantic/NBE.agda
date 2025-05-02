@@ -6,6 +6,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Normal.Properties.Decidability
 
 open import Rome.Operational.Types.Renaming
 
@@ -28,10 +29,11 @@ reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
-reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+
+reifyRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
 reifyRow' (suc n) P with P fzero
-... | (l , τ) = (lab l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
+... | (l , τ) = (l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
@@ -45,7 +47,7 @@ reify {κ = R[ κ ]} (right  ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ �
 -- This is almost provable
 pfft : ∀ (ρ : Row Δ R[ κ ]) → NormalOrdered (reifyRow ρ)
 pfft (zero , P) = tt
-pfft (suc zero , P) = tt
+pfft (suc zero , P) = {!!}
 pfft (suc (suc n) , P) = {!!} 
 
 --------------------------------------------------------------------------------
@@ -82,12 +84,62 @@ idEnv = reflect ∘ `
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 F ·V V = F id V
 
+--------------------------------------------------------------------------------
+-- -- Semantic complement
+
+_∈Row_ : ∀ {m} → NormalType Δ L → (Q : Fin m → NormalType Δ L × SemType Δ κ) → Bool
+_∈Row_ {m = zero} l Q = false
+_∈Row_ {m = suc m} l Q with l ≡? Q fzero .fst
+... | yes p = true
+... | no  p =  l ∈Row (Q ∘ fsuc)
+
+compl : ∀ {n m} → 
+        (P : Fin n → NormalType Δ L × SemType Δ κ) (Q : Fin m → NormalType Δ L × SemType Δ κ) → Row Δ R[ κ ]
+compl {n = zero} {m} P Q = εV
+compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
+... | true = compl (P ∘ fsuc) Q 
+... | false = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
+_─v_ : Row Δ R[ κ ] → Row Δ R[ κ ] → Row Δ R[ κ ]
+(zero , P) ─v (zero , Q) = εV
+(zero , P) ─v (suc m , Q) = εV
+(suc n , P) ─v (zero , Q) = (suc n , P)
+(suc n , P) ─v (suc m , Q) = compl P Q
+
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+left x ─V left x₁ = {!!}
+left x ─V right ρ₁ = left {!!}
+right ρ₂ ─V left x = left {!!}
+right ρ₂ ─V right ρ₁ = right (ρ₂ ─v ρ₁)
+
+
+--------------------------------------------------------------------------------
+-- Testing compl operator
+
+p : Fin 5 → NormalType ∅ L × SemType ∅ ★
+p fzero = lab "a" , UnitNF
+p (fsuc fzero) = lab "b" , UnitNF
+p (fsuc (fsuc fzero)) = lab "c" , UnitNF
+p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
+p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
+
+q : Fin 3 → NormalType ∅ L × SemType ∅ ★
+q fzero = lab "b" , UnitNF
+q (fsuc fzero) = lab "a" , UnitNF
+q (fsuc (fsuc fzero)) = lab "d" , UnitNF
+
+x : Bool
+x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
+
+y : Row ∅ R[ ★ ]
+y = compl {Δ = ∅} {κ = ★} q p
+
+
 -- -- --------------------------------------------------------------------------------
 -- -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
-_<$>V_  F (right (n , P)) = right (n , (overᵣ (F id) ∘ P))
+_<$>V_  F (right (n , P)) = right (n , (λ { i → P i .fst , F id (P i .snd) }))
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -179,6 +231,7 @@ eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
 eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) -- eval τ (lifte η)
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
+eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
 
 ----------------------------------------
 -- Label evaluation.
@@ -200,10 +253,10 @@ eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval (⦅ ρ ⦆ oρ) η with toWitness oρ 
 eval (⦅ [] ⦆ oρ) η | c = right εV
 eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | (l₁<l₂ , _) = 
-  right ((l₁ , eval τ₁ η) ⨾⨾ ((l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
+  right ((lab l₁ , eval τ₁ η) ⨾⨾ ((lab l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
 eval (⦅ (l , τ) ∷ [] ⦆ oρ) η | c with eval l η 
-... | ne x = left (x ▹ (reify (eval τ η)))
-... | lab l₁ = right ⁅ l₁ , eval τ η ⁆
+... | ne x = {!!}
+... | lab l₁ = right ⁅ lab l₁ , eval τ η ⁆
 ... | ΠL d = right ⁅ {!d!} , eval τ η ⁆ 
 ... | ΣL d = {!!}
 

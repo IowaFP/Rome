@@ -19,8 +19,8 @@ data _≡t_ : Type Δ κ → Type Δ κ → Set
 
 private
     variable
-        l l₁ l₂ l₃ : Type Δ L
         ℓ ℓ₁ ℓ₂ ℓ₃ : Label
+        l l₁ l₂ l₃ : Type Δ L
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
         π₁ π₂    : Pred Type Δ R[ κ ]
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
@@ -194,15 +194,15 @@ data _≡t_ where
          ----------------------------
          Σ · ρ ≡t Σ <$> ρ
 
-    eq-Πλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)}  → 
+    -- eq-Πλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)}  → 
 
-        -------------------------------------------
-        Π · (⦅ ρ ⦆ oρ) ≡t `λ (Π · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
+    --     -------------------------------------------
+    --     Π · (⦅ ρ ⦆ oρ) ≡t `λ (Π · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
 
-    eq-Σλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)} → 
+    -- eq-Σλ : ∀ {ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]} {oρ : True (ordered? ρ)} → 
 
-        -------------------------------------------
-        Σ · (⦅ ρ ⦆ oρ) ≡t `λ (Σ · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
+    --     -------------------------------------------
+    --     Σ · (⦅ ρ ⦆ oρ) ≡t `λ (Σ · ⦅ map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ ⦆ (fromWitness (Ξλ-ordered ρ (toWitness oρ)))) 
         
     eq-Π-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
 

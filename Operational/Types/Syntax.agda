@@ -140,6 +140,11 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
+  _─_ : 
+      
+        Type Δ R[ κ ] → Type Δ R[ κ ] → 
+        ---------------------------------
+        Type Δ R[ κ ]
 
 --------------------------------------------------------------------------------
 -- Simple row well-formedness
@@ -222,9 +227,3 @@ Unit = Π · ε
 -- Example simple row
 sr : Type Δ R[ ★ ] 
 sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "d" , Unit) ∷ [] ⦆ tt
-       -- (λ { 
-       --      fzero → Unit 
-       --    ; (fsuc fzero) →  Σ · ε 
-       --    ; (fsuc (fsuc fzero)) → ((`λ (` Z)) · Unit)
-       --    ; (fsuc (fsuc (fsuc fzero))) → Unit }) ⦆
-  
