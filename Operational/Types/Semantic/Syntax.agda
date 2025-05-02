@@ -29,23 +29,38 @@ Row Δ L = ⊥
 Row Δ (_ `→ _) = ⊥ 
 Row Δ R[ κ ] = ∃[ n ](Fin n → NormalType Δ L × SemType Δ κ)
 
-_≪_ : NormalType Δ L → NormalType Δ L → Set 
-(lab l₁) ≪ (lab l₂) = l₁ < l₂
-_ ≪ _ = ⊥
+--------------------------------------------------------------------------------
+-- Ordered predicate on semantic rows
 
 OrderedRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → Set
 OrderedRow' zero P = ⊤
 OrderedRow' (suc zero) P = ⊤
 OrderedRow' (suc (suc n)) P = (P fzero .fst ≪ P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
 
-wtf : ℕ → Set 
-wtf zero = ⊤
-wtf (suc zero) = wtf zero
-wtf (suc (suc n)) = wtf (suc n)
-
-
 OrderedRow : Row Δ R[ κ ] → Set
 OrderedRow (n , P) = OrderedRow' n P
+
+--------------------------------------------------------------------------------
+-- Truncating a row preserves ordering
+
+ordered-cut : ∀ {n : ℕ} → {P : Fin (suc n) → NormalType Δ L × SemType Δ κ} → 
+              OrderedRow (suc n , P) → OrderedRow (n , P ∘ fsuc)
+ordered-cut {n = zero} oρ = tt
+ordered-cut {n = suc n} oρ = oρ .snd
+
+
+--------------------------------------------------------------------------------
+-- Ordering is preserved by mapping
+
+orderedOverᵣ : ∀ {n} {P : Fin n → NormalType Δ L × SemType Δ κ₁} → 
+               (f : SemType Δ κ₁ → SemType Δ κ₂) → 
+               OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
+orderedOverᵣ {n = zero} {P} f oρ = tt
+orderedOverᵣ {n = suc zero} {P} f oρ = tt
+orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
+
+--------------------------------------------------------------------------------
+-- 
 
 _⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 

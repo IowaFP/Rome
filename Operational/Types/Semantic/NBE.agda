@@ -38,17 +38,20 @@ reifyRow' (suc n) P with P fzero
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
 
+reifyRowOrdered : ∀ (ρ : Row Δ R[ κ ]) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
+reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → NormalType Δ L × SemType Δ κ) → OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
+
+reifyRowOrdered' zero P oρ = tt
+reifyRowOrdered' (suc zero) P oρ = tt
+reifyRowOrdered' (suc (suc n)) P (l₁<l₂ , ih) = l₁<l₂ , (reifyRowOrdered' (suc n) (P ∘ fsuc) ih)
+
+reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
+
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right  ρ@(n , P)) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
-
--- This is almost provable
-pfft : ∀ (ρ : Row Δ R[ κ ]) → NormalOrdered (reifyRow ρ)
-pfft (zero , P) = tt
-pfft (suc zero , P) = tt
-pfft (suc (suc n) , P) = {!!} 
+reify {κ = R[ κ ]} (right  (ρ@(n , P) , q)) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -94,22 +97,62 @@ _∈Row_ {m = suc m} l Q with l ≡? Q fzero .fst
 ... | no  p =  l ∈Row (Q ∘ fsuc)
 
 compl : ∀ {n m} → 
-        (P : Fin n → NormalType Δ L × SemType Δ κ) (Q : Fin m → NormalType Δ L × SemType Δ κ) → Row Δ R[ κ ]
+        (P : Fin n → NormalType Δ L × SemType Δ κ) 
+        (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+        Row Δ R[ κ ]
 compl {n = zero} {m} P Q = εV
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
 ... | true = compl (P ∘ fsuc) Q 
 ... | false = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
+
+lemma : ∀ {n m q} → 
+          (P : Fin (suc n) → NormalType Δ L × SemType Δ κ)
+          (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+          (R : Fin (suc q) → NormalType Δ L × SemType Δ κ) → 
+             OrderedRow (suc n , P) →
+             compl (P ∘ fsuc) Q ≡ (suc q , R) → 
+          P fzero .fst ≪ R fzero .fst
+lemma {n = suc zero} P Q R oP eq = {!!}
+lemma {n = suc (suc n)} P Q R oP eq = {!!}
+
+ordered-⨾⨾ : ∀ {n m} → 
+                 (P : Fin (suc n) → NormalType Δ L × SemType Δ κ) 
+                 (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+                 OrderedRow (suc n , P) → 
+                 OrderedRow (compl (P ∘ fsuc) Q) → OrderedRow (P fzero ⨾⨾ compl (P ∘ fsuc) Q)
+ordered-⨾⨾ {n = n} P Q oP oC with compl (P ∘ fsuc) Q | inspect (compl (P ∘ fsuc)) Q
+... | zero , R | _ = tt
+ordered-⨾⨾ {n = suc n} P Q oP oC | suc p , R | [[ eq ]] with P (fsuc fzero) .fst ∈Row Q 
+ordered-⨾⨾ {κ = _} {suc n} P Q oP oC | suc p , R | [[ refl ]] | false = (oP .fst) , oC
+... | true = {!eq!} , oC
+
+ordered-compl :  ∀ {n m} → 
+                 (P : Fin n → NormalType Δ L × SemType Δ κ) 
+                 (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+                 OrderedRow (n , P) → OrderedRow (m , Q) → OrderedRow (compl P Q)
+ordered-compl {n = zero} P Q oρ₁ oρ₂ = tt
+ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
+... | true = ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂
+... | false = ordered-⨾⨾ P Q oρ₁ (ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂)
+                
 _─v_ : Row Δ R[ κ ] → Row Δ R[ κ ] → Row Δ R[ κ ]
 (zero , P) ─v (zero , Q) = εV
 (zero , P) ─v (suc m , Q) = εV
 (suc n , P) ─v (zero , Q) = (suc n , P)
 (suc n , P) ─v (suc m , Q) = compl P Q
 
+ordered─v : ∀ (ρ₂ ρ₁ : Row Δ R[ κ ]) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
+ordered─v (zero , P) (zero , Q) oρ₂ oρ₁ = tt
+ordered─v (zero , P) (suc m , Q) oρ₂ oρ₁ = tt
+ordered─v (suc n , P) (zero , Q) oρ₂ oρ₁ = oρ₂
+ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
+
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-left x ─V left x₁ = {!!}
-left x ─V right ρ₁ = left {!!}
-right ρ₂ ─V left x = left {!!}
-right ρ₂ ─V right ρ₁ = right (ρ₂ ─v ρ₁)
+left x ─V left y = left (x ─₁ (ne y))
+left x ─V right (ρ , e) = left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)))
+right (ρ , e) ─V left x = left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x)
+right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
+
 
 
 --------------------------------------------------------------------------------
@@ -133,13 +176,15 @@ x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
 y : Row ∅ R[ ★ ]
 y = compl {Δ = ∅} {κ = ★} q p
 
+_ = {!compl {Δ = ∅} {κ = ★} p q!}
+
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
-_<$>V_  F (right (n , P)) = right (n , (λ { i → P i .fst , F id (P i .snd) }))
+_<$>V_  F (right ((n , P), oρ)) = right ((n , overᵣ (F id) ∘ P) , orderedOverᵣ (F id) oρ) 
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -207,10 +252,12 @@ open Xi
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
 evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
-evalRow : SimpleRow Type Δ R[ κ ] → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
+evalRow        : SimpleRow Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
+evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
+
 
 evalRow [] η = εV
-evalRow ρ@((l , τ) ∷ xs) η = {!!}
+evalRow ((l , τ) ∷ ρ) η = (eval l η , eval τ η) ⨾⨾ evalRow ρ η 
 
 -- Throw a hook, a jab, and a boot
 -- I sneak a *quick proof*, then I fire another boot
@@ -249,16 +296,15 @@ eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ}
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
--- eval {κ = _} (l ▹ τ) η = right ⁅ eval τ η ⁆
-eval (⦅ ρ ⦆ oρ) η with toWitness oρ 
-eval (⦅ [] ⦆ oρ) η | c = right εV
-eval (⦅ (lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ ⦆ oρ) η | (l₁<l₂ , _) = 
-  right ((lab l₁ , eval τ₁ η) ⨾⨾ ((lab l₂ , eval τ₂ η) ⨾⨾ (evalRow ρ η)))
-eval (⦅ (l , τ) ∷ [] ⦆ oρ) η | c with eval l η 
-... | ne x = {!!}
-... | lab l₁ = right ⁅ lab l₁ , eval τ η ⁆
-... | ΠL d = right ⁅ {!d!} , eval τ η ⁆ 
-... | ΣL d = {!!}
+eval (⦅ ρ ⦆ oρ) η = right ((evalRow ρ η) , evalRowOrdered ρ η (toWitness oρ)) 
+
+evalRowOrdered [] η oρ = tt
+evalRowOrdered (x₁ ∷ []) η oρ = tt
+evalRowOrdered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
+  evalRow ρ η | evalRowOrdered ((lab l₂ , τ₂) ∷ ρ) η oρ
+... | zero , P | ih = l₁<l₂ , tt
+... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
+
 
 --------------------------------------------------------------------------------
 -- Type normalization

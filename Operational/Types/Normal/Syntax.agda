@@ -154,10 +154,13 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- Ordered predicate
 
+_≪_ : NormalType Δ L → NormalType Δ L → Set 
+(lab l₁) ≪ (lab l₂) = l₁ < l₂
+_ ≪ _ = ⊥
+
 NormalOrdered [] = ⊤
 NormalOrdered ((l , _) ∷ []) = ⊤
-NormalOrdered ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ xs) = l₁ < l₂ × NormalOrdered ((lab l₂ , τ) ∷ xs)
-NormalOrdered _ = ⊥
+NormalOrdered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ ≪ l₂ × NormalOrdered ((l₂ , τ) ∷ xs)
 
 normalOrdered? [] = yes tt
 normalOrdered? ((l , τ) ∷ []) = yes tt
