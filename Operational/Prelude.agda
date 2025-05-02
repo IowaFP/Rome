@@ -4,7 +4,7 @@ open import Agda.Primitive public
 
 open import Data.Fin 
   using (Fin ; fromℕ ; inject₁ ; cast) 
-  renaming (zero to fzero ; suc to fsuc ; _<_ to _≺_) public
+  renaming (zero to fzero ; suc to fsuc) public
 open import Data.Unit hiding (_≟_) public
 open import Data.Empty public
 import Data.Sum as Sum

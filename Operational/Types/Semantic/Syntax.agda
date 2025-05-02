@@ -27,32 +27,28 @@ Row : KEnv → Kind → Set
 Row Δ ★ = ⊥ 
 Row Δ L = ⊥ 
 Row Δ (_ `→ _) = ⊥ 
-Row Δ R[ κ ] = 
-  ∃[ n ] (Σ[ P ∈ (Fin n → Label × SemType Δ κ) ]
-    (∀ (i j : Fin n) → i ≺ j → P i .fst < P j .fst))
+Row Δ R[ κ ] = ∃[ n ](Fin n → Label × SemType Δ κ)
 
 _⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
-τ ⨾⨾ (n , P , o) =  (suc n) , 
-  ((λ { fzero → τ ; (fsuc x) → P x  }) , 
-  λ { fzero (fsuc j) i<j → {!o !} ; (fsuc i) (fsuc j) i<j → o i j {!!} }) -- suc n , λ { fzero    → τ 
-                    --      ; (fsuc x) → P x }
+τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
+                          ; (fsuc x) → P x }
 
--- -- the empty row                                  
--- εV : Row Δ R[ κ ] 
--- εV = 0 , λ ()
+-- the empty row                                  
+εV : Row Δ R[ κ ] 
+εV = 0 , λ ()
 
--- -- Singleton rows
--- ⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
--- ⁅ τ ⁆ = 1 , λ { fzero → τ }
+-- Singleton rows
+⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
+⁅ τ ⁆ = 1 , λ { fzero → τ }
 
--- subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
--- subst-Fin eq x = cast eq x
+subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
+subst-Fin eq x = cast eq x
 
--- subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
--- subst-Row refl f = f
+subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
+subst-Row refl f = f
 
--- --------------------------------------------------------------------------------
--- -- Semantic types (definition)
+--------------------------------------------------------------------------------
+-- Semantic types (definition)
 
 
 SemType Δ ★ = NormalType Δ ★
