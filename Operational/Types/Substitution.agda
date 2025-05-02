@@ -45,7 +45,7 @@ subRowₖ σ ((l , τ) ∷ xs) = (subₖ σ l , subₖ σ τ) ∷ subRowₖ σ x
 
 orderedSubRowₖ r [] oxs = tt
 orderedSubRowₖ r ((l , τ) ∷ []) oxs = tt
-orderedSubRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r xs oxs
+orderedSubRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((lab l₂ , υ) ∷ xs) oxs
 
 subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
                   subRowₖ σ xs ≡ map (fmap× {Ty = Type} (subₖ σ)) xs

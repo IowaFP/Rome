@@ -48,9 +48,8 @@ renRowₖNF _ [] = []
 renRowₖNF r ((l , τ) ∷ ρ) = (renₖNF r l , renₖNF r τ) ∷ renRowₖNF r ρ
 
 orderedRenRowₖNF r [] oxs = tt
-orderedRenRowₖNF r ((ne x , τ) ∷ []) oxs = tt
-orderedRenRowₖNF r ((lab l , τ) ∷ []) oxs = tt
-orderedRenRowₖNF r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r xs oxs
+orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
+orderedRenRowₖNF r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((lab l₂ , υ) ∷ xs) oxs
 
 renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
                   renRowₖNF r xs ≡ map (λ (l , τ) → renₖNF r l , renₖNF r τ) xs 

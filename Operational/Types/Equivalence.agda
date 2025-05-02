@@ -217,7 +217,7 @@ data _≡t_ where
 
 Ξλ-ordered [] oρ = tt
 Ξλ-ordered (x ∷ []) oρ = tt
-Ξλ-ordered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ρ oρ
+Ξλ-ordered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ((lab l₂ , τ₂) ∷ ρ) oρ
 
 -- -------------------------------------------------------------------------------
 -- -- Lifting propositional equality to type equivalence

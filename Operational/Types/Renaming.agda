@@ -52,7 +52,7 @@ renRowₖ r ((l , τ) ∷ xs) = (renₖ r l , renₖ r τ) ∷ renRowₖ r xs
 
 orderedRenRowₖ r [] oxs = tt
 orderedRenRowₖ r ((l , τ) ∷ []) oxs = tt
-orderedRenRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖ r xs oxs
+orderedRenRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖ r ((lab l₂ , υ) ∷ xs) oxs
 
 weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S

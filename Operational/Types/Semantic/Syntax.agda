@@ -29,6 +29,24 @@ Row Δ L = ⊥
 Row Δ (_ `→ _) = ⊥ 
 Row Δ R[ κ ] = ∃[ n ](Fin n → NormalType Δ L × SemType Δ κ)
 
+_≪_ : NormalType Δ L → NormalType Δ L → Set 
+(lab l₁) ≪ (lab l₂) = l₁ < l₂
+_ ≪ _ = ⊥
+
+OrderedRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → Set
+OrderedRow' zero P = ⊤
+OrderedRow' (suc zero) P = ⊤
+OrderedRow' (suc (suc n)) P = (P fzero .fst ≪ P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
+
+wtf : ℕ → Set 
+wtf zero = ⊤
+wtf (suc zero) = wtf zero
+wtf (suc (suc n)) = wtf (suc n)
+
+
+OrderedRow : Row Δ R[ κ ] → Set
+OrderedRow (n , P) = OrderedRow' n P
+
 _⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
@@ -57,4 +75,4 @@ SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
 SemType Δ R[ κ ] = 
      NeutralType Δ R[ κ ] 
-  or Row Δ R[ κ ]
+  or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))

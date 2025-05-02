@@ -151,12 +151,12 @@ data Type Δ where
 
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
-Ordered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+Ordered ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((lab l₂ , τ) ∷ xs)
 Ordered _ = ⊥
 
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
-ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
+ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((lab l₂ , _) ∷ xs)
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
@@ -188,7 +188,7 @@ map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ �
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
 map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ρ f oρ)
+map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((lab l₂ , _) ∷ ρ) f oρ)
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row

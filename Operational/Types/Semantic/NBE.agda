@@ -42,12 +42,12 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
 reify {κ = R[ κ ]} (left x) = ne x
-reify {κ = R[ κ ]} (right  ρ) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
+reify {κ = R[ κ ]} (right  ρ@(n , P)) = ⦅ reifyRow ρ ⦆ {!!} -- ⦅ reifyRow ρ ⦆
 
 -- This is almost provable
 pfft : ∀ (ρ : Row Δ R[ κ ]) → NormalOrdered (reifyRow ρ)
 pfft (zero , P) = tt
-pfft (suc zero , P) = {!!}
+pfft (suc zero , P) = tt
 pfft (suc (suc n) , P) = {!!} 
 
 --------------------------------------------------------------------------------

@@ -155,19 +155,13 @@ data NormalType Δ where
 -- Ordered predicate
 
 NormalOrdered [] = ⊤
-NormalOrdered ((ne x , _) ∷ []) = ⊤
-NormalOrdered ((lab l , _) ∷ []) = ⊤
-NormalOrdered ((ΠL fst₁ , snd₁) ∷ []) = ⊥
-NormalOrdered ((ΣL fst₁ , snd₁) ∷ []) = ⊥
-NormalOrdered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × NormalOrdered xs
+NormalOrdered ((l , _) ∷ []) = ⊤
+NormalOrdered ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ xs) = l₁ < l₂ × NormalOrdered ((lab l₂ , τ) ∷ xs)
 NormalOrdered _ = ⊥
 
 normalOrdered? [] = yes tt
-normalOrdered? ((ne x , τ) ∷ []) = yes tt
-normalOrdered? ((lab l , τ) ∷ []) = yes tt
-normalOrdered? ((ΠL l , τ) ∷ []) = no (λ ())
-normalOrdered? ((ΣL l , τ) ∷ []) = no (λ ())
-normalOrdered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? xs
+normalOrdered? ((l , τ) ∷ []) = yes tt
+normalOrdered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? ((lab l₂ , _) ∷ xs)
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
@@ -305,7 +299,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 
 Ordered⇑ [] oρ = tt
 Ordered⇑ (x ∷ []) oρ = tt
-Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ρ oρ
+Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ((lab l₂ , _) ∷ ρ) oρ
 
 ⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
                ⇑Row xs ≡ map (λ { (l , τ) → ⇑ l , ⇑ τ }) xs
