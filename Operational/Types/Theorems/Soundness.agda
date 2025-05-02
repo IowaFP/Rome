@@ -298,3 +298,4 @@ soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fund
 
 embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
 embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
+
