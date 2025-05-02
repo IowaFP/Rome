@@ -112,8 +112,7 @@ lemma : ∀ {n m q} →
              OrderedRow (suc n , P) →
              compl (P ∘ fsuc) Q ≡ (suc q , R) → 
           P fzero .fst ≪ R fzero .fst
-lemma {n = suc zero} P Q R oP eq = {!!}
-lemma {n = suc (suc n)} P Q R oP eq = {!!}
+lemma {n = n} {q = q} P Q R oP eq = {!q!}
 
 ordered-⨾⨾ : ∀ {n m} → 
                  (P : Fin (suc n) → NormalType Δ L × SemType Δ κ) 
@@ -124,7 +123,7 @@ ordered-⨾⨾ {n = n} P Q oP oC with compl (P ∘ fsuc) Q | inspect (compl (P �
 ... | zero , R | _ = tt
 ordered-⨾⨾ {n = suc n} P Q oP oC | suc p , R | [[ eq ]] with P (fsuc fzero) .fst ∈Row Q 
 ordered-⨾⨾ {κ = _} {suc n} P Q oP oC | suc p , R | [[ refl ]] | false = (oP .fst) , oC
-... | true = {!eq!} , oC
+... | true = {!lemma P Q R oP !} , oC
 
 ordered-compl :  ∀ {n m} → 
                  (P : Fin n → NormalType Δ L × SemType Δ κ) 
