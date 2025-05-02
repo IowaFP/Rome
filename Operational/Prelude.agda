@@ -20,7 +20,7 @@ open Product
   public
 open import Data.Product.Properties using (,-injectiveʳ ; ,-injectiveˡ) public
 
-open import Data.Nat using (ℕ ; zero ; suc ; s≤s ; z≤n) public
+open import Data.Nat using (ℕ ; zero ; suc) public
 open import Data.Nat.Properties using (suc-injective) public
 open import Data.String hiding (_≈_ ; map ; length ; _++_) public
 open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ; _++_; lookup) public
@@ -96,8 +96,7 @@ Dec→MereProp P (yes d) p₁ p₂ = refl
 Dec→MereProp P (no  d) p₁ p₂ = refl
 
 --------------------------------------------------------------------------------
--- Help with FIn
+-- Absurd elimination of Any type
 
--- fsuc-≺ : ∀ {n} → (i j : Fin n) → fsuc i ≺ fsuc j → i ≺ j 
--- fsuc-≺ i j (Data.Nat.s≤s i<j) = i<j
-
+-- absurd∈ : ∀ {A : Set} {xs : List Label} {x : Label} {p : x ∈ xs} → there p ≡ here refl → A 
+-- absurd∈ ()
