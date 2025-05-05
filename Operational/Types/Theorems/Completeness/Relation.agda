@@ -24,8 +24,10 @@ open import Rome.Operational.Types.Semantic.NBE
 
 -- Completeness relation on semantic types
 _≋_ : SemType Δ κ → SemType Δ κ → Set
-_≋₂_ : (ρ₁ ρ₂ : NormalType Δ L × SemType Δ κ) → Set
+_≋₂_ : (x y : NormalType Δ L × SemType Δ κ) → Set
 (l₁ , τ₁) ≋₂ (l₂ , τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋R_ : (ρ₁ ρ₂ : Row Δ R[ κ ]) → Set 
+(n , P) ≋R (m , Q) = Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) →  (subst-Row pf P) i ≋₂ Q i)
 
 PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
 Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
@@ -37,8 +39,7 @@ _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G =
 _≋_ {Δ₁} {R[ κ ]} (left x) (left y) = x ≡ y
 _≋_ {Δ₁} {R[ κ ]} (left x) (right y) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (right y) (left x) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (right ((n , P) , oP)) (right ((m , Q) , oQ)) = 
-  Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) →  (subst-Row pf P) i ≋₂ Q i)
+_≋_ {Δ₁} {R[ κ ]} (right ((n , P) , oP)) (right ((m , Q) , oQ)) = (n , P) ≋R (m , Q)
 
 PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
