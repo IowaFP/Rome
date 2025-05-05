@@ -165,41 +165,15 @@ left x ─V right (ρ , e) = left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (re
 right (ρ , e) ─V left x = left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x)
 right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
 
-
-
 --------------------------------------------------------------------------------
--- Testing compl operator
-
-p : Fin 5 → NormalType ∅ L × SemType ∅ ★
-p fzero = lab "a" , UnitNF
-p (fsuc fzero) = lab "b" , UnitNF
-p (fsuc (fsuc fzero)) = lab "c" , UnitNF
-p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
-p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
-
-q : Fin 3 → NormalType ∅ L × SemType ∅ ★
-q fzero = lab "b" , UnitNF
-q (fsuc fzero) = lab "a" , UnitNF
-q (fsuc (fsuc fzero)) = lab "d" , UnitNF
-
-x : Bool
-x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
-
-y : Row ∅ R[ ★ ]
-y = compl {Δ = ∅} {κ = ★} q p
-
-_ = {!compl {Δ = ∅} {κ = ★} p q!}
-
-
--- -- --------------------------------------------------------------------------------
--- -- -- Semantic lifting
+-- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 _<$>V_  F (left x) = left (reifyKripke F <$> x)
 _<$>V_  F (right ((n , P), oρ)) = right ((n , overᵣ (F id) ∘ P) , orderedOverᵣ (F id) oρ) 
 
--- --------------------------------------------------------------------------------
--- -- Semantic flap
+--------------------------------------------------------------------------------
+-- Semantic flap
 
 apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
 apply a = λ ρ F → F ·V (renSem ρ a)
@@ -210,22 +184,7 @@ f <?>V a = apply a <$>V f
 
 
 --------------------------------------------------------------------------------
--- Complement
-
--- _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
--- left x ─V left x₁ = {!!}
--- left x ─V right y = {!!}
--- right y ─V left x = {!!}
--- right (zero , P) ─V right (zero , Q) = right εV
--- right (zero , P) ─V right (suc m , Q) = right εV
--- right (suc n , P) ─V right (zero , Q) = right (suc n , P)
--- right (suc n , P) ─V right (suc m , Q) = right ({!!} , {!!})
---   where
---     count : Fin (suc n) → Fin (suc m) → ℕ → ℕ
---     count i j k = {!fst (P i) ≟ ?!}
-
--- -- --------------------------------------------------------------------------------
--- -- -- (Generic) Semantic combinators for Π/Σ
+-- (Generic) Semantic combinators for Π/Σ
 
 record Xi : Set where 
   field
@@ -267,17 +226,13 @@ evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ �
 evalRow        : SimpleRow Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
 evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
-
 evalRow [] η = εV
 evalRow ((l , τ) ∷ ρ) η = (eval l η , eval τ η) ⨾⨾ evalRow ρ η 
 
--- Throw a hook, a jab, and a boot
--- I sneak a *quick proof*, then I fire another boot
--- ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
---                       reifyRow (evalRow xs η) ≡ map (λ τ → reify (eval τ η)) xs
--- ⇓Row-isMap η [] = refl
--- ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
-
+⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
+                      reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → (eval l η) , (reify (eval τ η)) }) xs
+⇓Row-isMap η [] = refl
+⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
@@ -337,3 +292,27 @@ evalRowOrdered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) η (l₁<l₂ 
 -- Reabstraction of a NormalType to the semantic domain
 ↓ : NormalType Δ κ → SemType Δ κ 
 ↓ τ = eval (⇑ τ) idEnv
+
+--------------------------------------------------------------------------------
+-- Testing compl operator
+
+p : Fin 5 → NormalType ∅ L × SemType ∅ ★
+p fzero = lab "a" , UnitNF
+p (fsuc fzero) = lab "b" , UnitNF
+p (fsuc (fsuc fzero)) = lab "c" , UnitNF
+p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
+p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
+
+q : Fin 3 → NormalType ∅ L × SemType ∅ ★
+q fzero = lab "b" , UnitNF
+q (fsuc fzero) = lab "a" , UnitNF
+q (fsuc (fsuc fzero)) = lab "d" , UnitNF
+
+x : Bool
+x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
+
+y : Row ∅ R[ ★ ]
+y = compl {Δ = ∅} {κ = ★} q p
+
+-- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
+-- _ = refl
