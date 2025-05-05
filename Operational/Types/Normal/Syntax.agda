@@ -154,9 +154,16 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- Ordered predicate
 
+open import Relation.Binary.Structures using (IsStrictPartialOrder)
+open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
+open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
+
 _≪_ : NormalType Δ L → NormalType Δ L → Set 
 (lab l₁) ≪ (lab l₂) = l₁ < l₂
 _ ≪ _ = ⊥
+
+≪-trans : ∀ {l₁ l₂ l₃ : NormalType Δ L} → l₁ ≪ l₂ → l₂ ≪ l₃ → l₁ ≪ l₃ 
+≪-trans {l₁ = lab l₁} {lab l₂} {lab l₃} i₁ i₂ = <-trans {i = l₁} {j = l₂} {l₃} i₁ i₂  
 
 NormalOrdered [] = ⊤
 NormalOrdered ((l , _) ∷ []) = ⊤

@@ -11,7 +11,7 @@ import Data.Sum as Sum
   renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
 
 open import Data.Maybe using (Maybe ; just ; nothing) public
-open import Data.Bool using (Bool ; true ; false) public
+open import Data.Bool using (Bool ; true ; false ; not) public
 
 open Sum using (_or_ ; left ; right) public
 import Data.Product as Product
