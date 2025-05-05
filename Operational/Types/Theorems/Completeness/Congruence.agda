@@ -10,9 +10,12 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Renaming
 
+
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Operational.Types.Normal.Properties.Decidability
+
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
@@ -101,3 +104,48 @@ cong-<?> v {W₁} {W₂} w =
   cong-<$> 
   (cong-apply w) v
 
+--------------------------------------------------------------------------------
+-- Congruence over complements
+
+cong-compl : {n m : ℕ} 
+             (A B : Fin n → SemType Δ L × SemType Δ κ)
+             (C D : Fin m → SemType Δ L × SemType Δ κ) → 
+             ((i : Fin n) → A i ≋₂ B i) → 
+             ((i : Fin m) → C i ≋₂ D i) → 
+             compl A C ≋R compl B D
+cong-compl {n = zero} A B C D i₁ i₂ = refl , λ ()
+-- I need ∈Row to witness evidence of where the index is located because 
+-- I need to assert that if l ∈ C but l ∉ D that we have a contradiction, as 
+-- if (i : l ∈ C) then C i .fst ≡ D i .fst, implying l ∈ D.
+cong-compl {n = suc n} A B C D i₁ i₂ with A fzero | B fzero | i₁ fzero 
+... | l , τ | l' , τ' | refl , e  with l ∈Row C | l ∈Row D 
+... | false | false = {!!}
+... | false | true = {!!} 
+... | true | false = {!!}
+... | true | true = cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+
+-- ... | _ | true | true = 
+-- ... | _ | false | false = {!!}
+-- ... | eq , e |  false | true = {!!}
+-- ... | eq , e | true | false = {!eq!}
+
+cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row Δ R[ κ ]} → 
+           V₂ ≋R W₂ → 
+           V₁ ≋R W₁ → 
+           (V₂ ─v V₁) ≋R (W₂ ─v W₁)
+cong-─v {V₁ = zero , P} {zero , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , λ ()
+cong-─v {V₁ = zero , P} {suc m , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , v₂
+cong-─v {V₁ = suc n , P} {zero , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , λ ()
+cong-─v {V₁ = suc n , P} {suc m , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = cong-compl Q I P R v₂ v₁ 
+
+cong-─ : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} → 
+           V₂ ≋ W₂ → 
+           V₁ ≋ W₁ → 
+           (V₂ ─V V₁) ≋ (W₂ ─V W₁)
+cong-─ {V₁ = left x₁} {left x₂} {left x₃} {left x₄} refl refl = refl
+cong-─ {V₁ = left x} {right ((n , P) , _)} {left y} {right ((m , Q) , _)} (refl , rel) refl = 
+  cong₂ _─₂_ (cong-NormalSimpleRow (reifyRow-≋ P Q rel )) refl
+cong-─ {V₁ = right ((n , P) , _)} {left x} {right ((m , Q) , _)} {left y} refl (refl , rel) = 
+  cong₂ _─₁_ refl (cong-NormalSimpleRow (reifyRow-≋ P Q rel))
+cong-─ {V₁ = right ((n , P) , _)} {right ((m , Q) , _)} {right ((l , R) , _)} {right ((j , I) , _)} v₂ v₁ = 
+  cong-─v v₂ v₁ 

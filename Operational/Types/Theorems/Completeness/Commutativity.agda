@@ -457,13 +457,8 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
 ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = {!!}
+↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
 ↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = {!!}
--- ↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { () })
--- ↻-subₖ-eval ⦅ x ∷ ρ ⦆ {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-eval ⦅ ρ ⦆ e σ
--- ... | n , P | (refl , eq) =
---   refl , (λ { fzero    → ↻-subₖ-eval x e σ
---             ; (fsuc i) → eq i })
 
 ↻-subₖ-evalRow [] {η₁} e σ = refl , λ ()
 ↻-subₖ-evalRow (x ∷ ρ) {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-evalRow ρ e σ 
