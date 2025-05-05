@@ -4,7 +4,7 @@ open import Agda.Primitive public
 
 open import Data.Fin 
   using (Fin ; fromℕ ; inject₁ ; cast) 
-  renaming (zero to fzero ; suc to fsuc ; _<_ to _≺_) public
+  renaming (zero to fzero ; suc to fsuc ; _<_ to _<F_) public
 open import Data.Unit hiding (_≟_) public
 open import Data.Empty public
 import Data.Sum as Sum
@@ -21,9 +21,14 @@ open Product
   public
 open import Data.Product.Properties using (,-injectiveʳ ; ,-injectiveˡ) public
 
-open import Data.Nat using (ℕ ; zero ; suc) public
+open import Data.Nat using 
+  (ℕ ; zero ; suc ;  z≤n ; s≤s) 
+  renaming
+    (_≤_ to _≼_ ; _<_ to _≺_)
+  public
+open import Data.Nat.Show using (show) public
 open import Data.Nat.Properties using (suc-injective) public
-open import Data.String hiding (_≈_ ; map ; length ; _++_) public
+open import Data.String hiding (_≈_ ; map ; length ; _++_ ; show) public
 open import Data.List using (List ; [] ;  _∷_ ; [_] ; map ; length ; reverse ; _++_; lookup) public
 open import Data.List.Relation.Unary.Any 
   using (Any ; here ; there) 
@@ -95,6 +100,13 @@ MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
 Dec→MereProp : ∀ (P : Set) → (d : Dec P) → MereProp (True d)
 Dec→MereProp P (yes d) p₁ p₂ = refl
 Dec→MereProp P (no  d) p₁ p₂ = refl
+
+--------------------------------------------------------------------------------
+--
+
+ℕ-≤-refl : ∀ (n : ℕ) → n ≼ n 
+ℕ-≤-refl zero = z≤n
+ℕ-≤-refl (suc n) = s≤s (ℕ-≤-refl n)
 
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type

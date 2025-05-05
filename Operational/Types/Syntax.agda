@@ -26,6 +26,7 @@ open import Data.String using (_<_)
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
 ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
 
+
 --------------------------------------------------------------------------------
 -- Predicates
 
@@ -149,10 +150,13 @@ data Type Δ where
 --------------------------------------------------------------------------------
 -- Simple row well-formedness
 
+_≪_ : Type Δ L → Type Δ L → Set 
+(lab l₁) ≪ (lab l₂) = l₁ < l₂
+_ ≪ _ = ⊥
+
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
-Ordered ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((lab l₂ , τ) ∷ xs)
-Ordered _ = ⊥
+Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ ≪ l₂ × Ordered ((l₂ , τ) ∷ xs)
 
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
