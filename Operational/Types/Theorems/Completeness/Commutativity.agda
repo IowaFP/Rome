@@ -49,7 +49,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
 ↻-renSem-<$> ρ {V₁} {V₂} v {left x} {left _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
-↻-renSem-<$> ρ {V₁} {V₂} v {right (n , P)} {right (_ , Q)} (refl , eq) = refl , ↻-renSem-app ρ v ∘ eq
+↻-renSem-<$> ρ {V₁} {V₂} v {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = refl , λ i → (cong (renₖNF ρ) (eq i .fst)) , (↻-renSem-app ρ v (eq i .snd))
 
 --------------------------------------------------------------------------------
 -- Uniformity of <?>V
@@ -170,6 +170,9 @@ Unif-Σ ρ₁ = ↻-renSem-Σ
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
 ↻-renSem-eval-pred : ∀ (ρ : Renamingₖ Δ₂ Δ₃) (π : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renPredₖNF ρ (evalPred π η₁)) ≡ evalPred π (renSem ρ ∘ η₂)
+↻-renSem-evalRow : ∀ (r : Renamingₖ Δ₂ Δ₃) (ρ : SimpleRow Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+                     (Ρ : Env-≋ η₁ η₂) → (right (renRow r (evalRow ρ η₁) , {!orderedRenRow !} )) ≋ {!!} -- (renRow ρ (evalRow τ η₁)) ≋₂ evalRow τ (renSem ρ ∘ η₂)
+
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
 idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Type Δ₁ R[ κ ]) →
@@ -220,7 +223,7 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     (reify-≋ (↻-renSem-eval ρ τ (refl-≋ᵣ ∘ e))))
 ↻-renSem-eval ρ (π ⇒ τ) e = cong₂ _⇒_ (↻-renSem-eval-pred ρ π e) (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ (lab l) e = refl
-↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = refl , (λ { fzero → ↻-renSem-eval ρ τ e })
+-- ↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = refl , (λ { fzero → ↻-renSem-eval ρ τ e })
 ↻-renSem-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-Π x) 
 ↻-renSem-eval ρ Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-Σ x) 
@@ -228,9 +231,10 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
-↻-renSem-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , (λ { () })
-↻-renSem-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow ρ η₁ | ↻-renSem-eval r ⦅ ρ ⦆ e 
-... | (n , P) | refl , eq = refl , (λ { fzero → ↻-renSem-eval r x e ; (fsuc i) → eq i })
+↻-renSem-eval r (⦅ [] ⦆ _) {η₁} {η₂} e = refl , (λ { () })
+↻-renSem-eval r (⦅ x ∷ ρ ⦆ oρ) {η₁} {η₂} e with evalRow ρ η₁ | ↻-renSem-eval r (⦅ ρ ⦆ (fromWitness (ordered-cons x ρ (toWitness oρ)))) e 
+... | (n , P) | refl , eq = {!oρ!} -- refl , (λ { fzero → (↻-renSem-eval r (x .fst) e) , (↻-renSem-eval r (x .snd) e) ; (fsuc i) → eq i }) 
+↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = {!!}
 
 -- ------------------------------------------------------------------------------
 -- idext 
@@ -273,7 +277,7 @@ idext {κ = κ} e (`∀ τ) = cong (`∀) (idext (extend-≋ (ren-≋ S ∘ e) (
 idext {κ = ★} {η₁} {η₂} e (μ τ) with eval τ η₁ | eval τ η₂ | idext e τ
 ... | F | G | (Unif-F , Unif-G , Ext) = cong μ (cong `λ (Ext S refl))
 idext {κ = κ} e (lab x) = refl
-idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = cong-⁅⁆ (idext e τ)
+-- idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = cong-⁅⁆ (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
   Unif-Π , 
@@ -284,9 +288,9 @@ idext {κ = κ} e Σ =
   Unif-Σ , 
   λ ρ x → cong-Σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
-idext {κ = R[ κ ]} e ⦅ [] ⦆ = refl , λ { () }
-idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | idext e ⦅ ρ ⦆ 
-... | n , P | refl , eq = refl , (λ { fzero → idext e x ; (fsuc i) → eq i })
+idext {κ = R[ κ ]} e (⦅ [] ⦆ _) = refl , λ { () }
+idext {κ = R[ κ ]} {η₁ = η₁} e (⦅ x ∷ ρ ⦆ oρ) = {!!} -- with evalRow ρ η₁ | idext e ⦅ ρ ⦆ 
+-- ... | n , P | refl , eq = refl , (λ { fzero → idext e x ; (fsuc i) → eq i })
 
 
 --------------------------------------------------------------------------------
@@ -354,144 +358,144 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-renₖ-eval ρ (μ τ) {η₁} {η₂} e = cong μ (reify-≋ (↻-renₖ-eval ρ τ e))
 ↻-renₖ-eval ρ (π ⇒ τ) {η₁} {η₂} e = cong₂ _⇒_ (↻-renₖ-eval-pred ρ π e) (↻-renₖ-eval ρ τ e)
 ↻-renₖ-eval ρ (lab l) {η₁} {η₂} e = refl
-↻-renₖ-eval ρ (τ₁ ▹ τ₂) {η₁} {η₂} e = cong-⁅⁆ (↻-renₖ-eval ρ τ₂ e)
+-- ↻-renₖ-eval ρ (τ₁ ▹ τ₂) {η₁} {η₂} e = cong-⁅⁆ (↻-renₖ-eval ρ τ₂ e)
 ↻-renₖ-eval ρ ⌊ τ ⌋ {η₁} {η₂} e = cong ⌊_⌋ (↻-renₖ-eval ρ τ e)
 ↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ ρ x → cong-Π x
 ↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ ρ x → cong-Σ x
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
-↻-renₖ-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , λ { () }
-↻-renₖ-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-eval r ⦅ ρ ⦆ e 
-... | n , P | (refl , eq) = 
-  refl , (λ { fzero    → ↻-renₖ-eval r x e 
-            ; (fsuc i) → eq i })
+↻-renₖ-eval r (⦅ [] ⦆ _) {η₁} {η₂} e = refl , λ { () }
+↻-renₖ-eval r (⦅ x ∷ ρ ⦆ oρ) {η₁} {η₂} e = {!!} -- with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-eval r ⦅ ρ ⦆ e 
+-- ... | n , P | (refl , eq) = 
+--   refl , (λ { fzero    → ↻-renₖ-eval r x e 
+--             ; (fsuc i) → eq i })
 
 
---------------------------------------------------------------------------------
--- Substitution lemma
--- 
--- Evaluation commutes with syntactic substitution
+-- --------------------------------------------------------------------------------
+-- -- Substitution lemma
+-- -- 
+-- -- Evaluation commutes with syntactic substitution
 
-↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
-                        (σ : Substitutionₖ Δ Δ₁) → 
-                    eval (subₖ σ τ) η₁ ≋ eval τ (λ x → eval (σ x) η₂)
-↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
-                        (σ : Substitutionₖ Δ Δ₁) → 
-                    evalPred (subPredₖ σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
-↻-subₖ-eval-pred (ρ₁ · ρ₂ ~ ρ₃) e σ rewrite 
-    reify-≋ (↻-subₖ-eval ρ₁ e σ) 
-  | reify-≋ (↻-subₖ-eval ρ₂ e σ) 
-  | reify-≋ (↻-subₖ-eval ρ₃ e σ) = refl
-↻-subₖ-eval-pred (ρ₁ ≲ ρ₂) e σ rewrite
-    reify-≋ (↻-subₖ-eval ρ₁ e σ) 
-  | reify-≋ (↻-subₖ-eval ρ₂ e σ) = refl
+-- ↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+--                         (σ : Substitutionₖ Δ Δ₁) → 
+--                     eval (subₖ σ τ) η₁ ≋ eval τ (λ x → eval (σ x) η₂)
+-- ↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+--                         (σ : Substitutionₖ Δ Δ₁) → 
+--                     evalPred (subPredₖ σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
+-- ↻-subₖ-eval-pred (ρ₁ · ρ₂ ~ ρ₃) e σ rewrite 
+--     reify-≋ (↻-subₖ-eval ρ₁ e σ) 
+--   | reify-≋ (↻-subₖ-eval ρ₂ e σ) 
+--   | reify-≋ (↻-subₖ-eval ρ₃ e σ) = refl
+-- ↻-subₖ-eval-pred (ρ₁ ≲ ρ₂) e σ rewrite
+--     reify-≋ (↻-subₖ-eval ρ₁ e σ) 
+--   | reify-≋ (↻-subₖ-eval ρ₂ e σ) = refl
 
-↻-subₖ-eval (` α) e σ = idext e (σ α)
-↻-subₖ-eval (`λ τ) {η₁} {η₂} e σ =  
-  (λ ρ₁ ρ₂ V₁ V₂ q → 
-    trans-≋ 
-      (↻-renSem-eval ρ₂ 
-        (subₖ (liftsₖ σ) τ) 
-        (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ₗ ∘ e) q)) 
-      (idext 
-        (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q) ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ₗ (e x))) }) 
-        (subₖ (liftsₖ σ) τ))) , 
-  (λ ρ₁ ρ₂ V₁ V₂ q → 
-    trans-≋ 
-      (↻-renSem-eval ρ₂ τ 
-        (extend-≋ (ren-≋ ρ₁ ∘ idext (refl-≋ᵣ ∘ e) ∘ σ) q)) 
-      (idext 
-        (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q) 
-           ; (S x) → sym-≋ 
-                       (renSem-comp-≋ ρ₁ ρ₂ 
-                         (idext (refl-≋ᵣ ∘ e) (σ x)))})
-        τ)) , 
-  λ ρ q → 
-    trans-≋ 
-    (↻-subₖ-eval τ 
-      (extend-≋ (ren-≋ ρ ∘ e) q) 
-      (liftsₖ σ)) 
-    (idext 
-      (λ { Z →  refl-≋ᵣ q 
-         ; (S x) → trans-≋ 
-                     (↻-renₖ-eval S (σ x) (extend-≋ (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) (refl-≋ᵣ q))) 
-                     (sym-≋ (↻-renSem-eval ρ (σ x) (refl-≋ᵣ ∘ e)))})
-      τ)  
-↻-subₖ-eval (`∀ τ) e σ = cong (`∀) 
-  (trans 
-    (↻-subₖ-eval τ (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) (liftsₖ σ) ) 
-    (idext 
-      (λ { Z     → reflect-≋ refl 
-         ; (S x) → trans-≋ 
-                      (↻-renₖ-eval S (σ x) (extend-≋ (ren-≋ S ∘ refl-≋ᵣ ∘ e) (reflect-≋ refl))) 
-                      (sym-≋ (↻-renSem-eval S (σ x) (refl-≋ᵣ ∘ e) )) }) 
-      τ))
-↻-subₖ-eval (τ₁ · τ₂) e σ = cong-App (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ) 
-↻-subₖ-eval (τ₁ `→ τ₂) e σ = cong₂ _`→_ (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval (μ τ) e σ = cong μ (reify-≋ (↻-subₖ-eval τ e σ))
-↻-subₖ-eval (π ⇒ τ) e σ = cong₂ _⇒_ (↻-subₖ-eval-pred π e σ) (↻-subₖ-eval τ e σ)
-↻-subₖ-eval (lab l) e σ = refl
-↻-subₖ-eval (τ₁ ▹ τ₂) e σ = cong-⁅⁆ (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval ⌊ τ₁ ⌋ e σ = cong ⌊_⌋ (↻-subₖ-eval τ₁ e σ)
-↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
-↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
-↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { () })
-↻-subₖ-eval ⦅ x ∷ ρ ⦆ {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-eval ⦅ ρ ⦆ e σ
-... | n , P | (refl , eq) =
-  refl , (λ { fzero    → ↻-subₖ-eval x e σ
-            ; (fsuc i) → eq i })
+-- ↻-subₖ-eval (` α) e σ = idext e (σ α)
+-- ↻-subₖ-eval (`λ τ) {η₁} {η₂} e σ =  
+--   (λ ρ₁ ρ₂ V₁ V₂ q → 
+--     trans-≋ 
+--       (↻-renSem-eval ρ₂ 
+--         (subₖ (liftsₖ σ) τ) 
+--         (extend-≋ (ren-≋ ρ₁ ∘ refl-≋ₗ ∘ e) q)) 
+--       (idext 
+--         (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q) ; (S x) → sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ₗ (e x))) }) 
+--         (subₖ (liftsₖ σ) τ))) , 
+--   (λ ρ₁ ρ₂ V₁ V₂ q → 
+--     trans-≋ 
+--       (↻-renSem-eval ρ₂ τ 
+--         (extend-≋ (ren-≋ ρ₁ ∘ idext (refl-≋ᵣ ∘ e) ∘ σ) q)) 
+--       (idext 
+--         (λ { Z → ren-≋ ρ₂ (refl-≋ᵣ q) 
+--            ; (S x) → sym-≋ 
+--                        (renSem-comp-≋ ρ₁ ρ₂ 
+--                          (idext (refl-≋ᵣ ∘ e) (σ x)))})
+--         τ)) , 
+--   λ ρ q → 
+--     trans-≋ 
+--     (↻-subₖ-eval τ 
+--       (extend-≋ (ren-≋ ρ ∘ e) q) 
+--       (liftsₖ σ)) 
+--     (idext 
+--       (λ { Z →  refl-≋ᵣ q 
+--          ; (S x) → trans-≋ 
+--                      (↻-renₖ-eval S (σ x) (extend-≋ (ren-≋ ρ ∘ refl-≋ᵣ ∘ e) (refl-≋ᵣ q))) 
+--                      (sym-≋ (↻-renSem-eval ρ (σ x) (refl-≋ᵣ ∘ e)))})
+--       τ)  
+-- ↻-subₖ-eval (`∀ τ) e σ = cong (`∀) 
+--   (trans 
+--     (↻-subₖ-eval τ (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) (liftsₖ σ) ) 
+--     (idext 
+--       (λ { Z     → reflect-≋ refl 
+--          ; (S x) → trans-≋ 
+--                       (↻-renₖ-eval S (σ x) (extend-≋ (ren-≋ S ∘ refl-≋ᵣ ∘ e) (reflect-≋ refl))) 
+--                       (sym-≋ (↻-renSem-eval S (σ x) (refl-≋ᵣ ∘ e) )) }) 
+--       τ))
+-- ↻-subₖ-eval (τ₁ · τ₂) e σ = cong-App (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ) 
+-- ↻-subₖ-eval (τ₁ `→ τ₂) e σ = cong₂ _`→_ (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
+-- ↻-subₖ-eval (μ τ) e σ = cong μ (reify-≋ (↻-subₖ-eval τ e σ))
+-- ↻-subₖ-eval (π ⇒ τ) e σ = cong₂ _⇒_ (↻-subₖ-eval-pred π e σ) (↻-subₖ-eval τ e σ)
+-- ↻-subₖ-eval (lab l) e σ = refl
+-- ↻-subₖ-eval (τ₁ ▹ τ₂) e σ = cong-⁅⁆ (↻-subₖ-eval τ₂ e σ)
+-- ↻-subₖ-eval ⌊ τ₁ ⌋ e σ = cong ⌊_⌋ (↻-subₖ-eval τ₁ e σ)
+-- ↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
+-- ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
+-- ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
+-- ↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { () })
+-- ↻-subₖ-eval ⦅ x ∷ ρ ⦆ {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-eval ⦅ ρ ⦆ e σ
+-- ... | n , P | (refl , eq) =
+--   refl , (λ { fzero    → ↻-subₖ-eval x e σ
+--             ; (fsuc i) → eq i })
 
-↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renamingₖ Δ₂ Δ₃) 
-                {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 
-                {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →  
-                eval f (renSem ρ ∘ η₁) id V₁ ≋ eval f η₂ ρ V₂
-↻-eval-Kripke (` α) ρ v e = snd (snd (e α)) ρ v
-↻-eval-Kripke (`λ f) ρ v {η₁} {η₂} e = 
-  idext (λ { Z → v
-           ; (S x) → renSem-id-≋ 
-                      {V₁ = (renSem ρ ∘ η₁) x} 
-                      {(renSem ρ ∘ η₂) x} 
-                      (ren-≋ ρ (e x)) }) f
-↻-eval-Kripke (f · a) ρ {V₁} {V₂} v {η₁} {η₂} e with 
-    ↻-eval-Kripke f ρ {eval a (renSem ρ ∘ η₁)} {eval a (renSem ρ ∘ η₂)} (idext (ren-≋ ρ ∘ e) a) {η₁} {η₂} e
-  | ↻-eval-Kripke f id {eval a η₁} {eval a η₂} (idext e a) e
-... | (Unif-ρ₁ , Unif-ρ₂ , Ext-ρ) | (Unif-id₁ , Unif-id₂ , Ext-id) =
-    trans-≋ 
-      (Ext-ρ id v) 
-      (sym-≋ (trans-≋ 
-        (third ((fst ∘ snd) (idext e f) id ρ (eval a η₂) (eval a η₂) (refl-≋ᵣ (idext e a))) id (refl-≋ᵣ v)) 
-        (third (third (idext (refl-≋ᵣ ∘ e) f) ρ (↻-renSem-eval ρ a (refl-≋ᵣ ∘ e))) id (refl-≋ᵣ v))))
-↻-eval-Kripke Π ρ v e = cong-Π v
-↻-eval-Kripke Σ ρ v e = cong-Σ v
+-- ↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renamingₖ Δ₂ Δ₃) 
+--                 {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 
+--                 {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →  
+--                 eval f (renSem ρ ∘ η₁) id V₁ ≋ eval f η₂ ρ V₂
+-- ↻-eval-Kripke (` α) ρ v e = snd (snd (e α)) ρ v
+-- ↻-eval-Kripke (`λ f) ρ v {η₁} {η₂} e = 
+--   idext (λ { Z → v
+--            ; (S x) → renSem-id-≋ 
+--                       {V₁ = (renSem ρ ∘ η₁) x} 
+--                       {(renSem ρ ∘ η₂) x} 
+--                       (ren-≋ ρ (e x)) }) f
+-- ↻-eval-Kripke (f · a) ρ {V₁} {V₂} v {η₁} {η₂} e with 
+--     ↻-eval-Kripke f ρ {eval a (renSem ρ ∘ η₁)} {eval a (renSem ρ ∘ η₂)} (idext (ren-≋ ρ ∘ e) a) {η₁} {η₂} e
+--   | ↻-eval-Kripke f id {eval a η₁} {eval a η₂} (idext e a) e
+-- ... | (Unif-ρ₁ , Unif-ρ₂ , Ext-ρ) | (Unif-id₁ , Unif-id₂ , Ext-id) =
+--     trans-≋ 
+--       (Ext-ρ id v) 
+--       (sym-≋ (trans-≋ 
+--         (third ((fst ∘ snd) (idext e f) id ρ (eval a η₂) (eval a η₂) (refl-≋ᵣ (idext e a))) id (refl-≋ᵣ v)) 
+--         (third (third (idext (refl-≋ᵣ ∘ e) f) ρ (↻-renSem-eval ρ a (refl-≋ᵣ ∘ e))) id (refl-≋ᵣ v))))
+-- ↻-eval-Kripke Π ρ v e = cong-Π v
+-- ↻-eval-Kripke Σ ρ v e = cong-Σ v
 
---------------------------------------------------------------------------------
--- Evaluating a weakened typed in an extended environment is cancellative
+-- --------------------------------------------------------------------------------
+-- -- Evaluating a weakened typed in an extended environment is cancellative
 
-weaken-extend : ∀ (τ : Type Δ₁ κ₁) → 
-                  {η₁ η₂ : Env Δ₁ Δ₂} → 
-                  Env-≋ η₁ η₂ → 
-                  {V : SemType Δ₂ κ₂}  → 
-                  V ≋ V →
-                  eval (weakenₖ τ) (extende η₁ V) ≋ eval τ η₂
-weaken-extend τ {η₁} {η₂} e {V} v = ↻-renₖ-eval S τ {extende η₁ V} {extende η₂ V} (extend-≋ e v)   
+-- weaken-extend : ∀ (τ : Type Δ₁ κ₁) → 
+--                   {η₁ η₂ : Env Δ₁ Δ₂} → 
+--                   Env-≋ η₁ η₂ → 
+--                   {V : SemType Δ₂ κ₂}  → 
+--                   V ≋ V →
+--                   eval (weakenₖ τ) (extende η₁ V) ≋ eval τ η₂
+-- weaken-extend τ {η₁} {η₂} e {V} v = ↻-renₖ-eval S τ {extende η₁ V} {extende η₂ V} (extend-≋ e v)   
 
---------------------------------------------------------------------------------
--- The length of a reified row is the index of the row 
+-- --------------------------------------------------------------------------------
+-- -- The length of a reified row is the index of the row 
 
-length-reify : (n : ℕ) (P : Fin n → SemType Δ κ) → 
-                 length (reifyRow (n , P)) ≡ n
-length-reify zero P = refl
-length-reify (suc n) P = cong suc (length-reify n (P ∘ fsuc))
+-- length-reify : (n : ℕ) (P : Fin n → SemType Δ κ) → 
+--                  length (reifyRow (n , P)) ≡ n
+-- length-reify zero P = refl
+-- length-reify (suc n) P = cong suc (length-reify n (P ∘ fsuc))
 
---------------------------------------------------------------------------------
--- Length of a row is preserved by embedding
+-- --------------------------------------------------------------------------------
+-- -- Length of a row is preserved by embedding
 
-length-⇑ : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → 
-            length (⇑Row xs) ≡ length xs
-length-⇑ [] = refl
-length-⇑ (x ∷ xs) = cong suc (length-⇑ xs)
+-- length-⇑ : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → 
+--             length (⇑Row xs) ≡ length xs
+-- length-⇑ [] = refl
+-- length-⇑ (x ∷ xs) = cong suc (length-⇑ xs)
 
--- Combining the two above 
-length-⇑-reify : ∀ (n : ℕ) (P : Fin n → SemType Δ κ) → 
-                  length (⇑Row (reifyRow (n , P))) ≡ n
-length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)        
+-- -- Combining the two above 
+-- length-⇑-reify : ∀ (n : ℕ) (P : Fin n → SemType Δ κ) → 
+--                   length (⇑Row (reifyRow (n , P))) ≡ n
+-- length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)        

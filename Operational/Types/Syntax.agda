@@ -181,8 +181,19 @@ cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite MerePropOrdered 
 --------------------------------------------------------------------------------
 -- Helpers for mapping over the tuples inside rows
 
-fmap× : ∀ {Ty : KEnv → Kind → Set} → (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
+fmap× : ∀ {Ty : KEnv → Kind → Set} → 
+          (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → 
+          Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
 fmap× f (x , y) = f x , f y
+
+--------------------------------------------------------------------------------
+-- Ordered lemmas 
+
+ordered-cons : ∀ (x : Type Δ L × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
+               Ordered (x ∷ ρ) → 
+               Ordered ρ 
+ordered-cons x [] oxρ = tt
+ordered-cons (lab l , snd₁) ((lab l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
 
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
