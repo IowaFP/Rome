@@ -39,7 +39,8 @@ reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
 
 reifyRowOrdered : ∀ (ρ : Row Δ R[ κ ]) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
-reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → NormalType Δ L × SemType Δ κ) → OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
+reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → NormalType Δ L × SemType Δ κ) → 
+                      OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
 
 reifyRowOrdered' zero P oρ = tt
 reifyRowOrdered' (suc zero) P oρ = tt
