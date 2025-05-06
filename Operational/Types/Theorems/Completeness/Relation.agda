@@ -83,8 +83,8 @@ sym-≋ {κ = κ `→ κ₁}
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
 sym-≋ {κ = R[ κ ]} {left x} {left x₁} q = sym q
 sym-≋ {κ = R[ κ ]} {right ((n , P), _)} {right ((m , Q) , _)} (refl , eq-ρ) = 
-  refl , (λ i → sym (eq-ρ i .fst) , (sym-≋ (eq-ρ i .snd)))
-
+  refl , 
+  (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
 

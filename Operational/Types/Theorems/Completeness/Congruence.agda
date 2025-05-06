@@ -114,20 +114,18 @@ cong-compl : {n m : ℕ}
              ((i : Fin m) → C i ≋₂ D i) → 
              compl A C ≋R compl B D
 cong-compl {n = zero} A B C D i₁ i₂ = refl , λ ()
--- I need ∈Row to witness evidence of where the index is located because 
--- I need to assert that if l ∈ C but l ∉ D that we have a contradiction, as 
--- if (i : l ∈ C) then C i .fst ≡ D i .fst, implying l ∈ D.
-cong-compl {n = suc n} A B C D i₁ i₂ with A fzero | B fzero | i₁ fzero 
-... | l , τ | l' , τ' | refl , e  with l ∈Row C | l ∈Row D 
-... | false | false = {!!}
-... | false | true = {!!} 
-... | true | false = {!!}
-... | true | true = cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
-
--- ... | _ | true | true = 
--- ... | _ | false | false = {!!}
--- ... | eq , e |  false | true = {!!}
--- ... | eq , e | true | false = {!eq!}
+cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row C | B fzero .fst ∈Row D 
+... | eq , rel  | yes p         | yes q = cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+... | eq₁ , rel | yes (j , eq₂) | no q = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
+... | eq₁ , rel | no  q         | yes (j , eq₂) = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst)))))
+... | eq , rel  | no  p         | no q  with 
+      (compl (A ∘ fsuc) C)
+    | (compl (B ∘ fsuc) D)
+    | cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+    | cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂ .fst
+... | n₁ , P | n₂ , Q | (refl , P≋Q) | refl = 
+  refl , (λ { fzero    → i₁ fzero ; 
+              (fsuc i) → P≋Q i })
 
 cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row Δ R[ κ ]} → 
            V₂ ≋R W₂ → 

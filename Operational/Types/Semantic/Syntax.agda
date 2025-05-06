@@ -75,11 +75,29 @@ _⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ
 ⁅_⁆ : NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] 
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
-subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
-subst-Fin eq x = cast eq x
+subst-Fin : ∀ {n m : ℕ} → (n ≡ m) → Fin n → Fin m
+subst-Fin refl i = i
 
-subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
+subst-Row : ∀ {A : Set} {n m : ℕ} → (n ≡ m) → (f : Fin n → A) → Fin m → A 
 subst-Row refl f = f
+
+subst-Row-reduction : ∀ {n m} {A : Set} → 
+                      ∀ (p : suc n ≡  suc m) (f : Fin (suc n) → A) → 
+                      subst-Row p f fzero ≡ f fzero
+subst-Row-reduction refl f = refl
+
+subst-Row-reduction×₁ : ∀ {n m} {A B : Set} → 
+                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+                      subst-Row p f fzero .fst ≡ f fzero .fst
+subst-Row-reduction×₁ refl f = refl
+
+subst-Row-reduction×₂ : ∀ {n m} {A B : Set} → 
+                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+                      subst-Row p f fzero .snd ≡ f fzero .snd
+subst-Row-reduction×₂ refl f = refl
+
+
+
 
 --------------------------------------------------------------------------------
 -- Semantic types (definition)

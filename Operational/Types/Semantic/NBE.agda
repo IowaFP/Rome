@@ -91,14 +91,16 @@ F ·V V = F id V
 --------------------------------------------------------------------------------
 -- -- Semantic complement
 
-_∈Row_ : ∀ {m} → NormalType Δ L → (Q : Fin m → NormalType Δ L × SemType Δ κ) → Bool
-_∈Row_ {m = zero} l Q = false
+_∈Row_ : ∀ {m} → (l : NormalType Δ L) → 
+         (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+         Dec (Σ[ i ∈ Fin m ] (l ≡ Q i .fst))
+_∈Row_ {m = zero} l Q = no λ { () }
 _∈Row_ {m = suc m} l Q with l ≡? Q fzero .fst
-... | yes p = true
-... | no  p =  l ∈Row (Q ∘ fsuc)
+... | yes p = yes (fzero , p)
+... | no  p with l ∈Row (Q ∘ fsuc)
+...        | yes (n , q) = yes ((fsuc n) , q) 
+...        | no  q = no λ { (fzero , q') → p q' ; (fsuc n , q') → q (n , q') }
 
-_∉Row_ : ∀ {m} → NormalType Δ L → (Q : Fin m → NormalType Δ L × SemType Δ κ) → Bool
-_∉Row_ l Q = not (l ∈Row Q)
 
 compl : ∀ {n m} → 
         (P : Fin n → NormalType Δ L × SemType Δ κ) 
@@ -106,11 +108,11 @@ compl : ∀ {n m} →
         Row Δ R[ κ ]
 compl {n = zero} {m} P Q = εV
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
-... | true = compl (P ∘ fsuc) Q 
-... | false = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
+... | yes _ = compl (P ∘ fsuc) Q 
+... | no _ = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
 
---------------------------------------------------------------------------------
--- Semantic complement preserves well-ordering
+-- --------------------------------------------------------------------------------
+-- -- Semantic complement preserves well-ordering
 
 lemma : ∀ {n m q} → 
           (P : Fin (suc n) → NormalType Δ L × SemType Δ κ)
@@ -120,8 +122,8 @@ lemma : ∀ {n m q} →
              compl (P ∘ fsuc) Q ≡ (suc q , R) → 
           P fzero .fst ≪ R fzero .fst
 lemma {n = suc n} {q = q} P Q R oP eq₁ with P (fsuc fzero) .fst ∈Row Q 
-lemma {κ = _} {suc n} {q = q} P Q R oP refl | false = oP .fst
-... | true = ≪-trans (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
+lemma {κ = _} {suc n} {q = q} P Q R oP refl | no _ = oP .fst
+... | yes _ = ≪-trans (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
 
 ordered-⨾⨾ : ∀ {n m} → 
                  (P : Fin (suc n) → NormalType Δ L × SemType Δ κ) 
@@ -138,8 +140,8 @@ ordered-compl :  ∀ {n m} →
                  OrderedRow (n , P) → OrderedRow (m , Q) → OrderedRow (compl P Q)
 ordered-compl {n = zero} P Q oρ₁ oρ₂ = tt
 ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
-... | true = ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂
-... | false = ordered-⨾⨾ P Q oρ₁ (ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂)
+... | yes _ = ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂
+... | no _ = ordered-⨾⨾ P Q oρ₁ (ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂)
 
 --------------------------------------------------------------------------------
 -- Semantic complement on Rows
@@ -308,7 +310,7 @@ q fzero = lab "b" , UnitNF
 q (fsuc fzero) = lab "a" , UnitNF
 q (fsuc (fsuc fzero)) = lab "d" , UnitNF
 
-x : Bool
+x : Dec (Σ-syntax (Fin 5) (λ i → lab "e" ≡ p i .fst))
 x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
 
 y : Row ∅ R[ ★ ]
