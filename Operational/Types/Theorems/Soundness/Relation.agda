@@ -23,7 +23,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Properties.Equivalence
--- open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
@@ -41,22 +41,19 @@ SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂
 ⟦_⟧≋_ {κ = L} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
 ⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
 ⟦_⟧≋_ {κ = R[ κ ]} τ (left x) = τ ≡t ⇑NE x
-⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) =
-    let xs = ⇑Row (reifyRow (n , P)) in 
-    (τ ≡t ⦅ xs ⦆) × ⟦ xs ⟧r≋ (n , P)
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (right (n , P)) = {!!}
+    -- let xs = ⇑Row (reifyRow (n , P)) in 
+    -- (τ ≡t ⦅ xs ⦆) × ⟦ xs ⟧r≋ (n , P)
 
 ⟦ [] ⟧r≋ (zero , P) = ⊤
 ⟦ [] ⟧r≋ (suc n , P) = ⊥
 ⟦ x ∷ ρ ⟧r≋ (zero , P) = ⊥
-⟦ x ∷ ρ ⟧r≋ (suc n , P) =  (⟦ x ⟧≋ P fzero) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
+⟦ x ∷ ρ ⟧r≋ (suc n , P) =  {!!} -- (⟦ x ⟧≋ P fzero) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V)
-
-
-
 
 -- --------------------------------------------------------------------------------
 -- -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
@@ -87,7 +84,7 @@ reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             eq-refl))
 
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {left x} e = e
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (zero , P)} (eq , I) = eq
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right ((zero , P), _)} (eq , I) = eq
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {right (suc n , P)} (eq , I) = eq-trans eq (eq-row (eq-cons eq-refl (eq-reflᵣ _)))
 
 reify-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {V :  Row Δ R[ κ ]} → 
@@ -122,7 +119,7 @@ subst-⟦⟧r≋ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} →
   ⟦ ys ⟧r≋ ρ
 
 subst-⟦⟧r≋ eq-[] rel = rel
-subst-⟦⟧r≋ (eq-cons eq-x eq-xs) {suc n , P} (rel-x , rel-xs) = subst-⟦⟧≋ eq-x rel-x , subst-⟦⟧r≋ eq-xs rel-xs
+subst-⟦⟧r≋ (eq-cons eq-l eq-x eq-xs) {suc n , P} (rel-x , rel-xs) = subst-⟦⟧≋ eq-x rel-x , subst-⟦⟧r≋ eq-xs rel-xs
 
 -- --------------------------------------------------------------------------------
 -- -- Stability rule for reification
@@ -149,12 +146,12 @@ ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂)
 
 -- We need to state the renaming lemma over both semantic and syntactic row renaming
 ren-⟦⟧r≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
-             (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+             (n : ℕ) (P : Fin n → SemType Δ₁ L × SemType Δ₁ κ) → 
            ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
-           ⟦ ⇑Row (reifyRow (n , renSem ρ ∘ P)) ⟧r≋ (n , renSem ρ ∘ P)
+           ⟦ ⇑Row (reifyRow (n , fmap× (renSem ρ) ∘ P)) ⟧r≋ (n , fmap× (renSem ρ) ∘ P)
 
 ren-⟦⟧r≋' : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
-             (n : ℕ) (P : Fin n → SemType Δ₁ κ) → 
+             (n : ℕ) (P : Fin n → SemType Δ₁ L × SemType Δ₁ κ) → 
            ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
            ⟦ renRowₖ ρ (⇑Row (reifyRow (n , P))) ⟧r≋ renRow ρ (n , P)
 

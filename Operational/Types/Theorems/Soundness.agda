@@ -35,17 +35,17 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation public
 sound-Π : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Π Π-Kripke
 
 -- Mapping Π over a row relates to pre-composition by semantic Π
-map-Π : ∀ (n : ℕ) (P : Fin n → SemType Δ R[ κ ]) → 
+map-Π : ∀ (n : ℕ) (P : Fin n → SemType Δ L × SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-        ⟦ map (_·_ Π) (⇑Row (reifyRow' n P)) ⟧r≋ (n , ΠV ∘ P)
+        ⟦ map (overᵣ (_·_ Π)) (⇑Row (reifyRow' n P)) ⟧r≋ (n , fmap× ΠV ∘ P)
 
 -- Mapping _apply_ over a row is semantic application
-map-apply : ∀ (n : ℕ) (P : Fin n → KripkeFunction Δ₁ κ₁ κ₂) → 
+map-apply : ∀ (n : ℕ) (P : Fin n → SemType Δ L × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
                (rel-v : ⟦ v ⟧≋ V) → 
-             ⟦ map (_·_ (`λ (` Z · weakenₖ v)))
+             ⟦ map (overᵣ (_·_ (`λ (` Z · weakenₖ v))))
                (subRowₖ (extendₖ ` v)
                  (renRowₖ S (renRowₖ φ (⇑Row (reifyRow (n , P))))))
              ⟧r≋ (n , (λ x → apply V id (renKripke (λ x₁ → id (φ x₁)) (P x))))
@@ -257,7 +257,7 @@ fundS (μ τ) {σ} {η} e = eq-μ
         (eq-λ (fundS τ e S eq-refl)))
 fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
 fundS (lab l) {σ} {η} e = {!!}
-fundS (l ▹ τ) {σ} {η} e = eq-trans (eq-▹ eq-refl ((reify-⟦⟧≋ (fundS τ e)))) eq-labTy , (refl-⟦⟧≋ (fundS τ e)) , tt
+-- fundS (l ▹ τ) {σ} {η} e = eq-trans (eq-▹ eq-refl ((reify-⟦⟧≋ (fundS τ e)))) eq-labTy , (refl-⟦⟧≋ (fundS τ e)) , tt
 fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
 fundS Π {σ} {η} e = sound-Π
 fundS Σ {σ} {η} e =  sound-Σ  
