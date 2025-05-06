@@ -15,7 +15,7 @@ open import Rome.Operational.Types.Properties.Equivalence
 
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Soundness
+-- open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
@@ -84,18 +84,23 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
         -----------
         Ent Γ π 
 
-  n-≲ :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → 
+  n-≲ :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]}
+           {oxs : True (ordered? xs)} 
+           {oys : True (ordered? ys)} → 
 
           xs ⊆ ys → 
           --------------------------------------------
-          Ent Γ (⦅ xs  ⦆ ≲ ⦅ ys ⦆)
+          Ent Γ (⦅ xs  ⦆ oxs ≲ ⦅ ys ⦆ oys)
 
   n-· : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → 
+           {oxs : True (ordered? xs)} 
+           {oys : True (ordered? ys)} 
+           {ozs : True (ordered? zs)} → 
           xs ⊆ zs → 
           ys ⊆ zs → 
           zs ⊆[ xs ⊹ ys ]  → 
           --------------------------------------------
-          Ent Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
+          Ent Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs)
   n-refl : 
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
@@ -118,12 +123,12 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
   n-ε-R : 
              
         -------------------------
-        Ent Γ (ρ · ⦅ [] ⦆ ~ ρ)
+        Ent Γ (ρ · ⦅ [] ⦆ tt ~ ρ)
 
   n-ε-L : 
 
         -------------------------
-        Ent Γ (⦅ [] ⦆ · ρ ~ ρ)  
+        Ent Γ (⦅ [] ⦆ tt · ρ ~ ρ)  
 
   n-≲lift : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
                {F : Type Δ (κ₁ `→ κ₂)} →

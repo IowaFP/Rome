@@ -17,7 +17,7 @@ open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Soundness
+-- open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
