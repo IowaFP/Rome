@@ -36,8 +36,12 @@ stabilityNE {Δ} {κ} (τ₁ · τ₂)
   rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (renₖNE-id τ₁))
 stabilityNE {κ = R[ κ ]} (F <$> τ) 
   rewrite stabilityNE τ | stability F = refl
-stabilityNE (ρ₂ ─₁ ρ₁) rewrite stabilityNE ρ₂ | stability ρ₁ = {!!}
-stabilityNE (ρ₂ ─₂ ρ₁) = {!!}
+stabilityNE (ρ₂ ─₁ ρ₁)  with eval (⇑NE ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stabilityNE ρ₂ | stability ρ₁ 
+... | _ | left _ | refl | refl = refl
+... | _ | right _ | refl | refl = refl
+stabilityNE (ρ₂ ─₂ ρ₁) with eval (⇑ ρ₂) idEnv | eval (⇑NE ρ₁) idEnv | stability ρ₂ | stabilityNE ρ₁  
+... | left x₁ | x | refl | refl = {!!}
+... | right y₁ | _ | refl | refl = refl
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
