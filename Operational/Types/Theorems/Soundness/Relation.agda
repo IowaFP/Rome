@@ -23,7 +23,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Equivalence
 open import Rome.Operational.Types.Properties.Equivalence
-open import Rome.Operational.Types.Theorems.Completeness
+-- open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
