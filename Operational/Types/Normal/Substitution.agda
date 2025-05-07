@@ -14,7 +14,6 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Equivalence
 
 --------------------------------------------------------------------------------
@@ -62,19 +61,5 @@ _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType 
 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ne x = ne (f <$> x)
-f <$>' ⦅ xs ⦆ = ⦅  map (f ·'_) xs ⦆
-
---------------------------------------------------------------------------------
--- if a mapping results in the empty row then one mapped over the empty row
-
-ε-<$>'  : ∀ {f : NormalType ∅ (κ₁ `→ κ₂)} {ρ : NormalType ∅ R[ κ₁ ]}  → 
-            f <$>' ρ ≡ ⦅ [] ⦆ → 
-            ρ ≡ ⦅ [] ⦆
-ε-<$>' {ρ = ⦅ [] ⦆} eq = refl
-
--- _·NP_ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) (π : NormalPred Δ R[ κ₁ ]) → 
---        NormalPred Δ R[ κ₂ ] 
--- f ·NP (ρ₁ · ρ₂ ~ ρ₃) = (f <$>' ρ₁) · f <$>' ρ₂ ~ (f <$>' ρ₃)
--- f ·NP (ρ₁ ≲ ρ₂) = f <$>' ρ₁ ≲ f <$>' ρ₂
-
+f <$>' (⦅ xs ⦆ oxs) = ⦅ (map (overᵣ (f ·'_)) xs) ⦆ (fromWitness (normal-map-overᵣ xs (f ·'_) (toWitness oxs)) )
 

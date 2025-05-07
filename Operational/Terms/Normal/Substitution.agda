@@ -133,29 +133,29 @@ sub σ s (ana ρ φ τ M) =
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
 sub σ s (comp M n) = comp (sub σ s M) (subEnt σ s n)
-sub σ s ⦅ ρ ⦆ = {!!}
-sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
-  (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
-    (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
-    (⊆-cong ⇑ ⇑Row ⇑Row-isMap i)))
+-- sub σ s ⦅ ρ ⦆ = {!!}
+-- sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
+--   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
+--     (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
+--     (⊆-cong ⇑ ⇑Row ⇑Row-isMap i)))
 
 
 subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 
   n-≲ 
-    (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
-    (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
-    (⊆-cong ⇑ ⇑Row ⇑Row-isMap i)))
+    (⊆-cong _ _ (⇓Row-isMap idEnv) 
+    (⊆-cong _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
+    (⊆-cong _ _ ⇑Row-isMap i)))
 subEnt σ s {π} (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) = 
     n-· 
-      (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
-        (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
-        (⊆-cong ⇑ ⇑Row ⇑Row-isMap i₁))) 
-      (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
-        (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
-        (⊆-cong ⇑ ⇑Row ⇑Row-isMap i₂))) 
-      (⊆-cong-or ⇓ ⇓Row (⇓Row-isMap idEnv) 
-        (⊆-cong-or (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
-        (⊆-cong-or ⇑ ⇑Row ⇑Row-isMap i₃))) 
+      (⊆-cong _ _ (⇓Row-isMap idEnv) 
+        (⊆-cong _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
+        (⊆-cong _ _ ⇑Row-isMap i₁))) 
+      (⊆-cong _ _ (⇓Row-isMap idEnv) 
+        (⊆-cong _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
+        (⊆-cong _ _ ⇑Row-isMap i₂))) 
+      (⊆-cong-or _ _ (⇓Row-isMap idEnv) 
+        (⊆-cong-or _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
+        (⊆-cong-or _ _ ⇑Row-isMap i₃))) 
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl
 subEnt σ s {π} (n-trans e₁ e₂) = n-trans (subEnt σ s e₁) (subEnt σ s e₂)

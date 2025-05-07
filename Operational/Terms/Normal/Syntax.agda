@@ -88,17 +88,22 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
         NormalEnt Γ π 
 
   n-≲ :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} → 
 
           xs ⊆ ys → 
           --------------------------------------------
-          NormalEnt Γ (⦅ xs  ⦆ ≲ ⦅ ys ⦆)
+          NormalEnt Γ ((⦅ xs  ⦆ oxs) ≲ (⦅ ys ⦆ oys))
 
   n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} 
+           {ozs : True (normalOrdered? zs)} → 
           xs ⊆ zs → 
           ys ⊆ zs → 
           zs ⊆[ xs ⊹ ys ]  → 
           --------------------------------------------
-          NormalEnt Γ (⦅ xs ⦆ · ⦅ ys ⦆ ~ ⦅ zs ⦆)
+          NormalEnt Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs))
   n-refl : 
           --------------
           NormalEnt Γ (ρ₁ ≲ ρ₁)
@@ -121,12 +126,12 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
   n-ε-R : 
              
         -------------------------
-        NormalEnt Γ (ρ · ⦅ [] ⦆ ~ ρ)
+        NormalEnt Γ (ρ · (⦅ [] ⦆ tt) ~ ρ)
 
   n-ε-L : 
 
         -------------------------
-        NormalEnt Γ (⦅ [] ⦆ · ρ ~ ρ)  
+        NormalEnt Γ ((⦅ [] ⦆ tt) · ρ ~ ρ)  
 
   n-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
@@ -155,9 +160,9 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
 -- Terms with normal types
 
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set
-data Record {Δ} (Γ : NormalContext Δ) : SimpleRow NormalType Δ R[ ★ ] → Set where
+data Record {Δ} (Γ : NormalContext Δ) : List (NormalType Δ ★) → Set where
   ∅   : Record Γ []
-  _⨾_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → NormalTerm Γ τ → 
+  _⨾_ : ∀ {xs : List (NormalType Δ ★)} → NormalTerm Γ τ → 
           Record Γ xs → Record Γ (τ ∷ xs)
 
 data NormalTerm {Δ} Γ where
@@ -313,15 +318,15 @@ data NormalTerm {Δ} Γ where
   ----------------------------------------
   -- Values
 
-  ⦅_⦆ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → 
-          Record Γ xs → 
-          ----------------------
-          NormalTerm Γ (Π ⦅ xs ⦆)
+  -- ⦅_⦆ : ∀ {xs : List (NormalType Δ ★)} → 
+  --         Record Γ xs → 
+  --         ----------------------
+  --         NormalTerm Γ (Π ⦅ xs ⦆)
 
-  ⟨_⟩ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → 
-        NormalTerm Γ τ → [ τ ] ⊆ xs → 
-        -------------------------------------------
-        NormalTerm Γ (Σ ⦅ xs ⦆) 
+  -- ⟨_⟩ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → 
+  --       NormalTerm Γ τ → [ τ ] ⊆ xs → 
+  --       -------------------------------------------
+  --       NormalTerm Γ (Σ ⦅ xs ⦆) 
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.

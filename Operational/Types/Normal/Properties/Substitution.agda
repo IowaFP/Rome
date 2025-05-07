@@ -387,14 +387,16 @@ stability-·' f N = trans
 stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
                   f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
-                map (_·'_ f) xs ≡ reifyRow
-                                    (evalRow (⇑Row xs) idEnv .fst ,
-                                     (λ x → eval (⇑ f) idEnv id (evalRow (⇑Row xs) idEnv .snd x)))
+                map (overᵣ (_·'_ f)) xs ≡ reifyRow 
+                  ((evalRow (⇑Row xs) idEnv .fst) ,
+                  (λ i → 
+                    ((evalRow (⇑Row xs) idEnv .snd i) .fst) , 
+                    (eval (⇑ f) idEnv id ((evalRow (⇑Row xs) idEnv .snd i) .snd)))) 
 stability-map f [] = refl
-stability-map f (x ∷ xs) = (cong₂ _∷_ (stability-·' f x) (stability-map f xs))
+stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ (sym (stability (x .fst))) (stability-·' f (x .snd))) (stability-map f xs))
 
 stability-<$> f (ne x) = sym (stability (f <$>' ne x))
-stability-<$> f ⦅ xs ⦆ = cong ⦅_⦆ (stability-map f xs)
+stability-<$> f (⦅ xs ⦆ oρ) = cong-NormalSimpleRow (stability-map f xs)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>

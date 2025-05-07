@@ -202,6 +202,15 @@ cong-NormalSimpleRow : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : 
                 _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂)
 cong-NormalSimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
 
+--------------------------------------------------------------------------------
+-- Mapping over preserves ordering
+
+normal-map-overᵣ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 
+                   NormalOrdered ρ → NormalOrdered (map (overᵣ f) ρ)
+normal-map-overᵣ [] f oρ = tt
+normal-map-overᵣ (x ∷ []) f oρ = tt
+normal-map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((lab l₂ , _) ∷ ρ) f oρ)
+
 
 --------------------------------------------------------------------------------
 -- IsNeutral and IsNormal predicates
