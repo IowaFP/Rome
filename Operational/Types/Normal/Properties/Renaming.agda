@@ -57,7 +57,7 @@ renₖNF-cong eq (Π x) rewrite renₖNF-cong eq x = refl
 renₖNF-cong eq (ΠL x) rewrite renₖNF-cong eq x = refl
 renₖNF-cong eq (Σ x) rewrite renₖNF-cong eq x = refl
 renₖNF-cong eq (ΣL x) rewrite renₖNF-cong eq x = refl
-renₖNF-cong eq (⦅ ρ ⦆ oρ) = cong-NormalSimpleRow (renₖNF-cong-row eq ρ)
+renₖNF-cong eq (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-cong-row eq ρ)
 
 renₖNF-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-cong eq ρ₁ | renₖNF-cong eq ρ₂ | renₖNF-cong eq ρ₃ = refl
@@ -109,7 +109,7 @@ renₖNF-id (Π x)  rewrite renₖNF-id x  = refl
 renₖNF-id (ΠL x) rewrite renₖNF-id x  = refl 
 renₖNF-id (Σ x)  rewrite renₖNF-id x  = refl 
 renₖNF-id (ΣL x) rewrite renₖNF-id x  = refl
-renₖNF-id (⦅ ρ ⦆ oρ) = cong-NormalSimpleRow (renₖNF-id-row ρ)
+renₖNF-id (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-id-row ρ)
 renₖNF-id-pred (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-id ρ₁ | renₖNF-id ρ₂ | renₖNF-id ρ₃ = refl
 renₖNF-id-pred (ρ₁ ≲ ρ₂) 
@@ -158,7 +158,7 @@ renₖNF-comp ρ₁ ρ₂ (Π x)  rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ (ΠL x) rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ (Σ x)  rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ (ΣL x) rewrite renₖNF-comp ρ₁ ρ₂ x = refl
-renₖNF-comp ρ₁ ρ₂ (⦅ ρ ⦆ oρ) = cong-NormalSimpleRow (renₖNF-comp-row ρ₁ ρ₂ ρ)
+renₖNF-comp ρ₁ ρ₂ (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-comp-row ρ₁ ρ₂ ρ)
 
 renₖNF-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ | renₖNF-comp ρ ρ' ρ₃ = refl
@@ -234,3 +234,43 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l 
 ↻-ren-⇑Row r ((l , τ) ∷ ρ) rewrite ↻-ren-⇑ r l | ↻-ren-⇑ r τ | ↻-ren-⇑Row r ρ = refl
 
 
+
+
+--------------------------------------------------------------------------------
+-- injectivity of renaming (FUCK!)
+
+-- no-maps-to-empty : (Renamingₖ (Δ ,, κ) ∅) → ⊥ 
+-- no-maps-to-empty R with R Z
+-- ... | ()
+
+-- renₖVar-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {α β : KVar Δ₁ κ} → 
+--              r α ≡ r β → α ≡ β
+-- renₖVar-inj {r = r} {Z} {Z} eq = {!!}
+-- renₖVar-inj {Δ₁} {∅} {r = r} {Z} {S β} eq = ⊥-elim (no-maps-to-empty r)
+-- renₖVar-inj {Δ₁} {Δ₂ ,, x} {r = r} {Z} {S β} eq = {!r (S β)!}
+-- renₖVar-inj {r = r} {S α} {Z} eq = {!!}
+-- renₖVar-inj {r = r} {S α} {S β} eq = {!!}
+
+-- renₖNE-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {τ₁ τ₂ : NeutralType Δ₁ κ} → 
+--              renₖNE r τ₁ ≡ renₖNE r τ₂ → τ₁ ≡ τ₂
+-- renₖNE-inj {r = r} {τ₁ = ` α} {` α₁} eq = cong ` (renₖVar-inj {r = r} (inj-` eq))
+-- renₖNE-inj {r = r} {τ₁ = τ₁ · τ} {τ₂ · τ₃} eq = {!inj-·  {f₁ = renₖNE r τ₁} {f₂ = renₖNE r τ₂}!}
+-- renₖNE-inj {τ₁ = φ <$> τ₁} {φ₁ <$> τ₂} eq = {!!}
+-- renₖNE-inj {τ₁ = τ₁ ─₁ ρ} {τ₂ ─₁ ρ₁} eq = {!!}
+-- renₖNE-inj {τ₁ = ρ ─₂ τ₁} {ρ₁ ─₂ τ₂} eq = {!!}
+
+-- renₖNF-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
+--              renₖNF r τ₁ ≡ renₖNF r τ₂ → τ₁ ≡ τ₂
+-- renₖNF-inj {τ₁ = ne x} {ne x₁} eq = {!(inj-ne eq)!}
+-- renₖNF-inj {τ₁ = `λ τ₁} {`λ τ₂} eq = {!eq!}
+-- renₖNF-inj {τ₁ = τ₁ `→ τ₂} {τ₃ `→ τ₄} eq = {!!}
+-- renₖNF-inj {τ₁ = `∀ τ₁} {`∀ τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = μ τ₁} {μ τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = π ⇒ τ₁} {π₁ ⇒ τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} eq = {!!}
+-- renₖNF-inj {τ₁ = lab l} {lab l₁} eq = {!!}
+-- renₖNF-inj {τ₁ = ⌊ τ₁ ⌋} {⌊ τ₂ ⌋} eq = {!!}
+-- renₖNF-inj {τ₁ = Π τ₁} {Π τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = ΠL τ₁} {ΠL τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = Σ τ₁} {Σ τ₂} eq = {!!}
+-- renₖNF-inj {τ₁ = ΣL τ₁} {ΣL τ₂} eq = {!!}

@@ -96,9 +96,6 @@ subst-Row-reduction×₂ : ∀ {n m} {A B : Set} →
                       subst-Row p f fzero .snd ≡ f fzero .snd
 subst-Row-reduction×₂ refl f = refl
 
-
-
-
 --------------------------------------------------------------------------------
 -- Semantic types (definition)
 

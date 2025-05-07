@@ -182,7 +182,7 @@ reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
 reify-≋ {κ = R[ κ ]} {left x} {left x₁} refl = refl
 reify-≋ {κ = R[ κ ]} {right ((zero , P) , _)} {right ((_ , Q), _)} (refl , eq) = refl
 reify-≋ {κ = R[ κ ]} {right ((suc n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = 
-  cong-NormalSimpleRow (reifyRow-≋ {n = suc n} P Q λ i → eq i)
+  cong-⦅⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq i)
 
 reifyRow-≋ {n = zero} P Q eq = refl
 reifyRow-≋ {n = suc n} P Q eq = 
@@ -215,7 +215,7 @@ reifyRow-≋ {n = suc n} P Q eq =
         (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflect (liftₖ ρ) (` Z))))))
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {left x} {left y} refl = refl
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = 
-  cong-NormalSimpleRow (↻-ren-reifyRow P Q ρ λ i → eq i)
+  cong-⦅⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)
 
 ↻-ren-reifyRow {n = zero} P Q ρ eq = refl
 ↻-ren-reifyRow {n = suc n} P Q ρ eq = 

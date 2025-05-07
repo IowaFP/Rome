@@ -197,10 +197,19 @@ normalOrdered? ((ΣL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
 NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
 NormalMerePropOrdered ρ = Dec→MereProp (NormalOrdered ρ) (normalOrdered? ρ)
 
-cong-NormalSimpleRow : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
+cong-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂)
-cong-NormalSimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+cong-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+
+
+inj-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} 
+         {wf₁ : True (normalOrdered? sr₁)} 
+         {wf₂ : True (normalOrdered? sr₂)} → 
+         _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂) → 
+         sr₁ ≡ sr₂
+inj-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+                
 
 --------------------------------------------------------------------------------
 -- Mapping over preserves ordering
@@ -260,6 +269,13 @@ cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
                 _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
 cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl
 
+inj-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
+          {τ₁ υ₁ : NeutralType Δ R[ κ ]}
+          {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
+          _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂}) → 
+          τ₁ ≡ υ₁ × τ₂ ≡ υ₂
+inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl , refl
+
 
 --------------------------------------------------------------------------------
 -- 
@@ -294,6 +310,68 @@ mapPredHO P Q q (ρ₁ ≲ ρ₂) rewrite
 mapPred-id : ∀ (π : NormalPred Δ R[ κ ]) → mapPred id π ≡ π
 mapPred-id (ρ₁ · ρ₂ ~ ρ₃) = refl
 mapPred-id (ρ₁ ≲ ρ₂) = refl
+
+--------------------------------------------------------------------------------
+-- Injectivity lemmas for fucking everything
+
+inj-` : ∀ {α β : KVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
+inj-` refl = refl
+
+inj-· : ∀ {f₁ f₂ : NeutralType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : NormalType Δ κ₁} → 
+         f₁ · τ₁ ≡ f₂ · τ₂ → 
+         f₁ ≡ f₂ × τ₁ ≡ τ₂ 
+inj-· refl = refl , refl
+
+inj-<$> : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : NeutralType Δ R[ κ₁ ]} → 
+          φ₁ <$> τ₁ ≡ φ₂ <$> τ₂ → 
+          φ₁ ≡ φ₂ × τ₁ ≡ τ₂ 
+inj-<$> refl = refl , refl
+
+inj-─₁ : ∀ {ρ₄ ρ₂ : NeutralType Δ R[ κ ]} {ρ₃ ρ₁ : NormalType Δ R[ κ ]} → 
+           ρ₄ ─₁ ρ₃ ≡ ρ₂ ─₁ ρ₁ → 
+           ρ₄ ≡ ρ₂ × ρ₃ ≡ ρ₁ 
+inj-─₁ refl = refl , refl
+
+inj-`λ :  {τ₁ τ₂ : NormalType (Δ ,, κ₁) κ₂} → `λ τ₁ ≡ `λ τ₂ → τ₁ ≡ τ₂
+inj-`λ refl = refl
+
+inj-`→ : ∀ {τ₁ τ₂ υ₁ υ₂ : NormalType Δ ★} → 
+            τ₁ `→ τ₂ ≡ υ₁ `→ υ₂ → 
+            τ₁ ≡ υ₁ × τ₂ ≡ υ₂ 
+inj-`→ refl = refl , refl
+
+inj-`∀ : ∀ {τ₁ τ₂ : NormalType (Δ ,, κ) ★} → 
+           `∀ τ₁ ≡ `∀ τ₂ → 
+           τ₁ ≡ τ₂ 
+inj-`∀ refl = refl
+
+inj-μ : ∀ {F₁ F₂ : NormalType Δ (★ `→ ★)} →
+          μ F₁ ≡ μ F₂ → 
+          F₁ ≡ F₂ 
+inj-μ refl = refl
+
+inj-⇒ : ∀ {π₁ π₂ : NormalPred Δ R[ κ₁ ]} {τ₁ τ₂ : NormalType Δ ★} → 
+           π₁ ⇒ τ₁ ≡ π₂ ⇒ τ₂ → 
+           π₁ ≡ π₂ × τ₁ ≡ τ₂ 
+inj-⇒ refl = refl , refl
+
+inj-lab : ∀ {l₁ l₂ : Label} → _≡_ {A = NormalType Δ L} (lab l₁) (lab l₂) → l₁ ≡ l₂
+inj-lab refl = refl
+
+inj-⌊⌋ : ∀ {l₁ l₂ : NormalType Δ L} → ⌊ l₁ ⌋ ≡ ⌊ l₂ ⌋ → l₁ ≡ l₂ 
+inj-⌊⌋ refl = refl
+
+inj-Π : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} → Π ρ₁ ≡ Π ρ₂ → ρ₁ ≡ ρ₂
+inj-Π refl = refl
+
+inj-ΠL : ∀ {ρ₁ ρ₂ : NormalType Δ R[ L ]} → ΠL ρ₁ ≡ ΠL ρ₂ → ρ₁ ≡ ρ₂
+inj-ΠL refl = refl
+
+inj-Σ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} → Σ ρ₁ ≡ Σ ρ₂ → ρ₁ ≡ ρ₂
+inj-Σ refl = refl
+
+inj-ΣL : ∀ {ρ₁ ρ₂ : NormalType Δ R[ L ]} → ΣL ρ₁ ≡ ΣL ρ₂ → ρ₁ ≡ ρ₂
+inj-ΣL refl = refl
 
 --------------------------------------------------------------------------------
 -- injectivity ne constructor

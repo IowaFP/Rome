@@ -396,7 +396,7 @@ stability-map f [] = refl
 stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ (sym (stability (x .fst))) (stability-·' f (x .snd))) (stability-map f xs))
 
 stability-<$> f (ne x) = sym (stability (f <$>' ne x))
-stability-<$> f (⦅ xs ⦆ oρ) = cong-NormalSimpleRow (stability-map f xs)
+stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>

@@ -51,32 +51,23 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
                  (C D : Fin m → SemType Δ₁ L × SemType Δ₁ κ) → 
                  ((i : Fin n) → A i ≋₂ B i) → 
                  ((i : Fin m) → C i ≋₂ D i) → 
-                 renRow r (compl A C) ≋R compl (fmap× {Ty = SemType} (renSem r) ∘ B) (fmap× {Ty = SemType} (renSem r) ∘ D)
+                 renRow r (compl A C) ≋R 
+                 compl (fmap× {Ty = SemType} (renSem r) ∘ B) (fmap× {Ty = SemType} (renSem r) ∘ D)
 ↻-renSem-compl {n = zero} r A B C D i₁ i₂ = refl , (λ ())
 ↻-renSem-compl {n = suc n} r A B C D i₁ i₂ with 
-    A fzero .fst ∈Row C 
-  | renₖNF r (B fzero .fst) ∈Row
-         (λ x₁ → renₖNF r (D x₁ .fst) , renSem r (D x₁ .snd))
-  | compl A C
-... | yes p | yes q | (n , P) = {!!}
-... | no  p | yes q | (n , P) = {!q!} , {!!}
-... | yes p | no  q | (n , P) = {!q!} , {!!}
-... | no  p | no  q | (n , P) = {!q!} , {!!}
--- ↻-renSem-compl {n = suc n} r A B C D i₁ i₂ with 
---       i₁ fzero 
---     | A fzero .fst ∈Row C 
---     | B fzero .fst ∈Row D 
---     | renₖNF r (B fzero .fst) ∈Row (fmap× {Ty = SemType} (renSem r) ∘ D) 
---     | (compl (A ∘ fsuc) C)
---     | (compl (B ∘ fsuc) D)
---     | ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
---     | ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂ .fst
--- ... | eq , rel  | yes p         | yes q | yes r' |  n₁ , P | n₂ , Q | (refl , P≋Q) | refl  = ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
--- ... | eq , rel  | yes p         | yes (j , q) | no  r' |  n₁ , P | n₂ , Q | (refl , P≋Q) | refl  = ⊥-elim (r' (j , (cong (renₖNF r) q)))
--- ... | eq₁ , rel | yes (j , eq₂) | no q |  pq | n₁ , P | n₂ , Q | (refl , P≋Q) | refl = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
--- ... | eq₁ , rel | no  q         | yes (j , eq₂) | pq | n₁ , P | n₂ , Q | (refl , P≋Q) | refl  = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst))))) 
--- ... | eq , rel  | no  p         | no q  | yes (j , r') | n₁ , P | n₂ , Q | (refl , P≋Q) | refl = {!!} , {!!}
--- ... | eq , rel  | no  p         | no q  | no r' | n₁ , P | n₂ , Q | (refl , P≋Q) | refl = cong suc {!!} , {!!}
+      i₁ fzero 
+    | A fzero .fst ∈Row C 
+    | B fzero .fst ∈Row D 
+    | renₖNF r (B fzero .fst) ∈Row (fmap× {Ty = SemType} (renSem r) ∘ D) 
+    | (compl (A ∘ fsuc) C)
+    | (compl (B ∘ fsuc) D)
+    | ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+... | eq , rel  | yes p         | yes q | yes r' |  n₁ , P | n₂ , Q | (refl , P≋Q)  = ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+... | eq , rel  | yes p         | yes (j , q) | no  r' |  n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (r' (j , (cong (renₖNF r) q)))
+... | eq₁ , rel | yes (j , eq₂) | no q |  pq | n₁ , P | n₂ , Q | (refl , P≋Q) = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
+... | eq₁ , rel | no  q         | yes (j , eq₂) | pq | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst))))) 
+... | eq₁ , rel  | no  p         | no q  | yes (j , eq₂) | n₁ , P | n₂ , Q | (refl , P≋Q)  = {!P≋Q !} , {!!}
+... | eq , rel  | no  p         | no q  | no r' | n₁ , P | n₂ , Q | (refl , P≋Q)  = cong suc {!!} , {!!}
 
 ↻-renSem-─v : (r : Renamingₖ Δ₁ Δ₂) → 
               {V₁ V₂ W₁ W₂ : Row Δ₁ R[ κ ]} → 
@@ -95,8 +86,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               V₁ ≋ W₁ → 
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
 ↻-renSem-─V r {left x₁} {left x₂} {left x₃} {left x₄} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
-↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-NormalSimpleRow (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
-↻-renSem-─V r {right ((n , P) , _)} {left x₁} {right ((m , Q) , _)} {left x₂} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-NormalSimpleRow (↻-ren-reifyRow P Q r V₁≋))
+↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
+↻-renSem-─V r {right ((n , P) , _)} {left x₁} {right ((m , Q) , _)} {left x₂} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
 ↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
                  
 
@@ -284,7 +275,7 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
 ↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renSem-evalRow r ρ e
-↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = {!!}
+↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = {!!} -- 
 
 
 ↻-renSem-evalRow r [] e = refl , (λ { () })

@@ -69,7 +69,7 @@ stability (Π x)  rewrite stability x = refl
 stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
 stability (ΣL x) rewrite stability x = refl
-stability (⦅ ρ ⦆ oρ)  = cong-NormalSimpleRow (stabilityRow ρ)
+stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ)
 stability (lab l) = refl
 
 stabilityRow [] = refl
@@ -82,7 +82,6 @@ stabilityPred (ρ₁ ≲ ρ₂)
 
 --------------------------------------------------------------------------------
 -- idempotency
-
 
 idempotency : ∀ (τ : Type Δ κ) → (⇑ ∘ ⇓ ∘ ⇑ ∘ ⇓) τ ≡  (⇑ ∘ ⇓)  τ
 idempotency τ rewrite stability (⇓ τ) = refl

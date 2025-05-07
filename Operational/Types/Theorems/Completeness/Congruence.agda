@@ -142,8 +142,8 @@ cong-─V : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} →
            (V₂ ─V V₁) ≋ (W₂ ─V W₁)
 cong-─V {V₁ = left x₁} {left x₂} {left x₃} {left x₄} refl refl = refl
 cong-─V {V₁ = left x} {right ((n , P) , _)} {left y} {right ((m , Q) , _)} (refl , rel) refl = 
-  cong-─₂ (cong-NormalSimpleRow (reifyRow-≋ P Q rel )) refl
+  cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel )) refl
 cong-─V {V₁ = right ((n , P) , _)} {left x} {right ((m , Q) , _)} {left y} refl (refl , rel) = 
-  cong₂ _─₁_ refl (cong-NormalSimpleRow (reifyRow-≋ P Q rel))
+  cong₂ _─₁_ refl (cong-⦅⦆ (reifyRow-≋ P Q rel))
 cong-─V {V₁ = right ((n , P) , _)} {right ((m , Q) , _)} {right ((l , R) , _)} {right ((j , I) , _)} v₂ v₁ = 
   cong-─v v₂ v₁ 
