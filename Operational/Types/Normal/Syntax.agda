@@ -27,6 +27,10 @@ NormalPred = Pred NormalType
 NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set 
 normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
 
+IsNeutral IsNormal : NormalType Δ κ → Set 
+isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
+isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
+
 data NeutralType Δ : Kind → Set where
 
   ` : 
@@ -47,15 +51,13 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
-  _─₁_ : NeutralType Δ R[ κ ] → NormalType Δ R[ κ ] → 
+  _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------
         NeutralType Δ R[ κ ]
 
-  _─₂_ : NormalType Δ R[ κ ] → NeutralType Δ R[ κ ] → 
+  _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
         ----------------------------------------------
         NeutralType Δ R[ κ ]
-
-
 
 data NormalType Δ where
 
@@ -200,6 +202,58 @@ cong-NormalSimpleRow : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : 
                 _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂)
 cong-NormalSimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
 
+
+--------------------------------------------------------------------------------
+-- IsNeutral and IsNormal predicates
+
+IsNeutral (ne x) = ⊤ 
+IsNeutral _ = ⊥
+
+isNeutral? (ne x) = yes tt
+isNeutral? (`λ x) = no λ ()
+isNeutral? (x `→ x₁) = no λ ()
+isNeutral? (`∀ x) = no λ ()
+isNeutral? (μ x) = no λ ()
+isNeutral? (π ⇒ x) = no λ ()
+isNeutral? (⦅ ρ ⦆ oρ) = no λ ()
+isNeutral? (lab l) = no λ ()
+isNeutral? ⌊ x ⌋ = no λ ()
+isNeutral? (Π x) = no λ ()
+isNeutral? (ΠL x) = no λ ()
+isNeutral? (Σ x) = no λ ()
+isNeutral? (ΣL x) = no λ ()
+
+IsNormal (ne x)     = ⊥
+IsNormal _     = ⊤
+
+isNormal? (ne x) = no λ ()
+isNormal? (`λ x) = yes tt
+isNormal? (x `→ x₁) = yes tt
+isNormal? (`∀ x) = yes tt
+isNormal? (μ x) = yes tt
+isNormal? (π ⇒ x) = yes tt
+isNormal? (⦅ ρ ⦆ oρ) = yes tt
+isNormal? (lab l) = yes tt
+isNormal? ⌊ x ⌋ = yes tt
+isNormal? (Π x) = yes tt
+isNormal? (ΠL x) = yes tt
+isNormal? (Σ x) = yes tt
+isNormal? (ΣL x) = yes tt
+
+NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
+NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
+
+cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
+          {τ₁ υ₁ : NeutralType Δ R[ κ ]}
+          {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
+                 τ₂ ≡ υ₂ → 
+                 τ₁ ≡ υ₁ → 
+                _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
+cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl
+
+
+--------------------------------------------------------------------------------
+-- 
 
 --------------------------------------------------------------------------------
 -- There are no neutral types in empty contexts

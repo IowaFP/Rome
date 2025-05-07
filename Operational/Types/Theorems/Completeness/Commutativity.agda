@@ -95,7 +95,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               V₁ ≋ W₁ → 
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
 ↻-renSem-─V r {left x₁} {left x₂} {left x₃} {left x₄} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
-↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong₂ _─₂_ (cong-NormalSimpleRow (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
+↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-NormalSimpleRow (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
 ↻-renSem-─V r {right ((n , P) , _)} {left x₁} {right ((m , Q) , _)} {left x₂} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-NormalSimpleRow (↻-ren-reifyRow P Q r V₁≋))
 ↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
                  

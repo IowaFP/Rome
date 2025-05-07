@@ -19,13 +19,13 @@ renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] →
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalType Δ₁ R[ κ ]) → NormalOrdered xs → 
                  NormalOrdered (renRowₖNF r xs)
-
+isNormalRenₖNF : (r : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → IsNormal τ → IsNormal (renₖNF r τ)
 
 renₖNE ρ (` x) = ` (ρ x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
 renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
-renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ (renₖNF r ρ₁)
-renₖNE r (ρ₂ ─₂ ρ₁) = renₖNF r ρ₂ ─₂ (renₖNE r ρ₁)
+renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ renₖNF r ρ₁
+renₖNE r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNE r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
@@ -46,6 +46,19 @@ renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
 renRowₖNF _ [] = []
 renRowₖNF r ((l , τ) ∷ ρ) = (renₖNF r l , renₖNF r τ) ∷ renRowₖNF r ρ
+
+isNormalRenₖNF r (`λ x) witness = tt
+isNormalRenₖNF r (x `→ x₁) witness = tt
+isNormalRenₖNF r (`∀ x) witness = tt
+isNormalRenₖNF r (μ x) witness = tt
+isNormalRenₖNF r (π ⇒ x) witness = tt
+isNormalRenₖNF r (⦅ ρ ⦆ oρ) witness = tt
+isNormalRenₖNF r (lab l) witness = tt
+isNormalRenₖNF r ⌊ x ⌋ witness = tt
+isNormalRenₖNF r (Π x) witness = tt
+isNormalRenₖNF r (ΠL x) witness = tt
+isNormalRenₖNF r (Σ x) witness = tt
+isNormalRenₖNF r (ΣL x) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt

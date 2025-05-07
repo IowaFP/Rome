@@ -81,7 +81,7 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 (x ─₂ x₁) ≡NE? (φ <$> y) = no (λ ())
 (x ─₂ x₁) ≡NE? (y ─₁ x₂) = no (λ ())
 (ρ₂ ─₂ ρ₁) ≡NE? (ρ₄ ─₂ ρ₃) with ρ₂ ≡? ρ₄ | ρ₁ ≡NE? ρ₃ 
-... | yes refl | yes refl = yes refl
+... | yes refl | yes refl = yes (cong-─₂ refl refl)
 ... | no p     | _    = no (λ { refl → p refl })
 ... | _        | no p = no (λ { refl → p refl })
 

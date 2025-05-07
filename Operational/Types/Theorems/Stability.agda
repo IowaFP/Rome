@@ -40,7 +40,7 @@ stabilityNE (ρ₂ ─₁ ρ₁)  with eval (⇑NE ρ₂) idEnv | eval (⇑ ρ�
 ... | _ | left _ | refl | refl = refl
 ... | _ | right _ | refl | refl = refl
 stabilityNE (ρ₂ ─₂ ρ₁) with eval (⇑ ρ₂) idEnv | eval (⇑NE ρ₁) idEnv | stability ρ₂ | stabilityNE ρ₁  
-... | left x₁ | x | refl | refl = {!!}
+stabilityNE ((ρ₂ ─₂ ρ₁) {()}) | left x₁ | x | refl | refl
 ... | right y₁ | _ | refl | refl = refl
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
@@ -82,8 +82,9 @@ stabilityPred (ρ₁ ≲ ρ₂)
 
 --------------------------------------------------------------------------------
 -- idempotency
- 
-idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+
+
+idempotency : ∀ (τ : Type Δ κ) → (⇑ ∘ ⇓ ∘ ⇑ ∘ ⇓) τ ≡  (⇑ ∘ ⇓)  τ
 idempotency τ rewrite stability (⇓ τ) = refl
 
 --------------------------------------------------------------------------------
