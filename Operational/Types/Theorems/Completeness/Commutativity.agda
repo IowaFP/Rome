@@ -45,6 +45,32 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 --------------------------------------------------------------------------------
 -- Renaming commutes over complement
 
+∈Row-Renaming : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
+         {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
+         {l : SemType Δ₁ L} → 
+         True (l ∈Row P) → True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P))
+∈Row-Renaming {n = n} r {P} {l} t with toWitness t 
+... | m , eq = fromWitness (m , (cong (renₖNF r) eq))
+
+∈Row-Renaming-converse : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
+         {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
+         {l : SemType Δ₁ L} → 
+         True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P)) → True (l ∈Row P)
+∈Row-Renaming-converse {n = n} r {P} {l} t with toWitness t 
+∈Row-Renaming-converse {n = n} r {P} {l} t | m , eq with l | P m
+... | ne (` α) | ne (` α₁) , snd₁ = {!α α₁!}
+... | ne (x₁ · τ) | ne (x₂ · τ₁) , snd₁ = {!!}
+... | lab l₁ | lab l₂ , snd₁ = {!!}
+... | ΠL ll | ΠL fst₁ , snd₁ = {!!}
+... | ΣL ll | ΣL fst₁ , snd₁ = {!!}
+
+
+∈Row-Renaming-contrap : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
+         {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
+         {l : SemType Δ₁ L} → 
+         ¬ (True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P))) → ¬ (True (l ∈Row P))
+∈Row-Renaming-contrap r {P} {l} = contraposition (∈Row-Renaming r {P} {l})  
+
 ↻-renSem-compl : {n m : ℕ} 
                  (r : Renamingₖ Δ₁ Δ₂) → 
                  (A B : Fin n → SemType Δ₁ L × SemType Δ₁ κ)
@@ -66,7 +92,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ... | eq , rel  | yes p         | yes (j , q) | no  r' |  n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (r' (j , (cong (renₖNF r) q)))
 ... | eq₁ , rel | yes (j , eq₂) | no q |  pq | n₁ , P | n₂ , Q | (refl , P≋Q) = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
 ... | eq₁ , rel | no  q         | yes (j , eq₂) | pq | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst))))) 
-... | eq₁ , rel  | no  p         | no q  | yes (j , eq₂) | n₁ , P | n₂ , Q | (refl , P≋Q)  = {!P≋Q !} , {!!}
+... | eq₁ , rel  | no  p         | no q  | yes (j , eq₂) | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , {!∈Row-Renaming-contrap  !}))
 ... | eq , rel  | no  p         | no q  | no r' | n₁ , P | n₂ , Q | (refl , P≋Q)  = cong suc {!!} , {!!}
 
 ↻-renSem-─v : (r : Renamingₖ Δ₁ Δ₂) → 
@@ -275,7 +301,10 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
 ↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renSem-evalRow r ρ e
-↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = {!!} -- 
+↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = 
+  trans-≋ 
+    (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
+    (cong-─V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
 
 
 ↻-renSem-evalRow r [] e = refl , (λ { () })
