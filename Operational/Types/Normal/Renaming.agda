@@ -21,6 +21,9 @@ orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalTyp
                  NormalOrdered (renRowₖNF r xs)
 isNormalRenₖNF : (r : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → IsNormal τ → IsNormal (renₖNF r τ)
 
+Renₖ-Injective : (Δ₁ Δ₂ : KEnv) → Renamingₖ Δ₁ Δ₂ → Set 
+Renₖ-Injective Δ₁ Δ₂ r = (∀ (τ₁ τ₂ : NormalType Δ₁ L) → renₖNF r τ₁ ≡ renₖNF r τ₂ → τ₁ ≡ τ₂)
+
 renₖNE ρ (` x) = ` (ρ x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
 renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)

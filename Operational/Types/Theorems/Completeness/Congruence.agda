@@ -122,8 +122,7 @@ cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row C
       (compl (A ∘ fsuc) C)
     | (compl (B ∘ fsuc) D)
     | cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
-    | cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂ .fst
-... | n₁ , P | n₂ , Q | (refl , P≋Q) | refl = 
+... | n₁ , P | n₂ , Q | (refl , P≋Q) = 
   refl , (λ { fzero    → i₁ fzero ; 
               (fsuc i) → P≋Q i })
 

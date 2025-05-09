@@ -237,19 +237,31 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l 
 
 
 --------------------------------------------------------------------------------
--- injectivity of renaming (FUCK!)
+-- injectivity of renaming doesn't work because renamings aren't inherently injective
+-- and, even if they were, 
 
 -- no-maps-to-empty : (Renamingₖ (Δ ,, κ) ∅) → ⊥ 
 -- no-maps-to-empty R with R Z
 -- ... | ()
 
+-- counter :  Renamingₖ ((∅ ,, ★) ,, ★) (∅ ,, ★)
+-- counter Z = Z
+-- counter (S Z) = Z
+
+-- rZ≠rS : ∀ (r : Renamingₖ (Δ₁ ,, κ₁) (Δ₂ ,, κ₂)) (α : KVar Δ₁ κ₁) → r Z ≡ r (S α) → ⊥ 
+-- rZ≠rS {Δ₁ ,, κ₁} {Δ₂ = ∅} r α eq with r (S α) | r (S Z)
+-- ... | Z | Z = {!!}
+-- rZ≠rS {Δ₁ ,, x} {Δ₂ = Δ₂ ,, x₁} r α eq = {!!}
+
 -- renₖVar-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {α β : KVar Δ₁ κ} → 
 --              r α ≡ r β → α ≡ β
--- renₖVar-inj {r = r} {Z} {Z} eq = {!!}
--- renₖVar-inj {Δ₁} {∅} {r = r} {Z} {S β} eq = ⊥-elim (no-maps-to-empty r)
--- renₖVar-inj {Δ₁} {Δ₂ ,, x} {r = r} {Z} {S β} eq = {!r (S β)!}
--- renₖVar-inj {r = r} {S α} {Z} eq = {!!}
--- renₖVar-inj {r = r} {S α} {S β} eq = {!!}
+-- renₖVar-inj {Δ₁ ,, x} {∅} {r = r} {α} {β} eq = ⊥-elim (no-maps-to-empty r)
+-- renₖVar-inj {Δ₁ ,, κ₁} {Δ₂ ,, κ₂} {r = r} {Z} {Z} eq = refl
+-- renₖVar-inj {Δ₁ ,, κ₁} {Δ₂ ,, κ₂} {r = r} {Z} {S β} eq with r (S β) 
+-- ... | Z = {!!} 
+-- ... | S c = {!!}
+-- renₖVar-inj {Δ₁ ,, κ₁} {Δ₂ ,, κ₂} {r = r} {S α} {Z} eq = {!!} -- ⊥-elim (rZ≠rS r α (sym eq))
+-- renₖVar-inj {Δ₁ ,, κ₁} {Δ₂ ,, κ₂} {r = r} {S α} {S β} eq = cong S (renₖVar-inj {r = r ∘ S} eq)
 
 -- renₖNE-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {τ₁ τ₂ : NeutralType Δ₁ κ} → 
 --              renₖNE r τ₁ ≡ renₖNE r τ₂ → τ₁ ≡ τ₂
@@ -261,7 +273,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l 
 
 -- renₖNF-inj : ∀ {r : Renamingₖ Δ₁ Δ₂} {τ₁ τ₂ : NormalType Δ₁ κ} → 
 --              renₖNF r τ₁ ≡ renₖNF r τ₂ → τ₁ ≡ τ₂
--- renₖNF-inj {τ₁ = ne x} {ne x₁} eq = {!(inj-ne eq)!}
+-- renₖNF-inj {τ₁ = ne x} {ne x₁} eq = cong-ne (renₖNE-inj (inj-ne eq))
 -- renₖNF-inj {τ₁ = `λ τ₁} {`λ τ₂} eq = {!eq!}
 -- renₖNF-inj {τ₁ = τ₁ `→ τ₂} {τ₃ `→ τ₄} eq = {!!}
 -- renₖNF-inj {τ₁ = `∀ τ₁} {`∀ τ₂} eq = {!!}

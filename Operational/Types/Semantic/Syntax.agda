@@ -106,3 +106,11 @@ SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂
 SemType Δ R[ κ ] = 
      NeutralType Δ R[ κ ] 
   or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
+
+--------------------------------------------------------------------------------
+-- helper
+
+fmap×Sem : (∀ {κ} → SemType Δ₁ κ → SemType Δ₂ κ) → 
+          SemType Δ₁ L × SemType Δ₁ κ → SemType Δ₂ L × SemType Δ₂ κ
+
+fmap×Sem = fmap× {Ty = SemType}
