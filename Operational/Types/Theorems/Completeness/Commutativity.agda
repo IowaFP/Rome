@@ -92,8 +92,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ... | eq , rel  | yes p         | yes (j , q) | no  r' |  n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (r' (j , (cong (renₖNF r) q)))
 ... | eq₁ , rel | yes (j , eq₂) | no q |  pq | n₁ , P | n₂ , Q | (refl , P≋Q) = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
 ... | eq₁ , rel | no  q         | yes (j , eq₂) | pq | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst))))) 
-... | eq₁ , rel  | no  p         | no q  | yes (j , eq₂) | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , {!∈Row-Renaming-contrap  !}))
-... | eq , rel  | no  p         | no q  | no r' | n₁ , P | n₂ , Q | (refl , P≋Q)  = cong suc {!!} , {!!}
+... | eq₁ , rel  | no  p         | no q  | yes (j , eq₂) | n₁ , P | n₂ , Q | (refl , P≋Q)  = ⊥-elim (q (j , {!eq₂ !}))
+... | eq , rel  | no  p         | no q  | no r' | n₁ , P | n₂ , Q | (refl , P≋Q)  = {!!} , {!!}
 
 ↻-renSem-─v : (r : Renamingₖ Δ₁ Δ₂) → 
               {V₁ V₂ W₁ W₂ : Row Δ₁ R[ κ ]} → 

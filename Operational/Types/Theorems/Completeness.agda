@@ -31,6 +31,9 @@ fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} →
        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
 fundC-pred : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
             Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+fundC-Row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
+
 
 fundC-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundC e τ₁)) (reify-≋ (fundC e τ₂))
 fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -110,20 +113,23 @@ fundC e (eq-Σ-assoc {ρ = ρ} {τ}) =
 fundC e (eq-Π {ρ = ρ}) = cong-<$> (idext e Π) (idext e ρ) 
 fundC e (eq-Σ {ρ = ρ}) = cong-<$> (idext e Σ) (idext e ρ) 
 fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
-fundC e (eq-map {ρ = []}) = refl , (λ { () })
-fundC {η₁ = η₁} e (eq-map {F = F} {ρ = x ∷ ρ}) = {!!}
---   with evalRow ρ η₁ | fundC e (eq-map {F = F} {ρ})
--- ... |  n , P        | refl , eq = 
---   refl , (λ { fzero → cong-App  (idext e F) (idext e x)
---             ; (fsuc i) → eq i })
-fundC e (eq-row eq-[]) = refl , (λ { () })
-fundC {η₁ = η₁} e (eq-row (eq-cons {xs = xs} {ys} l x eq-ρ)) = {!!}
+fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = go ρ
+  where
+    go : (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → (evalRow ρ η₁ .fst ,
+       (λ x₁ → overᵣ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
+      ≋R
+      (evalRow (map (overᵣ (_·_ F)) ρ) η₂ .fst ,
+       evalRow (map (overᵣ (_·_ F)) ρ) η₂ .snd)
+    go [] = refl , (λ ())
+    go (x ∷ ρ) with evalRow ρ η₁ | go ρ
+    ... | n , P | refl , eq = refl , (λ { fzero → (idext e (x . fst)) , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
+fundC e (eq-row eq) = fundC-Row e eq
 fundC e (eq-lab refl) = refl
---   with evalRow xs η₁ | fundC e (eq-row eq-ρ)
--- ... |  (n , P)       | refl , eq = 
---   refl , λ { fzero → fundC e x
---            ; (fsuc i) → eq i }
--- fundC e (eq-labTy {τ = τ}) = refl , (λ { fzero → idext e τ })
+
+fundC-Row e eq-[] = refl , (λ ())
+fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 
+  evalRow xs η₁ | fundC-Row e eq-r 
+... | n , P | refl , eq = refl , (λ { fzero → (fundC e eq-l) , (fundC e eq-τ) ; (fsuc i) → eq i })
 
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
