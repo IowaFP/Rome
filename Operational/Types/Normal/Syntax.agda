@@ -51,6 +51,9 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
+  _▹ₙ_ : NeutralType Δ L → NormalType Δ κ → 
+        NeutralType Δ R[ κ ]
+
   _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------
         NeutralType Δ R[ κ ]
@@ -288,6 +291,7 @@ noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
 noNeutrals (n ─₁ _) = noNeutrals n
 noNeutrals (_ ─₂ n) = noNeutrals n
+noNeutrals (l ▹ₙ _) = noNeutrals l
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -462,6 +466,7 @@ Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 ⇑NE (ρ₂ ─₁ ρ₁) = (⇑NE ρ₂) ─ (⇑ ρ₁)
 ⇑NE (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NE ρ₁)
+⇑NE (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

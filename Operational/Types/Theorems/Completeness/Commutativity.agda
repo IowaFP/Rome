@@ -90,7 +90,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
   ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
 ... | yes (j , eq₂) | no q          = 
   ⊥-elim (q (j , (trans (sym (cong (renₖNF r) (i₁ fzero .fst))) (trans (cong (renₖNF r) eq₂) (cong (renₖNF r) (i₂ j .fst))))))
-... | no q          | yes (j , eq₂) = ⊥-elim (q (j , trans (i₁ fzero .fst) (trans {! !} (sym (i₂ j .fst)))))
+... | no q          | yes (j , eq₂) = ⊥-elim (q (j , trans (i₁ fzero .fst) (trans {!↻-renSem-compl r C D A B i₂ i₁ !} (sym (i₂ j .fst)))))
 ... | no  p         | no q  with
       (compl (A ∘ fsuc) C) 
     | compl (fmap×Sem (renSem r) ∘ (B ∘ fsuc)) (fmap×Sem (renSem r) ∘ D)

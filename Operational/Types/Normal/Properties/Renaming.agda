@@ -35,6 +35,7 @@ renₖNE-cong eq (ν · τ) rewrite
 renₖNE-cong eq (x <$> τ) rewrite renₖNF-cong eq x | renₖNE-cong eq τ = refl
 renₖNE-cong eq (ρ₂ ─₁ ρ₁) rewrite renₖNE-cong eq ρ₂ | renₖNF-cong eq ρ₁ = refl
 renₖNE-cong eq (ρ₂ ─₂ ρ₁) = cong-─₂ (renₖNF-cong eq ρ₂) (renₖNE-cong eq ρ₁)
+renₖNE-cong eq (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-cong eq l) (renₖNF-cong eq τ)
 
 renₖNF-cong eq (ne ν) rewrite 
   renₖNE-cong eq ν = refl
