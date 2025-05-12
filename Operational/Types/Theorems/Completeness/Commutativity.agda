@@ -45,25 +45,24 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 --------------------------------------------------------------------------------
 -- Renaming commutes over complement
 
--- ∈Row-Renaming : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
---          {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
---          {l : SemType Δ₁ L} → 
---          True (l ∈Row P) → True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P))
--- ∈Row-Renaming {n = n} r {P} {l} t with toWitness t 
--- ... | m , eq = fromWitness (m , (cong (renₖNF r) eq))
+∈Row-Renaming : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
+         {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
+         {l : SemType Δ₁ L} → 
+         True (l ∈Row P) → True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P))
+∈Row-Renaming {n = n} r {P} {l} t with toWitness t 
+... | m , eq = fromWitness (m , (cong (renₖNF r) eq))
 
 -- ∈Row-Renaming-converse : ∀ {n} (r : Renamingₖ Δ₁ Δ₂) → 
 --          {P : Fin n → SemType Δ₁ L × SemType Δ₁ κ} → 
 --          {l : SemType Δ₁ L} → 
 --          True (renₖNF r l ∈Row (fmap× {Ty = SemType} (renSem r) ∘ P)) → 
 --          True (l ∈Row P)
--- ∈Row-Renaming-converse {n = n} r {P} {l} t with toWitness t 
--- ∈Row-Renaming-converse {n = n} r {P} {l} t | m , eq with l | P m
--- ... | ne (` α) | ne (` α₁) , snd₁ = fromWitness (m , {!eq!})
--- ... | ne (x₁ · τ) | ne (x₂ · τ₁) , snd₁ = {!!}
--- ... | lab l₁ | lab l₂ , snd₁ = {!!}
--- ... | ΠL ll | ΠL fst₁ , snd₁ = {!!}
--- ... | ΣL ll | ΣL fst₁ , snd₁ = {!!}
+-- ∈Row-Renaming-converse {n = n} r {P} {l} t with toWitness t
+-- ∈Row-Renaming-converse {n = n} r {P} {l} t | m , eq with P m
+-- ∈Row-Renaming-converse {n = n} r {P} {ne x₁} t | m , eq | ne x₂ , snd₁ = fromWitness (m , {!inj-ne eq!})
+-- ∈Row-Renaming-converse {n = n} r {P} {lab l} t | m , refl | lab l₁ , snd₁ = {!!}
+-- ∈Row-Renaming-converse {n = n} r {P} {ΠL l} t | m , eq | ΠL fst₁ , snd₁ = {!!}
+-- ∈Row-Renaming-converse {n = n} r {P} {ΣL l} t | m , eq | ΣL fst₁ , snd₁ = {!!}
 
 
 
@@ -86,7 +85,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ↻-renSem-compl {n = zero} r A B C D i₁ i₂ = refl , (λ ())
 ↻-renSem-compl {n = suc n} r A B C D i₁ i₂ with
       A fzero .fst ∈Row C 
-    | renₖNF r (B fzero .fst) ∈Row (fmap×Sem (renSem r) ∘ D) 
+    | renₖNF r (B fzero .fst) ∈Row (fmap×Sem (renSem r) ∘ D)
 ... | yes p         | yes q  =
   ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
 ... | yes (j , eq₂) | no q          = 
