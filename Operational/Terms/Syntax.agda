@@ -37,7 +37,7 @@ private
     l l₁ l₂    : Type Δ L
     ρ ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]
     π π₁ π₂ π₃ : Pred Type Δ R[ κ ]
-    
+
 
 data PVar : Context Δ → Pred Type Δ κ → Set where
   Z : PVar (Γ ,,, π) π
@@ -70,65 +70,65 @@ noPVar : NoVar Γ → ∀ {π : Pred Type Δ R[ κ ]}(x : PVar Γ π) → ⊥
 noPVar p (K x) = noPVar p x
 
 --------------------------------------------------------------------------------
--- Entailment relation on predicates 
+-- Entailment relation on predicates
 
 -- private
---   variable 
---       l l₁ l₂ l₃ : Type Δ L 
---       τ τ₁ τ₂ τ₃ : Type Δ κ 
---       υ υ₁ υ₂ υ₃ : Type Δ κ 
-      
-data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where 
-  n-var : 
-        PVar Γ π → 
+--   variable
+--       l l₁ l₂ l₃ : Type Δ L
+--       τ τ₁ τ₂ τ₃ : Type Δ κ
+--       υ υ₁ υ₂ υ₃ : Type Δ κ
+
+data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
+  n-var :
+        PVar Γ π →
         -----------
-        Ent Γ π 
+        Ent Γ π
 
   n-≲ :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]}
-           {oxs : True (ordered? xs)} 
-           {oys : True (ordered? ys)} → 
+           {oxs : True (ordered? xs)}
+           {oys : True (ordered? ys)} →
 
-          xs ⊆ ys → 
+          xs ⊆ ys →
           --------------------------------------------
           Ent Γ (⦅ xs  ⦆ oxs ≲ ⦅ ys ⦆ oys)
 
-  n-· : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → 
-           {oxs : True (ordered? xs)} 
-           {oys : True (ordered? ys)} 
-           {ozs : True (ordered? zs)} → 
-          xs ⊆ zs → 
-          ys ⊆ zs → 
-          zs ⊆[ xs ⊹ ys ]  → 
+  n-· : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} →
+           {oxs : True (ordered? xs)}
+           {oys : True (ordered? ys)}
+           {ozs : True (ordered? zs)} →
+          xs ⊆ zs →
+          ys ⊆ zs →
+          zs ⊆[ xs ⊹ ys ]  →
           --------------------------------------------
           Ent Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs)
-  n-refl : 
+  n-refl :
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
 
-  n-trans : 
+  n-trans :
           Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
           ---------------------------------------
           Ent Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲L : 
+  n-·≲L :
         Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         Ent Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲R : 
+  n-·≲R :
         Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         Ent Γ (ρ₂ ≲ ρ₃)
 
-  n-ε-R : 
-             
+  n-ε-R :
+
         -------------------------
         Ent Γ (ρ · ⦅ [] ⦆ tt ~ ρ)
 
-  n-ε-L : 
+  n-ε-L :
 
         -------------------------
-        Ent Γ (⦅ [] ⦆ tt · ρ ~ ρ)  
+        Ent Γ (⦅ [] ⦆ tt · ρ ~ ρ)
 
   n-≲lift : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
                {F : Type Δ (κ₁ `→ κ₂)} →
@@ -139,14 +139,14 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
 
 
   n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
-               
+
                {F : Type Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
              ---------------------------------
              Ent Γ ((F <$> ρ₁) · (F <$> ρ₂) ~ (F <$> ρ₃))
 
-  convert : π₁ ≡p π₂ → Ent Γ π₁ → 
+  convert : π₁ ≡p π₂ → Ent Γ π₁ →
             -----------------------
             Ent Γ π₂
 
@@ -154,23 +154,23 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
 -- Terms indexed by Type
 
 data Term {Δ} Γ : Type Δ ★ → Set where
-  ` : Var Γ τ → 
+  ` : Var Γ τ →
       --------
       Term Γ τ
 
-  `λ : ∀ {τ₁ τ₂} → 
+  `λ : ∀ {τ₁ τ₂} →
 
-       Term (Γ , τ₁) τ₂ → 
+       Term (Γ , τ₁) τ₂ →
        --------------
        Term Γ (τ₁ `→ τ₂)
 
-  _·_ : ∀ {τ₁ τ₂} → 
+  _·_ : ∀ {τ₁ τ₂} →
 
-       Term Γ (τ₁ `→ τ₂) → 
-       Term Γ τ₁ → 
+       Term Γ (τ₁ `→ τ₂) →
+       Term Γ τ₁ →
        ---------
        Term Γ τ₂
-  
+
   --------------
   -- System Fω
 
@@ -180,45 +180,45 @@ data Term {Δ} Γ : Type Δ ★ → Set where
       -----------
       Term Γ (`∀ τ)
 
-  _·[_] : ∀ {τ₂} → 
-  
+  _·[_] : ∀ {τ₂} →
+
           Term Γ (`∀ τ₂) →
-          (τ₁ : Type Δ κ) → 
+          (τ₁ : Type Δ κ) →
           ----------------
           Term Γ (τ₂ βₖ[ τ₁ ])
 
   ------------------
   -- Recursive types
 
-  In : 
-         ∀ (F : Type Δ (★ `→ ★)) → 
-         Term Γ (F · (μ F)) → 
+  In :
+         ∀ (F : Type Δ (★ `→ ★)) →
+         Term Γ (F · (μ F)) →
          -----------------
          Term Γ (μ F)
 
-  Out : 
-           ∀ F → 
-           Term Γ (μ F) → 
+  Out :
+           ∀ F →
+           Term Γ (μ F) →
            --------------
            Term Γ (F · (μ F))
 
-  fix : Term Γ (τ `→ τ) → 
+  fix : Term Γ (τ `→ τ) →
         ------------------
-        Term Γ τ 
+        Term Γ τ
 
   ------------------
   -- Qualified types
 
-  `ƛ : 
+  `ƛ :
 
-       Term (Γ ,,, π) τ → 
+       Term (Γ ,,, π) τ →
        --------------
        Term Γ (π ⇒ τ)
 
-  _·⟨_⟩ : ∀ {π : Pred Type Δ R[ κ ]} {τ : Type Δ ★} → 
-  
+  _·⟨_⟩ : ∀ {π : Pred Type Δ R[ κ ]} {τ : Type Δ ★} →
+
         Term Γ (π ⇒ τ) →
-        Ent Γ π → 
+        Ent Γ π →
         ----------------
         Term Γ τ
 
@@ -226,9 +226,9 @@ data Term {Δ} Γ : Type Δ ★ → Set where
   -- Rω labels
 
   -- label constants
-  # : 
+  # :
 
-        (ℓ : Type Δ L) → 
+        (ℓ : Type Δ L) →
         -------------------
         Term Γ ⌊ ℓ ⌋
 
@@ -236,7 +236,7 @@ data Term {Δ} Γ : Type Δ ★ → Set where
   -- Rω records
 
   -- Record singleton formation
-  _Π▹_ : 
+  _Π▹_ :
           (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
           Term Γ (Π · (l ▹ υ))
@@ -247,35 +247,29 @@ data Term {Δ} Γ : Type Δ ★ → Set where
           ----------------------------------------
           Term Γ υ
 
-  prj : 
-   
-       (M : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ ≲ ρ₂) → 
+  prj :
+
+       (M : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ ≲ ρ₂) →
        -------------------------------------
        Term Γ (Π · ρ₁)
-  
-  _⊹_ : 
 
-       (M₁ : Term Γ (Π · ρ₁)) → (M₂ : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) → 
+  _⊹_ :
+
+       (M₁ : Term Γ (Π · ρ₁)) → (M₂ : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
        ---------------------------------------------------------------------
        Term Γ (Π · ρ₃)
 
-  syn : 
-    
-        (ρ : Type Δ R[ κ ]) → (φ : Type Δ (κ `→ ★)) → (M : Term Γ (SynT ρ φ)) → 
+  syn :
+
+        (ρ : Type Δ R[ κ ]) → (φ : Type Δ (κ `→ ★)) → (M : Term Γ (SynT ρ φ)) →
         ------------------------------------------------------------------
         Term Γ (Π · (φ <$> ρ))
-
-  ana : 
-    
-        (ρ : Type Δ R[ κ ]) (φ : Type Δ (κ `→ ★)) (τ : Type Δ ★) → (M : Term Γ (AnaT ρ φ τ)) → 
-        ------------------------------------------------------------------
-        Term Γ ((Σ · (φ <$> ρ)) `→ τ)
 
   --------------
   -- Rω variants
 
   -- Record singleton formation
-  _Σ▹_ : 
+  _Σ▹_ :
           (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
           ----------------------------------------
           Term Γ (Σ · (l ▹ υ))
@@ -286,26 +280,27 @@ data Term {Δ} Γ : Type Δ ★ → Set where
           ----------------------------------------
           Term Γ υ
 
-  inj : 
-   
-       (M : Term Γ (Σ · ρ₁)) → Ent Γ (ρ₁ ≲ ρ₂) → 
+  inj :
+
+       (M : Term Γ (Σ · ρ₁)) → Ent Γ (ρ₁ ≲ ρ₂) →
        -------------------------------------
        Term Γ (Σ · ρ₂)
-       
-  _▿_ : 
 
-       (M₁ : Term Γ ((Σ · ρ₁) `→ τ)) → (M₂ : Term Γ ((Σ · ρ₂) `→ τ)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) → 
+  _▿_ :
+
+       (M₁ : Term Γ ((Σ · ρ₁) `→ τ)) → (M₂ : Term Γ ((Σ · ρ₂) `→ τ)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
        ---------------------------------------------------------------------
        Term Γ ((Σ · ρ₃) `→ τ)
 
-  comp : 
-  
-        (M : Term Γ ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ)) → Ent Γ (ρ₁ ≲ ρ₃) → 
-        Term Γ τ
+  ana :
+
+        (ρ : Type Δ R[ κ ]) (φ : Type Δ (κ `→ ★)) (τ : Type Δ ★) → (M : Term Γ (AnaT ρ φ τ)) →
+        ------------------------------------------------------------------
+        Term Γ ((Σ · (φ <$> ρ)) `→ τ)
 
   ----------------------------------------
   -- Conversion
-  convert : τ₁ ≡t τ₂ → Term Γ τ₁ → 
+  convert : τ₁ ≡t τ₂ → Term Γ τ₁ →
             ------------------------
             Term Γ τ₂
 
