@@ -43,7 +43,7 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
 ren-≋ {κ = R[ κ ]} {V₁ = left x} {left y} ρ refl = refl
 ren-≋ {κ = R[ κ ]} {V₁ = right (n , P)} {right (m , Q)} ρ (refl , eq) = 
-  refl , λ { i → (ren-≋ {κ = L} ρ (eq i .fst)) , ren-≋ ρ (eq i .snd) }
+  refl , λ { i → eq i .fst , ren-≋ ρ (eq i .snd) }
 
 -- --------------------------------------------------------------------------------
 -- -- Application respects ≋
@@ -58,7 +58,7 @@ cong-App {V₁ = F} {G} (unif-F , unif-G , Ext) q = Ext id q
 -- --------------------------------------------------------------------------------
 -- -- Singleton formation respects ≋
 
-cong-⁅⁆ : ∀ {V₁ V₂ : SemType Δ L × SemType Δ κ} → V₁ ≋₂ V₂ → (right (⁅ V₁ ⁆ , tt)) ≋ (right (⁅ V₂ ⁆ , tt))
+cong-⁅⁆ : ∀ {V₁ V₂ : Label × SemType Δ κ} → V₁ ≋₂ V₂ → (right (⁅ V₁ ⁆ , tt)) ≋ (right (⁅ V₂ ⁆ , tt))
 cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { fzero → v })
 
 --------------------------------------------------------------------------------
@@ -108,8 +108,8 @@ cong-<?> v {W₁} {W₂} w =
 -- Congruence over complements
 
 cong-compl : {n m : ℕ} 
-             (A B : Fin n → SemType Δ L × SemType Δ κ)
-             (C D : Fin m → SemType Δ L × SemType Δ κ) → 
+             (A B : Fin n → Label × SemType Δ κ)
+             (C D : Fin m → Label × SemType Δ κ) → 
              ((i : Fin n) → A i ≋₂ B i) → 
              ((i : Fin m) → C i ≋₂ D i) → 
              compl A C ≋R compl B D

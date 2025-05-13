@@ -33,9 +33,9 @@ data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set wh
     
   eq-cons : {xs ys : SimpleRow Type Δ R[ κ ]} → 
 
-            l₁ ≡t l₂ → τ₁ ≡t τ₂ → xs ≡r ys → 
+            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → xs ≡r ys → 
             -----------------------
-            ((l₁ , τ₁) ∷ xs) ≡r ((l₂ , τ₂) ∷ ys)
+            ((ℓ₁ , τ₁) ∷ xs) ≡r ((ℓ₂ , τ₂) ∷ ys)
 
 data _≡p_ where
 
@@ -52,7 +52,7 @@ data _≡p_ where
         τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
 
 Ξλ-ordered : ∀ (ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]) (oρ : Ordered ρ) → 
-                  Ordered (map (λ (l , τ) → weakenₖ l , weakenₖ τ · (` Z)) ρ)
+                  Ordered (map (λ (l , τ) → l , weakenₖ τ · (` Z)) ρ)
 
 data _≡t_ where 
 
@@ -217,7 +217,7 @@ data _≡t_ where
 
 Ξλ-ordered [] oρ = tt
 Ξλ-ordered (x ∷ []) oρ = tt
-Ξλ-ordered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ((lab l₂ , τ₂) ∷ ρ) oρ
+Ξλ-ordered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ((l₂ , τ₂) ∷ ρ) oρ
 
 -- -------------------------------------------------------------------------------
 -- -- Lifting propositional equality to type equivalence
@@ -227,18 +227,18 @@ inst refl = eq-refl
 
 instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
 instᵣ {ρ₁ = []} refl = eq-[]
-instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl eq-refl (instᵣ refl)
+instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons refl eq-refl (instᵣ refl)
 
 -- -------------------------------------------------------------------------------
 -- -- ≡r forms an equivalence relation
 
 symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
 symᵣ eq-[] = eq-[]
-symᵣ (eq-cons l x eq) = eq-cons (eq-sym l) (eq-sym x) (symᵣ eq)
+symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
 
 transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 transᵣ eq-[] eq-[] = eq-[]
-transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (eq-trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
+transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
 
 -- -- -------------------------------------------------------------------------------
 -- -- -- Admissable but informative rules

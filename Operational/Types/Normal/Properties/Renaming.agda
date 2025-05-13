@@ -67,7 +67,7 @@ renₖNF-cong-pred eq (ρ₁ ≲ ρ₂)
 
 renₖNF-cong-row eq [] = refl
 renₖNF-cong-row eq ((l , τ) ∷ ρ) rewrite 
-  renₖNF-cong eq l | renₖNF-cong eq τ | renₖNF-cong-row eq ρ = refl
+  renₖNF-cong eq τ | renₖNF-cong-row eq ρ = refl
 
 --------------------------------------------------------------------------------
 -- Renamingₖ preserves identities (functor law #1)
@@ -118,7 +118,7 @@ renₖNF-id-pred (ρ₁ ≲ ρ₂)
   rewrite renₖNF-id ρ₁ | renₖNF-id ρ₂ = refl
 
 renₖNF-id-row [] = refl
-renₖNF-id-row ((l , τ) ∷ ρ) rewrite renₖNF-id l | renₖNF-id τ | renₖNF-id-row ρ = refl
+renₖNF-id-row ((l , τ) ∷ ρ) rewrite renₖNF-id τ | renₖNF-id-row ρ = refl
 
 --------------------------------------------------------------------------------
 -- Renamingₖ preserves Composition (functor law #2)
@@ -171,7 +171,7 @@ renₖNF-comp-pred ρ ρ' (ρ₁ ≲ ρ₂)
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ = refl
 
 renₖNF-comp-row r₁ r₂ [] = refl
-renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l | renₖNF-comp r₁ r₂ τ | renₖNF-comp-row r₁ r₂ ρ = refl
+renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ | renₖNF-comp-row r₁ r₂ ρ = refl
 
 --------------------------------------------------------------------------------
 -- Weakening commutes with renaming
@@ -225,7 +225,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l 
 
 ↻-ren-⇑NE ρ (` α) = refl
 ↻-ren-⇑NE ρ (τ₁ · τ₂) = cong₂ _·_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)
-↻-ren-⇑NE ρ (τ₁ ▹ₙ τ₂) = cong-SimpleRow (cong₂ _∷_ (cong₂ _,_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)) refl)
+↻-ren-⇑NE ρ (τ₁ ▹ₙ τ₂) = cong₂ _▹_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)
 ↻-ren-⇑NE ρ (φ <$> τ) = cong₂ _<$>_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
 ↻-ren-⇑NE r (ρ₂ ─₁ ρ₁) = cong₂ _─_ (↻-ren-⇑NE r ρ₂) (↻-ren-⇑ r ρ₁)
 ↻-ren-⇑NE r (ρ₂ ─₂ ρ₁) = cong₂ _─_ (↻-ren-⇑ r ρ₂) (↻-ren-⇑NE r ρ₁)
@@ -237,7 +237,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ l 
 ↻-ren-⇑Pred ρ (ρ₁ ≲ ρ₂) = cong₂ _≲_ (↻-ren-⇑ ρ ρ₁) (↻-ren-⇑ ρ ρ₂)
 
 ↻-ren-⇑Row r [] = refl
-↻-ren-⇑Row r ((l , τ) ∷ ρ) rewrite ↻-ren-⇑ r l | ↻-ren-⇑ r τ | ↻-ren-⇑Row r ρ = refl
+↻-ren-⇑Row r ((l , τ) ∷ ρ) rewrite ↻-ren-⇑ r τ | ↻-ren-⇑Row r ρ = refl
 
 
 

@@ -285,46 +285,47 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 ... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
 
 
--- --------------------------------------------------------------------------------
--- -- Type normalization
+--------------------------------------------------------------------------------
+-- Type normalization
 
--- -- Normalization algorithm
--- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
--- ⇓ τ = reify (eval τ idEnv)
+-- Normalization algorithm
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
 
--- ⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
--- ⇓Pred π = evalPred π idEnv
+⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
+⇓Pred π = evalPred π idEnv
 
--- ⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
--- ⇓Row ρ = reifyRow (evalRow ρ idEnv)
+⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
+⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
--- ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
--- ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
--- -- Reabstraction of a NormalType to the semantic domain
--- ↓ : NormalType Δ κ → SemType Δ κ 
--- ↓ τ = eval (⇑ τ) idEnv
+-- Reabstraction of a NormalType to the semantic domain
+↓ : NormalType Δ κ → SemType Δ κ 
+↓ τ = eval (⇑ τ) idEnv
 
--- --------------------------------------------------------------------------------
--- -- Testing compl operator
+--------------------------------------------------------------------------------
+-- Testing compl operator
 
--- -- p : Fin 5 → NormalType ∅ L × SemType ∅ ★
--- -- p fzero = lab "a" , UnitNF
--- -- p (fsuc fzero) = lab "b" , UnitNF
--- -- p (fsuc (fsuc fzero)) = lab "c" , UnitNF
--- -- p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
--- -- p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
+p : Fin 5 → Label × SemType ∅ ★
+p fzero = "a" , UnitNF
+p (fsuc fzero) = "b" , UnitNF
+p (fsuc (fsuc fzero)) = "c" , UnitNF
+p (fsuc (fsuc (fsuc fzero))) = "e" , UnitNF
+p (fsuc (fsuc (fsuc (fsuc fzero)))) = "f" , UnitNF
 
--- -- q : Fin 3 → NormalType ∅ L × SemType ∅ ★
--- -- q fzero = lab "b" , UnitNF
--- -- q (fsuc fzero) = lab "a" , UnitNF
--- -- q (fsuc (fsuc fzero)) = lab "d" , UnitNF
+q : Fin 3 → Label × SemType ∅ ★
+q fzero = "b" , UnitNF
+q (fsuc fzero) = "a" , UnitNF
+q (fsuc (fsuc fzero)) = "d" , UnitNF
 
--- -- x : Dec (Σ-syntax (Fin 5) (λ i → lab "e" ≡ p i .fst))
--- -- x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
+x : Dec (Σ-syntax (Fin 5) (λ i → "e" ≡ p i .fst))
+x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
 
--- -- y : Row ∅ R[ ★ ]
--- -- y = compl {Δ = ∅} {κ = ★} q p
+y : Row ∅ R[ ★ ]
+y = compl {Δ = ∅} {κ = ★} p q
 
--- -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
--- -- -- _ = refl
+_ = {!y!} 
+-- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
+-- -- _ = refl
