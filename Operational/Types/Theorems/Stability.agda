@@ -42,6 +42,9 @@ stabilityNE (ρ₂ ─₁ ρ₁)  with eval (⇑NE ρ₂) idEnv | eval (⇑ ρ�
 stabilityNE (ρ₂ ─₂ ρ₁) with eval (⇑ ρ₂) idEnv | eval (⇑NE ρ₁) idEnv | stability ρ₂ | stabilityNE ρ₁  
 stabilityNE ((ρ₂ ─₂ ρ₁) {()}) | left x₁ | x | refl | refl
 ... | right y₁ | _ | refl | refl = refl
+stabilityNE (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE l
+... | ne x₁ | yes p | refl = cong left (cong₂ _▹ₙ_ refl (stability τ))
+... | .(ne l) | no q | refl = ⊥-elim (q tt)
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
@@ -69,7 +72,7 @@ stability (Π x)  rewrite stability x = refl
 stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
 stability (ΣL x) rewrite stability x = refl
-stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ)
+stability (⦅ ρ ⦆ oρ)  = {!!} -- cong-⦅⦆ (stabilityRow ρ)
 stability (lab l) = refl
 
 stabilityRow [] = refl

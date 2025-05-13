@@ -113,17 +113,17 @@ fundC e (eq-Σ-assoc {ρ = ρ} {τ}) =
 fundC e (eq-Π {ρ = ρ}) = cong-<$> (idext e Π) (idext e ρ) 
 fundC e (eq-Σ {ρ = ρ}) = cong-<$> (idext e Σ) (idext e ρ) 
 fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
-fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = go ρ
-  where
-    go : (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → (evalRow ρ η₁ .fst ,
-       (λ x₁ → overᵣ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
-      ≋R
-      (evalRow (map (overᵣ (_·_ F)) ρ) η₂ .fst ,
-       evalRow (map (overᵣ (_·_ F)) ρ) η₂ .snd)
-    go [] = refl , (λ ())
-    go (x ∷ ρ) with evalRow ρ η₁ | go ρ
-    ... | n , P | refl , eq = refl , (λ { fzero → (idext e (x . fst)) , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
-fundC e (eq-row eq) = fundC-Row e eq
+fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = {!!} -- go ρ
+  -- where
+  --   go : (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → (evalRow ρ η₁ .fst ,
+  --      (λ x₁ → overᵣ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
+  --     ≋R
+  --     (evalRow (map (overᵣ (_·_ F)) ρ) η₂ .fst ,
+  --      evalRow (map (overᵣ (_·_ F)) ρ) η₂ .snd)
+  --   go [] = refl , (λ ())
+  --   go (x ∷ ρ) with evalRow ρ η₁ | go ρ
+  --   ... | n , P | refl , eq = refl , (λ { fzero → (idext e (x . fst)) , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
+fundC e (eq-row eq) = {!!} -- fundC-Row e eq
 fundC e (eq-lab refl) = refl
 
 fundC-Row e eq-[] = refl , (λ ())

@@ -265,7 +265,11 @@ eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ}
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
-eval (⦅ ρ ⦆ oρ) η = right ((evalRow ρ η) , evalRowOrdered ρ η (toWitness oρ)) 
+eval (⦅ [] ⦆ oρ) η = right (εV , tt)
+eval (⦅ (l , τ) ∷ [] ⦆ oρ) η with eval l η | isNeutral? (eval l η)
+... | ne l' | yes p = left (l' ▹ₙ reify (eval τ η))
+... | l' | no  p = right (⁅ eval l η , eval τ η ⁆ , tt )
+eval (⦅ ρ@(_ ∷ _ ∷ _) ⦆ oρ) η = right ((evalRow ρ η) , evalRowOrdered ρ η (toWitness oρ)) 
 
 evalRowOrdered [] η oρ = tt
 evalRowOrdered (x₁ ∷ []) η oρ = tt

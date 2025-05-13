@@ -302,7 +302,7 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
-↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renSem-evalRow r ρ e
+↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = {!!} -- ↻-renSem-evalRow r ρ e
 ↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e =
   trans-≋ 
     (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
@@ -368,7 +368,7 @@ idext {κ = κ} e Σ =
   λ ρ x → cong-Σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
 idext e (ρ₂ ─ ρ₁) = cong-─V (idext e ρ₂) (idext e ρ₁)
-idext e (⦅ xs ⦆ _) = idext-row e xs
+idext e (⦅ xs ⦆ _) = {!!} -- idext-row e xs
 
 idext-row e [] = refl , (λ { () })
 idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ 
@@ -448,7 +448,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ ρ x → cong-Π x
 ↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ ρ x → cong-Σ x
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
-↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renₖ-evalRow r ρ e  
+↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = {!!} -- ↻-renₖ-evalRow r ρ e  
 ↻-renₖ-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = cong-─V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
 
 ↻-renₖ-evalRow r [] {η₁} {η₂} e = refl , λ ()
@@ -529,7 +529,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
 ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
+↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = {!!} -- ↻-subₖ-evalRow ρ e σ
 ↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = cong-─V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
 
 ↻-subₖ-evalRow [] {η₁} e σ = refl , λ ()

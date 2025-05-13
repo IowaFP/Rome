@@ -13,6 +13,15 @@ data Kind : Set where
 
 infixr 5 _`→_
 
+--------------------------------------------------------------------------------
+-- Partitioning of kinds by rows and row-valued functions.
+
+-- NotLabel : Kind → Set 
+-- NotLabel ★ = ⊤
+-- NotLabel L = ⊥
+-- NotLabel (κ₁ `→ κ₂) = NotLabel κ₁
+-- NotLabel R[ κ ] = NotLabel κ
+
 
 --------------------------------------------------------------------------------
 -- Partitioning of kinds by rows and row-valued functions.
