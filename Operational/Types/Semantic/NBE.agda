@@ -30,16 +30,16 @@ reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} (` Z))))
 
 
-reifyRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
 reifyRow' (suc n) P with P fzero
-... | (l , τ) = (l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
+... | (l , τ) = (lab l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
 
 reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
 
 reifyRowOrdered : ∀ (ρ : Row Δ R[ κ ]) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
-reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → NormalType Δ L × SemType Δ κ) → 
+reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
                       OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
 
 reifyRowOrdered' zero P oρ = tt
@@ -91,11 +91,11 @@ F ·V V = F id V
 --------------------------------------------------------------------------------
 -- -- Semantic complement
 
-_∈Row_ : ∀ {m} → (l : NormalType Δ L) → 
-         (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+_∈Row_ : ∀ {m} → (l : Label) → 
+         (Q : Fin m → Label × SemType Δ κ) → 
          Dec (Σ[ i ∈ Fin m ] (l ≡ Q i .fst))
 _∈Row_ {m = zero} l Q = no λ { () }
-_∈Row_ {m = suc m} l Q with l ≡? Q fzero .fst
+_∈Row_ {m = suc m} l Q with l ≟ Q fzero .fst
 ... | yes p = yes (fzero , p)
 ... | no  p with l ∈Row (Q ∘ fsuc)
 ...        | yes (n , q) = yes ((fsuc n) , q) 
@@ -103,8 +103,8 @@ _∈Row_ {m = suc m} l Q with l ≡? Q fzero .fst
 
 
 compl : ∀ {n m} → 
-        (P : Fin n → NormalType Δ L × SemType Δ κ) 
-        (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+        (P : Fin n → Label × SemType Δ κ) 
+        (Q : Fin m → Label × SemType Δ κ) → 
         Row Δ R[ κ ]
 compl {n = zero} {m} P Q = εV
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
@@ -114,20 +114,24 @@ compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q
 -- --------------------------------------------------------------------------------
 -- -- Semantic complement preserves well-ordering
 
+open import Relation.Binary.Structures using (IsStrictPartialOrder)
+open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
+open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
+
 lemma : ∀ {n m q} → 
-          (P : Fin (suc n) → NormalType Δ L × SemType Δ κ)
-          (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
-          (R : Fin (suc q) → NormalType Δ L × SemType Δ κ) → 
+          (P : Fin (suc n) → Label × SemType Δ κ)
+          (Q : Fin m → Label × SemType Δ κ) → 
+          (R : Fin (suc q) → Label × SemType Δ κ) → 
              OrderedRow (suc n , P) →
              compl (P ∘ fsuc) Q ≡ (suc q , R) → 
-          P fzero .fst ≪ R fzero .fst
+          P fzero .fst < R fzero .fst
 lemma {n = suc n} {q = q} P Q R oP eq₁ with P (fsuc fzero) .fst ∈Row Q 
 lemma {κ = _} {suc n} {q = q} P Q R oP refl | no _ = oP .fst
-... | yes _ = ≪-trans (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
+... | yes _ = <-trans {i = P fzero .fst} {j = P (fsuc fzero) .fst} {k = R fzero .fst} (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
 
 ordered-⨾⨾ : ∀ {n m} → 
-                 (P : Fin (suc n) → NormalType Δ L × SemType Δ κ) 
-                 (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+                 (P : Fin (suc n) → Label × SemType Δ κ) 
+                 (Q : Fin m → Label × SemType Δ κ) → 
                  OrderedRow (suc n , P) → 
                  OrderedRow (compl (P ∘ fsuc) Q) → OrderedRow (P fzero ⨾⨾ compl (P ∘ fsuc) Q)
 ordered-⨾⨾ {n = n} P Q oP oC with compl (P ∘ fsuc) Q | inspect (compl (P ∘ fsuc)) Q
@@ -135,8 +139,8 @@ ordered-⨾⨾ {n = n} P Q oP oC with compl (P ∘ fsuc) Q | inspect (compl (P �
 ... | suc n , R | [[ eq ]] = lemma P Q R oP eq  , oC
 
 ordered-compl :  ∀ {n m} → 
-                 (P : Fin n → NormalType Δ L × SemType Δ κ) 
-                 (Q : Fin m → NormalType Δ L × SemType Δ κ) → 
+                 (P : Fin n → Label × SemType Δ κ) 
+                 (Q : Fin m → Label × SemType Δ κ) → 
                  OrderedRow (n , P) → OrderedRow (m , Q) → OrderedRow (compl P Q)
 ordered-compl {n = zero} P Q oρ₁ oρ₂ = tt
 ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
@@ -229,12 +233,12 @@ evalRow        : SimpleRow Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → Row Δ₂ 
 evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
 evalRow [] η = εV
-evalRow ((l , τ) ∷ ρ) η = (eval l η , eval τ η) ⨾⨾ evalRow ρ η 
+evalRow ((l , τ) ∷ ρ) η = {!!} -- (eval l η , eval τ η) ⨾⨾ evalRow ρ η 
 
 ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → (eval l η) , (reify (eval τ η)) }) xs
 ⇓Row-isMap η [] = refl
-⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
+⇓Row-isMap η (x ∷ xs) = {!!} -- cong₂ _∷_ refl (⇓Row-isMap η xs)
 
 evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
 evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
@@ -266,9 +270,11 @@ eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval (⦅ [] ⦆ oρ) η = right (εV , tt)
-eval (⦅ (l , τ) ∷ [] ⦆ oρ) η with eval l η | isNeutral? (eval l η)
-... | ne l' | yes p = left (l' ▹ₙ reify (eval τ η))
-... | l' | no  p = right (⁅ eval l η , eval τ η ⁆ , tt )
+eval (⦅ (l , τ) ∷ [] ⦆ oρ) η with eval l η
+... | ne l' = left (l' ▹ₙ reify (eval τ η))
+... | lab l₁ = {!!}
+... | ΠL l' = {!!}
+... | ΣL l' = {!!}
 eval (⦅ ρ@(_ ∷ _ ∷ _) ⦆ oρ) η = right ((evalRow ρ η) , evalRowOrdered ρ η (toWitness oρ)) 
 
 evalRowOrdered [] η oρ = tt
@@ -302,23 +308,23 @@ evalRowOrdered ((lab l₁ , τ₁) ∷ (lab l₂ , τ₂) ∷ ρ) η (l₁<l₂ 
 --------------------------------------------------------------------------------
 -- Testing compl operator
 
-p : Fin 5 → NormalType ∅ L × SemType ∅ ★
-p fzero = lab "a" , UnitNF
-p (fsuc fzero) = lab "b" , UnitNF
-p (fsuc (fsuc fzero)) = lab "c" , UnitNF
-p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
-p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
+-- p : Fin 5 → NormalType ∅ L × SemType ∅ ★
+-- p fzero = lab "a" , UnitNF
+-- p (fsuc fzero) = lab "b" , UnitNF
+-- p (fsuc (fsuc fzero)) = lab "c" , UnitNF
+-- p (fsuc (fsuc (fsuc fzero))) = lab "e" , UnitNF
+-- p (fsuc (fsuc (fsuc (fsuc fzero)))) = lab "f" , UnitNF
 
-q : Fin 3 → NormalType ∅ L × SemType ∅ ★
-q fzero = lab "b" , UnitNF
-q (fsuc fzero) = lab "a" , UnitNF
-q (fsuc (fsuc fzero)) = lab "d" , UnitNF
+-- q : Fin 3 → NormalType ∅ L × SemType ∅ ★
+-- q fzero = lab "b" , UnitNF
+-- q (fsuc fzero) = lab "a" , UnitNF
+-- q (fsuc (fsuc fzero)) = lab "d" , UnitNF
 
-x : Dec (Σ-syntax (Fin 5) (λ i → lab "e" ≡ p i .fst))
-x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} (lab "e") p
+-- x : Dec (Σ-syntax (Fin 5) (λ i → lab "e" ≡ p i .fst))
+-- x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
 
-y : Row ∅ R[ ★ ]
-y = compl {Δ = ∅} {κ = ★} q p
+-- y : Row ∅ R[ ★ ]
+-- y = compl {Δ = ∅} {κ = ★} q p
 
--- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
--- _ = refl
+-- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
+-- -- _ = refl

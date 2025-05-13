@@ -27,15 +27,15 @@ Row : KEnv → Kind → Set
 Row Δ ★ = ⊥ 
 Row Δ L = ⊥ 
 Row Δ (_ `→ _) = ⊥ 
-Row Δ R[ κ ] = ∃[ n ](Fin n → NormalType Δ L × SemType Δ κ)
+Row Δ R[ κ ] = ∃[ n ](Fin n → Label × SemType Δ κ)
 
 --------------------------------------------------------------------------------
 -- Ordered predicate on semantic rows
 
-OrderedRow' : (n : ℕ) → (Fin n → NormalType Δ L × SemType Δ κ) → Set
+OrderedRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → Set
 OrderedRow' zero P = ⊤
 OrderedRow' (suc zero) P = ⊤
-OrderedRow' (suc (suc n)) P = (P fzero .fst ≪ P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
+OrderedRow' (suc (suc n)) P = (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
 
 OrderedRow : Row Δ R[ κ ] → Set
 OrderedRow (n , P) = OrderedRow' n P
@@ -43,7 +43,7 @@ OrderedRow (n , P) = OrderedRow' n P
 --------------------------------------------------------------------------------
 -- Truncating a row preserves ordering
 
-ordered-cut : ∀ {n : ℕ} → {P : Fin (suc n) → NormalType Δ L × SemType Δ κ} → 
+ordered-cut : ∀ {n : ℕ} → {P : Fin (suc n) → Label × SemType Δ κ} → 
               OrderedRow (suc n , P) → OrderedRow (n , P ∘ fsuc)
 ordered-cut {n = zero} oρ = tt
 ordered-cut {n = suc n} oρ = oρ .snd
@@ -52,7 +52,7 @@ ordered-cut {n = suc n} oρ = oρ .snd
 --------------------------------------------------------------------------------
 -- Ordering is preserved by mapping
 
-orderedOverᵣ : ∀ {n} {P : Fin n → NormalType Δ L × SemType Δ κ₁} → 
+orderedOverᵣ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
                (f : SemType Δ κ₁ → SemType Δ κ₂) → 
                OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
 orderedOverᵣ {n = zero} {P} f oρ = tt
@@ -62,7 +62,7 @@ orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ
 --------------------------------------------------------------------------------
 -- 
 
-_⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+_⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
                           ; (fsuc x) → P x }
@@ -72,7 +72,7 @@ _⨾⨾_ :  NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ
 εV = 0 , λ ()
 
 -- Singleton rows
-⁅_⁆ : NormalType Δ L × SemType Δ κ → Row Δ R[ κ ] 
+⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
 subst-Fin : ∀ {n m : ℕ} → (n ≡ m) → Fin n → Fin m
