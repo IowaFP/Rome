@@ -278,13 +278,14 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
   trans-≋ 
     (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
     (cong-─V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
-
+↻-renSem-eval r (l ▹ τ) = {!   !} 
 
 ↻-renSem-evalRow r [] e = refl , (λ { () })
 ↻-renSem-evalRow r (x ∷ ρ) {η₁} e with evalRow ρ η₁ | ↻-renSem-evalRow r ρ e
 ... | (n , P) | refl , eq = 
   refl  , 
   λ { fzero → refl , (↻-renSem-eval r (x . snd) e) ; (fsuc i) → eq i }
+
 
 -- ------------------------------------------------------------------------------
 -- idext 
@@ -340,6 +341,7 @@ idext {κ = κ} e Σ =
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
 idext e (ρ₂ ─ ρ₁) = cong-─V (idext e ρ₂) (idext e ρ₁)
 idext e (⦅ xs ⦆ _) = idext-row e xs
+idext e (l ▹ τ) = {!   !}
 
 idext-row e [] = refl , (λ { () })
 idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ 
@@ -421,6 +423,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
 ↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renₖ-evalRow r ρ e  
 ↻-renₖ-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = cong-─V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
+↻-renₖ-eval r (l ▹ τ) {η₁} {η₂} e = {!   !}
 
 ↻-renₖ-evalRow r [] {η₁} {η₂} e = refl , λ ()
 ↻-renₖ-evalRow r (x ∷ ρ) {η₁} {η₂} e with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-evalRow r ρ e 
@@ -502,6 +505,11 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
 ↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
 ↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = cong-─V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
+↻-subₖ-eval (l ▹ τ) {η₁} {η₂} e σ with eval (subₖ σ l) η₁ | ↻-subₖ-eval l e σ  
+... | ne x₁ | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (↻-subₖ-eval τ e σ))
+... | lab l₁ | ih rewrite (sym ih) = refl , (λ { fzero → refl , ((↻-subₖ-eval τ e σ)) })
+... | ΠL τ' | ih rewrite (sym ih) = refl , (λ ())
+... | ΣL τ' | ih rewrite (sym ih) = refl , (λ ())
 
 ↻-subₖ-evalRow [] {η₁} e σ = refl , λ ()
 ↻-subₖ-evalRow (x ∷ ρ) {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-evalRow ρ e σ 

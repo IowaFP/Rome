@@ -274,8 +274,8 @@ eval (⦅ ρ ⦆ oρ) η = right (evalRow ρ η , evalRowOrdered ρ η (toWitnes
 eval (l ▹ τ) η with eval l η 
 ... | ne x = left (x ▹ₙ (reify (eval τ η)))
 ... | lab l₁ = right (⁅ (l₁ , eval τ η) ⁆ , tt)
-... | ΠL c = left {!!}
-... | ΣL c = left {!!}
+... | ΠL c = right (εV , tt)
+... | ΣL c = right (εV , tt)
 
 evalRowOrdered [] η oρ = tt
 evalRowOrdered (x₁ ∷ []) η oρ = tt

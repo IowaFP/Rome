@@ -72,11 +72,11 @@ stability (Π x)  rewrite stability x = refl
 stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
 stability (ΣL x) rewrite stability x = refl
-stability (⦅ ρ ⦆ oρ)  = {!!} -- cong-⦅⦆ (stabilityRow ρ)
+stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ) 
 stability (lab l) = refl
 
 stabilityRow [] = refl
-stabilityRow ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ (stability l) (stability τ)) (stabilityRow ρ)
+stabilityRow ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (stability τ)) (stabilityRow ρ)
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl
