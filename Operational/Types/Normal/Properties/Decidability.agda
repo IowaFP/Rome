@@ -31,7 +31,7 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 [] ≡Row? [] = yes refl
 [] ≡Row? (x ∷ ρ₂) = no (λ ())
 (x ∷ ρ₁) ≡Row? [] = no (λ ())
-((l₁ , τ₁) ∷ ρ₁) ≡Row? ((l₂ , τ₂) ∷ ρ₂) with l₁ ≡? l₂ | τ₁ ≡? τ₂ | ρ₁ ≡Row? ρ₂ 
+((l₁ , τ₁) ∷ ρ₁) ≡Row? ((l₂ , τ₂) ∷ ρ₂) with l₁ ≟ l₂ | τ₁ ≡? τ₂ | ρ₁ ≡Row? ρ₂ 
 ... | yes refl | yes refl | yes refl = yes refl
 ... | yes p | no q  | yes r = no (λ { refl → q refl })
 ... | yes p | yes q | no  r = no (λ { refl → r refl })

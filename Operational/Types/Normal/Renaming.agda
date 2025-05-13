@@ -49,7 +49,7 @@ renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ �
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
 
 renRowₖNF _ [] = []
-renRowₖNF r ((l , τ) ∷ ρ) = (renₖNF r l , renₖNF r τ) ∷ renRowₖNF r ρ
+renRowₖNF r ((l , τ) ∷ ρ) = (l , renₖNF r τ) ∷ renRowₖNF r ρ
 
 isNormalRenₖNF r (`λ x) witness = tt
 isNormalRenₖNF r (x `→ x₁) witness = tt
@@ -66,10 +66,10 @@ isNormalRenₖNF r (ΣL x) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
-orderedRenRowₖNF r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((lab l₂ , υ) ∷ xs) oxs
+orderedRenRowₖNF r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((l₂ , υ) ∷ xs) oxs
 
 renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-                  renRowₖNF r xs ≡ map (λ (l , τ) → renₖNF r l , renₖNF r τ) xs 
+                  renRowₖNF r xs ≡ map (overᵣ (renₖNF r)) xs 
 renRowₖNF-isMap r [] = refl
 renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)
 

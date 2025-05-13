@@ -172,30 +172,15 @@ _ ≪ _ = ⊥
 
 NormalOrdered [] = ⊤
 NormalOrdered ((l , _) ∷ []) = ⊤
-NormalOrdered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ ≪ l₂ × NormalOrdered ((l₂ , τ) ∷ xs)
+NormalOrdered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × NormalOrdered ((l₂ , τ) ∷ xs)
 
 normalOrdered? [] = yes tt
 normalOrdered? ((l , τ) ∷ []) = yes tt
-normalOrdered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? ((lab l₂ , _) ∷ xs)
+normalOrdered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrdered? ((l₂ , _) ∷ xs)
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
-normalOrdered? ((ne x , snd₁) ∷ (ne x₁ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ne x , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ne x , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ne x , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((lab l , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((lab l , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((lab l , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΠL τ , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΠL τ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΠL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΠL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΣL τ , snd₁) ∷ (ne x , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΣL τ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΣL τ , snd₁) ∷ (ΠL τ₂ , snd₂) ∷ xs) = no (λ ())
-normalOrdered? ((ΣL τ , snd₁) ∷ (ΣL τ₂ , snd₂) ∷ xs) = no (λ ())
 
 NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
 NormalMerePropOrdered ρ = Dec→MereProp (NormalOrdered ρ) (normalOrdered? ρ)
@@ -221,7 +206,7 @@ normal-map-overᵣ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : Norma
                    NormalOrdered ρ → NormalOrdered (map (overᵣ f) ρ)
 normal-map-overᵣ [] f oρ = tt
 normal-map-overᵣ (x ∷ []) f oρ = tt
-normal-map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((lab l₂ , _) ∷ ρ) f oρ)
+normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
 
 --------------------------------------------------------------------------------
@@ -450,14 +435,14 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
 
 ⇑Row [] = []
-⇑Row ((l , τ) ∷ ρ) = ((⇑ l , ⇑ τ) ∷ ⇑Row ρ)
+⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
 
 Ordered⇑ [] oρ = tt
 Ordered⇑ (x ∷ []) oρ = tt
-Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ((lab l₂ , _) ∷ ρ) oρ
+Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ((l₂ , _) ∷ ρ) oρ
 
 ⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-               ⇑Row xs ≡ map (λ { (l , τ) → ⇑ l , ⇑ τ }) xs
+               ⇑Row xs ≡ map (λ { (l , τ) → l , ⇑ τ }) xs
 ⇑Row-isMap [] = refl
 ⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
 
@@ -478,8 +463,8 @@ Ordered⇑ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆ tt
 
-_▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
-x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
+-- _▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
+-- x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Admissable constants

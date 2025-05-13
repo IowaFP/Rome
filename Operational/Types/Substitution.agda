@@ -40,15 +40,16 @@ subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
 subₖ σ (ρ₂ ─ ρ₁) = subₖ σ ρ₂ ─ subₖ σ ρ₁
 subₖ σ (⦅ xs ⦆ oxs) = ⦅ subRowₖ σ xs ⦆ (fromWitness (orderedSubRowₖ σ xs (toWitness oxs)))
+subₖ σ (l ▹ τ) = (subₖ σ l) ▹ (subₖ σ τ)
 subRowₖ σ [] = [] 
-subRowₖ σ ((l , τ) ∷ xs) = (subₖ σ l , subₖ σ τ) ∷ subRowₖ σ xs
+subRowₖ σ ((l , τ) ∷ xs) = (l , subₖ σ τ) ∷ subRowₖ σ xs
 
 orderedSubRowₖ r [] oxs = tt
 orderedSubRowₖ r ((l , τ) ∷ []) oxs = tt
-orderedSubRowₖ r ((lab l₁ , τ) ∷ (lab l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((lab l₂ , υ) ∷ xs) oxs
+orderedSubRowₖ r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((l₂ , υ) ∷ xs) oxs
 
 subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
-                  subRowₖ σ xs ≡ map (fmap× {Ty = Type} (subₖ σ)) xs
+                  subRowₖ σ xs ≡ map (overᵣ (subₖ σ)) xs
 
 subRowₖ-isMap σ [] = refl
 subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)

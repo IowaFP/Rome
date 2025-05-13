@@ -19,7 +19,9 @@ SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
 SimpleRow Ty Δ ★        = ⊥
 SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Ty Δ L × Ty Δ κ)
+SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
+
+
 
 open import Data.String using (_<_)
 
@@ -117,10 +119,10 @@ data Type Δ where
 --     Type Δ R[ κ ]
 
   -- Row formation
-  -- _▹_ :
-  --        (l : Type Δ L) → (τ : Type Δ κ) → 
-  --        -------------------
-  --        Type Δ R[ κ ]
+  _▹_ :
+         (l : Type Δ L) → (τ : Type Δ κ) → 
+         -------------------
+         Type Δ R[ κ ]
 
   _<$>_ : 
 
@@ -151,24 +153,15 @@ data Type Δ where
 
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
-Ordered ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((lab l₂ , τ) ∷ xs)
-Ordered _ = ⊥
+Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((l₂ , τ) ∷ xs)
 
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
-ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((lab l₂ , _) ∷ xs)
+ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ , _) ∷ xs)
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
-ordered? ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ xs) = no (λ ())
-ordered? ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
-ordered? ((` α , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
-ordered? ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
-ordered? ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ xs) = no (λ ())
-ordered? ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
-ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
-ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
 
 MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → MereProp (True (ordered? ρ))
 MerePropOrdered ρ = Dec→MereProp (Ordered ρ) (ordered? ρ)
@@ -189,17 +182,17 @@ fmap× f (x , y) = f x , f y
 --------------------------------------------------------------------------------
 -- Ordered lemmas 
 
-ordered-cons : ∀ (x : Type Δ L × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
+ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
                Ordered (x ∷ ρ) → 
                Ordered ρ 
 ordered-cons x [] oxρ = tt
-ordered-cons (lab l , snd₁) ((lab l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
+ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
 
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
 map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((lab l₂ , _) ∷ ρ) f oρ)
+map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
@@ -208,8 +201,8 @@ map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l�
 ε = ⦅ [] ⦆ tt
 
 -- singleton rows
-_▹_ : Type Δ L → Type Δ κ → Type Δ R[ κ ] 
-x ▹ τ = ⦅ [ (x , τ) ] ⦆ tt
+-- _▹_ : Type Δ L → Type Δ κ → Type Δ R[ κ ] 
+-- x ▹ τ = ⦅ [ (x , τ) ] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Type constant smart-ish constructors
@@ -241,4 +234,4 @@ Unit = Π · ε
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "d" , Unit) ∷ [] ⦆ tt
+sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
