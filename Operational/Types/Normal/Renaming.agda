@@ -40,9 +40,7 @@ renₖNF ρ (μ τ) = μ (renₖNF ρ τ)
 renₖNF ρ (lab x) = lab x
 renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
-renₖNF ρ (ΠL τ) = ΠL (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
-renₖNF ρ (ΣL τ) = ΣL (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
@@ -60,9 +58,7 @@ isNormalRenₖNF r (⦅ ρ ⦆ oρ) witness = tt
 isNormalRenₖNF r (lab l) witness = tt
 isNormalRenₖNF r ⌊ x ⌋ witness = tt
 isNormalRenₖNF r (Π x) witness = tt
-isNormalRenₖNF r (ΠL x) witness = tt
 isNormalRenₖNF r (Σ x) witness = tt
-isNormalRenₖNF r (ΣL x) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt

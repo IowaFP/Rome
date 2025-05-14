@@ -132,13 +132,14 @@ data Type Δ where
 
   -- Record formation
   Π     :
-
+          {notLabel : True (notLabel? κ)} →
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
   -- Variant formation
   Σ     :
 
+          {notLabel : True (notLabel? κ)} →
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
@@ -199,21 +200,6 @@ map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ ,
 
 ε : Type Δ R[ κ ]
 ε = ⦅ [] ⦆ tt
-
--- singleton rows
--- _▹_ : Type Δ L → Type Δ κ → Type Δ R[ κ ] 
--- x ▹ τ = ⦅ [ (x , τ) ] ⦆ tt
-
---------------------------------------------------------------------------------
--- Type constant smart-ish constructors
-
--- Record formation
-`Π : Type Δ R[ κ ] → Type Δ κ 
-`Π τ = Π · τ 
-
--- Variant formation
-`Σ : Type Δ R[ κ ] → Type Δ κ 
-`Σ τ = Σ · τ 
 
 --------------------------------------------------------------------------------
 -- Admissable constants

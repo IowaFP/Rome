@@ -32,8 +32,8 @@ subₖ σ (τ₁ `→ τ₂) = (subₖ σ τ₁) `→ (subₖ σ τ₂)
 subₖ σ (π ⇒ τ) = subPredₖ σ π ⇒ subₖ σ τ 
 subₖ σ (`∀ τ) = `∀ (subₖ (liftsₖ σ) τ)
 subₖ σ (μ F) = μ (subₖ σ F)
-subₖ σ (Π) = Π
-subₖ σ Σ = Σ
+subₖ σ (Π {notLabel = nl}) = Π {notLabel = nl}
+subₖ σ (Σ {notLabel = nl}) = Σ {notLabel = nl}
 subₖ σ (lab x) = lab x
 -- subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋

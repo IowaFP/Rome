@@ -195,23 +195,21 @@ f <?>V a = apply a <$>V f
 record Xi : Set where 
   field
     Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
-    ΞL : ∀ {Δ} → NormalType Δ R[ L ] → NormalType Δ L
     ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
-    ren-L : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ L ]) → renₖNF ρ (ΞL τ) ≡  ΞL (renₖNF ρ τ)
 
 open Xi
 ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
-ξ {κ = L} Ξ x = Ξ .ΞL (reify x)
+ξ {κ = L} Ξ x = lab "impossible"
 ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
 ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
 
 Π-rec Σ-rec : Xi 
 Π-rec = record
-  {  Ξ★ = Π ; ΞL = ΠL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+  {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
 Σ-rec = 
   record
-  { Ξ★ = Σ ; ΞL = ΣL ; ren-★ = λ ρ τ → refl ; ren-L = λ ρ τ → refl }
+  { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
 
 ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
 ΠV = ξ Π-rec
@@ -249,7 +247,7 @@ eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
 eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
 eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
-eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) -- eval τ (lifte η)
+eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
 eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
@@ -274,8 +272,6 @@ eval (⦅ ρ ⦆ oρ) η = right (evalRow ρ η , evalRowOrdered ρ η (toWitnes
 eval (l ▹ τ) η with eval l η 
 ... | ne x = left (x ▹ₙ (reify (eval τ η)))
 ... | lab l₁ = right (⁅ (l₁ , eval τ η) ⁆ , tt)
-... | ΠL c = right (εV , tt)
-... | ΣL c = right (εV , tt)
 
 evalRowOrdered [] η oρ = tt
 evalRowOrdered (x₁ ∷ []) η oρ = tt
@@ -326,6 +322,5 @@ x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
 y : Row ∅ R[ ★ ]
 y = compl {Δ = ∅} {κ = ★} p q
 
-_ = {!y!} 
 -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
 -- -- _ = refl

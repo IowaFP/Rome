@@ -35,8 +35,8 @@ renₖ r (τ₁ `→ τ₂) = (renₖ r τ₁) `→ (renₖ r τ₂)
 renₖ r (π ⇒ τ) = renPredₖ r π ⇒ renₖ r τ 
 renₖ r (`∀ τ) = `∀ (renₖ (liftₖ r) τ)
 renₖ r (μ F) = μ (renₖ r F)
-renₖ r (Π ) = Π 
-renₖ r Σ = Σ
+renₖ r (Π {notLabel = nl}) = Π {notLabel = nl}
+renₖ r (Σ {notLabel = nl}) = Σ {notLabel = nl}
 renₖ r (lab x) = lab x
 -- renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
 renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋

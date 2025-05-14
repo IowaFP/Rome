@@ -137,24 +137,12 @@ data NormalType Δ where
       ------------------
       NormalType Δ ★
 
-  ΠL  : 
-
-      (ρ : NormalType Δ R[ L ]) →
-      ------------------
-      NormalType Δ L
-
 
   Σ  : 
 
       (ρ : NormalType Δ R[ ★ ]) →
       ---------------
       NormalType Δ ★
-
-  ΣL  : 
-
-      (ρ : NormalType Δ R[ L ]) →
-      ------------------
-      NormalType Δ L
 
 --------------------------------------------------------------------------------
 -- Ordered predicate
@@ -225,9 +213,7 @@ isNeutral? (⦅ ρ ⦆ oρ) = no λ ()
 isNeutral? (lab l) = no λ ()
 isNeutral? ⌊ x ⌋ = no λ ()
 isNeutral? (Π x) = no λ ()
-isNeutral? (ΠL x) = no λ ()
 isNeutral? (Σ x) = no λ ()
-isNeutral? (ΣL x) = no λ ()
 
 IsNormal (ne x)     = ⊥
 IsNormal _     = ⊤
@@ -242,9 +228,7 @@ isNormal? (⦅ ρ ⦆ oρ) = yes tt
 isNormal? (lab l) = yes tt
 isNormal? ⌊ x ⌋ = yes tt
 isNormal? (Π x) = yes tt
-isNormal? (ΠL x) = yes tt
 isNormal? (Σ x) = yes tt
-isNormal? (ΣL x) = yes tt
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
 NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
@@ -353,14 +337,9 @@ inj-⌊⌋ refl = refl
 inj-Π : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} → Π ρ₁ ≡ Π ρ₂ → ρ₁ ≡ ρ₂
 inj-Π refl = refl
 
-inj-ΠL : ∀ {ρ₁ ρ₂ : NormalType Δ R[ L ]} → ΠL ρ₁ ≡ ΠL ρ₂ → ρ₁ ≡ ρ₂
-inj-ΠL refl = refl
-
 inj-Σ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ ★ ]} → Σ ρ₁ ≡ Σ ρ₂ → ρ₁ ≡ ρ₂
 inj-Σ refl = refl
 
-inj-ΣL : ∀ {ρ₁ ρ₂ : NormalType Δ R[ L ]} → ΣL ρ₁ ≡ ΣL ρ₂ → ρ₁ ≡ ρ₂
-inj-ΣL refl = refl
 
 --------------------------------------------------------------------------------
 -- injectivity ne constructor
@@ -427,11 +406,8 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (lab l) = lab l
 ⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
 ⇑ (Π x) = Π · ⇑ x
-⇑ (ΠL x) = Π · ⇑ x
 ⇑ (Σ x) = Σ · ⇑ x
-⇑ (ΣL x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
--- ⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
 
 ⇑Row [] = []

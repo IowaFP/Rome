@@ -69,9 +69,7 @@ stability (τ₁ `→ τ₂)
     rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
 stability (Π x)  rewrite stability x = refl
-stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
-stability (ΣL x) rewrite stability x = refl
 stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ) 
 stability (lab l) = refl
 

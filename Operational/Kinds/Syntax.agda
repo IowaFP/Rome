@@ -16,11 +16,17 @@ infixr 5 _`→_
 --------------------------------------------------------------------------------
 -- Partitioning of kinds by rows and row-valued functions.
 
--- NotLabel : Kind → Set 
--- NotLabel ★ = ⊤
--- NotLabel L = ⊥
--- NotLabel (κ₁ `→ κ₂) = NotLabel κ₁
--- NotLabel R[ κ ] = NotLabel κ
+NotLabel : Kind → Set 
+NotLabel ★ = ⊤
+NotLabel L = ⊥
+NotLabel (κ₁ `→ κ₂) = NotLabel κ₂
+NotLabel R[ κ ] = NotLabel κ
+
+notLabel? : ∀ κ → Dec (NotLabel κ)
+notLabel? ★ = yes tt
+notLabel? L = no λ ()
+notLabel? (κ `→ κ₁) = notLabel? κ₁
+notLabel? R[ κ ] = notLabel? κ
 
 
 --------------------------------------------------------------------------------
