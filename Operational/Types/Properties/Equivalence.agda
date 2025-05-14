@@ -217,3 +217,45 @@ eq-symᵣ (eq-cons l x eq) = {!!} -- eq-cons (sym l) (eq-sym x) (eq-symᵣ eq)
 eq-transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 eq-transᵣ eq-[] eq-[] = eq-[]
 eq-transᵣ (eq-cons eq-l₁ eq-hd₁ eq-tl₁) (eq-cons eq-l₂ eq-hd₂ eq-tl₂) = {!!} -- eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-hd₁ eq-hd₂) (eq-transᵣ eq-tl₁ eq-tl₂)
+
+-------------------------------------------------------------------------------
+-- Admissable rules
+
+eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]}{nl : True (notLabel? κ)} → 
+
+        ----------------------------
+        (Π {notLabel = nl} · (l ▹ τ)) ≡t (l ▹ (Π {notLabel = nl} · τ))
+eq-Π▹ = eq-trans eq-Π eq-▹$
+
+eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} {nl : True (notLabel? κ₂)} → 
+
+        Π {notLabel = nl} · (l ▹ `λ τ) ≡t `λ (Π {notLabel = nl} · (weakenₖ l ▹ τ))
+eq-Πλ {l = l} {τ = τ} = 
+  eq-trans 
+    eq-η 
+    (eq-λ 
+      (eq-trans 
+        eq-Π-assoc 
+        (eq-· 
+          eq-refl 
+          (eq-trans 
+            (eq-· 
+              eq-β 
+              eq-refl) 
+            (eq-trans 
+              eq-β 
+              (eq-trans 
+                eq-▹$ 
+                (eq-▹ 
+                  (inst (trans (sym (↻-subₖ-renₖ (renₖ S l))) (subₖ-id (renₖ S l)))) 
+                  (eq-trans 
+                    eq-β 
+                    (eq-trans 
+                      eq-β 
+                      (inst (trans 
+                        (sym (subₖ-comp (renₖ (liftₖ S) (renₖ (liftₖ S) τ)))) 
+                        (trans 
+                          (sym (↻-subₖ-renₖ (renₖ (liftₖ S) τ))) 
+                          (trans 
+                            (sym (↻-subₖ-renₖ τ)) 
+                            (trans (subₖ-cong (λ { Z → refl ; (S x) → refl }) τ) (subₖ-id τ)))))))))))))))
