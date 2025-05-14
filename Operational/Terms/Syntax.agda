@@ -10,8 +10,8 @@ open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Renaming
 
-open import Rome.Operational.Types.Equivalence
-open import Rome.Operational.Types.Properties.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Operational.Types.Equivalence.Properties
 
 open import Rome.Operational.Types.Semantic.NBE
 

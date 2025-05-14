@@ -10,7 +10,7 @@ open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 
-open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Semantic.NBE
 

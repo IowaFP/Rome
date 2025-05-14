@@ -99,13 +99,11 @@ subst-Row-reduction×₂ refl f = refl
 --------------------------------------------------------------------------------
 -- Semantic types (definition)
 
-
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
-SemType Δ R[ κ ] = 
-     NeutralType Δ R[ κ ] 
-  or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
+SemType Δ R[ κ ] = NeutralType Δ R[ κ ] 
+                   or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
 
 --------------------------------------------------------------------------------
 -- helper

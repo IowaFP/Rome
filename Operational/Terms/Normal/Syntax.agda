@@ -9,7 +9,7 @@ open import Rome.Operational.Types.Syntax
 
 open import Rome.Operational.Types.SynAna
 
-open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming

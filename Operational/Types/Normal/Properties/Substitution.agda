@@ -11,14 +11,14 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Properties.Substitution
 open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 
 open import Rome.Operational.Types.Normal.Properties.Renaming
-open import Rome.Operational.Types.Properties.Equivalence
+open import Rome.Operational.Types.Equivalence.Properties
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE

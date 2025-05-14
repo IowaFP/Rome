@@ -22,7 +22,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Relation public
 open import Rome.Operational.Types.Theorems.Completeness.Congruence public 
 open import Rome.Operational.Types.Theorems.Completeness.Commutativity public
 
-open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
 
 -------------------------------------------------------------------------------
 -- Fundamental theorem
@@ -86,20 +86,10 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                 ((↻-subₖ-eval τ₁ (sym-≋ ∘ e) (extendₖ ` τ₂))) 
                 (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
--- fundC e (eq-▹ eq-l eq-τ) = cong-⁅⁆ (fundC e eq-τ)
+fundC {η₁ = η₁} {η₂} e (eq-▹ {l₁ = l₁} {l₂} eq-l eq-τ) with eval l₁ η₁ | eval l₂ η₂ | fundC e eq-l 
+... | ne x | ne x | refl = cong₂ _▹ₙ_ refl (reify-≋ (fundC e eq-τ))
+... | lab l | lab l | refl = refl , (λ { fzero → refl , fundC e eq-τ } )
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
--- fundC e (eq-Π▹ {τ = τ}) = refl , (λ { fzero → cong-Π (idext e τ) })
--- fundC e (eq-Σ▹ {τ = τ}) = refl , (λ { fzero → cong-Σ (idext e τ) })
--- fundC e (eq-Πλ {l = l} {τ}) =  
---   fst (idext e (Π · (l ▹ `λ τ))) , 
---   fst (snd (idext e (`λ (Π · (weakenₖ l ▹ τ))))) , 
---   λ ρ v → cong-Π (refl , (λ { fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
--- fundC e (eq-Σλ {l = l} {τ = τ}) =
---   fst (idext e (Σ · (l ▹ `λ τ))) , 
---   fst (snd (idext e (`λ (Σ · (weakenₖ l ▹ τ))))) , 
---   λ ρ v → cong-Σ (refl , (λ { fzero → idext (extend-≋ (ren-≋ ρ ∘ e) (renSem-id-≋ v)) τ }))
--- fundC e (eq-▹$ {τ = τ} {F}) = 
---   refl , (λ { fzero → cong-App (idext e F) (idext e τ) })
 fundC e (eq-Π-assoc {ρ = ρ} {τ}) = 
   cong-Π 
     (cong-<$> 
@@ -110,8 +100,8 @@ fundC e (eq-Σ-assoc {ρ = ρ} {τ}) =
     (cong-<$> 
       (cong-apply (idext e τ))
       (ren-≋ id (idext e ρ))) 
-fundC e (eq-Π {ρ = ρ}) = cong-<$> (idext e Π) (idext e ρ) 
-fundC e (eq-Σ {ρ = ρ}) = cong-<$> (idext e Σ) (idext e ρ) 
+fundC e (eq-Π {ρ = ρ} {nl}) = cong-<$> (idext e (Π {notLabel = nl})) (idext e ρ)
+fundC e (eq-Σ {ρ = ρ} {nl}) = cong-<$> (idext e (Σ {notLabel = nl})) (idext e ρ) 
 fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
 fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = go ρ
   where
@@ -125,6 +115,10 @@ fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁
     ... | n , P | refl , eq = refl , (λ { fzero → refl , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
 fundC e (eq-row eq) = fundC-Row e eq
 fundC e (eq-lab refl) = refl
+fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ}) with eval l η₁ | eval l η₂ | idext e l
+... | ne x | ne x | refl = {!!}
+... | lab l | lab l | refl = {!!}
+fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = {!!}
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 

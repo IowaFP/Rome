@@ -12,7 +12,7 @@ open import Rome.Operational.Types.Substitution
 
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Substitution
-open import Rome.Operational.Types.Properties.Equivalence
+open import Rome.Operational.Types.Equivalence.Properties
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
@@ -24,7 +24,7 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Equivalence
+open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness.Relation public

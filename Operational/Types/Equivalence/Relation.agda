@@ -1,5 +1,5 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Operational.Types.Equivalence where
+module Rome.Operational.Types.Equivalence.Relation where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
@@ -147,6 +147,12 @@ data _≡t_ where
            ------------------------------------
            (l₁ ▹ τ₁) ≡t (l₂ ▹ τ₂)
 
+    eq-─ : ∀ {ρ₂ ρ₁ υ₂ υ₁ : Type Δ R[ κ ]} → 
+         
+           ρ₂ ≡t υ₂   →    ρ₁ ≡t υ₁ → 
+           ------------------------------------
+           (ρ₂ ─ ρ₁) ≡t (υ₂ ─ υ₁)
+
   -- -------------------------------------
   -- η-laws  
          
@@ -169,7 +175,6 @@ data _≡t_ where
     --     -------------------------------------------
     --     (lab ℓ ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆ tt
 
-    -- Should be admissable
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
 
         -------------------------------------------

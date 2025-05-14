@@ -16,7 +16,7 @@ open import Rome.Operational.Types.Normal.Renaming
 -- open import Rome.Operational.Types.Theorems.Stability
 -- open import Rome.Operational.Types.Theorems.Completeness
 -- open import Rome.Operational.Types.Theorems.Soundness
--- open import Rome.Operational.Types.Equivalence
+-- open import Rome.Operational.Types.Equivalence.Relation
 
 open import Data.String.Properties using (_≟_)
 
