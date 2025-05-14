@@ -39,7 +39,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
-↻-renSem-<$> ρ {V₁} {V₂} v {left x} {left _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
+↻-renSem-<$> ρ {V₁} {V₂} v {left (left x)} {left (left _)} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
+↻-renSem-<$> ρ {V₁} {V₂} v {left (right (l , τ₁))} {left (right (l , τ₂))} (refl , rel) = refl , (↻-renSem-app ρ v rel)
 ↻-renSem-<$> ρ {V₁} {V₂} v {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app ρ v (eq i .snd))
 
 --------------------------------------------------------------------------------
@@ -84,9 +85,16 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               V₂ ≋ W₂ → 
               V₁ ≋ W₁ → 
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
-↻-renSem-─V r {left x₁} {left x₂} {left x₃} {left x₄} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
-↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
-↻-renSem-─V r {right ((n , P) , _)} {left x₁} {right ((m , Q) , _)} {left x₂} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
+↻-renSem-─V r {left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
+↻-renSem-─V r {left (left x₁)} {left (right x₂)} {left (left x₃)} {left (right x₄)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) refl
+↻-renSem-─V r {left (left x₁)} {right ((n , P) , _)} {left (left x₂)} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
+↻-renSem-─V r {right ((n , P) , _)} {left (left x₁)} {right ((m , Q) , _)} {left (left x₂)} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
+↻-renSem-─V r {right ((n , P) , _)} {left (right x₁)} {right ((m , Q) , _)} {left (right x₂)} (refl , rel) (refl , V₁≋) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋)) 
+↻-renSem-─V r {left (right x)} {left (right x₁)} {left (right y)} {left (right y₂)} (refl , rel) (refl , V₁≋) = 
+  cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-ne (cong₂ _▹ₙ_ refl (↻-ren-reify r V₁≋))) 
+↻-renSem-─V r {left (right x)} {left (left x₁)} {left (right y)} {left (left y₂)} refl (refl , V₁≋) = 
+  cong₂ _─₁_ refl (cong-ne (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋))) 
+↻-renSem-─V r {left (right x)} {right ((n , P) , _)} {left (right y)} {right ((m , Q) , _)} (refl , V₂≋) (refl , V₁≋) = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋ )) (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋)) 
 ↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
                  
 
@@ -279,7 +287,7 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
     (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
     (cong-─V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
 ↻-renSem-eval r (l ▹ τ) {η₁} e with eval l η₁ | ↻-renSem-eval r l e 
-... | ne x | ih rewrite (sym ih)   = cong₂ _▹ₙ_ refl (trans (↻-ren-reify r (idext e τ)) (reify-≋ (↻-renSem-eval r τ (refl-≋ᵣ ∘ e))))
+... | ne x | ih rewrite (sym ih)   = refl , (↻-renSem-eval r τ e) 
 ... | lab l' | ih rewrite (sym ih) = refl , (λ { fzero → refl , (↻-renSem-eval r τ e) })
 
 ↻-renSem-evalRow r [] e = refl , (λ { () })
@@ -344,7 +352,7 @@ idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (ide
 idext e (ρ₂ ─ ρ₁) = cong-─V (idext e ρ₂) (idext e ρ₁)
 idext e (⦅ xs ⦆ _) = idext-row e xs
 idext {η₁ = η₁} {η₂} e (l ▹ τ) with eval l η₁ | idext e l
-... | ne x | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (idext e τ))
+... | ne x | ih rewrite (sym ih) = refl , (idext e τ)
 ... | lab l' | ih rewrite (sym ih) = refl , (λ { fzero → refl , (idext e τ) })
 
 idext-row e [] = refl , (λ { () })
@@ -427,7 +435,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renₖ-evalRow r ρ e  
 ↻-renₖ-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = cong-─V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
 ↻-renₖ-eval r (l ▹ τ) {η₁} {η₂} e with eval (renₖ r l) η₁ | ↻-renₖ-eval r l e 
-... | ne x  | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (↻-renₖ-eval r τ e))
+... | ne x  | ih rewrite (sym ih) = refl , (↻-renₖ-eval r τ e)
 ... | lab l | ih rewrite (sym ih) = refl , λ { fzero → refl , (↻-renₖ-eval r τ e) }
 
 ↻-renₖ-evalRow r [] {η₁} {η₂} e = refl , λ ()
@@ -511,7 +519,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
 ↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = cong-─V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
 ↻-subₖ-eval (l ▹ τ) {η₁} {η₂} e σ with eval (subₖ σ l) η₁ | ↻-subₖ-eval l e σ  
-... | ne x₁ | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (↻-subₖ-eval τ e σ))
+... | ne x₁ | ih rewrite (sym ih) = refl , ↻-subₖ-eval τ e σ
 ... | lab l₁ | ih rewrite (sym ih) = refl , (λ { fzero → refl , ((↻-subₖ-eval τ e σ)) })
 
 ↻-subₖ-evalRow [] {η₁} e σ = refl , λ ()
