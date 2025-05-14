@@ -23,7 +23,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} τ = left (left τ)
+reflect {κ = R[ κ ]} ρ = left (left ρ)
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)

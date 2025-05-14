@@ -87,7 +87,7 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                 (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
 fundC {η₁ = η₁} {η₂} e (eq-▹ {l₁ = l₁} {l₂} eq-l eq-τ) with eval l₁ η₁ | eval l₂ η₂ | fundC e eq-l 
-... | ne x | ne x | refl = cong₂ _▹ₙ_ refl (reify-≋ (fundC e eq-τ))
+... | ne x | ne x | refl = refl , fundC e eq-τ
 ... | lab l | lab l | refl = refl , (λ { fzero → refl , fundC e eq-τ } )
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
 fundC e (eq-Π-assoc {ρ = ρ} {τ}) = 
@@ -116,9 +116,9 @@ fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁
 fundC e (eq-row eq) = fundC-Row e eq
 fundC e (eq-lab refl) = refl
 fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with eval l η₁ | eval l η₂ | idext e l
-... | ne x | ne x | refl = {!!}
+... | ne x | ne x | refl = refl , cong-App (idext e F) (idext e τ)
 ... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
-fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = {!!}
+fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = cong-─V (fundC e eq₂) (fundC e eq₁)
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 
