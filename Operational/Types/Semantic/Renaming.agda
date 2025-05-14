@@ -10,7 +10,7 @@ open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Properties.Renaming
+-- open import Rome.Operational.Types.Normal.Properties.Renaming
 
 open import Rome.Operational.Types.Semantic.Syntax
 
@@ -25,15 +25,27 @@ renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → Kri
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 
 renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
-renRow : Renamingₖ Δ₁ Δ₂ → Row Δ₁ R[ κ ] → Row Δ₂ R[ κ ]
+renRow : Renamingₖ Δ₁ Δ₂ → 
+         Row Δ₁ R[ κ ] → 
+         Row Δ₂ R[ κ ]
+
+orderedRenRow : ∀ {n} {P : Fin n → Label × SemType Δ₁ κ} → (r : Renamingₖ Δ₁ Δ₂) → OrderedRow' n P → OrderedRow' n (λ i → (P i .fst) , renSem r (P i .snd))
+
+
+renₖNF-≪ : ∀ {l₁ l₂ : NormalType Δ₁ L} (r : Renamingₖ Δ₁ Δ₂) → l₁ ≪ l₂ → renₖNF r l₁ ≪ renₖNF r l₂
+renₖNF-≪ {l₁ = lab l₁} {lab l} r l₁<l₂ = l₁<l₂
 
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
-renSem {κ = R[ κ ]} r (right (n , P)) = right (n , renSem r ∘ P)
+renSem {κ = R[ κ ]} r (right ((n , P) , q)) = right ((n , (λ i → P i .fst , (renSem r (P i .snd)))) , orderedRenRow r q) -- right (n , (λ i → (renSem {κ = L} r ((P i) .fst)) , (renSem r (P i .snd))))
 
-renRow φ (n , P) = n , renSem φ ∘ P 
+orderedRenRow {n = zero} {P} r o = tt
+orderedRenRow {n = suc zero} {P} r o = tt
+orderedRenRow {n = suc (suc n)} {P} r (l₁<l₂ , o) =  l₁<l₂  , (orderedRenRow {n = suc n} {P ∘ fsuc} r o) -- l₁<l₂ , 
+
+renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P 
 
 -- --------------------------------------------------------------------------------
 -- -- Weakening

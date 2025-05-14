@@ -4,13 +4,14 @@ open import Agda.Primitive public
 
 open import Data.Fin 
   using (Fin ; fromℕ ; inject₁ ; cast) 
-  renaming (zero to fzero ; suc to fsuc) public
+  renaming (zero to fzero ; suc to fsuc ; _<_ to _≺_) public
 open import Data.Unit hiding (_≟_) public
 open import Data.Empty public
 import Data.Sum as Sum
   renaming (_⊎_ to _or_; inj₁ to left; inj₂ to right)
 
 open import Data.Maybe using (Maybe ; just ; nothing) public
+open import Data.Bool using (Bool ; true ; false ; not) public
 
 open Sum using (_or_ ; left ; right) public
 import Data.Product as Product
@@ -48,11 +49,26 @@ open import Relation.Nullary.Decidable using (True ; toWitness ; fromWitness) pu
 module Reasoning where
   open Eq.≡-Reasoning public
 
+--------------------------------------------------------------------------------
+-- common functions
+
 id : ∀ {A : Set} → A → A
 id x = x
 
+--------------------------------------------------------------------------------
+-- Pair helpers
+
 third : ∀ {A B C : Set} → A × B × C → C
 third = snd ∘ snd
+
+overᵣ : ∀ {A B C : Set} → (A → B) → C × A → C × B
+overᵣ f (l , τ) = (l , f τ)
+
+overₗ : ∀ {A B C : Set} → (A → B) → A × C → B × C
+overₗ f (l , τ) = (f l , τ)
+
+both :  ∀ {A B : Set} → (A → B) → A × A → B × B
+both f (x , y) = (f x , f y)
 
 ------------------------------------------------------------------------------
 -- Some lemmas I couldn't find elsewhere
@@ -75,6 +91,10 @@ cong₃ f refl refl refl = refl
 
 MereProp : ∀ (A : Set) → Set 
 MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
+
+Dec→MereProp : ∀ (P : Set) → (d : Dec P) → MereProp (True d)
+Dec→MereProp P (yes d) p₁ p₂ = refl
+Dec→MereProp P (no  d) p₁ p₂ = refl
 
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type

@@ -36,6 +36,15 @@ stabilityNE {Δ} {κ} (τ₁ · τ₂)
   rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong (_· τ₂) (renₖNE-id τ₁))
 stabilityNE {κ = R[ κ ]} (F <$> τ) 
   rewrite stabilityNE τ | stability F = refl
+stabilityNE (ρ₂ ─₁ ρ₁)  with eval (⇑NE ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stabilityNE ρ₂ | stability ρ₁ 
+... | _ | left _ | refl | refl = refl
+... | _ | right _ | refl | refl = refl
+stabilityNE (ρ₂ ─₂ ρ₁) with eval (⇑ ρ₂) idEnv | eval (⇑NE ρ₁) idEnv | stability ρ₂ | stabilityNE ρ₁  
+stabilityNE ((ρ₂ ─₂ ρ₁) {()}) | left x₁ | x | refl | refl
+... | right y₁ | _ | refl | refl = refl
+stabilityNE (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE l
+... | ne x₁ | yes p | refl = cong left (cong₂ _▹ₙ_ refl (stability τ))
+... | .(ne l) | no q | refl = ⊥-elim (q tt)
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
@@ -60,14 +69,12 @@ stability (τ₁ `→ τ₂)
     rewrite stability τ₁ | stability τ₂ = refl
 stability (π ⇒ τ) rewrite stabilityPred π | stability τ = refl    
 stability (Π x)  rewrite stability x = refl
-stability (ΠL x) rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
-stability (ΣL x) rewrite stability x = refl
-stability ⦅ ρ ⦆ rewrite stabilityRow ρ = refl
+stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ) 
 stability (lab l) = refl
 
 stabilityRow [] = refl
-stabilityRow (x ∷ ρ) = cong₂ _∷_ (stability x) (stabilityRow ρ)
+stabilityRow ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (stability τ)) (stabilityRow ρ)
 
 stabilityPred (ρ₁ · ρ₂ ~ ρ₃) 
     rewrite stability ρ₁ | stability ρ₂ | stability ρ₃ = refl
@@ -76,8 +83,8 @@ stabilityPred (ρ₁ ≲ ρ₂)
 
 --------------------------------------------------------------------------------
 -- idempotency
- 
-idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+
+idempotency : ∀ (τ : Type Δ κ) → (⇑ ∘ ⇓ ∘ ⇑ ∘ ⇓) τ ≡  (⇑ ∘ ⇓)  τ
 idempotency τ rewrite stability (⇓ τ) = refl
 
 --------------------------------------------------------------------------------

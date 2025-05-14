@@ -30,15 +30,6 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ↻-renSem-app ρ {F} {G} (Unif-F , Unif-G , Ext) {V₁} {V₂} r = 
   trans-≋ (Unif-F id ρ V₁ V₂ r) ((Ext ρ (ren-≋ ρ (refl-≋ₗ (sym-≋ r)))))
 
---------------------------------------------------------------------------------
--- - Renamingₖ commutes with labeled rows (↻-ren-▹)
--- - Renamingₖ under labeled rows respects functor composition laws (renSem-comp-▹; implied by ↻-ren-▹)
--- - Renamingₖ commutes with labeled rows housing applications of Kripke functions (ren-comp-Kripke-▹)
-
--- ↻-renSem-▹ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (l : NormalType Δ₁ L) (V₁ V₂ : SemType Δ₁ κ)  → 
---                    V₁ ≋ V₂ → _≋_ {κ = R[ κ ]} (renSem {κ = R[ κ ]} ρ (l ▹V V₁)) (renₖNF ρ l ▹V renSem ρ V₂)
--- ↻-renSem-▹ {κ = κ} ρ l V₁ V₂ q = refl , (ren-≋ ρ q)
-
 -- --------------------------------------------------------------------------------
 -- -- Renamingₖ commutes with <$>
 
@@ -49,7 +40,55 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
 ↻-renSem-<$> ρ {V₁} {V₂} v {left x} {left _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
-↻-renSem-<$> ρ {V₁} {V₂} v {right (n , P)} {right (_ , Q)} (refl , eq) = refl , ↻-renSem-app ρ v ∘ eq
+↻-renSem-<$> ρ {V₁} {V₂} v {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app ρ v (eq i .snd))
+
+--------------------------------------------------------------------------------
+-- Renaming commutes over complement
+
+↻-renSem-compl : {n m : ℕ} 
+                 (r : Renamingₖ Δ₁ Δ₂) → 
+                 (A B : Fin n → Label × SemType Δ₁ κ)
+                 (C D : Fin m → Label × SemType Δ₁ κ) → 
+                 ((i : Fin n) → A i ≋₂ B i) → 
+                 ((i : Fin m) → C i ≋₂ D i) → 
+                 renRow r (compl A C) ≋R 
+                 compl (overᵣ (renSem r) ∘ B) (overᵣ (renSem r) ∘ D)
+↻-renSem-compl {n = zero} r A B C D i₁ i₂ = refl , (λ ())
+↻-renSem-compl {n = suc n} r A B C D i₁ i₂ with
+      A fzero .fst ∈Row C 
+    | (B fzero .fst) ∈Row (overᵣ (renSem r) ∘ D)
+... | yes p         | yes q  =
+  ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
+... | yes (j , eq₂) | no q          = 
+  ⊥-elim (q (j , (trans (sym (i₁ fzero .fst)) (trans eq₂ (i₂ j .fst)))))
+... | no q          | yes (j , eq₂) = ⊥-elim (q (j , trans (i₁ fzero .fst) (trans eq₂ (sym (i₂ j .fst)))))
+... | no  p         | no q  with
+      (compl (A ∘ fsuc) C) 
+    | compl (overᵣ (renSem r) ∘ (B ∘ fsuc)) (overᵣ (renSem r) ∘ D)
+    | (↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂) 
+... | n₁ , P | n₂ , Q | refl , ih =  refl , λ { fzero → i₁ fzero .fst  , (ren-≋ r (i₁ fzero .snd)) ; (fsuc i) → ih i }
+
+↻-renSem-─v : (r : Renamingₖ Δ₁ Δ₂) → 
+              {V₁ V₂ W₁ W₂ : Row Δ₁ R[ κ ]} → 
+              V₂ ≋R W₂ → 
+              V₁ ≋R W₁ → 
+              renRow r (V₂ ─v V₁) ≋R (renRow r W₂ ─v renRow r W₁)
+↻-renSem-─v r {zero , P} {zero , Q} (refl , V₂≋) (refl , V₁≋) = refl , (λ ())
+↻-renSem-─v r {zero , P} {suc m , Q} {zero , _} {suc m , R} (refl , V₂≋) (refl , V₁≋) = 
+  refl , (λ { i → V₂≋ i .fst , (ren-≋ r (V₂≋ i .snd)) }) 
+↻-renSem-─v r {suc n , P} {zero , Q} (refl , V₂≋) (refl , V₁≋) = refl , λ ()
+↻-renSem-─v r {suc n , P} {suc m , Q} {_ , R} {_ , I} (refl , V₂≋) (refl , V₁≋) = ↻-renSem-compl r Q I P R V₂≋ V₁≋
+
+↻-renSem-─V : (r : Renamingₖ Δ₁ Δ₂) → 
+              {V₁ V₂ W₁ W₂ : SemType Δ₁ R[ κ ]} → 
+              V₂ ≋ W₂ → 
+              V₁ ≋ W₁ → 
+              renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
+↻-renSem-─V r {left x₁} {left x₂} {left x₃} {left x₄} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
+↻-renSem-─V r {left x₁} {right ((n , P) , _)} {left x₂} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
+↻-renSem-─V r {right ((n , P) , _)} {left x₁} {right ((m , Q) , _)} {left x₂} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
+↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
+                 
 
 --------------------------------------------------------------------------------
 -- Uniformity of <?>V
@@ -96,13 +135,13 @@ open Xi
       (trans 
         (↻-ren-reify ρ x≋y) 
         (reify-≋ (ren-≋ ρ (refl-≋ᵣ x≋y)))))
-↻-renSem-ξ Ξ {L} ρ x y x≋y = 
-  trans 
-    (Ξ .ren-L ρ (reify x)) 
-    (cong (Ξ .ΞL) 
-      (trans 
-        (↻-ren-reify ρ x≋y) 
-        (reify-≋ (ren-≋ ρ (refl-≋ᵣ x≋y)))))
+↻-renSem-ξ Ξ {L} ρ x y x≋y = refl
+  -- trans 
+  --   (Ξ .ren-L ρ (reify x)) 
+  --   (cong (Ξ .ΞL) 
+  --     (trans 
+  --       (↻-ren-reify ρ x≋y) 
+  --       (reify-≋ (ren-≋ ρ (refl-≋ᵣ x≋y)))))
 ↻-renSem-ξ Ξ {κ₁ `→ κ₂} ρ f g f≋g =
   ren-Uniform 
     {F = λ ρ₁ v → ξ Ξ (renSem ρ₁ f <?>V  v)} 
@@ -116,7 +155,7 @@ open Xi
 ↻-renSem-ξ Ξ {R[ κ ]} ρ x y x≋y = ↻-renSem-<$> ρ (Unif-ξ Ξ , Unif-ξ Ξ , λ ρ → cong-ξ Ξ) x≋y
 
 cong-ξ Ξ {κ = ★} {x} {y} x≋y = cong (Ξ .Ξ★) (reify-≋ x≋y)
-cong-ξ Ξ {κ = L} {x} {y} x≋y = cong (Ξ .ΞL) (reify-≋ x≋y)
+cong-ξ Ξ {κ = L} {x} {y} x≋y = refl
 cong-ξ Ξ {κ = κ₁ `→ κ₂} {f} {g} f≋g  =
   Unif-ξ<?> Ξ f (refl-≋ₗ f≋g)  , 
   Unif-ξ<?> Ξ g (refl-≋ᵣ f≋g) , 
@@ -170,10 +209,17 @@ Unif-Σ ρ₁ = ↻-renSem-Σ
                   (Ρ : Env-≋ η₁ η₂) → (renSem ρ (eval τ η₁)) ≋ eval τ (renSem ρ ∘ η₂)
 ↻-renSem-eval-pred : ∀ (ρ : Renamingₖ Δ₂ Δ₃) (π : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
                   (Ρ : Env-≋ η₁ η₂) → (renPredₖNF ρ (evalPred π η₁)) ≡ evalPred π (renSem ρ ∘ η₂)
+↻-renSem-evalRow : ∀ (r : Renamingₖ Δ₂ Δ₃) (ρ : SimpleRow Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₁ Δ₂} → 
+                     (Ρ : Env-≋ η₁ η₂) → renRow r (evalRow ρ η₁) ≋R evalRow ρ (renSem r ∘ η₂)  
+
 idext : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
 idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π : Pred Type Δ₁ R[ κ ]) →
                evalPred π η₁ ≡ evalPred π η₂
+
+idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) → 
+             (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
+             (evalRow ρ η₁) ≋R evalRow ρ η₂
 
 ↻-renSem-eval-pred ρ (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} P rewrite 
     ↻-ren-reify ρ (idext (refl-≋ₗ ∘ P) ρ₁) | reify-≋ (↻-renSem-eval ρ ρ₁ P)
@@ -220,7 +266,6 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
     (reify-≋ (↻-renSem-eval ρ τ (refl-≋ᵣ ∘ e))))
 ↻-renSem-eval ρ (π ⇒ τ) e = cong₂ _⇒_ (↻-renSem-eval-pred ρ π e) (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ (lab l) e = refl
-↻-renSem-eval ρ (l ▹ τ) {η₁} {η₂} e = refl , (λ { fzero → ↻-renSem-eval ρ τ e })
 ↻-renSem-eval ρ ⌊ τ ⌋ e = cong ⌊_⌋ (↻-renSem-eval ρ τ e)
 ↻-renSem-eval ρ Π e = Unif-Π , Unif-Π , (λ ρ₁ x → cong-Π x) 
 ↻-renSem-eval ρ Σ e = Unif-Σ , Unif-Σ , (λ ρ₁ x → cong-Σ x) 
@@ -228,9 +273,21 @@ idext-pred : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → (π
   trans-≋ 
     (↻-renSem-<$> ρ (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval ρ τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval ρ τ₂ (refl-≋ᵣ ∘ e)))
-↻-renSem-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , (λ { () })
-↻-renSem-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow ρ η₁ | ↻-renSem-eval r ⦅ ρ ⦆ e 
-... | (n , P) | refl , eq = refl , (λ { fzero → ↻-renSem-eval r x e ; (fsuc i) → eq i })
+↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renSem-evalRow r ρ e
+↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e =
+  trans-≋ 
+    (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
+    (cong-─V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
+↻-renSem-eval r (l ▹ τ) {η₁} e with eval l η₁ | ↻-renSem-eval r l e 
+... | ne x | ih rewrite (sym ih)   = cong₂ _▹ₙ_ refl (trans (↻-ren-reify r (idext e τ)) (reify-≋ (↻-renSem-eval r τ (refl-≋ᵣ ∘ e))))
+... | lab l' | ih rewrite (sym ih) = refl , (λ { fzero → refl , (↻-renSem-eval r τ e) })
+
+↻-renSem-evalRow r [] e = refl , (λ { () })
+↻-renSem-evalRow r (x ∷ ρ) {η₁} e with evalRow ρ η₁ | ↻-renSem-evalRow r ρ e
+... | (n , P) | refl , eq = 
+  refl  , 
+  λ { fzero → refl , (↻-renSem-eval r (x . snd) e) ; (fsuc i) → eq i }
+
 
 -- ------------------------------------------------------------------------------
 -- idext 
@@ -273,7 +330,7 @@ idext {κ = κ} e (`∀ τ) = cong (`∀) (idext (extend-≋ (ren-≋ S ∘ e) (
 idext {κ = ★} {η₁} {η₂} e (μ τ) with eval τ η₁ | eval τ η₂ | idext e τ
 ... | F | G | (Unif-F , Unif-G , Ext) = cong μ (cong `λ (Ext S refl))
 idext {κ = κ} e (lab x) = refl
-idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = cong-⁅⁆ (idext e τ)
+-- idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = cong-⁅⁆ (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
   Unif-Π , 
@@ -284,9 +341,15 @@ idext {κ = κ} e Σ =
   Unif-Σ , 
   λ ρ x → cong-Σ x 
 idext {κ = .(R[ κ₂ ])} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂) 
-idext {κ = R[ κ ]} e ⦅ [] ⦆ = refl , λ { () }
-idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | idext e ⦅ ρ ⦆ 
-... | n , P | refl , eq = refl , (λ { fzero → idext e x ; (fsuc i) → eq i })
+idext e (ρ₂ ─ ρ₁) = cong-─V (idext e ρ₂) (idext e ρ₁)
+idext e (⦅ xs ⦆ _) = idext-row e xs
+idext {η₁ = η₁} {η₂} e (l ▹ τ) with eval l η₁ | idext e l
+... | ne x | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (idext e τ))
+... | lab l' | ih rewrite (sym ih) = refl , (λ { fzero → refl , (idext e τ) })
+
+idext-row e [] = refl , (λ { () })
+idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ 
+... | n , P | refl , eq = refl , (λ { fzero → refl , (idext e (x .snd)) ; (fsuc i) → eq i })
 
 
 --------------------------------------------------------------------------------
@@ -306,6 +369,9 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
                   (e : Env-≋ η₁ η₂) → eval (renₖ ρ τ) η₁ ≋ eval τ (η₂ ∘ ρ)
 ↻-renₖ-eval-pred : ∀ (ρ : Renamingₖ Δ₁ Δ₂) (τ : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₂ Δ₃} → 
                   (e : Env-≋ η₁ η₂) → evalPred (renPredₖ ρ τ) η₁ ≡ evalPred τ (η₂ ∘ ρ)
+↻-renₖ-evalRow : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : SimpleRow Type Δ₁ R[ κ ]) → {η₁ η₂ : Env Δ₂ Δ₃} → 
+                  (e : Env-≋ η₁ η₂) → evalRow (renRowₖ r ρ) η₁ ≋R evalRow ρ (η₂ ∘ r)
+
 
 ↻-renₖ-eval-pred ρ (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} e rewrite
     reify-≋ (↻-renₖ-eval ρ ρ₁ e)
@@ -354,16 +420,20 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-renₖ-eval ρ (μ τ) {η₁} {η₂} e = cong μ (reify-≋ (↻-renₖ-eval ρ τ e))
 ↻-renₖ-eval ρ (π ⇒ τ) {η₁} {η₂} e = cong₂ _⇒_ (↻-renₖ-eval-pred ρ π e) (↻-renₖ-eval ρ τ e)
 ↻-renₖ-eval ρ (lab l) {η₁} {η₂} e = refl
-↻-renₖ-eval ρ (τ₁ ▹ τ₂) {η₁} {η₂} e = cong-⁅⁆ (↻-renₖ-eval ρ τ₂ e)
 ↻-renₖ-eval ρ ⌊ τ ⌋ {η₁} {η₂} e = cong ⌊_⌋ (↻-renₖ-eval ρ τ e)
 ↻-renₖ-eval ρ Π {η₁} {η₂} e = Unif-Π , Unif-Π , λ ρ x → cong-Π x
 ↻-renₖ-eval ρ Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ ρ x → cong-Σ x
 ↻-renₖ-eval ρ (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval ρ τ₁ e) (↻-renₖ-eval ρ τ₂ e)
-↻-renₖ-eval r ⦅ [] ⦆ {η₁} {η₂} e = refl , λ { () }
-↻-renₖ-eval r ⦅ x ∷ ρ ⦆ {η₁} {η₂} e with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-eval r ⦅ ρ ⦆ e 
-... | n , P | (refl , eq) = 
-  refl , (λ { fzero    → ↻-renₖ-eval r x e 
-            ; (fsuc i) → eq i })
+↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renₖ-evalRow r ρ e  
+↻-renₖ-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = cong-─V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
+↻-renₖ-eval r (l ▹ τ) {η₁} {η₂} e with eval (renₖ r l) η₁ | ↻-renₖ-eval r l e 
+... | ne x  | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (↻-renₖ-eval r τ e))
+... | lab l | ih rewrite (sym ih) = refl , λ { fzero → refl , (↻-renₖ-eval r τ e) }
+
+↻-renₖ-evalRow r [] {η₁} {η₂} e = refl , λ ()
+↻-renₖ-evalRow r (x ∷ ρ) {η₁} {η₂} e with evalRow (renRowₖ r ρ) η₁ | ↻-renₖ-evalRow r ρ e 
+... | n , P | refl , eq = 
+  refl , (λ { fzero → refl , ↻-renₖ-eval r (x .snd) e  ; (fsuc i) → eq i })
 
 
 --------------------------------------------------------------------------------
@@ -377,6 +447,10 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
                     evalPred (subPredₖ σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
+↻-subₖ-evalRow : ∀ (ρ : SimpleRow Type Δ R[ κ ]) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
+                   (σ : Substitutionₖ Δ Δ₁) → 
+                   evalRow (subRowₖ σ ρ) η₁ ≋R evalRow ρ (λ x → eval (σ x) η₂)
+
 ↻-subₖ-eval-pred (ρ₁ · ρ₂ ~ ρ₃) e σ rewrite 
     reify-≋ (↻-subₖ-eval ρ₁ e σ) 
   | reify-≋ (↻-subₖ-eval ρ₂ e σ) 
@@ -430,16 +504,21 @@ idext {κ = R[ κ ]} {η₁ = η₁} e ⦅ x ∷ ρ ⦆ with evalRow ρ η₁ | 
 ↻-subₖ-eval (μ τ) e σ = cong μ (reify-≋ (↻-subₖ-eval τ e σ))
 ↻-subₖ-eval (π ⇒ τ) e σ = cong₂ _⇒_ (↻-subₖ-eval-pred π e σ) (↻-subₖ-eval τ e σ)
 ↻-subₖ-eval (lab l) e σ = refl
-↻-subₖ-eval (τ₁ ▹ τ₂) e σ = cong-⁅⁆ (↻-subₖ-eval τ₂ e σ)
 ↻-subₖ-eval ⌊ τ₁ ⌋ e σ = cong ⌊_⌋ (↻-subₖ-eval τ₁ e σ)
 ↻-subₖ-eval Π e σ = Unif-Π , Unif-Π , λ ρ v → cong-Π v
 ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ ρ v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
-↻-subₖ-eval ⦅ [] ⦆ {η₁} e σ = refl , (λ { () })
-↻-subₖ-eval ⦅ x ∷ ρ ⦆ {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-eval ⦅ ρ ⦆ e σ
-... | n , P | (refl , eq) =
-  refl , (λ { fzero    → ↻-subₖ-eval x e σ
-            ; (fsuc i) → eq i })
+↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
+↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = cong-─V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
+↻-subₖ-eval (l ▹ τ) {η₁} {η₂} e σ with eval (subₖ σ l) η₁ | ↻-subₖ-eval l e σ  
+... | ne x₁ | ih rewrite (sym ih) = cong₂ _▹ₙ_ refl (reify-≋ (↻-subₖ-eval τ e σ))
+... | lab l₁ | ih rewrite (sym ih) = refl , (λ { fzero → refl , ((↻-subₖ-eval τ e σ)) })
+
+↻-subₖ-evalRow [] {η₁} e σ = refl , λ ()
+↻-subₖ-evalRow (x ∷ ρ) {η₁} e σ with evalRow (subRowₖ σ ρ) η₁ | ↻-subₖ-evalRow ρ e σ 
+... | n , P | refl , eq = 
+  refl , λ { fzero   → refl , ↻-subₖ-eval (x .snd) e σ ; 
+            (fsuc i) → eq i }
 
 ↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (ρ : Renamingₖ Δ₂ Δ₃) 
                 {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 
@@ -478,7 +557,7 @@ weaken-extend τ {η₁} {η₂} e {V} v = ↻-renₖ-eval S τ {extende η₁ V
 --------------------------------------------------------------------------------
 -- The length of a reified row is the index of the row 
 
-length-reify : (n : ℕ) (P : Fin n → SemType Δ κ) → 
+length-reify : (n : ℕ) (P : Fin n → Label × SemType Δ κ) → 
                  length (reifyRow (n , P)) ≡ n
 length-reify zero P = refl
 length-reify (suc n) P = cong suc (length-reify n (P ∘ fsuc))
@@ -492,6 +571,6 @@ length-⇑ [] = refl
 length-⇑ (x ∷ xs) = cong suc (length-⇑ xs)
 
 -- Combining the two above 
-length-⇑-reify : ∀ (n : ℕ) (P : Fin n → SemType Δ κ) → 
+length-⇑-reify : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ κ) → 
                   length (⇑Row (reifyRow (n , P))) ≡ n
 length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)        

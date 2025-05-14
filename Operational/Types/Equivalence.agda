@@ -19,6 +19,7 @@ data _≡t_ : Type Δ κ → Type Δ κ → Set
 
 private
     variable
+        ℓ ℓ₁ ℓ₂ ℓ₃ : Label
         l l₁ l₂ l₃ : Type Δ L
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
         π₁ π₂    : Pred Type Δ R[ κ ]
@@ -32,9 +33,9 @@ data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set wh
     
   eq-cons : {xs ys : SimpleRow Type Δ R[ κ ]} → 
 
-            τ₁ ≡t τ₂ → xs ≡r ys → 
+            ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → xs ≡r ys → 
             -----------------------
-            (τ₁ ∷ xs) ≡r (τ₂ ∷ ys)
+            ((ℓ₁ , τ₁) ∷ xs) ≡r ((ℓ₂ , τ₂) ∷ ys)
 
 data _≡p_ where
 
@@ -49,6 +50,9 @@ data _≡p_ where
         τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ → 
         -----------------------------------
         τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
+
+Ξλ-ordered : ∀ (ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]) (oρ : Ordered ρ) → 
+                  Ordered (map (λ (l , τ) → l , weakenₖ τ · (` Z)) ρ)
 
 data _≡t_ where 
 
@@ -117,22 +121,31 @@ data _≡t_ where
         -------------
         ⌊ τ ⌋ ≡t ⌊ υ ⌋
 
-    eq-▹ :
-
-         l₁ ≡t l₂ → τ₁ ≡t τ₂ →
-        ------------------------
-        (l₁ ▹ τ₁) ≡t (l₂ ▹ τ₂)
-
     eq-⇒ :
 
          π₁ ≡p π₂ → τ₁ ≡t τ₂ →
         ------------------------
         (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
+
+    eq-lab : 
+           
+           ℓ₁ ≡ ℓ₂ →
+           -------------
+           lab {Δ = Δ} ℓ₁ ≡t lab ℓ₂
     
     eq-row : 
-        ∀ {ρ₁ ρ₂ : List (Type Δ κ)} → ρ₁ ≡r ρ₂ → 
+        ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} {oρ₁ : True (ordered? ρ₁)} 
+          {oρ₂ : True (ordered? ρ₂)} → 
+  
+        ρ₁ ≡r ρ₂ → 
         -------------------------------------------
-        ⦅ ρ₁ ⦆ ≡t ⦅ ρ₂ ⦆
+        ⦅ ρ₁ ⦆ oρ₁ ≡t ⦅ ρ₂ ⦆ oρ₂
+
+    eq-▹ : ∀ {l₁ l₂ : Type Δ L} {τ₁ τ₂ : Type Δ κ} → 
+         
+           l₁ ≡t l₂   →    τ₁ ≡t τ₂ → 
+           ------------------------------------
+           (l₁ ▹ τ₁) ≡t (l₂ ▹ τ₂)
 
   -- -------------------------------------
   -- η-laws  
@@ -152,12 +165,9 @@ data _≡t_ where
         ----------------------------
         ((`λ τ₁) · τ₂) ≡t (τ₁ βₖ[ τ₂ ])
 
-    -- Only necessary for case in soundness proof:
-    -- fundS (l ▹ τ) {σ} {η} e = ...
-    eq-labTy : ∀ {l : Type Δ L} {τ : Type Δ κ} → 
-
-        -------------------------------------------
-        (l ▹ τ) ≡t ⦅ [ τ ] ⦆
+    -- eq-labTy : 
+    --     -------------------------------------------
+    --     (lab ℓ ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆ tt
 
     -- Should be admissable
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
@@ -165,95 +175,53 @@ data _≡t_ where
         -------------------------------------------
         (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
 
-    eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} → 
+    eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
 
          -------------------------------
-         F <$> ⦅ ρ ⦆ ≡t ⦅ map (F ·_) ρ ⦆
-
-    -- Should be admissable
-    eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-         ----------------------------
-         Π · (l ▹ τ) ≡t (l ▹ (Π · τ))
-
-    -- Should be admissable
-    eq-Σ▹ : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-         ----------------------------
-         Σ · (l ▹ τ) ≡t (l ▹ (Σ · τ))
-
-    -- eq-Πmap : 
+         F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))
     
-    eq-Π : ∀ {τ : Type Δ R[ R[ κ ] ]} → 
+    eq-Π : ∀ {ρ : Type Δ R[ R[ κ ] ]} {nl : True (notLabel? κ)} → 
 
          ----------------------------
-         Π · τ ≡t Π <$> τ
+         Π {notLabel = nl} · ρ ≡t Π {notLabel = nl} <$> ρ
 
-    eq-Σ : ∀ {τ : Type Δ R[ R[ κ ] ]} → 
+    eq-Σ : ∀ {ρ : Type Δ R[ R[ κ ] ]} {nl : True (notLabel? κ)} → 
 
          ----------------------------
-         Σ · τ ≡t Σ <$> τ
-
-    -- Should be admissable
-    eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
-
-        -------------------------------------------
-        Π · (l ▹ `λ τ) ≡t `λ (Π · (weakenₖ l ▹ τ))
-
-    -- Should be admissable
-    eq-Σλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
-
-        -------------------------------------------
-        Σ · (l ▹ `λ τ) ≡t `λ (Σ · (weakenₖ l ▹ τ))
+         Σ {notLabel = nl} · ρ ≡t Σ {notLabel = nl} <$> ρ
         
-    eq-Π-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
+    eq-Π-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} {nl : True (notLabel? κ₂)} → 
 
         ----------------------------
-        (Π · ρ) · τ ≡t Π · (ρ ?? τ)
+        (Π {notLabel = nl} · ρ) · τ ≡t Π {notLabel = nl} · (ρ ?? τ)
 
-    eq-Σ-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} → 
+    eq-Σ-assoc : ∀ {ρ : Type Δ (R[ κ₁ `→ κ₂ ])} {τ : Type Δ κ₁} {nl : True (notLabel? κ₂)} → 
 
         ----------------------------
-        (Σ · ρ) · τ ≡t Σ · (ρ ?? τ)
+        (Σ {notLabel = nl} · ρ) · τ ≡t Σ {notLabel = nl} · (ρ ?? τ)
         
--------------------------------------------------------------------------------
--- Lifting propositional equality to type equivalence
+
+Ξλ-ordered [] oρ = tt
+Ξλ-ordered (x ∷ []) oρ = tt
+Ξλ-ordered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ((l₂ , τ₂) ∷ ρ) oρ
+
+-- -------------------------------------------------------------------------------
+-- -- Lifting propositional equality to type equivalence
 
 inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
 inst refl = eq-refl
 
 instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
 instᵣ {ρ₁ = []} refl = eq-[]
-instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons eq-refl (instᵣ refl)
+instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons refl eq-refl (instᵣ refl)
 
--------------------------------------------------------------------------------
--- ≡r forms an equivalence relation
+-- -------------------------------------------------------------------------------
+-- -- ≡r forms an equivalence relation
 
 symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
 symᵣ eq-[] = eq-[]
-symᵣ (eq-cons x eq) = eq-cons (eq-sym x) (symᵣ eq)
+symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
 
 transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 transᵣ eq-[] eq-[] = eq-[]
-transᵣ (eq-cons eq-τ₁ eq-xs) (eq-cons eq-τ₂ eq-ys) = eq-cons (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
-
--------------------------------------------------------------------------------
--- Admissable but informative rules
-
-eq-Π² : ∀ {l} {τ : Type Δ R[ κ ]} → 
-
-        ----------------------------
-        Π · (Π · (l ▹ τ)) ≡t Π · (l ▹ (Π · τ))
-eq-Π² = eq-· eq-refl eq-Π▹ 
-
-
-eq-Πℓ² : ∀ {l₁ l₂} {τ : Type Δ κ} → 
-        -------------------------------------------
-        Π · (l₁ ▹ (l₂ ▹ τ)) ≡t l₁ ▹ (Π · (l₂ ▹ τ))
-eq-Πℓ² = eq-Π▹
-
-eq-Πλ'   : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} → 
-
-        -------------------------------------------
-        Π · (l ▹ `λ τ) ≡t `λ (Π · (weakenₖ l ▹ τ))
-eq-Πλ' {l = l} {τ} = {!!}
+transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)

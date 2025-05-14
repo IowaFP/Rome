@@ -1,10 +1,10 @@
-module Rome.Operational.Types.Syntax where
+module Rome.Operational.Types.Ordered.Syntax where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
-open import Data.String using (_<_; _<?_)
+-- open import Rome.Operational.Types.Syntax
 
 --------------------------------------------------------------------------------
 -- Types
@@ -19,9 +19,7 @@ SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set
 SimpleRow Ty Δ ★        = ⊥
 SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
-
-
+SimpleRow Ty Δ R[ κ ]   = List (Ty Δ L × Ty Δ κ)
 
 open import Data.String using (_<_)
 
@@ -96,7 +94,7 @@ data Type Δ where
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
+  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) → True (ordered? xs) → 
         ----------------------
         Type Δ R[ κ ]
 
@@ -132,68 +130,36 @@ data Type Δ where
 
   -- Record formation
   Π     :
-          {notLabel : True (notLabel? κ)} →
+
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
   -- Variant formation
   Σ     :
 
-          {notLabel : True (notLabel? κ)} →
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
-  _─_ : 
-      
-        Type Δ R[ κ ] → Type Δ R[ κ ] → 
-        ---------------------------------
-        Type Δ R[ κ ]
-
---------------------------------------------------------------------------------
--- Simple row well-formedness
-
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
-Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((l₂ , τ) ∷ xs)
+Ordered ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) = l₁ < l₂ × Ordered xs
+Ordered _ = ⊥
 
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
-ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ , _) ∷ xs)
+ordered? ((lab l₁ , _) ∷ (lab l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? xs
 ... | yes p | yes q  = yes (p , q)
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
-
-MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → MereProp (True (ordered? ρ))
-MerePropOrdered ρ = Dec→MereProp (Ordered ρ) (ordered? ρ)
-
-cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
-                 sr₁ ≡ sr₂ → 
-                ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
-cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite MerePropOrdered sr₁ wf₁ wf₂ = refl
-
---------------------------------------------------------------------------------
--- Helpers for mapping over the tuples inside rows
-
-fmap× : ∀ {Ty : KEnv → Kind → Set} → 
-          (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → 
-          Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
-fmap× f (x , y) = f x , f y
-
---------------------------------------------------------------------------------
--- Ordered lemmas 
-
-ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
-               Ordered (x ∷ ρ) → 
-               Ordered ρ 
-ordered-cons x [] oxρ = tt
-ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
-
-map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
-              Ordered ρ → Ordered (map (overᵣ f) ρ)
-map-overᵣ [] f oρ = tt
-map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+ordered? ((` α , snd₁) ∷ (` α₁ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
+ordered? ((` α , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (fst₃ · fst₄ , snd₂) ∷ xs) = no (λ ())
+ordered? ((fst₁ · fst₂ , snd₁) ∷ (lab l , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (` α , snd₂) ∷ xs) = no (λ ())
+ordered? ((lab l , snd₁) ∷ (fst₂ · fst₃ , snd₂) ∷ xs) = no (λ ())
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
@@ -202,22 +168,48 @@ map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ ,
 ε = ⦅ [] ⦆ tt
 
 --------------------------------------------------------------------------------
--- Admissable constants
+-- Type constant smart-ish constructors
 
--- for partial application of infix fmap.
-`↑ : Type Δ ((κ₁ `→ κ₂) `→ R[ κ₁ ] `→ R[ κ₂ ])
-`↑ = `λ (`λ (` (S Z) <$> ` Z))
+-- Record formation
+`Π : Type Δ R[ κ ] → Type Δ κ 
+`Π τ = Π · τ 
 
--- Flapping. See https://hoogle.haskell.org/?hoogle=f%20(a%20-%3E%20b)%20-%3E%20a%20-%3E%20f%20b%20
-flap : Type Δ (R[ κ₁ `→ κ₂ ] `→ κ₁ `→ R[ κ₂ ])
-flap = `λ (`λ ((`λ ((` Z) · (` (S Z)))) <$> (` (S Z))))
-
-_??_ : Type Δ (R[ κ₁ `→ κ₂ ]) → Type Δ κ₁ → Type Δ R[ κ₂ ]
-f ?? a = flap · f · a
+-- Variant formation
+`Σ : Type Δ R[ κ ] → Type Δ κ 
+`Σ τ = Σ · τ 
 
 Unit : Type Δ ★
 Unit = Π · ε
 
+sing : Type (Δ ,, L) R[ ★ ] 
+sing = ⦅ [ (` Z , Unit) ] ⦆ tt
 -- Example simple row
-sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
+sr : Type (Δ ,, L) R[ ★ ] 
+sr = ⦅ (lab "a" , Unit) ∷ (lab "b" , (Σ · ε)) ∷ (lab "c" , ((`λ (` Z)) · Unit)) ∷ (lab "e" , Unit) ∷ [] ⦆ tt
+
+-- --------------------------------------------------------------------------------
+-- -- Delabeling
+
+-- import Rome.Operational.Types.Syntax as Types
+-- delabel : Type Δ κ → Types.Type Δ κ 
+-- delabelPred : Pred Type Δ κ → Types.Pred Types.Type Δ κ 
+-- delabelRow : SimpleRow Type Δ R[ κ ] → Types.SimpleRow Types.Type Δ R[ κ ]
+
+-- delabelPred (ρ₁ · ρ₂ ~ ρ₃) = Types._·_~_ (delabel ρ₁)  (delabel ρ₂) (delabel ρ₃)
+-- delabelPred (ρ₁ ≲ ρ₂) = Types._≲_ (delabel ρ₁) (delabel ρ₂)
+
+-- delabel (` α) = Types.` α
+-- delabel (`λ τ) = Types.`λ (delabel τ)
+-- delabel (τ₁ · τ₂) = delabel τ₁ Types.· delabel τ₂
+-- delabel (τ₁ `→ τ₂) = delabel τ₁ Types.`→ delabel τ₂
+-- delabel (`∀ τ) = Types.`∀ (delabel τ)
+-- delabel (μ τ) = Types.μ (delabel τ)
+-- delabel (π ⇒ τ) = (delabelPred π) Types.⇒ (delabel τ)
+-- delabel (⦅ [] ⦆ x) = Types.⦅ [] ⦆
+-- delabel (⦅ xs ⦆ _) = {!!}
+-- delabel (lab l) = {!!}
+-- delabel ⌊ τ ⌋ = {!!}
+-- delabel (τ ▹ τ₁) = {!!}
+-- delabel (τ <$> τ₁) = {!!}
+-- delabel Π = {!!}
+-- delabel Σ = {!!}

@@ -27,9 +27,43 @@ Row : KEnv → Kind → Set
 Row Δ ★ = ⊥ 
 Row Δ L = ⊥ 
 Row Δ (_ `→ _) = ⊥ 
-Row Δ R[ κ ] = ∃[ n ](Fin n → SemType Δ κ)
+Row Δ R[ κ ] = ∃[ n ](Fin n → Label × SemType Δ κ)
 
-_⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+--------------------------------------------------------------------------------
+-- Ordered predicate on semantic rows
+
+OrderedRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → Set
+OrderedRow' zero P = ⊤
+OrderedRow' (suc zero) P = ⊤
+OrderedRow' (suc (suc n)) P = (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
+
+OrderedRow : Row Δ R[ κ ] → Set
+OrderedRow (n , P) = OrderedRow' n P
+
+--------------------------------------------------------------------------------
+-- Truncating a row preserves ordering
+
+ordered-cut : ∀ {n : ℕ} → {P : Fin (suc n) → Label × SemType Δ κ} → 
+              OrderedRow (suc n , P) → OrderedRow (n , P ∘ fsuc)
+ordered-cut {n = zero} oρ = tt
+ordered-cut {n = suc n} oρ = oρ .snd
+
+
+--------------------------------------------------------------------------------
+-- Ordering is preserved by mapping
+
+orderedOverᵣ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
+               (f : SemType Δ κ₁ → SemType Δ κ₂) → 
+               OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
+orderedOverᵣ {n = zero} {P} f oρ = tt
+orderedOverᵣ {n = suc zero} {P} f oρ = tt
+orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
+
+--------------------------------------------------------------------------------
+-- 
+
+_⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
                           ; (fsuc x) → P x }
 
@@ -38,14 +72,29 @@ _⨾⨾_ :  SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
 εV = 0 , λ ()
 
 -- Singleton rows
-⁅_⁆ : SemType Δ κ → Row Δ R[ κ ] 
+⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
-subst-Fin : ∀ {n m : ℕ} → n ≡ m → Fin n → Fin m
-subst-Fin eq x = cast eq x
+subst-Fin : ∀ {n m : ℕ} → (n ≡ m) → Fin n → Fin m
+subst-Fin refl i = i
 
-subst-Row : ∀ {A : Set} {n m : ℕ} → n ≡ m → (f : Fin n → A) → Fin m → A 
+subst-Row : ∀ {A : Set} {n m : ℕ} → (n ≡ m) → (f : Fin n → A) → Fin m → A 
 subst-Row refl f = f
+
+subst-Row-reduction : ∀ {n m} {A : Set} → 
+                      ∀ (p : suc n ≡  suc m) (f : Fin (suc n) → A) → 
+                      subst-Row p f fzero ≡ f fzero
+subst-Row-reduction refl f = refl
+
+subst-Row-reduction×₁ : ∀ {n m} {A B : Set} → 
+                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+                      subst-Row p f fzero .fst ≡ f fzero .fst
+subst-Row-reduction×₁ refl f = refl
+
+subst-Row-reduction×₂ : ∀ {n m} {A B : Set} → 
+                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+                      subst-Row p f fzero .snd ≡ f fzero .snd
+subst-Row-reduction×₂ refl f = refl
 
 --------------------------------------------------------------------------------
 -- Semantic types (definition)
@@ -54,4 +103,14 @@ subst-Row refl f = f
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
-SemType Δ R[ κ ] = NeutralType Δ R[ κ ] or Row Δ R[ κ ]
+SemType Δ R[ κ ] = 
+     NeutralType Δ R[ κ ] 
+  or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
+
+--------------------------------------------------------------------------------
+-- helper
+
+fmap×Sem : (∀ {κ} → SemType Δ₁ κ → SemType Δ₂ κ) → 
+          SemType Δ₁ L × SemType Δ₁ κ → SemType Δ₂ L × SemType Δ₂ κ
+
+fmap×Sem = fmap× {Ty = SemType}

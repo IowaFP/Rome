@@ -22,6 +22,8 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
 subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
+orderedSubRowₖ : (σ : Substitutionₖ Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ]) → Ordered xs → 
+                 Ordered (subRowₖ σ xs)
 -- subₖ σ ε = ε
 subₖ σ (` x) = σ x
 subₖ σ (`λ τ) = `λ (subₖ (liftsₖ σ) τ)
@@ -30,19 +32,25 @@ subₖ σ (τ₁ `→ τ₂) = (subₖ σ τ₁) `→ (subₖ σ τ₂)
 subₖ σ (π ⇒ τ) = subPredₖ σ π ⇒ subₖ σ τ 
 subₖ σ (`∀ τ) = `∀ (subₖ (liftsₖ σ) τ)
 subₖ σ (μ F) = μ (subₖ σ F)
-subₖ σ (Π) = Π
-subₖ σ Σ = Σ
+subₖ σ (Π {notLabel = nl}) = Π {notLabel = nl}
+subₖ σ (Σ {notLabel = nl}) = Σ {notLabel = nl}
 subₖ σ (lab x) = lab x
-subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
+-- subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
-subₖ σ ⦅ xs ⦆ = ⦅ subRowₖ σ xs ⦆
-
+subₖ σ (ρ₂ ─ ρ₁) = subₖ σ ρ₂ ─ subₖ σ ρ₁
+subₖ σ (⦅ xs ⦆ oxs) = ⦅ subRowₖ σ xs ⦆ (fromWitness (orderedSubRowₖ σ xs (toWitness oxs)))
+subₖ σ (l ▹ τ) = (subₖ σ l) ▹ (subₖ σ τ)
 subRowₖ σ [] = [] 
-subRowₖ σ (x ∷ xs) = subₖ σ x ∷ subRowₖ σ xs
+subRowₖ σ ((l , τ) ∷ xs) = (l , subₖ σ τ) ∷ subRowₖ σ xs
+
+orderedSubRowₖ r [] oxs = tt
+orderedSubRowₖ r ((l , τ) ∷ []) oxs = tt
+orderedSubRowₖ r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((l₂ , υ) ∷ xs) oxs
 
 subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
-                  subRowₖ σ xs ≡ map (subₖ σ) xs
+                  subRowₖ σ xs ≡ map (overᵣ (subₖ σ)) xs
+
 subRowₖ-isMap σ [] = refl
 subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)
 
