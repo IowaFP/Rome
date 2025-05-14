@@ -28,7 +28,6 @@ renₖNE ρ (` x) = ` (ρ x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
 renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
 renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ renₖNF r ρ₁
-renₖNE r (l ▹ₙ τ) = renₖNE r l ▹ₙ renₖNF r τ
 renₖNE r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNE r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
@@ -42,6 +41,7 @@ renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
+renₖNF r (l ▹ τ) = renₖNF r l ▹ renₖNF r τ
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
@@ -59,6 +59,7 @@ isNormalRenₖNF r (lab l) witness = tt
 isNormalRenₖNF r ⌊ x ⌋ witness = tt
 isNormalRenₖNF r (Π x) witness = tt
 isNormalRenₖNF r (Σ x) witness = tt
+isNormalRenₖNF r (l ▹ τ) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt

@@ -51,9 +51,6 @@ data NeutralType Δ : Kind → Set where
        -------------------------------------------------
        NeutralType Δ (R[ κ₂ ])
 
-  _▹ₙ_ : NeutralType Δ L → NormalType Δ κ → 
-        NeutralType Δ R[ κ ]
-
   _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------
         NeutralType Δ R[ κ ]
@@ -111,12 +108,12 @@ data NormalType Δ where
         ----------------------
        NormalType Δ R[ κ ]
 
-  -- _▹_ : 
+  _▹_ : 
       
-  --     (l : NormalType Δ L) → 
-  --     (τ : NormalType Δ κ) → 
-  --     ---------------------------
-  --     NormalType Δ R[ κ ]
+      (l : NormalType Δ L) → 
+      (τ : NormalType Δ κ) → 
+      ---------------------------
+      NormalType Δ R[ κ ]
 
 --   -- labels
   lab :
@@ -214,6 +211,7 @@ isNeutral? (lab l) = no λ ()
 isNeutral? ⌊ x ⌋ = no λ ()
 isNeutral? (Π x) = no λ ()
 isNeutral? (Σ x) = no λ ()
+isNeutral? (l ▹ τ) = no λ ()
 
 IsNormal (ne x)     = ⊥
 IsNormal _     = ⊤
@@ -229,6 +227,7 @@ isNormal? (lab l) = yes tt
 isNormal? ⌊ x ⌋ = yes tt
 isNormal? (Π x) = yes tt
 isNormal? (Σ x) = yes tt
+isNormal? (l ▹ τ) = yes tt
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
 NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
@@ -260,7 +259,6 @@ noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
 noNeutrals (n ─₁ _) = noNeutrals n
 noNeutrals (_ ─₂ n) = noNeutrals n
-noNeutrals (l ▹ₙ _) = noNeutrals l
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -357,12 +355,10 @@ cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→MereProp (Ground κ) (
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
-row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
-    Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] 
-      (Σ[ oρ ∈ True (normalOrdered? sr) ] (ρ ≡ ⦅ sr ⦆ oρ)) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
-row-canonicity (⦅ x ⦆ oρ) = left (x , oρ , refl) 
-row-canonicity (ne x) = right (x , refl)
+row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤ 
+row-canonicity (⦅ x ⦆ oρ) = tt
+row-canonicity (ne x) = tt
+row-canonicity (l ▹ τ) = tt
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -373,7 +369,10 @@ arrow-canonicity (`λ f) = f , refl
 --------------------------------------------------------------------------------
 -- label canonicity
 
--- label-canonicity : (l : NormalType Δ L) → ⊤ 
+label-canonicity : (l : NormalType Δ L) → ⊤ 
+label-canonicity (ne x) = tt
+label-canonicity (lab l) = tt
+
 -- label-canonicity (ne x) = {!!}
 -- label-canonicity (lab l) = {!!}
 -- label-canonicity (ΠL l) = {!!}
@@ -409,6 +408,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
+⇑ (l ▹ τ) = ⇑ l ▹ ⇑ τ
 
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
@@ -427,7 +427,6 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 ⇑NE (ρ₂ ─₁ ρ₁) = (⇑NE ρ₂) ─ (⇑ ρ₁)
 ⇑NE (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NE ρ₁)
-⇑NE (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

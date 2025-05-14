@@ -39,7 +39,8 @@ renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (left x) = left (renₖNE r x)
-renSem {κ = R[ κ ]} r (right ((n , P) , q)) = right ((n , (λ i → P i .fst , (renSem r (P i .snd)))) , orderedRenRow r q) -- right (n , (λ i → (renSem {κ = L} r ((P i) .fst)) , (renSem r (P i .snd))))
+renSem {κ = R[ κ ]} r (right (left ((n , P) , q))) = right (left ((n , (λ i → P i .fst , (renSem r (P i .snd)))) , orderedRenRow r q)) -- right (n , (λ i → (renSem {κ = L} r ((P i) .fst)) , (renSem r (P i .snd))))
+renSem {κ = R[ κ ]} r (right (right (l , τ))) = right (right ((renₖNF r l) , (renSem r τ)))
 
 orderedRenRow {n = zero} {P} r o = tt
 orderedRenRow {n = suc zero} {P} r o = tt
