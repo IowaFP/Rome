@@ -115,9 +115,9 @@ fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁
     ... | n , P | refl , eq = refl , (λ { fzero → refl , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
 fundC e (eq-row eq) = fundC-Row e eq
 fundC e (eq-lab refl) = refl
-fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ}) with eval l η₁ | eval l η₂ | idext e l
+fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with eval l η₁ | eval l η₂ | idext e l
 ... | ne x | ne x | refl = {!!}
-... | lab l | lab l | refl = {!!}
+... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
 fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = {!!}
 
 fundC-Row e eq-[] = refl , (λ ())

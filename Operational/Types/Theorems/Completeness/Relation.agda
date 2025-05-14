@@ -24,7 +24,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 -- Completeness relation on semantic types
 _≋_ : SemType Δ κ → SemType Δ κ → Set
-_≋₂_ : (x y : Label × SemType Δ κ) → Set
+_≋₂_ : ∀ {A} → (x y : A × SemType Δ κ) → Set
 (l₁ , τ₁) ≋₂ (l₂ , τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
 _≋R_ : (ρ₁ ρ₂ : Row Δ R[ κ ]) → Set 
 (n , P) ≋R (m , Q) = Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) →  (subst-Row pf P) i ≋₂ Q i)
@@ -36,8 +36,12 @@ _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
-_≋_ {Δ₁} {R[ κ ]} (left x) (left y) = x ≡ y
-_≋_ {Δ₁} {R[ κ ]} (left x) (right y) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (left (left x)) (left (left y)) = x ≡ y
+_≋_ {Δ₁} {R[ κ ]} (left (right ρ₁)) (left (right ρ₂)) = ρ₁ ≋₂ ρ₂
+_≋_ {Δ₁} {R[ κ ]} (left (left _)) (left (right _)) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (left (right _)) (left (left _)) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (left (left _)) (right (_ , _)) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (left (right _)) (right (_ , _)) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (right y) (left x) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (right ((n , P) , oP)) (right ((m , Q) , oQ)) = (n , P) ≋R (m , Q)
 
@@ -81,7 +85,8 @@ sym-≋ {κ = κ `→ κ₁}
   {F} {G} 
   (Unif-F , (Unif-G , Ext)) = 
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
-sym-≋ {κ = R[ κ ]} {left x} {left x₁} q = sym q
+sym-≋ {κ = R[ κ ]} {left (left x₁)} {left (left x₂)} q = sym q
+sym-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (eq , rel) = sym eq  , sym-≋ rel
 sym-≋ {κ = R[ κ ]} {right ((n , P), _)} {right ((m , Q) , _)} (refl , eq-ρ) = 
   refl , 
   (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
@@ -95,7 +100,8 @@ trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H}
     unif-F , 
     unif-H , 
     λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
-trans-≋ {κ = R[ κ ]} {left x} {left x₁} refl q = q
+trans-≋ {κ = R[ κ ]} {left (left x)} {left (left x₁)} refl q = q
+trans-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} {left (right (l₃ , τ₃))} (eq-l₁ , rel-τ₁) (eq-l₂ , rel-τ₂) = trans eq-l₁ eq-l₂  , trans-≋ rel-τ₁ rel-τ₂
 trans-≋ {κ = R[ κ ]} {right (n , P)} {right (m , Q)} {right (o , R)} (refl , rel₁) (refl , rel₂) = 
   refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≋ (rel₁ i .snd) (rel₂ i .snd) }
 
@@ -170,7 +176,7 @@ reflect-≋ {κ = κ `→ κ₁} {f} refl = Unif-f , Unif-f , PE-f
 
     PE-f : PointEqual-≋ (λ ρ v → reflect (renₖNE ρ f · reify v)) (λ ρ v → reflect (renₖNE ρ f · reify v))
     PE-f ρ v = reflect-≋ (cong₂ _·_ refl (reify-≋ v))
-reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} q = q
+reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- reify-≋ asserts that related semantic types reify to the same normal form.
@@ -179,7 +185,8 @@ reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq
 reify-≋ {κ = κ₁ `→ κ₂} {F} {G}
   ( unif-F , ( unif-G , ext ) ) = cong `λ (reify-≋  (ext S (reflect-≋ refl)))
-reify-≋ {κ = R[ κ ]} {left x} {left x₁} refl = refl
+reify-≋ {κ = R[ κ ]} {left (left x)} {left (left x₁)} refl = refl
+reify-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel))
 reify-≋ {κ = R[ κ ]} {right ((zero , P) , _)} {right ((_ , Q), _)} (refl , eq) = refl
 reify-≋ {κ = R[ κ ]} {right ((suc n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = 
   cong-⦅⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq i)
@@ -213,7 +220,8 @@ reifyRow-≋ {n = suc n} P Q eq =
       (reify-≋ (trans-≋ 
         (Unif-G S (liftₖ ρ) _ _ (reflect-≋ refl)) 
         (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflect (liftₖ ρ) (` Z))))))
-↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {left x} {left y} refl = refl
+↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {left (left x₁)} {left (left y)} refl = refl
+↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {left (right y₁)} {left (right y)} (refl , q) = cong-ne (cong₂ _▹ₙ_ refl (↻-ren-reify ρ q ))
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = 
   cong-⦅⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)
 
@@ -257,7 +265,8 @@ renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (re
 renSem-id-≋ {κ = ★} refl = renₖNF-id _
 renSem-id-≋ {κ = L} refl = renₖNF-id _
 renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
-renSem-id-≋ {κ = R[ κ ]} {left x} {left y} refl = renₖNE-id x
+renSem-id-≋ {κ = R[ κ ]} {left (left x)} {left (left y)} refl = renₖNE-id x
+renSem-id-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = renₖNE-id l₁ , renSem-id-≋ rel
 renSem-id-≋ {κ = R[ κ ]} {right ((n , P) , _)} {right ((n , Q) , _)} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
 
 renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
@@ -268,7 +277,8 @@ renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext)
   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
-renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left x} {left y} refl = renₖNE-comp _ _ _
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left (left x)} {left (left y)} refl = renₖNE-comp _ _ _
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = (renₖNE-comp ρ₁ ρ₂ l₁) , (renSem-comp-≋ ρ₁ ρ₂ rel)
 renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (n , P)} {right (_ , Q)} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
 
 ↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 

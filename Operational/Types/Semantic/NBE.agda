@@ -23,7 +23,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} τ       = left τ
+reflect {κ = R[ κ ]} τ = left (left τ)
 reflect {κ = κ₁ `→ κ₂} τ     = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -51,7 +51,8 @@ reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (` Z))))
-reify {κ = R[ κ ]} (left x) = ne x
+reify {κ = R[ κ ]} (left (left x)) = ne x
+reify {κ = R[ κ ]} (left (right (l , τ))) = ne (l ▹ₙ reify τ)
 reify {κ = R[ κ ]} (right  (ρ@(n , P) , q)) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 
 --------------------------------------------------------------------------------
@@ -166,16 +167,22 @@ ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ
 -- Semantic complement on SemTypes
 
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-left x ─V left y = left (x ─₁ (ne y))
-left x ─V right (ρ , e) = left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)))
-right (ρ , e) ─V left x = left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x)
+left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
+left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))
+left (left x) ─V right (ρ , e) = left (left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+left (right (l , τ)) ─V left (left y) = left (left ((l ▹ₙ reify τ) ─₁ (ne y)))
+left (right (l₁ , τ₁)) ─V left (right (l₂ , τ₂)) = left (left ((l₁ ▹ₙ (reify τ₁)) ─₁ (ne (l₂ ▹ₙ (reify τ₂))))) 
+left (right (l , τ)) ─V right (ρ , e) = left (left ((l ▹ₙ (reify τ)) ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+right (ρ , e) ─V left (left x) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x))
+right (ρ , e) ─V left (right (l , τ)) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ (l ▹ₙ (reify τ)))) 
 right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
 
---------------------------------------------------------------------------------
--- Semantic lifting
+-- --------------------------------------------------------------------------------
+-- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-_<$>V_  F (left x) = left (reifyKripke F <$> x)
+_<$>V_  F (left (left x)) = left (left (reifyKripke F <$> x))
+_<$>V_  F (left (right (l , τ))) = left (right (l , (F ·V τ)))
 _<$>V_  F (right ((n , P), oρ)) = right ((n , overᵣ (F id) ∘ P) , orderedOverᵣ (F id) oρ) 
 
 --------------------------------------------------------------------------------
@@ -270,7 +277,7 @@ eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
 eval (⦅ ρ ⦆ oρ) η = right (evalRow ρ η , evalRowOrdered ρ η (toWitness oρ))
 eval (l ▹ τ) η with eval l η 
-... | ne x = left (x ▹ₙ (reify (eval τ η)))
+... | ne x = left (right (x , eval τ η))
 ... | lab l₁ = right (⁅ (l₁ , eval τ η) ⁆ , tt)
 
 evalRowOrdered [] η oρ = tt

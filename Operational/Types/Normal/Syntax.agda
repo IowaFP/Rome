@@ -52,7 +52,8 @@ data NeutralType Δ : Kind → Set where
        NeutralType Δ (R[ κ₂ ])
 
   _▹ₙ_ : NeutralType Δ L → NormalType Δ κ → 
-        NeutralType Δ R[ κ ]
+         ------------------------------------
+         NeutralType Δ R[ κ ]
 
   _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------

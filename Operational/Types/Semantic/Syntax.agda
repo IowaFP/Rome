@@ -102,7 +102,7 @@ subst-Row-reduction×₂ refl f = refl
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
-SemType Δ R[ κ ] = NeutralType Δ R[ κ ] 
+SemType Δ R[ κ ] = (NeutralType Δ R[ κ ] or NeutralType Δ L × SemType Δ κ)
                    or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
 
 --------------------------------------------------------------------------------
