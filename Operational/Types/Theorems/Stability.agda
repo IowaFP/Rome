@@ -48,8 +48,8 @@ stabilityNE (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l)
 ... | .(ne l) | no q | refl = ⊥-elim (q tt)
 
 stabilityNE' (` α) = refl
-stabilityNE' {κ = κ} (τ · τ₁) = {!stability τ₁!}
-stabilityNE' (φ <$> τ) = {!!}
+stabilityNE' {κ = ★} (τ · τ₁) rewrite sym (stability τ₁) | sym (stabilityNE' τ) = {! stabilityNE' τ  !}
+stabilityNE' (φ <$> τ) rewrite stability φ | stabilityNE' τ = {! stabilityNE' τ  !}
 stabilityNE' (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE' l
 ... | ne x₂ | yes p | refl = cong-ne (cong (l ▹ₙ_) (stability τ))
 ... | ne x₁ | no p | q = ⊥-elim (p tt)
