@@ -51,14 +51,28 @@ stabilityNE-→ : ∀ {Δ} {κ₁} {κ₂} (τ : NeutralType Δ (κ₁ `→ κ�
 stabilityNE-→ (` α) = refl
 stabilityNE-→ (τ · τ₁) rewrite stabilityNE-→ τ | stability τ₁ = refl
 
+--------------------------------------------------------------------------------
+-- TODO:
+--  - Split up neutral syntax into Neutral applications and neutral complements;
+--    This will allow us to prove stabilityNE' just for the complements and prove
+--    StabilityNE (above) for the applications. We can use the both of them
+--    to prove stability below.
+-     N.B. will have to further pollute cases in semantic syntax of row kinds...
+--    painful but will hopefully be worth it.
+
 stabilityNE' (` α) = refl
-stabilityNE' {κ = κ} (τ · τ₁) rewrite stabilityNE-→ τ | stability τ₁ = cong reify {!   !}
+stabilityNE' {κ = κ} (τ · τ₁) = cong reify {!   !}
 stabilityNE' (φ <$> τ) rewrite stability φ | stabilityNE' τ = {! stabilityNE' τ  !}
 stabilityNE' (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE' l
 ... | ne x₂ | yes p | refl = cong-ne (cong (l ▹ₙ_) (stability τ))
 ... | ne x₁ | no p | q = ⊥-elim (p tt)
 stabilityNE' (τ ─₁ ρ) = {!!}
-stabilityNE' (ρ ─₂ τ) = {!!}
+stabilityNE' (ρ₂ ─₂ ρ₁)
+ with eval (⇑ ρ₂) idEnv | eval (⇑NE ρ₁) idEnv | stability ρ₂ | stabilityNE' ρ₁  
+stabilityNE' ((ρ₂ ─₂ ρ₁) {()}) | left (left x₁) | left (left ρ₁) | refl | refl
+stabilityNE' ((ρ₂ ─₂ ρ₁) {()}) | left (right y₁) | left (left ρ₁) | refl | refl
+... | right ((n , P) , oP) | left (left x₁) | refl | refl = refl
+... | right ((n , P) , oP) | left (right y₁) | refl | refl = refl
 
 
 
