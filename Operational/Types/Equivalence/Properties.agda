@@ -1,5 +1,5 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.Operational.Types.Equivalence.Relation.Properties where
+module Rome.Operational.Types.Equivalence.Properties where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
