@@ -47,14 +47,20 @@ stabilityNE (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l)
 ... | ne x₁ | yes p | refl = {!!} -- cong left (cong₂ _▹ₙ_ refl (stability τ))
 ... | .(ne l) | no q | refl = ⊥-elim (q tt)
 
+stabilityNE-→ : ∀ {Δ} {κ₁} {κ₂} (τ : NeutralType Δ (κ₁ `→ κ₂)) → (eval {Δ₁ = Δ} {Δ₂ = Δ} (⇑NE τ) (idEnv {Δ})) ≡ (reflect τ)
+stabilityNE-→ (` α) = refl
+stabilityNE-→ (τ · τ₁) rewrite stabilityNE-→ τ | stability τ₁ = refl
+
 stabilityNE' (` α) = refl
-stabilityNE' {κ = ★} (τ · τ₁) rewrite sym (stability τ₁) | sym (stabilityNE' τ) = {! stabilityNE' τ  !}
+stabilityNE' {κ = κ} (τ · τ₁) rewrite stabilityNE-→ τ | stability τ₁ = cong reify {!   !}
 stabilityNE' (φ <$> τ) rewrite stability φ | stabilityNE' τ = {! stabilityNE' τ  !}
 stabilityNE' (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE' l
 ... | ne x₂ | yes p | refl = cong-ne (cong (l ▹ₙ_) (stability τ))
 ... | ne x₁ | no p | q = ⊥-elim (p tt)
 stabilityNE' (τ ─₁ ρ) = {!!}
 stabilityNE' (ρ ─₂ τ) = {!!}
+
+
 
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
