@@ -83,6 +83,22 @@ idEnv : Env Δ Δ
 idEnv x = reflect (app (` x))
 
 -- --------------------------------------------------------------------------------
+-- -- Remodeling normal terms into the semantic domain 
+
+↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+↑ (ne x) η = {!   !}
+↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
+↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
+↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
+↑ (μ τ) η = μ (reifyKripke (↑ τ η))
+↑ (π ⇒ τ) η = {!   !}
+↑ (⦅ ρ ⦆ oρ) η = right ({!   !} , {!   !})
+↑ (lab l) η = lab l
+↑ ⌊ τ ⌋ η = ⌊ ↑ τ η ⌋
+↑ (Π τ) η = Π (reify (↑ τ η))
+↑ (Σ τ) η = Σ (reify (↑ τ η))
+
+-- --------------------------------------------------------------------------------
 -- -- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
@@ -182,10 +198,7 @@ ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
 F <$>V left (left (app x)) = left (left (app (reifyKripke F <$> x)))
 F <$>V left (left (comp (app x))) = left (left (app (reifyKripke F <$> x)))
-_<$>V_ {κ₁ = ★} F (left (left (comp (l ▹ₙ τ)))) = left (left (comp (l ▹ₙ {! F id τ  !})))
-_<$>V_ {κ₁ = L} F (left (left (comp (l ▹ₙ τ)))) = left (left (comp (l ▹ₙ {!   !})))
-_<$>V_ {κ₁ = κ₁ `→ κ₂} F (left (left (comp (l ▹ₙ τ)))) = left (left (comp (l ▹ₙ {! F id   !})))
-_<$>V_ {κ₁ = R[ κ₁ ]} F (left (left (comp (l ▹ₙ τ)))) = left (left (comp (l ▹ₙ {!   !})))
+_<$>V_ {κ₁ = κ₁} F (left (left (comp (l ▹ₙ τ)))) = left (left (comp (l ▹ₙ {! F id  !})))
 F <$>V left (left (comp (ρ₂ ─₁ ρ₁))) = {!   !}
 F <$>V left (left (comp (ρ₂ ─₂ ρ₁))) = {!   !}
 _<$>V_  F (left (right (l , τ))) = left (right (l , (F ·V τ)))
