@@ -21,10 +21,6 @@ SimpleRow Ty Δ L        = ⊥
 SimpleRow Ty Δ (_ `→ _) = ⊥
 SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 
-
-
-open import Data.String using (_<_)
-
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
 ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
 
@@ -113,11 +109,6 @@ data Type Δ where
         ----------
         Type Δ ★
 
---   ε : 
-
---     ------------
---     Type Δ R[ κ ]
-
   -- Row formation
   _▹_ :
          (l : Type Δ L) → (τ : Type Δ κ) → 
@@ -164,13 +155,10 @@ ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ 
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
 
-MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → MereProp (True (ordered? ρ))
-MerePropOrdered ρ = Dec→MereProp (Ordered ρ) (ordered? ρ)
-
 cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
-cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite MerePropOrdered sr₁ wf₁ wf₂ = refl
+cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→MereProp (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
 
 --------------------------------------------------------------------------------
 -- Helpers for mapping over the tuples inside rows
@@ -218,6 +206,9 @@ f ?? a = flap · f · a
 Unit : Type Δ ★
 Unit = Π · ε
 
+Empty : Type Δ ★ 
+Empty = Σ · ε 
+
 -- Example simple row
 sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , (Σ · ε)) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
+sr = ⦅ ("a" , Unit) ∷ ("b" , Empty) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
