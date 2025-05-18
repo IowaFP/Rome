@@ -14,6 +14,9 @@ open import Rome.Operational.Types.Normal.Syntax
 -- Normal Type renaming.
 
 renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
+renₖNEapp     : Renamingₖ Δ₁ Δ₂ → NeutralApp Δ₁ κ → NeutralApp Δ₂ κ
+renₖNEcompl   : Renamingₖ Δ₁ Δ₂ → NeutralCompl Δ₁ κ → NeutralCompl Δ₂ κ
+
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
@@ -21,15 +24,17 @@ orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalTyp
                  NormalOrdered (renRowₖNF r xs)
 isNormalRenₖNF : (r : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → IsNormal τ → IsNormal (renₖNF r τ)
 
-Renₖ-Injective : (Δ₁ Δ₂ : KEnv) → Renamingₖ Δ₁ Δ₂ → Set 
-Renₖ-Injective Δ₁ Δ₂ r = (∀ (τ₁ τ₂ : NormalType Δ₁ L) → renₖNF r τ₁ ≡ renₖNF r τ₂ → τ₁ ≡ τ₂)
+renₖNE r (app x) = app (renₖNEapp r x)
+renₖNE r (comp x) = comp (renₖNEcompl r x) 
 
-renₖNE ρ (` x) = ` (ρ x)
-renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
-renₖNE ρ (F <$> τ) = renₖNF ρ F <$> (renₖNE ρ τ)
-renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ renₖNF r ρ₁
-renₖNE r (l ▹ₙ τ) = renₖNE r l ▹ₙ renₖNF r τ
-renₖNE r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNE r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
+renₖNEapp r (` x) = ` (r x)
+renₖNEapp ρ (τ₁ · τ₂) = renₖNEapp ρ τ₁ · renₖNF ρ τ₂
+renₖNEapp ρ (F <$> τ) = renₖNF ρ F <$> (renₖNEapp ρ τ)
+
+renₖNEcompl r (app x) = app (renₖNEapp r x)
+renₖNEcompl r (ρ₂ ─₁ ρ₁) = renₖNEcompl r ρ₂ ─₁ renₖNF r ρ₁
+renₖNEcompl r (l ▹ₙ τ) = renₖNEapp r l ▹ₙ renₖNF r τ
+renₖNEcompl r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNEcompl r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
