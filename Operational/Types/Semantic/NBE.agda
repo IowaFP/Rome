@@ -86,7 +86,22 @@ idEnv x = reflect (app (` x))
 -- -- Remodeling normal terms into the semantic domain 
 
 ↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-↑ {κ = κ} (ne x) η = {! κ  !}
+↑NE : NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+↑NEapp : NeutralApp Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+↑NEcompl : NeutralCompl Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+
+↑NE (app x) = ↑NEapp x
+↑NE (comp x) = ↑NEcompl x
+
+↑NEapp (` α) η = η α
+↑NEapp (x · τ) η = ↑NEapp x η id (↑ τ η)
+↑NEapp (φ <$> x) η with ↑NEapp x η 
+... | left (left (app x₁)) = left (left (app (reifyKripke (↑ φ η) <$> x₁)))
+... | left (left (comp x₁)) = left (left (app ({!   !} <$> {! x₁  !})))
+... | left (right y) = {! reifyRow  !}
+... | right y = {!   !}
+
+↑ {κ = κ} (ne x) η = ↑NE x η
 ↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
 ↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
 ↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
