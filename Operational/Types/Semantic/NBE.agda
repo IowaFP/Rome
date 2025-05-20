@@ -22,7 +22,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} ρ = left (left ρ)
+reflect {κ = R[ κ ]} x = {!!}
 reflect {κ = κ₁ `→ κ₂} (app τ) = λ ρ v → reflect (app (renₖNEapp ρ τ · reify v))
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -34,10 +34,10 @@ reifyRow' zero P    = []
 reifyRow' (suc n) P with P fzero
 ... | (l , τ) = (l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
 
-reifyRow : Row Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ]
+reifyRow : Row (SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow (n , P) = reifyRow' n P
 
-reifyRowOrdered : ∀ (ρ : Row Δ R[ κ ]) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
+reifyRowOrdered : ∀ (ρ : Row (SemType Δ κ)) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
 reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
                       OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
 
@@ -50,9 +50,10 @@ reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (app (` Z)))))
-reify {κ = R[ κ ]} (left (left x)) = ne x
-reify {κ = R[ κ ]} (left (right (l , τ))) = ne (comp (l ▹ₙ reify τ))
-reify {κ = R[ κ ]} (right  (ρ@(n , P) , q)) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+reify {κ = R[ κ ]} (app x) = ne (app x)
+reify {κ = R[ κ ]} (l ▹ τ) = ne (comp (l ▹ₙ (reify τ)))
+reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+reify {κ = R[ κ ]} (ρ₂ ─ ρ₁) = {!reify ρ₂!}
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -82,45 +83,45 @@ lifte {Δ₁} {Δ₂} {κ} η  = extende η' V
 idEnv : Env Δ Δ
 idEnv x = reflect (app (` x))
 
--- --------------------------------------------------------------------------------
--- -- Remodeling normal terms into the semantic domain 
+-- -- --------------------------------------------------------------------------------
+-- -- -- Remodeling normal terms into the semantic domain 
 
-↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-↑NE : NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-↑NEapp : NeutralApp Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-↑NEcompl : NeutralCompl Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+-- ↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+-- ↑NE : NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+-- ↑NEapp : NeutralApp Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
+-- ↑NEcompl : NeutralCompl Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
 
-↑NE (app x) = ↑NEapp x
-↑NE (comp x) = ↑NEcompl x
+-- ↑NE (app x) = ↑NEapp x
+-- ↑NE (comp x) = ↑NEcompl x
 
-↑NEapp (` α) η = η α
-↑NEapp (x · τ) η = ↑NEapp x η id (↑ τ η)
-↑NEapp (φ <$> x) η with ↑NEapp x η 
-... | left (left (app x₁)) = left (left (app (reifyKripke (↑ φ η) <$> x₁)))
-... | left (left (comp x₁)) = left (left (app ({!   !} <$> {! x₁  !})))
-... | left (right y) = {! reifyRow  !}
-... | right y = {!   !}
+-- ↑NEapp (` α) η = η α
+-- ↑NEapp (x · τ) η = ↑NEapp x η id (↑ τ η)
+-- ↑NEapp (φ <$> x) η with ↑NEapp x η 
+-- ... | left (left (app x₁)) = left (left (app (reifyKripke (↑ φ η) <$> x₁)))
+-- ... | left (left (comp x₁)) = left (left (app ({!   !} <$> {! x₁  !})))
+-- ... | left (right y) = {! reifyRow  !}
+-- ... | right y = {!   !}
 
-↑ {κ = κ} (ne x) η = ↑NE x η
-↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
-↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
-↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
-↑ (μ τ) η = μ (reifyKripke (↑ τ η))
-↑ (π ⇒ τ) η = {!   !}
-↑ (⦅ ρ ⦆ oρ) η = right ({!   !} , {!   !})
-↑ (lab l) η = lab l
-↑ ⌊ τ ⌋ η = ⌊ ↑ τ η ⌋
-↑ (Π τ) η = Π (reify (↑ τ η))
-↑ (Σ τ) η = Σ (reify (↑ τ η))
+-- ↑ {κ = κ} (ne x) η = ↑NE x η
+-- ↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
+-- ↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
+-- ↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
+-- ↑ (μ τ) η = μ (reifyKripke (↑ τ η))
+-- ↑ (π ⇒ τ) η = {!   !}
+-- ↑ (⦅ ρ ⦆ oρ) η = right ({!   !} , {!   !})
+-- ↑ (lab l) η = lab l
+-- ↑ ⌊ τ ⌋ η = ⌊ ↑ τ η ⌋
+-- ↑ (Π τ) η = Π (reify (↑ τ η))
+-- ↑ (Σ τ) η = Σ (reify (↑ τ η))
 
--- --------------------------------------------------------------------------------
--- -- Semantic application
+-- -- --------------------------------------------------------------------------------
+-- -- -- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 F ·V V = F id V
 
---------------------------------------------------------------------------------
--- -- Semantic complement
+-- --------------------------------------------------------------------------------
+-- -- -- Semantic complement
 
 _∈Row_ : ∀ {m} → (l : Label) → 
          (Q : Fin m → Label × SemType Δ κ) → 
@@ -136,7 +137,7 @@ _∈Row_ {m = suc m} l Q with l ≟ Q fzero .fst
 compl : ∀ {n m} → 
         (P : Fin n → Label × SemType Δ κ) 
         (Q : Fin m → Label × SemType Δ κ) → 
-        Row Δ R[ κ ]
+        Row (SemType Δ κ)
 compl {n = zero} {m} P Q = εV
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
 ... | yes _ = compl (P ∘ fsuc) Q 
@@ -181,87 +182,93 @@ ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
 --------------------------------------------------------------------------------
 -- Semantic complement on Rows
                 
-_─v_ : Row Δ R[ κ ] → Row Δ R[ κ ] → Row Δ R[ κ ]
+_─v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
 (zero , P) ─v (zero , Q) = εV
 (zero , P) ─v (suc m , Q) = εV
 (suc n , P) ─v (zero , Q) = (suc n , P)
 (suc n , P) ─v (suc m , Q) = compl P Q
 
-ordered─v : ∀ (ρ₂ ρ₁ : Row Δ R[ κ ]) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
+ordered─v : ∀ (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
 ordered─v (zero , P) (zero , Q) oρ₂ oρ₁ = tt
 ordered─v (zero , P) (suc m , Q) oρ₂ oρ₁ = tt
 ordered─v (suc n , P) (zero , Q) oρ₂ oρ₁ = oρ₂
 ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
 
--- --------------------------------------------------------------------------------
--- -- Semantic complement on SemTypes
-
--- _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
--- left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
--- left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))
--- left (left x) ─V right (ρ , e) = left (left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
--- left (right (l , τ)) ─V left (left y) = left (left ((l ▹ₙ reify τ) ─₁ (ne y)))
--- left (right (l₁ , τ₁)) ─V left (right (l₂ , τ₂)) = left (left ((l₁ ▹ₙ (reify τ₁)) ─₁ (ne (l₂ ▹ₙ (reify τ₂))))) 
--- left (right (l , τ)) ─V right (ρ , e) = left (left ((l ▹ₙ (reify τ)) ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
--- right (ρ , e) ─V left (left x) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x))
--- right (ρ , e) ─V left (right (l , τ)) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ (l ▹ₙ (reify τ)))) 
--- right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
-
 -- -- --------------------------------------------------------------------------------
--- -- -- Semantic lifting
+-- -- -- Semantic complement on SemTypes
+
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+app x ─V app x₁ = {!!}
+app x ─V (x₁ ▹ x₂) = {!!}
+app x ─V row ρ x₁ = {!!}
+(x ▹ x₁) ─V app x₂ = {!!}
+(x ▹ x₁) ─V (x₂ ▹ x₃) = {!!}
+(x ▹ x₁) ─V row ρ x₂ = {!!}
+row ρ x ─V app x₁ = {!!}
+row ρ x ─V (x₁ ▹ x₂) = {!!}
+row ρ₂ q₂ ─V row ρ₁ q₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ q₂ q₁)
+
+-- -- left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
+-- -- left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))
+-- -- left (left x) ─V right (ρ , e) = left (left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+-- -- left (right (l , τ)) ─V left (left y) = left (left ((l ▹ₙ reify τ) ─₁ (ne y)))
+-- -- left (right (l₁ , τ₁)) ─V left (right (l₂ , τ₂)) = left (left ((l₁ ▹ₙ (reify τ₁)) ─₁ (ne (l₂ ▹ₙ (reify τ₂))))) 
+-- -- left (right (l , τ)) ─V right (ρ , e) = left (left ((l ▹ₙ (reify τ)) ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+-- -- right (ρ , e) ─V left (left x) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x))
+-- -- right (ρ , e) ─V left (right (l , τ)) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ (l ▹ₙ (reify τ)))) 
+-- -- right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
+
+-- -- -- --------------------------------------------------------------------------------
+-- -- -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-F <$>V left (left (app x)) = left (left (app (reifyKripke F <$> x)))
-F <$>V left (left (comp (app x))) = left (left (app (reifyKripke F <$> x)))
-_<$>V_ {κ₁ = κ₁} F (left (left (comp (l ▹ₙ τ)))) = left (right (l , (F id (↑ τ idEnv))))
-F <$>V left (left (comp (ρ₂ ─₁ ρ₁))) = {!   !}
-F <$>V left (left (comp (ρ₂ ─₂ ρ₁))) = {!   !}
-_<$>V_  F (left (right (l , τ))) = left (right (l , (F ·V τ)))
-_<$>V_  F (right ((n , P), oρ)) = right ((n , overᵣ (F id) ∘ P) , orderedOverᵣ (F id) oρ) 
+F <$>V app x = app (reifyKripke F <$> x)
+F <$>V (l ▹ τ) = l ▹ (F ·V τ)
+F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
 
--- --------------------------------------------------------------------------------
--- -- Semantic flap
+--------------------------------------------------------------------------------
+-- Semantic flap
 
--- apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
--- apply a = λ ρ F → F ·V (renSem ρ a)
+apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
+apply a = λ ρ F → F ·V (renSem ρ a)
 
--- infixr 0 _<?>V_
--- _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
--- f <?>V a = apply a <$>V f
+infixr 0 _<?>V_
+_<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+f <?>V a = apply a <$>V f
 
 
--- --------------------------------------------------------------------------------
--- -- (Generic) Semantic combinators for Π/Σ
+--------------------------------------------------------------------------------
+-- (Generic) Semantic combinators for Π/Σ
 
--- record Xi : Set where 
---   field
---     Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
---     ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+record Xi : Set where 
+  field
+    Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
+    ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
 
--- open Xi
--- ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
--- ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
--- ξ {κ = L} Ξ x = lab "impossible"
--- ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
--- ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+open Xi
+ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
+ξ {κ = L} Ξ x = lab "impossible"
+ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
+ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
 
--- Π-rec Σ-rec : Xi 
--- Π-rec = record
---   {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
--- Σ-rec = 
---   record
---   { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
+Π-rec Σ-rec : Xi 
+Π-rec = record
+  {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
+Σ-rec = 
+  record
+  { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
 
--- ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
--- ΠV = ξ Π-rec
--- ΣV = ξ Σ-rec
+ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+ΠV = ξ Π-rec
+ΣV = ξ Σ-rec
 
--- ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
--- ξ-Kripke Ξ ρ v = ξ Ξ v
+ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
+ξ-Kripke Ξ ρ v = ξ Ξ v
 
--- Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
--- Π-Kripke = ξ-Kripke Π-rec
--- Σ-Kripke = ξ-Kripke Σ-rec
+Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+Π-Kripke = ξ-Kripke Π-rec
+Σ-Kripke = ξ-Kripke Σ-rec
 
 -- --------------------------------------------------------------------------------
 -- -- Type evaluation.

@@ -13,32 +13,46 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 
 
---------------------------------------------------------------------------------
--- Semantic types (signatures)
-  
-SemType : KEnv → Kind → Set
-KripkeFunction : KEnv → Kind → Kind → Set
-KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 --------------------------------------------------------------------------------
--- Semantic Rows
+-- Semantic types (definition)
 
-Row : KEnv → Kind → Set 
-Row Δ ★ = ⊥ 
-Row Δ L = ⊥ 
-Row Δ (_ `→ _) = ⊥ 
-Row Δ R[ κ ] = ∃[ n ](Fin n → Label × SemType Δ κ)
+Row : Set → Set 
+Row A = ∃[ n ](Fin n → Label × A)
 
---------------------------------------------------------------------------------
--- Ordered predicate on semantic rows
+-- --------------------------------------------------------------------------------
+-- -- Ordered predicate on semantic rows
 
-OrderedRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → Set
+OrderedRow' : ∀ {A : Set} → (n : ℕ) → (Fin n → Label × A) → Set
 OrderedRow' zero P = ⊤
 OrderedRow' (suc zero) P = ⊤
 OrderedRow' (suc (suc n)) P = (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
 
-OrderedRow : Row Δ R[ κ ] → Set
+OrderedRow : ∀ {A} → Row A → Set
 OrderedRow (n , P) = OrderedRow' n P
+
+data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set where
+  app : NeutralApp Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  _▹_ : NeutralApp Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
+  row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → RowType Δ 𝒯 R[ κ ]
+
+SemType : KEnv → Kind → Set
+SemType Δ ★ = NormalType Δ ★
+SemType Δ L = NormalType Δ L
+SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
+SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
+
+-- or NeutralCompl Δ R[ κ ] or NormalType Δ R[ κ ] -- (NeutralApp Δ R[ κ ] or NeutralApp Δ L × SemType Δ κ)
+                   -- or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
+                   -- or (SemType Δ R[ κ ] × SemType Δ R[ κ ])
+
+--------------------------------------------------------------------------------
+-- renames
+
+KripkeFunction : KEnv → Kind → Kind → Set
+KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+
 
 --------------------------------------------------------------------------------
 -- Truncating a row preserves ordering
@@ -62,17 +76,17 @@ orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ
 --------------------------------------------------------------------------------
 -- 
 
-_⨾⨾_ :  Label × SemType Δ κ → Row Δ R[ κ ] → Row Δ R[ κ ]
+_⨾⨾_ :  Label × SemType Δ κ → Row (SemType Δ κ) → Row (SemType Δ κ)
 
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
                           ; (fsuc x) → P x }
 
 -- the empty row                                  
-εV : Row Δ R[ κ ] 
+εV : Row (SemType Δ κ)
 εV = 0 , λ ()
 
 -- Singleton rows
-⁅_⁆ : Label × SemType Δ κ → Row Δ R[ κ ] 
+⁅_⁆ : Label × SemType Δ κ → Row (SemType Δ κ)
 ⁅ τ ⁆ = 1 , λ { fzero → τ }
 
 subst-Fin : ∀ {n m : ℕ} → (n ≡ m) → Fin n → Fin m
@@ -95,20 +109,3 @@ subst-Row-reduction×₂ : ∀ {n m} {A B : Set} →
                       ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
                       subst-Row p f fzero .snd ≡ f fzero .snd
 subst-Row-reduction×₂ refl f = refl
-
---------------------------------------------------------------------------------
--- Semantic types (definition)
-
-SemType Δ ★ = NormalType Δ ★
-SemType Δ L = NormalType Δ L
-SemType Δ₁ (κ₁ `→ κ₂) = KripkeFunction Δ₁ κ₁ κ₂ 
-SemType Δ R[ κ ] = (NeutralType Δ R[ κ ] or NeutralApp Δ L × SemType Δ κ)
-                   or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
-
---------------------------------------------------------------------------------
--- helper
-
-fmap×Sem : (∀ {κ} → SemType Δ₁ κ → SemType Δ₂ κ) → 
-          SemType Δ₁ L × SemType Δ₁ κ → SemType Δ₂ L × SemType Δ₂ κ
-
-fmap×Sem = fmap× {Ty = SemType}

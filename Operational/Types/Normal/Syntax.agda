@@ -56,12 +56,13 @@ data NeutralApp Δ : Kind → Set where
 data NeutralCompl Δ : Kind → Set where
   app : 
       NeutralApp Δ R[ κ ] → 
-      ---------------------------
+      ----------------------
       NeutralCompl Δ R[ κ ]
 
   _▹ₙ_ : NeutralApp Δ L → NormalType Δ κ → 
          ------------------------------------
          NeutralCompl Δ R[ κ ]
+
 
   _─₁_ : NeutralCompl Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------
