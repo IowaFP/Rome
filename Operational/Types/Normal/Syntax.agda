@@ -32,8 +32,6 @@ isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
 isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
 
 
-data NeutralType Δ : Kind → Set
-
 data NeutralApp Δ : Kind → Set where
   ` : 
       (α : KVar Δ κ) → 
@@ -53,28 +51,20 @@ data NeutralApp Δ : Kind → Set where
        -------------------------------------------------
        NeutralApp Δ (R[ κ₂ ])
 
-data NeutralCompl Δ : Kind → Set where
+data NeutralType Δ : Kind → Set where
   app : 
-      NeutralApp Δ R[ κ ] → 
+      NeutralApp Δ κ → 
       ----------------------
-      NeutralCompl Δ R[ κ ]
+      NeutralType Δ κ
 
-  _▹ₙ_ : NeutralApp Δ L → NormalType Δ κ → 
-         ------------------------------------
-         NeutralCompl Δ R[ κ ]
-
-
-  _─₁_ : NeutralCompl Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
+  _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
         ----------------------------------------------
-         NeutralCompl Δ R[ κ ]
+         NeutralType Δ R[ κ ]
 
-  _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralCompl Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
+  _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
         ----------------------------------------------
-        NeutralCompl Δ R[ κ ]
+        NeutralType Δ R[ κ ]
 
-data NeutralType Δ where
-    app : NeutralApp Δ κ → NeutralType Δ κ 
-    comp : NeutralCompl Δ R[ κ ] → NeutralType Δ R[ κ ]
 
 data NormalType Δ where
 
@@ -125,12 +115,9 @@ data NormalType Δ where
         ----------------------
        NormalType Δ R[ κ ]
 
-  -- _▹_ : 
-      
-  --     (l : NormalType Δ L) → 
-  --     (τ : NormalType Δ κ) → 
-  --     ---------------------------
-  --     NormalType Δ R[ κ ]
+  _▹ₙ_ : NeutralApp Δ L → NormalType Δ κ → 
+         ------------------------------------
+         NormalType Δ R[ κ ]
 
 --   -- labels
   lab :
@@ -218,6 +205,7 @@ IsNeutral (ne x) = ⊤
 IsNeutral _ = ⊥
 
 isNeutral? (ne x) = yes tt
+isNeutral? (l ▹ₙ τ) = no λ ()
 isNeutral? (`λ x) = no λ ()
 isNeutral? (x `→ x₁) = no λ ()
 isNeutral? (`∀ x) = no λ ()
@@ -233,6 +221,7 @@ IsNormal (ne x)     = ⊥
 IsNormal _     = ⊤
 
 isNormal? (ne x) = no λ ()
+isNormal? (l ▹ₙ τ) = yes tt
 isNormal? (`λ x) = yes tt
 isNormal? (x `→ x₁) = yes tt
 isNormal? (`∀ x) = yes tt
@@ -248,17 +237,17 @@ NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
 NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
 
 cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
-          {τ₁ υ₁ : NeutralCompl Δ R[ κ ]}
+          {τ₁ υ₁ : NeutralType Δ R[ κ ]}
           {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
                  τ₂ ≡ υ₂ → 
                  τ₁ ≡ υ₁ → 
-                _≡_ {A = NeutralCompl Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
+                _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
 cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl
 
 inj-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
-          {τ₁ υ₁ : NeutralCompl Δ R[ κ ]}
+          {τ₁ υ₁ : NeutralType Δ R[ κ ]}
           {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
-          _≡_ {A = NeutralCompl Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂}) → 
+          _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂}) → 
           τ₁ ≡ υ₁ × τ₂ ≡ υ₂
 inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl , refl
 
@@ -271,18 +260,14 @@ inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite Norm
 
 noNeutrals : NeutralType ∅ κ → ⊥
 noNeutralsApp : NeutralApp ∅ κ → ⊥
-noNeutralsCompl : NeutralCompl ∅ κ → ⊥
-
-noNeutrals (app x) = noNeutralsApp x
-noNeutrals (comp x) = noNeutralsCompl x 
 
 noNeutralsApp (n · τ) = noNeutralsApp n 
 noNeutralsApp (φ <$> n) = noNeutralsApp n
 
-noNeutralsCompl (app x) = noNeutralsApp x
-noNeutralsCompl (n ─₁ _) = noNeutralsCompl n
-noNeutralsCompl (_ ─₂ n) = noNeutralsCompl n
-noNeutralsCompl (l ▹ₙ _) = noNeutralsApp l
+noNeutrals (app x) = noNeutralsApp x
+noNeutrals (n ─₁ _) = noNeutrals n
+noNeutrals (_ ─₂ n) = noNeutrals n
+-- noNeutrals (l ▹ₙ _) = noNeutralsApp l
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -322,7 +307,7 @@ inj-<$> : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : Ne
           φ₁ ≡ φ₂ × τ₁ ≡ τ₂ 
 inj-<$> refl = refl , refl
 
-inj-─₁ : ∀ {ρ₄ ρ₂ : NeutralCompl Δ R[ κ ]} {ρ₃ ρ₁ : NormalType Δ R[ κ ]} → 
+inj-─₁ : ∀ {ρ₄ ρ₂ : NeutralType Δ R[ κ ]} {ρ₃ ρ₁ : NormalType Δ R[ κ ]} → 
            ρ₄ ─₁ ρ₃ ≡ ρ₂ ─₁ ρ₁ → 
            ρ₄ ≡ ρ₂ × ρ₃ ≡ ρ₁ 
 inj-─₁ refl = refl , refl
@@ -379,12 +364,10 @@ cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→MereProp (Ground κ) (
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types
 
-row-canonicity : (ρ : NormalType Δ R[ κ ]) →  
-    Σ[ sr ∈ SimpleRow NormalType Δ R[ κ ] ] 
-      (Σ[ oρ ∈ True (normalOrdered? sr) ] (ρ ≡ ⦅ sr ⦆ oρ)) or 
-    Σ[ τ ∈ NeutralType Δ R[ κ ] ] ((ρ ≡ ne τ))
-row-canonicity (⦅ x ⦆ oρ) = left (x , oρ , refl) 
-row-canonicity (ne x) = right (x , refl)
+row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤
+row-canonicity (l ▹ₙ τ) = tt
+row-canonicity (⦅ x ⦆ oρ) = tt
+row-canonicity (ne x) = tt
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -416,7 +399,6 @@ arrow-canonicity (`λ f) = f , refl
 
 ⇑NE : NeutralType Δ κ → Type Δ κ
 ⇑NEapp : NeutralApp Δ κ → Type Δ κ
-⇑NEcompl : NeutralCompl Δ R[ κ ] → Type Δ R[ κ ] 
 
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
 
@@ -434,6 +416,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
+⇑ (l ▹ₙ τ) = (⇑NEapp l) ▹ (⇑ τ)
 
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
@@ -447,18 +430,13 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 ⇑Row-isMap [] = refl
 ⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
 
-⇑NE (app x) = ⇑NEapp x
-⇑NE (comp x) = ⇑NEcompl x
-
-
 ⇑NEapp (` x) = ` x
 ⇑NEapp (τ₁ · τ₂) = (⇑NEapp τ₁) · (⇑ τ₂)
 ⇑NEapp (F <$> τ) = (⇑ F) <$> (⇑NEapp τ) 
 
-⇑NEcompl (app x) = ⇑NEapp x
-⇑NEcompl (ρ₂ ─₁ ρ₁) = (⇑NEcompl ρ₂) ─ (⇑ ρ₁)
-⇑NEcompl (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NEcompl ρ₁)
-⇑NEcompl (l ▹ₙ τ) = (⇑NEapp l) ▹ (⇑ τ)
+⇑NE (app x) = ⇑NEapp x
+⇑NE (ρ₂ ─₁ ρ₁) = (⇑NE ρ₂) ─ (⇑ ρ₁)
+⇑NE (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NE ρ₁)
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

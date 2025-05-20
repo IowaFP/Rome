@@ -15,7 +15,6 @@ open import Rome.Operational.Types.Normal.Syntax
 
 renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
 renₖNEapp     : Renamingₖ Δ₁ Δ₂ → NeutralApp Δ₁ κ → NeutralApp Δ₂ κ
-renₖNEcompl   : Renamingₖ Δ₁ Δ₂ → NeutralCompl Δ₁ κ → NeutralCompl Δ₂ κ
 
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
@@ -24,17 +23,14 @@ orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalTyp
                  NormalOrdered (renRowₖNF r xs)
 isNormalRenₖNF : (r : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → IsNormal τ → IsNormal (renₖNF r τ)
 
-renₖNE r (app x) = app (renₖNEapp r x)
-renₖNE r (comp x) = comp (renₖNEcompl r x) 
 
 renₖNEapp r (` x) = ` (r x)
 renₖNEapp ρ (τ₁ · τ₂) = renₖNEapp ρ τ₁ · renₖNF ρ τ₂
 renₖNEapp ρ (F <$> τ) = renₖNF ρ F <$> (renₖNEapp ρ τ)
 
-renₖNEcompl r (app x) = app (renₖNEapp r x)
-renₖNEcompl r (ρ₂ ─₁ ρ₁) = renₖNEcompl r ρ₂ ─₁ renₖNF r ρ₁
-renₖNEcompl r (l ▹ₙ τ) = renₖNEapp r l ▹ₙ renₖNF r τ
-renₖNEcompl r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNEcompl r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
+renₖNE r (app x) = app (renₖNEapp r x)
+renₖNE r (ρ₂ ─₁ ρ₁) = renₖNE r ρ₂ ─₁ renₖNF r ρ₁
+renₖNE r ((ρ₂ ─₂ ρ₁) {isNorm}) = (renₖNF r ρ₂ ─₂ renₖNE r ρ₁) {fromWitness (isNormalRenₖNF r ρ₂ (toWitness isNorm))}
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
@@ -47,6 +43,7 @@ renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
+renₖNF r (l ▹ₙ τ) = renₖNEapp r l ▹ₙ renₖNF r τ
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
@@ -64,6 +61,7 @@ isNormalRenₖNF r (lab l) witness = tt
 isNormalRenₖNF r ⌊ x ⌋ witness = tt
 isNormalRenₖNF r (Π x) witness = tt
 isNormalRenₖNF r (Σ x) witness = tt
+isNormalRenₖNF r (l ▹ₙ τ) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt

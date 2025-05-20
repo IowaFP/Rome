@@ -41,7 +41,9 @@ renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (app x) = app (renₖNEapp r x)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNEapp r l) ▹ renSem r τ
 renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
-renSem {κ = R[ κ ]} r (ρ₂ ─ ρ₁) = renSem r ρ₂ ─ renSem r ρ₁
+renSem {κ = R[ κ ]} r (ρ₂ ─ ρ₁) = {!!}
+-- renSem {κ = R[ κ ]} r (ρ₂ ─₂ ρ₁) = {!!}
+
 
 orderedRenRow {n = zero} {P} r o = tt
 orderedRenRow {n = suc zero} {P} r o = tt

@@ -22,7 +22,9 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} x = {!!}
+reflect {κ = R[ κ ]} (app x) = app x
+reflect {κ = R[ κ ]} ((x ─₁ ρ)) = {!!}
+reflect {κ = R[ κ ]} ((ρ ─₂ x)) = {!!}
 reflect {κ = κ₁ `→ κ₂} (app τ) = λ ρ v → reflect (app (renₖNEapp ρ τ · reify v))
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -51,9 +53,9 @@ reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect (app (` Z)))))
 reify {κ = R[ κ ]} (app x) = ne (app x)
-reify {κ = R[ κ ]} (l ▹ τ) = ne (comp (l ▹ₙ (reify τ)))
+reify {κ = R[ κ ]} (l ▹ τ) = ((l ▹ₙ (reify τ)))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} (ρ₂ ─ ρ₁) = {!reify ρ₂!}
+reify {κ = R[ κ ]} (ρ₂ ─ ρ₁) =  {!!}
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -89,26 +91,23 @@ idEnv x = reflect (app (` x))
 -- ↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
 -- ↑NE : NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
 -- ↑NEapp : NeutralApp Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
--- ↑NEcompl : NeutralCompl Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
 
 -- ↑NE (app x) = ↑NEapp x
--- ↑NE (comp x) = ↑NEcompl x
+-- ↑NE (l ▹ₙ τ) η = {!↑NEapp l η!} ▹ {!!}
+-- ↑NE (x ─₁ ρ) η = {!!}
+-- ↑NE (ρ ─₂ x) η = {!!}
+
 
 -- ↑NEapp (` α) η = η α
 -- ↑NEapp (x · τ) η = ↑NEapp x η id (↑ τ η)
--- ↑NEapp (φ <$> x) η with ↑NEapp x η 
--- ... | left (left (app x₁)) = left (left (app (reifyKripke (↑ φ η) <$> x₁)))
--- ... | left (left (comp x₁)) = left (left (app ({!   !} <$> {! x₁  !})))
--- ... | left (right y) = {! reifyRow  !}
--- ... | right y = {!   !}
-
+-- ↑NEapp (φ <$> x) η = {!!}
 -- ↑ {κ = κ} (ne x) η = ↑NE x η
 -- ↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
 -- ↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
 -- ↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
 -- ↑ (μ τ) η = μ (reifyKripke (↑ τ η))
 -- ↑ (π ⇒ τ) η = {!   !}
--- ↑ (⦅ ρ ⦆ oρ) η = right ({!   !} , {!   !})
+-- ↑ (⦅ ρ ⦆ oρ) η = {!!}
 -- ↑ (lab l) η = lab l
 -- ↑ ⌊ τ ⌋ η = ⌊ ↑ τ η ⌋
 -- ↑ (Π τ) η = Π (reify (↑ τ η))
@@ -198,15 +197,22 @@ ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ
 -- -- -- Semantic complement on SemTypes
 
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-app x ─V app x₁ = {!!}
-app x ─V (x₁ ▹ x₂) = {!!}
-app x ─V row ρ x₁ = {!!}
-(x ▹ x₁) ─V app x₂ = {!!}
-(x ▹ x₁) ─V (x₂ ▹ x₃) = {!!}
-(x ▹ x₁) ─V row ρ x₂ = {!!}
-row ρ x ─V app x₁ = {!!}
-row ρ x ─V (x₁ ▹ x₂) = {!!}
-row ρ₂ q₂ ─V row ρ₁ q₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ q₂ q₁)
+ρ₂ ─V ρ₁ = {!ρ₂ ρ₁!}
+-- app x ─V ρ = ? -- (app x) ─ ρ
+-- ρ₂ ─V app x₂ = ρ₂ ─ (app x₂)
+-- (x ▹ x₁) ─V ρ = {!!} -- (x ▹ₙ (reify x₁)) ─₁ ρ
+-- (x ─₁ ρ₂) ─V (x₁ ▹ x₂) = {!!}
+-- (x ─₁ ρ₂) ─V row ρ x₁ = {!!}
+-- (x ─₁ ρ₂) ─V (x₁ ─₁ ρ₁) = {!!}
+-- (x ─₁ ρ₂) ─V (ρ₁ ─₂ x₁) = {!!}
+-- (ρ₂ ─₂ x) ─V (x₁ ▹ x₂) = {!!}
+-- (ρ₂ ─₂ x) ─V row ρ x₁ = {!!}
+-- (ρ₂ ─₂ x) ─V (x₁ ─₁ ρ₁) = {!!}
+-- (ρ₂ ─₂ x) ─V (ρ₁ ─₂ x₁) = {!!}
+-- row ρ₂ q₂ ─V row ρ₁ q₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ q₂ q₁)
+-- row ρ x ─V (x₁ ▹ x₂) = (row ρ x) ─₂ {!(x₁ ▹ₙ (reify x₂))!}
+-- row ρ x ─V (x₁ ─₁ ρ₁) = (row ρ x) ─₂ (x₁ ─₁ (reify ρ₁))
+-- row ρ x ─V (ρ₁ ─₂ x₁) = (row ρ x) ─₂ ((reify ρ₁ ─₂ x₁) {isNormal = {!!}})
 
 -- -- left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
 -- -- left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))

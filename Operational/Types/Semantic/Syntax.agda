@@ -33,9 +33,14 @@ OrderedRow (n , P) = OrderedRow' n P
 
 data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set where
   app : NeutralApp Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+
   _▹_ : NeutralApp Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
+
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
-  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → RowType Δ 𝒯 R[ κ ]
+
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) →
+        ----------------------------------------------
+         RowType Δ 𝒯 R[ κ ]
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
@@ -43,7 +48,7 @@ SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
 
--- or NeutralCompl Δ R[ κ ] or NormalType Δ R[ κ ] -- (NeutralApp Δ R[ κ ] or NeutralApp Δ L × SemType Δ κ)
+-- or NeutralType Δ R[ κ ] or NormalType Δ R[ κ ] -- (NeutralApp Δ R[ κ ] or NeutralApp Δ L × SemType Δ κ)
                    -- or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
                    -- or (SemType Δ R[ κ ] × SemType Δ R[ κ ])
 
