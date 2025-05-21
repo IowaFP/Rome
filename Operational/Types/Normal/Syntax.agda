@@ -149,6 +149,11 @@ data NormalType Δ where
         ----------------------------------------------
          NormalType Δ R[ κ ]
 
+  _<$>_─₁_ : NormalType Δ (κ₁ `→ κ₂) → (x : NeutralType Δ R[ κ₁ ]) → NormalType Δ R[ κ₂ ] → 
+        ----------------------------------------------
+         NormalType Δ R[ κ₂ ]
+
+
   _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
         ----------------------------------------------
         NormalType Δ R[ κ ]
@@ -234,6 +239,7 @@ isNeutral? (Π x) = no λ ()
 isNeutral? (Σ x) = no λ ()
 isNeutral? (x ─₁ ρ) = no λ ()
 isNeutral? (ρ ─₂ x) = no λ ()
+isNeutral? (_<$>_─₁_ c x d) = no λ ()
 
 IsNormal (ne x)     = ⊥
 IsNormal _     = ⊤
@@ -252,6 +258,7 @@ isNormal? (Π x) = yes tt
 isNormal? (Σ x) = yes tt
 isNormal? (x ─₁ ρ) = yes tt
 isNormal? (ρ ─₂ x) = yes tt
+isNormal? (_<$>_─₁_ x x₁ d) = yes tt
 -- isNormal? ([ x ▹ ρ ]─ ρ₁) = yes tt
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
@@ -393,6 +400,7 @@ row-canonicity (x ─₁ ρ) = tt
 row-canonicity (x ─₂ ρ) = tt
 -- row-canonicity ([ x ▹ ρ ]─ ρ₁) = tt
 row-canonicity (x ▹ₙ ρ) = tt
+row-canonicity (F <$> x ─₁ ρ) = tt
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -441,6 +449,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
+⇑ (F <$> x ─₁ ρ) = ((⇑ F) <$> (⇑NE x)) ─ (⇑ ρ)
 
 
 ⇑ (x ─₁ ρ) = ⇑NE x ─ ⇑ ρ

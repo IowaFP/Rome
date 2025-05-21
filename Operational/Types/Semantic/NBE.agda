@@ -22,12 +22,11 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} ρ       = ne ρ
+reflect {κ = R[ κ ]} ρ       = (λ _ → reflect ) <$> ρ ─ row εV tt -- ne ρ
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
-
 
 reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
@@ -50,12 +49,13 @@ reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect ((` Z)))))
-reify {κ = R[ κ ]} (ne x) = ne x
+-- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} (F <$> x) = ne ((`λ (reify (F S (` Z)))) <$> x)
-reify {κ = R[ κ ]} (ρ₂ ─₁ ρ₁) = ρ₂ ─₁ (reify ρ₁)
-reify {κ = R[ κ ]} (ρ₂ ─₂ ρ₁) = (reify ρ₂ ─₂ ρ₁) {isNormal = {!!}}
+reify {κ = R[ κ ]} (F <$> x ─ ρ) = (`λ (reify (F S (` Z)))) <$> x ─₁ reify ρ
+-- reify {κ = R[ κ ]} (F <$> x) = ne ((`λ (reify (F S (` Z)))) <$> x)
+-- reify {κ = R[ κ ]} (ρ₂ ─₁ ρ₁) = ρ₂ ─₁ (reify ρ₁)
+-- reify {κ = R[ κ ]} (ρ₂ ─₂ ρ₁) = (reify ρ₂ ─₂ ρ₁) {isNormal = {!!}}
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -197,193 +197,201 @@ ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ
 -- -- -- -- Semantic lifting
 
 _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
-F <$>V ne x = (λ r n → F r (reflect n)) <$> x -- (λ r n → F r (reflect n)) <$> x ─ (row εV tt)
+-- F <$>V ne x = (λ r n → F r (reflect n)) <$> x -- (λ r n → F r (reflect n)) <$> x ─ (row εV tt)
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
-F <$>V (G <$> ρ) = (λ r → F r ∘ G r) <$> ρ
-F <$>V (ρ₂ ─₁ ρ₁) = ((reifyKripke F) <$> ρ₂) ─₁ (F <$>V ρ₁)
-F <$>V (ρ₂ ─₂ ρ₁) = (F <$>V ρ₂) ─₂ (reifyKripke F <$> ρ₁)
+F <$>V (G <$> x ─ ρ) = (λ r → F r ∘ G r) <$> x ─ (F <$>V ρ)
+-- F <$>V (G <$> ρ) = (λ r → F r ∘ G r) <$> ρ
+-- F <$>V (ρ₂ ─₁ ρ₁) = ((reifyKripke F) <$> ρ₂) ─₁ (F <$>V ρ₁)
+-- F <$>V (ρ₂ ─₂ ρ₁) = (F <$>V ρ₂) ─₂ (reifyKripke F <$> ρ₁)
+
+-- -- -- --------------------------------------------------------------------------------
+-- -- -- -- Semantic complement on SemTypes
+
+-- Maybe it would be better to think instead about a row restriction operator that operates
+-- on individual labels... Then I can add a label union operator.
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+(x ▹ x₁) ─V ρ₁ = {!!}
+row ρ x ─V ρ₁ = {!!}
+-- This isn't even right
+(F <$> ρ₂ ─ ρ₃) ─V ρ₁ = F <$> ρ₂ ─ (ρ₃ ─V ρ₁)
+
+-- ne x ─V ρ = x ─₁ ρ
+-- ρ ─V ne x = ρ ─₂ x
+-- ρ ─V (x ▹ τ) = {!compl!} 
+-- ρ ─V (ρ₂ ─₁ ρ₁) = {!!} -- ρ ─₁ (reflect ρ₂ ─V ρ₁) 
+-- ρ ─V (ρ₂ ─₂ ρ₁) = {!!} 
+-- row ρ x ─V row ρ₁ x₁ = {!!}
+
+-- -- ne x ─V ρ = ? -- (ne x) ─ ρ
+-- -- ρ₂ ─V ne x₂ = ρ₂ ─ (ne x₂)
+-- -- (x ▹ x₁) ─V ρ = {!!} -- (x ▹ₙ (reify x₁)) ─₁ ρ
+-- -- (x ─₁ ρ₂) ─V (x₁ ▹ x₂) = {!!}
+-- -- (x ─₁ ρ₂) ─V row ρ x₁ = {!!}
+-- -- (x ─₁ ρ₂) ─V (x₁ ─₁ ρ₁) = {!!}
+-- -- (x ─₁ ρ₂) ─V (ρ₁ ─₂ x₁) = {!!}
+-- -- (ρ₂ ─₂ x) ─V (x₁ ▹ x₂) = {!!}
+-- -- (ρ₂ ─₂ x) ─V row ρ x₁ = {!!}
+-- -- (ρ₂ ─₂ x) ─V (x₁ ─₁ ρ₁) = {!!}
+-- -- (ρ₂ ─₂ x) ─V (ρ₁ ─₂ x₁) = {!!}
+-- -- row ρ₂ q₂ ─V row ρ₁ q₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ q₂ q₁)
+-- -- row ρ x ─V (x₁ ▹ x₂) = (row ρ x) ─₂ {!(x₁ ▹ₙ (reify x₂))!}
+-- -- row ρ x ─V (x₁ ─₁ ρ₁) = (row ρ x) ─₂ (x₁ ─₁ (reify ρ₁))
+-- -- row ρ x ─V (ρ₁ ─₂ x₁) = (row ρ x) ─₂ ((reify ρ₁ ─₂ x₁) {isNormal = {!!}})
+
+-- -- -- left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
+-- -- -- left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))
+-- -- -- left (left x) ─V right (ρ , e) = left (left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+-- -- -- left (right (l , τ)) ─V left (left y) = left (left ((l ▹ₙ reify τ) ─₁ (ne y)))
+-- -- -- left (right (l₁ , τ₁)) ─V left (right (l₂ , τ₂)) = left (left ((l₁ ▹ₙ (reify τ₁)) ─₁ (ne (l₂ ▹ₙ (reify τ₂))))) 
+-- -- -- left (right (l , τ)) ─V right (ρ , e) = left (left ((l ▹ₙ (reify τ)) ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
+-- -- -- right (ρ , e) ─V left (left x) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x))
+-- -- -- right (ρ , e) ─V left (right (l , τ)) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ (l ▹ₙ (reify τ)))) 
+-- -- -- right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
+
+-- --------------------------------------------------------------------------------
+-- -- Semantic flap
+
+-- nely : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
+-- nely a = λ ρ F → F ·V (renSem ρ a)
+
+-- infixr 0 _<?>V_
+-- _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+-- f <?>V a = nely a <$>V f
+
+
+-- --------------------------------------------------------------------------------
+-- -- (Generic) Semantic combinators for Π/Σ
+
+-- record Xi : Set where 
+--   field
+--     Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
+--     ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+
+-- open Xi
+-- ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
+-- ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
+-- ξ {κ = L} Ξ x = lab "impossible"
+-- ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
+-- ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+
+-- Π-rec Σ-rec : Xi 
+-- Π-rec = record
+--   {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
+-- Σ-rec = 
+--   record
+--   { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
+
+-- ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+-- ΠV = ξ Π-rec
+-- ΣV = ξ Σ-rec
+
+-- ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
+-- ξ-Kripke Ξ ρ v = ξ Ξ v
+
+-- Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+-- Π-Kripke = ξ-Kripke Π-rec
+-- Σ-Kripke = ξ-Kripke Σ-rec
 
 -- -- --------------------------------------------------------------------------------
--- -- -- Semantic complement on SemTypes
+-- -- -- Type evaluation.
 
-_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-ne x ─V ρ = x ─₁ ρ
-ρ ─V ne x = ρ ─₂ x
-ρ ─V (x ▹ τ) = {!!} 
-ρ ─V (ρ₂ ─₁ ρ₁) = ρ ─₁ (reflect ρ₂ ─V ρ₁) 
-ρ ─V (ρ₂ ─₂ ρ₁) = {!!} 
-row ρ x ─V row ρ₁ x₁ = {!!}
+-- -- eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+-- -- evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 
--- ne x ─V ρ = ? -- (ne x) ─ ρ
--- ρ₂ ─V ne x₂ = ρ₂ ─ (ne x₂)
--- (x ▹ x₁) ─V ρ = {!!} -- (x ▹ₙ (reify x₁)) ─₁ ρ
--- (x ─₁ ρ₂) ─V (x₁ ▹ x₂) = {!!}
--- (x ─₁ ρ₂) ─V row ρ x₁ = {!!}
--- (x ─₁ ρ₂) ─V (x₁ ─₁ ρ₁) = {!!}
--- (x ─₁ ρ₂) ─V (ρ₁ ─₂ x₁) = {!!}
--- (ρ₂ ─₂ x) ─V (x₁ ▹ x₂) = {!!}
--- (ρ₂ ─₂ x) ─V row ρ x₁ = {!!}
--- (ρ₂ ─₂ x) ─V (x₁ ─₁ ρ₁) = {!!}
--- (ρ₂ ─₂ x) ─V (ρ₁ ─₂ x₁) = {!!}
--- row ρ₂ q₂ ─V row ρ₁ q₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ q₂ q₁)
--- row ρ x ─V (x₁ ▹ x₂) = (row ρ x) ─₂ {!(x₁ ▹ₙ (reify x₂))!}
--- row ρ x ─V (x₁ ─₁ ρ₁) = (row ρ x) ─₂ (x₁ ─₁ (reify ρ₁))
--- row ρ x ─V (ρ₁ ─₂ x₁) = (row ρ x) ─₂ ((reify ρ₁ ─₂ x₁) {isNormal = {!!}})
+-- -- evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
+-- -- evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
--- -- left (left x) ─V left (left y) = left (left (x ─₁ (ne y)))
--- -- left (left x) ─V left (right (l , τ)) = left (left (x ─₁ ne (l ▹ₙ (reify τ))))
--- -- left (left x) ─V right (ρ , e) = left (left (x ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
--- -- left (right (l , τ)) ─V left (left y) = left (left ((l ▹ₙ reify τ) ─₁ (ne y)))
--- -- left (right (l₁ , τ₁)) ─V left (right (l₂ , τ₂)) = left (left ((l₁ ▹ₙ (reify τ₁)) ─₁ (ne (l₂ ▹ₙ (reify τ₂))))) 
--- -- left (right (l , τ)) ─V right (ρ , e) = left (left ((l ▹ₙ (reify τ)) ─₁ ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e))))
--- -- right (ρ , e) ─V left (left x) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ x))
--- -- right (ρ , e) ─V left (right (l , τ)) = left (left (⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ e)) ─₂ (l ▹ₙ (reify τ)))) 
--- -- right (ρ₂ , q₂) ─V right (ρ₁ , q₁) = right ((ρ₂ ─v ρ₁) , ordered─v ρ₂ ρ₁ q₂ q₁)
+-- -- evalRow [] η = εV 
+-- -- evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
 
---------------------------------------------------------------------------------
--- Semantic flap
+-- -- ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
+-- --                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
+-- -- ⇓Row-isMap η [] = refl
+-- -- ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
 
-nely : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
-nely a = λ ρ F → F ·V (renSem ρ a)
+-- -- evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+-- -- evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
 
-infixr 0 _<?>V_
-_<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
-f <?>V a = nely a <$>V f
+-- -- eval {κ = κ} (` x) η = η x
+-- -- eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+-- -- eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
+-- -- eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+-- -- eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
+-- -- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+-- -- eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
+-- -- eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
 
---------------------------------------------------------------------------------
--- (Generic) Semantic combinators for Π/Σ
+-- -- ----------------------------------------
+-- -- -- Label evaluation.
 
-record Xi : Set where 
-  field
-    Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
-    ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+-- -- eval {κ = L} (lab l) η = lab l
 
-open Xi
-ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
-ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
-ξ {κ = L} Ξ x = lab "impossible"
-ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
-ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+-- -- ----------------------------------------
+-- -- -- function evaluation.
 
-Π-rec Σ-rec : Xi 
-Π-rec = record
-  {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
-Σ-rec = 
-  record
-  { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
+-- -- eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
 
-ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
-ΠV = ξ Π-rec
-ΣV = ξ Σ-rec
+-- -- ----------------------------------------
+-- -- -- Type constants
 
-ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
-ξ-Kripke Ξ ρ v = ξ Ξ v
+-- -- eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
+-- -- eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
+-- -- eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+-- -- eval (⦅ ρ ⦆ oρ) η = right (evalRow ρ η , evalRowOrdered ρ η (toWitness oρ))
+-- -- eval (l ▹ τ) η with eval l η 
+-- -- ... | ne x = left (right (x , eval τ η))
+-- -- ... | lab l₁ = right (⁅ (l₁ , eval τ η) ⁆ , tt)
 
-Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
-Π-Kripke = ξ-Kripke Π-rec
-Σ-Kripke = ξ-Kripke Σ-rec
-
--- --------------------------------------------------------------------------------
--- -- Type evaluation.
-
--- eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
-
--- evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row Δ₂ R[ κ ]
--- evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
-
--- evalRow [] η = εV 
--- evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
-
--- ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
---                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
--- ⇓Row-isMap η [] = refl
--- ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
-
--- evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
--- evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
-
--- eval {κ = κ} (` x) η = η x
--- eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
--- eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
-
--- eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
--- eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
--- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
--- eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
--- eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
-
--- ----------------------------------------
--- -- Label evaluation.
-
--- eval {κ = L} (lab l) η = lab l
-
--- ----------------------------------------
--- -- function evaluation.
-
--- eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
-
--- ----------------------------------------
--- -- Type constants
-
--- eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
--- eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
--- eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
--- eval (⦅ ρ ⦆ oρ) η = right (evalRow ρ η , evalRowOrdered ρ η (toWitness oρ))
--- eval (l ▹ τ) η with eval l η 
--- ... | ne x = left (right (x , eval τ η))
--- ... | lab l₁ = right (⁅ (l₁ , eval τ η) ⁆ , tt)
-
--- evalRowOrdered [] η oρ = tt
--- evalRowOrdered (x₁ ∷ []) η oρ = tt
--- evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
---   evalRow ρ η | evalRowOrdered ((l₂ , τ₂) ∷ ρ) η oρ
--- ... | zero , P | ih = l₁<l₂ , tt
--- ... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
+-- -- evalRowOrdered [] η oρ = tt
+-- -- evalRowOrdered (x₁ ∷ []) η oρ = tt
+-- -- evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
+-- --   evalRow ρ η | evalRowOrdered ((l₂ , τ₂) ∷ ρ) η oρ
+-- -- ... | zero , P | ih = l₁<l₂ , tt
+-- -- ... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
 
 
--- --------------------------------------------------------------------------------
--- -- Type normalization
+-- -- --------------------------------------------------------------------------------
+-- -- -- Type normalization
 
--- -- Normalization algorithm
--- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
--- ⇓ τ = reify (eval τ idEnv)
+-- -- -- Normalization algorithm
+-- -- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+-- -- ⇓ τ = reify (eval τ idEnv)
 
--- ⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
--- ⇓Pred π = evalPred π idEnv
+-- -- ⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
+-- -- ⇓Pred π = evalPred π idEnv
 
--- ⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
--- ⇓Row ρ = reifyRow (evalRow ρ idEnv)
+-- -- ⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
+-- -- ⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
--- ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
--- ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+-- -- ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+-- -- ⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
--- -- Reabstraction of a NormalType to the semantic domain
--- ↓ : NormalType Δ κ → SemType Δ κ 
--- ↓ τ = eval (⇑ τ) idEnv
+-- -- -- Reabstraction of a NormalType to the semantic domain
+-- -- ↓ : NormalType Δ κ → SemType Δ κ 
+-- -- ↓ τ = eval (⇑ τ) idEnv
 
--- --------------------------------------------------------------------------------
--- -- Testing compl operator
+-- -- --------------------------------------------------------------------------------
+-- -- -- Testing compl operator
 
--- p : Fin 5 → Label × SemType ∅ ★
--- p fzero = "a" , UnitNF
--- p (fsuc fzero) = "b" , UnitNF
--- p (fsuc (fsuc fzero)) = "c" , UnitNF
--- p (fsuc (fsuc (fsuc fzero))) = "e" , UnitNF
--- p (fsuc (fsuc (fsuc (fsuc fzero)))) = "f" , UnitNF
+-- -- p : Fin 5 → Label × SemType ∅ ★
+-- -- p fzero = "a" , UnitNF
+-- -- p (fsuc fzero) = "b" , UnitNF
+-- -- p (fsuc (fsuc fzero)) = "c" , UnitNF
+-- -- p (fsuc (fsuc (fsuc fzero))) = "e" , UnitNF
+-- -- p (fsuc (fsuc (fsuc (fsuc fzero)))) = "f" , UnitNF
 
--- q : Fin 3 → Label × SemType ∅ ★
--- q fzero = "b" , UnitNF
--- q (fsuc fzero) = "a" , UnitNF
--- q (fsuc (fsuc fzero)) = "d" , UnitNF
+-- -- q : Fin 3 → Label × SemType ∅ ★
+-- -- q fzero = "b" , UnitNF
+-- -- q (fsuc fzero) = "a" , UnitNF
+-- -- q (fsuc (fsuc fzero)) = "d" , UnitNF
 
--- x : Dec (Σ-syntax (Fin 5) (λ i → "e" ≡ p i .fst))
--- x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
+-- -- x : Dec (Σ-syntax (Fin 5) (λ i → "e" ≡ p i .fst))
+-- -- x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
 
--- y : Row ∅ R[ ★ ]
--- y = compl {Δ = ∅} {κ = ★} p q
+-- -- y : Row ∅ R[ ★ ]
+-- -- y = compl {Δ = ∅} {κ = ★} p q
 
--- -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
--- -- -- _ = refl
+-- -- -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
+-- -- -- -- _ = refl

@@ -32,21 +32,21 @@ OrderedRow : ∀ {A} → Row A → Set
 OrderedRow (n , P) = OrderedRow' n P
 
 data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set where
-  ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  -- ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
 
   _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
-  _<$>_ : ∀ {κ₁} → 
+  _<$>_─_ : ∀ {κ₁} → 
   
             (F : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
-            (ρ₂ : NeutralType Δ R[ κ₁ ]) →
+            (ρ₂ : NeutralType Δ R[ κ₁ ]) (ρ₁ : RowType Δ 𝒯 R[ κ₂ ])→
             ----------------------------------------------
             RowType Δ 𝒯 R[ κ₂ ]
 
-  _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
-  _─₂_ : RowType Δ 𝒯 R[ κ ] → NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  -- _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  -- _─₂_ : RowType Δ 𝒯 R[ κ ] → NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
