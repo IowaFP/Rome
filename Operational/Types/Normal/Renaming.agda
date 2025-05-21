@@ -46,8 +46,9 @@ renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenR
 -- renₖNF r (ρ <$> x ─ ρ₁) = (renₖNF r ρ) <$> (renₖNE r x) ─ (renₖNF r ρ₁)
 renₖNF ρ (l ▹ₙ τ) = renₖNE ρ l ▹ₙ (renₖNF ρ τ)
 -- renₖNF ρ (r <$> x) = renₖNF ρ r <$> renₖNE ρ x
-renₖNF ρ (x ─ r) = renₖNE ρ x ─ renₖNF ρ r
-renₖNF ρ ([ x ▹ r ]─ r₁) = [ renₖNE ρ x ▹ renₖNF ρ r ]─ renₖNF ρ r₁
+renₖNF ρ (x ─₁ r) = renₖNE ρ x ─₁ renₖNF ρ r
+renₖNF ρ (x ─₂ r) = (renₖNF ρ x ─₂ renₖNE ρ r) {isNormal = {!!}}
+-- renₖNF ρ ([ x ▹ r ]─ r₁) = [ renₖNE ρ x ▹ renₖNF ρ r ]─ renₖNF ρ r₁
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)

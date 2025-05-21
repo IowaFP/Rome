@@ -22,7 +22,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} ρ = ne ρ
+reflect {κ = R[ κ ]} ρ       = ne ρ
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -54,7 +54,8 @@ reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 reify {κ = R[ κ ]} (F <$> x) = ne ((`λ (reify (F S (` Z)))) <$> x)
-reify {κ = R[ κ ]} (ρ₂ ─ ρ₁) = {!reify ρ₂!} ─ (reify ρ₁)
+reify {κ = R[ κ ]} (ρ₂ ─₁ ρ₁) = ρ₂ ─₁ (reify ρ₁)
+reify {κ = R[ κ ]} (ρ₂ ─₂ ρ₁) = (reify ρ₂ ─₂ ρ₁) {isNormal = {!!}}
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -200,33 +201,19 @@ F <$>V ne x = (λ r n → F r (reflect n)) <$> x -- (λ r n → F r (reflect n))
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
 F <$>V (G <$> ρ) = (λ r → F r ∘ G r) <$> ρ
-F <$>V (ρ₂ ─ ρ₁) = {!F <$> ρ₂ !} -- (reifyKripke F <$> x) ─ (F <$>V ρ)
+F <$>V (ρ₂ ─₁ ρ₁) = ((reifyKripke F) <$> ρ₂) ─₁ (F <$>V ρ₁)
+F <$>V (ρ₂ ─₂ ρ₁) = (F <$>V ρ₂) ─₂ (reifyKripke F <$> ρ₁)
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Semantic complement on SemTypes
 
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-ne x ─V ρ = {!!} -- x ─ ρ
-(l ▹ τ) ─V ne x = {!!} ─ (ne x)
-(x ▹ x₁) ─V (x₂ ▹ x₃) = {!!}
-(x ▹ x₁) ─V row ρ x₂ = {!!}
-(x ▹ x₁) ─V (F <$> ρ₂) = {!!}
-(x ▹ x₁) ─V (x₂ ─ ρ₁) = {!!}
-row ρ x ─V ne x₁ = {!!} ─ {!!}
-row ρ x ─V (x₁ ▹ x₂) = {!!}
+ne x ─V ρ = x ─₁ ρ
+ρ ─V ne x = ρ ─₂ x
+ρ ─V (x ▹ τ) = {!!} 
+ρ ─V (ρ₂ ─₁ ρ₁) = ρ ─₁ (reflect ρ₂ ─V ρ₁) 
+ρ ─V (ρ₂ ─₂ ρ₁) = {!!} 
 row ρ x ─V row ρ₁ x₁ = {!!}
-row ρ x ─V (F <$> ρ₂) = {!!}
-row ρ x ─V (x₁ ─ ρ₁) = {!!}
-(F <$> ρ₂) ─V ne x = {!!}
-(F <$> ρ₂) ─V (x ▹ x₁) = {!!}
-(F <$> ρ₂) ─V row ρ x = {!!}
-(F <$> ρ₂) ─V (F₁ <$> ρ₃) = {!!}
-(F <$> ρ₂) ─V (x ─ ρ₁) = {!!}
-(x ─ ρ₂) ─V ne x₁ = {!!}
-(x ─ ρ₂) ─V (x₁ ▹ x₂) = {!!}
-(x ─ ρ₂) ─V row ρ x₁ = {!!}
-(x ─ ρ₂) ─V (F <$> ρ₃) = {!!}
-(x ─ ρ₂) ─V (x₁ ─ ρ₁) = {!!}
 
 -- ne x ─V ρ = ? -- (ne x) ─ ρ
 -- ρ₂ ─V ne x₂ = ρ₂ ─ (ne x₂)

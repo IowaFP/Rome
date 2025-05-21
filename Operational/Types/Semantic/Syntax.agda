@@ -45,7 +45,8 @@ data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set where
             ----------------------------------------------
             RowType Δ 𝒯 R[ κ₂ ]
 
-  _─_ : RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  _─₂_ : RowType Δ 𝒯 R[ κ ] → NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
