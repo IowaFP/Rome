@@ -50,7 +50,7 @@ data RowType Δ 𝒯 where
   --           RowType Δ 𝒯 R[ κ₂ ]
 
   -- _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
-  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : True (notRows? ρ₂ ρ₁)} →
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
         RowType Δ 𝒯 R[ κ ]
 
 NotRow (ne x) = ⊤

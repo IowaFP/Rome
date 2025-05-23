@@ -130,26 +130,10 @@ data NormalType Δ where
   _─_ : (ρ₂ ρ₁ : NormalType Δ R[ κ ]) → {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
         NormalType Δ R[ κ ]
 
-  -- _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
-  --       ----------------------------------------------
-  --        NormalType Δ R[ κ ]
-
-  -- _<$>_─₁_ : NormalType Δ (κ₁ `→ κ₂) → (x : NeutralType Δ R[ κ₁ ]) → NormalType Δ R[ κ₂ ] → 
-  --       ----------------------------------------------
-  --        NormalType Δ R[ κ₂ ]
-
-
-  -- _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
-  --       ----------------------------------------------
-  --       NormalType Δ R[ κ ]
-
-  -- _<$>_─_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ] → 
-  --           -------------------------------------------------------------------
-  --           NormalType Δ R[ κ₂ ]
-
-  _▹ₙ_ : NeutralType Δ L → NormalType Δ κ → 
+  _▹ₙ_ : (l : NeutralType Δ L) (τ : NormalType Δ κ) → 
          ------------------------------------
          NormalType Δ R[ κ ]
+
 
 --------------------------------------------------------------------------------
 -- Ordered predicate

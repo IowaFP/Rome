@@ -14,7 +14,7 @@ open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Renaming
-open import Rome.Operational.Types.Normal.Properties.Decidability
+-- open import Rome.Operational.Types.Normal.Properties.Decidability
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
@@ -41,10 +41,11 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
   (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ κ ]} {V₁ = left (left x)} {left (left y)} ρ refl = refl
-ren-≋ {κ = R[ κ ]} {V₁ = left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} ρ (refl , rel) = refl , (ren-≋ ρ rel)
-ren-≋ {κ = R[ κ ]} {V₁ = right (n , P)} {right (m , Q)} ρ (refl , eq) = 
+ren-≋ {κ = R[ κ ]} {V₁ = ne x} {ne y} ρ refl = refl
+ren-≋ {κ = R[ κ ]} {V₁ = (l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ρ (refl , rel) = refl , (ren-≋ ρ rel)
+ren-≋ {κ = R[ κ ]} {V₁ = row _ _ } {row _ _} ρ (refl , eq) = 
   refl , λ { i → eq i .fst , ren-≋ ρ (eq i .snd) }
+ren-≋ {κ = R[ κ ]} {V₁ = ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} r (rel₁ , rel₂) = (ren-≋ r rel₁) , (ren-≋ r rel₂)
 
 -- --------------------------------------------------------------------------------
 -- -- Application respects ≋
@@ -59,8 +60,8 @@ cong-App {V₁ = F} {G} (unif-F , unif-G , Ext) q = Ext id q
 -- --------------------------------------------------------------------------------
 -- -- Singleton formation respects ≋
 
-cong-⁅⁆ : ∀ {V₁ V₂ : Label × SemType Δ κ} → V₁ ≋₂ V₂ → (right (⁅ V₁ ⁆ , tt)) ≋ (right (⁅ V₂ ⁆ , tt))
-cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { fzero → v })
+-- cong-⁅⁆ : ∀ {V₁ V₂ : Label × SemType Δ κ} → V₁ ≋₂ V₂ → (row (⁅ V₁ ⁆ , tt)) ≋ (right (⁅ V₂ ⁆ , tt))
+-- cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { fzero → v })
 
 --------------------------------------------------------------------------------
 -- Mapping respects ≋
@@ -70,9 +71,10 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> v {left (left x)} {left (left x₁)} refl = cong (_<$> x) (reify-≋ v)
-cong-<$> v {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = refl , (cong-App v rel)
-cong-<$> v {right ((n , P) , _)} {right ((m , Q) , _)} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
+cong-<$> v {ne x} {ne x₁} refl = cong (_<$> x) (reify-≋ v)
+cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = refl , (cong-App v rel)
+cong-<$> v {row (n , P) _} {row (m , Q) _} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
+cong-<$> v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (cong-<$> v rel₁) , (cong-<$> v rel₂)
 
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.
@@ -94,8 +96,8 @@ cong-apply v =
   Unif-apply v , 
   λ ρ v' → third v' id (ren-≋ ρ v)  
 
--- --------------------------------------------------------------------------------
--- -- Mapping respects ≋
+-- -- --------------------------------------------------------------------------------
+-- -- -- Mapping respects ≋
 
 cong-<?> : ∀ {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} → 
            _≋_ {κ = R[ κ₁ `→ κ₂ ]} V₁ V₂ → 
@@ -106,8 +108,8 @@ cong-<?> v {W₁} {W₂} w =
   cong-<$> 
   (cong-apply w) v
 
---------------------------------------------------------------------------------
--- Congruence over complements
+-- --------------------------------------------------------------------------------
+-- -- Congruence over complements
 
 cong-compl : {n m : ℕ} 
              (A B : Fin n → Label × SemType Δ κ)
@@ -128,7 +130,7 @@ cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row C
   refl , (λ { fzero    → i₁ fzero ; 
               (fsuc i) → P≋Q i })
 
-cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row Δ R[ κ ]} → 
+cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row (SemType Δ κ)} → 
            V₂ ≋R W₂ → 
            V₁ ≋R W₁ → 
            (V₂ ─v V₁) ≋R (W₂ ─v W₁)
@@ -141,16 +143,18 @@ cong-─V : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} →
            V₂ ≋ W₂ → 
            V₁ ≋ W₁ → 
            (V₂ ─V V₁) ≋ (W₂ ─V W₁)
-cong-─V {V₁ = left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} refl refl = refl
-cong-─V {V₁ = left (left x)} {right ((n , P) , _)} {left (left y)} {right ((m , Q) , _)} (refl , rel) refl = 
-  cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel )) refl
-cong-─V {V₁ = right ((n , P) , _)} {left (left x)} {right ((m , Q) , _)} {left (left y)} refl (refl , rel) = 
-  cong₂ _─₁_ refl (cong-⦅⦆ (reifyRow-≋ P Q rel))
-cong-─V {V₁ = right ((n , P) , _)} {right ((m , Q) , _)} {right ((l , R) , _)} {right ((j , I) , _)} v₂ v₁ = 
-  cong-─v v₂ v₁ 
-cong-─V {V₁ = left (left x₁)} {left (right y₁)} {left (left x₂)} {left (right y₂)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) refl
-cong-─V {V₁ = left (right y₁)} {left (left x₁)} {left (right y₂)} {left (left x₂)} refl (refl , rel) = cong₂ _─₁_ refl (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel)))
-cong-─V {V₁ = left (right y₁)} {left (right y₂)} {left (right y₃)} {left (right y₄)} (refl , rel₁) (refl , rel₂) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel₁)) (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel₂)))
-cong-─V {V₁ = left (right y₁)} {right ((n , P) , _)} {W₁ = left (right y₂)} {right ((m , Q) , _)} (refl , rel-R) (refl , rel) = cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel-R)) (cong₂ _▹ₙ_ refl (reify-≋ rel))
-cong-─V {V₁ = right ((n , P) , _)} {left (right y₃)} {right ((m , Q) , _)} {left (right y₄)} (refl , rel) (refl , rel-R) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) (cong-⦅⦆ (reifyRow-≋ P Q rel-R))
+cong-─V {V₁ = V₁} {V₂} {W₁} {W₂} rel₁ rel₂ = {!!}
+
+-- cong-─V {V₁ = left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} refl refl = refl
+-- cong-─V {V₁ = left (left x)} {right ((n , P) , _)} {left (left y)} {right ((m , Q) , _)} (refl , rel) refl = 
+--   cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel )) refl
+-- cong-─V {V₁ = right ((n , P) , _)} {left (left x)} {right ((m , Q) , _)} {left (left y)} refl (refl , rel) = 
+--   cong₂ _─₁_ refl (cong-⦅⦆ (reifyRow-≋ P Q rel))
+-- cong-─V {V₁ = right ((n , P) , _)} {right ((m , Q) , _)} {right ((l , R) , _)} {right ((j , I) , _)} v₂ v₁ = 
+--   cong-─v v₂ v₁ 
+-- cong-─V {V₁ = left (left x₁)} {left (right y₁)} {left (left x₂)} {left (right y₂)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) refl
+-- cong-─V {V₁ = left (right y₁)} {left (left x₁)} {left (right y₂)} {left (left x₂)} refl (refl , rel) = cong₂ _─₁_ refl (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel)))
+-- cong-─V {V₁ = left (right y₁)} {left (right y₂)} {left (right y₃)} {left (right y₄)} (refl , rel₁) (refl , rel₂) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel₁)) (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel₂)))
+-- cong-─V {V₁ = left (right y₁)} {right ((n , P) , _)} {W₁ = left (right y₂)} {right ((m , Q) , _)} (refl , rel-R) (refl , rel) = cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel-R)) (cong₂ _▹ₙ_ refl (reify-≋ rel))
+-- cong-─V {V₁ = right ((n , P) , _)} {left (right y₃)} {right ((m , Q) , _)} {left (right y₄)} (refl , rel) (refl , rel-R) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) (cong-⦅⦆ (reifyRow-≋ P Q rel-R))
 

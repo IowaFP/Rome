@@ -252,20 +252,23 @@ reifyRow-≋ {n = suc n} P Q eq =
   cong-⦅⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {(ρ₂ ─ ρ₁) {nr}} {(ρ₄ ─ ρ₃) {nr'}} rel = ↻-ren-reify-─ ρ (rel .fst) (rel .snd) {nr₂ = nr'}
 
-↻-ren-reify-─ r {ne x₃} {ne x₄} {ne x₅} {ne x₆} refl refl {left x₁} {left x₂} = refl
-↻-ren-reify-─ r {ne x₃} {x₄ ▹ x₅} {ne x₆} {x₇ ▹ x₈} refl (refl , snd₁) {left x₁} {left x₂} = cong-─ refl (cong (renₖNE r x₄ ▹ₙ_) (↻-ren-reify r snd₁))
-↻-ren-reify-─ r {ne x₃} {row (n , P) x₄} {ne x₅} {row (m , Q) x₆} refl (refl , rel) {left x₁} {left x₂} = cong-─ refl (cong-⦅⦆ (↻-ren-reifyRow P Q r rel ))
-↻-ren-reify-─ r {ne x₃} {(V₁ ─ V₂) {nr}} {ne x₄} {(V₃ ─ V₄) {nr'}} refl rel₂ {left x₁} {left x₂} = cong-─ refl (↻-ren-reify-─ r (rel₂ .fst) (rel₂ .snd) {nr} {nr'} )
-↻-ren-reify-─ r {x₃ ▹ x₄} {ne x₅} {x₆ ▹ x₇} {ne x₈} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {x₃ ▹ x₄} {x₅ ▹ x₆} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {x₃ ▹ x₄} {row ρ x₅} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {x₃ ▹ x₄} {V₁ ─ V₂} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {V₂ ─ V₅} {ne x₃} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {V₂ ─ V₅} {x₃ ▹ x₄} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {V₂ ─ V₅} {row ρ x₃} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {V₂ ─ V₅} {V₁ ─ V₆} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {V₂} {V₁} {V₄} {V₃} rel₁ rel₂ {left x₁} {right y₁} = {!!}
-↻-ren-reify-─ r {V₂} {V₁} {V₄} {V₃} rel₁ rel₂ {right y₁} {nr₂} = {!!}
+↻-ren-reify-─ r {ne x₃} {ne x₄} {ne x₅} {ne x₆} refl refl {x₁} {x₂} = refl
+↻-ren-reify-─ r {ne x₃} {x₄ ▹ x₅} {ne x₆} {x₇ ▹ x₈} refl (refl , snd₁) {x₁} {x₂} = cong-─ refl (cong (renₖNE r x₄ ▹ₙ_) (↻-ren-reify r snd₁))
+↻-ren-reify-─ r {ne x₃} {row (n , P) x₄} {ne x₅} {row (m , Q) x₆} refl (refl , rel) = cong-─ refl (cong-⦅⦆ (↻-ren-reifyRow P Q r rel ))
+↻-ren-reify-─ r {ne x₃} {(V₁ ─ V₂) {nr}} {ne x₄} {(V₃ ─ V₄) {nr'}} refl rel₂ {x₁} {x₂} = cong-─ refl (↻-ren-reify-─ r (rel₂ .fst) (rel₂ .snd) {nr} {nr'} )
+↻-ren-reify-─ r {x₃ ▹ x₄} {ne x₅} {x₆ ▹ x₇} {ne x₈} (refl , rel) refl {x₁} {x₂} = cong-─ (cong₂ (_▹ₙ_) refl (↻-ren-reify r rel)) refl
+↻-ren-reify-─ r {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} {x₉ ▹ x₁₀} (refl , rel₁) (refl , rel₂) {x₁} {x₂} = cong-─ (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel₁)) (cong (renₖNE r x₅ ▹ₙ_) (↻-ren-reify r rel₂))
+↻-ren-reify-─ r {x₃ ▹ x₄} {row (n , P) x₅} {x₆ ▹ x₇} {row (m , Q) x₈} (refl , rel) (refl , relR) {x₁} {x₂} = cong-─ (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel)) (cong-⦅⦆ (↻-ren-reifyRow P Q r relR))
+↻-ren-reify-─ r {x₃ ▹ x₄} {V₁ ─ V₂} {x₅ ▹ x₆} {V₃ ─ V₄} (refl , rel₁) (rel₂ , rel₃) {x₁} {x₂} = cong-─ (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel₁)) (↻-ren-reify-─ r {V₁} {V₂} {V₃} {V₄} rel₂ rel₃)
+↻-ren-reify-─ r {V₂ ─ V₅} {ne x₃} {V₄ ─ V₆} {ne x₄} rel₁ refl {x₁} {x₂} = cong-─ (↻-ren-reify-─ r (rel₁ .fst) (rel₁ .snd)) refl
+↻-ren-reify-─ r {V₂ ─ V₅} {x₃ ▹ x₄} {V₄ ─ V₆} {x₅ ▹ x₆} (rel₁ , rel₂) (refl , rel₃) {x₁} {x₂} = cong-─ (↻-ren-reify-─ r rel₁ rel₂) (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel₃))
+↻-ren-reify-─ r {V₂ ─ V₅} {row ρ x₃} {V₄ ─ V₆} {row ρ₁ x₄} rel₁ rel₂ {x₁} {x₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {V₁ ─ V₆} {V₄ ─ V₇} {V₃ ─ V₈} rel₁ rel₂ {x₁} {x₂} = {!!}
+↻-ren-reify-─ r {row ρ oρ} {ne x₁} {row ρ₁ x₂} {ne x₃} rel₁ rel₂ {ev₁} {ev₂} = {!!}
+↻-ren-reify-─ r {row ρ oρ} {x₁ ▹ x₂} {row ρ₁ x₃} {x₄ ▹ x₅} rel₁ rel₂ {ev₁} {ev₂} = {!!}
+↻-ren-reify-─ r {row ρ oρ} {row ρ₁ x₁} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {left ()}
+↻-ren-reify-─ r {row ρ oρ} {row ρ₁ x₁} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {right ()}
+↻-ren-reify-─ r {row ρ oρ} {V₁ ─ V₂} {row ρ₁ x₁} {V₃ ─ V₄} rel₁ rel₂ {ev₁} {ev₂} = {!!}
 
 ↻-ren-reifyRow {n = zero} P Q ρ eq = refl
 ↻-ren-reifyRow {n = suc n} P Q ρ eq = 
@@ -273,32 +276,32 @@ reifyRow-≋ {n = suc n} P Q eq =
     (cong₂ _,_ (eq fzero .fst) (↻-ren-reify ρ (eq fzero .snd))) -- (↻-ren-reify ρ (eq fzero)) 
     (↻-ren-reifyRow {n = n} (P ∘ fsuc) (Q ∘ fsuc) ρ (eq ∘ fsuc))
 
--- -- --------------------------------------------------------------------------------
--- -- -- Renamingₖ commutes with reflection of neutral types
+--------------------------------------------------------------------------------
+-- Renamingₖ commutes with reflection of neutral types
 
--- -- --             
--- -- --            ren ρ 
--- -- -- Type Δ₁ κ -------------> Type Δ₂ κ 
--- -- --  |                        |
--- -- --  | reflect              | reflect
--- -- --  |                        |
--- -- --  V                        V 
--- -- -- SemType Δ₁ κ ----------> SemType Δ₂ κ
--- -- --               renSem ρ 
+--             
+--            ren ρ 
+-- Type Δ₁ κ -------------> Type Δ₂ κ 
+--  |                        |
+--  | reflect              | reflect
+--  |                        |
+--  V                        V 
+-- SemType Δ₁ κ ----------> SemType Δ₂ κ
+--               renSem ρ 
 
--- -- ↻-ren-reflect {κ = ★} ρ τ = refl
--- -- ↻-ren-reflect {κ = L} ρ τ = refl
--- -- ↻-ren-reflect {κ = κ `→ κ₁} ρ τ = 
--- --   (λ ρ₁ ρ₂ V₁ V₂ x → 
--- --     trans-≋ 
--- --     (↻-ren-reflect ρ₂ (renₖNE (λ x₁ → ρ₁ (ρ x₁)) τ · reify V₁)) 
--- --     (reflect-≋ (cong₂ _·_ (sym (renₖNE-comp (ρ₁ ∘ ρ) ρ₂ τ)) (↻-ren-reify ρ₂ x)))) , 
--- --   (λ ρ₁ ρ₂ V₁ V₂ x → 
--- --     trans-≋ 
--- --       (↻-ren-reflect ρ₂ (renₖNE ρ₁ (renₖNE ρ τ) · reify V₁)) 
--- --       (reflect-≋ (cong₂ _·_ (sym (renₖNE-comp ρ₁ ρ₂ (renₖNE ρ τ))) (↻-ren-reify ρ₂ x)))) , 
--- --   λ ρ' v → reflect-≋ (cong₂ _·_ (renₖNE-comp ρ ρ' τ) (reify-≋ v))
--- -- ↻-ren-reflect {κ = R[ κ ]} ρ τ = refl
+↻-ren-reflect {κ = ★} ρ τ = refl
+↻-ren-reflect {κ = L} ρ τ = refl
+↻-ren-reflect {κ = κ `→ κ₁} ρ τ = 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+    (↻-ren-reflect ρ₂ (renₖNE (λ x₁ → ρ₁ (ρ x₁)) τ · reify V₁)) 
+    (reflect-≋ (cong₂ _·_ (sym (renₖNE-comp (ρ₁ ∘ ρ) ρ₂ τ)) (↻-ren-reify ρ₂ x)))) , 
+  (λ ρ₁ ρ₂ V₁ V₂ x → 
+    trans-≋ 
+      (↻-ren-reflect ρ₂ (renₖNE ρ₁ (renₖNE ρ τ) · reify V₁)) 
+      (reflect-≋ (cong₂ _·_ (sym (renₖNE-comp ρ₁ ρ₂ (renₖNE ρ τ))) (↻-ren-reify ρ₂ x)))) , 
+  λ ρ' v → reflect-≋ (cong₂ _·_ (renₖNE-comp ρ ρ' τ) (reify-≋ v))
+↻-ren-reflect {κ = R[ κ ]} ρ τ = refl
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Functorial actions
@@ -311,22 +314,23 @@ reifyRow-≋ {n = suc n} P Q eq =
 -- -- renSem-id-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = renₖNE-id l₁ , renSem-id-≋ rel
 -- -- renSem-id-≋ {κ = R[ κ ]} {right ((n , P) , _)} {right ((n , Q) , _)} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
 
--- -- renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
--- --                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
--- -- renSem-comp-≋ {κ = ★} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
--- -- renSem-comp-≋ {κ = L} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
--- -- renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) = 
--- --   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
--- --   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
--- --   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
--- -- renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left (left x)} {left (left y)} refl = renₖNE-comp _ _ _
--- -- renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = (renₖNE-comp ρ₁ ρ₂ l₁) , (renSem-comp-≋ ρ₁ ρ₂ rel)
--- -- renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {right (n , P)} {right (_ , Q)} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
+renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
+                 V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
+renSem-comp-≋ {κ = ★} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
+renSem-comp-≋ {κ = L} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
+renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) = 
+  (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
+  (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
+  (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {ne x} {ne y} refl = renₖNE-comp _ _ _
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = (renₖNE-comp ρ₁ ρ₂ l₁) , (renSem-comp-≋ ρ₁ ρ₂ rel)
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
+renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-comp-≋ r₁ r₂ rel₁) , (renSem-comp-≋ r₁ r₂ rel₂)
 
--- -- ↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
--- --                  V₁ ≋ V₂ → 
--- --                 renSem (liftₖ {κ = κ'} ρ) (renSem S V₁) ≋ renSem S (renSem ρ V₂)
--- -- ↻-lift-weaken-≋ₖ {κ' = κ'} ρ {V₁} {V₂} v = 
--- --   trans-≋ 
--- --     (sym-≋ (renSem-comp-≋ (S {κ₂ = κ'}) (liftₖ ρ) (sym-≋ v))) 
--- --     (renSem-comp-≋ ρ S (refl-≋ᵣ v))
+↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
+                 V₁ ≋ V₂ → 
+                renSem (liftₖ {κ = κ'} ρ) (renSem S V₁) ≋ renSem S (renSem ρ V₂)
+↻-lift-weaken-≋ₖ {κ' = κ'} ρ {V₁} {V₂} v = 
+  trans-≋ 
+    (sym-≋ (renSem-comp-≋ (S {κ₂ = κ'}) (liftₖ ρ) (sym-≋ v))) 
+    (renSem-comp-≋ ρ S (refl-≋ᵣ v))

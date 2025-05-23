@@ -43,7 +43,7 @@ renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (ne x) = ne (renₖNE r x)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
 renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
-renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr =  fromWitness (nrRenSem' r ρ₂ ρ₁ (toWitness nr))}
+renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = nrRenSem' r ρ₂ ρ₁ nr}
 
 nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
 nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
