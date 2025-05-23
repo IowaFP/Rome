@@ -33,6 +33,7 @@ OrderedRow (n , P) = OrderedRow' n P
 
 data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set 
 NotRow : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → RowType Δ 𝒯 R[ κ ] → Set 
+notRows? : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → Dec (NotRow ρ₂ or NotRow ρ₁)
 
 data RowType Δ 𝒯 where
   ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
@@ -49,13 +50,22 @@ data RowType Δ 𝒯 where
   --           RowType Δ 𝒯 R[ κ₂ ]
 
   -- _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
-  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : True (notRows? ρ₂ ρ₁)} →
         RowType Δ 𝒯 R[ κ ]
 
 NotRow (ne x) = ⊤
 NotRow (x ▹ x₁) = ⊤
 NotRow (row ρ x) = ⊥
 NotRow (ρ ─ ρ₁) = ⊤
+
+notRows? (ne x) ρ₁ = yes (left tt)
+notRows? (x ▹ x₁) ρ₁ = yes (left tt)
+notRows? (ρ₂ ─ ρ₃) ρ₁ = yes (left tt)
+notRows? (row ρ x) (ne x₁) = yes (right tt)
+notRows? (row ρ x) (x₁ ▹ x₂) = yes (right tt)
+notRows? (row ρ x) (row ρ₁ x₁) = no (λ { (left ()) ; (right ()) })
+notRows? (row ρ x) (ρ₁ ─ ρ₂) = yes (right tt)
+
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★

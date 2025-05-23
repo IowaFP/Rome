@@ -32,33 +32,25 @@ renRow : Renamingₖ Δ₁ Δ₂ →
 orderedRenRow : ∀ {n} {P : Fin n → Label × SemType Δ₁ κ} → (r : Renamingₖ Δ₁ Δ₂) → 
                 OrderedRow' n P → OrderedRow' n (λ i → (P i .fst) , renSem r (P i .snd))
 
-nrRenSem : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+nrRenSem :  ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
              NotRow ρ → NotRow (renSem r ρ)
-
 nrRenSem' : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ₂ ρ₁ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-             (nr : NotRow ρ₂ or NotRow ρ₁) → NotRow (renSem r ((ρ₂ ─ ρ₁) {nr}))
-
-
--- renₖNF-≪ : ∀ {l₁ l₂ : NormalType Δ₁ L} (r : Renamingₖ Δ₁ Δ₂) → l₁ ≪ l₂ → renₖNF r l₁ ≪ renₖNF r l₂
--- renₖNF-≪ {l₁ = lab l₁} {lab l} r l₁<l₂ = l₁<l₂
+             NotRow ρ₂ or NotRow ρ₁ → NotRow (renSem r ρ₂) or NotRow (renSem r ρ₁)
 
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
--- renSem {κ = R[ κ ]} r (ne x) = ne (renₖNE r x)
+renSem {κ = R[ κ ]} r (ne x) = ne (renₖNE r x)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
 renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
-renSem {κ = R[ κ ]} r (ne x) = ne (renₖNE r x)
-renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {left nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = left (nrRenSem r ρ₂ nr)}
-renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {right nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = right (nrRenSem r ρ₁ nr)}
--- renSem {κ = R[ κ ]} r (ρ₂ ─₂ ρ₁) = {!!}
+renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr =  fromWitness (nrRenSem' r ρ₂ ρ₁ (toWitness nr))}
+
+nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
+nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
 
 nrRenSem r (ne x) nr = tt
 nrRenSem r (x ▹ x₁) nr = tt
-nrRenSem r ((ρ ─ ρ₁) {nr'}) nr = nrRenSem' r ρ ρ₁ nr'  
-
-nrRenSem' r ρ₂ ρ₁ (left x) = tt
-nrRenSem' r ρ₂ ρ₁ (right y) = tt
+nrRenSem r (ρ ─ ρ₁) nr = tt
 
 orderedRenRow {n = zero} {P} r o = tt
 orderedRenRow {n = suc zero} {P} r o = tt

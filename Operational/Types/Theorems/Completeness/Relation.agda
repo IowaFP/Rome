@@ -255,8 +255,8 @@ reifyRow-≋ {n = suc n} P Q eq =
 ↻-ren-reify-─ r {ne x₃} {ne x₄} {ne x₅} {ne x₆} refl refl {left x₁} {left x₂} = refl
 ↻-ren-reify-─ r {ne x₃} {x₄ ▹ x₅} {ne x₆} {x₇ ▹ x₈} refl (refl , snd₁) {left x₁} {left x₂} = cong-─ refl (cong (renₖNE r x₄ ▹ₙ_) (↻-ren-reify r snd₁))
 ↻-ren-reify-─ r {ne x₃} {row (n , P) x₄} {ne x₅} {row (m , Q) x₆} refl (refl , rel) {left x₁} {left x₂} = cong-─ refl (cong-⦅⦆ (↻-ren-reifyRow P Q r rel ))
-↻-ren-reify-─ r {ne x₃} {V₁ ─ V₂} {ne x₄} {V₃ ─ V₄} rel₁ rel₂ {left x₁} {left x₂} = {!!}
-↻-ren-reify-─ r {x₃ ▹ x₄} {ne x₅} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {ne x₃} {(V₁ ─ V₂) {nr}} {ne x₄} {(V₃ ─ V₄) {nr'}} refl rel₂ {left x₁} {left x₂} = cong-─ refl (↻-ren-reify-─ r (rel₂ .fst) (rel₂ .snd) {nr} {nr'} )
+↻-ren-reify-─ r {x₃ ▹ x₄} {ne x₅} {x₆ ▹ x₇} {ne x₈} rel₁ rel₂ {left x₁} {left x₂} = {!!}
 ↻-ren-reify-─ r {x₃ ▹ x₄} {x₅ ▹ x₆} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
 ↻-ren-reify-─ r {x₃ ▹ x₄} {row ρ x₅} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
 ↻-ren-reify-─ r {x₃ ▹ x₄} {V₁ ─ V₂} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
