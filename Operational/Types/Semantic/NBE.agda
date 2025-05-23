@@ -46,7 +46,11 @@ reifyRowOrdered' (suc (suc n)) P (l₁<l₂ , ih) = l₁<l₂ , (reifyRowOrdered
 
 reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
 
-reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → (nr : NotRow ρ₁ or NotRow ρ₂) → True (notSimpleRow? (reify ((ρ₁ ─ ρ₂) {nr})))
+reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ρ₁) or NotSimpleRow (reify ρ₂)
+
+reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ─ ρ₂) {nr}))
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
@@ -55,37 +59,36 @@ reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect ((` Z)))))
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 reify {κ = R[ κ ]} (ne x) = ne x
-reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = left tt}
-reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = left tt}
-reify {κ = R[ κ ]} (row ρ x ─ ne x₁) = (reify (row ρ x) ─ reify (ne x₁)) {nsr = right tt}
-reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = right tt}
+reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = tt}
+reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
+reify {κ = R[ κ ]} (row ρ x ─ ne x₁) = (reify (row ρ x) ─ reify (ne x₁)) {nsr = tt}
+reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
-reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = right (reifyPreservesNR ρ₁ ρ₂ nr')}
-reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {left (reifyPreservesNR ρ₂ ρ₁ nr')}
+reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' nr)}
+reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ nr)}
 
-reifyPreservesNR (ne x) (ne x₁) nr = tt
-reifyPreservesNR (ne x) (x₁ ▹ x₂) nr = tt
-reifyPreservesNR (ne x) (row ρ x₁) nr = tt
-reifyPreservesNR (ne x) (ρ₂ ─ ρ₃) nr = tt
-reifyPreservesNR (x ▹ x₁) (ne x₂) nr = tt
-reifyPreservesNR (x ▹ x₁) (x₂ ▹ x₃) nr = tt
-reifyPreservesNR (x ▹ x₁) (row ρ x₂) nr = tt
-reifyPreservesNR (x ▹ x₁) (ρ₂ ─ ρ₃) nr = tt
-reifyPreservesNR (row ρ x) (ne x₁) nr = tt
-reifyPreservesNR (row ρ x) (x₁ ▹ x₂) nr = tt
-reifyPreservesNR (row ρ x) (row ρ₁ x₁) (left ())
-reifyPreservesNR (row ρ x) (row ρ₁ x₁) (right ())
-reifyPreservesNR (row ρ x) (ρ₂ ─ ρ₃) nr = tt
-reifyPreservesNR (ρ₁ ─ ρ₂) (ne x) nr = tt
-reifyPreservesNR (ρ₁ ─ ρ₂) (x ▹ x₁) nr = tt
-reifyPreservesNR (ρ₁ ─ ρ₂) (row ρ x) nr = tt
-reifyPreservesNR (ρ₁ ─ ρ₂) (ρ₃ ─ ρ₄) nr = tt
+reifyPreservesNR (ne x₁) ρ₂ (left x) = left tt
+reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
+reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
+reifyPreservesNR ρ₁ (ne x) (right y) = right tt
+reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
+reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
 
--- reify {κ = R[ κ ]} (F <$> x ─ ρ) = (`λ (reify (F S (` Z)))) <$> x ─₁ reify ρ
--- reify {κ = R[ κ ]} (F <$> x) = ne ((`λ (reify (F S (` Z)))) <$> x)
--- reify {κ = R[ κ ]} (ρ₂ ─₁ ρ₁) = ρ₂ ─₁ (reify ρ₁)
--- reify {κ = R[ κ ]} (ρ₂ ─₂ ρ₁) = (reify ρ₂ ─₂ ρ₁) {isNormal = {!!}}
+reifyPreservesNR' (ne x₁) ρ₂ (left x) = tt
+reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
+reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (left x) = tt
+reifyPreservesNR' (ne x) ρ₂ (right y) = tt
+reifyPreservesNR' (x ▹ x₁) ρ₂ (right y) = tt
+reifyPreservesNR' (row ρ x) (ne x₁) (right y) = tt
+reifyPreservesNR' (row ρ x) (x₁ ▹ x₂) (right y) = tt
+reifyPreservesNR' (row ρ x) (ρ₂ ─ ρ₃) (right y) = tt
+reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
+
+-- -- reify {κ = R[ κ ]} (F <$> x ─ ρ) = (`λ (reify (F S (` Z)))) <$> x ─₁ reify ρ
+-- -- reify {κ = R[ κ ]} (F <$> x) = ne ((`λ (reify (F S (` Z)))) <$> x)
+-- -- reify {κ = R[ κ ]} (ρ₂ ─₁ ρ₁) = ρ₂ ─₁ (reify ρ₁)
+-- -- reify {κ = R[ κ ]} (ρ₂ ─₂ ρ₁) = (reify ρ₂ ─₂ ρ₁) {isNormal = {!!}}
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -388,10 +391,6 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
-
--- Reabstraction of a NormalType to the semantic domain
-↓ : NormalType Δ κ → SemType Δ κ 
-↓ τ = eval (⇑ τ) idEnv
 
 --------------------------------------------------------------------------------
 -- Testing compl operator

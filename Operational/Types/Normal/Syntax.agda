@@ -32,7 +32,7 @@ NotSimpleRow : NormalType Δ R[ κ ] → Set
 
 isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
 isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
-notSimpleRow? : ∀ (τ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ)
+notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ₁ or NotSimpleRow τ₂)
 
 data NeutralType Δ : Kind → Set where
   ` : 
@@ -127,7 +127,7 @@ data NormalType Δ where
       ---------------
       NormalType Δ ★
 
-  _─_ : (ρ₂ ρ₁ : NormalType Δ R[ κ ]) → {nsr : True (notSimpleRow? ρ₂) or True (notSimpleRow? ρ₁)} → 
+  _─_ : (ρ₂ ρ₁ : NormalType Δ R[ κ ]) → {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
         NormalType Δ R[ κ ]
 
   -- _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
@@ -242,31 +242,33 @@ isNormal? (lab l) = yes tt
 isNormal? ⌊ x ⌋ = yes tt
 isNormal? (Π x) = yes tt
 isNormal? (Σ x) = yes tt
--- isNormal? (x ─₁ ρ) = yes tt
--- isNormal? (ρ ─₂ x) = yes tt
--- isNormal? (_<$>_─₁_ x x₁ d) = yes tt
 isNormal? (ρ₂ ─ ρ₁) = yes tt
 
 NotSimpleRow (ne x) = ⊤
 NotSimpleRow (⦅ ρ ⦆ oρ) = ⊥
 NotSimpleRow (τ ─ τ₁) = ⊤
--- NotSimpleRow (x ─₁ τ) = ⊤
--- NotSimpleRow (τ <$> x ─₁ τ₁) = ⊤
--- NotSimpleRow (τ ─₂ x) = ⊤
 NotSimpleRow (x ▹ₙ τ) = ⊤
 
-notSimpleRow? (ne x) = yes tt
-notSimpleRow? (⦅ ρ ⦆ oρ) = no λ ()
-notSimpleRow? (τ ─ τ₁) = yes tt
--- notSimpleRow? (x ─₁ τ) = yes tt
--- notSimpleRow? (τ <$> x ─₁ τ₁) = yes tt
--- notSimpleRow? (τ ─₂ x) = yes tt
-notSimpleRow? (x ▹ₙ τ) = yes tt
+notSimpleRows? (ne x) _ = yes (left tt)
+notSimpleRows? (⦅ ρ ⦆ oρ) (ne x) = yes (right tt)
+notSimpleRows? (⦅ ρ ⦆ oρ) (⦅ ρ₁ ⦆ oρ₁) = no λ { (left ()) ; (right ()) }
+notSimpleRows? (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) = yes (right tt)
+notSimpleRows? (⦅ ρ ⦆ oρ) (x ▹ₙ ρ₁) = yes (right tt)
+notSimpleRows? (ρ₂ ─ ρ₃) _ = yes (left tt)
+notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
--- isNormal? ([ x ▹ ρ ]─ ρ₁) = yes tt
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
 NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
+
+cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
+          {τ₁ υ₁ : NormalType Δ R[ κ ]}
+          {nsr₁ : True (notSimpleRows? τ₂ τ₁)} 
+          {nsr₂ : True (notSimpleRows? υ₂ υ₁)} → 
+                 τ₂ ≡ υ₂ → 
+                 τ₁ ≡ υ₁ → 
+                _≡_ {A = NormalType Δ R[ κ ]} ((τ₂ ─ τ₁) {nsr₁}) ((υ₂ ─ υ₁) {nsr₂})
+cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite Dec→MereProp _ (notSimpleRows? τ₂ τ₁) x x₁ = refl
 
 -- cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
 --           {τ₁ υ₁ : NeutralType Δ R[ κ ]}
