@@ -28,9 +28,11 @@ NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set
 normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
 
 IsNeutral IsNormal : NormalType Δ κ → Set 
+NotSimpleRow : NormalType Δ R[ κ ] → Set 
+
 isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
 isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
-
+notSimpleRow? : ∀ (τ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ)
 
 data NeutralType Δ : Kind → Set where
   ` : 
@@ -48,26 +50,6 @@ data NeutralType Δ : Kind → Set where
   _<$>_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
           --------------------------------------------------
           NeutralType Δ R[ κ₂ ]
-
-  -- _<$>_ : 
-
-  --      (φ : NormalType Δ (κ₁ `→ κ₂)) → (τ : NeutralApp Δ R[ κ₁ ]) → 
-  --      -------------------------------------------------
-  --      NeutralApp Δ (R[ κ₂ ])
-
--- data NeutralType Δ : Kind → Set where
---   app : 
---       NeutralApp Δ κ → 
---       ----------------------
---       NeutralType Δ κ
-
-  -- _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
-  --       ----------------------------------------------
-  --        NeutralType Δ R[ κ ]
-
-  -- _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
-  --       ----------------------------------------------
-  --       NeutralType Δ R[ κ ]
 
 
 data NormalType Δ where
@@ -145,18 +127,21 @@ data NormalType Δ where
       ---------------
       NormalType Δ ★
 
-  _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
-        ----------------------------------------------
-         NormalType Δ R[ κ ]
-
-  _<$>_─₁_ : NormalType Δ (κ₁ `→ κ₂) → (x : NeutralType Δ R[ κ₁ ]) → NormalType Δ R[ κ₂ ] → 
-        ----------------------------------------------
-         NormalType Δ R[ κ₂ ]
-
-
-  _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
-        ----------------------------------------------
+  _─_ : (ρ₂ ρ₁ : NormalType Δ R[ κ ]) → {nsr : True (notSimpleRow? ρ₂) or True (notSimpleRow? ρ₁)} → 
         NormalType Δ R[ κ ]
+
+  -- _─₁_ : NeutralType Δ R[ κ ] → (ρ : NormalType Δ R[ κ ]) →
+  --       ----------------------------------------------
+  --        NormalType Δ R[ κ ]
+
+  -- _<$>_─₁_ : NormalType Δ (κ₁ `→ κ₂) → (x : NeutralType Δ R[ κ₁ ]) → NormalType Δ R[ κ₂ ] → 
+  --       ----------------------------------------------
+  --        NormalType Δ R[ κ₂ ]
+
+
+  -- _─₂_ : (ρ : NormalType Δ R[ κ ]) → NeutralType Δ R[ κ ] → {isNormal : True (isNormal? ρ)} →
+  --       ----------------------------------------------
+  --       NormalType Δ R[ κ ]
 
   -- _<$>_─_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ] → 
   --           -------------------------------------------------------------------
@@ -237,9 +222,10 @@ isNeutral? (lab l) = no λ ()
 isNeutral? ⌊ x ⌋ = no λ ()
 isNeutral? (Π x) = no λ ()
 isNeutral? (Σ x) = no λ ()
-isNeutral? (x ─₁ ρ) = no λ ()
-isNeutral? (ρ ─₂ x) = no λ ()
-isNeutral? (_<$>_─₁_ c x d) = no λ ()
+-- isNeutral? (x ─₁ ρ) = no λ ()
+-- isNeutral? (ρ ─₂ x) = no λ ()
+-- isNeutral? (_<$>_─₁_ c x d) = no λ ()
+isNeutral? (c ─ c₁) = no λ ()
 
 IsNormal (ne x)     = ⊥
 IsNormal _     = ⊤
@@ -256,9 +242,27 @@ isNormal? (lab l) = yes tt
 isNormal? ⌊ x ⌋ = yes tt
 isNormal? (Π x) = yes tt
 isNormal? (Σ x) = yes tt
-isNormal? (x ─₁ ρ) = yes tt
-isNormal? (ρ ─₂ x) = yes tt
-isNormal? (_<$>_─₁_ x x₁ d) = yes tt
+-- isNormal? (x ─₁ ρ) = yes tt
+-- isNormal? (ρ ─₂ x) = yes tt
+-- isNormal? (_<$>_─₁_ x x₁ d) = yes tt
+isNormal? (ρ₂ ─ ρ₁) = yes tt
+
+NotSimpleRow (ne x) = ⊤
+NotSimpleRow (⦅ ρ ⦆ oρ) = ⊥
+NotSimpleRow (τ ─ τ₁) = ⊤
+-- NotSimpleRow (x ─₁ τ) = ⊤
+-- NotSimpleRow (τ <$> x ─₁ τ₁) = ⊤
+-- NotSimpleRow (τ ─₂ x) = ⊤
+NotSimpleRow (x ▹ₙ τ) = ⊤
+
+notSimpleRow? (ne x) = yes tt
+notSimpleRow? (⦅ ρ ⦆ oρ) = no λ ()
+notSimpleRow? (τ ─ τ₁) = yes tt
+-- notSimpleRow? (x ─₁ τ) = yes tt
+-- notSimpleRow? (τ <$> x ─₁ τ₁) = yes tt
+-- notSimpleRow? (τ ─₂ x) = yes tt
+notSimpleRow? (x ▹ₙ τ) = yes tt
+
 -- isNormal? ([ x ▹ ρ ]─ ρ₁) = yes tt
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
@@ -396,11 +400,12 @@ row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤
 row-canonicity (⦅ x ⦆ oρ) = tt
 row-canonicity (ne x) = tt
 -- row-canonicity (ρ <$> x) = tt
-row-canonicity (x ─₁ ρ) = tt
-row-canonicity (x ─₂ ρ) = tt
--- row-canonicity ([ x ▹ ρ ]─ ρ₁) = tt
+-- row-canonicity (x ─₁ ρ) = tt
+-- row-canonicity (x ─₂ ρ) = tt
+-- -- row-canonicity ([ x ▹ ρ ]─ ρ₁) = tt
 row-canonicity (x ▹ₙ ρ) = tt
-row-canonicity (F <$> x ─₁ ρ) = tt
+-- row-canonicity (F <$> x ─₁ ρ) = tt
+row-canonicity (ρ₂ ─ ρ₁) = tt
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -449,11 +454,10 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
-⇑ (F <$> x ─₁ ρ) = ((⇑ F) <$> (⇑NE x)) ─ (⇑ ρ)
-
-
-⇑ (x ─₁ ρ) = ⇑NE x ─ ⇑ ρ
-⇑ (x ─₂ ρ) = ⇑ x ─ ⇑NE ρ
+-- ⇑ (F <$> x ─₁ ρ) = ((⇑ F) <$> (⇑NE x)) ─ (⇑ ρ)
+⇑ (ρ₂ ─ ρ₁) = ⇑ ρ₂ ─ ⇑ ρ₁
+-- ⇑ (x ─₁ ρ) = ⇑NE x ─ ⇑ ρ
+-- ⇑ (x ─₂ ρ) = ⇑ x ─ ⇑NE ρ
 -- ⇑ ([ l ▹ τ ]─ ρ) = ((⇑NE l) ▹ (⇑ τ)) ─ (⇑ ρ)
 ⇑ (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
 

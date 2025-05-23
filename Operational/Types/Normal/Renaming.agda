@@ -43,11 +43,12 @@ renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
-renₖNF r (ρ <$> x ─₁ ρ₁) = (renₖNF r ρ) <$> (renₖNE r x) ─₁ (renₖNF r ρ₁)
+-- renₖNF r (ρ <$> x ─₁ ρ₁) = (renₖNF r ρ) <$> (renₖNE r x) ─₁ (renₖNF r ρ₁)
 renₖNF ρ (l ▹ₙ τ) = renₖNE ρ l ▹ₙ (renₖNF ρ τ)
 -- renₖNF ρ (r <$> x) = renₖNF ρ r <$> renₖNE ρ x
-renₖNF ρ (x ─₁ r) = renₖNE ρ x ─₁ renₖNF ρ r
-renₖNF ρ (x ─₂ r) = (renₖNF ρ x ─₂ renₖNE ρ r) {isNormal = {!!}}
+-- renₖNF ρ (x ─₁ r) = renₖNE ρ x ─₁ renₖNF ρ r
+-- renₖNF ρ (x ─₂ r) = (renₖNF ρ x ─₂ renₖNE ρ r) {isNormal = {!!}}
+renₖNF r (ρ₂ ─ ρ₁) = (renₖNF r ρ₂ ─ renₖNF r ρ₁) {nsr = {!!}}
 -- renₖNF ρ ([ x ▹ r ]─ r₁) = [ renₖNE ρ x ▹ renₖNF ρ r ]─ renₖNF ρ r₁
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)

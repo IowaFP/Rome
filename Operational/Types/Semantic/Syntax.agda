@@ -31,22 +31,31 @@ OrderedRow' (suc (suc n)) P = (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRo
 OrderedRow : ∀ {A} → Row A → Set
 OrderedRow (n , P) = OrderedRow' n P
 
-data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set where
-  -- ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set 
+NotRow : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → RowType Δ 𝒯 R[ κ ] → Set 
+
+data RowType Δ 𝒯 where
+  ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
 
   _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
-  _<$>_─_ : ∀ {κ₁} → 
+  -- _<$>_─_ : ∀ {κ₁} → 
   
-            (F : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
-            (ρ₂ : NeutralType Δ R[ κ₁ ]) (ρ₁ : RowType Δ 𝒯 R[ κ₂ ])→
-            ----------------------------------------------
-            RowType Δ 𝒯 R[ κ₂ ]
+  --           (F : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
+  --           (ρ₂ : NeutralType Δ R[ κ₁ ]) (ρ₁ : RowType Δ 𝒯 R[ κ₂ ]) →
+  --           ----------------------------------------------
+  --           RowType Δ 𝒯 R[ κ₂ ]
 
   -- _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
-  -- _─₂_ : RowType Δ 𝒯 R[ κ ] → NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
+        RowType Δ 𝒯 R[ κ ]
+
+NotRow (ne x) = ⊤
+NotRow (x ▹ x₁) = ⊤
+NotRow (row ρ x) = ⊥
+NotRow (ρ ─ ρ₁) = ⊤
 
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
@@ -85,7 +94,7 @@ orderedOverᵣ {n = suc zero} {P} f oρ = tt
 orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
 
 --------------------------------------------------------------------------------
--- 
+-- Row operators
 
 _⨾⨾_ :  Label × SemType Δ κ → Row (SemType Δ κ) → Row (SemType Δ κ)
 
