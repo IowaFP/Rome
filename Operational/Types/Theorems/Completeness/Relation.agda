@@ -167,12 +167,14 @@ reifyRow-≋ : ∀ {n} (P Q : Fin n → Label × SemType Δ κ) →
                 V₁ ≋ V₂ →  renₖNF ρ (reify V₁) ≡ reify (renSem ρ V₂)
 ↻-ren-reify-─ : ∀ {Δ₁} {Δ₂} {κ} (r : Renamingₖ Δ₁ Δ₂) {V₂ V₁ V₄ V₃ : SemType Δ₁ R[ κ ]} → 
                 V₂ ≋ V₄ → V₁ ≋ V₃ → 
-                renₖNF r (reify (V₂ ─ V₁)) ≡ reify (renSem r (V₄ ─ V₃))
+                {nr₁ : NotRow V₂ or NotRow V₁} → 
+                {nr₂ : NotRow V₄ or NotRow V₃} → 
+                renₖNF r (reify ((V₂ ─ V₁) {nr₁})) ≡ reify (renSem r ((V₄ ─ V₃) {nr₂}))
 
 ↻-ren-reifyRow : ∀ {n} (P Q : Fin n → Label × SemType Δ₁ κ) →  
                         (ρ : Renamingₖ Δ₁ Δ₂) → 
                         (∀ (i : Fin n) → P i ≋₂ Q i) → 
-                        renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , λ i → overᵣ (renSem ρ) (Q i)) -- (renSem ρ ∘ Q)
+                        renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , λ i → overᵣ (renSem ρ) (Q i)) 
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- reflect-≋ asserts that well kinded types are in the relation
@@ -248,7 +250,22 @@ reifyRow-≋ {n = suc n} P Q eq =
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , q) = cong (renₖNE ρ l₁ ▹ₙ_) (↻-ren-reify ρ q)
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {row (n , P) _} {row (_ , Q) _} (refl , eq) = 
   cong-⦅⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)
-↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} rel = {!↻-ren-reify-─ ρ (rel .fst) (rel .snd)!}
+↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {(ρ₂ ─ ρ₁) {nr}} {(ρ₄ ─ ρ₃) {nr'}} rel = ↻-ren-reify-─ ρ (rel .fst) (rel .snd) {nr₂ = nr'}
+
+↻-ren-reify-─ r {ne x₃} {ne x₄} {ne x₅} {ne x₆} refl refl {left x₁} {left x₂} = refl
+↻-ren-reify-─ r {ne x₃} {x₄ ▹ x₅} {ne x₆} {x₇ ▹ x₈} refl (refl , snd₁) {left x₁} {left x₂} = cong-─ refl (cong (renₖNE r x₄ ▹ₙ_) (↻-ren-reify r snd₁))
+↻-ren-reify-─ r {ne x₃} {row (n , P) x₄} {ne x₅} {row (m , Q) x₆} refl (refl , rel) {left x₁} {left x₂} = cong-─ refl (cong-⦅⦆ (↻-ren-reifyRow P Q r rel ))
+↻-ren-reify-─ r {ne x₃} {V₁ ─ V₂} {ne x₄} {V₃ ─ V₄} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {x₃ ▹ x₄} {ne x₅} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {x₃ ▹ x₄} {x₅ ▹ x₆} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {x₃ ▹ x₄} {row ρ x₅} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {x₃ ▹ x₄} {V₁ ─ V₂} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {ne x₃} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {x₃ ▹ x₄} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {row ρ x₃} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {V₁ ─ V₆} {V₄} {V₃} rel₁ rel₂ {left x₁} {left x₂} = {!!}
+↻-ren-reify-─ r {V₂} {V₁} {V₄} {V₃} rel₁ rel₂ {left x₁} {right y₁} = {!!}
+↻-ren-reify-─ r {V₂} {V₁} {V₄} {V₃} rel₁ rel₂ {right y₁} {nr₂} = {!!}
 
 ↻-ren-reifyRow {n = zero} P Q ρ eq = refl
 ↻-ren-reifyRow {n = suc n} P Q ρ eq = 
