@@ -88,9 +88,9 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
 ↻-renSem-─V r {ne x₁} {ne x₂} {ne x₃} {ne x₄} refl refl = refl , refl
 ↻-renSem-─V r {ne x₁} {x₂ ▹ x₃} {ne x₄} {x₅ ▹ x₆} (refl , rel) refl = (refl , (ren-≋ r rel)) , refl
-↻-renSem-─V r {ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel₁ rel₂ = {!   !}
-↻-renSem-─V r {ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ rel₂ = {!   !}
-↻-renSem-─V r {x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel refl = ren-≋ {V₁ = row ρ x₂} {row ρ₁ x₄} r rel , refl
+↻-renSem-─V r {ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ refl = ren-≋ {V₁ = V₂ ─ V₃} {W₂ ─ W₃} r rel₁ , refl
+↻-renSem-─V r {x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} refl (refl , rel) = refl , (refl , (ren-≋ r rel))
 ↻-renSem-─V r {x₁ ▹ x₂} {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} rel₁ rel₂ = {!   !}
 ↻-renSem-─V r {x₁ ▹ x₂} {row ρ x₃} {x₄ ▹ x₅} {row ρ₁ x₆} rel₁ rel₂ = {!   !}
 ↻-renSem-─V r {x₁ ▹ x₂} {V₂ ─ V₃} {x₃ ▹ x₄} {W₂ ─ W₃} rel₁ rel₂ = {!   !}
