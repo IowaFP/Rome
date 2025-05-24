@@ -39,12 +39,13 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} ρ (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} ρ V₂ <$>V renSem {κ = R[ κ₁ ]} ρ W₂)
-↻-renSem-<$> ρ {V₁} {V₂} v {left (left x)} {left (left _)} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
-↻-renSem-<$> ρ {V₁} {V₂} v {left (right (l , τ₁))} {left (right (l , τ₂))} (refl , rel) = refl , (↻-renSem-app ρ v rel)
-↻-renSem-<$> ρ {V₁} {V₂} v {right ((n , P) , _)} {right ((_ , Q) , _)} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app ρ v (eq i .snd))
+↻-renSem-<$> ρ {V₁} {V₂} v {ne x} {ne _} refl = cong (_<$> renₖNE ρ x) (↻-ren-reify ρ v)
+↻-renSem-<$> ρ {V₁} {V₂} v {l₁ ▹ τ₁} {l₁ ▹ τ₂} (refl , rel) = refl , (↻-renSem-app ρ v rel)
+↻-renSem-<$> ρ {V₁} {V₂} v {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app ρ v (eq i .snd))
+↻-renSem-<$> ρ {V₁} {V₂} v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (↻-renSem-<$> ρ v rel₁) , (↻-renSem-<$> ρ v rel₂)
 
---------------------------------------------------------------------------------
--- Renaming commutes over complement
+-- --------------------------------------------------------------------------------
+-- -- Renaming commutes over complement
 
 ↻-renSem-compl : {n m : ℕ} 
                  (r : Renamingₖ Δ₁ Δ₂) → 
@@ -70,7 +71,7 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
 ... | n₁ , P | n₂ , Q | refl , ih =  refl , λ { fzero → i₁ fzero .fst  , (ren-≋ r (i₁ fzero .snd)) ; (fsuc i) → ih i }
 
 ↻-renSem-─v : (r : Renamingₖ Δ₁ Δ₂) → 
-              {V₁ V₂ W₁ W₂ : Row Δ₁ R[ κ ]} → 
+              {V₁ V₂ W₁ W₂ : Row (SemType Δ₁ κ)} → 
               V₂ ≋R W₂ → 
               V₁ ≋R W₁ → 
               renRow r (V₂ ─v V₁) ≋R (renRow r W₂ ─v renRow r W₁)
@@ -85,17 +86,34 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               V₂ ≋ W₂ → 
               V₁ ≋ W₁ → 
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
-↻-renSem-─V r {left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
-↻-renSem-─V r {left (left x₁)} {left (right x₂)} {left (left x₃)} {left (right x₄)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) refl
-↻-renSem-─V r {left (left x₁)} {right ((n , P) , _)} {left (left x₂)} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
-↻-renSem-─V r {right ((n , P) , _)} {left (left x₁)} {right ((m , Q) , _)} {left (left x₂)} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
-↻-renSem-─V r {right ((n , P) , _)} {left (right x₁)} {right ((m , Q) , _)} {left (right x₂)} (refl , rel) (refl , V₁≋) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋)) 
-↻-renSem-─V r {left (right x)} {left (right x₁)} {left (right y)} {left (right y₂)} (refl , rel) (refl , V₁≋) = 
-  cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-ne (cong₂ _▹ₙ_ refl (↻-ren-reify r V₁≋))) 
-↻-renSem-─V r {left (right x)} {left (left x₁)} {left (right y)} {left (left y₂)} refl (refl , V₁≋) = 
-  cong₂ _─₁_ refl (cong-ne (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋))) 
-↻-renSem-─V r {left (right x)} {right ((n , P) , _)} {left (right y)} {right ((m , Q) , _)} (refl , V₂≋) (refl , V₁≋) = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋ )) (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋)) 
-↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
+↻-renSem-─V r {ne x₁} {ne x₂} {ne x₃} {ne x₄} refl refl = refl , refl
+↻-renSem-─V r {ne x₁} {x₂ ▹ x₃} {ne x₄} {x₅ ▹ x₆} (refl , rel) refl = (refl , (ren-≋ r rel)) , refl
+↻-renSem-─V r {ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {x₁ ▹ x₂} {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {x₁ ▹ x₂} {row ρ x₃} {x₄ ▹ x₅} {row ρ₁ x₆} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {x₁ ▹ x₂} {V₂ ─ V₃} {x₃ ▹ x₄} {W₂ ─ W₃} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {row ρ x₁} {ne x₂} {row ρ₁ x₃} {ne x₄} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {row ρ x₁} {x₂ ▹ x₃} {row ρ₁ x₄} {x₅ ▹ x₆} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = ↻-renSem-─v r rel₁ rel₂
+↻-renSem-─V r {row ρ x₁} {V₂ ─ V₃} {row ρ₁ x₂} {W₂ ─ W₃} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {V₁ ─ V₂} {ne x₁} {W₁ ─ W₂} {ne x₂} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {V₁ ─ V₂} {x₁ ▹ x₂} {W₁ ─ W₂} {x₃ ▹ x₄} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {V₁ ─ V₂} {row ρ x₁} {W₁ ─ W₂} {row ρ₁ x₂} rel₁ rel₂ = {!   !}
+↻-renSem-─V r {V₁ ─ V₂} {V₃ ─ V₄} {W₁ ─ W₂} {W₃ ─ W₄} rel₁ rel₂ = {!   !}
+
+-- ↻-renSem-─V r {left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} V₂≋ V₁≋ = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-ne (cong (renₖNE r) V₁≋))
+-- ↻-renSem-─V r {left (left x₁)} {left (right x₂)} {left (left x₃)} {left (right x₄)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) refl
+-- ↻-renSem-─V r {left (left x₁)} {right ((n , P) , _)} {left (left x₂)} {right ((m , Q) , _)} (refl , V₂≋) V₁≋ = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋)) (cong (renₖNE r) V₁≋)
+-- ↻-renSem-─V r {right ((n , P) , _)} {left (left x₁)} {right ((m , Q) , _)} {left (left x₂)} V₂≋ (refl , V₁≋) = cong₂ _─₁_ (cong (renₖNE r) V₂≋) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋))
+-- ↻-renSem-─V r {right ((n , P) , _)} {left (right x₁)} {right ((m , Q) , _)} {left (right x₂)} (refl , rel) (refl , V₁≋) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-⦅⦆ (↻-ren-reifyRow P Q r V₁≋)) 
+-- ↻-renSem-─V r {left (right x)} {left (right x₁)} {left (right y)} {left (right y₂)} (refl , rel) (refl , V₁≋) = 
+--   cong₂ _─₁_ (cong₂ _▹ₙ_ refl (↻-ren-reify r rel)) (cong-ne (cong₂ _▹ₙ_ refl (↻-ren-reify r V₁≋))) 
+-- ↻-renSem-─V r {left (right x)} {left (left x₁)} {left (right y)} {left (left y₂)} refl (refl , V₁≋) = 
+--   cong₂ _─₁_ refl (cong-ne (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋))) 
+-- ↻-renSem-─V r {left (right x)} {right ((n , P) , _)} {left (right y)} {right ((m , Q) , _)} (refl , V₂≋) (refl , V₁≋) = cong-─₂ (cong-⦅⦆ (↻-ren-reifyRow P Q r V₂≋ )) (cong (renₖNE r (y .fst) ▹ₙ_) (↻-ren-reify r V₁≋)) 
+-- ↻-renSem-─V r {right y₁} {right y₂} {right y₃} {right y₄} V₂≋ V₁≋ = ↻-renSem-─v r V₂≋ V₁≋
                  
 
 --------------------------------------------------------------------------------
