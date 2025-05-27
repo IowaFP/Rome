@@ -26,6 +26,7 @@ open import Data.Unit
   renaming (⊤ to ⊤₀ ; tt to tt₀)
   hiding (_≟_ ) public
 
+open import Agda.Primitive
 
 --------------------------------------------------------------------------------
 -- Maybe helpers.
@@ -46,6 +47,16 @@ join→k : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} →
           Maybe (A → Maybe B) → A → Maybe B
 join→k (just x) a = x a
 join→k nothing a = nothing
+
+
+--------------------------------------------------------------------------------
+-- Strings at any level
+
+data Label (ℓ : Level) : Set ℓ where
+  str : String → Label ℓ
+
+relevel : ∀ {ℓ ι} → Label ℓ → Label ι 
+relevel (str l) = str l
 
 --------------------------------------------------------------------------------
 -- Synonyms.

@@ -23,15 +23,15 @@ infix 12 ↑_ _↑
 --------------------------------------------------------------------------------
 -- Labels are Strings.
 
-Label : Set
-Label = String
+-- Label : Set
+-- Label = String
 
 --------------------------------------------------------------------------------
 -- Kinding Environments, types, and predicates... And multirows.
 
 data Type : KEnv ℓ → Kind ι →  Set
 data Pred (Δ : KEnv ℓ) : (κ : Kind ι) → Set
-data Row : KEnv ℓ → Kind ι → Set 
+data Row : KEnv ℓ → Kind ι → Set
 
 data Pred Δ where
   _≲_ : ∀ {κ : Kind ι} →
@@ -114,7 +114,7 @@ data Type where
 
   -- Labels.
   lab :
-        Label →
+        String →
         ----------
         Type Δ (L ℓ)
 
@@ -173,11 +173,11 @@ data Type where
 
 data _∈_ : Type Δ R[ κ ] → Row Δ κ → Set
 _⊆_ : Row Δ κ → Row Δ κ → Set
-_∉_ : Label → Row Δ κ → Set 
+_∉_ : String → Row Δ κ → Set 
 
 data Row where
-  _▹_ : (l : Label) → (τ : Type Δ κ) → Row Δ κ
-  _▹_，_ : (l : Label) → (τ : Type Δ κ) → (xs : Row Δ κ) → 
+  _▹_ : (l : String) → (τ : Type Δ κ) → Row Δ κ
+  _▹_，_ : (l : String) → (τ : Type Δ κ) → (xs : Row Δ κ) → 
           {_ : l ∉ xs}  → Row Δ κ
 
 infixr 5 _▹_
@@ -190,8 +190,8 @@ l₁ ∉ (l₂ ▹ _ ， mr) with l₁ ≟ l₂
 ... | yes p  = ⊥₀
 ... | no  p  = l₁ ∉ mr 
 
---------------------------------------------------------------------------------
--- Row membership.
+-- --------------------------------------------------------------------------------
+-- -- Row membership.
 
 data _∈_ where
   end : ∀ {ℓ}{l}{τ : Type Δ κ} →
@@ -211,7 +211,7 @@ data _∈_ where
            (lab {ℓ = ℓ} l₁ R▹ τ₁) ∈ ((l₂ ▹ τ₂ ， m) {ev})
 
 _⊆_ {Δ = Δ} {κ = κ} m₁ m₂ =
-  ∀ {ℓ} (l : Label) (τ : Type Δ κ) → 
+  ∀ {ℓ} (l : String) (τ : Type Δ κ) → 
     (lab {ℓ = ℓ} l R▹ τ) ∈ m₁ → (lab {ℓ = ℓ} l R▹ τ) ∈ m₂
 
 there⊆ : ∀ {l₁} {τ₁ : Type Δ κ} (ρ₁ ρ₂ : Row Δ κ) {ev : l₁ ∉ ρ₁} → 

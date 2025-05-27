@@ -1,6 +1,7 @@
 module Rome.IndexCalculus.Rows where
 
-open import Agda.Primitive
+open import Rome.Preludes.Data
+open import Rome.Preludes.Level
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)
@@ -14,8 +15,8 @@ open import Data.Product
   using (_×_; ∃; ∃-syntax; Σ-syntax; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
 import Data.Fin as Fin
-open Fin  renaming (zero to fzero; suc to fsuc)
-  hiding (fold)
+-- open Fin  renaming (zero to fzero; suc to fsuc)
+--   hiding (fold)
 
 --------------------------------------------------------------------------------
 -- Syntax
@@ -26,7 +27,7 @@ infix  5 _·_~_
 --------------------------------------------------------------------------------
 -- Rows are maps from indices to types.
 Row : ∀ {ℓ : Level} (A : Set ℓ) → Set ℓ
-Row A = Σ[ n ∈ ℕ ] (Fin n → A)
+Row {ℓ} A = Σ[ n ∈ ℕ ] (Fin n → String × A)
 
 -- An index in a Row.
 Ix : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Set
@@ -40,7 +41,7 @@ ixs (suc n) = fromℕ n ∷ Data.List.map inject₁ (ixs n)
 --------------------------------------------------------------------------------
 -- Naive row extension.
 
-_፦_  : ∀ {ℓ} {A : Set ℓ} → A → Row {ℓ} A → Row {ℓ} A
+_፦_  : ∀ {ℓ} {A : Set ℓ} → String × A → Row {ℓ} A → Row {ℓ} A
 a ፦ (m , Q) = ℕ.suc m , λ { fzero → a ; (fsuc x) → Q x }
 
 --------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ emptyRow = 0 , λ ()
 -- Singletons.
 
 sing : ∀ {ℓ} {A : Set ℓ} →
-       A → Row {ℓ} A
+       String × A → Row {ℓ} A
 sing a = 1 , λ { fzero → a }
 
 --------------------------------------------------------------------------------
@@ -128,9 +129,11 @@ _delete_ {ℓ} {A} (suc n , f) i = n , (λ j → f (punchIn i j))
 
 
 lift₁  _·⌈_⌉ : ∀ {ℓ ι} {A : Set ℓ} {B : Set ι} → Row {ℓ ⊔ ι} (A → B) → A → Row {ι} B
-lift₁ {A = A} {B = B} (n , P) a = (n , (λ m → P m a))
+lift₁ {A = A} {B = B} (n , P) a = (n , λ i →  (P i .fst) , P i .snd a)
 ρ ·⌈ X ⌉ = lift₁ ρ X
 
 lift₂ ⌈_⌉·_ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → (A → B) → Row {ℓ₁} A → Row {ℓ₂} B
-lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))
+-- lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))
 ⌈ ϕ ⌉· ρ = lift₂ ϕ ρ
+lift₂ f (n , P) = lift₁ ((n , λ i → (P i .fst) , (λ g → g (P i .snd)))) f
+

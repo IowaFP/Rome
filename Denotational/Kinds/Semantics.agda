@@ -16,7 +16,7 @@ open import Rome.Denotational.Kinds.Syntax
 ⟦_⟧k : Kind ℓ → Set (lsuc ℓ)
 ⟦ ★ ℓ ⟧k = Set ℓ
 ⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
-⟦ L ℓ ⟧k = ⊤
+⟦ L ℓ ⟧k = Label (lsuc ℓ)
 ⟦ R[ k ] ⟧k = Row ⟦ k ⟧k
 
 --------------------------------------------------------------------------------
