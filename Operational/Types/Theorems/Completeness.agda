@@ -119,6 +119,8 @@ fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with eval l η�
 ... | ne x | ne x | refl = refl , cong-App (idext e F) (idext e τ)
 ... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
 fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = cong-─V (fundC e eq₂) (fundC e eq₁)
+fundC {η₁ = η₁} {η₂} e (eq-labTy {l = l} {τ = τ} eq) with eval l η₁ | fundC e eq 
+... | lab ℓ | refl = refl , (λ { fzero → refl , idext e τ })
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 
