@@ -7,6 +7,9 @@ open import Rome.Denotational.Kinds
 open import Rome.Denotational.Types.Syntax
 open import Rome.Denotational.Types.Semantics g
 open import Rome.Denotational.Types.Substitution
+
+open import Rome.IndexCalculus.Rows using (_∖_)
+
 open import Rome.Shared.Postulates.FunExt
 
 --------------------------------------------------------------------------------
@@ -163,6 +166,7 @@ Row-preservation : ∀ {ℓ₁ ℓ₂}
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (μ F)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres F = refl -- ref
 τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (⦃- ρ -⦄) = Row-preservation _ _ _ _ _ Δ-pres ρ
+τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (ρ₂ ─ ρ₁) = cong₂ _∖_ (τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₂) (τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres ρ₁)
 
 Row-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres (l ▹ τ)
   rewrite τ-preservation Δ₁ Δ₂ H₁ H₂ f Δ-pres τ = refl
@@ -277,6 +281,7 @@ exts-pres Δ₁ Δ₂ H₁ H₂ {κ} f σ-pres X (S c)
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (μ F)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres F = refl
 σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ⦃- ρ -⦄ = σ/Row-preservation _ _ _ _ _ σ-pres ρ
+σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (ρ₂ ─ ρ₁) = cong₂ _∖_ (σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ₂) (σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres ρ₁)
 
 σ/π-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres (τ₁ ≲ τ₂)
   rewrite σ/τ-preservation Δ₁ Δ₂ H₁ H₂ f σ-pres τ₁

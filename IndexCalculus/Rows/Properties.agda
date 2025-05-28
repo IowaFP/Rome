@@ -51,11 +51,11 @@ recombine {ℓ} {A} ρ i = evid ρ i , (pickedIn , deletedIn {i = i}) where
 ≲-refl : ρ ≲ ρ
 ≲-refl = λ i → i , refl
 
-ε-≲ : emptyRow ≲ ρ
+ε-≲ : ϵ ≲ ρ
 ε-≲ = λ { () }
 
-ε-id-R : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → ρ · emptyRow ~ ρ
+ε-id-R : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → ρ · ϵ ~ ρ
 ε-id-R = (λ i → left ((i , refl))) , ≲-refl , ε-≲
 
-ε-id-L : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → emptyRow · ρ ~ ρ
+ε-id-L : ∀ {ℓ} {A : Set ℓ} {ρ : Row {ℓ} A} → ϵ · ρ ~ ρ
 ε-id-L = (λ i → right ((i , refl))) , ε-≲ , ≲-refl

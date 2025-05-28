@@ -1,6 +1,7 @@
 module Rome.IndexCalculus.Rows where
 
 open import Rome.Preludes.Data
+open import Rome.Preludes.Relation
 open import Rome.Preludes.Level
 
 open import Relation.Binary.PropositionalEquality
@@ -18,6 +19,7 @@ import Data.Fin as Fin
 -- open Fin  renaming (zero to fzero; suc to fsuc)
 --   hiding (fold)
 
+open import Function using (_∘_)
 --------------------------------------------------------------------------------
 -- Syntax
 
@@ -47,8 +49,8 @@ a ፦ (m , Q) = ℕ.suc m , λ { fzero → a ; (fsuc x) → Q x }
 --------------------------------------------------------------------------------
 -- Empty row.
 
-emptyRow : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A
-emptyRow = 0 , λ ()
+ϵ : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A
+ϵ = 0 , λ ()
 
 --------------------------------------------------------------------------------
 -- Singletons.
@@ -106,7 +108,7 @@ _·_~_ {ℓ} (l , P) (m , Q) (n , R) =
   × ((m , Q) ≲ (n , R)))
 
 --------------------------------------------------------------------------------
--- Row Complement.
+-- Row Complement (bad)
 
 -- Extremely dumb try.
 complement : ∀ {ℓ} {A : Set ℓ}{ρ₁ ρ₃ : Row A} →
@@ -136,4 +138,32 @@ lift₂ ⌈_⌉·_ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → (
 -- lift₂ {A = A} {B = B} f (n , P) = (n , (λ m → f (P m)))
 ⌈ ϕ ⌉· ρ = lift₂ ϕ ρ
 lift₂ f (n , P) = lift₁ ((n , λ i → (P i .fst) , (λ g → g (P i .snd)))) f
+
+--------------------------------------------------------------------------------
+-- Complement
+
+_∈Row_ : ∀ {ℓ}{m}{A : Set ℓ} → 
+         (l : String) → 
+         (Q : Fin m → String × A) → 
+         Dec (Σ[ i ∈ Fin m ] (l ≡ Q i .fst))
+_∈Row_ {m = zero} l Q = no λ { () }
+_∈Row_ {m = suc m} l Q with l ≟ Q fzero .fst
+... | yes p = yes (fzero , p)
+... | no  p with l ∈Row (Q ∘ fsuc)
+...        | yes (n , q) = yes ((fsuc n) , q) 
+...        | no  q = no λ { (fzero , q') → p q' ; (fsuc n , q') → q (n , q') }
+
+
+compl : ∀ {ℓ}{n m} {A : Set ℓ}  → 
+        (P : Fin n → String × A) 
+        (Q : Fin m → String × A) → 
+        Row A
+compl {n = zero} {m} P Q = ϵ
+compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
+... | yes _ = compl (P ∘ fsuc) Q 
+... | no _ = (P fzero) ፦ (compl (P ∘ fsuc) Q)
+
+
+_∖_ : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Row {ℓ} A → Row {ℓ} A
+(n , P) ∖ (m , Q) = compl P Q
 

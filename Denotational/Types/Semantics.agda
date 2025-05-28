@@ -44,15 +44,15 @@ open import Data.Product renaming (Σ to ∃) hiding (∃)
 
 buildΣ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
 buildΣ (★ _) ⟦ρ⟧ = Ix.Σ ⟦ρ⟧
-buildΣ (κ₁ `→ κ₂) (n , f) = {!!} -- λ X → buildΣ κ₂ (n , λ i → f i X)
-buildΣ (L _) (n , P) = {!!}
-buildΣ R[ κ ] (n , f) = n , {!!} -- λ i → buildΣ κ (f i)
+buildΣ (κ₁ `→ κ₂) (n , f) = λ X → buildΣ κ₂ (n , λ i → f i .fst , f i .snd X)
+buildΣ (L _) (n , P) = str "bad"
+buildΣ R[ κ ] (n , f) = n , λ i → (f i .fst) , (buildΣ κ (f i .snd))
 
 buildΠ : ∀ {ι} → (κ : Kind ι) → ⟦ R[ κ ] ⟧k → ⟦ κ ⟧k
 buildΠ (★ _) ⟦ρ⟧ = Ix.Π ⟦ρ⟧
-buildΠ (κ₁ `→ κ₂) (n , f) = λ X → {!!} -- buildΠ κ₂ (n , λ i → f i X)
-buildΠ (L _) ⟦ρ⟧ = {!!} -- tt
-buildΠ R[ κ ] (n , f) = {!!} -- n , λ i → buildΠ κ (f i)
+buildΠ (κ₁ `→ κ₂) (n , f) = λ X → buildΠ κ₂ (n , λ i → f i .fst , f i .snd X)
+buildΠ (L _) ⟦ρ⟧ = str "bad"
+buildΠ R[ κ ] (n , f) = n , λ i → (f i .fst) , (buildΠ κ (f i .snd))
 
 ⟦ lab l ⟧t       H = str l
 ⟦_⟧t {κ = κ} (tvar v) H = ⟦ v ⟧tv H
@@ -61,13 +61,19 @@ buildΠ R[ κ ] (n , f) = {!!} -- n , λ i → buildΠ κ (f i)
 ⟦ t₁ ·[ t₂ ] ⟧t  H = (⟦ t₁ ⟧t H) (⟦ t₂ ⟧t H)
 ⟦ `λ κ v ⟧t     H =  λ (s : ⟦ κ ⟧k) → ⟦ v ⟧t (H , s)
 ⟦ _ ▹ v ⟧t       H = ⟦ v ⟧t H
-⟦ l R▹ τ ⟧t H = {!Ix.sing ( ⟦ l ⟧t H , ⟦ τ ⟧t H)!} -- Ix.sing (⟦ τ ⟧t H)
+⟦ l R▹ τ ⟧t H = Ix.sing (toStr (⟦ l ⟧t H) , ⟦ τ ⟧t H)
 ⟦ ⌊ τ ⌋ ⟧t H       = ⊤
 ⟦ Π {κ = κ} ρ ⟧t H = buildΠ κ (⟦ ρ ⟧t H)
 ⟦ Σ {κ = κ} ρ ⟧t H = buildΣ κ (⟦ ρ ⟧t H)
 ⟦ ↑ ϕ ⟧t H = Ix.lift₁ (⟦ ϕ ⟧t H)
 ⟦ ϕ ↑ ⟧t H = Ix.lift₂ (⟦ ϕ ⟧t H)
 ⟦ π ⇒ τ ⟧t H = ⟦ π ⟧p H → Maybe (⟦ τ ⟧t H)
-⟦ ε ⟧t H = Ix.emptyRow
+⟦ ε ⟧t H = Ix.ϵ
 ⟦ ⦃- ρ -⦄ ⟧t H = ⟦ ρ ⟧Row H
 ⟦ μ {ℓ = ℓ} F ⟧t H = Ix.Mu (⟦ F ⟧t H) g
+⟦ ρ₂ ─ ρ₁ ⟧t H = ⟦ ρ₂ ⟧t H Ix.∖ ⟦ ρ₁ ⟧t H
+-- reify : ∀ {κ : Kind ℓ} → ⟦ κ ⟧k → Type Δ κ 
+-- reify {κ = ★ _} T = {!!}
+-- reify {κ = κ `→ κ₁} T = `λ κ {! !}
+-- reify {κ = L _} (str t) = lab t
+-- reify {κ = R[ κ ]} T = {!!}

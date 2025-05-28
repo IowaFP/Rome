@@ -29,6 +29,13 @@ open import Data.Unit
 open import Agda.Primitive
 
 --------------------------------------------------------------------------------
+-- Pairs
+
+third : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} → 
+        A × (B × C) → C 
+third (a , b , c) = c
+
+--------------------------------------------------------------------------------
 -- Maybe helpers.
 
 joinM : ∀ {ℓ} {A : Set ℓ} → Maybe (Maybe A) → Maybe A
@@ -54,6 +61,9 @@ join→k nothing a = nothing
 
 data Label (ℓ : Level) : Set ℓ where
   str : String → Label ℓ
+
+toStr : ∀ {ℓ} → Label ℓ → String
+toStr (str s) = s
 
 relevel : ∀ {ℓ ι} → Label ℓ → Label ι 
 relevel (str l) = str l

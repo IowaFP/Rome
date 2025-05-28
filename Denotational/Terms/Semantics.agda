@@ -88,17 +88,17 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ M ·⟨ D ⟩ ⟧ g H φ η = do
   m ← (⟦ M ⟧ g H φ η)
   m (⟦ D ⟧n H φ)
-⟦ rowCompl {ρ₁ = ρ₁} {ρ₂ = ρ₂} {τ = τ} ev M ⟧ g H φ η = do
-  m ← ⟦ M ⟧ g H φ η
-  m ← m y
-  m ← m P'
-  just (≡-elim (sym (Weakening τ H y)) m)
-  where
-    C = Ix.complement (⟦ ev ⟧n H φ)
-    y = fst C
-    P = snd C
-    P' : ⟦ K ρ₁ ⟧t (H , y) Rome.IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
-    P' rewrite sym (Weakening ρ₁ H y) | sym (Weakening ρ₂ H y)  = P 
+-- ⟦ rowCompl {ρ₁ = ρ₁} {ρ₂ = ρ₂} {τ = τ} ev M ⟧ g H φ η = do
+--   m ← ⟦ M ⟧ g H φ η
+--   m ← m y
+--   m ← m P'
+--   just (≡-elim (sym (Weakening τ H y)) m)
+--   where
+--     C = Ix.complement (⟦ ev ⟧n H φ)
+--     y = fst C
+--     P = snd C
+--     P' : ⟦ K ρ₁ ⟧t (H , y) Rome.IndexCalculus.· fst C ~ ⟦ K ρ₂ ⟧t (H , y)
+--     P' rewrite sym (Weakening ρ₁ H y) | sym (Weakening ρ₂ H y)  = P 
     
 ⟦ (r₁ ⊹ r₂) π ⟧ g H φ η = do
   r₁ ← (⟦ r₁ ⟧ g H φ η) 
@@ -108,7 +108,7 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ prj r π ⟧ g H φ η  = (⟦ r ⟧ g H φ η) >>= 
   (λ r' → 
     just (λ i → let n  = (fst (⟦ π ⟧n H φ i)) in
-                 let eq = (snd (⟦ π ⟧n H φ i)) in ≡-elim (sym (cong Maybe eq)) (r' n))) 
+                 let eq = (snd (⟦ π ⟧n H φ i)) in ≡-elim (sym (cong (λ x → Maybe (x .snd)) eq)) (r' n)))
 ⟦ M ▹ N ⟧ g H φ η = ⟦ N ⟧ g H φ η
 ⟦ M / N ⟧ g H φ η = ⟦ M ⟧ g H φ η
 ⟦ t-≡ {τ = τ}{υ = υ} τ≡υ M ⟧ g H φ η 
@@ -122,26 +122,27 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
     ρ₂-elim ← ⟦ N ⟧ g H φ η
     just (λ { 
       (just (i , P)) → 
-        [ (λ (j , eq) → ρ₁-elim (just (j , (≡-elim (sym eq) P)))) , 
-          (λ (j , eq) → ρ₂-elim (just (j , (≡-elim (sym eq) P)))) ]′ (fst ev i) ; 
+        [ (λ (j , eq) → ρ₁-elim (just (j , (≡-elim (sym (cong snd eq)) P)))) , 
+          (λ (j , eq) → ρ₂-elim (just (j , (≡-elim (sym (cong snd eq)) P)))) ]′ (fst ev i) ; 
       nothing → nothing })      
 ⟦ syn {Δ = Δ} {κ = κ} ρ f M ⟧ g H₀ φ η = just (λ i → do
-  let ⟦ρ⟧ = ⟦ ρ ⟧t H₀
-  let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
-  let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ {ℓκA = lzero} f H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)
+  let (n , P) = ⟦ ρ ⟧t H₀
+  let (l , τ) = P i
+  let ⟦ρ⟧≡⟦weaken³ρ⟧ = Weakening₃ {ℓκA = lzero} ρ H₀ (str l) τ (⟦ρ⟧ delete i)
+  let ⟦f⟧≡⟦weaken³f⟧ = Weakening₃ {ℓκA = lzero} f H₀ (str l) τ (⟦ρ⟧ delete i)
   ⟦M⟧ ← ⟦ M ⟧ g H₀ φ η
-  ⟦M⟧ ← ⟦M⟧ tt
-  ⟦M⟧ ← ⟦M⟧ (snd ⟦ρ⟧ i)
+  ⟦M⟧ ← ⟦M⟧ (str l)
+  ⟦M⟧ ← ⟦M⟧ τ
   ⟦M⟧ ← ⟦M⟧ (⟦ρ⟧ delete i)
   ⟦M⟧ ← ⟦M⟧ (evidence i)
   ⟦M⟧ ← ⟦M⟧ (just tt)
-  just (≡-elim (sym (cong-app ⟦f⟧≡⟦weaken³f⟧ (snd ⟦ρ⟧ i))) ⟦M⟧)
+  just (≡-elim (sym (cong (λ x → x τ) ⟦f⟧≡⟦weaken³f⟧)) ⟦M⟧)
   )
   where
     ⟦ρ⟧ = ⟦ ρ ⟧t H₀
     evidence : ∀ i → sing (snd ⟦ρ⟧ i) Ix.· ⟦ρ⟧ delete i ~
-               ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , tt) , (snd ⟦ρ⟧ i)) , (⟦ρ⟧ delete i))
-    evidence i rewrite sym (Weakening₃ {ℓκA = lzero} ρ H₀ tt (snd ⟦ρ⟧ i) (⟦ρ⟧ delete i)) =  recombine ⟦ρ⟧ i
+               ⟦ weaken (weaken (weaken {ℓκ = lzero} ρ)) ⟧t (((H₀ , str (snd ⟦ρ⟧ i .fst) ) , snd ⟦ρ⟧ i .snd) , (⟦ρ⟧ delete i))
+    evidence i rewrite sym (Weakening₃ {ℓκA = lzero} ρ H₀ (str (snd ⟦ρ⟧ i .fst)) (snd ⟦ρ⟧ i .snd) (⟦ρ⟧ delete i)) = recombine ⟦ρ⟧ i
 
 ⟦ ana {Δ = Δ} {κ = κ} ρ f τ M ⟧ g H₀ φ η = just 
   (λ { (just (i , P)) → do
@@ -171,28 +172,28 @@ weaken⟦_⟧pe {Δ = Δ} {κ} (Φ , π) H (⟦Φ⟧ , ⟦π⟧) X
 ⟦ Σ⁻¹ v ⟧ g H φ η with ⟦ v ⟧ g H φ η
 ... | just (fzero , M) = just M
 ... | nothing = nothing
-⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ g H φ η = do
-     op ← ⟦ M₁ ⟧ g H φ η 
-     _+_ ← ⟦ M₂ ⟧ g H φ η 
-     e ← ⟦ M₃ ⟧ g H φ η
-     r ← ⟦ N ⟧ g H φ η
-     Ix.fold (⟦ ρ ⟧t H) 
-       (λ τ y ev t → 
-         op tt       >>= λ f → 
-         f τ         >>= λ f → 
-         f y         >>= λ f → 
-         f (≡-elim 
-             (cong 
-               (Ix._·_~_ (sing τ) y) 
-               (Weakening₃ ρ H tt τ y)) 
-               ev)   >>= λ f → 
-         f (just tt) >>= λ f → 
-         f t         >>= λ d →
-         just (≡-elim (sym (Weakening₃ υ H tt τ y)) d) ) 
-       (λ x y → do 
-         cur ← _+_ x
-         cur y) 
-       (just e) r
+-- ⟦ fold {ℓ₁ = ℓ₁} {ρ = ρ} {υ = υ} M₁ M₂ M₃ N ⟧ g H φ η = do
+--      op ← ⟦ M₁ ⟧ g H φ η 
+--      _+_ ← ⟦ M₂ ⟧ g H φ η 
+--      e ← ⟦ M₃ ⟧ g H φ η
+--      r ← ⟦ N ⟧ g H φ η
+--      Ix.fold (⟦ ρ ⟧t H) 
+--        (λ τ y ev t → 
+--          op tt       >>= λ f → 
+--          f τ         >>= λ f → 
+--          f y         >>= λ f → 
+--          f (≡-elim 
+--              (cong 
+--                (Ix._·_~_ (sing τ) y) 
+--                (Weakening₃ ρ H tt τ y)) 
+--                ev)   >>= λ f → 
+--          f (just tt) >>= λ f → 
+--          f t         >>= λ d →
+--          just (≡-elim (sym (Weakening₃ υ H tt τ y)) d) ) 
+--        (λ x y → do 
+--          cur ← _+_ x
+--          cur y) 
+--        (just e) r
 
 -- Recursive Terms (novel to Rωμ).
 ------------------

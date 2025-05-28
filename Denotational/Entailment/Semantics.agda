@@ -34,7 +34,7 @@ open import Rome.Denotational.GVars.Kinds
 --------------------------------------------------------------------------------
 -- Meaning of multi-row inclusion.
 
-⟦_⟧∈ : ∀ {l : Label} {τ : Type Δ κ} {m : Row Δ κ} {Φ : PEnv Δ ℓΦ} → 
+⟦_⟧∈ : ∀ {l : String} {τ : Type Δ κ} {m : Row Δ κ} {Φ : PEnv Δ ℓΦ} → 
        (lab {ℓ = ℓ} l R▹ τ) ∈ m → (H : ⟦ Δ ⟧ke) → ⟦ Φ ⟧pe H → 
        (⟦ (lab {ℓ = ℓ} l R▹ τ) ⟧t H) Ix.≲ (⟦ m ⟧Row H)
 ⟦ end ⟧∈ H φ = λ i → i , refl
@@ -62,53 +62,69 @@ open import Rome.Denotational.GVars.Kinds
 ⟦ n-trans t₁≲t₂ t₂≲t₃ ⟧n H φ i with ⟦ t₁≲t₂ ⟧n H φ i
 ... | j , eq with ⟦ t₂≲t₃ ⟧n H φ j
 ...   | k , eq' = k , trans eq eq'
-⟦ n-·lift₁ {ρ₁ = ρ₁} {ρ₂} {ρ₃} {τ} π ⟧n H φ with ⟦ π ⟧n H φ
+⟦ n-·lift₁ {ρ₁ = ρ₁} {ρ₂} {ρ₃} {τ} π ⟧n H φ with ⟦ π ⟧n H φ 
 ... | ρ₃≲ρ₁·ρ₂ , ρ₁≲ρ₃ , ρ₂≲ρ₃ = ρ₃τ≲ρ₁τ·ρ₂τ , ρ₁τ≲ρ₃τ , ρ₂τ≲ρ₃τ
   where
-    ρ₃τ≲ρ₁τ·ρ₂τ : (i : Fin (fst (⟦ ρ₃ ⟧t H))) →
-                  DP.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
-                  (λ j → snd (⟦ ρ₁ ⟧t H) j (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) i (⟦ τ ⟧t H))
-                  or
-                  DP.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
-                  (λ j → snd (⟦ ρ₂ ⟧t H) j (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) i (⟦ τ ⟧t H))
+    ρ₃τ≲ρ₁τ·ρ₂τ : (i : Fin (⟦ ρ₃ ⟧t H .fst)) →
+      DP.Σ (Fin (⟦ ρ₁ ⟧t H .fst))
+      (λ j →
+         (⟦ ρ₁ ⟧t H .snd j .fst , ⟦ ρ₁ ⟧t H .snd j .snd (⟦ τ ⟧t H)) ≡
+         (⟦ ρ₃ ⟧t H .snd i .fst , ⟦ ρ₃ ⟧t H .snd i .snd (⟦ τ ⟧t H)))
+      or
+      DP.Σ (Fin (⟦ ρ₂ ⟧t H .fst))
+      (λ j →
+         (⟦ ρ₂ ⟧t H .snd j .fst , ⟦ ρ₂ ⟧t H .snd j .snd (⟦ τ ⟧t H)) ≡
+         (⟦ ρ₃ ⟧t H .snd i .fst , ⟦ ρ₃ ⟧t H .snd i .snd (⟦ τ ⟧t H)))
     ρ₃τ≲ρ₁τ·ρ₂τ i with ρ₃≲ρ₁·ρ₂ i
-    ... | left (j , P) = left (j , cong-app P (⟦ τ ⟧t H))
-    ... | right (j , P) = right (j , cong-app P (⟦ τ ⟧t H))
-    ρ₁τ≲ρ₃τ : (i : Fin (fst (⟦ ρ₁ ⟧t H))) →
-              DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
-              (λ j → snd (⟦ ρ₁ ⟧t H) i (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) j (⟦ τ ⟧t H))
+    ... | left (j , P) = left (j , cong₂ _,_ (cong fst P) (cong (λ x → x .snd (⟦ τ ⟧t H)) P)) -- cong-app P (⟦ τ ⟧t H)
+    ... | right (j , P) = right (j , cong₂ _,_ (cong fst P) ((cong (λ x → x .snd (⟦ τ ⟧t H)) P)))
+    ρ₁τ≲ρ₃τ : (i : Fin (⟦ ρ₁ ⟧t H .proj₁)) →
+      DP.Σ (Fin (⟦ ρ₃ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₁ ⟧t H .snd i .proj₁ , ⟦ ρ₁ ⟧t H .snd i .snd (⟦ τ ⟧t H)) ≡
+         (⟦ ρ₃ ⟧t H .snd j .proj₁ , ⟦ ρ₃ ⟧t H .snd j .snd (⟦ τ ⟧t H)))
     ρ₁τ≲ρ₃τ i with ρ₁≲ρ₃ i
-    ... | j , P = j , cong-app P (⟦ τ ⟧t H)
+    ... | j , P = j , cong₂ _,_ (cong fst P) ( cong (λ x → x .snd (⟦ τ ⟧t H)) P)
 
-    ρ₂τ≲ρ₃τ : (i : Fin (fst (⟦ ρ₂ ⟧t H))) →
-              DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
-              (λ j → snd (⟦ ρ₂ ⟧t H) i (⟦ τ ⟧t H) ≡ snd (⟦ ρ₃ ⟧t H) j (⟦ τ ⟧t H))
+    ρ₂τ≲ρ₃τ : (i : Fin (⟦ ρ₂ ⟧t H .proj₁)) →
+      DP.Σ (Fin (⟦ ρ₃ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₂ ⟧t H .snd i .proj₁ , ⟦ ρ₂ ⟧t H .snd i .snd (⟦ τ ⟧t H)) ≡
+         (⟦ ρ₃ ⟧t H .snd j .proj₁ , ⟦ ρ₃ ⟧t H .snd j .snd (⟦ τ ⟧t H)))
     ρ₂τ≲ρ₃τ i with ρ₂≲ρ₃ i
-    ... | j , P = j , cong-app P (⟦ τ ⟧t H)
+    ... | j , P = j , cong₂ _,_ (cong fst P) (cong (λ x → x .snd (⟦ τ ⟧t H)) P) 
 ⟦ n-·lift₂ {ρ₁ = ρ₁} {ρ₂} {ρ₃} {τ} π ⟧n H φ with ⟦ π ⟧n H φ
 ... | ρ₃≲ρ₁·ρ₂ , ρ₁≲ρ₃ , ρ₂≲ρ₃ = τρ₃≲τρ₁·τρ₂ , τρ₁≲τρ₃ , τρ₂τ≲τρ₃
   where
-    τρ₃≲τρ₁·τρ₂ : (i : Fin (fst (⟦ ρ₃ ⟧t H))) →
-                  DP.Σ (Fin (fst (⟦ ρ₁ ⟧t H)))
-                  (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₁ ⟧t H) j)  ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) i))
-                  or
-                  DP.Σ (Fin (fst (⟦ ρ₂ ⟧t H)))
-                  (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₂ ⟧t H) j) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) i))
+    τρ₃≲τρ₁·τρ₂ : (i : Fin (⟦ ρ₃ ⟧t H .proj₁)) →
+      DP.Σ (Fin (⟦ ρ₁ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₁ ⟧t H .snd j .proj₁ , ⟦ τ ⟧t H (⟦ ρ₁ ⟧t H .snd j .snd)) ≡
+         (⟦ ρ₃ ⟧t H .snd i .proj₁ , ⟦ τ ⟧t H (⟦ ρ₃ ⟧t H .snd i .snd)))
+      or
+      DP.Σ (Fin (⟦ ρ₂ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₂ ⟧t H .snd j .proj₁ , ⟦ τ ⟧t H (⟦ ρ₂ ⟧t H .snd j .snd)) ≡
+         (⟦ ρ₃ ⟧t H .snd i .proj₁ , ⟦ τ ⟧t H (⟦ ρ₃ ⟧t H .snd i .snd)))
     τρ₃≲τρ₁·τρ₂ i with ρ₃≲ρ₁·ρ₂ i
-    ... | left (j , P) = left (j , cong (⟦ τ ⟧t H) P)
-    ... | right (j , P) = right (j , cong (⟦ τ ⟧t H) P)
+    ... | left (j , P) = left (j , cong₂ _,_ (cong fst P) (cong (λ x → ⟦ τ ⟧t H (x .snd)) P)) -- 
+    ... | right (j , P) = right (j , cong₂ _,_ (cong fst P) (cong (λ x → ⟦ τ ⟧t H (x .snd)) P)) -- 
     
-    τρ₁≲τρ₃ : (i : Fin (fst (⟦ ρ₁ ⟧t H))) →
-              DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
-              (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₁ ⟧t H) i) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) j))
+    τρ₁≲τρ₃ : (i : Fin (⟦ ρ₁ ⟧t H .proj₁)) →
+      DP.Σ (Fin (⟦ ρ₃ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₁ ⟧t H .snd i .proj₁ , ⟦ τ ⟧t H (⟦ ρ₁ ⟧t H .snd i .snd)) ≡
+         (⟦ ρ₃ ⟧t H .snd j .proj₁ , ⟦ τ ⟧t H (⟦ ρ₃ ⟧t H .snd j .snd)))
     τρ₁≲τρ₃ i with ρ₁≲ρ₃ i
-    ... | j , P = j , cong (⟦ τ ⟧t H) P
+    ... | j , P = j , cong₂ _,_ (cong fst P) (cong (λ x → ⟦ τ ⟧t H (x .snd)) P) 
 
-    τρ₂τ≲τρ₃ : (i : Fin (fst (⟦ ρ₂ ⟧t H))) →
-              DP.Σ (Fin (fst (⟦ ρ₃ ⟧t H)))
-              (λ j → (⟦ τ ⟧t H) (snd (⟦ ρ₂ ⟧t H) i) ≡ (⟦ τ ⟧t H) (snd (⟦ ρ₃ ⟧t H) j))
+    τρ₂τ≲τρ₃ : (i : Fin (⟦ ρ₂ ⟧t H .proj₁)) →
+      DP.Σ (Fin (⟦ ρ₃ ⟧t H .proj₁))
+      (λ j →
+         (⟦ ρ₂ ⟧t H .snd i .proj₁ , ⟦ τ ⟧t H (⟦ ρ₂ ⟧t H .snd i .snd)) ≡
+         (⟦ ρ₃ ⟧t H .snd j .proj₁ , ⟦ τ ⟧t H (⟦ ρ₃ ⟧t H .snd j .snd)))
     τρ₂τ≲τρ₃ i with ρ₂≲ρ₃ i
-    ... | j , P = j , cong (⟦ τ ⟧t H) P
+    ... | j , P = j , cong₂ _,_ (cong fst P) (cong (λ x → ⟦ τ ⟧t H (x .snd)) P)
 ⟦ n-ε-R ⟧n H φ = ε-id-R
 ⟦ n-ε-L ⟧n H φ = ε-id-L
 ⟦ n-row≲ ρ₁ ρ₂ f ⟧n H Φ = help ρ₁ ρ₂ f H Φ

@@ -21,12 +21,12 @@ infix 0 _≡p_
 infix 0 _≡t_
 
 data _≡r_ : (m₁ m₂ : Row Δ κ) → Set where
-  req-sing : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} → 
+  req-sing : {l₁ l₂ : String} {τ₁ τ₂ : Type Δ κ} → 
              (l₁ ≡ l₂) → τ₁ ≡t τ₂ →
              -------------------------------
              (l₁ ▹ τ₁) ≡r (l₁ ▹ τ₁)
 
-  req-▹ : {l₁ l₂ : Label} {τ₁ τ₂ : Type Δ κ} {m₁ m₂ : Row Δ κ} 
+  req-▹ : {l₁ l₂ : String} {τ₁ τ₂ : Type Δ κ} {m₁ m₂ : Row Δ κ} 
            {ev₁ : l₁ ∉ m₁} {ev₂ : l₂ ∉ m₂} → 
              (l₁ ≡ l₂) → τ₁ ≡t τ₂ → m₁ ≡r m₂ →
              ------------------------------------
@@ -144,8 +144,9 @@ data _≡t_ where
   --------------------------------------------------------------------------------
   -- The simple row theory.
 
-  teq-labTy-row :  ∀ {l : Label} {τ : Type Δ κ} →
+  teq-labTy-row :  ∀ {l : String} {τ : Type Δ κ} →
   
+                
                    -----------------------
                    (lab {ℓ = ℓ} l R▹ τ) ≡t ⦃- l ▹ τ -⦄
 

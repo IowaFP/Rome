@@ -80,6 +80,7 @@ rename δ (f ↑) = rename δ f ↑
 rename δ ε = ε
 rename δ (⦃- ρ -⦄) = ⦃- renameRow δ ρ -⦄
 rename δ (μ X) = μ (rename δ X)
+rename δ (ρ₂ ─ ρ₁) = rename δ ρ₂ ─ rename δ ρ₁
 
 ∉?-≈-renameRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : String) (m : Row Δ₁ κ) (δ : Δ-map Δ₁ Δ₂) →
@@ -170,6 +171,7 @@ subst θ (f ↑) = subst θ f ↑
 subst θ ε = ε
 subst θ (μ X) = μ (subst θ X)
 subst θ ⦃- ρ -⦄ = ⦃- substRow θ ρ -⦄
+subst Θ (ρ₂ ─ ρ₁) = subst Θ ρ₂ ─ subst Θ ρ₁
 
 ∉?-≈-substRow : ∀ {ℓ ℓ₁ ℓ₂} {κ : Kind ℓ} {Δ₁ : KEnv ℓ₁} {Δ₂ : KEnv ℓ₂}  → 
        (l : String) (m : Row Δ₁ κ) (θ : Context Δ₁ Δ₂) →
