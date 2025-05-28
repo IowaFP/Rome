@@ -587,3 +587,37 @@ length-⇑ (x ∷ xs) = cong suc (length-⇑ xs)
 length-⇑-reify : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ κ) → 
                   length (⇑Row (reifyRow (n , P))) ≡ n
 length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)        
+
+--------------------------------------------------------------------------------
+--<$>V commutes over complement operators
+
+↻-<$>V-compl : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ) 
+              (P P' : Fin n → String × SemType Δ κ₁)
+              {oP : OrderedRow (n , P)}
+              {oP' : OrderedRow (n , P')}
+              (Q Q' : Fin m → String × SemType Δ κ₁) → 
+              {oQ : OrderedRow (m , Q)}
+              {oQ' : OrderedRow (m , Q')} →
+              (λ {Δ} → F {Δ}) ≋ (λ {Δ} → G {Δ}) → 
+              (n , P) ≋R (n , P') → 
+              (m , Q) ≋R (m , Q') → 
+              compl (overᵣ (F id) ∘ P) (overᵣ (F id) ∘ Q) ≋R compl (overᵣ (G id) ∘ P') (overᵣ (G id) ∘ Q')
+↻-<$>V-compl F G n m P P' Q Q' (_ , _ , Ext) (refl , PP) Q≋Q' = {!!} , {!!}
+
+↻-<$>V-─V : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ) 
+              (P P' : Fin n → String × SemType Δ κ₁)
+              {oP : OrderedRow (n , P)}
+              {oP' : OrderedRow (n , P')}
+              (Q Q' : Fin m → String × SemType Δ κ₁) → 
+              {oQ : OrderedRow (m , Q)}
+              {oQ' : OrderedRow (m , Q')} →
+              (λ {Δ} → F {Δ}) ≋ (λ {Δ} → G {Δ}) → 
+              (n , P) ≋R (n , P') → 
+              (m , Q) ≋R (m , Q') → 
+              (F <$>V (row (n , P) oP ─V row (m , Q) oQ)) ≋ 
+              ((G <$>V row (n , P') oP') ─V (G <$>V row (m , Q') oQ'))
+             
+↻-<$>V-─V F G zero zero P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , (λ ())
+↻-<$>V-─V F G zero (suc m) P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , λ ()
+↻-<$>V-─V F G (suc n) zero P P' {oP} {oP'} Q Q' {oQ} {oQ'} (_ , _ , Ext) (refl , PP) Q≋Q' = refl , λ i → (PP i .fst) , Ext id (PP i .snd)
+↻-<$>V-─V F G (suc n) (suc m) P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = {!↻-<$>V-compl F G (suc n) (suc m) P P' Q Q' F≋G P≋P' Q≋Q'!}

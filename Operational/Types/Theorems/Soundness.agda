@@ -129,7 +129,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (eq , sound-F) r₂ {v} {
       ((eq-trans 
         (eq-· (eq-· eq-refl (renₖ-≡t r₂ eq)) eq-refl) 
         (eq-trans (eq-· eq-β eq-refl) 
-        (eq-trans eq-β (eq-trans eq-▹$ (eq-▹ {!!} {!!}))))) , {!refl-⟦⟧r≋ !}))
+        (eq-trans eq-β (eq-trans eq-▹$ (eq-▹ (inst (trans (subₖ-weaken (renₖ r₂ (⇑NE l)) v) (sym (↻-ren-⇑NE r₂ l)))) {!!}))))) , {!refl-⟦⟧r≋ !}))
   
 sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {V₂ ─ V₁} rel r₂ {v} {V} rel-V = {!!}
 sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (eq , rel) =
@@ -307,8 +307,26 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
             eq-refl) 
           (reify-⟦⟧≋ (fundS τ₁ e id rel)))))) , 
   refl-⟦⟧≋ (fundS τ₁ e id rel)
-... | ρ₂ ─ ρ₁ | [[ eq ]] | (t-eq , (rel₂ , rel₁)) = 
-  (eq-trans (eq-<$> eq-refl t-eq) {!!}) , ({!!} , {!!})
+... | ne x₁ ─ ne x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = 
+  (eq-trans (eq-<$> eq-refl t-eq) (eq-trans eq-<$>-─ (eq-─ (eq-<$> (eq-trans eq-η (eq-λ (reify-⟦⟧≋ (fundS τ₁ e S {` Z} (reflect-⟦⟧≋ eq-refl)))) ) rel₂) {!!}))) , 
+  {!!} , 
+  {!!}
+... | ne x₁ ─ (x₂ ▹ x₃) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | ne x₁ ─ row ρ x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | ne x₁ ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (x₁ ▹ x₂) ─ ne x₃ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (x₁ ▹ x₂) ─ (x₃ ▹ x₄) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (x₁ ▹ x₂) ─ row ρ x₃ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (x₁ ▹ x₂) ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | row ρ x₁ ─ ne x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | row ρ x₁ ─ (x₂ ▹ x₃) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | row ρ x₁ ─ row ρ₁ x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | row ρ x₁ ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (ρ₂ ─ ρ₃) ─ ne x₁ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (ρ₂ ─ ρ₃) ─ (x₁ ▹ x₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (ρ₂ ─ ρ₃) ─ row ρ x₁ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+... | (ρ₂ ─ ρ₃) ─ (ρ₁ ─ ρ₄) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
+  -- (eq-trans (eq-<$> eq-refl t-eq) {!!}) , ({!!} , {!!})
 fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
 fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
 fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)

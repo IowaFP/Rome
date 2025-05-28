@@ -61,7 +61,7 @@ renₖ-≡t r (eq-▹ l τ) = eq-▹ (renₖ-≡t r l) (renₖ-≡t r τ)
 renₖ-≡t r (eq-─ ρ υ) = eq-─ (renₖ-≡t r ρ) (renₖ-≡t r υ)
 renₖ-≡t r eq-▹$ = eq-▹$
 renₖ-≡t r (eq-labTy eq) = eq-labTy (renₖ-≡t r eq)
-
+renₖ-≡t r (eq-<$>-─) = eq-<$>-─
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r eq-[] = eq-[]
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons l x eq) = eq-cons l (renₖ-≡t _ x) (renₖ-≡r r eq )
 
@@ -166,6 +166,7 @@ subₖ-≡t {σ = σ} (eq-lab refl) = eq-refl
 subₖ-≡t {σ = σ} (eq-─ eq₁ eq₂) = eq-─ (subₖ-≡t eq₁) (subₖ-≡t eq₂)
 subₖ-≡t {σ = σ} eq-▹$ = eq-▹$
 subₖ-≡t {σ = σ} (eq-labTy eq) = eq-labTy (subₖ-≡t {σ = σ} eq)
+subₖ-≡t {σ = σ} (eq-<$>-─) = eq-<$>-─
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons l x eq) = eq-cons l (subₖ-≡t x) (subₖ-≡r eq )
