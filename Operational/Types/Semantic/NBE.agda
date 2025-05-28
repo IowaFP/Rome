@@ -215,6 +215,8 @@ _─v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
 (suc n , P) ─v (zero , Q) = (suc n , P)
 (suc n , P) ─v (suc m , Q) = compl P Q
 
+
+
 ordered─v : ∀ (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
 ordered─v (zero , P) (zero , Q) oρ₂ oρ₁ = tt
 ordered─v (zero , P) (suc m , Q) oρ₂ oρ₁ = tt

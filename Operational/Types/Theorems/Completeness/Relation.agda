@@ -306,13 +306,14 @@ reifyRow-≋ {n = suc n} P Q eq =
 -- -- --------------------------------------------------------------------------------
 -- -- -- Functorial actions
 
--- -- renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂
--- -- renSem-id-≋ {κ = ★} refl = renₖNF-id _
--- -- renSem-id-≋ {κ = L} refl = renₖNF-id _
--- -- renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
--- -- renSem-id-≋ {κ = R[ κ ]} {left (left x)} {left (left y)} refl = renₖNE-id x
--- -- renSem-id-≋ {κ = R[ κ ]} {left (right (l₁ , τ₁))} {left (right (l₂ , τ₂))} (refl , rel) = renₖNE-id l₁ , renSem-id-≋ rel
--- -- renSem-id-≋ {κ = R[ κ ]} {right ((n , P) , _)} {right ((n , Q) , _)} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
+renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂
+renSem-id-≋ {κ = ★} refl = renₖNF-id _
+renSem-id-≋ {κ = L} refl = renₖNF-id _
+renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
+renSem-id-≋ {κ = R[ κ ]} {ne x} {ne y} refl = renₖNE-id x
+renSem-id-≋ {κ = R[ κ ]} {(l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} (refl , rel) = renₖNE-id l₁ , renSem-id-≋ rel
+renSem-id-≋ {κ = R[ κ ]} {row (n , P) _} {row (n , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
+renSem-id-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-id-≋ rel₁) , (renSem-id-≋ rel₂)
 
 renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))

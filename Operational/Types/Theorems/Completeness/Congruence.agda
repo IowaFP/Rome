@@ -143,18 +143,19 @@ cong-─V : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} →
            V₂ ≋ W₂ → 
            V₁ ≋ W₁ → 
            (V₂ ─V V₁) ≋ (W₂ ─V W₁)
-cong-─V {V₁ = V₁} {V₂} {W₁} {W₂} rel₁ rel₂ = {!!}
-
--- cong-─V {V₁ = left (left x₁)} {left (left x₂)} {left (left x₃)} {left (left x₄)} refl refl = refl
--- cong-─V {V₁ = left (left x)} {right ((n , P) , _)} {left (left y)} {right ((m , Q) , _)} (refl , rel) refl = 
---   cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel )) refl
--- cong-─V {V₁ = right ((n , P) , _)} {left (left x)} {right ((m , Q) , _)} {left (left y)} refl (refl , rel) = 
---   cong₂ _─₁_ refl (cong-⦅⦆ (reifyRow-≋ P Q rel))
--- cong-─V {V₁ = right ((n , P) , _)} {right ((m , Q) , _)} {right ((l , R) , _)} {right ((j , I) , _)} v₂ v₁ = 
---   cong-─v v₂ v₁ 
--- cong-─V {V₁ = left (left x₁)} {left (right y₁)} {left (left x₂)} {left (right y₂)} (refl , rel) refl = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) refl
--- cong-─V {V₁ = left (right y₁)} {left (left x₁)} {left (right y₂)} {left (left x₂)} refl (refl , rel) = cong₂ _─₁_ refl (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel)))
--- cong-─V {V₁ = left (right y₁)} {left (right y₂)} {left (right y₃)} {left (right y₄)} (refl , rel₁) (refl , rel₂) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel₁)) (cong-ne (cong₂ _▹ₙ_ refl (reify-≋ rel₂)))
--- cong-─V {V₁ = left (right y₁)} {right ((n , P) , _)} {W₁ = left (right y₂)} {right ((m , Q) , _)} (refl , rel-R) (refl , rel) = cong-─₂ (cong-⦅⦆ (reifyRow-≋ P Q rel-R)) (cong₂ _▹ₙ_ refl (reify-≋ rel))
--- cong-─V {V₁ = right ((n , P) , _)} {left (right y₃)} {right ((m , Q) , _)} {left (right y₄)} (refl , rel) (refl , rel-R) = cong₂ _─₁_ (cong₂ _▹ₙ_ refl (reify-≋ rel)) (cong-⦅⦆ (reifyRow-≋ P Q rel-R))
-
+cong-─V {V₁ = ne x₁} {ne x₂} {ne x₃} {ne x₄} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = ne x₁} {x₂ ▹ x₃} {ne x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = x₁ ▹ x₂} {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = x₁ ▹ x₂} {row ρ x₃} {x₄ ▹ x₅} {row ρ₁ x₆} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = x₁ ▹ x₂} {V₂ ─ V₃} {x₃ ▹ x₄} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = row ρ x₁} {ne x₂} {row ρ₁ x₃} {ne x₄} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = row ρ x₁} {x₂ ▹ x₃} {row ρ₁ x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = cong-─v rel₁ rel₂
+cong-─V {V₁ = row ρ x₁} {V₂ ─ V₃} {row ρ₁ x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = V₁ ─ V₂} {ne x₁} {W₁ ─ W₂} {ne x₂} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = V₁ ─ V₂} {x₁ ▹ x₂} {W₁ ─ W₂} {x₃ ▹ x₄} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = V₁ ─ V₂} {row ρ x₁} {W₁ ─ W₂} {row ρ₁ x₂} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = V₁ ─ V₂} {V₃ ─ V₄} {W₁ ─ W₂} {W₃ ─ W₄} rel₁ rel₂ = rel₁ , rel₂
