@@ -95,9 +95,9 @@ sym-≋ {κ = κ `→ κ₁}
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
 sym-≋ {κ = R[ κ ]} {ne _} {ne x₂} q = sym q
 sym-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} (eq , rel) = sym eq  , sym-≋ rel
-sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) = 
-  refl , 
-  (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
+sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) = {!!} 
+  -- refl , 
+  -- (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
 sym-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (sym-≋ rel₁) , (sym-≋ rel₂)
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)

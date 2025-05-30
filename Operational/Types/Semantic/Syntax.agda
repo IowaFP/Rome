@@ -125,17 +125,27 @@ subst-Fin refl i = i
 subst-Row : ∀ {A : Set} {n m : ℕ} → (n ≡ m) → (f : Fin n → A) → Fin m → A 
 subst-Row refl f = f
 
-subst-Row-reduction : ∀ {n m} {A : Set} → 
-                      ∀ (p : suc n ≡  suc m) (f : Fin (suc n) → A) → 
-                      subst-Row p f fzero ≡ f fzero
-subst-Row-reduction refl f = refl
+cong-subst-Row : ∀ {A : Set} 
+                 {n m : ℕ} {ρ₁ ρ₂ : Fin n → A} {p₁ p₂ : n ≡ m} → ρ₁ ≡ ρ₂ → subst-Row p₁ ρ₁ ≡ subst-Row p₂ ρ₂ 
+cong-subst-Row {p₁ = p₁} {p₂} refl rewrite UIP p₁ p₂ = refl
 
-subst-Row-reduction×₁ : ∀ {n m} {A B : Set} → 
-                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
-                      subst-Row p f fzero .fst ≡ f fzero .fst
-subst-Row-reduction×₁ refl f = refl
+-- reduce-subst-Row : ∀ {A : Set} 
+--                      {n m : ℕ} {ρ₁ ρ₂ : Fin n → A} {p₁ p₂ : n ≡ m} → ρ₁ ≡ ρ₂ → subst-Row p₁ ρ₁ ≡ ρ₁
+-- reduce-subst-Row eq = ?
 
-subst-Row-reduction×₂ : ∀ {n m} {A B : Set} → 
-                      ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
-                      subst-Row p f fzero .snd ≡ f fzero .snd
-subst-Row-reduction×₂ refl f = refl
+
+
+-- subst-Row-reduction : ∀ {n m} {A : Set} → 
+--                       ∀ (p : suc n ≡  suc m) (f : Fin (suc n) → A) → 
+--                       subst-Row p f fzero ≡ f fzero
+-- subst-Row-reduction refl f = refl
+
+-- subst-Row-reduction×₁ : ∀ {n m} {A B : Set} → 
+--                       ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+--                       subst-Row p f fzero .fst ≡ f fzero .fst
+-- subst-Row-reduction×₁ refl f = refl
+
+-- subst-Row-reduction×₂ : ∀ {n m} {A B : Set} → 
+--                       ∀ (p : suc n ≡ suc m) (f : Fin (suc n) → A × B) → 
+--                       subst-Row p f fzero .snd ≡ f fzero .snd
+-- subst-Row-reduction×₂ refl f = refl

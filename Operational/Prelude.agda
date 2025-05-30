@@ -89,9 +89,15 @@ cong₃ f refl refl refl = refl
 -- A type A is a *mere proposition* if it is term irrelevant: any two inhabitants
 -- are equal.
 
+UIP : ∀ {A : Set} {x y : A} → (p₁ p₂ : x ≡ y) → p₁ ≡ p₂
+UIP {A} {x} {y} refl refl = refl
+
 Dec→Irrelevant : ∀ (P : Set) → (d : Dec P) → Irrelevant (True d)
 Dec→Irrelevant P (yes d) p₁ p₂ = refl
 Dec→Irrelevant P (no  d) p₁ p₂ = refl
+
+
+
 
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type
