@@ -400,7 +400,7 @@ Dec→Irrelevant P (no  d) p₁ p₂ = {!!}
 
 -- It's simple to show that True (ordered? ρ) is a mere proposition now.
 IrrelevantOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → IsIrrelevant (True (ordered? ρ))
-IrrelevantOrdered ρ = Dec→Irrelevant (Ordered ρ) (ordered? ρ)
+IrrelevantqOrdered ρ = Dec→Irrelevant (Ordered ρ) (ordered? ρ)
 
 -- The punchline follows: We may now write a congruence lemma for row types.
 -- The lemma states that if we have two simplerows which are equivalent (but
