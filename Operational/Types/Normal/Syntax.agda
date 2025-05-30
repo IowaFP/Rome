@@ -161,13 +161,13 @@ normalOrdered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrde
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
 
-NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
-NormalMerePropOrdered ρ = Dec→Irrelevant (NormalOrdered ρ) (normalOrdered? ρ)
+NormalIrrelevantOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → Irrelevant (True (normalOrdered? ρ))
+NormalIrrelevantOrdered ρ = Dec→Irrelevant (NormalOrdered ρ) (normalOrdered? ρ)
 
 cong-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂)
-cong-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+cong-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalIrrelevantOrdered sr₁ wf₁ wf₂ = refl
 
 
 inj-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} 
@@ -175,7 +175,7 @@ inj-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]}
          {wf₂ : True (normalOrdered? sr₂)} → 
          _≡_ {A = NormalType Δ R[ κ ]} (⦅ sr₁ ⦆ wf₁) (⦅ sr₂ ⦆ wf₂) → 
          sr₁ ≡ sr₂
-inj-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalMerePropOrdered sr₁ wf₁ wf₂ = refl
+inj-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalIrrelevantOrdered sr₁ wf₁ wf₂ = refl
                 
 
 --------------------------------------------------------------------------------
@@ -242,8 +242,8 @@ notSimpleRows? (ρ₂ ─ ρ₃) _ = yes (left tt)
 notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
 
-NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
-NormalMereProp ρ = Dec→Irrelevant (IsNormal ρ) (isNormal? ρ)
+NormalIrrelevant : ∀ (τ : NormalType Δ κ) → Irrelevant (True (isNormal? τ))
+NormalIrrelevant ρ = Dec→Irrelevant (IsNormal ρ) (isNormal? ρ)
 
 cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
           {τ₁ υ₁ : NormalType Δ R[ κ ]}
@@ -260,14 +260,14 @@ cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite D
 --                  τ₂ ≡ υ₂ → 
 --                  τ₁ ≡ υ₁ → 
 --                 _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
--- cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl
+-- cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalIrrelevant τ₂ isNorm₁ isNorm₂ = refl
 
 -- inj-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
 --           {τ₁ υ₁ : NeutralType Δ R[ κ ]}
 --           {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
 --           _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂}) → 
 --           τ₁ ≡ υ₁ × τ₂ ≡ υ₂
--- inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite NormalMereProp τ₂ isNorm₁ isNorm₂ = refl , refl
+-- inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite NormalIrrelevant τ₂ isNorm₁ isNorm₂ = refl , refl
 
 
 --------------------------------------------------------------------------------

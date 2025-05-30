@@ -144,7 +144,7 @@ ne τ₁ ≡? ne τ₂ with τ₁ ≡NE? τ₂
 ... | yes refl = yes (cong-ne refl)
 ... | no  p = no (λ { x → p (inj-ne x) })
 ⦅ ρ₁ ⦆ oρ₁ ≡? ⦅ ρ₂ ⦆ oρ₂ with ρ₁ ≡Row? ρ₂ 
-... | yes refl rewrite NormalMerePropOrdered ρ₁ oρ₁ oρ₂  = yes refl
+... | yes refl rewrite NormalIrrelevantOrdered ρ₁ oρ₁ oρ₂  = yes refl
 ... | no  p  = no (λ { refl → p refl })
 -- nuisance cases
 ne x ≡? (τ₂ `→ τ₃) = no (λ ())

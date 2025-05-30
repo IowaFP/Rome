@@ -388,19 +388,19 @@ renRowₖ-id ((l , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ (renₖ-id l) (ren�
 -- True (ordered? ρ) is a *mere proposition*, meaning any two inhabitants of the type
 -- are equal. In other words, proofs of this proposition are *irrellevant*.
 -- 
-IsMereProp : ∀ (A : Set) → Set 
-IsMereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
+IsIrrelevant : ∀ (A : Set) → Set 
+IsIrrelevant A = (p₁ p₂ : A) → p₁ ≡ p₂
 
 -- You would expect this shit to be true: any two inhabitants of True (ordered?
 -- p) equal ⊤. There is a broader generalization here then to utilize:
 --  any predicate of the form (True d) for (d : Dec P) is a mere proposition.
-Dec→Irrelevant : ∀ (P : Set) → (d : Dec P) → IsMereProp (True d)
+Dec→Irrelevant : ∀ (P : Set) → (d : Dec P) → IsIrrelevant (True d)
 Dec→Irrelevant P (yes d) p₁ p₂ = {!!}
 Dec→Irrelevant P (no  d) p₁ p₂ = {!!}
 
 -- It's simple to show that True (ordered? ρ) is a mere proposition now.
-MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → IsMereProp (True (ordered? ρ))
-MerePropOrdered ρ = Dec→Irrelevant (Ordered ρ) (ordered? ρ)
+IrrelevantOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → IsIrrelevant (True (ordered? ρ))
+IrrelevantOrdered ρ = Dec→Irrelevant (Ordered ρ) (ordered? ρ)
 
 -- The punchline follows: We may now write a congruence lemma for row types.
 -- The lemma states that if we have two simplerows which are equivalent (but

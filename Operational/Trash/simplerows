@@ -32,7 +32,7 @@ labels (ℓ ▹ τ ⸴ ρ) = ℓ ∷ labels ρ
 -- NoDuplicate predicate on simple rows
 
 NoDup : List Label → Set
-NoDup xs = ∀ (x : Label) → MereProp (x ∈ xs)
+NoDup xs = ∀ (x : Label) → Irrelevant (x ∈ xs)
 
 -- The NoDup predicate is decidable
 noDup? : (xs : List Label) → Dec (NoDup xs)
@@ -56,9 +56,9 @@ WFRow : ∀ {Ty} → SimpleRow Ty Δ R[ κ ] → Set
 WFRow ρ = True (noDup? (labels ρ))
 
 -- Any proof that ρ has no duplicates is identical
-MerePropWFRow : ∀ {Ty} (ρ : SimpleRow Ty Δ R[ κ ])  → MereProp (WFRow ρ)
-MerePropWFRow (ℓ ▹ τ) p₁ p₂ = refl
-MerePropWFRow (ℓ ▹ τ ⸴ ρ) p₁ p₂ with ℓ ∈? labels ρ
+IrrelevantWFRow : ∀ {Ty} (ρ : SimpleRow Ty Δ R[ κ ])  → Irrelevant (WFRow ρ)
+IrrelevantWFRow (ℓ ▹ τ) p₁ p₂ = refl
+IrrelevantWFRow (ℓ ▹ τ ⸴ ρ) p₁ p₂ with ℓ ∈? labels ρ
 ... | yes p = refl
 ... | no p  with labels ρ | noDup? (labels ρ)
 ...              | c | yes q = refl
@@ -90,4 +90,4 @@ labelsFixedByMap f (ℓ ▹ τ ⸴ ρ) rewrite labelsFixedByMap f ρ = refl
 
 cong-SimpleRow : (sr : SimpleRow Type Δ R[ κ ]) {wf₁ : WFRow sr} {wf₂ : WFRow sr} → 
                 ⦅ sr ⦆ wf₁ ≡ ⦅ sr ⦆ wf₂
-cong-SimpleRow sr {wf₁} {wf₂} rewrite MerePropWFRow sr wf₁ wf₂ = refl
+cong-SimpleRow sr {wf₁} {wf₂} rewrite IrrelevantWFRow sr wf₁ wf₂ = refl
