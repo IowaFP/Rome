@@ -138,7 +138,12 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , fst₂ , (idext e F .snd .snd id snd₂)
 ... | c₂ ─ c₁ | d₂ ─ d₁ | fst₂ , snd₂ = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , (cong-<$> (idext e F) fst₂) , (cong-<$> (idext e F) snd₂)
-... | row (m , Q) oρ₁-1 | row (.m , Q') oρ₁-2 | refl , J = ↻-<$>V-─V (eval F η₁) (eval F η₂) n m P P' {oρ₂-1} {oρ₂-2} Q Q' {oρ₁-1} {oρ₁-2} (idext e F) (refl , I) (refl , J)
+... | row (m , Q) oρ₁-1 | row (.m , Q') oρ₁-2 | refl , J = 
+  ↻-<$>V-─V 
+    (eval F η₁) (eval F η₂) 
+    n m P P' {oρ₂-1} {oρ₂-2} 
+    Q Q' {oρ₁-1} {oρ₁-2} 
+    (idext e F) (refl , I) (refl , J)
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 
