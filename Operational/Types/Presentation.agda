@@ -394,13 +394,13 @@ IsMereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
 -- You would expect this shit to be true: any two inhabitants of True (ordered?
 -- p) equal ⊤. There is a broader generalization here then to utilize:
 --  any predicate of the form (True d) for (d : Dec P) is a mere proposition.
-Dec→MereProp : ∀ (P : Set) → (d : Dec P) → IsMereProp (True d)
-Dec→MereProp P (yes d) p₁ p₂ = {!!}
-Dec→MereProp P (no  d) p₁ p₂ = {!!}
+Dec→Irrelevant : ∀ (P : Set) → (d : Dec P) → IsMereProp (True d)
+Dec→Irrelevant P (yes d) p₁ p₂ = {!!}
+Dec→Irrelevant P (no  d) p₁ p₂ = {!!}
 
 -- It's simple to show that True (ordered? ρ) is a mere proposition now.
 MerePropOrdered : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → IsMereProp (True (ordered? ρ))
-MerePropOrdered ρ = Dec→MereProp (Ordered ρ) (ordered? ρ)
+MerePropOrdered ρ = Dec→Irrelevant (Ordered ρ) (ordered? ρ)
 
 -- The punchline follows: We may now write a congruence lemma for row types.
 -- The lemma states that if we have two simplerows which are equivalent (but

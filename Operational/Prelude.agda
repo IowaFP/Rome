@@ -42,7 +42,7 @@ open import Relation.Binary.PropositionalEquality as Eq
 open import Relation.Binary.Definitions using (Decidable ; DecidableEquality) public
 open import Relation.Nullary using (¬_) public
 open import Relation.Nullary.Negation using (contradiction; contraposition) public
-open import Relation.Nullary using (Dec; yes; no ; map′) public
+open import Relation.Nullary using (Dec; yes; no ; map′ ; Irrelevant) public
 open import Relation.Nullary.Decidable using (True ; toWitness ; fromWitness) public renaming (⌊_⌋ to ∥_∥)
 -- open import Relation.Unary using (_⊆_) public
 
@@ -89,12 +89,9 @@ cong₃ f refl refl refl = refl
 -- A type A is a *mere proposition* if it is term irrelevant: any two inhabitants
 -- are equal.
 
-MereProp : ∀ (A : Set) → Set 
-MereProp A = (p₁ p₂ : A) → p₁ ≡ p₂
-
-Dec→MereProp : ∀ (P : Set) → (d : Dec P) → MereProp (True d)
-Dec→MereProp P (yes d) p₁ p₂ = refl
-Dec→MereProp P (no  d) p₁ p₂ = refl
+Dec→Irrelevant : ∀ (P : Set) → (d : Dec P) → Irrelevant (True d)
+Dec→Irrelevant P (yes d) p₁ p₂ = refl
+Dec→Irrelevant P (no  d) p₁ p₂ = refl
 
 --------------------------------------------------------------------------------
 -- Absurd elimination of Any type

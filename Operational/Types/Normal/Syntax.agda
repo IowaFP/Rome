@@ -162,7 +162,7 @@ normalOrdered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | normalOrde
 ... | no  p | no  q  = no (λ { (x , _) → p x})
 
 NormalMerePropOrdered : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → MereProp (True (normalOrdered? ρ))
-NormalMerePropOrdered ρ = Dec→MereProp (NormalOrdered ρ) (normalOrdered? ρ)
+NormalMerePropOrdered ρ = Dec→Irrelevant (NormalOrdered ρ) (normalOrdered? ρ)
 
 cong-⦅⦆ : {sr₁ sr₂ : SimpleRow NormalType Δ R[ κ ]} {wf₁ : True (normalOrdered? sr₁)} {wf₂ : True (normalOrdered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
@@ -243,7 +243,7 @@ notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
 
 NormalMereProp : ∀ (τ : NormalType Δ κ) → MereProp (True (isNormal? τ))
-NormalMereProp ρ = Dec→MereProp (IsNormal ρ) (isNormal? ρ)
+NormalMereProp ρ = Dec→Irrelevant (IsNormal ρ) (isNormal? ρ)
 
 cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
           {τ₁ υ₁ : NormalType Δ R[ κ ]}
@@ -252,7 +252,7 @@ cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
                  τ₂ ≡ υ₂ → 
                  τ₁ ≡ υ₁ → 
                 _≡_ {A = NormalType Δ R[ κ ]} ((τ₂ ─ τ₁) {nsr₁}) ((υ₂ ─ υ₁) {nsr₂})
-cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite Dec→MereProp _ (notSimpleRows? τ₂ τ₁) x x₁ = refl
+cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite Dec→Irrelevant _ (notSimpleRows? τ₂ τ₁) x x₁ = refl
 
 -- cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
 --           {τ₁ υ₁ : NeutralType Δ R[ κ ]}
@@ -370,14 +370,14 @@ inj-Σ refl = refl
 -- injectivity ne constructor
 
 inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g₁ g₂ : True (ground? κ)} → ne e₁ {g₁} ≡ ne e₂ {ground = g₂} → e₁ ≡ e₂
-inj-ne {κ = κ} {g₁ = g₁} {g₂ = g₂} refl rewrite Dec→MereProp (Ground κ) (ground? κ) g₁ g₂ = refl
+inj-ne {κ = κ} {g₁ = g₁} {g₂ = g₂} refl rewrite Dec→Irrelevant (Ground κ) (ground? κ) g₁ g₂ = refl
 
 --------------------------------------------------------------------------------
 -- Congruene for ne constructor
 
 cong-ne : ∀ {x y : NeutralType Δ κ} {g₁ : True (ground? κ)} {g₂ : True (ground? κ)} →
           x ≡ y → ne x {g₁} ≡ ne y {g₂}
-cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→MereProp (Ground κ) (ground? κ) g₁ g₂ = refl
+cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→Irrelevant (Ground κ) (ground? κ) g₁ g₂ = refl
 
 --------------------------------------------------------------------------------
 -- Rows are either neutral or labeled types

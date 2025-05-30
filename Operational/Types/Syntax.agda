@@ -158,7 +158,7 @@ ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ 
 cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
-cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→MereProp (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
+cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
 
 --------------------------------------------------------------------------------
 -- Helpers for mapping over the tuples inside rows
