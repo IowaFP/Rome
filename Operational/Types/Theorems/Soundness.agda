@@ -245,13 +245,20 @@ map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {n
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-
 fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
+
+--------------------------------------------------------------------------------
+-- Fundamental lemma for rows
+
 fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
+fundSRow [] e = tt
+fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
 
+--------------------------------------------------------------------------------
 -- mapping an application over a row is application of the semantic row.
+
 fundS-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
@@ -264,39 +271,97 @@ fundS-map-app zero P _ _ _ = tt
 fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
   (refl , (subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id (rel-fzero .snd)))) ,
   fundS-map-app n (P ∘ fsuc) τ₁ rel-fsuc e
+
+--------------------------------------------------------------------------------
+-- Fundamental lemma for predicates
           
 fundSPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
 fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
 
-fundSRow [] e = tt
-fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
+--------------------------------------------------------------------------------
+-- Syntactic application commutes over (⇑ ∘ reify) into semantic application
 
--- This is likely a deadend
-↻-⇑-reify-· : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+↻-syn/sem-app : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
                      ⟦ σ ⟧≋e η → 
                      (f : Type Δ₁ (κ₁ `→ κ₂)) (τ : SemType Δ₂ κ₁) → 
+                     ⟦ ⇑ (reify τ) ⟧≋ τ → 
                      subₖ σ f · ⇑ (reify τ) ≡t ⇑ (reify (eval f η ·V τ))
-↻-⇑-reify-· e f τ = 
+↻-syn/sem-app {σ = σ} e f τ rel = 
   eq-trans 
-    (eq-· ((reify-⟦⟧≋ (fundS f e))) eq-refl) 
-  (eq-trans 
-    eq-β 
-  (eq-trans 
-    (eq-trans 
-      {!!} 
-    (eq-· ( inst (↻-renₖ-subₖ {r = id} f)) eq-refl)) 
-  (reify-⟦⟧≋ (fundS f e id {⇑ (reify τ)} {τ} {!!}))))
+    (eq-· (inst (sym (renₖ-id (subₖ σ f)))) eq-refl)
+  (reify-⟦⟧≋ (fundS f e id {⇑ (reify τ)} {τ} rel))
 
-↻-⇑-reify-<$> : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+--------------------------------------------------------------------------------
+-- Syntactic mapping commutes over (⇑ ∘ reify) into semantic mapping
+
+↻-syn/sem-<$> : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
                      ⟦ σ ⟧≋e η → 
                      (f : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SemType Δ₂ R[ κ₁ ]) → 
+                     ⟦ ⇑ (reify ρ) ⟧≋ ρ → 
                      subₖ σ f <$> ⇑ (reify ρ) ≡t ⇑ (reify (eval f η <$>V ρ))
-↻-⇑-reify-<$> e f (ne x₁) = eq-<$> (reify-⟦⟧≋ (fundS f e)) eq-refl
-↻-⇑-reify-<$> e f (x₁ ▹ x₂) = eq-trans eq-▹$ (eq-▹ eq-refl {!!})
-↻-⇑-reify-<$> e f (row ρ x₁) = {!!}
-↻-⇑-reify-<$> e f (ρ ─ ρ₁) = {!!}
+
+--------------------------------------------------------------------------------
+-- Syntactic mapping commutes over (⇑ ∘ reify) for complements
+
+↻-syn/sem-<$>-─ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+                     ⟦ σ ⟧≋e η → 
+                     (f : Type Δ₁ (κ₁ `→ κ₂)) (ρ₂ ρ₁ : SemType Δ₂ R[ κ₁ ]) → 
+                     ⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂ → 
+                     ⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁ → 
+                     {nr : NotRow ρ₂ or NotRow ρ₁} → 
+                     subₖ σ f <$> ⇑ (reify ((ρ₂ ─ ρ₁) {nr})) ≡t ⇑ (reify ((eval f η <$>V ρ₂) ─ (eval f η <$>V ρ₁)))
+↻-syn/sem-<$>-─ e f (ne x₁) ρ₁ rel₂ rel₁ = 
+  eq-trans eq-<$>-─ (eq-─ (eq-<$> 
+    (reify-⟦⟧≋ (fundS f e)) eq-refl) (↻-syn/sem-<$> e f ρ₁ rel₁))
+↻-syn/sem-<$>-─ e f (x₁ ▹ x₂) ρ₁ rel₂ rel₁ = 
+  eq-trans eq-<$>-─ 
+    (eq-─ (eq-trans eq-▹$ (eq-▹ eq-refl (↻-syn/sem-app e f x₂ (rel₂ .snd)))) ((↻-syn/sem-<$> e f ρ₁ rel₁)))
+↻-syn/sem-<$>-─ e f (ρ₂ ─ ρ₃) ρ₁ rel₂ rel₁ = 
+  eq-trans 
+    eq-<$>-─ (eq-─ (↻-syn/sem-<$>-─ e f ρ₂ ρ₃ (rel₂ .snd .fst) (rel₂ .snd .snd)) (↻-syn/sem-<$> e f ρ₁ rel₁))
+↻-syn/sem-<$>-─ e f (row (n , P) x₁) (ne x₂) rel₂ rel₁ = 
+  eq-trans 
+    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (eq-<$> (reify-⟦⟧≋ (fundS f e)) eq-refl))
+↻-syn/sem-<$>-─ e f (row (n , P) x₁) (x₂ ▹ x₃) rel₂ rel₁ = 
+  eq-trans 
+    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (eq-trans eq-▹$ (eq-▹ eq-refl (↻-syn/sem-app e f x₃ (rel₁ .snd)))))
+↻-syn/sem-<$>-─ e f (row (n , P) x₁) (row ρ x₂) rel₂ rel₁ {left ()}
+↻-syn/sem-<$>-─ e f (row (n , P) x₁) (row ρ x₂) rel₂ rel₁ {right ()}
+↻-syn/sem-<$>-─ e f (row (n , P) x₁) (ρ₁ ─ ρ₃) rel₂ rel₁ = 
+  eq-trans 
+    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (↻-syn/sem-<$>-─ e f ρ₁ ρ₃ (rel₁ .snd .fst) (rel₁ .snd .snd)))
+
+--------------------------------------------------------------------------------
+-- ↻-syn/sem-<$> definition
+
+↻-syn/sem-<$> e f (ne x₁) rel = eq-<$> (reify-⟦⟧≋ (fundS f e)) rel
+↻-syn/sem-<$> {σ = σ} e f (x₁ ▹ x₂) rel = 
+      eq-trans eq-▹$ (eq-▹ eq-refl 
+      (eq-trans 
+      (eq-· (inst (sym (renₖ-id (subₖ σ f)))) eq-refl) 
+        (reify-⟦⟧≋ (fundS f e id (rel .snd)))))
+↻-syn/sem-<$> e f (row (n , P) x₁) rel = eq-trans eq-map (eq-row (reify-⟦⟧r≋ (fundS-map-app n P f (rel .snd) e)))
+↻-syn/sem-<$> e f ((ρ₄ ─ ρ₃) {nr}) rel = ↻-syn/sem-<$>-─ e f ρ₄ ρ₃ (rel .snd .fst) (rel .snd .snd) {nr}
+
+--------------------------------------------------------------------------------
+-- Semantic mapping preserves the soundness relation
+
+rel-<$> :  ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+           ⟦ σ ⟧≋e η → 
+           (f : Type Δ₁ (κ₁ `→ κ₂))
+           (ρ : RowType Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
+         ⟦ ⇑ (reify ρ) ⟧≋ ρ → 
+         ⟦ ⇑ (reify (eval f η <$>V ρ)) ⟧≋ (eval f η <$>V ρ)
+rel-<$> e f (ne x₁) r = eq-refl
+rel-<$> e f (x₁ ▹ x₂) r = eq-refl , refl-⟦⟧≋ (fundS f e id (r .snd))
+rel-<$> e f (row (zero , P) x₁) r = (eq-row reflᵣ) , tt
+rel-<$> e f (row (suc n , P) x₁) (_ , rel) = (eq-row reflᵣ) , overᵣ-⟦⟧≋ {n = suc n} {P = P} f (fundS f e) rel   
+rel-<$> e f (ρ₄ ─ ρ₃) r = eq-refl , (rel-<$> e f ρ₄ (r .snd .fst)) , (rel-<$> e f ρ₃ (r .snd .snd))
+
+--------------------------------------------------------------------------------
+-- Fundamental lemma definition 
 
 fundS (` α) {σ} {η} e = e α
 fundS (`λ τ) {σ} {η} e ρ {v} {V} q = 
@@ -357,35 +422,12 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
             eq-refl) 
           (reify-⟦⟧≋ (fundS τ₁ e id rel)))))) , 
   refl-⟦⟧≋ (fundS τ₁ e id rel)
-... | ((ρ₂  ─ ρ₁) {nr}) | [[ eq ]] | t-eq , rel₂ , rel₁ = 
+fundS  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ} {η} e | (ρ₂ ─ ρ₁) {nr} | [[ eq ]] | t-eq , rel₂ , rel₁ = 
   (eq-trans 
     (eq-<$> eq-refl t-eq) 
-  (eq-trans 
-    (eq-<$> eq-refl (↻-⇑-reify-─ ρ₂ ρ₁ {nr} )) 
-  (eq-trans 
-    eq-<$>-─ 
-  (eq-trans 
-    -- deadend... Just destruct ρ₂ and ρ₁.
-    (eq-─ {!!} {!!}) 
-    (eq-sym (↻-⇑-reify-─ (eval τ₁ η <$>V ρ₂) (eval τ₁ η <$>V ρ₁) {{!!}})))))) , {!!}
---   eq-<$> {!!} {!!} , 
---   {!!}
--- ... | ne x₁ ─ (x₂ ▹ x₃) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | ne x₁ ─ row ρ x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | ne x₁ ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (x₁ ▹ x₂) ─ ne x₃ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (x₁ ▹ x₂) ─ (x₃ ▹ x₄) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (x₁ ▹ x₂) ─ row ρ x₃ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (x₁ ▹ x₂) ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | row ρ x₁ ─ ne x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | row ρ x₁ ─ (x₂ ▹ x₃) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | row ρ x₁ ─ row ρ₁ x₂ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | row ρ x₁ ─ (ρ₁ ─ ρ₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (ρ₂ ─ ρ₃) ─ ne x₁ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (ρ₂ ─ ρ₃) ─ (x₁ ▹ x₂) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (ρ₂ ─ ρ₃) ─ row ρ x₁ | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
--- ... | (ρ₂ ─ ρ₃) ─ (ρ₁ ─ ρ₄) | [[ eq ]] | t-eq , rel₂ , rel₁ = {!!}
-  -- (eq-trans (eq-<$> eq-refl t-eq) {!!}) , ({!!} , {!!})
+    (↻-syn/sem-<$>-─ e τ₁ ρ₂ ρ₁ rel₂ rel₁)) , 
+    rel-<$> e τ₁ ρ₂ rel₂ , 
+    rel-<$> e τ₁ ρ₁ rel₁
 fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
 fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
 fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)

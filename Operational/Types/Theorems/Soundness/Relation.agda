@@ -259,5 +259,17 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env �
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
      
-      
- 
+--------------------------------------------------------------------------------
+-- 
+
+overᵣ-⟦⟧≋ : ∀ {n : ℕ} 
+             {P : Fin n → Label × SemType Δ₂ κ₁} 
+             {σ : Substitutionₖ Δ₁ Δ₂}
+             {η : Env Δ₁ Δ₂}
+             (f : Type Δ₁ (κ₁ `→ κ₂)) → 
+             ⟦ subₖ σ f ⟧≋ (eval f η) → 
+             ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
+            ⟦ ⇑Row (reifyRow (n , overᵣ (eval f η id) ∘ P)) ⟧r≋ (n , (overᵣ (eval f η id)) ∘ P)
+overᵣ-⟦⟧≋ {n = zero} F rel-f rel = tt
+overᵣ-⟦⟧≋ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) = 
+  (refl , (refl-⟦⟧≋ (rel-f id rel-fzero))) , overᵣ-⟦⟧≋ {n = n} F rel-f rel-fsuc 
