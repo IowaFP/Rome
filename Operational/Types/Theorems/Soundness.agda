@@ -129,7 +129,31 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (eq , sound-F) r₂ {v} {
       ((eq-trans 
         (eq-· (eq-· eq-refl (renₖ-≡t r₂ eq)) eq-refl) 
         (eq-trans (eq-· eq-β eq-refl) 
-        (eq-trans eq-β (eq-trans eq-▹$ (eq-▹ (inst (trans (subₖ-weaken (renₖ r₂ (⇑NE l)) v) (sym (↻-ren-⇑NE r₂ l)))) {!!}))))) , {!refl-⟦⟧r≋ !}))
+        (eq-trans 
+          eq-β 
+        (eq-trans 
+          eq-▹$ 
+          (eq-▹ 
+            (inst (trans (subₖ-weaken (renₖ r₂ (⇑NE l)) v) (sym (↻-ren-⇑NE r₂ l)))) 
+            (eq-trans 
+              eq-β 
+            (eq-trans 
+              eq-β 
+            (eq-trans 
+              (inst (sym (subₖ-comp (renₖ (liftₖ S)
+              (renₖ (liftₖ r₂) (⇑ (reify (F S (reflect (` Z)))))))))) 
+            (eq-trans 
+              (inst (sym (↻-subₖ-renₖ (renₖ (liftₖ r₂) (⇑ (reify (F S (reflect (` Z))))))))) 
+            (eq-trans 
+              (inst 
+                (subₖ-cong {σ₂ = extendₖ ` (renₖ id v)} 
+                (λ { Z → trans (subₖ-weaken v _) (sym (renₖ-id v)) ; (S x₁) → refl }) 
+                (renₖ (liftₖ r₂) (⇑ (reify (F S (reflect (` Z)))))))) 
+              (eq-trans 
+                (eq-sym 
+                  (eq-β {τ₁ = renₖ (liftₖ r₂) (⇑ (reify (F S (reflect (` Z)))))} {renₖ id v})) 
+              (reify-⟦⟧≋ (sound-F r₂ (ren-⟦⟧≋ id rel-V)))))))))))))) , 
+    refl-⟦⟧≋ (sound-F r₂ {_} {renSem id V} (ren-⟦⟧≋ id rel-V))))
   
 sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {V₂ ─ V₁} rel r₂ {v} {V} rel-V = {!!}
 sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (eq , rel) =
