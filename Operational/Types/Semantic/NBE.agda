@@ -210,17 +210,14 @@ ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
 -- Semantic complement on Rows
                 
 _─v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
-(zero , P) ─v (zero , Q) = εV
-(zero , P) ─v (suc m , Q) = εV
-(suc n , P) ─v (zero , Q) = (suc n , P)
-(suc n , P) ─v (suc m , Q) = compl P Q
+(n , P) ─v (m , Q) = compl P Q
 
 
 
 ordered─v : ∀ (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
 ordered─v (zero , P) (zero , Q) oρ₂ oρ₁ = tt
 ordered─v (zero , P) (suc m , Q) oρ₂ oρ₁ = tt
-ordered─v (suc n , P) (zero , Q) oρ₂ oρ₁ = oρ₂
+ordered─v (suc n , P) (zero , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
 ordered─v (suc n , P) (suc m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
 
 -- -- -- --------------------------------------------------------------------------------

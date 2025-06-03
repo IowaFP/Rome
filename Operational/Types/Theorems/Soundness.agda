@@ -54,7 +54,7 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation public
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nr} = eq-refl
 
 --------------------------------------------------------------------------------
--- mapping over a row commutes into the row
+-- syntactic mapping relates to semantic precomposition
 
 map-over-⇑Row : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
                 (n : ℕ) (P : Fin n → Label × SemType Δ κ₁) → 
@@ -127,18 +127,15 @@ sound-apply v V rel-v r {g} {G} rel-G =
     (rel-G id (ren-⟦⟧≋ r rel-v))))
 
 --------------------------------------------------------------------------------
--- Soundness for Π and other operations
+-- Π and Π-Kripke are soundly related
 
-sound-Π : ∀ {nl : True (notLabel? κ₁)} → SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Π {notLabel = nl}) Π-Kripke
-
--- Mapping Π over a row relates to pre-composition by semantic Π
-map-Π : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
-        (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-        ⟦ map (overᵣ (_·_ (Π {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΠV (P i .snd))
+sound-Π : ∀ {nl : True (notLabel? κ₁)} → 
+        SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Π {notLabel = nl}) Π-Kripke
 
 -- Mapping _apply_ over a row is semantic application
 -- REFACTOR:
--- (this could be stated in terms of map-over-⇑Row and sound-apply...)
+--  - restate and reprove using map-over-⇑Row; observe that subRowₖ (extendₖ ` v) (renRowₖ S ...
+--    can be reduced.
 map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
@@ -172,6 +169,20 @@ map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
     (inst (subₖ-cong (λ { Z → renₖ-id v ; (S x) → refl }) (⇑ (reify ((P fzero .snd) S (reflect (` Z))))))))) 
   ((rel-fzero .snd) φ (ren-⟦⟧≋ id rel-v))))))))) , 
   (map-apply n (P ∘ fsuc) φ rel-fsuc v V rel-v)
+
+--------------------------------------------------------------------------------
+--
+-- Mapping Π over a row relates to pre-composition by semantic Π 
+--
+-- N.b. we can't use map-over-⇑Row to define map-Π without violating termination
+-- checking in sound-Π later.
+
+map-Π : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
+        (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
+        ⟦ map (overᵣ (_·_ (Π {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΠV (P i .snd))
+
+--------------------------------------------------------------------------------
+-- Soundness of Π and ΠV definition
 
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} {nl = ()} ρ {v} {V} q
@@ -220,7 +231,8 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (eq , rel) ρ₂ {
   (eq-trans 
     eq-map 
   (eq-row 
-    (reify-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v))))))) , refl-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v)))
+    (reify-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v))))))) , 
+  refl-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v)))
 sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (eq , sound-F) r₂ {v} {V} rel-V = 
   subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) 
     (sound-Π r₂ 
@@ -438,86 +450,6 @@ fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
 
 --------------------------------------------------------------------------------
--- Syntactic application commutes over (⇑ ∘ reify) into semantic application
-
-↻-syn/sem-app : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-                     ⟦ σ ⟧≋e η → 
-                     (f : Type Δ₁ (κ₁ `→ κ₂)) (τ : SemType Δ₂ κ₁) → 
-                     ⟦ ⇑ (reify τ) ⟧≋ τ → 
-                     subₖ σ f · ⇑ (reify τ) ≡t ⇑ (reify (eval f η ·V τ))
-↻-syn/sem-app {σ = σ} e f τ rel = 
-  eq-trans 
-    (eq-· (inst (sym (renₖ-id (subₖ σ f)))) eq-refl)
-  (reify-⟦⟧≋ (fundS f e id {⇑ (reify τ)} {τ} rel))
-
---------------------------------------------------------------------------------
--- Syntactic mapping commutes over (⇑ ∘ reify) into semantic mapping
-
-↻-syn/sem-<$> : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-                     ⟦ σ ⟧≋e η → 
-                     (f : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SemType Δ₂ R[ κ₁ ]) → 
-                     ⟦ ⇑ (reify ρ) ⟧≋ ρ → 
-                     subₖ σ f <$> ⇑ (reify ρ) ≡t ⇑ (reify (eval f η <$>V ρ))
-
---------------------------------------------------------------------------------
--- Syntactic mapping commutes over (⇑ ∘ reify) for complements
-
-↻-syn/sem-<$>-─ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-                     ⟦ σ ⟧≋e η → 
-                     (f : Type Δ₁ (κ₁ `→ κ₂)) (ρ₂ ρ₁ : SemType Δ₂ R[ κ₁ ]) → 
-                     ⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂ → 
-                     ⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁ → 
-                     {nr : NotRow ρ₂ or NotRow ρ₁} → 
-                     subₖ σ f <$> ⇑ (reify ((ρ₂ ─ ρ₁) {nr})) ≡t ⇑ (reify ((eval f η <$>V ρ₂) ─ (eval f η <$>V ρ₁)))
-↻-syn/sem-<$>-─ e f (ne x₁) ρ₁ rel₂ rel₁ = 
-  eq-trans eq-<$>-─ (eq-─ (eq-<$> 
-    (reify-⟦⟧≋ (fundS f e)) eq-refl) (↻-syn/sem-<$> e f ρ₁ rel₁))
-↻-syn/sem-<$>-─ e f (x₁ ▹ x₂) ρ₁ rel₂ rel₁ = 
-  eq-trans eq-<$>-─ 
-    (eq-─ (eq-trans eq-▹$ (eq-▹ eq-refl (↻-syn/sem-app e f x₂ (rel₂ .snd)))) ((↻-syn/sem-<$> e f ρ₁ rel₁)))
-↻-syn/sem-<$>-─ e f (ρ₂ ─ ρ₃) ρ₁ rel₂ rel₁ = 
-  eq-trans 
-    eq-<$>-─ (eq-─ (↻-syn/sem-<$>-─ e f ρ₂ ρ₃ (rel₂ .snd .fst) (rel₂ .snd .snd)) (↻-syn/sem-<$> e f ρ₁ rel₁))
-↻-syn/sem-<$>-─ e f (row (n , P) x₁) (ne x₂) rel₂ rel₁ = 
-  eq-trans 
-    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (eq-<$> (reify-⟦⟧≋ (fundS f e)) eq-refl))
-↻-syn/sem-<$>-─ e f (row (n , P) x₁) (x₂ ▹ x₃) rel₂ rel₁ = 
-  eq-trans 
-    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (eq-trans eq-▹$ (eq-▹ eq-refl (↻-syn/sem-app e f x₃ (rel₁ .snd)))))
-↻-syn/sem-<$>-─ e f (row (n , P) x₁) (row ρ x₂) rel₂ rel₁ {left ()}
-↻-syn/sem-<$>-─ e f (row (n , P) x₁) (row ρ x₂) rel₂ rel₁ {right ()}
-↻-syn/sem-<$>-─ e f (row (n , P) x₁) (ρ₁ ─ ρ₃) rel₂ rel₁ = 
-  eq-trans 
-    eq-<$>-─ (eq-─ (eq-trans eq-map (eq-row ((reify-⟦⟧r≋ (fundS-map-app n P f (rel₂ .snd) e))))) (↻-syn/sem-<$>-─ e f ρ₁ ρ₃ (rel₁ .snd .fst) (rel₁ .snd .snd)))
-
---------------------------------------------------------------------------------
--- ↻-syn/sem-<$> definition
-
-↻-syn/sem-<$> e f (ne x₁) rel = eq-<$> (reify-⟦⟧≋ (fundS f e)) rel
-↻-syn/sem-<$> {σ = σ} e f (x₁ ▹ x₂) rel = 
-      eq-trans eq-▹$ (eq-▹ eq-refl 
-      (eq-trans 
-      (eq-· (inst (sym (renₖ-id (subₖ σ f)))) eq-refl) 
-        (reify-⟦⟧≋ (fundS f e id (rel .snd)))))
-↻-syn/sem-<$> e f (row (n , P) x₁) rel = eq-trans eq-map (eq-row (reify-⟦⟧r≋ (fundS-map-app n P f (rel .snd) e)))
-↻-syn/sem-<$> e f ((ρ₄ ─ ρ₃) {nr}) rel = ↻-syn/sem-<$>-─ e f ρ₄ ρ₃ (rel .snd .fst) (rel .snd .snd) {nr}
-
---------------------------------------------------------------------------------
--- Semantic mapping preserves the soundness relation
-
-rel-<$> :  ∀ {σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
-           ⟦ σ ⟧≋e η → 
-           (f : Type Δ₁ (κ₁ `→ κ₂))
-           (ρ : RowType Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
-         ⟦ ⇑ (reify ρ) ⟧≋ ρ → 
-         ⟦ ⇑ (reify (eval f η <$>V ρ)) ⟧≋ (eval f η <$>V ρ)
-rel-<$> e f (ne x₁) r = eq-refl
-rel-<$> e f (x₁ ▹ x₂) r = eq-refl , refl-⟦⟧≋ (fundS f e id (r .snd))
-rel-<$> e f (row (zero , P) x₁) r = (eq-row reflᵣ) , tt
-rel-<$> e f (row (suc n , P) x₁) (_ , rel) = (eq-row reflᵣ) , overᵣ-⟦⟧≋ {n = suc n} {P = P} f (fundS f e) rel   
-rel-<$> e f (ρ₄ ─ ρ₃) r = eq-refl , (rel-<$> e f ρ₄ (r .snd .fst)) , (rel-<$> e f ρ₃ (r .snd .snd))
-
---------------------------------------------------------------------------------
 -- Fundamental lemma definition 
 
 fundS (` α) {σ} {η} e = e α
@@ -543,7 +475,6 @@ fundS (μ τ) {σ} {η} e = eq-μ
         (eq-λ (fundS τ e S eq-refl)))
 fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
 fundS (lab l) {σ} {η} e = eq-refl
--- fundS (l ▹ τ) {σ} {η} e = eq-trans (eq-▹ eq-refl ((reify-⟦⟧≋ (fundS τ e)))) eq-labTy , (refl-⟦⟧≋ (fundS τ e)) , tt
 fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
 fundS (Π {notLabel = nl}) {σ} {η} e = sound-Π {nl = nl}
 fundS Σ {σ} {η} e = {!!} --  sound-Σ  
@@ -582,9 +513,9 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
 fundS  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ} {η} e | (ρ₂ ─ ρ₁) {nr} | [[ eq ]] | t-eq , rel₂ , rel₁ = 
   (eq-trans 
     (eq-<$> eq-refl t-eq) 
-    (↻-syn/sem-<$>-─ e τ₁ ρ₂ ρ₁ rel₂ rel₁)) , 
-    rel-<$> e τ₁ ρ₂ rel₂ , 
-    rel-<$> e τ₁ ρ₁ rel₁
+    (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify (ρ₂ ─ ρ₁))) (ρ₂ ─ ρ₁) (fundS τ₁ e) (eq-refl , rel₂ , rel₁) .fst)) , 
+    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₂)) ρ₂ (fundS τ₁ e) rel₂) , 
+    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₁)) ρ₁ (fundS τ₁ e) rel₁)
 fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
 fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
 fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)
@@ -602,7 +533,7 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
-... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!fund!} , {!!}
+... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!reify-⟦⟧r≋!} , refl-⟦⟧r≋ {!!}
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = eq-─ (ih .fst) ih' , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)

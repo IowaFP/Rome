@@ -144,7 +144,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
--- fundC e (eq-compl {n = zero} {zero} {P} {Q}) = refl , λ ()
+fundC {η₁ = η₁} {η₂} e (eq-compl {xs = []} {ys} {zs} eq) = {!!} , {!!}
+fundC {η₁ = η₁} {η₂} e (eq-compl {xs = x₁ ∷ xs} {ys} {zs} eq) = {!!}
 -- fundC e (eq-compl {n = zero} {suc m} {P} {Q}) = refl , λ ()
 -- fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {zero} {P} {Q}) with
 --     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 

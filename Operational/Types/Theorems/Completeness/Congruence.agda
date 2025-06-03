@@ -134,10 +134,7 @@ cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row (SemType Δ κ)} →
            V₂ ≋R W₂ → 
            V₁ ≋R W₁ → 
            (V₂ ─v V₁) ≋R (W₂ ─v W₁)
-cong-─v {V₁ = zero , P} {zero , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , λ ()
-cong-─v {V₁ = zero , P} {suc m , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , v₂
-cong-─v {V₁ = suc n , P} {zero , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = refl , λ ()
-cong-─v {V₁ = suc n , P} {suc m , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = cong-compl Q I P R v₂ v₁ 
+cong-─v {V₁ = n , P} {m , Q} {l , R} {j , I} (refl , v₂) (refl , v₁) = cong-compl Q I P R v₂ v₁ 
 
 cong-─V : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} → 
            V₂ ≋ W₂ → 

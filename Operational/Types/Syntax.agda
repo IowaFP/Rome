@@ -163,12 +163,28 @@ cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant
 --------------------------------------------------------------------------------
 -- Syntactic row complement
 
--- _∈R_ : (l : Label) → SimpleRow Type Δ R[ κ ] → Set 
--- l ∈R [] = ⊥ 
--- l ∈R ((l' , τ)
+infix 0 _∈L_
+
+data _∈L_ : (l : Label) → SimpleRow Type Δ R[ κ ] → Set  where
+  Here : ∀ {τ : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} {l : Label} → 
+         l ∈L (l , τ) ∷ xs
+  There : ∀ {τ : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} {l l' : Label} → 
+          l ∈L xs → l ∈L (l' , τ) ∷ xs
+
+_∈L?_ : ∀ (l : Label) (xs : SimpleRow Type Δ R[ κ ]) → Dec (l ∈L xs)
+l ∈L? [] = no (λ { () })
+l ∈L? ((l' , _) ∷ xs) with l ≟ l' 
+... | yes refl = yes Here
+... | no  p with l ∈L? xs 
+...         | yes p = yes (There p)
+...         | no  q = no λ { Here → p refl ; (There x) → q x }
 
 
--- compl' : 
+_─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
+[] ─s ys = []
+((l , τ) ∷ xs) ─s ys with l ∈L? ys 
+... | yes _ = xs ─s ys
+... | no  _ = (l , τ) ∷ (xs ─s ys)
 
 --------------------------------------------------------------------------------
 -- Helpers for mapping over the tuples inside rows
