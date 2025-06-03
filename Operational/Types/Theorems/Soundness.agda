@@ -53,6 +53,78 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation public
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (row ρ x₁) {nr} = eq-refl
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nr} = eq-refl
 
+--------------------------------------------------------------------------------
+-- mapping over a row commutes into the row
+
+map-over-⇑Row : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
+                (n : ℕ) (P : Fin n → Label × SemType Δ κ₁) → 
+                ⟦ f ⟧≋ F → 
+                ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
+                ⟦ map (overᵣ (f ·_)) (⇑Row (reifyRow (n , P))) ⟧r≋ (n , overᵣ (F id) ∘ P)
+map-over-⇑Row f F zero P rel-f rel-P = tt
+map-over-⇑Row f F (suc n) P rel-f rel-P = 
+  (refl , 
+  (subst-⟦⟧≋ (eq-· (inst (renₖ-id f)) eq-refl) (rel-f id (rel-P .fst .snd)))) , 
+  (map-over-⇑Row f F n (P ∘ fsuc) rel-f (rel-P .snd))              
+
+--------------------------------------------------------------------------------
+-- Congruence over syntactic/semantic mapping
+
+cong-<$>⟦⟧≋ : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
+                (v : Type Δ R[ κ₁ ]) (V : SemType Δ R[ κ₁ ]) → 
+                ⟦ f ⟧≋ F → 
+                ⟦ v ⟧≋ V → 
+                ⟦ f <$> v ⟧≋ F <$>V V 
+cong-<$>⟦⟧≋ f F v (ne x₁) rel-f rel-v = eq-<$> (reify-⟦⟧≋ rel-f) rel-v
+cong-<$>⟦⟧≋ f F v (l ▹ τ) rel-f (eq , rel) = 
+  eq-trans 
+    (eq-<$> eq-refl eq) 
+  (eq-trans 
+    eq-▹$ 
+  (eq-▹ 
+    eq-refl 
+    (reify-⟦⟧≋ 
+      (subst-⟦⟧≋ 
+        (eq-· (inst (renₖ-id f)) eq-refl) 
+        (rel-f id rel))))) , 
+  refl-⟦⟧≋ (rel-f id rel)
+cong-<$>⟦⟧≋ f F v (row (n , P) x₁) rel-f (eq , rel) = 
+  (eq-trans 
+    (eq-<$> eq-refl eq) 
+  (eq-trans eq-map 
+  (eq-row (reify-⟦⟧r≋ (map-over-⇑Row f F n P rel-f rel))))) , 
+  refl-⟦⟧r≋ (map-over-⇑Row f F n P rel-f rel)
+cong-<$>⟦⟧≋ f F v ((V₂ ─ V₁) {nr}) rel-f (eq , rel₂ , rel₁) = 
+  (eq-trans 
+    (eq-<$> eq-refl (eq-trans eq (↻-⇑-reify-─ V₂ V₁ {nr}))) 
+  (eq-trans 
+    eq-<$>-─ 
+  (eq-trans 
+    (eq-─ 
+      (reify-⟦⟧≋ (cong-<$>⟦⟧≋ f F (⇑ (reify V₂)) V₂ rel-f rel₂)) 
+      ((reify-⟦⟧≋ (cong-<$>⟦⟧≋ f F (⇑ (reify V₁)) V₁ rel-f rel₁)))) 
+    (eq-sym (↻-⇑-reify-─ (F <$>V V₂) (F <$>V V₁) {NotRow<$> nr}))))) , 
+  (refl-⟦⟧≋ (cong-<$>⟦⟧≋ f F (⇑ (reify V₂)) V₂ rel-f rel₂)) , 
+  (refl-⟦⟧≋ (cong-<$>⟦⟧≋ f F (⇑ (reify V₁)) V₁ rel-f rel₁))
+
+--------------------------------------------------------------------------------
+-- Apply is sound
+
+sound-apply : ∀ {κ₂} (v : Type Δ κ₁) (V : SemType Δ κ₁) → 
+               ⟦ v ⟧≋ V → 
+               SoundKripke {κ₂ = κ₂} (`λ (` Z · renₖ S v)) (apply V)
+sound-apply v V rel-v r {g} {G} rel-G = 
+  subst-⟦⟧≋ 
+    (eq-sym eq-β)
+  (subst-⟦⟧≋ 
+    (eq-sym 
+      (eq-· eq-refl 
+      (eq-trans 
+        (inst (cong (subₖ (extendₖ ` g)) (↻-liftₖ-weaken r v)))
+        (inst (subₖ-weaken (renₖ r v) g))))) 
+  (subst-⟦⟧≋ 
+    (eq-· (inst (renₖ-id g)) eq-refl) 
+    (rel-G id (ren-⟦⟧≋ r rel-v))))
 
 --------------------------------------------------------------------------------
 -- Soundness for Π and other operations
@@ -65,6 +137,8 @@ map-Π : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemTyp
         ⟦ map (overᵣ (_·_ (Π {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΠV (P i .snd))
 
 -- Mapping _apply_ over a row is semantic application
+-- REFACTOR:
+-- (this could be stated in terms of map-over-⇑Row and sound-apply...)
 map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
@@ -185,7 +259,43 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ─ V₁) {nr}} rel r₂ {v}
   (subst-⟦⟧≋ 
     (eq-sym eq-Π-assoc) 
   (sound-Π r₂ 
-    ({!rel!} , ({!!} , {!!}))))
+    (eq-trans 
+      (eq-trans 
+        (eq-· eq-β eq-refl) 
+      (eq-trans 
+          eq-β 
+      (eq-trans 
+        eq-<$>-─ 
+      (eq-─ 
+        (eq-trans 
+          (eq-<$> eq-refl (inst (subₖ-weaken (renₖ r₂ (⇑ (reify V₂))) v))) 
+          (reify-⟦⟧≋ 
+            {V = apply V <$>V renSem r₂ V₂} 
+            (cong-<$>⟦⟧≋ 
+              (`λ (` Z · renₖ S v)) 
+              (apply V) 
+              (renₖ r₂ (⇑ (reify V₂))) 
+              (renSem r₂ V₂) 
+              (sound-apply v V rel-V) 
+              (ren-⟦⟧≋ r₂ (rel .snd .fst))))) 
+        ((eq-trans 
+          (eq-<$> eq-refl (inst (subₖ-weaken (renₖ r₂ (⇑ (reify V₁))) v))) 
+          (reify-⟦⟧≋ 
+            {V = apply V <$>V renSem r₂ V₁} 
+            (cong-<$>⟦⟧≋ 
+              (`λ (` Z · renₖ S v)) 
+              (apply V) 
+              (renₖ r₂ (⇑ (reify V₁))) 
+              (renSem r₂ V₁) 
+              (sound-apply v V rel-V) 
+              (ren-⟦⟧≋ r₂ (rel .snd .snd)))))))))) 
+    (eq-sym 
+      (↻-⇑-reify-─ 
+        (apply V <$>V renSem r₂ V₂) (apply V <$>V renSem r₂ V₁) {NotRow<$> (nrRenSem' r₂ V₂ V₁ nr)})) , 
+    (refl-⟦⟧≋ (cong-<$>⟦⟧≋ (`λ (` Z · renₖ S v)) (apply V)
+                 (renₖ r₂ (⇑ (reify V₂))) (renSem r₂ V₂) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ (rel .snd .fst))) , 
+    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (`λ (` Z · renₖ S v)) (apply V)
+                 (renₖ r₂ (⇑ (reify V₁))) (renSem r₂ V₁) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ (rel .snd .snd)))))))
 sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (eq , rel) =
   eq-trans 
     (eq-· eq-refl eq) 
