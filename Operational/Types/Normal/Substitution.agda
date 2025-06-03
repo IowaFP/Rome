@@ -59,7 +59,7 @@ _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType 
 --------------------------------------------------------------------------------
 -- Syntactic version of normality-preserving <$> 
 
-_<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
-f <$>' ne x = ne (f <$> x)
-f <$>' (⦅ xs ⦆ oxs) = ⦅ (map (overᵣ (f ·'_)) xs) ⦆ (fromWitness (normal-map-overᵣ xs (f ·'_) (toWitness oxs)) )
+-- _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
+-- f <$>' ne x = ne (f <$> x)
+-- f <$>' (⦅ xs ⦆ oxs) = ⦅ (map (overᵣ (f ·'_)) xs) ⦆ (fromWitness (normal-map-overᵣ xs (f ·'_) (toWitness oxs)) )
 

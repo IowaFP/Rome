@@ -42,14 +42,6 @@ data RowType Δ 𝒯 where
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
-  -- _<$>_─_ : ∀ {κ₁} → 
-  
-  --           (F : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
-  --           (ρ₂ : NeutralType Δ R[ κ₁ ]) (ρ₁ : RowType Δ 𝒯 R[ κ₂ ]) →
-  --           ----------------------------------------------
-  --           RowType Δ 𝒯 R[ κ₂ ]
-
-  -- _─₁_ : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ] → RowType Δ 𝒯 R[ κ ]
   _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
         RowType Δ 𝒯 R[ κ ]
 
@@ -72,10 +64,6 @@ SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
-
--- or NeutralType Δ R[ κ ] or NormalType Δ R[ κ ] -- (NeutralApp Δ R[ κ ] or NeutralApp Δ L × SemType Δ κ)
-                   -- or (Σ[ ρ ∈ Row Δ R[ κ ] ] (OrderedRow {κ = κ} ρ))
-                   -- or (SemType Δ R[ κ ] × SemType Δ R[ κ ])
 
 --------------------------------------------------------------------------------
 -- renames

@@ -9,6 +9,10 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Renaming
 
+open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Semantic.Syntax
+open import Rome.Operational.Types.Semantic.NBE
+
 -------------------------------------------------------------------------------
 -- Small step relation on terms
 
@@ -212,6 +216,21 @@ data _≡t_ where
 
         ----------------------------
         (Σ {notLabel = nl} · ρ) · τ ≡t Σ {notLabel = nl} · (ρ ?? τ)
+
+    -- eq-compl : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} 
+                    -- {oxs : True (ordered? xs)} {oys : True (ordered? ys)} {oc : True (ordered? (xs ─s ys))} → 
+
+                    -----------------------------------------
+    --              (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ xs ─ₛ ys ⦆
+
+    eq-compl : ∀ {n m : ℕ} {P : Fin n → Label × SemType Δ κ} {Q : Fin m → Label × SemType Δ κ} → 
+                 {oP : True (ordered? (⇑Row (reifyRow' n P)))} → 
+                 {oQ : True (ordered? (⇑Row (reifyRow' m Q)))} → 
+                 {oC : True (ordered? (⇑Row (reifyRow ((n , P) ─v (m , Q)))))} → 
+
+               (⦅ ⇑Row (reifyRow' n P) ⦆ oP) ─ (⦅ ⇑Row (reifyRow' m Q) ⦆ oQ) ≡t ⦅ ⇑Row (reifyRow ((n , P) ─v (m , Q))) ⦆ oC 
+
+      
         
 
 Ξλ-ordered [] oρ = tt

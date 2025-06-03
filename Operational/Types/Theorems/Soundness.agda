@@ -455,7 +455,27 @@ fundS  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ}
 fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
 fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
 fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)
-fundS (ρ₂ ─ ρ₁) e = {!!}
+fundS (ρ₂ ─ ρ₁) {σ} {η} e with eval ρ₂ η | fundS ρ₂ e 
+fundS (ρ₂ ─ ρ₁) {σ} {η} e | ne x₁ | ih with eval ρ₁ η | fundS ρ₁ e 
+... | ne x₂    | ih' = (eq-─ ih ih') , (eq-refl , eq-refl)
+... | x₂ ▹ x₃  | ih' = (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd)))
+... | row ρ x₂ | ih' = (eq-─ ih (eq-trans (ih' .fst) (eq-row reflᵣ))) , (eq-refl , ((eq-row reflᵣ) , (ih' .snd)))
+... | c ─ c₁   | ih' = (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
+fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁ η | fundS ρ₁ e 
+... | ne x₂    | ih' = (eq-─ eq ih') , (eq-refl , rel) , eq-refl
+... | x₂ ▹ x₃  | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
+... | row ρ x₂ | ih' = eq-─ eq (eq-trans (ih' .fst) (eq-row reflᵣ)) , (eq-refl , rel) , (eq-row reflᵣ , (ih' .snd))
+... | c ─ c₁   | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
+fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
+... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
+... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
+... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!!} , {!!}
+... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
+fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
+... | ne x₂    | ih' = {!!} , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)
+... | x₂ ▹ x₃  | ih' = {!!} , ((eq-refl , (ih .snd)) , (eq-refl , (ih' .snd)))
+... | row ρ x₂ | ih' = {!!} , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , ({!!} , (ih' .snd)))
+... | c ─ c₁   | ih' = {!!} , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
 ... | ne x₁ | ih = (eq-▹ ih (reify-⟦⟧≋ (fundS τ e))) , refl-⟦⟧≋ (fundS τ e)
 ... | lab l' | ih = eq-trans (eq-▹ eq-refl (reify-⟦⟧≋ (fundS τ e))) (eq-labTy ih) , 

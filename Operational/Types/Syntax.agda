@@ -161,6 +161,16 @@ cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordere
 cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
 
 --------------------------------------------------------------------------------
+-- Syntactic row complement
+
+-- _∈R_ : (l : Label) → SimpleRow Type Δ R[ κ ] → Set 
+-- l ∈R [] = ⊥ 
+-- l ∈R ((l' , τ)
+
+
+-- compl' : 
+
+--------------------------------------------------------------------------------
 -- Helpers for mapping over the tuples inside rows
 
 fmap× : ∀ {Ty : KEnv → Kind → Set} → 
