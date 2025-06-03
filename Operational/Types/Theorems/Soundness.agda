@@ -29,6 +29,30 @@ open import Rome.Operational.Types.Equivalence.Relation
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness.Relation public
 
+--------------------------------------------------------------------------------
+-- ⇑ ∘ reify commutes over _─_
+
+↻-⇑-reify-─ : ∀ (ρ₂ ρ₁ : RowType Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
+                   {nr   : NotRow ρ₂ or NotRow ρ₁} → 
+                  ⇑ (reify ((ρ₂ ─ ρ₁) {nr})) ≡t ⇑ (reify ρ₂) ─ ⇑ (reify ρ₁)
+↻-⇑-reify-─ (ne x₁) (ne x₂) {nr} = eq-refl
+↻-⇑-reify-─ (ne x₁) (x₂ ▹ x₃) {nr} = eq-refl
+↻-⇑-reify-─ (ne x₁) (row ρ x₂) {nr} = eq-refl
+↻-⇑-reify-─ (ne x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
+↻-⇑-reify-─ (x₁ ▹ x₂) (ne x₃) {nr} = eq-refl
+↻-⇑-reify-─ (x₁ ▹ x₂) (x₃ ▹ x₄) {nr} = eq-refl
+↻-⇑-reify-─ (x₁ ▹ x₂) (row ρ x₃) {nr} = eq-refl
+↻-⇑-reify-─ (x₁ ▹ x₂) (ρ₁ ─ ρ₂) {nr} = eq-refl
+↻-⇑-reify-─ (row ρ x₁) (ne x₂) {nr} = eq-refl
+↻-⇑-reify-─ (row ρ x₁) (x₂ ▹ x₃) {nr} = eq-refl
+↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {left ()}
+↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {right ()}
+↻-⇑-reify-─ (row ρ x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
+↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ne x₁) {nr} = eq-refl
+↻-⇑-reify-─ (ρ₂ ─ ρ₃) (x₁ ▹ x₂) {nr} = eq-refl
+↻-⇑-reify-─ (ρ₂ ─ ρ₃) (row ρ x₁) {nr} = eq-refl
+↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nr} = eq-refl
+
 
 --------------------------------------------------------------------------------
 -- Soundness for Π and other operations
@@ -155,7 +179,13 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (eq , sound-F) r₂ {v} {
               (reify-⟦⟧≋ (sound-F r₂ (ren-⟦⟧≋ id rel-V)))))))))))))) , 
     refl-⟦⟧≋ (sound-F r₂ {_} {renSem id V} (ren-⟦⟧≋ id rel-V))))
   
-sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {V₂ ─ V₁} rel r₂ {v} {V} rel-V = {!!}
+sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ─ V₁) {nr}} rel r₂ {v} {V} rel-V = 
+  subst-⟦⟧≋ 
+    (eq-· (eq-· eq-refl (eq-sym (renₖ-≡t r₂ (eq-trans (rel .fst) (↻-⇑-reify-─ V₂ V₁ {nr}))))) eq-refl) 
+  (subst-⟦⟧≋ 
+    (eq-sym eq-Π-assoc) 
+  (sound-Π r₂ 
+    ({!rel!} , ({!!} , {!!}))))
 sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (eq , rel) =
   eq-trans 
     (eq-· eq-refl eq) 
@@ -165,9 +195,23 @@ sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (eq , rel) =
     eq-map 
     (eq-row (reify-⟦⟧r≋ (map-Π n P rel))))) , 
   refl-⟦⟧r≋ (map-Π {nl = nl} n P rel)
-sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {l ▹ τ} (eq , rel) = {!!}
-sound-Π {κ₁ = R[ κ ]} {nl = nl} r {v} {ρ₂ ─ ρ₁} (eq , rel₂ , rel₁) = 
-  (eq-trans (eq-· eq-refl eq) {!!}) , {!!}
+sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {l ▹ τ} (eq , rel) = 
+  (eq-trans (eq-· eq-refl eq) (eq-trans eq-Π (eq-trans eq-▹$ (eq-▹ eq-refl (reify-⟦⟧≋ (sound-Π id rel)))))) , 
+  (refl-⟦⟧≋ (sound-Π {nl = nl} id rel))
+sound-Π {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ─ ρ₁) {nr}} (eq , rel₂ , rel₁) = 
+  (eq-trans 
+    (eq-· eq-refl eq) 
+  (eq-trans 
+    eq-Π 
+  (eq-trans 
+    (eq-<$> eq-refl (↻-⇑-reify-─ ρ₂ ρ₁ {nr})) 
+  (eq-trans 
+    eq-<$>-─ 
+  (eq-trans 
+    (eq-─ (eq-sym eq-Π) (eq-sym eq-Π)) 
+  (eq-trans 
+    (eq-─ (reify-⟦⟧≋ (sound-Π id rel₂)) (reify-⟦⟧≋ (sound-Π id rel₁))) 
+  (eq-trans (eq-sym (↻-⇑-reify-─ ((λ ρ → ΠV) <$>V ρ₂) ((λ ρ → ΠV) <$>V ρ₁) {nr = NotRow<$> nr})) eq-refl))))))) , (refl-⟦⟧≋ (sound-Π {nl = nl} id rel₂)) , ((refl-⟦⟧≋ (sound-Π {nl = nl} id rel₁)))
 
 map-Π zero P rel = tt
 map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {nl = nl} id rel-fzero) , (map-Π n (P ∘ fsuc) rel-fsuc)
@@ -244,27 +288,6 @@ map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {n
 --------------------------------------------------------------------------------
 -- commutativity lemmas
 
-
-↻-⇑-reify-─ : ∀ (ρ₂ ρ₁ : RowType Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
-                   {nr   : NotRow ρ₂ or NotRow ρ₁} → 
-                  ⇑ (reify ((ρ₂ ─ ρ₁) {nr})) ≡t ⇑ (reify ρ₂) ─ ⇑ (reify ρ₁)
-↻-⇑-reify-─ (ne x₁) (ne x₂) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (x₂ ▹ x₃) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (row ρ x₂) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (x₁ ▹ x₂) (ne x₃) {nr} = eq-refl
-↻-⇑-reify-─ (x₁ ▹ x₂) (x₃ ▹ x₄) {nr} = eq-refl
-↻-⇑-reify-─ (x₁ ▹ x₂) (row ρ x₃) {nr} = eq-refl
-↻-⇑-reify-─ (x₁ ▹ x₂) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (row ρ x₁) (ne x₂) {nr} = eq-refl
-↻-⇑-reify-─ (row ρ x₁) (x₂ ▹ x₃) {nr} = eq-refl
-↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {left ()}
-↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {right ()}
-↻-⇑-reify-─ (row ρ x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ne x₁) {nr} = eq-refl
-↻-⇑-reify-─ (ρ₂ ─ ρ₃) (x₁ ▹ x₂) {nr} = eq-refl
-↻-⇑-reify-─ (ρ₂ ─ ρ₃) (row ρ x₁) {nr} = eq-refl
-↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nr} = eq-refl
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
@@ -469,7 +492,7 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
-... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!!} , {!!}
+... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!fund!} , {!!}
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = {!!} , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)

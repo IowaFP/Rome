@@ -144,18 +144,20 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
-fundC e (eq-compl {n = zero} {zero} {P} {Q}) = refl , λ ()
-fundC e (eq-compl {n = zero} {suc m} {P} {Q}) = refl , λ ()
-fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {zero} {P} {Q}) with
-    evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
-  |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
-  | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
-... | c | d | refl , I = refl , (λ { fzero → refl , idext e (⇑ (reify (P fzero .snd))) ; (fsuc i) → I i })
-fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {suc m} {P} {Q}) with 
-    evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
-  |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
-  | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
-... | c | d | refl , I = {!!}
+-- fundC e (eq-compl {n = zero} {zero} {P} {Q}) = refl , λ ()
+-- fundC e (eq-compl {n = zero} {suc m} {P} {Q}) = refl , λ ()
+-- fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {zero} {P} {Q}) with
+--     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
+--   |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
+--   | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
+-- ... | c | d | refl , I = refl , (λ { fzero → refl , idext e (⇑ (reify (P fzero .snd))) ; (fsuc i) → I i })
+-- fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {suc m} {P} {Q}) with 
+--     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
+--   |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
+--   | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
+--   | P fzero .fst ∈Row Q 
+-- ... | c | d | refl , I | yes (fst₁ , snd₁) = {!!} , {!!}
+-- ... | c | d | refl , I | no  q = {!!} , {!λ !}
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 
