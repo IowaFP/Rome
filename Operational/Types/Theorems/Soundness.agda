@@ -108,6 +108,34 @@ cong-<$>⟦⟧≋ f F v ((V₂ ─ V₁) {nr}) rel-f (eq , rel₂ , rel₁) =
   (refl-⟦⟧≋ (cong-<$>⟦⟧≋ f F (⇑ (reify V₁)) V₁ rel-f rel₁))
 
 --------------------------------------------------------------------------------
+-- Congruence over complement
+
+∈Row→∈L≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+              l ∈Row P → l ∈L (⇑Row (reifyRow' n P))
+∈Row→∈L≋ {n = n} (fzero , refl) = Here
+∈Row→∈L≋ {n = n} (fsuc i , eq) = There (∈Row→∈L≋ (i , eq))
+
+∈L→∈Row≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+              l ∈L (⇑Row (reifyRow' n P)) → l ∈Row P
+∈L→∈Row≋ {n = suc n} Here = fzero , refl
+∈L→∈Row≋ {n = suc n} (There ev) with ∈L→∈Row≋ ev 
+... | i , eq = (fsuc i) , eq
+
+cong-compl⟦⟧≋ : ∀ {n m : ℕ} 
+                {P : Fin n → Label × SemType Δ κ}
+                {Q : Fin m → Label × SemType Δ κ} →
+                ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P) → 
+                ⟦ ⇑Row (reifyRow' m Q) ⟧r≋ (m , Q) → 
+                ⟦ ⇑Row (reifyRow' n P) ─s ⇑Row (reifyRow' m Q) ⟧r≋ compl P Q
+cong-compl⟦⟧≋ {n = zero} {P = P} {Q} P≋ Q≋ = tt
+cong-compl⟦⟧≋ {n = suc n} {m} {P = P} {Q} P≋ Q≋ with P fzero .fst ∈Row? Q | P fzero .fst ∈L? ⇑Row (reifyRow' m Q) 
+... | yes p | yes q = cong-compl⟦⟧≋ (P≋ .snd) Q≋
+... | yes p | no q = ⊥-elim (q (∈Row→∈L≋ p))
+... | no p | yes q = ⊥-elim (p (∈L→∈Row≋ q))
+... | no p | no q = (refl , P≋ .fst .snd) , (cong-compl⟦⟧≋ (P≋ .snd) Q≋)
+
+
+--------------------------------------------------------------------------------
 -- Apply is sound
 
 sound-apply : ∀ {κ₂} (v : Type Δ κ₁) (V : SemType Δ κ₁) → 
@@ -533,7 +561,9 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
-... | row (m , Q) oQ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) {!reify-⟦⟧r≋!} , refl-⟦⟧r≋ {!!}
+... | row (m , Q) oQ | ih' = 
+  eq-trans (eq-─ (ih .fst) (ih' .fst)) (eq-trans (eq-compl {ozs = {!!}}) (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
+  refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
 ... | ne x₂    | ih' = eq-─ (ih .fst) ih' , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)
