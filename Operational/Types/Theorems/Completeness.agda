@@ -156,7 +156,7 @@ fundC {η₁ = η₁} {η₂} e (eq-compl {xs = x₁ ∷ xs} {ys} {zs} eq) = {!!
 --     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
 --   |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
 --   | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
---   | P fzero .fst ∈Row Q 
+--   | P fzero .fst ∈Row? Q 
 -- ... | c | d | refl , I | yes (fst₁ , snd₁) = {!!} , {!!}
 -- ... | c | d | refl , I | no  q = {!!} , {!λ !}
 

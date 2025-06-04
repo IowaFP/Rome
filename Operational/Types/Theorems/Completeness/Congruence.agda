@@ -118,7 +118,7 @@ cong-compl : {n m : ℕ}
              ((i : Fin m) → C i ≋₂ D i) → 
              compl A C ≋R compl B D
 cong-compl {n = zero} A B C D i₁ i₂ = refl , λ ()
-cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row C | B fzero .fst ∈Row D 
+cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row? C | B fzero .fst ∈Row? D 
 ... | eq , rel  | yes p         | yes q = cong-compl (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
 ... | eq₁ , rel | yes (j , eq₂) | no q = ⊥-elim (q (j , (trans (trans (sym eq₁) eq₂) (i₂ j .fst))))
 ... | eq₁ , rel | no  q         | yes (j , eq₂) = ⊥-elim (q (j , (trans (trans eq₁ eq₂) (sym (i₂ j .fst)))))

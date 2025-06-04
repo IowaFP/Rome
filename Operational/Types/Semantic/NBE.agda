@@ -113,50 +113,22 @@ lifte {Δ₁} {Δ₂} {κ} η  = extende η' V
 idEnv : Env Δ Δ
 idEnv x = reflect ((` x))
 
--- -- --------------------------------------------------------------------------------
--- -- -- Remodeling normal terms into the semantic domain 
-
--- ↑ : NormalType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
--- ↑NE : NeutralType Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
--- ↑NEapp : NeutralApp Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ 
-
--- ↑NE (app x) = ↑NEapp x
--- ↑NE (l ▹ₙ τ) η = {!↑NEapp l η!} ▹ {!!}
--- ↑NE (x ─₁ ρ) η = {!!}
--- ↑NE (ρ ─₂ x) η = {!!}
-
-
--- ↑NEapp (` α) η = η α
--- ↑NEapp (x · τ) η = ↑NEapp x η id (↑ τ η)
--- ↑NEapp (φ <$> x) η = {!!}
--- ↑ {κ = κ} (ne x) η = ↑NE x η
--- ↑ (`λ τ) η = λ r v → ↑ τ (extende (renSem r ∘ η) v)
--- ↑ (τ `→ τ₁) η = ↑ τ η `→ ↑ τ₁ η
--- ↑ (`∀ τ) η = `∀ (↑ τ (lifte η))
--- ↑ (μ τ) η = μ (reifyKripke (↑ τ η))
--- ↑ (π ⇒ τ) η = {!   !}
--- ↑ (⦅ ρ ⦆ oρ) η = {!!}
--- ↑ (lab l) η = lab l
--- ↑ ⌊ τ ⌋ η = ⌊ ↑ τ η ⌋
--- ↑ (Π τ) η = Π (reify (↑ τ η))
--- ↑ (Σ τ) η = Σ (reify (↑ τ η))
-
--- -- --------------------------------------------------------------------------------
--- -- -- Semantic application
+--------------------------------------------------------------------------------
+-- Semantic application
 
 _·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
 F ·V V = F id V
 
--- --------------------------------------------------------------------------------
--- -- -- Semantic complement
+--------------------------------------------------------------------------------
+-- Semantic complement
 
-_∈Row_ : ∀ {m} → (l : Label) → 
+_∈Row?_ : ∀ {m} → (l : Label) → 
          (Q : Fin m → Label × SemType Δ κ) → 
          Dec (Σ[ i ∈ Fin m ] (l ≡ Q i .fst))
-_∈Row_ {m = zero} l Q = no λ { () }
-_∈Row_ {m = suc m} l Q with l ≟ Q fzero .fst
+_∈Row?_ {m = zero} l Q = no λ { () }
+_∈Row?_ {m = suc m} l Q with l ≟ Q fzero .fst
 ... | yes p = yes (fzero , p)
-... | no  p with l ∈Row (Q ∘ fsuc)
+... | no  p with l ∈Row? (Q ∘ fsuc)
 ...        | yes (n , q) = yes ((fsuc n) , q) 
 ...        | no  q = no λ { (fzero , q') → p q' ; (fsuc n , q') → q (n , q') }
 
@@ -166,7 +138,7 @@ compl : ∀ {n m} →
         (Q : Fin m → Label × SemType Δ κ) → 
         Row (SemType Δ κ)
 compl {n = zero} {m} P Q = εV
-compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
+compl {n = suc n} {m} P Q with P fzero .fst ∈Row? Q 
 ... | yes _ = compl (P ∘ fsuc) Q 
 ... | no _ = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
 
@@ -184,7 +156,7 @@ lemma : ∀ {n m q} →
              OrderedRow (suc n , P) →
              compl (P ∘ fsuc) Q ≡ (suc q , R) → 
           P fzero .fst < R fzero .fst
-lemma {n = suc n} {q = q} P Q R oP eq₁ with P (fsuc fzero) .fst ∈Row Q 
+lemma {n = suc n} {q = q} P Q R oP eq₁ with P (fsuc fzero) .fst ∈Row? Q 
 lemma {κ = _} {suc n} {q = q} P Q R oP refl | no _ = oP .fst
 ... | yes _ = <-trans {i = P fzero .fst} {j = P (fsuc fzero) .fst} {k = R fzero .fst} (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
 
@@ -202,7 +174,7 @@ ordered-compl :  ∀ {n m} →
                  (Q : Fin m → Label × SemType Δ κ) → 
                  OrderedRow (n , P) → OrderedRow (m , Q) → OrderedRow (compl P Q)
 ordered-compl {n = zero} P Q oρ₁ oρ₂ = tt
-ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row Q
+ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row? Q
 ... | yes _ = ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂
 ... | no _ = ordered-⨾⨾ P Q oρ₁ (ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂)
 
@@ -402,7 +374,7 @@ q (fsuc fzero) = "a" , UnitNF
 q (fsuc (fsuc fzero)) = "d" , UnitNF
 
 x : Dec (Σ-syntax (Fin 5) (λ i → "e" ≡ p i .fst))
-x =  _∈Row_  {Δ = ∅} {κ = ★} {m = 5} "e" p
+x =  _∈Row?_  {Δ = ∅} {κ = ★} {m = 5} "e" p
 
 y : Row (SemType ∅ ★)
 y = compl {Δ = ∅} {κ = ★} p q

@@ -57,8 +57,8 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
                  compl (overᵣ (renSem r) ∘ B) (overᵣ (renSem r) ∘ D)
 ↻-renSem-compl {n = zero} r A B C D i₁ i₂ = refl , (λ ())
 ↻-renSem-compl {n = suc n} r A B C D i₁ i₂ with
-      A fzero .fst ∈Row C 
-    | (B fzero .fst) ∈Row (overᵣ (renSem r) ∘ D)
+      A fzero .fst ∈Row? C 
+    | (B fzero .fst) ∈Row? (overᵣ (renSem r) ∘ D)
 ... | yes p         | yes q  =
   ↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂
 ... | yes (j , eq₂) | no q          = 
@@ -597,7 +597,7 @@ length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)
 ↻-<$>V-compl₁ F G zero zero P P' Q Q' (_ , _ , Ext) (refl , PP) Q≋Q' = Q≋Q' .fst
 ↻-<$>V-compl₁ F G zero (suc m) P P' Q Q' (_ , _ , Ext) (refl , PP) Q≋Q' = refl
 ↻-<$>V-compl₁ F G (suc n) zero P P' Q Q' F≋G (refl , PP) Q≋Q' = cong suc (↻-<$>V-compl₁ F G n zero (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) Q≋Q')
-↻-<$>V-compl₁ F G (suc n) (suc m) P P' Q Q' F≋G (refl , PP) (refl , QQ) with P fzero .fst ∈Row Q | (overᵣ (G id) ∘ P') fzero .fst ∈Row (overᵣ (G id) ∘ Q')
+↻-<$>V-compl₁ F G (suc n) (suc m) P P' Q Q' F≋G (refl , PP) (refl , QQ) with P fzero .fst ∈Row? Q | (overᵣ (G id) ∘ P') fzero .fst ∈Row? (overᵣ (G id) ∘ Q')
 ... | yes p | yes q  = ↻-<$>V-compl₁ F G n (suc m) (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)
 ... | yes (i , eq) | no q  = ⊥-elim (q (i , trans (sym (PP fzero .fst)) (trans eq (QQ i .fst))))
 ... | no p | yes (i , eq)  = ⊥-elim (p (i , trans (PP fzero .fst) (trans eq (sym (QQ i .fst)))))
@@ -641,7 +641,7 @@ lem : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ)
           (λ x₁ → P' (fsuc x₁) .fst , G (λ x₂ → x₂) (P' (fsuc x₁) .snd))
           (λ x₁ → Q' x₁ .fst , G (λ x₂ → x₂) (Q' x₁ .snd)) .snd i'
 lem F G (suc n) m P P' Q Q' F≋G PP QQ i' with 
-  P (fsuc fzero) .fst ∈Row Q | P' (fsuc fzero) .fst ∈Row (overᵣ (G id) ∘ Q') 
+  P (fsuc fzero) .fst ∈Row? Q | P' (fsuc fzero) .fst ∈Row? (overᵣ (G id) ∘ Q') 
 ... | yes (j , eq) | yes q  = lem F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (PP ∘ fsuc) QQ i'
 ... | yes (j , eq) | no q  =   ⊥-elim (q (j , trans (sym (PP (fsuc fzero) .fst)) (trans eq (QQ j .fst))))
 ... | no q | yes (j , eq)  =   ⊥-elim (q (j , trans (PP (fsuc fzero) .fst) (trans eq (sym (QQ j .fst)))))
@@ -673,7 +673,7 @@ lem F G (suc n) m P P' Q Q' F≋G PP QQ (fsuc i) | no p | no q | h , H | j , J |
 ↻-<$>V-─V F G zero (suc m) P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , λ ()
 -- ↻-<$>V-─V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} (_ , _ , Ext) (refl , PP) Q≋Q' = {!!} -- refl , λ i → (PP i .fst) , Ext id (PP i .snd)
 ↻-<$>V-─V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G (refl , PP) (refl , QQ) with
-  P fzero .fst ∈Row Q | P' fzero .fst ∈Row (overᵣ (G id) ∘ Q') | PP fzero | 
+  P fzero .fst ∈Row? Q | P' fzero .fst ∈Row? (overᵣ (G id) ∘ Q') | PP fzero | 
   ↻-<$>V-compl₂ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)
 ... | yes (i , eq) | yes (j , q) | e , d | fst-eq , snd-eq = 
   ↻-<$>V-compl₁ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ) , 
