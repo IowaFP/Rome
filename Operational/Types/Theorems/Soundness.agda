@@ -562,7 +562,12 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | f
 ... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row (m , Q) oQ | ih' = 
-  eq-trans (eq-─ (ih .fst) (ih' .fst)) (eq-trans (eq-compl {ozs = {!!}}) (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
+  eq-trans 
+    (eq-─ (ih .fst) (ih' .fst)) 
+    (eq-trans 
+      (eq-compl {ozs = fromWitness (ordered-─s {xs = ⇑Row (reifyRow (n , P))}
+                {ys = ⇑Row (reifyRow (m , Q))} (Ordered⇑ (reifyRow' n P) (reifyRowOrdered (n , P) oP)) (Ordered⇑ (reifyRow' m Q) (reifyRowOrdered (m , Q) oQ)))}) 
+      (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
   refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 

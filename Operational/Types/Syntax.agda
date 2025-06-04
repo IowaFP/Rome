@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Syntax where
 
 open import Rome.Operational.Prelude
@@ -201,13 +202,38 @@ ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) �
                Ordered (x ∷ ρ) → 
                Ordered ρ 
 ordered-cons x [] oxρ = tt
-ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
+ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ 
+
+open import Relation.Binary.Structures using (IsStrictPartialOrder)
+open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
+open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
+
+ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} → 
+                l < l' → 
+                Ordered ((l' , τ') ∷ xs) → 
+                Ordered ((l , τ) ∷ xs)
+ordered-swap {xs = []} l<l' oxs = tt
+ordered-swap {l = l} {l'} {xs = (l'' , τ'') ∷ xs} l<l' (l'<l'' , oxs) = <-trans {i = l} {j = l'} {k = l''} l<l' l'<l'' , oxs 
+                
 
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
 map-overᵣ (x ∷ []) f oρ = tt
 map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+
+--------------------------------------------------------------------------------
+-- complement preserves ordering
+
+ordered-─s : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → Ordered xs → Ordered ys → 
+             Ordered (xs ─s ys)
+ordered-─s {xs = []} {ys} oxs oys = tt
+ordered-─s {xs = ((l , τ) ∷ xs)} {ys} oxs oys with l ∈L? ys
+... | yes _  = ordered-─s (ordered-cons (l , τ) xs oxs) oys
+ordered-─s {κ = _} {(l , τ) ∷ []} {ys} oxs oys | no p = tt
+ordered-─s {κ = _} {(l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) oys | no p with l' ∈L? ys | ordered-─s oxs oys
+... | yes p | ih = {!!}
+... | no q | ih = l<l' , ih
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
