@@ -225,14 +225,16 @@ map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ ,
 --------------------------------------------------------------------------------
 -- complement preserves ordering
 
-ordered-─s : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → Ordered xs → Ordered ys → 
+
+ordered-─s : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → Ordered xs →
              Ordered (xs ─s ys)
-ordered-─s {xs = []} {ys} oxs oys = tt
-ordered-─s {xs = ((l , τ) ∷ xs)} {ys} oxs oys with l ∈L? ys
-... | yes _  = ordered-─s (ordered-cons (l , τ) xs oxs) oys
-ordered-─s {κ = _} {(l , τ) ∷ []} {ys} oxs oys | no p = tt
-ordered-─s {κ = _} {(l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) oys | no p with l' ∈L? ys | ordered-─s oxs oys
-... | yes p | ih = {!!}
+ordered-─s {xs = []} {ys} oxs = tt
+ordered-─s {xs = ((l , τ) ∷ xs)} {ys} oxs with l ∈L? ys
+... | yes _  = ordered-─s (ordered-cons (l , τ) xs oxs)
+ordered-─s {κ = _} {(l , τ) ∷ []} {ys} oxs | no p = tt
+ordered-─s {κ = _} {(l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with l' ∈L? ys | ordered-─s {ys = ys} oxs
+... | yes Here | ih = {!!}
+... | yes (There p') | ih = {!!}
 ... | no q | ih = l<l' , ih
 
 --------------------------------------------------------------------------------
