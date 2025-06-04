@@ -12,6 +12,29 @@ open import Rome.Operational.Types.Equivalence.Relation
 open import Rome.Operational.Types.Properties.Renaming
 
 
+--------------------------------------------------------------------------------
+-- Renaming commutes over Substitution
+
+∈L-subRowₖ : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ : SimpleRow Type Δ₁ R[ κ ]} → 
+                 (l : Label) → l ∈L ρ → l ∈L subRowₖ r ρ
+∈L-subRowₖ r {ρ} l Here = Here
+∈L-subRowₖ r {ρ} l (There ev) = There (∈L-subRowₖ r l ev)
+
+subRowₖ-∈L : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ : SimpleRow Type Δ₁ R[ κ ]} → 
+                 (l : Label) → l ∈L subRowₖ r ρ → l ∈L ρ
+subRowₖ-∈L r {(l' , τ) ∷ ρ} l Here = Here
+subRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (subRowₖ-∈L r l ev)
+
+↻-subRowₖ-─s : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow Type Δ₁ R[ κ ]} → 
+       subRowₖ r (ρ₂ ─s ρ₁) ≡ subRowₖ r ρ₂ ─s subRowₖ r ρ₁
+↻-subRowₖ-─s r {[]} {ρ₁} = refl
+↻-subRowₖ-─s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? subRowₖ r ρ₁
+... | yes p | yes q = ↻-subRowₖ-─s r {ρ₂} {ρ₁}
+... | yes  p | no q = ⊥-elim (q (∈L-subRowₖ r l p))
+... | no  p | yes q = ⊥-elim (p (subRowₖ-∈L r l q))
+... | no  p | no q = cong ((l , subₖ r τ) ∷_) (↻-subRowₖ-─s r {ρ₂} {ρ₁})
+
+
 -------------------------------------------------------------------------------
 -- Functor laws for lifting
 

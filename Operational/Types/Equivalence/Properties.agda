@@ -62,6 +62,13 @@ renₖ-≡t r (eq-─ ρ υ) = eq-─ (renₖ-≡t r ρ) (renₖ-≡t r υ)
 renₖ-≡t r eq-▹$ = eq-▹$
 renₖ-≡t r (eq-labTy eq) = eq-labTy (renₖ-≡t r eq)
 renₖ-≡t r (eq-<$>-─) = eq-<$>-─
+renₖ-≡t r (eq-compl {xs = xs} {ys} {ozs = ozs}) = 
+  eq-trans 
+    (eq-compl 
+      {zs = renRowₖ r xs ─s renRowₖ r ys} 
+      {ozs = fromWitness (subst Ordered (↻-renRowₖ-─s r {xs} {ys}) ((orderedRenRowₖ r (xs ─s ys) (toWitness ozs))))}) 
+    (eq-row (instᵣ (sym (↻-renRowₖ-─s r {xs} {ys}))))
+
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r eq-[] = eq-[]
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons l x eq) = eq-cons l (renₖ-≡t _ x) (renₖ-≡r r eq )
 
@@ -167,6 +174,13 @@ subₖ-≡t {σ = σ} (eq-─ eq₁ eq₂) = eq-─ (subₖ-≡t eq₁) (subₖ-
 subₖ-≡t {σ = σ} eq-▹$ = eq-▹$
 subₖ-≡t {σ = σ} (eq-labTy eq) = eq-labTy (subₖ-≡t {σ = σ} eq)
 subₖ-≡t {σ = σ} (eq-<$>-─) = eq-<$>-─
+subₖ-≡t {σ = σ} (eq-compl {xs = xs} {ys} {zs} {ozs = ozs}) = 
+  eq-trans 
+    (eq-compl 
+      {zs = subRowₖ σ xs ─s subRowₖ σ ys} 
+      {ozs = fromWitness (subst Ordered (↻-subRowₖ-─s σ {xs} {ys}) ((orderedSubRowₖ σ (xs ─s ys) (toWitness ozs))))}) 
+    (eq-row (instᵣ (sym (↻-subRowₖ-─s σ {xs} {ys}))))
+
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons l x eq) = eq-cons l (subₖ-≡t x) (subₖ-≡r eq )

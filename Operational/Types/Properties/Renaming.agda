@@ -8,7 +8,29 @@ open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
 
 --------------------------------------------------------------------------------
--- ↑ing respects congruence, identities, and composition.
+-- Renaming commutes over complement
+
+∈L-renRowₖ : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ : SimpleRow Type Δ₁ R[ κ ]} → 
+                 (l : Label) → l ∈L ρ → l ∈L renRowₖ r ρ
+∈L-renRowₖ r {ρ} l Here = Here
+∈L-renRowₖ r {ρ} l (There ev) = There (∈L-renRowₖ r l ev)
+
+renRowₖ-∈L : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ : SimpleRow Type Δ₁ R[ κ ]} → 
+                 (l : Label) → l ∈L renRowₖ r ρ → l ∈L ρ
+renRowₖ-∈L r {(l' , τ) ∷ ρ} l Here = Here
+renRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (renRowₖ-∈L r l ev)
+
+↻-renRowₖ-─s : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow Type Δ₁ R[ κ ]} → 
+       renRowₖ r (ρ₂ ─s ρ₁) ≡ renRowₖ r ρ₂ ─s renRowₖ r ρ₁
+↻-renRowₖ-─s r {[]} {ρ₁} = refl
+↻-renRowₖ-─s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? renRowₖ r ρ₁
+... | yes p | yes q = ↻-renRowₖ-─s r {ρ₂} {ρ₁}
+... | yes  p | no q = ⊥-elim (q (∈L-renRowₖ r l p))
+... | no  p | yes q = ⊥-elim (p (renRowₖ-∈L r l q))
+... | no  p | no q = cong ((l , renₖ r τ) ∷_) (↻-renRowₖ-─s r {ρ₂} {ρ₁})
+
+--------------------------------------------------------------------------------
+-- lifting respects congruence, identities, and composition.
 --
 
 liftₖ-id : ∀ (x : KVar (Δ ,, κ₂) κ₁) → liftₖ id x ≡ x

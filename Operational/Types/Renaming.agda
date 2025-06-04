@@ -60,3 +60,4 @@ weakenₖ = renₖ S
 
 weakenPredₖ : Pred Type Δ R[ κ₂ ] → Pred Type (Δ ,, κ₁) R[ κ₂ ]
 weakenPredₖ = renPredₖ S
+
