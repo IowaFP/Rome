@@ -619,19 +619,17 @@ length-⇑-reify n P = trans (length-⇑ (reifyRow (n , P))) (length-reify n P)
     (λ i → (QQ i .fst) , cong-App F≋G (QQ i .snd))
 
 lem : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ) 
-              (P P' : Fin (suc n) → String × SemType Δ κ₁)
-              (Q Q' : Fin (suc m) → String × SemType Δ κ₁) → 
-              (F≋G : (λ {Δ} → F {Δ}) ≋ (λ {Δ} → G {Δ})) → 
+              (P P' : Fin (suc n) → Label × SemType Δ κ₁)
+              (Q Q' : Fin m → Label × SemType Δ κ₁) → 
               (PP : ∀ i → P i ≋₂ P' i) → 
-              (QQ : ∀ i → Q i ≋₂ Q' i) → 
+              (QQ : ∀ i → Q i ≋₂ Q' i) →
+              (f : (λ {Δ} → F {Δ}) ≋ (λ {Δ} → G {Δ})) → 
+              (pf : compl (P ∘ fsuc) Q .fst ≡ compl (overᵣ (G id) ∘ (P' ∘ fsuc)) (overᵣ (G id) ∘ Q') .fst) → 
               (i' : Fin
                 (compl
                   (λ Δ₂ → P' (fsuc Δ₂) .fst , G (λ i₁ → i₁) (P' (fsuc Δ₂) .snd))
                   (λ x₁ → Q' x₁ .fst , G (λ x₂ → x₂) (Q' x₁ .snd)) .fst)) → 
-              subst-Row
-             (↻-<$>V-compl₁ F G n (suc m) (λ x₁ → P (fsuc x₁))
-             (λ x₁ → P' (fsuc x₁)) Q Q' F≋G (refl , (λ x₁ → PP (fsuc x₁)))
-             (refl , QQ))
+              subst-Row pf
              (λ x₁ →
                compl (λ x₂ → P (fsuc x₂)) Q .snd x₁ .fst ,
              F (λ x₂ → x₂) (compl (λ x₂ → P (fsuc x₂)) Q .snd x₁ .snd))
@@ -640,21 +638,19 @@ lem : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ)
           compl
           (λ x₁ → P' (fsuc x₁) .fst , G (λ x₂ → x₂) (P' (fsuc x₁) .snd))
           (λ x₁ → Q' x₁ .fst , G (λ x₂ → x₂) (Q' x₁ .snd)) .snd i'
-lem F G (suc n) m P P' Q Q' F≋G PP QQ i' with 
-  P (fsuc fzero) .fst ∈Row? Q | P' (fsuc fzero) .fst ∈Row? (overᵣ (G id) ∘ Q') 
-... | yes (j , eq) | yes q  = lem F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (PP ∘ fsuc) QQ i'
-... | yes (j , eq) | no q  =   ⊥-elim (q (j , trans (sym (PP (fsuc fzero) .fst)) (trans eq (QQ j .fst))))
-... | no q | yes (j , eq)  =   ⊥-elim (q (j , trans (PP (fsuc fzero) .fst) (trans eq (sym (QQ j .fst)))))
-lem F G (suc n) m P P' Q Q' F≋G PP QQ i | no p | no q with 
+lem F G (suc n) m P P' Q Q' PP QQ f pf i' with 
+     P (fsuc fzero) .fst ∈Row? Q 
+    | P' (fsuc fzero) .fst ∈Row? (overᵣ (G id) ∘ Q') 
+... | yes (j , eq) | yes q = lem F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' (PP ∘ fsuc) QQ f pf i'
+... | yes (j , eq) | no q  = ⊥-elim (q (j , trans (sym (PP (fsuc fzero) .fst)) (trans eq (QQ j .fst))))
+... | no q         | yes (j , eq)   = ⊥-elim (q (j , trans (PP (fsuc fzero) .fst) (trans eq (sym (QQ j .fst)))))
+... | no _         | no _  with 
         compl (P ∘ fsuc ∘ fsuc) Q 
      | compl (λ x → (P' ∘ fsuc ∘ fsuc) x .fst , G id (P' (fsuc (fsuc x)) .snd))
              (λ x₁ → Q' x₁ .fst , G (λ x₂ → x₂) (Q' x₁ .snd))
-     |  (↻-<$>V-compl₁ F G n (suc m) (λ x₁ → P (fsuc (fsuc x₁)))
-        (λ x₁ → P' (fsuc (fsuc x₁))) Q Q' F≋G
-        (refl , (λ x₁ → PP (fsuc (fsuc x₁)))) (refl , QQ))
-     | lem F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (PP ∘ fsuc) QQ
-lem F G (suc n) m P P' Q Q' F≋G PP QQ fzero | no p | no q | h , H | j , J | refl | c = PP (fsuc fzero) .fst , (F≋G .snd .snd) id (PP (fsuc fzero) .snd) 
-lem F G (suc n) m P P' Q Q' F≋G PP QQ (fsuc i) | no p | no q | h , H | j , J | refl | c = c i
+     | lem F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' (PP ∘ fsuc) QQ f
+lem F G (suc n) m P P' Q Q' PP QQ f refl fzero | no _ | no _ | h , H | j , J | e = PP (fsuc fzero) .fst , f .snd .snd id (PP (fsuc fzero) .snd)
+lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J | e = e refl i'
 
 ↻-<$>V-─V : ∀ (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ) 
               (P P' : Fin n → String × SemType Δ κ₁)
@@ -669,19 +665,17 @@ lem F G (suc n) m P P' Q Q' F≋G PP QQ (fsuc i) | no p | no q | h , H | j , J |
               (F <$>V (row (n , P) oP ─V row (m , Q) oQ)) ≋ 
               ((G <$>V row (n , P') oP') ─V (G <$>V row (m , Q') oQ'))
              
-↻-<$>V-─V F G zero zero P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , (λ ())
-↻-<$>V-─V F G zero (suc m) P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , λ ()
--- ↻-<$>V-─V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} (_ , _ , Ext) (refl , PP) Q≋Q' = {!!} -- refl , λ i → (PP i .fst) , Ext id (PP i .snd)
+↻-<$>V-─V F G zero m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , (λ ())
 ↻-<$>V-─V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G (refl , PP) (refl , QQ) with
-  P fzero .fst ∈Row? Q | P' fzero .fst ∈Row? (overᵣ (G id) ∘ Q') | PP fzero | 
-  ↻-<$>V-compl₂ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)
+      P fzero .fst ∈Row? Q | P' fzero .fst ∈Row? (overᵣ (G id) ∘ Q') | PP fzero 
+    | ↻-<$>V-compl₂ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)
 ... | yes (i , eq) | yes (j , q) | e , d | fst-eq , snd-eq = 
   ↻-<$>V-compl₁ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ) , 
-  λ i' → {!i'!} , {!!} -- lem F G n m P P' Q Q' F≋G PP QQ i' 
+  λ i' → lem F G n m P P' Q Q' PP QQ F≋G (↻-<$>V-compl₁ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)) i' 
 ... | yes (i , eq) | no q | e , d | cc = ⊥-elim (q (i , trans (sym e) (trans eq (QQ i .fst))))
 ... | no q | yes (i , eq) | e , d | cc = ⊥-elim (q (i , trans e (trans eq (sym (QQ i .fst)))))
 ... | no  p | no q | _ | compl₂ with 
        compl (P ∘ fsuc) Q 
     |  ↻-<$>V-compl₁ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ) 
-    -- | lem F G n m P P' Q Q' F≋G PP QQ 
-... | a | refl = {!!} -- refl , λ { fzero → (PP fzero .fst) , (F≋G .snd .snd id (PP fzero .snd)) ; (fsuc i) → lem₁ i }
+    | lem F G n m P P' Q Q' PP QQ F≋G (↻-<$>V-compl₁ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ))
+... | a | refl | lem₁ = refl , λ { fzero → (PP fzero .fst) , (F≋G .snd .snd id (PP fzero .snd)) ; (fsuc i) → lem₁ i }
