@@ -24,6 +24,17 @@ open import Rome.Operational.Types.Theorems.Completeness.Commutativity public
 
 open import Rome.Operational.Types.Equivalence.Relation
 
+--------------------------------------------------------------------------------
+-- Equivalence of membership in syntactic and semantic spaces
+
+∈L→∈Row : ∀ {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow Type Δ₁ R[ κ ]} → l ∈L ys → l ∈Row (evalRow ys η₁ .snd)
+∈L→∈Row {ys = ys} Here = fzero , refl
+∈L→∈Row {ys = (l' , τ) ∷ ys} (There ev) = (fsuc (∈L→∈Row ev .fst)) , (∈L→∈Row ev .snd)
+
+∈Row→∈L : ∀ {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow Type Δ₁ R[ κ ]} → l ∈Row (evalRow ys η₁ .snd) → l ∈L ys
+∈Row→∈L {ys = (l , τ) ∷ ys} (fzero , refl) = Here
+∈Row→∈L {ys = (l , τ) ∷ ys} (fsuc i , refl) = There (∈Row→∈L (i , refl))
+
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
@@ -144,21 +155,17 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
-fundC {η₁ = η₁} {η₂} e (eq-compl {xs = []} {ys} {zs} eq) = {!!} , {!!}
-fundC {η₁ = η₁} {η₂} e (eq-compl {xs = x₁ ∷ xs} {ys} {zs} eq) = {!!}
--- fundC e (eq-compl {n = zero} {suc m} {P} {Q}) = refl , λ ()
--- fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {zero} {P} {Q}) with
---     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
---   |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
---   | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
--- ... | c | d | refl , I = refl , (λ { fzero → refl , idext e (⇑ (reify (P fzero .snd))) ; (fsuc i) → I i })
--- fundC {η₁ = η₁} {η₂ = η₂} e (eq-compl {n = suc n} {suc m} {P} {Q}) with 
---     evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₁ 
---   |  evalRow (⇑Row (reifyRow' n (λ x₁ → P (fsuc x₁)))) η₂ 
---   | (idext-row e (⇑Row (reifyRow' n (P ∘ fsuc))))
---   | P fzero .fst ∈Row? Q 
--- ... | c | d | refl , I | yes (fst₁ , snd₁) = {!!} , {!!}
--- ... | c | d | refl , I | no  q = {!!} , {!λ !}
+fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = go xs ys
+  where
+    go : ∀ (xs ys : SimpleRow Type Δ₁ R[ κ ]) → 
+         (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
+    go [] ys = refl , (λ ())
+    go ((l , τ) ∷ xs) ys with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
+    ... | yes p | yes q = go xs ys
+    ... | yes p | no q = ⊥-elim (q (∈Row→∈L p)) 
+    ... | no q | yes p = ⊥-elim (q (∈L→∈Row p)) 
+    ... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ─s ys) η₂ | go xs ys
+    go ((l , τ) ∷ xs) ys | no p | no q | x | y | (refl , ih') = refl , λ { fzero → refl , idext e τ ; (fsuc i) → ih' i }
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 

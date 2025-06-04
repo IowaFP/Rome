@@ -218,12 +218,10 @@ data _≡t_ where
         (Σ {notLabel = nl} · ρ) · τ ≡t Σ {notLabel = nl} · (ρ ?? τ)
 
     eq-compl : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} 
-                 {oxs : True (ordered? xs)} {oys : True (ordered? ys)} {ozs : True (ordered? zs)} → 
+                 {oxs : True (ordered? xs)} {oys : True (ordered? ys)} {ozs : True (ordered? (xs ─s ys))} → 
 
-                    
-                 zs ≡r (xs ─s ys) → 
                  --------------------------------------------
-                 (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ zs ⦆ ozs
+                 (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ (xs ─s ys) ⦆ ozs
 
     -- eq-compl : ∀ {n m : ℕ} {P : Fin n → Label × SemType Δ κ} {Q : Fin m → Label × SemType Δ κ} → 
     --              {oP : True (ordered? (⇑Row (reifyRow' n P)))} → 

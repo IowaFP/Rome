@@ -122,16 +122,20 @@ F ·V V = F id V
 --------------------------------------------------------------------------------
 -- Semantic complement
 
+_∈Row_ : ∀ {m} → (l : Label) → 
+         (Q : Fin m → Label × SemType Δ κ) → 
+         Set 
+_∈Row_ {m = m} l Q = Σ[ i ∈ Fin m ] (l ≡ Q i .fst)
+
 _∈Row?_ : ∀ {m} → (l : Label) → 
          (Q : Fin m → Label × SemType Δ κ) → 
-         Dec (Σ[ i ∈ Fin m ] (l ≡ Q i .fst))
+         Dec (l ∈Row Q)
 _∈Row?_ {m = zero} l Q = no λ { () }
 _∈Row?_ {m = suc m} l Q with l ≟ Q fzero .fst
 ... | yes p = yes (fzero , p)
 ... | no  p with l ∈Row? (Q ∘ fsuc)
 ...        | yes (n , q) = yes ((fsuc n) , q) 
 ...        | no  q = no λ { (fzero , q') → p q' ; (fsuc n , q') → q (n , q') }
-
 
 compl : ∀ {n m} → 
         (P : Fin n → Label × SemType Δ κ) 
