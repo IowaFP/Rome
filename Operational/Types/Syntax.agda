@@ -198,15 +198,21 @@ fmap× f (x , y) = f x , f y
 --------------------------------------------------------------------------------
 -- Ordered lemmas 
 
+open import Relation.Binary.Structures using (IsStrictPartialOrder)
+open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
+open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
+
+private
+  variable
+    l : Label
+    τ : Type Δ κ 
+    xs ys : SimpleRow Type Δ R[ κ ]
+
 ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
                Ordered (x ∷ ρ) → 
                Ordered ρ 
 ordered-cons x [] oxρ = tt
 ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ 
-
-open import Relation.Binary.Structures using (IsStrictPartialOrder)
-open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
-open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
 
 ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} → 
                 l < l' → 
@@ -215,27 +221,28 @@ ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow Type Δ 
 ordered-swap {xs = []} l<l' oxs = tt
 ordered-swap {l = l} {l'} {xs = (l'' , τ'') ∷ xs} l<l' (l'<l'' , oxs) = <-trans {i = l} {j = l'} {k = l''} l<l' l'<l'' , oxs 
                 
-
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
 map-overᵣ (x ∷ []) f oρ = tt
 map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
---------------------------------------------------------------------------------
--- complement preserves ordering
-
-
-ordered-─s : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → Ordered xs →
+ordered-─s-cons : Ordered ((l , τ) ∷ xs) → 
+        Ordered ((l , τ) ∷ (xs ─s ys))
+ordered-─s-cons {xs = []} oxs = tt
+ordered-─s-cons {l = l} {τ = τ} {xs = (l' , τ') ∷ xs} {ys = ys} (l<l' , oxs') with l' ∈L? ys 
+...| yes p = ordered-─s-cons (ordered-swap {l = l} {l'} {τ} {τ'} l<l' oxs')
+...| no  p = l<l' , ordered-─s-cons oxs'
+                   
+ordered-─s : Ordered xs →
              Ordered (xs ─s ys)
 ordered-─s {xs = []} {ys} oxs = tt
 ordered-─s {xs = ((l , τ) ∷ xs)} {ys} oxs with l ∈L? ys
 ... | yes _  = ordered-─s (ordered-cons (l , τ) xs oxs)
-ordered-─s {κ = _} {(l , τ) ∷ []} {ys} oxs | no p = tt
-ordered-─s {κ = _} {(l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with l' ∈L? ys | ordered-─s {ys = ys} oxs
-... | yes Here | ih = {!!}
-... | yes (There p') | ih = {!!}
+ordered-─s  {xs = (l , τ) ∷ []} {ys} oxs | no p = tt
+ordered-─s {xs = (l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with l' ∈L? ys | ordered-─s {ys = ys} oxs
 ... | no q | ih = l<l' , ih
+... | yes q | ih = ordered-─s-cons (ordered-swap l<l' oxs)
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row

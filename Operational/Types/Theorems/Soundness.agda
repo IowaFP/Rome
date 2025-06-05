@@ -367,7 +367,7 @@ map-Π zero P rel = tt
 map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {nl = nl} id rel-fzero) , (map-Π n (P ∘ fsuc) rel-fsuc)
 
 --------------------------------------------------------------------------------
--- Soundness for Σ (identical logic as Π but woefully duplicated)
+-- Soundness for Σ (identical to Π above)
 
 -- sound-Σ : SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} Σ Σ-Kripke
 -- map-Σ : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
@@ -566,7 +566,7 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | f
     (eq-─ (ih .fst) (ih' .fst)) 
     (eq-trans 
       (eq-compl {ozs = fromWitness (ordered-─s {xs = ⇑Row (reifyRow (n , P))}
-                {ys = ⇑Row (reifyRow (m , Q))} (Ordered⇑ (reifyRow' n P) (reifyRowOrdered (n , P) oP)) (Ordered⇑ (reifyRow' m Q) (reifyRowOrdered (m , Q) oQ)))}) 
+                {ys = ⇑Row (reifyRow (m , Q))} (Ordered⇑ (reifyRow' n P) (reifyRowOrdered (n , P) oP)))}) 
       (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
   refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
