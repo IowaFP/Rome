@@ -384,8 +384,8 @@ stability-·' f N = trans
     (sym (stability (f ·' N))) 
     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
 
-stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
-                  f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+-- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+--                   f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
                 map (overᵣ (_·'_ f)) xs ≡ reifyRow 
                   ((evalRow (⇑Row xs) idEnv .fst) ,
@@ -393,10 +393,10 @@ stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow N
                     ((evalRow (⇑Row xs) idEnv .snd i) .fst) , 
                     (eval (⇑ f) idEnv id ((evalRow (⇑Row xs) idEnv .snd i) .snd)))) 
 stability-map f [] = refl
-stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ (sym (stability (x .fst))) (stability-·' f (x .snd))) (stability-map f xs))
+stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (x .snd))) (stability-map f xs))
 
-stability-<$> f (ne x) = sym (stability (f <$>' ne x))
-stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
+-- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+-- stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>
@@ -407,7 +407,7 @@ stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
           ⇓ (⇑ (subₖNF σ F) <$> ⇑ (subₖNF σ ρ)) ≡  subₖNF σ (⇓ (⇑ F <$> ⇑ ρ))
 ↻-sub-⇓-<$> σ F@(`λ M) ρ  = trans 
   (reify-≋
-     {V₁ = (↓ (subₖNF σ F)) <$>V ((↓ (subₖNF σ ρ)))} 
+     {V₁ = (↑ (subₖNF σ F)) <$>V ((↑ (subₖNF σ ρ)))} 
      {V₂ = (eval (subₖ (⇑ ∘ σ) (⇑ F)) idEnv) <$>V (eval (subₖ (⇑ ∘ σ) (⇑ ρ)) idEnv)}  
      (cong-<$> 
       (fundC idEnv-≋ (↻-sub-⇑ σ F)) 

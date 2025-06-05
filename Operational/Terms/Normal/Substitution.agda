@@ -100,6 +100,18 @@ sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
 sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
 sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
 sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
+sub σ s {x} (_Π▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
+... | ne l'  | ℓ' = ℓ' Π▹ne sub σ s τ
+... | lab l' | ℓ' = ℓ' Π▹ sub σ s τ
+sub σ s {x} (_Π/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
+... | ne l'  | τ' | ℓ' = τ'  Π/ne ℓ'
+... | lab l' | τ' | ℓ' = τ' Π/ ℓ'
+sub σ s {x} (_Σ▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
+... | ne l'  | ℓ' = ℓ' Σ▹ne sub σ s τ
+... | lab l' | ℓ' = ℓ' Σ▹ sub σ s τ
+sub σ s {x} (_Σ/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
+... | ne l'  | τ' | ℓ' = τ'  Σ/ne ℓ'
+... | lab l' | τ' | ℓ' = τ' Σ/ ℓ'
 sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) = 
   `ƛ (subst 
         (λ x → NormalTerm (Γ₂ ,,, x) (subₖNF σ τ)) 
@@ -132,7 +144,6 @@ sub σ s (ana ρ φ τ M) =
           (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
-sub σ s (comp M n) = comp (sub σ s M) (subEnt σ s n)
 -- sub σ s ⦅ ρ ⦆ = {!!}
 -- sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
 --   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
@@ -166,29 +177,24 @@ subEnt σ s {π} n-ε-L = n-ε-L
 subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
   rewrite
     ρ₁-eq 
-  | ρ₂-eq 
-  | stability-<$> F ρ₁ 
-  | stability-<$> F ρ₂ = 
+  | ρ₂-eq =
     n-≲lift 
     {F = subₖNF σ F} 
     (subEnt σ s e) 
-    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
-    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
+    (sym (↻-sub-⇓-<$> σ F ρ₁))
+    (sym (↻-sub-⇓-<$> σ F ρ₂))
   
 subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e  ρ₁-eq ρ₂-eq ρ₃-eq) 
   rewrite
     ρ₁-eq 
   | ρ₂-eq 
-  | ρ₃-eq 
-  | stability-<$> F ρ₁ 
-  | stability-<$> F ρ₂ 
-  | stability-<$> F ρ₃ = 
+  | ρ₃-eq =
     n-·lift 
     {F = subₖNF σ F} 
     (subEnt σ s e) 
-    (trans (sym (↻-sub-⇓-<$> σ F ρ₁)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₁)))) 
-    (trans (sym (↻-sub-⇓-<$> σ F ρ₂)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₂))))
-    (trans (sym (↻-sub-⇓-<$> σ F ρ₃)) (sym (stability-<$> (subₖNF σ F) (subₖNF σ ρ₃))))
+    (sym (↻-sub-⇓-<$> σ F ρ₁))
+    (sym (↻-sub-⇓-<$> σ F ρ₂))
+    (sym (↻-sub-⇓-<$> σ F ρ₃))
   
 
 --------------------------------------------------------------------------------
@@ -215,8 +221,8 @@ extendByEnt σ (s , p) e = (λ { (P x) → s x }) , λ { Z → e
 --------------------------------------------------------------------------------
 -- Weakening of a substitution by a kind variable
 
-lem : ∀ {τ} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ)
-lem {τ = τ} = 
+lem' : ∀ {τ} → Substitution (Γ ,, κ) Γ (extendₖNF (λ x → η-norm (` x)) τ)
+lem' {τ = τ} = 
   (λ { (K {τ = τ'} x) → conv (weakenₖNF-β-id τ') (` x) }) , 
   λ { (K {π = π} x) → convEnt (weakenPredₖNF-Β-id π) (n-var x) }
 
@@ -258,6 +264,6 @@ _βπ[_] {τ = τ} {π} M e =
 
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ βₖNF[ τ₂ ])
-M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem M
+M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem' M
   
    

@@ -110,8 +110,8 @@ renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) →
             (idext (sym-≋ ∘ ↻-ren-reflect ρ ∘ `) (⇑ F <$> ⇑ ρ₁)) 
             (sym-≋ (↻-renSem-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋))))) 
         (sym (↻-ren-reify ρ 
-          {V₁ = (↓ F <$>V ↓ ρ₁)} 
-          {V₂ = (↓ F <$>V ↓ ρ₁)} 
+          {V₁ = (↑ F <$>V ↑ ρ₁)} 
+          {V₂ = (↑ F <$>V ↑ ρ₁)} 
           (fundC 
             {τ₁ = ⇑ F <$> ⇑ ρ₁} 
             {τ₂ = ⇑ F <$> ⇑ ρ₁} 
@@ -144,8 +144,12 @@ ren {ρ = ρ} R (Out F@(`λ τ) M) =
 ren R (Out F@(ne x {()}) τ)
 ren R (# l) = # (renType R l)
 ren R (l Π▹ M) = (ren R l) Π▹ (ren R M)
+ren R (l Π▹ne M) = (ren R l) Π▹ne (ren R M)
 ren R (M Π/ l) = ren R M Π/ ren R l
+ren R (M Π/ne l) = ren R M Π/ne ren R l
+ren R (l Σ▹ne M) = (ren R l) Σ▹ne (ren R M)
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
+ren R (M Σ/ne l) = ren R M Σ/ne ren R l
 ren R (M Σ/ l) = ren R M Σ/ ren R l
 ren R (`ƛ τ) = `ƛ (ren (liftNormalPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
@@ -167,7 +171,6 @@ ren {ρ = r} R (ana ρ φ τ M) =
       ((cong ⇓ (sym (AnaT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ) (↻-ren-⇑ r τ)))))
     (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
     (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
-ren R (comp M n) = comp (ren R M) (renEnt R n)
 -- ren R ⦅ xs ⦆ = ⦅ renRecord R xs ⦆
 -- ren {ρ = r} R (⟨ M ⟩ x) = ⟨ ren R M ⟩ ( ⊆-cong (renₖNF r) (renRowₖNF r) (renRowₖNF-isMap r) x)
 
@@ -191,27 +194,22 @@ renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e eq-�
   rewrite 
     eq-ρ₁ 
   | eq-ρ₂
-  | stability-<$> F ρ₁ 
-  | stability-<$> F ρ₂ 
   = n-≲lift 
     {F = renₖNF ρ F} 
     (renEnt R e) 
-    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
-    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
+    (sym (↻-ren-⇓-<$> ρ F ρ₁))
+    (sym (↻-ren-⇓-<$> ρ F ρ₂))
 renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ₂ eq-ρ₃)
   rewrite 
     eq-ρ₁ 
   | eq-ρ₂
   | eq-ρ₃
-  | stability-<$> F ρ₁ 
-  | stability-<$> F ρ₂ 
-  | stability-<$> F ρ₃
   = n-·lift 
     {F = renₖNF ρ F} 
     (renEnt R e) 
-    (trans (sym (↻-ren-⇓-<$> ρ F ρ₁)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₁)))) 
-    (trans (sym (↻-ren-⇓-<$> ρ F ρ₂)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₂))))
-    (trans (sym (↻-ren-⇓-<$> ρ F ρ₃)) (sym (stability-<$> (renₖNF ρ F) (renₖNF ρ ρ₃))))
+    (sym (↻-ren-⇓-<$> ρ F ρ₁))
+    (sym (↻-ren-⇓-<$> ρ F ρ₂)) 
+    (sym (↻-ren-⇓-<$> ρ F ρ₃)) 
   
 
 --------------------------------------------------------------------------------

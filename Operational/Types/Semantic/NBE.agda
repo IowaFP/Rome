@@ -357,6 +357,10 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
+-- reabstraction
+↑ : ∀ {Δ} → NormalType Δ κ → SemType Δ κ 
+↑ τ = eval (⇑ τ) idEnv
+
 --------------------------------------------------------------------------------
 -- Testing compl operator
 

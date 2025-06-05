@@ -37,7 +37,7 @@ private
   variable
     Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ
     τ υ τ₁ τ₂  : NormalType Δ ★
-    l l₁ l₂    : NormalType Δ L
+    l l₁ l₂    : NeutralType Δ L
     ρ ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]
     π π₁ π₂ π₃ : NormalPred Δ R[ κ ]
     
@@ -248,14 +248,24 @@ data NormalTerm {Δ} Γ where
   -- Rω records
 
   -- Record singleton formation
-  _Π▹_ : 
-          (M₁ : NormalTerm Γ ⌊ l ⌋) (M₂ : NormalTerm Γ υ) →
+  _Π▹ne_ : 
+          (M₁ : NormalTerm Γ ⌊ ne l ⌋) (M₂ : NormalTerm Γ υ) →
           ----------------------------------------
-          NormalTerm Γ (Π (l ▹' υ))
+          NormalTerm Γ (Π (l ▹ₙ υ))
+
+  _Π▹_ : ∀ {l : Label}
+          (M₁ : NormalTerm Γ ⌊ lab l ⌋) (M₂ : NormalTerm Γ υ) →
+          ----------------------------------------
+          NormalTerm Γ (Π (⦅ [ (l , υ) ] ⦆ tt))
 
   -- Record singleton elimination
-  _Π/_ :
-          (M₁ : NormalTerm Γ (Π (l ▹' υ))) (M₂ : NormalTerm Γ ⌊ l ⌋) →
+  _Π/ne_ :
+          (M₁ : NormalTerm Γ (Π (l ▹ₙ υ))) (M₂ : NormalTerm Γ ⌊ ne l ⌋) →
+          ----------------------------------------
+          NormalTerm Γ υ
+
+  _Π/_ : ∀ {l : Label} → 
+          (M₁ : NormalTerm Γ (Π (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : NormalTerm Γ ⌊ lab l ⌋) →
           ----------------------------------------
           NormalTerm Γ υ
 
@@ -286,15 +296,25 @@ data NormalTerm {Δ} Γ where
   --------------
   -- Rω variants
 
-  -- Record singleton formation
-  _Σ▹_ : 
-          (M₁ : NormalTerm Γ ⌊ l ⌋) (M₂ : NormalTerm Γ υ) →
+  -- Variant singleton formation
+  _Σ▹ne_ : 
+          (M₁ : NormalTerm Γ ⌊ ne l ⌋) (M₂ : NormalTerm Γ υ) →
           ----------------------------------------
-          NormalTerm Γ (Σ (l ▹' υ))
+          NormalTerm Γ (Σ (l ▹ₙ υ))
 
-  -- Record singleton elimination
-  _Σ/_ :
-          (M₁ : NormalTerm Γ (Σ (l ▹' υ))) (M₂ : NormalTerm Γ ⌊ l ⌋) →
+  _Σ▹_ : ∀ {l : Label}
+          (M₁ : NormalTerm Γ ⌊ lab l ⌋) (M₂ : NormalTerm Γ υ) →
+          ----------------------------------------
+          NormalTerm Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))
+
+  -- Variant singleton elimination
+  _Σ/ne_ :
+          (M₁ : NormalTerm Γ (Σ (l ▹ₙ υ))) (M₂ : NormalTerm Γ ⌊ ne l ⌋) →
+          ----------------------------------------
+          NormalTerm Γ υ
+
+  _Σ/_ : ∀ {l : Label} → 
+          (M₁ : NormalTerm Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : NormalTerm Γ ⌊ lab l ⌋) →
           ----------------------------------------
           NormalTerm Γ υ
 
@@ -309,11 +329,6 @@ data NormalTerm {Δ} Γ where
        (M₁ : NormalTerm Γ (Σ ρ₁ `→ τ)) → (M₂ : NormalTerm Γ (Σ ρ₂ `→ τ)) → NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
        NormalTerm Γ (Σ ρ₃ `→ τ)
-
-  comp : 
-  
-        (M : NormalTerm Γ ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ)) → NormalEnt Γ (ρ₁ ≲ ρ₃) → 
-        NormalTerm Γ τ
 
   ----------------------------------------
   -- Values
@@ -353,39 +368,39 @@ conv-≡t eq = conv (completeness eq)
 -- Admissable constants
 
 
-ll : NormalType Δ L 
-ll = ΠL εNF
+-- ll : NormalType Δ L 
+-- ll = ΠL εNF
 
--- Unit term
-uu : NormalTerm Γ UnitNF
-uu = prj (# ll Π▹ (# ll)) (n-≲ λ { x () }) -- (♯l Π▹ ♯l) (n-≲ λ { x () })
+-- -- Unit term
+-- uu : NormalTerm Γ UnitNF
+-- uu = prj (# ll Π▹ (# ll)) (n-≲ λ { x () }) -- (♯l Π▹ ♯l) (n-≲ λ { x () })
 
--- shit : NormalTerm Γ UnitNF 
--- shit = (♯l Π▹ uu) Π/ ♯l
+-- -- shit : NormalTerm Γ UnitNF 
+-- -- shit = (♯l Π▹ uu) Π/ ♯l
 
--- shit₂ : NormalTerm Γ ((Π ⦅ [ UnitNF ] ⦆) `→ UnitNF) 
--- shit₂ = `λ ((` Z) Π/ ♯l)
+-- -- shit₂ : NormalTerm Γ ((Π ⦅ [ UnitNF ] ⦆) `→ UnitNF) 
+-- -- shit₂ = `λ ((` Z) Π/ ♯l)
 
--- withLabelVar : NormalTerm Γ 
---   (`∀ {κ = L} 
---     (`∀ {κ = ★} 
---       (`∀ {κ = R[ ★ ]} ((⦅ [ (ne (` (S Z))) ] ⦆ ≲ ne (` Z)) ⇒ (⌊ (ne (` (S (S Z)))) ⌋ `→ (Π (ne (` Z))) `→ (ne (` (S Z)))))))) 
--- withLabelVar = Λ (Λ (Λ (`ƛ (`λ (`λ ((prj (` Z) (n-var (T (T Z)))) Π/ ♯l)))))) 
+-- -- withLabelVar : NormalTerm Γ 
+-- --   (`∀ {κ = L} 
+-- --     (`∀ {κ = ★} 
+-- --       (`∀ {κ = R[ ★ ]} ((⦅ [ (ne (` (S Z))) ] ⦆ ≲ ne (` Z)) ⇒ (⌊ (ne (` (S (S Z)))) ⌋ `→ (Π (ne (` Z))) `→ (ne (` (S Z)))))))) 
+-- -- withLabelVar = Λ (Λ (Λ (`ƛ (`λ (`λ ((prj (` Z) (n-var (T (T Z)))) Π/ ♯l)))))) 
 
--- hmm : NormalTerm Γ 
---   (`∀  
---     (`∀  
---       (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
---         (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
---         Π (ne (` (S Z)))))))
--- hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
+-- -- hmm : NormalTerm Γ 
+-- --   (`∀  
+-- --     (`∀  
+-- --       (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
+-- --         (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
+-- --         Π (ne (` (S Z)))))))
+-- -- hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
 
--- -- The small problem here is that there do not exist any types to give...
--- -- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
--- -- I am in a bit of trouble if I need to extend to the simple row theory.
--- hmm₂ : NormalTerm Γ (Π {!   !})
--- hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
+-- -- -- The small problem here is that there do not exist any types to give...
+-- -- -- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
+-- -- -- I am in a bit of trouble if I need to extend to the simple row theory.
+-- -- hmm₂ : NormalTerm Γ (Π {!   !})
+-- -- hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
 
 
--- shit : NormalTerm ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
--- shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))
+-- -- shit : NormalTerm ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
+-- -- shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))
