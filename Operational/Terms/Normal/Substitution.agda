@@ -211,7 +211,10 @@ subEnt σ s (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (�
 ... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-·complᵣ ih
 ... | r₂ ─ r₃ | row ρ x₁ | ih = n-·complᵣ ih
 ... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-·complᵣ ih
-... | row (n , Ρ) oρ₄ | row (m , Q) oρ₃ | ih = n-· {!!} {!!} {!!}
+... | row (n , Ρ) oρ₄ | row (m , Q) oρ₃ | ih = convEnt 
+  (cong₃ _·_~_ (cong-⦅⦆ refl) 
+  (cong-⦅⦆ (trans {!!} (stabilityRow (reifyRow ((n , Ρ) ─v (m , Q)))))) (cong-⦅⦆ refl)) (n─·complᵣ' ih)
+subEnt σ s (n─·complᵣ' c) = {!!}
 subEnt σ s (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = {!!} -- n-·complₗ (subEnt σ s e)
     
 

@@ -165,11 +165,11 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
   n─·complᵣ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
-                  {ozs : True (normalOrdered? (⇓Row (⇑Row xs ─s ⇑Row ys)))} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
     
              NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
              ----------------------
-             NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row xs ─s ⇑Row ys) ⦆ ozs ~ ⦅ ys ⦆ oys)
+             NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
 
   n-·complₗ : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     

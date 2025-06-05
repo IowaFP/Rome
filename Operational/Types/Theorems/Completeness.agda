@@ -196,11 +196,18 @@ completeness eq = reify-≋ (fundC idEnv-≋ eq)
 
 ↻-ren-⇓Row : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
                renRowₖNF r (⇓Row ρ) ≡ ⇓Row (renRowₖ r ρ)
-↻-ren-⇓Row r ρ with evalRow ρ idEnv | fundC-Row {ρ₁ = ρ} idEnv-≋ reflᵣ | ↻-renₖ-evalRow r ρ idEnv-≋ 
-... | n , P | (refl , d) | (eq , rest) = 
+↻-ren-⇓Row r ρ with 
+    evalRow ρ idEnv 
+  |  evalRow ρ (idEnv ∘ r)
+  |  evalRow (renRowₖ r ρ) idEnv
+  | fundC-Row {ρ₁ = ρ} idEnv-≋ reflᵣ 
+  | ↻-renₖ-evalRow r ρ idEnv-≋ 
+  | ↻-renSem-evalRow r ρ idEnv-≋ 
+  | idext-row (λ { x → ↻-ren-reflect r (` x) }) ρ
+... | n , P | m , Q | j , K | (refl , d) | (refl , rel₁) | (refl , rel₂) | (refl , rel₃) =
   trans 
     (↻-ren-reifyRow P P r (λ { i → refl , d i .snd })   ) 
-    (reifyRow-≋' (λ i → P i .fst , renSem r (P i .snd)) (evalRow (renRowₖ r ρ) idEnv .snd) (trans eq {!!}) λ { fzero → {!↻-renSem-evalRow!} , {!!} ; (fsuc i) → {!!} }  )
+    (reifyRow-≋ (λ i → overᵣ (renSem r) (P i)) K (λ { i → (trans (rel₂ i .fst) (trans (rel₃ i .fst) (sym (rel₁ i .fst)))) , (trans-≋ (rel₂ i .snd) (trans-≋ (rel₃ i .snd) (sym-≋ (rel₁ i .snd)))) }))
  
 -------------------------------------------------------------------------------
 -- Helper to substitute under an eval
