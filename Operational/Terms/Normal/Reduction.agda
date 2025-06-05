@@ -46,7 +46,7 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
   V-# :   ∀ {l : NormalType Δ L} → 
           Value (# l)
 
-  V-Π   : ∀ (ℓ : NormalTerm Γ ⌊ l ⌋) 
+  V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 
             (M : NormalTerm Γ υ) → 
 
             Value M → 
@@ -67,8 +67,8 @@ data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → Norma
             ---------------------
             Value ((M ▿ N) e)
 
-  V-Σ   : ∀ 
-            (ℓ : NormalTerm Γ ⌊ l ⌋) → (M : NormalTerm Γ τ) → 
+  V-Σ   : ∀ {l : Label}
+            (ℓ : NormalTerm Γ ⌊ lab l ⌋) → (M : NormalTerm Γ τ) → 
 
             Value M → 
             ---------------------
@@ -131,29 +131,29 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -----------------------
              In F M₁ —→ In F M₂
 
-  ξ-Π▹ : ∀ 
-            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ l ⌋)  → 
+  ξ-Π▹ : ∀ {l : Label}
+            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
              (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
 
-  ξ-Π/ : ∀ 
-            (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ l ⌋)  → 
+  ξ-Π/ : ∀  {l : Label}
+            (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
              (M₁ Π/ ℓ) —→ (M₂ Π/ ℓ)        
 
-  ξ-Σ▹ : ∀ 
-            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ l ⌋)  → 
+  ξ-Σ▹ : ∀  {l : Label}
+            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
              (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
-  ξ-Σ/ : ∀ 
-            (M₁ M₂ : NormalTerm Γ (Σ (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ l ⌋)  → 
+  ξ-Σ/ : ∀ {l : Label}
+            (M₁ M₂ : NormalTerm Γ (Σ (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
@@ -222,15 +222,15 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -------------------------
              Out F (In F M) —→ M
 
-  β-Π/ :  ∀ 
-            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ l ⌋) → 
+  β-Π/ :  ∀ {l : Label}
+            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
 
 
              -----------------------
              ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
 
-  β-Σ/ :  ∀ 
-            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ l ⌋) → 
+  β-Σ/ :  ∀ {l : Label}
+            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
 
              -----------------------
              ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M

@@ -156,6 +156,27 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ---------------------------------
              NormalEnt Γ (x · y ~ z)
 
+  n-·complᵣ : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+    
+             NormalEnt Γ (ρ₁ ≲ ρ₂) → 
+             ----------------------
+             NormalEnt Γ (ρ₁ · ((ρ₂ ─ ρ₁) {nsr}) ~ ρ₂)
+
+  n─·complᵣ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+                  {oxs : True (normalOrdered? xs)} 
+                  {oys : True (normalOrdered? ys)} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row xs ─s ⇑Row ys)))} → 
+    
+             NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
+             ----------------------
+             NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row xs ─s ⇑Row ys) ⦆ ozs ~ ⦅ ys ⦆ oys)
+
+  n-·complₗ : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+    
+             NormalEnt Γ (ρ₁ ≲ ρ₂) → 
+             ----------------------
+             NormalEnt Γ (((ρ₂ ─ ρ₁) {nsr}) · ρ₁ ~ ρ₂)
+
 --------------------------------------------------------------------------------
 -- Terms with normal types
 
@@ -256,7 +277,7 @@ data NormalTerm {Δ} Γ where
   _Π▹_ : ∀ {l : Label}
           (M₁ : NormalTerm Γ ⌊ lab l ⌋) (M₂ : NormalTerm Γ υ) →
           ----------------------------------------
-          NormalTerm Γ (Π (⦅ [ (l , υ) ] ⦆ tt))
+          NormalTerm Γ (Π (l ▹' υ))
 
   -- Record singleton elimination
   _Π/ne_ :
@@ -265,7 +286,7 @@ data NormalTerm {Δ} Γ where
           NormalTerm Γ υ
 
   _Π/_ : ∀ {l : Label} → 
-          (M₁ : NormalTerm Γ (Π (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : NormalTerm Γ ⌊ lab l ⌋) →
+          (M₁ : NormalTerm Γ (Π (l ▹' υ))) (M₂ : NormalTerm Γ ⌊ lab l ⌋) →
           ----------------------------------------
           NormalTerm Γ υ
 

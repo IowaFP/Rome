@@ -36,41 +36,46 @@ open import Rome.Operational.Containment
 -- Inversion of inclusion for simple rows
 
 
--- ≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]} → 
---           {oρ₁ : True (normalOrdered? ρ₁)}
---           {oρ₂ : True (normalOrdered? ρ₂)} → 
---          NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
+≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]} → 
+          {oρ₁ : True (normalOrdered? ρ₁)}
+          {oρ₂ : True (normalOrdered? ρ₂)} → 
+         NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
 
--- --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Inversion of combination
 
 
--- ·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow NormalType ∅ R[ κ ]} → 
---          NormalEnt ∅ (⦅ ρ₁ ⦆ · ⦅ ρ₂ ⦆ ~ ⦅ ρ₃ ⦆) → 
---          ρ₁ ⊆ ρ₃ × 
---          ρ₂ ⊆ ρ₃ × 
---          (∀ x → x ∈ ρ₃ → x ∈ ρ₁ or x ∈ ρ₂)
+·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow NormalType ∅ R[ κ ]}
+          {oρ₁ : True (normalOrdered? ρ₁)}
+          {oρ₂ : True (normalOrdered? ρ₂)} 
+          {oρ₃ : True (normalOrdered? ρ₃)} → 
+         NormalEnt ∅ (⦅ ρ₁ ⦆ oρ₁ · ⦅ ρ₂ ⦆ oρ₂ ~ ⦅ ρ₃ ⦆ oρ₃) → 
+         ρ₁ ⊆ ρ₃ × 
+         ρ₂ ⊆ ρ₃ × 
+         (∀ x → x ∈ ρ₃ → x ∈ ρ₁ or x ∈ ρ₂)
 
 -- -- --------------------------------------------------------------------------------
 -- -- Definitions
 
--- ≲-inv (n-≲ i) = i
--- ≲-inv n-refl = λ x x∈xs → x∈xs 
--- ≲-inv (n-trans {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
--- ≲-inv (n-trans {ρ₂ = ⦅ ρ₂ ⦆} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
--- ≲-inv (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
--- ≲-inv (n-·≲L {ρ₂ = ⦅ ρ₂ ⦆} e) with ·-inv e 
--- ... | (i₁ , i₂ , i₃) = i₁
--- ≲-inv (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
--- ≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆} e) with ·-inv e 
--- ... | (i₁ , i₂ , i₃) = i₂
--- ≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆} {⦅ ys ⦆} {F} n refl refl) = ⊆-map (F ·'_) (≲-inv n)
+≲-inv (n-≲ i) = i
+≲-inv n-refl = λ x x∈xs → x∈xs 
+≲-inv (n-trans {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
+≲-inv (n-trans {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
+≲-inv (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-·≲L {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
+... | (i₁ , i₂ , i₃) = i₁
+≲-inv (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
+... | (i₁ , i₂ , i₃) = i₂
+≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} n refl refl) = {!!} -- ⊆-map (F ·'_) (≲-inv n)
+≲-inv _ = {!!}
 
--- ·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
--- ·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
--- ·-inv n-ε-L = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
--- ·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆} {⦅ x₄ ⦆} {⦅ x₅ ⦆} {F} e refl refl refl) with ·-inv e
--- ... | i₁ , i₂ , i₃ =  ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
+·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
+·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
+·-inv n-ε-L = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
+·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆ _} {⦅ x₄ ⦆ _} {⦅ x₅ ⦆ _} {F} e refl refl refl) with ·-inv e
+... | i₁ , i₂ , i₃ =  {!!} -- ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
+·-inv _ = {!!}
 
 
 -- --------------------------------------------------------------------------------

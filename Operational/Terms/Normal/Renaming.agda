@@ -11,6 +11,7 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
+open import Rome.Operational.Types.Properties.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
@@ -210,6 +211,21 @@ renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-�
     (sym (↻-ren-⇓-<$> ρ F ρ₁))
     (sym (↻-ren-⇓-<$> ρ F ρ₂)) 
     (sym (↻-ren-⇓-<$> ρ F ρ₃)) 
+renEnt {ρ = ρ} R (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complᵣ (renEnt R e)
+renEnt {ρ = r} R (n─·complᵣ' {xs = xs} {ys} e) = 
+  convEnt 
+    (cong₃ _·_~_ 
+      refl 
+      (cong-⦅⦆ {wf₁ = {!!}}
+        (trans 
+          (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r xs) (↻-ren-⇑Row r ys))) 
+        (trans 
+          (cong ⇓Row (sym (↻-renRowₖ-─s r {ρ₂ = ⇑Row xs} {⇑Row ys}))) 
+          (sym (↻-ren-⇓Row r (⇑Row xs ─s ⇑Row ys)) )))) 
+      refl) 
+    (n─·complᵣ' (renEnt R e))
+-- renEnt R (n─·complᵣ′ e) = ? -- n-·complᵣ' (renEnt R e)
+renEnt {ρ = ρ} R (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complₗ (renEnt R e)
   
 
 --------------------------------------------------------------------------------

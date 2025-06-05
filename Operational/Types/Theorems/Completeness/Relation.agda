@@ -86,6 +86,7 @@ refl-≋ₗ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₁ ≋
 refl-≋ᵣ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₂ ≋ V₂
 sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ}      → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
 trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
+trans-≋ᵣ : ∀ {τ₁ τ₂ τ₃ : Row (SemType Δ κ)} → τ₁ ≋R τ₂ → τ₂ ≋R τ₃ → τ₁ ≋R τ₃
 
 sym-≋ {κ = ★}  refl = refl
 sym-≋ {κ = L}  refl = refl
@@ -95,9 +96,9 @@ sym-≋ {κ = κ `→ κ₁}
      Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
 sym-≋ {κ = R[ κ ]} {ne _} {ne x₂} q = sym q
 sym-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} (eq , rel) = sym eq  , sym-≋ rel
-sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) = {!!} 
-  -- refl , 
-  -- (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
+sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) =
+  refl , 
+  (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
 sym-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (sym-≋ rel₁) , (sym-≋ rel₂)
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
@@ -115,6 +116,7 @@ trans-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} {row (o , R) _} (refl ,
   refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≋ (rel₁ i .snd) (rel₂ i .snd) }
 trans-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} {ρ₆ ─ ρ₅} (rel₁ , rel₂) (rel₃ , rel₄) = (trans-≋ rel₁ rel₃) , (trans-≋ rel₂ rel₄)
 
+trans-≋ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel₁) (refl , rel₂) = refl , (λ { i → trans (rel₁ i .fst) (rel₂ i .fst)  , trans-≋ (rel₁ i .snd) (rel₂ i .snd) })
 -- --------------------------------------------------------------------------------
 -- -- Pointwise extensionality (accordingly) forms a PER
 
@@ -221,6 +223,12 @@ reifyRow-≋ {n = suc n} P Q eq =
   (cong₂ _,_ (eq fzero .fst) (reify-≋ (eq fzero .snd))) 
   (reifyRow-≋ {n = n} (P ∘ fsuc) (Q ∘ fsuc) (eq ∘ fsuc))
 
+reifyRow-≋' : ∀ {n m} (P : Fin n → Label × SemType Δ κ) (Q : Fin m → Label × SemType Δ κ) →  
+                (pf : m ≡ n) → 
+               (∀ (i : Fin n) → P i ≋₂ subst-Row pf Q i) → 
+               reifyRow (n , P) ≡ reifyRow (m , Q)
+reifyRow-≋' P Q refl i = reifyRow-≋ P Q i
+
 
 --------------------------------------------------------------------------------
 -- 
@@ -262,13 +270,13 @@ reifyRow-≋ {n = suc n} P Q eq =
 ↻-ren-reify-─ r {x₃ ▹ x₄} {V₁ ─ V₂} {x₅ ▹ x₆} {V₃ ─ V₄} (refl , rel₁) (rel₂ , rel₃) {x₁} {x₂} = cong-─ (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel₁)) (↻-ren-reify-─ r {V₁} {V₂} {V₃} {V₄} rel₂ rel₃)
 ↻-ren-reify-─ r {V₂ ─ V₅} {ne x₃} {V₄ ─ V₆} {ne x₄} rel₁ refl {x₁} {x₂} = cong-─ (↻-ren-reify-─ r (rel₁ .fst) (rel₁ .snd)) refl
 ↻-ren-reify-─ r {V₂ ─ V₅} {x₃ ▹ x₄} {V₄ ─ V₆} {x₅ ▹ x₆} (rel₁ , rel₂) (refl , rel₃) {x₁} {x₂} = cong-─ (↻-ren-reify-─ r rel₁ rel₂) (cong (renₖNE r x₃ ▹ₙ_) (↻-ren-reify r rel₃))
-↻-ren-reify-─ r {V₂ ─ V₅} {row ρ x₃} {V₄ ─ V₆} {row ρ₁ x₄} rel₁ rel₂ {x₁} {x₂} = {!!}
-↻-ren-reify-─ r {V₂ ─ V₅} {V₁ ─ V₆} {V₄ ─ V₇} {V₃ ─ V₈} rel₁ rel₂ {x₁} {x₂} = {!!}
-↻-ren-reify-─ r {row ρ oρ} {ne x₁} {row ρ₁ x₂} {ne x₃} rel₁ rel₂ {ev₁} {ev₂} = {!!}
-↻-ren-reify-─ r {row ρ oρ} {x₁ ▹ x₂} {row ρ₁ x₃} {x₄ ▹ x₅} rel₁ rel₂ {ev₁} {ev₂} = {!!}
-↻-ren-reify-─ r {row ρ oρ} {row ρ₁ x₁} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {left ()}
-↻-ren-reify-─ r {row ρ oρ} {row ρ₁ x₁} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {right ()}
-↻-ren-reify-─ r {row ρ oρ} {V₁ ─ V₂} {row ρ₁ x₁} {V₃ ─ V₄} rel₁ rel₂ {ev₁} {ev₂} = {!!}
+↻-ren-reify-─ r {V₂ ─ V₅} {row (n , P) x₃} {V₄ ─ V₆} {row (m , Q) x₄} rel₁ (refl , i) {x₁} {x₂} = cong-─ (↻-ren-reify-─ r (rel₁ .fst) (rel₁ .snd)) (cong-⦅⦆ (↻-ren-reifyRow P Q r i))
+↻-ren-reify-─ r {V₂ ─ V₅} {V₁ ─ V₆} {V₄ ─ V₇} {V₃ ─ V₈} rel₁ rel₂ {x₁} {x₂} = cong-─ (↻-ren-reify-─ r (rel₁ .fst) (rel₁ .snd)) (↻-ren-reify-─ r (rel₂ .fst) (rel₂ .snd))
+↻-ren-reify-─ r {row (n , P) oρ} {ne x₁} {row (m , Q) oρ'} {ne x₃} (refl , i) refl {ev₁} {ev₂} = cong-─ (cong-⦅⦆ (↻-ren-reifyRow P Q r i)) (cong-ne refl)
+↻-ren-reify-─ r {row (n , P) oρ} {x₁ ▹ x₂} {row (m , Q) oρ'} {x₄ ▹ x₅} (refl , i) (refl , rel) {ev₁} {ev₂} = cong-─ (cong-⦅⦆ (↻-ren-reifyRow P Q r i)) (cong₂ _▹ₙ_ refl (↻-ren-reify r rel))
+↻-ren-reify-─ r {row (n , P) oρ} {row _ _} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {left ()}
+↻-ren-reify-─ r {row (n , P) oρ} {row _ _} {row ρ₂ x₂} {row ρ₃ x₃} rel₁ rel₂ {right ()}
+↻-ren-reify-─ r {row (n , P) oρ} {V₁ ─ V₂} {row (m , Q) oρ'} {V₃ ─ V₄} (refl , i) rel₂ {ev₁} {ev₂} = cong-─ (cong-⦅⦆ (↻-ren-reifyRow P Q r i)) (↻-ren-reify-─ r (rel₂ .fst) (rel₂ .snd))
 
 ↻-ren-reifyRow {n = zero} P Q ρ eq = refl
 ↻-ren-reifyRow {n = suc n} P Q ρ eq = 

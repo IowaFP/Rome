@@ -195,7 +195,25 @@ subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = 
     (sym (↻-sub-⇓-<$> σ F ρ₁))
     (sym (↻-sub-⇓-<$> σ F ρ₂))
     (sym (↻-sub-⇓-<$> σ F ρ₃))
-  
+subEnt σ s (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
+... | ne x₁ | ne x₂ | ih = n-·complᵣ ih
+... | ne x₁ | x₂ ▹ x₃ | ih = n-·complᵣ ih
+... | ne x₁ | row ρ x₂ | ih = n-·complᵣ ih
+... | ne x₁ | r₁ ─ r₂ | ih = n-·complᵣ ih
+... | x₁ ▹ x₂ | ne x₃ | ih = n-·complᵣ ih
+... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-·complᵣ ih
+... | x₁ ▹ x₂ | row ρ x₃ | ih = n-·complᵣ ih
+... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-·complᵣ ih
+... | row ρ x₁ | ne x₂ | ih = n-·complᵣ ih
+... | row ρ oρ | l ▹ τ | ih = n-·complᵣ ih
+... | row ρ x₁ | r₁ ─ r₂ | ih = n-·complᵣ ih
+... | r₂ ─ r₃ | ne x₁ | ih = n-·complᵣ ih
+... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-·complᵣ ih
+... | r₂ ─ r₃ | row ρ x₁ | ih = n-·complᵣ ih
+... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-·complᵣ ih
+... | row (n , Ρ) oρ₄ | row (m , Q) oρ₃ | ih = n-· {!!} {!!} {!!}
+subEnt σ s (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = {!!} -- n-·complₗ (subEnt σ s e)
+    
 
 --------------------------------------------------------------------------------
 -- Extending substitutions

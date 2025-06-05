@@ -478,8 +478,8 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆ tt
 
--- _▹'_ : NormalType Δ L → NormalType Δ κ → NormalType Δ R[ κ ] 
--- x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
+_▹'_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
+x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Admissable constants

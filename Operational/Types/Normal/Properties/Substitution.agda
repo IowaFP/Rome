@@ -414,3 +414,9 @@ stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (
       ((fundC idEnv-≋ (↻-sub-⇑ σ ρ)))))
   (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
    
+
+-- ↻-subₖNF-─ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+--           (ρ₂ ρ₁ : NormalType Δ₁ R[ κ ]) →
+--           {nsr₁ : True (notSimpleRows? (subₖNF σ ρ₂) (subₖNF σ ρ₁))}
+--           ((subₖNF σ ρ₂) ─ (subₖNF σ ρ₁)) {{!!}} ≡  subₖNF σ ((ρ₂ ─ ρ₁) {{!!}})
+-- ↻-subₖNF-─ σ ρ₂ ρ₁ = {!!}

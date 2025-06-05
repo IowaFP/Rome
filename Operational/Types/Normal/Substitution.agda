@@ -62,6 +62,9 @@ _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ρ = ⇓ (⇑ f <$> ⇑ ρ) 
 
--- f <$>' ne x = ne (f <$> x)
--- f <$>' (⦅ xs ⦆ oxs) = ⦅ (map (overᵣ (f ·'_)) xs) ⦆ (fromWitness (normal-map-overᵣ xs (f ·'_) (toWitness oxs)) )
+-- labeled : NormalType (∅ ,, L) ★ 
+-- labeled = Π ((` Z) ▹ₙ UnitNF)
 
+-- subbed = subₖNF (λ { Z → lab "l" }) labeled 
+
+--   _ = {!subbed!}
