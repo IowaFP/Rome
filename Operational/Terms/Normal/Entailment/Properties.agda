@@ -57,10 +57,14 @@ open import Rome.Operational.Containment
 -- -- --------------------------------------------------------------------------------
 -- -- Definitions
 
+-- no-complements : 
+
 ≲-inv (n-≲ i) = i
 ≲-inv n-refl = λ x x∈xs → x∈xs 
 ≲-inv (n-trans {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
 ≲-inv (n-trans {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
+≲-inv (n-trans {ρ₂ = c ─ c₁} e₁ e₂) = {!!}
+≲-inv (n-trans {ρ₂ = l ▹ₙ c} e₁ e₂) = ⊥-elim (noNeutrals l) 
 ≲-inv (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
 ≲-inv (n-·≲L {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₁
@@ -68,7 +72,7 @@ open import Rome.Operational.Containment
 ≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₂
 ≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} n refl refl) = {!!} -- ⊆-map (F ·'_) (≲-inv n)
-≲-inv _ = {!!}
+≲-inv c = {!c!}
 
 ·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
 ·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
