@@ -35,6 +35,44 @@ open import Rome.Operational.Types.Equivalence.Relation
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fzero , refl) = Here
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fsuc i , refl) = There (∈Row→∈L (i , refl))
 
+--------------------------------------------------------------------------------
+-- Commutativity of syntactic and semantic complement
+
+↻-syn/sem-compl : ∀ {η₁ η₂ : Env Δ₁ Δ₂} (xs ys : SimpleRow Type Δ₁ R[ κ ]) → 
+                  Env-≋ η₁ η₂ → 
+                  (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
+↻-syn/sem-compl [] ys e = refl , (λ ())
+↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
+... | yes p | yes q = ↻-syn/sem-compl xs ys e
+... | yes p | no q = ⊥-elim (q (∈Row→∈L p)) 
+... | no q | yes p = ⊥-elim (q (∈L→∈Row p)) 
+... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ─s ys) η₂ | ↻-syn/sem-compl xs ys e
+↻-syn/sem-compl ((l , τ) ∷ xs) ys e | no p | no q | x | y | (refl , ih') = refl , λ { fzero → refl , idext e τ ; (fsuc i) → ih' i }
+
+--------------------------------------------------------------------------------
+-- Commutativity of syntactic/semantic complement as a strict equality
+
+↻-─s-─v : ∀ {n m} 
+          (P : Fin n → Label × SemType Δ κ) → 
+          (Q : Fin m → Label × SemType Δ κ) → 
+          (⇑Row (reifyRow' n P) ─s ⇑Row (reifyRow' m Q)) ≡
+          ⇑Row (reifyRow (compl P Q))
+↻-─s-─v {n = zero} P Q = refl
+↻-─s-─v {n = suc n} {m} P Q with P fzero .fst ∈L? ⇑Row (reifyRow' m Q) | P fzero .fst ∈Row? Q 
+... | yes p | yes q = ↻-─s-─v (P ∘ fsuc) Q
+... | yes p | no  q = ⊥-elim (q (In p))
+  where
+    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈L ⇑Row (reifyRow' m Q) → l ∈Row Q
+    In {l} {m = suc m} Here = fzero , refl
+    In {m = suc m} (There ev) = fsuc (In ev .fst) ,  In ev .snd
+... | no  p | yes q = ⊥-elim (p (In q))
+  where
+    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈Row Q → l ∈L ⇑Row (reifyRow' m Q)
+    In {l} {m = suc m} (fzero , refl) = Here
+    In {l} {m = suc m} (fsuc i , eq) = There (In (i , eq))
+    
+... | no  p | no  q = cong₂ _∷_ refl (↻-─s-─v (P ∘ fsuc) Q) 
+
 -------------------------------------------------------------------------------
 -- Fundamental theorem
 
@@ -155,17 +193,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
-fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = go xs ys
-  where
-    go : ∀ (xs ys : SimpleRow Type Δ₁ R[ κ ]) → 
-         (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
-    go [] ys = refl , (λ ())
-    go ((l , τ) ∷ xs) ys with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
-    ... | yes p | yes q = go xs ys
-    ... | yes p | no q = ⊥-elim (q (∈Row→∈L p)) 
-    ... | no q | yes p = ⊥-elim (q (∈L→∈Row p)) 
-    ... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ─s ys) η₂ | go xs ys
-    go ((l , τ) ∷ xs) ys | no p | no q | x | y | (refl , ih') = refl , λ { fzero → refl , idext e τ ; (fsuc i) → ih' i }
+fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = ↻-syn/sem-compl xs ys e
+
 
 fundC-Row e eq-[] = refl , (λ ())
 fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with 

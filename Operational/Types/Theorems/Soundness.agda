@@ -134,7 +134,6 @@ cong-compl⟦⟧≋ {n = suc n} {m} {P = P} {Q} P≋ Q≋ with P fzero .fst ∈R
 ... | no p | yes q = ⊥-elim (p (∈L→∈Row≋ q))
 ... | no p | no q = (refl , P≋ .fst .snd) , (cong-compl⟦⟧≋ (P≋ .snd) Q≋)
 
-
 --------------------------------------------------------------------------------
 -- Apply is sound
 
@@ -581,12 +580,18 @@ fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
                     (refl , (refl-⟦⟧≋ (fundS τ e))) , 
                     tt
 
+--------------------------------------------------------------------------------
+-- Fundamental theorem when substitution is the identity
+
+⊢⟦_⟧≋ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≋ eval τ idEnv
+⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundS τ idSR)
 
 --------------------------------------------------------------------------------
 -- Soundness claim  
 
+
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
-soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundS τ idSR)))   
+soundness τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
   
  --------------------------------------------------------------------------------
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂

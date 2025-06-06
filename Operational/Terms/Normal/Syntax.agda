@@ -162,7 +162,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ----------------------
              NormalEnt Γ (ρ₁ · ((ρ₂ ─ ρ₁) {nsr}) ~ ρ₂)
 
-  n─·complᵣ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+  n-·complᵣ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
                   {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 

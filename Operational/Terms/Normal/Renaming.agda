@@ -212,7 +212,7 @@ renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-�
     (sym (↻-ren-⇓-<$> ρ F ρ₂)) 
     (sym (↻-ren-⇓-<$> ρ F ρ₃)) 
 renEnt {ρ = ρ} R (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complᵣ (renEnt R e)
-renEnt {ρ = r} R (n─·complᵣ' {xs = xs} {ys} {ozs = ozs} e) = 
+renEnt {ρ = r} R (n-·complᵣ' {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
           (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
@@ -228,7 +228,7 @@ renEnt {ρ = r} R (n─·complᵣ' {xs = xs} {ys} {ozs = ozs} e) =
             (fromWitness (orderedRenRowₖNF r _ (toWitness ozs)))}
         pf) 
       refl) 
-    (n─·complᵣ' (renEnt R e))
+    (n-·complᵣ' (renEnt R e))
 -- renEnt R (n─·complᵣ′ e) = ? -- n-·complᵣ' (renEnt R e)
 renEnt {ρ = ρ} R (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complₗ (renEnt R e)
   
