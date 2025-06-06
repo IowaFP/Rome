@@ -38,6 +38,9 @@ subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
 subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
 subₖNE σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑NE n))
 
+subRowₖNF : SubstitutionₖNF Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
+subRowₖNF σ n = ⇓Row (subRowₖ (⇑ ∘ σ) (⇑Row n))
+
 subPredₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 subPredₖNF σ = mapPred (subₖNF σ)
 

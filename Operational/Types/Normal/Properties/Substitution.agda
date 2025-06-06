@@ -58,6 +58,18 @@ open import Rome.Operational.Types.Theorems.Stability
       (reify-≋ (↻-subₖ-eval (⇑ (⇓ τ)) idEnv-≋ (⇑ ∘ σ))) 
       (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (soundness τ))))))
 
+↻-⇓-subRow : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+             (ρ : SimpleRow Type Δ₁ R[ κ ]) →
+             {oρ : True (ordered? ρ)} → 
+             ⇓Row (subRowₖ (⇑ ∘ σ) ρ) ≡ subRowₖNF σ (⇓Row ρ)
+↻-⇓-subRow σ ρ {oρ} = inj-⦅⦆ (↻-⇓-sub σ (⦅ ρ ⦆ oρ))
+  -- trans 
+  --   (reify-≋ (↻-subₖ-eval τ idEnv-≋ (⇑ ∘ σ))) 
+  --   (sym (trans 
+  --     (reify-≋ (↻-subₖ-eval (⇑ (⇓ τ)) idEnv-≋ (⇑ ∘ σ))) 
+  --     (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (soundness τ))))))
+
+
 --------------------------------------------------------------------------------
 -- Substitution respects the functor identity law
 
