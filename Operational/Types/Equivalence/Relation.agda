@@ -261,3 +261,15 @@ symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
 transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 transᵣ eq-[] eq-[] = eq-[]
 transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
+
+∈L-≡r : ∀ {ℓ} {xs ys : SimpleRow Type Δ R[ κ ]} → ℓ ∈L xs → xs ≡r ys → ℓ ∈L ys 
+∈L-≡r Here (eq-cons refl x₂ eq) = Here
+∈L-≡r (There l∈xs) (eq-cons refl x₂ eq) = There (∈L-≡r l∈xs eq)
+
+cong-─s : ∀ {xs₂ xs₁ ys₂ ys₁ : SimpleRow Type Δ R[ κ ]} → xs₂ ≡r ys₂ → xs₁ ≡r ys₁ → (xs₂ ─s xs₁) ≡r (ys₂ ─s ys₁)
+cong-─s eq-[] eq₁ = eq-[]
+cong-─s {xs₁ = xs₁} {ys₁ = ys₁} (eq-cons {ℓ₁ = ℓ₁} refl eq-τ eq-xs) eq₁ with ℓ₁ ∈L? xs₁ | ℓ₁ ∈L? ys₁ 
+... | yes p | yes q = cong-─s eq-xs eq₁
+... | no  p | no  q = eq-cons refl eq-τ (cong-─s eq-xs eq₁)
+... |  no p | yes q = ⊥-elim (p (∈L-≡r q (symᵣ eq₁)))
+... | yes p | no  q = ⊥-elim (q (∈L-≡r p eq₁))

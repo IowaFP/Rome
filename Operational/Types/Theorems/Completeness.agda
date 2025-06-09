@@ -209,6 +209,17 @@ idEnv-≋ x = reflect-≋ refl
 
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 completeness eq = reify-≋ (fundC idEnv-≋ eq)  
+
+-------------------------------------------------------------------------------
+-- Completeness for rows
+
+completeness-row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
+completeness-row {ρ₁ = ρ₁} {ρ₂} eq with 
+    evalRow ρ₁ idEnv 
+  | evalRow ρ₂ idEnv
+  | fundC-Row {ρ₁ = ρ₁} {ρ₂} idEnv-≋ eq 
+... | n , P | m , Q | refl , I = reifyRow-≋ P Q I
+
  
 
 --------------------------------------------------------------------------------

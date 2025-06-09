@@ -346,6 +346,14 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 ↻-sub-⇑ σ τ = embed-≡t (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
 
 --------------------------------------------------------------------------------
+-- Substitution commutes with embedding (over rows)
+
+↻-sub-⇑Row : ∀ {Δ₁ Δ₂} (σ : SubstitutionₖNF Δ₁ Δ₂) (ys : SimpleRow NormalType Δ₁ R[ κ ]) → 
+        ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys))) ≡r subRowₖ (⇑ ∘ σ) (⇑Row ys)
+↻-sub-⇑Row σ [] = eq-[]
+↻-sub-⇑Row σ ((l , τ) ∷ ys) rewrite stability τ = eq-cons refl (↻-sub-⇑ σ τ) (↻-sub-⇑Row σ ys)
+
+--------------------------------------------------------------------------------
 -- Embedding commutes with β-reduction
 
 ↻-β-⇑ : ∀ (τ₁ : NormalType (Δ ,, κ₁) κ₂) (τ₂ : NormalType Δ κ₁) → 
@@ -425,3 +433,13 @@ stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (
       (fundC idEnv-≋ (↻-sub-⇑ σ F)) 
       ((fundC idEnv-≋ (↻-sub-⇑ σ ρ)))))
   (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
+
+--------------------------------------------------------------------------------
+-- Ordering is preserved by substitution and embedding
+
+ordered-subRowₖ-⇑ : ∀ {Δ₁ Δ₂} (σ : SubstitutionₖNF Δ₁ Δ₂) → {ys : SimpleRow NormalType Δ₁ R[ κ ]} → 
+                      NormalOrdered ys → 
+                      Ordered (subRowₖ (⇑ ∘ σ) (⇑Row ys))
+ordered-subRowₖ-⇑ σ {[]} oys = tt
+ordered-subRowₖ-⇑ σ {(l , τ) ∷ []} oys = tt
+ordered-subRowₖ-⇑ σ {(l , τ) ∷ (l' , τ') ∷ ys} (l<l' , oys) = l<l' , ordered-subRowₖ-⇑ σ oys
