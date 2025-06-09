@@ -121,6 +121,8 @@ noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNe
     moveMe : ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
            ρ₁ ⊆ ρ₂ → 
            ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊆ ρ₂
+    -- todo: write ─s over normalized syntax and show parity.
+    --       Rewrite other rules to use normalized complement.
     moveMe ρ₁ [] inc = λ i i∈ → i∈
     moveMe ρ₁ ((l , τ) ∷ ρ₂) inc with l ∈L? ⇑Row ρ₁ 
     ... | yes p = λ { (l' , τ') lτ∈ → {!inc!} } 
