@@ -231,7 +231,23 @@ renEnt {ρ = r} R (n-·complᵣ' {xs = xs} {ys} {ozs = ozs} e) =
     (n-·complᵣ' (renEnt R e))
 -- renEnt R (n─·complᵣ′ e) = ? -- n-·complᵣ' (renEnt R e)
 renEnt {ρ = ρ} R (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complₗ (renEnt R e)
-  
+renEnt {ρ = r} R (n-·complₗ' {xs = xs} {ys} {ozs = ozs} e) = 
+  let pf = (trans 
+          (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
+        (trans 
+          (cong ⇓Row (sym (↻-renRowₖ-─s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
+          (sym (↻-ren-⇓Row r (⇑Row ys ─s ⇑Row xs)) ))) in
+  convEnt 
+    (cong₃ _·_~_ 
+       (cong-⦅⦆ 
+        {wf₁ = 
+          subst (λ x → True (normalOrdered? x)) 
+            (sym pf) 
+            (fromWitness (orderedRenRowₖNF r _ (toWitness ozs)))}
+        pf) 
+      refl
+      refl) 
+    (n-·complₗ' (renEnt R e))  
 
 --------------------------------------------------------------------------------
 -- Weakening is a special case of renaming (but we must convert types)
