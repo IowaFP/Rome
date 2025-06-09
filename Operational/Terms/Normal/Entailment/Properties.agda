@@ -54,32 +54,79 @@ open import Rome.Operational.Containment
          ρ₂ ⊆ ρ₃ × 
          (∀ x → x ∈ ρ₃ → x ∈ ρ₁ or x ∈ ρ₂)
 
--- -- --------------------------------------------------------------------------------
--- -- Definitions
 
--- no-complements : 
+--------------------------------------------------------------------------------
+-- There are no complements in empty contexts 
+
+noComplements : ∀ {ρ₁ ρ₂ ρ₃ : NormalType ∅ R[ κ ]}
+                  (nsr : True (notSimpleRows? ρ₃ ρ₂)) → 
+                  ρ₁ ≡ (ρ₃ ─ ρ₂) {nsr} → 
+                  ⊥
+noComplements {ρ₁ = ne x₁ ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ne x₁} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ((ρ₂ ─ ρ₃) {nsr'})} {_} {_} nsr refl = noComplements {ρ₂ = ρ₃} {ρ₂} nsr' refl
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (l ▹ₙ ρ₂)} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+noComplements {ρ₁ = ((ρ₃ ─ ρ₂) {nsr'}) ─ _} {_} {_} nsr refl = noComplements {ρ₂ = ρ₂} {ρ₃} nsr' refl
+noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+
+-- --------------------------------------------------------------------------------
+-- Definitions
 
 ≲-inv (n-≲ i) = i
 ≲-inv n-refl = λ x x∈xs → x∈xs 
 ≲-inv (n-trans {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
 ≲-inv (n-trans {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
-≲-inv (n-trans {ρ₂ = c ─ c₁} e₁ e₂) = {!!}
+≲-inv (n-trans {ρ₂ = ρ₂@((ρ ─ ρ') {nsr})} e₁ e₂) = ⊥-elim (noComplements nsr refl)
 ≲-inv (n-trans {ρ₂ = l ▹ₙ c} e₁ e₂) = ⊥-elim (noNeutrals l) 
 ≲-inv (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-·≲L {ρ₂ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-·≲L {ρ₂ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
 ≲-inv (n-·≲L {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₁
 ≲-inv (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
 ≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₂
-≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} n refl refl) = {!!} -- ⊆-map (F ·'_) (≲-inv n)
-≲-inv c = {!c!}
+≲-inv (n-·≲R {ρ₁ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-·≲R {ρ₁ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
+≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} e refl refl) rewrite 
+  sym (stability-map F xs) | sym (stability-map F ys) = ⊆-map (overᵣ (F ·'_)) (≲-inv e) 
+
+≲-inv (n-≲lift {ρ₁ = ne x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₃) {nsr}} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
+≲-inv (n-≲lift {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-≲lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
 
 ·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
 ·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
 ·-inv n-ε-L = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
 ·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆ _} {⦅ x₄ ⦆ _} {⦅ x₅ ⦆ _} {F} e refl refl refl) with ·-inv e
-... | i₁ , i₂ , i₃ =  {!!} -- ⊆-map (F ·'_) i₁ , (⊆-map (F ·'_) i₂) , ⊆-map-or (F ·'_) i₃
-·-inv _ = {!!}
+... | i₁ , i₂ , i₃ rewrite 
+    sym (stability-map F x₃) 
+  | sym (stability-map F x₄)
+  | sym (stability-map F x₅) =  ⊆-map (overᵣ (F ·'_)) i₁ , (⊆-map (overᵣ (F ·'_)) i₂) , ⊆-map-or (overᵣ (F ·'_)) i₃
+·-inv (n-·lift {ρ₁ = ne x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {ne x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {(ρ₃ ─ ρ₄) {nsr}} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl)
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {l ▹ₙ ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₄) {nsr}} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
+·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-·lift {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
+·-inv (n-·lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-·complᵣ' en) with  ≲-inv en
+·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ' en) | ih = ih , moveMe ρ₁ ρ₃ ih , {!!}
+  where
+    moveMe : ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+           ρ₁ ⊆ ρ₂ → 
+           ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊆ ρ₂
+    moveMe ρ₁ [] inc = λ i i∈ → i∈
+    moveMe ρ₁ ((l , τ) ∷ ρ₂) inc with l ∈L? ⇑Row ρ₁ 
+    ... | yes p = λ { (l' , τ') lτ∈ → {!inc!} } 
+    ... | no  p = {!moveMe ρ₁ ρ₂!}
+
+·-inv (n-·complₗ' en) = {!!}
 
 
 -- --------------------------------------------------------------------------------

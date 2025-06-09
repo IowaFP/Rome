@@ -279,13 +279,7 @@ cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite D
 noNeutrals : NeutralType ∅ κ → ⊥
 
 noNeutrals (n · τ) = noNeutrals n 
--- noNeutrals (n ▹ₙ τ) = noNeutrals n 
 noNeutrals (φ <$> n) = noNeutrals n
-
--- noNeutrals (app x) = noNeutralsApp x
--- noNeutrals (n ─₁ _) = noNeutrals n
--- noNeutrals (_ ─₂ n) = noNeutrals n
--- -- noNeutrals (l ▹ₙ _) = noNeutralsApp l
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
