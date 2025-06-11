@@ -124,7 +124,7 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
 ⇓Row-mono : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
               ρ₁ ⊆ ρ₂ → 
               ⇓Row ρ₁ ⊆ ⇓Row ρ₂ 
-⇓Row-mono {ρ₁ = ρ₁} {ρ₂} i rewrite ⇓Row-isMap idEnv ρ₁ | ⇓Row-isMap idEnv ρ₂ = ⊆-map _ i
+⇓Row-mono {ρ₁ = ρ₁} {ρ₂} = ⊆-cong _ ⇓Row (⇓Row-isMap idEnv)
 
 ─s-mono : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
                (ρ₂ ─s ρ₁) ⊆ ρ₂ 
@@ -141,6 +141,41 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
     (stabilityRow ρ₂) 
     (⇓Row-mono (─s-mono {ρ₁ = ⇑Row ρ₁} {⇑Row ρ₂}))
 
+─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+               ρ₁ ⊆ ρ₂ → 
+               ρ₂ ⊆[ ρ₁ ⊹ (ρ₂ ─s ρ₁) ]
+─s-mono-orᵣ i = {!!}
+
+─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+               ρ₁ ⊆ ρ₂ → 
+               ρ₂ ⊆[ (ρ₂ ─s ρ₁) ⊹ ρ₁ ]
+─s-mono-orₗ i = {!!}
+
+⇓Row-⇑Row-─s-mono-orᵣ : 
+  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+    ρ₁ ⊆ ρ₂ → 
+    ρ₂ ⊆[ ρ₁ ⊹ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ]
+⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₂ i = 
+  subst 
+    (λ x → ρ₂ ⊆[ x ⊹ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ])
+    (stabilityRow ρ₁)
+    (subst 
+      (λ x → x ⊆[ ⇓Row (⇑Row ρ₁) ⊹ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ]) 
+      (stabilityRow ρ₂)
+      (⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
+
+⇓Row-⇑Row-─s-mono-orₗ : 
+  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+    ρ₁ ⊆ ρ₂ → 
+    ρ₂ ⊆[ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ⊹ ρ₁ ]
+⇓Row-⇑Row-─s-mono-orₗ ρ₁ ρ₂ i =
+  subst 
+    (λ x → ρ₂ ⊆[ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊹ x ])
+    (stabilityRow ρ₁)
+    (subst 
+      (λ x → x ⊆[  ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊹ ⇓Row (⇑Row ρ₁) ]) 
+      (stabilityRow ρ₂)
+      ((⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) (─s-mono-orₗ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} (⊆-cong _ ⇑Row ⇑Row-isMap i)))))
 
 -- --------------------------------------------------------------------------------
 -- Definitions
@@ -189,8 +224,9 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
 ·-inv (n-·lift {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
 ·-inv (n-·lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
 ·-inv (n-·complᵣ' en) with  ≲-inv en
-·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , {!!}
-·-inv (n-·complₗ' en) = {!!}
+·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ ih
+·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} (n-·complₗ' en) with ≲-inv en 
+... | ih = ⇓Row-⇑Row-─s-mono _ _ , ih , ⇓Row-⇑Row-─s-mono-orₗ ρ₂ ρ₃ ih
 
 
 
