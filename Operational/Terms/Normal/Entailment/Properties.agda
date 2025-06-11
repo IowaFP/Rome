@@ -125,8 +125,8 @@ noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNe
     --       Rewrite other rules to use normalized complement.
     moveMe ρ₁ [] inc = λ i i∈ → i∈
     moveMe ρ₁ ((l , τ) ∷ ρ₂) inc with l ∈L? ⇑Row ρ₁ 
-    ... | yes p = λ { (l' , τ') lτ∈ → {!inc!} } 
-    ... | no  p = {!moveMe ρ₁ ρ₂!}
+    ... | yes p = λ { (l' , τ') lτ∈ → {!p!} } 
+    ... | no  p = {!!}
 
 ·-inv (n-·complₗ' en) = {!!}
 

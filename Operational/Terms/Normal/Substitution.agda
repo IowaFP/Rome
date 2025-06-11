@@ -276,7 +276,7 @@ subEnt σ s (n-·complᵣ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
 ... | ys-sub | xs-sub | ys-stab | xs-stab rewrite ys-stab | xs-stab  = convEnt 
   (cong₃ _·_~_ 
     (trans (↻-⇓-sub σ (⦅ ⇑Row xs ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ xs ⦆ _)))) 
-    (cong-⦅⦆ {wf₁ = fromWitness wf}
+    (cong-⦅⦆ {wf₁ = fromWitness ozs'}
       (trans 
         (trans 
           (trans 
@@ -287,48 +287,23 @@ subEnt σ s (n-·complᵣ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
             (trans 
               (trans 
                 (completeness-row
-                        {ρ₁ =
-                         ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys))) ─s
-                         ⇑Row (subRowₖNF σ (⇓Row (⇑Row xs)))}
-                        {subRowₖ (⇑ ∘ σ) (⇑Row ys) ─s subRowₖ (⇑ ∘ σ) (⇑Row xs)}
-                (cong-─s 
-                   {xs₂ = ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys)))}
-                   {⇑Row (subRowₖNF σ (⇓Row (⇑Row xs)))} {subRowₖ (⇑ ∘ σ) (⇑Row ys)}
-                   {subRowₖ (⇑ ∘ σ) (⇑Row xs)} 
+                (cong-─s  
                    (↻-sub-⇑Row σ ys) (↻-sub-⇑Row σ xs)))
                 (sym (cong ⇓Row (↻-subRowₖ-─s (⇑ ∘ σ) {⇑Row ys} {⇑Row xs})))) 
               (↻-⇓-subRow σ (⇑Row ys ─s ⇑Row xs) {fromWitness (ordered-─s {xs = ⇑Row ys} {⇑Row xs} (Ordered⇑ ys (toWitness oys)))})))) 
           (cong (subRowₖNF σ) (sym (stabilityRow (⇓Row (⇑Row ys ─s ⇑Row xs)))))) 
-        (sym (↻-⇓-subRow σ (⇑Row (⇓Row (⇑Row ys ─s ⇑Row xs))) {fromWitness (Ordered⇑ _ (reifyRowOrdered _ (evalRowOrdered (⇑Row ys ─s ⇑Row xs) idEnv (ordered-─s (Ordered⇑ ys (toWitness oys))))))}))))
-        
+        (sym (↻-⇓-subRow σ (⇑Row (⇓Row (⇑Row ys ─s ⇑Row xs))) 
+          {fromWitness (Ordered⇑ _ (reifyRowOrdered _ (evalRowOrdered (⇑Row ys ─s ⇑Row xs) idEnv (ordered-─s (Ordered⇑ ys (toWitness oys))))))}))))
     (trans (↻-⇓-sub σ (⦅ ⇑Row ys ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ ys ⦆ _))))) 
-  (n-·complᵣ' {ozs = fromWitness wf} (subEnt σ s e))
+  (n-·complᵣ' {ozs = fromWitness ozs'} (subEnt σ s e))
   where
-    wf = (reifyRowOrdered _ (evalRowOrdered
-                                                      (⇑Row
-                                                       (reifyRow'
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                         (λ x₁ → reflect (` x₁)) .fst)
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                         (λ x₁ → reflect (` x₁)) .snd))
-                                                       ─s
-                                                       ⇑Row
-                                                       (reifyRow'
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row xs))
-                                                         (λ x₁ → reflect (` x₁)) .fst)
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row xs))
-                                                         (λ x₁ → reflect (` x₁)) .snd)))
-                                                      idEnv (ordered-─s
-                                                               {xs =
-                                                                ⇑Row
-                                                                (reifyRow'
-                                                                 (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                                  (λ x₁ → reflect (` x₁)) .fst)
-                                                                 (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                                  (λ x₁ → reflect (` x₁)) .snd))}
-                                                               (Ordered⇑ _ 
-                                                                 (reifyRowOrdered _ 
-                                                                   (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
+    ozs' = (reifyRowOrdered _ (evalRowOrdered _ idEnv 
+         (ordered-─s
+           (Ordered⇑ _ 
+             (reifyRowOrdered _ 
+               (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
+    
+
 subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e) 
   with 
     ↻-⇓-subRow σ (⇑Row ys) {fromWitness (Ordered⇑ ys (toWitness oys))} 
@@ -337,7 +312,7 @@ subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
   | stabilityRow xs  
 ... | ys-sub | xs-sub | ys-stab | xs-stab rewrite ys-stab | xs-stab  = convEnt 
   (cong₃ _·_~_  
-    (cong-⦅⦆ {wf₁ = fromWitness wf}
+    (cong-⦅⦆ {wf₁ = fromWitness ozs'}
       (trans 
         (trans 
           (trans 
@@ -348,48 +323,21 @@ subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
             (trans 
               (trans 
                 (completeness-row
-                        {ρ₁ =
-                         ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys))) ─s
-                         ⇑Row (subRowₖNF σ (⇓Row (⇑Row xs)))}
-                        {subRowₖ (⇑ ∘ σ) (⇑Row ys) ─s subRowₖ (⇑ ∘ σ) (⇑Row xs)}
-                (cong-─s 
-                   {xs₂ = ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys)))}
-                   {⇑Row (subRowₖNF σ (⇓Row (⇑Row xs)))} {subRowₖ (⇑ ∘ σ) (⇑Row ys)}
-                   {subRowₖ (⇑ ∘ σ) (⇑Row xs)} 
+                (cong-─s  
                    (↻-sub-⇑Row σ ys) (↻-sub-⇑Row σ xs)))
                 (sym (cong ⇓Row (↻-subRowₖ-─s (⇑ ∘ σ) {⇑Row ys} {⇑Row xs})))) 
-              (↻-⇓-subRow σ (⇑Row ys ─s ⇑Row xs) {fromWitness (ordered-─s {xs = ⇑Row ys} {⇑Row xs} (Ordered⇑ ys (toWitness oys)))})))) 
+              (↻-⇓-subRow σ (⇑Row ys ─s ⇑Row xs) {fromWitness (ordered-─s (Ordered⇑ ys (toWitness oys)))})))) 
           (cong (subRowₖNF σ) (sym (stabilityRow (⇓Row (⇑Row ys ─s ⇑Row xs)))))) 
         (sym (↻-⇓-subRow σ (⇑Row (⇓Row (⇑Row ys ─s ⇑Row xs))) {fromWitness (Ordered⇑ _ (reifyRowOrdered _ (evalRowOrdered (⇑Row ys ─s ⇑Row xs) idEnv (ordered-─s (Ordered⇑ ys (toWitness oys))))))}))))
     (trans (↻-⇓-sub σ (⦅ ⇑Row xs ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ xs ⦆ _))))        
     (trans (↻-⇓-sub σ (⦅ ⇑Row ys ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ ys ⦆ _))))) 
-  (n-·complₗ' {ozs = fromWitness wf} (subEnt σ s e))
+  (n-·complₗ' {ozs = fromWitness ozs'} (subEnt σ s e))
   where
-    wf = (reifyRowOrdered _ (evalRowOrdered
-                                                      (⇑Row
-                                                       (reifyRow'
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                         (λ x₁ → reflect (` x₁)) .fst)
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                         (λ x₁ → reflect (` x₁)) .snd))
-                                                       ─s
-                                                       ⇑Row
-                                                       (reifyRow'
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row xs))
-                                                         (λ x₁ → reflect (` x₁)) .fst)
-                                                        (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row xs))
-                                                         (λ x₁ → reflect (` x₁)) .snd)))
-                                                      idEnv (ordered-─s
-                                                               {xs =
-                                                                ⇑Row
-                                                                (reifyRow'
-                                                                 (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                                  (λ x₁ → reflect (` x₁)) .fst)
-                                                                 (evalRow (subRowₖ (λ x₁ → ⇑ (σ x₁)) (⇑Row ys))
-                                                                  (λ x₁ → reflect (` x₁)) .snd))}
-                                                               (Ordered⇑ _ 
-                                                                 (reifyRowOrdered _ 
-                                                                   (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
+    ozs' = (reifyRowOrdered _ (evalRowOrdered _ idEnv 
+         (ordered-─s
+           (Ordered⇑ _ 
+             (reifyRowOrdered _ 
+               (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
     
 
 --------------------------------------------------------------------------------
