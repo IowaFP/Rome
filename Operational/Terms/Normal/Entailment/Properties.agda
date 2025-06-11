@@ -131,37 +131,74 @@ noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNe
 ·-inv (n-·complₗ' en) = {!!}
 
 
--- --------------------------------------------------------------------------------
--- -- Normalizing entailments to contain just simple rows.
--- -- Combined with inversion above, this gives us normal forms for entailments (n-≲ and n-·).
+--------------------------------------------------------------------------------
+-- Normalizing entailments to contain just simple rows.
+-- Combined with inversion above, this gives us normal forms for entailments (n-≲ and n-·).
 
--- norm₁ : NormalEnt ∅ (ρ₁ ≲ ρ₂) → ∃[ xs ] (∃[ ys ] (
---         ρ₁ ≡ ⦅ xs ⦆ × 
---         ρ₂ ≡ ⦅ ys ⦆))
+norm₁ : NormalEnt ∅ (ρ₁ ≲ ρ₂) → 
+        ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
+        ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
+        (ρ₁ ≡ ⦅ xs ⦆ oxs × ρ₂ ≡ ⦅ ys ⦆ oys)
+
+norm₂ : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → 
+        ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
+        ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
+        ∃[ zs ] Σ[ ozs ∈ True (normalOrdered? zs) ] 
+        (ρ₁ ≡ ⦅ xs ⦆ oxs × ρ₂ ≡ ⦅ ys ⦆ oys × ρ₃ ≡ ⦅ zs ⦆ ozs)
 -- norm₂ : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ∃[ xs ] (∃[ ys ] (∃[ zs ] (
 --         ρ₁ ≡ ⦅ xs ⦆ × 
 --         ρ₂ ≡ ⦅ ys ⦆ × 
 --         ρ₃ ≡ ⦅ zs ⦆)))
 
--- norm₁ (n-≲ {xs = xs} {ys} i) = xs , (ys , (refl , (refl)))
--- norm₁ {ρ₁ = ne x} n-refl = ⊥-elim (noNeutrals x)
--- norm₁ {ρ₁ = ⦅ xs ⦆} n-refl = xs , (xs , (refl , (refl)))
--- norm₁ {ρ₁ = ρ₁} (n-trans {ρ₂ = ρ₂} {ρ₃ = ρ₃} n₁ n₂) with norm₁ n₁ | norm₁ n₂ 
--- ... | (xs , ys , refl , refl) | (ys , zs , refl , refl) = xs , zs , refl , refl 
--- norm₁ (n-·≲L n) with norm₂ n 
--- ... | xs , ys , zs , refl , refl , refl  = xs , zs , refl , refl
--- norm₁ (n-·≲R n) with norm₂ n 
--- ... | xs , ys , zs , refl , refl , refl = ys , zs , refl , refl
--- norm₁ (n-≲lift {F = F} n eq₁ eq₂) with norm₁ n 
--- ... | xs , ys , refl , refl = map (F ·'_) xs , (map (F ·'_) ys , (eq₁ , eq₂))
+norm₁ (n-≲ {xs = xs} {ys} {oxs} {oys} i) = xs , oxs , ys , oys , refl , refl
+norm₁ {ρ₁ = ne x} n-refl = ⊥-elim (noNeutrals x)
+norm₁ {ρ₁ = ⦅ xs ⦆ oxs} n-refl = xs , oxs , xs , oxs , refl , refl
+norm₁ {ρ₁ = (c ─ c₁) {nsr}} n-refl = ⊥-elim (noComplements nsr refl)
+norm₁ {ρ₁ = l ▹ₙ c} n-refl = ⊥-elim (noNeutrals l)
+norm₁ {ρ₁ = ρ₁} (n-trans {ρ₂ = ρ₂} {ρ₃ = ρ₃} n₁ n₂) with norm₁ n₁ | norm₁ n₂ 
+... | (xs , oxs , ys , oys , refl , refl) | (ys' , oys' , zs , ozs , refl , refl) = 
+  xs , oxs , zs , ozs , refl , refl 
+norm₁ (n-·≲L en) with norm₂ en 
+... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl = xs , oxs , zs , ozs , refl , refl
+norm₁ (n-·≲R en) with norm₂ en 
+... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl = ys , oys , zs , ozs , refl , refl
+norm₁ (n-≲lift {F = F} en refl refl) with norm₁ en 
+... | xs , oxs , ys , oys , refl , refl = 
+  map (overᵣ (F ·'_)) xs , 
+  fromWitness (normal-map-overᵣ xs (F ·'_) (toWitness oxs)) , 
+  (map (overᵣ (F ·'_)) ys) , 
+  fromWitness (normal-map-overᵣ ys (F ·'_) (toWitness oys)) , 
+  cong-⦅⦆ (sym (stability-map F xs)) , 
+  cong-⦅⦆ (sym (stability-map F ys))
 
--- norm₂ (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) = xs , (ys , (zs , (refl , refl , refl)))
--- norm₂ {ρ₁ = ne x} n-ε-R = ⊥-elim (noNeutrals x)
--- norm₂ {ρ₁ = ⦅ xs ⦆} n-ε-R = xs , [] , xs , refl , refl , refl
--- norm₂ {ρ₂ = ne x} n-ε-L = ⊥-elim (noNeutrals x)
--- norm₂ {ρ₂ = ⦅ xs ⦆} n-ε-L = [] , xs , xs , refl , refl , refl
--- norm₂ (n-·lift {F = F} n eq₁ eq₂ eq₃) with norm₂ n 
--- ... | xs , ys , zs , refl , refl , refl = map (F ·'_) xs , map (F ·'_) ys , map (F ·'_) zs , eq₁ , eq₂ , eq₃
+
+norm₂ (n-· {xs = xs} {ys} {zs} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) = 
+  xs , oxs , ys , oys , zs , ozs , refl , refl , refl
+norm₂ {ρ₁ = ne x₁} n-ε-R = ⊥-elim (noNeutrals x₁)
+norm₂ {ρ₁ = ⦅ xs ⦆ oxs} n-ε-R = xs , oxs , [] , tt , xs , oxs , refl , refl , refl
+norm₂ {ρ₁ = (ρ₁ ─ ρ₂) {nsr}} n-ε-R = ⊥-elim (noComplements nsr refl)
+norm₂ {ρ₁ = l ▹ₙ ρ₁} n-ε-R = ⊥-elim (noNeutrals l)
+norm₂ {ρ₂ = ne x₁} n-ε-L = ⊥-elim (noNeutrals x₁)
+norm₂ {ρ₂ = ⦅ ρ ⦆ oρ} n-ε-L = [] , tt , ρ , oρ , ρ , oρ , refl , refl , refl
+norm₂ {ρ₂ = (_ ─ _) {nsr}} n-ε-L = ⊥-elim (noComplements nsr refl)
+norm₂ {ρ₂ = l ▹ₙ _} n-ε-L = ⊥-elim (noNeutrals l)
+norm₂ (n-·lift {F = F} n refl refl refl) with norm₂ n
+... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl  = 
+  map (overᵣ (F ·'_)) xs , 
+  fromWitness (normal-map-overᵣ xs (F ·'_) (toWitness oxs)) , 
+  (map (overᵣ (F ·'_)) ys) , 
+  fromWitness (normal-map-overᵣ ys (F ·'_) (toWitness oys)) , 
+  (map (overᵣ (F ·'_)) zs) , 
+  fromWitness (normal-map-overᵣ zs (F ·'_) (toWitness ozs)) , 
+  cong-⦅⦆ (sym (stability-map F xs)) , 
+  cong-⦅⦆ (sym (stability-map F ys)) ,
+  cong-⦅⦆ (sym (stability-map F zs))
+norm₂ {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ {nsr = nsr} n) with norm₁ n | nsr
+... | xs , oxs , ys , oys , refl , refl | ()
+norm₂ (n-·complᵣ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = xs , oxs , ⇓Row (⇑Row ys ─s ⇑Row xs) , ozs , ys , oys , refl , refl , refl
+norm₂ {ρ₂ = ρ₂} {ρ₃} (n-·complₗ {nsr = nsr} n) with norm₁ n | nsr
+... | _ , _ , _ , _ , refl , refl | ()
+norm₂ (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys ─s ⇑Row xs) , ozs , xs , oxs , ys , oys , refl , refl , refl
 
 -- -- --------------------------------------------------------------------------------
 -- -- NormalEntailment of inclusion is transitive
