@@ -9,14 +9,15 @@ open import Rome.Operational.Kinds.Decidability
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Substitution
 
+open import Rome.Operational.Types.Equivalence.Relation
+
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
--- open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Operational.Types.Semantic.NBE
 
--- open import Rome.Operational.Types.Theorems.Stability
--- open import Rome.Operational.Types.Theorems.Completeness
--- open import Rome.Operational.Types.Theorems.Soundness
--- open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 
 open import Data.String.Properties using (_≟_)
 
@@ -62,42 +63,6 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 ... | yes refl | yes refl = yes refl
 ... | _ | no q = no (λ { refl → q refl })
 ... | no p  | _ = no (λ { refl → p refl })
-` α ≡NE? (y ─₁ x) = no (λ ())
-` α ≡NE? (x ─₂ y) = no (λ ())
-(x · τ) ≡NE? (y ─₁ x₁) = no (λ ())
-(x · τ) ≡NE? (x₁ ─₂ y) = no (λ ())
-(φ <$> x) ≡NE? (y ─₁ x₁) = no (λ ())
-(φ <$> x) ≡NE? (x₁ ─₂ y) = no (λ ())
-(x ─₁ x₁) ≡NE? ` α = no (λ ())
-(x ─₁ x₁) ≡NE? (y · τ) = no (λ ())
-(x ─₁ x₁) ≡NE? (φ <$> y) = no (λ ())
-(ρ₂ ─₁ ρ₁) ≡NE? (ρ₄ ─₁ ρ₃) with ρ₂ ≡NE? ρ₄ | ρ₁ ≡? ρ₃ 
-... | yes refl | yes refl = yes refl
-... | no p     | _    = no (λ { refl → p refl })
-... | _        | no p = no (λ { refl → p refl })
-(x ─₁ x₁) ≡NE? (x₂ ─₂ y) = no (λ ())
-(x ─₂ x₁) ≡NE? ` α = no (λ ())
-(x ─₂ x₁) ≡NE? (y · τ) = no (λ ())
-(x ─₂ x₁) ≡NE? (φ <$> y) = no (λ ())
-(x ─₂ x₁) ≡NE? (y ─₁ x₂) = no (λ ())
-(ρ₂ ─₂ ρ₁) ≡NE? (ρ₄ ─₂ ρ₃) with ρ₂ ≡? ρ₄ | ρ₁ ≡NE? ρ₃ 
-... | yes refl | yes refl = yes (cong-─₂ refl refl)
-... | no p     | _    = no (λ { refl → p refl })
-... | _        | no p = no (λ { refl → p refl })
-` α ≡NE? (y ▹ₙ x) = no (λ ())
-(x · τ) ≡NE? (y ▹ₙ x₁) = no (λ ())
-(φ <$> x) ≡NE? (y ▹ₙ x₁) = no (λ ())
-(x ▹ₙ x₁) ≡NE? ` α = no (λ ())
-(x ▹ₙ x₁) ≡NE? (y · τ) = no (λ ())
-(x ▹ₙ x₁) ≡NE? (φ <$> y) = no (λ ())
-(x ▹ₙ τ₁) ≡NE? (y ▹ₙ τ₂) with x ≡NE? y | τ₁ ≡? τ₂ 
-... | yes refl | yes refl = yes (cong₂ _▹ₙ_ refl refl)
-... | no  p | _ = no (λ { refl → p refl })
-... | _ | no p  = no (λ { refl → p refl })
-(x ▹ₙ x₁) ≡NE? (y ─₁ ρ) = no (λ ())
-(x ▹ₙ x₁) ≡NE? (ρ ─₂ y) = no (λ ())
-(x ─₁ ρ) ≡NE? (y ▹ₙ x₁) = no (λ ())
-(ρ ─₂ x) ≡NE? (y ▹ₙ x₁) = no (λ ())
 
 --------------------------------------------------------------------------------
 -- Decidability of NormalPred equality
@@ -208,15 +173,33 @@ lab l ≡? ne x = no (λ ())
 Σ τ₁ ≡? (π ⇒ τ₂) = no (λ ())
 Σ τ₁ ≡? ⌊ τ₂ ⌋ = no (λ ())
 Σ τ₁ ≡? Π τ₂ = no (λ ())
+ne x₁ ≡? (y₁ ─ y₂) = no (λ ())
+ne x₁ ≡? (l ▹ₙ y₁) = no (λ ())
+⦅ ρ ⦆ oρ ≡? (y₁ ─ y₂) = no (λ ())
+⦅ ρ ⦆ oρ ≡? (l ▹ₙ y₁) = no (λ ())
+(x₁ ─ x₂) ≡? ne x₃ = no (λ ())
+(x₁ ─ x₂) ≡? ⦅ ρ ⦆ oρ = no (λ ())
+(x₁ ─ x₂) ≡? (y₁ ─ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 
+... | yes refl | yes refl = yes (cong-─ refl refl)
+... | _     | no q = no (λ { refl → q refl })
+... | no p  | _ = no (λ { refl → p refl })
+(x₁ ─ x₂) ≡? (l ▹ₙ y₁) = no (λ ())
+(l ▹ₙ x₁) ≡? ne x₂ = no (λ ())
+(l ▹ₙ x₁) ≡? ⦅ ρ ⦆ oρ = no (λ ())
+(l ▹ₙ x₁) ≡? (y₁ ─ y₂) = no (λ ())
+(l ▹ₙ x₁) ≡? (l₁ ▹ₙ y₁) with l ≡NE? l₁ | x₁ ≡? y₁ 
+... | yes refl | yes refl = yes refl
+... | no p     | _     = no (λ { refl → p refl }) 
+... | _        | no q  = no (λ { refl → q refl }) 
 
 -- --------------------------------------------------------------------------------
 -- -- Type equivalence is decidable
 
--- _≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
--- τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
--- ... | yes p = yes 
---     (eq-trans 
---         (soundness τ₁) 
---         (embed-≡t p))
--- ... | no  p = no (λ x → p (completeness x))
+_≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
+τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
+... | yes p = yes 
+    (eq-trans 
+        (soundness τ₁) 
+        (embed-≡t p))
+... | no  p = no (λ x → p (completeness x))
  
