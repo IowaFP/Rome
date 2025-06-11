@@ -282,6 +282,20 @@ noNeutrals (n · τ) = noNeutrals n
 noNeutrals (φ <$> n) = noNeutrals n
 
 --------------------------------------------------------------------------------
+-- There are no complements in empty contexts 
+
+noComplements : ∀ {ρ₁ ρ₂ ρ₃ : NormalType ∅ R[ κ ]}
+                  (nsr : True (notSimpleRows? ρ₃ ρ₂)) → 
+                  ρ₁ ≡ (ρ₃ ─ ρ₂) {nsr} → 
+                  ⊥
+noComplements {ρ₁ = ne x₁ ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ne x₁} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ((ρ₂ ─ ρ₃) {nsr'})} {_} {_} nsr refl = noComplements {ρ₂ = ρ₃} {ρ₂} nsr' refl
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (l ▹ₙ ρ₂)} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+noComplements {ρ₁ = ((ρ₃ ─ ρ₂) {nsr'}) ─ _} {_} {_} nsr refl = noComplements {ρ₂ = ρ₂} {ρ₃} nsr' refl
+noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+
+--------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
 
 
