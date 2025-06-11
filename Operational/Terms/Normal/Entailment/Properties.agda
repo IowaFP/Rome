@@ -141,10 +141,38 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
     (stabilityRow ρ₂) 
     (⇓Row-mono (─s-mono {ρ₁ = ⇑Row ρ₁} {⇑Row ρ₂}))
 
+∈-irrelevant : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → 
+                 {oρ : Ordered ρ} → 
+                 (l : Label) (τ : Type Δ κ) → 
+                 Irrelevant ((l , τ) ∈ ρ)
+∈-irrelevant ρ {oρ} l τ (here refl) (here refl) = refl
+∈-irrelevant ((l , τ) ∷ ρ) {l<l , snd₁} l τ (here refl) (there (here refl)) = {!l<l is contradiction!}
+∈-irrelevant ((l , τ) ∷ (l' , τ') ∷ ρ) {oρ} l τ (here refl) (there (there p₂)) = {!!}
+∈-irrelevant ρ {oρ} l τ (there p₁) (here px) = {!!}
+∈-irrelevant ρ {oρ} l τ (there p₁) (there p₂) = {!!}
+
+∈-irrelevant' : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → 
+                 {oρ : Ordered ρ} → 
+                 (l : Label) (τ τ' : Type Δ κ) → 
+                 (l , τ) ∈ ρ → (l , τ') ∈ ρ → 
+                 τ ≡ τ'
+∈-irrelevant' ρ {oρ} l τ τ' (here refl) (here refl) = refl
+∈-irrelevant' ρ {oρ} l τ τ' (here refl) (there (here refl)) = {!contradiction (oρ .fst)!}
+∈-irrelevant' ((l , τ) ∷ (l₃ , τ₃) ∷ xs) {oρ} l τ τ' (here refl) (there (there {l₃ , τ₃} {xs} τ'∈ρ)) = 
+  ∈-irrelevant' ((l , τ) ∷ xs) {ordered-swap (oρ .fst) (oρ .snd)} l τ τ' (here refl) (there τ'∈ρ)
+∈-irrelevant' ρ {oρ} l τ τ' (there τ∈ρ) (here refl) = {!!}
+∈-irrelevant' ρ {oρ} l τ τ' (there τ∈ρ) (there τ'∈ρ) = {!!}
+
 ─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
                ρ₁ ⊆ ρ₂ → 
                ρ₂ ⊆[ ρ₁ ⊹ (ρ₂ ─s ρ₁) ]
-─s-mono-orᵣ i = {!!}
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) with l ∈L? ρ₁ 
+─s-mono-orᵣ {ρ₁ = (l , τ₁) ∷ ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | yes Here with i (l , τ₁) (here refl)
+... | here refl = left (here refl)
+... | there c = {!!} -- left (there {!∈-irrelevant' ρ₂ {?} l τ₁ τ₂ c !})
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | yes (There p₁) = left {!!}
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | no  q = right (here refl)
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l₂ , τ₂) ∷ ρ₂} i (l , τ) (there ∈ρ₂) = {!!}
 
 ─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
                ρ₁ ⊆ ρ₂ → 

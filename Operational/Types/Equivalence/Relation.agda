@@ -55,9 +55,6 @@ data _≡p_ where
         -----------------------------------
         τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
 
-Ξλ-ordered : ∀ (ρ : SimpleRow Type Δ R[ κ₁ `→ κ₂ ]) (oρ : Ordered ρ) → 
-                  Ordered (map (λ (l , τ) → l , weakenₖ τ · (` Z)) ρ)
-
 data _≡t_ where 
 
   -- -------------------------------------
@@ -222,20 +219,6 @@ data _≡t_ where
 
                  --------------------------------------------
                  (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ (xs ─s ys) ⦆ ozs
-
-    -- eq-compl : ∀ {n m : ℕ} {P : Fin n → Label × SemType Δ κ} {Q : Fin m → Label × SemType Δ κ} → 
-    --              {oP : True (ordered? (⇑Row (reifyRow' n P)))} → 
-    --              {oQ : True (ordered? (⇑Row (reifyRow' m Q)))} → 
-    --              {oC : True (ordered? (⇑Row (reifyRow ((n , P) ─v (m , Q)))))} → 
-
-    --            (⦅ ⇑Row (reifyRow' n P) ⦆ oP) ─ (⦅ ⇑Row (reifyRow' m Q) ⦆ oQ) ≡t ⦅ ⇑Row (reifyRow ((n , P) ─v (m , Q))) ⦆ oC 
-
-      
-        
-
-Ξλ-ordered [] oρ = tt
-Ξλ-ordered (x ∷ []) oρ = tt
-Ξλ-ordered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ξλ-ordered ((l₂ , τ₂) ∷ ρ) oρ
 
 -- -------------------------------------------------------------------------------
 -- -- Lifting propositional equality to type equivalence
