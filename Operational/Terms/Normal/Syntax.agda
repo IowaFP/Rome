@@ -191,10 +191,18 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
 -- Terms with normal types
 
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set
-data Record {Δ} (Γ : NormalContext Δ) : List (NormalType Δ ★) → Set where
+data Value {Δ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ ★} → NormalTerm Γ τ → Set
+data Record {Δ} (Γ : NormalContext Δ) : SimpleRow NormalType Δ R[ ★ ] → Set where
   ∅   : Record Γ []
-  _⨾_ : ∀ {xs : List (NormalType Δ ★)} → NormalTerm Γ τ → 
-          Record Γ xs → Record Γ (τ ∷ xs)
+  _▹_⨾_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → (l : Label)  → NormalTerm Γ τ → 
+            Record Γ xs → Record Γ ((l , τ) ∷ xs)
+
+data RecordValue {Δ} (Γ : NormalContext Δ) : (xs : SimpleRow NormalType Δ R[ ★ ]) → Record Γ xs → Set where
+  ∅   : RecordValue Γ [] ∅
+  _▹_⨾_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {r : Record Γ xs} → 
+          (l : Label)  → {M : NormalTerm Γ τ} → Value M → 
+          RecordValue Γ xs r → RecordValue Γ ((l , τ) ∷ xs) (l ▹ M ⨾ r) 
+
 
 data NormalTerm {Δ} Γ where
   ` : NormalVar Γ τ → 
@@ -364,15 +372,94 @@ data NormalTerm {Δ} Γ where
   ----------------------------------------
   -- Values
 
-  -- ⦅_⦆ : ∀ {xs : List (NormalType Δ ★)} → 
-  --         Record Γ xs → 
-  --         ----------------------
-  --         NormalTerm Γ (Π ⦅ xs ⦆)
+  ⟨_⟩ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)} → 
+          Record Γ xs → 
+          ----------------------
+          NormalTerm Γ (Π (⦅ xs ⦆ oxs))
 
-  -- ⟨_⟩ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} → 
-  --       NormalTerm Γ τ → [ τ ] ⊆ xs → 
-  --       -------------------------------------------
-  --       NormalTerm Γ (Σ ⦅ xs ⦆) 
+  ⟨_▹_⟩via_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)} → 
+        (l : Label) → (M : NormalTerm Γ τ) → (l , τ) ∈ xs → 
+        -------------------------------------------
+        NormalTerm Γ (Σ (⦅ xs ⦆ oxs)) 
+
+--------------------------------------------------------------------------------
+-- Values
+
+data Value {Δ} {Γ} where
+  V-λ : 
+          (M : NormalTerm (Γ , τ₂) τ₁) → 
+          Value (`λ M)
+
+  V-Λ :
+          (M : NormalTerm (Γ ,, κ) τ) → 
+        --   Value M → 
+          Value (Λ M)
+
+  V-ƛ :
+          (M : NormalTerm (Γ ,,, π) τ) → 
+          Value (`ƛ M)
+
+  V-In : ∀ (F : NormalType Δ (★ `→ ★)) 
+             {M : NormalTerm Γ (F ·' (μ F))} → 
+             Value M → 
+             Value (In F M)
+
+  V-# :   ∀ {l : NormalType Δ L} → 
+          Value (# l)
+
+  V-Π : {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)} → 
+          (r : Record Γ xs) → 
+          RecordValue Γ xs r → 
+          Value (⟨_⟩ {xs = xs} {oxs} r)
+
+  V-Σ : ∀  {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)} → 
+        (l : Label) → {M : NormalTerm Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
+        -------------------------------------------
+        Value (⟨_▹_⟩via_ {oxs = oxs} l M i) -- () 
+
+
+  -- V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 
+  --           (M : NormalTerm Γ υ) → 
+
+  --           Value M → 
+  --           ---------------------
+  --           Value (ℓ Π▹ M)
+
+  -- V-⊹  : ∀ 
+  --          {e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)}  (M : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) → 
+
+  --           Value M → Value N → 
+  --           ---------------------
+  --           Value ((M ⊹ N) e)
+
+  -- V-▿  : 
+  --          {e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) → 
+
+  --           Value M → Value N → 
+  --           ---------------------
+  --           Value ((M ▿ N) e)
+
+  -- V-Σ   : ∀ {l : Label}
+  --           (ℓ : NormalTerm Γ ⌊ lab l ⌋) → (M : NormalTerm Γ τ) → 
+
+  --           Value M → 
+  --           ---------------------
+  --           Value (ℓ Σ▹ M)
+
+  -- V-Unit : ∀ (M : NormalTerm Γ (Π εNF)) → 
+
+  --          -------
+  --          Value M 
+
+  -- V-syn : ∀ (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
+
+  --         -----------------
+  --         Value (syn ρ φ M)
+
+  -- V-ana : ∀ (ρ : NormalType Δ R[ κ ]) (φ : NormalType Δ (κ `→ ★)) (τ : NormalType Δ ★) (M : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) → 
+
+  --         -----------------
+  --         Value (ana ρ φ τ M)
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.

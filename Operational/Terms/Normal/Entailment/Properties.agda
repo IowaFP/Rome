@@ -296,63 +296,61 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 
 
 
--- -- --------------------------------------------------------------------------------
--- -- NormalEntailment of inclusion is transitive
+--------------------------------------------------------------------------------
+--  - If two rows combine to be the empty type then both are the empty row, and
+--  - If a row is contained by the empty row, it is empty (or: ε is the minimal
+--    row when ordered by inclusion).
 
--- -- n-trans : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]} → 
--- --          NormalEnt Γ (ρ₁ ≲ ρ₂) → NormalEnt Γ (ρ₂ ≲ ρ₃) → NormalEnt Γ (ρ₁ ≲ ρ₃)
--- -- n-trans {ρ₁ = ρ₁} {ρ₂} {ρ₃} ρ₁≲ρ₂ ρ₂≲ρ₃ = {!ρ₁ ρ₂ ρ₃!}
+ε-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
+ε-min :  NormalEnt ∅ (ρ ≲ εNF) → ρ ≡ εNF
 
--- -- --------------------------------------------------------------------------------
--- -- -- The sum of two labeled rows is not a labeled row
 
--- -- ·-impossible :  ∀ {l₁ l₂ l₃ : NormalType ∅ L} {τ₁ τ₂ τ₃ :  NormalType ∅ κ} → 
--- --                 NormalEnt ∅ ((l₁ ▹ τ₁) · (l₂ ▹ τ₂) ~ (l₃ ▹ τ₃)) → ⊥ 
--- -- ·-impossible  (n-·lift {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} e x x₁ x₂) = ·-impossible e
+ε-sum (n-· {xs = []} {[]} i₁ i₂ i₃) = refl , refl
+ε-sum (n-· {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
+ε-sum (n-· {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
+ε-sum n-ε-R = refl , refl
+ε-sum n-ε-L = refl , refl
+ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {ne x₁} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals x₁)
+ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆ oρ} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
+... | refl , refl = eq₁ , eq₂
+ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {(ρ₃ ─ ρ₄) {nsr}} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noComplements nsr refl) 
+ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {l ▹ₙ ρ₃} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals l)
+ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ n) with ε-min n 
+ε-sum {ρ₁ = ρ₁} {.(εNF ─ ρ₁) {()}} (n-·complᵣ n) | refl
+ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) with ε-min n
+... | refl = refl , refl
+ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complₗ n) with ε-min n 
+ε-sum {_} {.(εNF ─ ρ₂) {()}} {ρ₂} (n-·complₗ n) | refl 
+ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) with ε-min n 
+... | refl = refl , refl
 
--- -- --------------------------------------------------------------------------------
--- -- -- If two rows combine to be the empty type then both are the empty row
+ε-min (n-≲ {xs = []} x₁) = refl
+ε-min (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
+ε-min n-refl = refl
+ε-min (n-trans n₁ n₂) with ε-min n₂
+... | refl with ε-min n₁
+... | refl = refl
+ε-min (n-·≲L n) = ε-sum n .fst
+ε-min (n-·≲R n) = ε-sum n .snd
+ε-min {ρ = ρ} (n-≲lift {ρ₂ = ne x₃} n x₁ x₂) = ⊥-elim (noNeutrals x₃)
+ε-min {ρ = ρ} (n-≲lift {ρ₂ = ⦅ [] ⦆ oρ} n x₁ x₂) with ε-min n
+... | refl = x₁
+ε-min {ρ = ρ} (n-≲lift {ρ₂ = (ρ₂ ─ ρ₃) {nsr}} n x₁ x₂) = ⊥-elim (noComplements nsr refl)
+ε-min {ρ = ρ} (n-≲lift {ρ₂ = l ▹ₙ ρ₂} n x₁ x₂) = ⊥-elim (noNeutrals l) 
 
--- ε-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
--- ε-sum (n-· {xs = []} {[]} i₁ i₂ i₃) = refl , refl
--- ε-sum (n-· {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
--- ε-sum (n-· {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
--- ε-sum n-ε-R = refl , refl
--- ε-sum n-ε-L = refl , refl
--- ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
--- ... | refl , refl = eq₁ , eq₂
-
--- -- --------------------------------------------------------------------------------
--- -- -- ε forms a least upper bound on rows
-
--- ε-minimum :  NormalEnt ∅ (ρ ≲ εNF) → ρ ≡ εNF
--- ε-minimum (n-≲ {xs = []} i) = refl
--- ε-minimum (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
--- ε-minimum (n-≲lift {ρ₁ = ne x} _ _ _) = ⊥-elim (noNeutrals x)
--- ε-minimum (n-≲lift {ρ₁ = ⦅ xs ⦆} {⦅ [] ⦆} n refl refl) with ε-minimum n 
--- ... | refl = refl
--- ε-minimum (n-var ())
--- ε-minimum n-refl = refl
--- ε-minimum (n-trans e e₁) rewrite ε-minimum e₁ = ε-minimum e 
--- ε-minimum {ρ = ρ} (n-·≲L e) = fst (ε-sum e)
--- ε-minimum (n-·≲R e) = snd (ε-sum e)
-
--- -- --------------------------------------------------------------------------------
--- -- -- If two rows combine to be the empty type then both are the empty row
-
--- singleton-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ ⦅ [ τ ] ⦆) → ρ₁ ≡ ⦅ [ τ ] ⦆ or ρ₂ ≡ ⦅ [ τ ] ⦆
--- singleton-sum {τ = τ} (n-· {xs = []} {[]} i₁ i₂ i₃) = ∈-elim (absurd-left-elim (i₃ τ (here refl)))
--- singleton-sum {τ = τ} (n-· {xs = []} {y ∷ ys} i₁ i₂ i₃) = {!   !}
--- singleton-sum {τ = τ} (n-· {xs = x ∷ xs} {[]} i₁ i₂ i₃) = {!   !}
--- singleton-sum {τ = τ} (n-· {xs = x ∷ xs} {x₁ ∷ ys} i₁ i₂ i₃) = {!   !} 
--- singleton-sum n-ε-R = {!   !}
--- singleton-sum n-ε-L = {!   !}
--- singleton-sum (n-·lift e x x₁ x₂) = {!   !}
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- ε is the *unique* right identity
 
--- -- ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₁) → ρ₂ ≡ ε
+ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ρ₃ → ρ₂ ≡ εNF
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} n e with norm-· n
+... | xs , _ , [] , _ , zs , _ , refl , refl , refl = refl
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-· x₂ x₃ x₄) refl | xs , _ , y ∷ ys , _ , zs , _ , refl , refl , refl = {!!}
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·lift n x₂ x₃ x₄) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+
 -- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-R = refl
 -- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L = refl
 -- -- ε-right-unique {ρ₁ = ne x} {_} (n-·lift e _ _ _) = ⊥-elim (noNeutrals x)

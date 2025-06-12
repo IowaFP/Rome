@@ -86,13 +86,14 @@ liftKVar {ρ = ρ} (r , p)  =
 ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       NormalTerm Γ₁ τ →
       NormalTerm Γ₂ (renₖNF ρ τ)
+
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       NormalEnt Γ₁ π →
       NormalEnt Γ₂ (renPredₖNF ρ π)
--- renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
---             (Ρ : Renaming Γ₁ Γ₂ ρ) → 
---             Record Γ₁ xs →
---             Record Γ₂ (renRowₖNF ρ xs)
+renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
+            (Ρ : Renaming Γ₁ Γ₂ ρ) → 
+            Record Γ₁ xs →
+            Record Γ₂ (renRowₖNF ρ xs)
 
 --------------------------------------------------------------------------------
 -- Useful lemma for commuting renaming over the lift entailment rules
@@ -172,11 +173,11 @@ ren {ρ = r} R (ana ρ φ τ M) =
       ((cong ⇓ (sym (AnaT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ) (↻-ren-⇑ r τ)))))
     (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
     (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
--- ren R ⦅ xs ⦆ = ⦅ renRecord R xs ⦆
--- ren {ρ = r} R (⟨ M ⟩ x) = ⟨ ren R M ⟩ ( ⊆-cong (renₖNF r) (renRowₖNF r) (renRowₖNF-isMap r) x)
+ren R ⟨ xs ⟩ = ⟨ renRecord R xs ⟩
+ren {ρ = r} R (⟨ l ▹ M ⟩via i) = ⟨ l ▹ (ren R M) ⟩via ∈-renₖNF r i 
 
--- renRecord {ρ = r} R ∅ = ∅
--- renRecord {ρ = r} R (x ⨾ xs) = ren R x ⨾ renRecord R xs
+renRecord {ρ = r} R ∅ = ∅
+renRecord {ρ = r} R (_▹_⨾_ l M xs) = _▹_⨾_ l (ren R M) (renRecord R xs)
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
 renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) = n-≲ (⊆-cong _ _ (renRowₖNF-isMap φ) i )

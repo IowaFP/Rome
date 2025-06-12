@@ -85,6 +85,12 @@ sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → �
       NormalTerm Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)
 subEnt : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {π : NormalPred Δ₁ R[ κ ]} → 
           NormalEnt Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π)
+subRecord : ∀ {xs : SimpleRow NormalType Δ₁ R[ ★ ]}
+            (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) → 
+            Record Γ₁ xs →
+            Record Γ₂ (subRowₖNF σ xs)
+
+
 sub σ (s , p) {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
@@ -146,6 +152,7 @@ sub σ s (ana ρ φ τ M) =
           (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
+sub σ s ⟨ V ⟩ = ? 
 -- sub σ s ⦅ ρ ⦆ = {!!}
 -- sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
 --   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
@@ -338,7 +345,9 @@ subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
            (Ordered⇑ _ 
              (reifyRowOrdered _ 
                (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
-    
+
+
+subRecord σ s r = {!!}     
 
 --------------------------------------------------------------------------------
 -- Extending substitutions

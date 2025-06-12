@@ -15,6 +15,16 @@ open import Rome.Operational.Types.Normal.Renaming
 
 
 --------------------------------------------------------------------------------
+-- Membership is preserved by renaming
+
+∈-renₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow NormalType Δ₁ R[ κ ]} → 
+             (r : Renamingₖ Δ₁ Δ₂) → 
+             (l , τ) ∈ xs → (l , renₖNF r τ) ∈ renRowₖNF r xs
+∈-renₖNF r (here refl) = here refl
+∈-renₖNF r (there i) = there (∈-renₖNF r i)
+
+
+--------------------------------------------------------------------------------
 -- Renaming respects congruence of Renamings
 
 renₖNE-cong :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
