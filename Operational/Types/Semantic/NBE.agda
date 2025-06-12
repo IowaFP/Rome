@@ -149,8 +149,6 @@ compl {n = suc n} {m} P Q with P fzero .fst ∈Row? Q
 -- --------------------------------------------------------------------------------
 -- -- Semantic complement preserves well-ordering
 
-open import Relation.Binary.Structures using (IsStrictPartialOrder)
-open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
 open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
 
 lemma : ∀ {n m q} → 

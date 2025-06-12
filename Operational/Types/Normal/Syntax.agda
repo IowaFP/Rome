@@ -138,8 +138,6 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- Ordered predicate
 
-open import Relation.Binary.Structures using (IsStrictPartialOrder)
-open import Data.String.Properties renaming (<-isStrictPartialOrder-≈ to SPO)
 open IsStrictPartialOrder (SPO) renaming (trans to <-trans)
 
 _≪_ : NormalType Δ L → NormalType Δ L → Set 

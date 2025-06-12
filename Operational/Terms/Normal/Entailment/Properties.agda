@@ -141,38 +141,60 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
     (stabilityRow ρ₂) 
     (⇓Row-mono (─s-mono {ρ₁ = ⇑Row ρ₁} {⇑Row ρ₂}))
 
-∈-irrelevant : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → 
-                 {oρ : Ordered ρ} → 
-                 (l : Label) (τ : Type Δ κ) → 
-                 Irrelevant ((l , τ) ∈ ρ)
-∈-irrelevant ρ {oρ} l τ (here refl) (here refl) = refl
-∈-irrelevant ((l , τ) ∷ ρ) {l<l , snd₁} l τ (here refl) (there (here refl)) = {!l<l is contradiction!}
-∈-irrelevant ((l , τ) ∷ (l' , τ') ∷ ρ) {oρ} l τ (here refl) (there (there p₂)) = {!!}
-∈-irrelevant ρ {oρ} l τ (there p₁) (here px) = {!!}
-∈-irrelevant ρ {oρ} l τ (there p₁) (there p₂) = {!!}
+open IsStrictPartialOrder (SPO) using (asym)
 
-∈-irrelevant' : ∀ (ρ : SimpleRow Type Δ R[ κ ]) → 
+labelsIdentifyTypes : ∀ {ρ : SimpleRow Type Δ R[ κ ]} → 
                  {oρ : Ordered ρ} → 
-                 (l : Label) (τ τ' : Type Δ κ) → 
+                 {l : Label} {τ τ' : Type Δ κ} → 
                  (l , τ) ∈ ρ → (l , τ') ∈ ρ → 
                  τ ≡ τ'
-∈-irrelevant' ρ {oρ} l τ τ' (here refl) (here refl) = refl
-∈-irrelevant' ρ {oρ} l τ τ' (here refl) (there (here refl)) = {!contradiction (oρ .fst)!}
-∈-irrelevant' ((l , τ) ∷ (l₃ , τ₃) ∷ xs) {oρ} l τ τ' (here refl) (there (there {l₃ , τ₃} {xs} τ'∈ρ)) = 
-  ∈-irrelevant' ((l , τ) ∷ xs) {ordered-swap (oρ .fst) (oρ .snd)} l τ τ' (here refl) (there τ'∈ρ)
-∈-irrelevant' ρ {oρ} l τ τ' (there τ∈ρ) (here refl) = {!!}
-∈-irrelevant' ρ {oρ} l τ τ' (there τ∈ρ) (there τ'∈ρ) = {!!}
+labelsIdentifyTypes {ρ = ρ} {oρ} {l} {τ} {τ'} (here refl) (here refl) = refl
+labelsIdentifyTypes {ρ = ρ} {l<l , oxs} {l} (here refl) (there (here refl)) = ⊥-elim (asym {l} {l} l<l l<l)
+labelsIdentifyTypes {ρ = (l , τ) ∷ (l₃ , τ₃) ∷ xs} {oρ} {l} {τ} {τ'} (here refl) (there (there {l₃ , τ₃} {xs} τ'∈ρ)) = 
+  labelsIdentifyTypes {oρ = ordered-swap (oρ .fst) (oρ .snd)} (here refl) (there τ'∈ρ)
+labelsIdentifyTypes {ρ = ρ} {l<l , oxs} {l} {τ} {τ'} (there (here refl)) (here refl) = ⊥-elim (asym {l} {l} l<l l<l)
+labelsIdentifyTypes {ρ = ((l , τ') ∷ (l'' , τ'') ∷ xs)} {oρ} {l} {τ} {τ'} (there (there τ∈ρ)) (here refl) = 
+  sym (labelsIdentifyTypes {oρ = ordered-swap (oρ .fst) (oρ .snd)} (here refl) (there τ∈ρ))  
+labelsIdentifyTypes {ρ = (l₁ , τ₁) ∷ xs} {oρ} {l} {τ} {τ'} (there τ∈ρ) (there τ'∈ρ) = labelsIdentifyTypes {oρ = ordered-cons (l₁ , τ₁) xs oρ} τ∈ρ τ'∈ρ
 
-─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+-- ∈-irrelevant ρ {oρ} l τ p₁ p₂ = {!!}
+-- ∈-irrelevant ((l , τ) ∷ ρ) {l<l , snd₁} l τ (here refl) (there (here refl)) = {!!}
+-- ∈-irrelevant ((l , τ) ∷ (l' , τ') ∷ ρ) {oρ} l τ (here refl) (there (there p₂)) = {!!}
+-- ∈-irrelevant ρ {oρ} l τ (there p₁) (here px) = {!!}
+-- ∈-irrelevant ρ {oρ} l τ (there p₁) (there p₂) = {!!}
+
+∈L⇒∈ : ∀ {l : Label} {ρ : SimpleRow Type Δ R[ κ ]} →  
+        l ∈L ρ → Σ[ τ ∈ Type Δ κ ]((l , τ) ∈ ρ)
+∈L⇒∈ (Here {τ = τ}) = τ , (here refl)
+∈L⇒∈ (There Inn) = ∈L⇒∈ Inn .fst , there (∈L⇒∈ Inn .snd)
+
+InComplement : ∀ {l : Label} {τ : Type Δ κ} {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} →  
+           ¬ (l ∈L ρ₁) → (l , τ) ∈ ρ₂ → (l , τ) ∈ (ρ₂ ─s ρ₁)
+InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (here refl) with l ∈L? ρ₁
+... | yes p = ⊥-elim (¬∈ρ₁ p)
+... | no  q = here refl
+InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} ∈ρ₂) with l' ∈L? ρ₁ 
+... | yes p = InComplement ¬∈ρ₁ ∈ρ₂
+... | no  q = there (InComplement ¬∈ρ₁ ∈ρ₂)
+
+─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]}
+               {oρ₂ : Ordered ρ₂} → 
                ρ₁ ⊆ ρ₂ → 
                ρ₂ ⊆[ ρ₁ ⊹ (ρ₂ ─s ρ₁) ]
-─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) with l ∈L? ρ₁ 
-─s-mono-orᵣ {ρ₁ = (l , τ₁) ∷ ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | yes Here with i (l , τ₁) (here refl)
-... | here refl = left (here refl)
-... | there c = {!!} -- left (there {!∈-irrelevant' ρ₂ {?} l τ₁ τ₂ c !})
-─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | yes (There p₁) = left {!!}
-─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ₂) ∷ ρ₂} i (l , τ) (here refl) | no  q = right (here refl)
-─s-mono-orᵣ {ρ₁ = ρ₁} {(l₂ , τ₂) ∷ ρ₂} i (l , τ) (there ∈ρ₂) = {!!}
+
+─s-mono-orᵣ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)           with l ∈L? ρ₁ 
+─s-mono-orᵣ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)    | yes p with ∈L⇒∈ p
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l , τ) ∷ ρ₂} {oρ₂ = oρ₂} i (l , τ) (here refl)    | yes p | τ' , τ'∈ 
+  rewrite labelsIdentifyTypes {oρ = oρ₂} (here refl) (i (l , τ') τ'∈) = left τ'∈
+─s-mono-orᵣ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)    | no p with l ∈L? ρ₁ 
+... | yes q = ⊥-elim (p q) 
+... | no q = right (here refl)
+─s-mono-orᵣ {ρ₁ = ρ₁} {(l₂ , τ₂) ∷ ρ₂} {oρ₂ = oρ₂} i (l , τ) (there w) with l ∈L? ρ₁ | l₂ ∈L? ρ₁ 
+... | no  p | yes q  = right (InComplement p w)
+... | no  p | no  q  = right (there (InComplement p w))
+... | yes p | _ with ∈L⇒∈ p 
+... | τ' , τ'∈ with labelsIdentifyTypes {oρ = oρ₂} (there w) (i (l , τ') τ'∈) 
+... | refl = left τ'∈
 
 ─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
                ρ₁ ⊆ ρ₂ → 
@@ -181,16 +203,18 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
 
 ⇓Row-⇑Row-─s-mono-orᵣ : 
   ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+    {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ ρ₁ ⊹ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ]
-⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₂ i = 
+⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₂ {oρ₂} i = 
   subst 
     (λ x → ρ₂ ⊆[ x ⊹ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ])
     (stabilityRow ρ₁)
     (subst 
       (λ x → x ⊆[ ⇓Row (⇑Row ρ₁) ⊹ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ]) 
       (stabilityRow ρ₂)
-      (⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
+      (⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) 
+        (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} {oρ₂ = Ordered⇑ ρ₂ oρ₂} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
 
 ⇓Row-⇑Row-─s-mono-orₗ : 
   ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
@@ -252,7 +276,7 @@ norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys �
 ·-inv (n-·lift {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
 ·-inv (n-·lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
 ·-inv (n-·complᵣ' en) with  ≲-inv en
-·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ ih
+·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} {oρ₃ = oρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ {oρ₂ = toWitness oρ₃} ih
 ·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} (n-·complₗ' en) with ≲-inv en 
 ... | ih = ⇓Row-⇑Row-─s-mono _ _ , ih , ⇓Row-⇑Row-─s-mono-orₗ ρ₂ ρ₃ ih
 
