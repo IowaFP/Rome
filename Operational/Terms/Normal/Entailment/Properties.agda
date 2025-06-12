@@ -197,9 +197,22 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | refl = left τ'∈
 
 ─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+                {oρ₂ : Ordered ρ₂} → 
                ρ₁ ⊆ ρ₂ → 
                ρ₂ ⊆[ (ρ₂ ─s ρ₁) ⊹ ρ₁ ]
-─s-mono-orₗ i = {!!}
+─s-mono-orₗ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)           with l ∈L? ρ₁ 
+─s-mono-orₗ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)    | yes p with ∈L⇒∈ p
+─s-mono-orₗ {ρ₁ = ρ₁} {(l , τ) ∷ ρ₂} {oρ₂ = oρ₂} i (l , τ) (here refl)    | yes p | τ' , τ'∈ 
+  rewrite labelsIdentifyTypes {oρ = oρ₂} (here refl) (i (l , τ') τ'∈) = right τ'∈
+─s-mono-orₗ {ρ₁ = ρ₁} {ρ₂} i (l , τ) (here refl)    | no p with l ∈L? ρ₁ 
+... | yes q = ⊥-elim (p q) 
+... | no q = left (here refl)
+─s-mono-orₗ {ρ₁ = ρ₁} {(l₂ , τ₂) ∷ ρ₂} {oρ₂ = oρ₂} i (l , τ) (there w) with l ∈L? ρ₁ | l₂ ∈L? ρ₁ 
+... | no  p | yes q  = left (InComplement p w)
+... | no  p | no  q  = left (there (InComplement p w))
+... | yes p | _ with ∈L⇒∈ p 
+... | τ' , τ'∈ with labelsIdentifyTypes {oρ = oρ₂} (there w) (i (l , τ') τ'∈) 
+... | refl = right τ'∈
 
 ⇓Row-⇑Row-─s-mono-orᵣ : 
   ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
@@ -217,17 +230,18 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
         (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} {oρ₂ = Ordered⇑ ρ₂ oρ₂} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
 
 ⇓Row-⇑Row-─s-mono-orₗ : 
-  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) →
+    {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ⊹ ρ₁ ]
-⇓Row-⇑Row-─s-mono-orₗ ρ₁ ρ₂ i =
+⇓Row-⇑Row-─s-mono-orₗ ρ₁ ρ₂ {oρ₂} i =
   subst 
     (λ x → ρ₂ ⊆[ ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊹ x ])
     (stabilityRow ρ₁)
     (subst 
       (λ x → x ⊆[  ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊹ ⇓Row (⇑Row ρ₁) ]) 
       (stabilityRow ρ₂)
-      ((⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) (─s-mono-orₗ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} (⊆-cong _ ⇑Row ⇑Row-isMap i)))))
+      ((⊆-cong-or _ ⇓Row (⇓Row-isMap idEnv) (─s-mono-orₗ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} {oρ₂ = Ordered⇑ ρ₂ oρ₂} (⊆-cong _ ⇑Row ⇑Row-isMap i)))))
 
 -- --------------------------------------------------------------------------------
 -- Definitions
@@ -277,8 +291,8 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ·-inv (n-·lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
 ·-inv (n-·complᵣ' en) with  ≲-inv en
 ·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} {oρ₃ = oρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ {oρ₂ = toWitness oρ₃} ih
-·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} (n-·complₗ' en) with ≲-inv en 
-... | ih = ⇓Row-⇑Row-─s-mono _ _ , ih , ⇓Row-⇑Row-─s-mono-orₗ ρ₂ ρ₃ ih
+·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} {oρ₃ = oρ₃} (n-·complₗ' en) with ≲-inv en 
+... | ih = ⇓Row-⇑Row-─s-mono _ _ , ih , ⇓Row-⇑Row-─s-mono-orₗ ρ₂ ρ₃ {oρ₂ = toWitness oρ₃} ih
 
 
 
