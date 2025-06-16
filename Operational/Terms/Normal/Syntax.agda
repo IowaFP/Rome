@@ -123,17 +123,20 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
         ---------------------
         NormalEnt Γ (ρ₂ ≲ ρ₃)
 
-  -- TODO: n-≲ε 
+  n-ε≲ : 
+
+         -------------------
+         NormalEnt Γ (εNF ≲ ρ)
 
   n-ε-R : 
              
         -------------------------
-        NormalEnt Γ (ρ · (⦅ [] ⦆ tt) ~ ρ)
+        NormalEnt Γ (ρ · εNF ~ ρ)
 
   n-ε-L : 
 
         -------------------------
-        NormalEnt Γ ((⦅ [] ⦆ tt) · ρ ~ ρ)  
+        NormalEnt Γ (εNF · ρ ~ ρ)  
 
   n-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →

@@ -192,6 +192,7 @@ renEnt R (n-·≲L e) = n-·≲L (renEnt R e)
 renEnt R (n-·≲R e) = n-·≲R (renEnt R e)
 renEnt R n-ε-R = n-ε-R
 renEnt R n-ε-L = n-ε-L
+renEnt R n-ε≲ = n-ε≲
 renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
   rewrite 
     eq-ρ₁ 

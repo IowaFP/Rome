@@ -296,6 +296,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ε-min (n-≲ {xs = []} x₁) = refl
 ε-min (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
 ε-min n-refl = refl
+ε-min n-ε≲ = refl
 ε-min (n-trans n₁ n₂) with ε-min n₂
 ... | refl with ε-min n₁
 ... | refl = refl

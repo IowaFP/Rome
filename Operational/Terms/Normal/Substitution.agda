@@ -179,6 +179,7 @@ subEnt σ s {π} n-refl = n-refl
 subEnt σ s {π} (n-trans e₁ e₂) = n-trans (subEnt σ s e₁) (subEnt σ s e₂)
 subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
 subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
+subEnt σ s {π} n-ε≲ = n-ε≲
 subEnt σ s {π} n-ε-R = n-ε-R
 subEnt σ s {π} n-ε-L = n-ε-L
 subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
