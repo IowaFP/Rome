@@ -45,8 +45,12 @@ entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntPr
 entProgress (n-≲ i₁) = Done (n-≲ i₁)
 entProgress (n-· i₁ i₂ i₃) = Done (n-· i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
-... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via {!!}
-entProgress (n-trans N₁ N₂) = {!!}
+... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via β-refl xs oxs
+entProgress (n-trans N₁ N₂) with entProgress N₁ | entProgress N₂
+... | Done (n-≲ i₁) | Done (n-≲ i₂) = StepsTo n-≲ (⊆-trans i₁ i₂) via {!!}
+... | Done x₁ | StepsTo M' via x₂ = {!!}
+... | StepsTo M' via x₁ | Done x₂ = {!!}
+... | StepsTo M' via x₁ | StepsTo M'' via x₂ = {!!}
 entProgress (n-·≲L N) = {!!}
 entProgress (n-·≲R N) = {!!}
 entProgress n@n-ε≲ with norm-≲ n
@@ -56,8 +60,9 @@ entProgress n@n-ε-R with norm-· n
   StepsTo (n-· (λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
 entProgress n-ε-L = {!!}
 -- rewrite (stability-map F xs)
-entProgress n@(n-≲lift {F = F} N {x = ρ₁} {y = ρ₂} refl refl) with entProgress N
-... | Done (n-≲ {xs = xs} {ys = ys} i)  = StepsTo n-≲ (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
+entProgress n@(n-≲lift {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
+... | StepsTo N' via N=⇒N' = StepsTo n-≲lift {F = F} N' eq₁ eq₂ via ξ-≲lift N N' eq₁ eq₂ N=⇒N'
+entProgress (n-≲lift {F = F} N {_} {_} refl refl) | Done (n-≲ {xs = xs} {ys = ys} i) = StepsTo n-≲ (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
 entProgress (n-·lift N x₁ x₂ x₃) = {!!}
 entProgress (n-·complᵣ N) with norm-≲ N 
 entProgress (n-·complᵣ {nsr = ()} N) | xs , _ , ys , _ , refl , refl

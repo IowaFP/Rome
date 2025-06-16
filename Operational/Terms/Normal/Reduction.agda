@@ -63,9 +63,25 @@ project {xs = (l , τ) ∷ xs} {ys} {oxs} {oys} rys i with get rys (i (l , τ) (
 
 infixr 0 _=⇒_
 data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt Γ π → Set where
+  ξ-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
+               {F : NormalType Δ (κ₁ `→ κ₂)} →
 
-  
+             (N N' : NormalEnt Γ (ρ₁ ≲ ρ₂)) →
+             {x y : NormalType Δ R[ κ₂ ]} → 
+             (eq₁ : x ≡ (F <$>' ρ₁)) → 
+             (eq₂ : y ≡ F <$>' ρ₂) → 
+             
+            N =⇒ N' → 
+            ------------------------------------------
+             n-≲lift {F = F} N eq₁ eq₂ =⇒ n-≲lift {F = F} N' eq₁ eq₂
+     
+  β-refl : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) (oxs : True (normalOrdered? xs)) → 
 
+         _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-≲ (λ _ i → i))
+
+  β-trans : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} →
+              (i₁ : xs ⊆ ys) → (i₂ : ys ⊆ zs) → 
+              n-trans (n-≲ i₁) (n-≲ i₂) =⇒ n-≲ (⊆-trans i₁ i₂)
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
