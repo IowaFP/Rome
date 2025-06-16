@@ -65,26 +65,47 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -----------------------
              (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
 
-  ξ-Π/ : ∀  {l : Label}
+  ξ-Π/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
              (M₁ Π/ ℓ) —→ (M₂ Π/ ℓ)        
 
-  ξ-Σ▹ : ∀  {l : Label}
+  ξ-Π/₂ : ∀  {l : Label}
+            (M : NormalTerm Γ (Π (l ▹' τ))) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋)  → 
+
+             ℓ₁ —→ ℓ₂ → 
+             -----------------------
+             (M Π/ ℓ₁) —→ (M Π/ ℓ₂)        
+
+  ξ-Σ▹₁ : ∀ {l : Label}
+            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋)  → 
+
+             ℓ₁ —→ ℓ₂ → 
+             -----------------------
+             (ℓ Σ▹ M) —→ (ℓ Σ▹ M)
+
+  ξ-Σ▹₂ : ∀ {l : Label}
             (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
              (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
-  ξ-Σ/ : ∀ {l : Label}
+  ξ-Σ/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Σ (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 
              -----------------------
-             (M₁ Σ/ ℓ) —→ (M₂ Σ/ ℓ)    
+             (M₁ Σ/ ℓ) —→ (M₂ Σ/ ℓ)        
+
+  ξ-Σ/₂ : ∀  {l : Label}
+            (M : NormalTerm Γ (Σ (l ▹' τ))) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋)  → 
+
+             ℓ₁ —→ ℓ₂ → 
+             -----------------------
+             (M Σ/ ℓ₁) —→ (M Σ/ ℓ₂)           
 
   ξ-prj : ∀ 
             (M₁ M₂ : NormalTerm Γ (Π ρ₂)) (e : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
@@ -104,8 +125,8 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
          (M₁ M₂ : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) 
          (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
-       (M₁ —→ M₂) → 
-       (M₁ ⊹ N) e —→ (M₂ ⊹ N) e
+         (M₁ —→ M₂) → 
+         (M₁ ⊹ N) e —→ (M₂ ⊹ N) e
 
   ξ-⊹₂ : ∀
          (M : NormalTerm Γ (Π ρ₁)) (N₁ N₂ : NormalTerm Γ (Π ρ₂)) 
@@ -128,7 +149,21 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
        (N₁ —→ N₂) → 
        (M ▿ N₁) e —→ (M ▿ N₂) e
 
+  ξ-Syn : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M₁ M₂ : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) →
+          M₁ —→ M₂ → 
+          ------------
+          syn ρ φ M₁ —→ syn ρ φ M₂
+
+  ξ-Ana : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → 
+          (τ : NormalType Δ ★) → 
+          (M₁ M₂ : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) →
+          M₁ —→ M₂ → 
+          ------------
+          ana ρ φ τ M₁ —→ ana ρ φ τ M₂          
+
+  ----------------------------------------
   -- computational rules
+
   β-λ : ∀ {M : NormalTerm (Γ , τ₁) τ₂} {N : NormalTerm Γ τ₁} →
           
           -----------------------
@@ -181,20 +216,3 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
           -------------
           fix M —→ M · (fix M)
-
---   β-Πε-right : ∀ 
---         (M : NormalTerm Γ (Π ρ)) (E : NormalTerm Γ (Π ε)) 
---         (e : NormalEnt Γ (ρ · ε ~ ρ)) → 
-        
---         Value M → 
---         ---------------------
---         ((M ⊹ E) e) —→ M
-
-
---   β-Πε-left : ∀ 
---         (E : NormalTerm Γ (Π ε)) (M : NormalTerm Γ (Π ρ))  
---         (e : NormalEnt Γ (ε · ρ ~ ρ)) → 
-        
---         Value M → 
---         ---------------------
---         ((E ⊹ M) e) —→ M
