@@ -45,55 +45,24 @@ norm-· : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) →
         ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
         ∃[ zs ] Σ[ ozs ∈ True (normalOrdered? zs) ] 
         (ρ₁ ≡ ⦅ xs ⦆ oxs × ρ₂ ≡ ⦅ ys ⦆ oys × ρ₃ ≡ ⦅ zs ⦆ ozs)
+norm-≲ {ρ₁ = ne x₁} {ρ₂ = ρ₂} n = ⊥-elim (noNeutrals x₁)
+norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ne x₁} n = ⊥-elim (noNeutrals x₁)
+norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = (ρ₂ ─ ρ₃) {nsr}} n = ⊥-elim (noComplements nsr refl)
+norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = l ▹ₙ ρ₂} n = ⊥-elim (noNeutrals l)
+norm-≲ {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂ = ρ₂} n = ⊥-elim (noComplements nsr refl)
+norm-≲ {ρ₁ = l ▹ₙ ρ₁} {ρ₂ = ρ₂} n = ⊥-elim (noNeutrals l)
+norm-≲ {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} n = xs , oxs , ys , oys , refl , refl
 
-norm-≲ (n-≲ {xs = xs} {ys} {oxs} {oys} i) = xs , oxs , ys , oys , refl , refl
-norm-≲ {ρ₁ = ne x} n-refl = ⊥-elim (noNeutrals x)
-norm-≲ {ρ₁ = ⦅ xs ⦆ oxs} n-refl = xs , oxs , xs , oxs , refl , refl
-norm-≲ {ρ₁ = (c ─ c₁) {nsr}} n-refl = ⊥-elim (noComplements nsr refl)
-norm-≲ {ρ₁ = l ▹ₙ c} n-refl = ⊥-elim (noNeutrals l)
-norm-≲ {ρ₁ = ρ₁} (n-trans {ρ₂ = ρ₂} {ρ₃ = ρ₃} n₁ n₂) with norm-≲ n₁ | norm-≲ n₂ 
-... | (xs , oxs , ys , oys , refl , refl) | (ys' , oys' , zs , ozs , refl , refl) = 
-  xs , oxs , zs , ozs , refl , refl 
-norm-≲ (n-·≲L en) with norm-· en 
-... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl = xs , oxs , zs , ozs , refl , refl
-norm-≲ (n-·≲R en) with norm-· en 
-... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl = ys , oys , zs , ozs , refl , refl
-norm-≲ (n-≲lift {F = F} en refl refl) with norm-≲ en 
-... | xs , oxs , ys , oys , refl , refl = 
-  map (overᵣ (F ·'_)) xs , 
-  fromWitness (normal-map-overᵣ xs (F ·'_) (toWitness oxs)) , 
-  (map (overᵣ (F ·'_)) ys) , 
-  fromWitness (normal-map-overᵣ ys (F ·'_) (toWitness oys)) , 
-  cong-⦅⦆ (sym (stability-map F xs)) , 
-  cong-⦅⦆ (sym (stability-map F ys))
-
-norm-· (n-· {xs = xs} {ys} {zs} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) = 
-  xs , oxs , ys , oys , zs , ozs , refl , refl , refl
-norm-· {ρ₁ = ne x₁} n-ε-R = ⊥-elim (noNeutrals x₁)
-norm-· {ρ₁ = ⦅ xs ⦆ oxs} n-ε-R = xs , oxs , [] , tt , xs , oxs , refl , refl , refl
-norm-· {ρ₁ = (ρ₁ ─ ρ₂) {nsr}} n-ε-R = ⊥-elim (noComplements nsr refl)
-norm-· {ρ₁ = l ▹ₙ ρ₁} n-ε-R = ⊥-elim (noNeutrals l)
-norm-· {ρ₂ = ne x₁} n-ε-L = ⊥-elim (noNeutrals x₁)
-norm-· {ρ₂ = ⦅ ρ ⦆ oρ} n-ε-L = [] , tt , ρ , oρ , ρ , oρ , refl , refl , refl
-norm-· {ρ₂ = (_ ─ _) {nsr}} n-ε-L = ⊥-elim (noComplements nsr refl)
-norm-· {ρ₂ = l ▹ₙ _} n-ε-L = ⊥-elim (noNeutrals l)
-norm-· (n-·lift {F = F} n refl refl refl) with norm-· n
-... | xs , oxs , ys , oys , zs , ozs , refl , refl , refl  = 
-  map (overᵣ (F ·'_)) xs , 
-  fromWitness (normal-map-overᵣ xs (F ·'_) (toWitness oxs)) , 
-  (map (overᵣ (F ·'_)) ys) , 
-  fromWitness (normal-map-overᵣ ys (F ·'_) (toWitness oys)) , 
-  (map (overᵣ (F ·'_)) zs) , 
-  fromWitness (normal-map-overᵣ zs (F ·'_) (toWitness ozs)) , 
-  cong-⦅⦆ (sym (stability-map F xs)) , 
-  cong-⦅⦆ (sym (stability-map F ys)) ,
-  cong-⦅⦆ (sym (stability-map F zs))
-norm-· {ρ₁ = ρ₁} {ρ₃ = ρ₃} (n-·complᵣ {nsr = nsr} n) with norm-≲ n | nsr
-... | xs , oxs , ys , oys , refl , refl | ()
-norm-· (n-·complᵣ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = xs , oxs , ⇓Row (⇑Row ys ─s ⇑Row xs) , ozs , ys , oys , refl , refl , refl
-norm-· {ρ₂ = ρ₂} {ρ₃} (n-·complₗ {nsr = nsr} n) with norm-≲ n | nsr
-... | _ , _ , _ , _ , refl , refl | ()
-norm-· (n-·complₗ' {xs = xs} {ys} {oxs} {oys} {ozs} n) = ⇓Row (⇑Row ys ─s ⇑Row xs) , ozs , xs , oxs , ys , oys , refl , refl , refl
+norm-· {ρ₁ = ne x₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x₁)
+norm-· {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noComplements nsr refl)
+norm-· {ρ₁ = l ▹ₙ ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals l)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ne x₁} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x₁)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = (ρ₂ ─ ρ₄) {nsr}} {ρ₃ = ρ₃} n = ⊥-elim (noComplements nsr refl)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = l ▹ₙ ρ₂} {ρ₃ = ρ₃} n =  ⊥-elim (noNeutrals l)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = ne x₁} n = ⊥-elim (noNeutrals x₁)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = (ρ₃ ─ ρ₄) {nsr}} n = ⊥-elim (noComplements nsr refl)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = l ▹ₙ ρ₃} n = ⊥-elim (noNeutrals l)
+norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ ozs} n = xs , oxs , ys , oys , zs , ozs , refl , refl , refl
 
 
 -- --------------------------------------------------------------------------------

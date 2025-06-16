@@ -123,6 +123,8 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
         ---------------------
         NormalEnt Γ (ρ₂ ≲ ρ₃)
 
+  -- TODO: n-≲ε 
+
   n-ε-R : 
              
         -------------------------

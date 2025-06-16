@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Terms.Theorems.Progress where
 
 open import Rome.Operational.Prelude
@@ -33,7 +34,7 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
          ----------
          Progress M
 
-  Steps : 
+  StepsTo_via_ : 
           (M' : NormalTerm Γ τ) → (M —→ M') → 
           --------------------------------------
           Progress M
@@ -41,7 +42,53 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
 
 
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
-
+progress (`λ M) = Done (V-λ M)
+progress (M₁ · M₂) with progress M₁ 
+... | Done (V-λ M) = StepsTo (M β[ M₂ ]) via β-λ
+... | StepsTo M₃ via M₁→M₃ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
+progress (Λ M) = Done (V-Λ M)
+progress (M ·[ τ ]) with progress M 
+... | Done (V-Λ M₁) = StepsTo (M₁ β·[ τ ]) via β-Λ
+... | StepsTo M' via M→M' = StepsTo (M' ·[ τ ]) via (ξ-·[] M→M')
+progress (In F M) with progress M 
+... | Done V = Done (V-In F V)
+... | StepsTo M' via M→M' = StepsTo (In F M') via (ξ-In M→M')
+progress (Out F M) with progress M 
+... | Done (V-In .F {M'} V) = StepsTo M' via β-In
+... | StepsTo M' via M→M' = StepsTo (Out F M') via (ξ-Out M→M')
+progress (fix M) = StepsTo M · (fix M) via (β-fix M)
+progress (`ƛ M) = Done (V-ƛ M)
+progress (M ·⟨ n ⟩) with progress M
+... | Done (V-ƛ M') = StepsTo (M' βπ[ n ]) via β-ƛ
+... | StepsTo M' via M→M' = StepsTo M' ·⟨ n ⟩ via ξ-·⟨⟩ M→M'
+progress (# ℓ) = Done V-#
+progress (_Π▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (M Π▹ N) with progress M 
+... | Done (V-# {l = lab l}) = StepsTo ⟨ l ▹ N ⨾ ∅ ⟩ via β-Π▹ N
+... | StepsTo M' via M→M' = StepsTo (M' Π▹ N) via ξ-Π▹₁ N M M' M→M'
+progress (_Π/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (M Π/ ℓ) with progress M 
+... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via {!!} 
+... | StepsTo M' via M→M' = {!!}
+progress (prj M x₁) = {!!}
+progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁ 
+-- ... | xs , _ , ys , _ , zs , _ , refl , refl , refl with progress M₁ | progress M₂ 
+-- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
+-- ... | c = {!c .snd .snd!}
+progress (syn ρ φ M) = {!!}
+progress (ana ρ φ τ M) = {!!}
+progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (M Σ▹ N) with progress M 
+... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via β-Σ▹ N
+... | StepsTo M' via M→M' = StepsTo (M' Σ▹ N) via ξ-Σ▹₁ N M M' M→M'
+progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (M Σ/ ℓ) = {!!}
+progress (inj M x₁) = {!!}
+progress ((M ▿ M₁) x₁) = {!!}
+progress ⟨ x₁ ⟩ = {!!}
+progress (⟨ l ▹ M ⟩via i) with progress M 
+... | Done V = Done (V-Σ l V i)
+... | StepsTo M' via M→M' = {!!}
 -- progress (`λ M) = Done (V-λ M)
 -- progress (M · N) = {!!}
 -- progress (Λ M) = Done (V-Λ M)

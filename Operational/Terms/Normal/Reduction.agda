@@ -56,14 +56,14 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
              ℓ₁ —→ ℓ₂ → 
              -----------------------
-             (ℓ Π▹ M) —→ (ℓ Π▹ M)
+             (ℓ₁ Π▹ M) —→ (ℓ₂ Π▹ M)
 
-  ξ-Π▹₂ : ∀ {l : Label}
-            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
+  -- ξ-Π▹₂ : ∀ {l : Label}
+  --           (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
-             M₁ —→ M₂ → 
-             -----------------------
-             (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
+  --            M₁ —→ M₂ → 
+  --            -----------------------
+  --            (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
 
   ξ-Π/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
@@ -84,14 +84,14 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
              ℓ₁ —→ ℓ₂ → 
              -----------------------
-             (ℓ Σ▹ M) —→ (ℓ Σ▹ M)
+             (ℓ₁ Σ▹ M) —→ (ℓ₂ Σ▹ M)
 
-  ξ-Σ▹₂ : ∀ {l : Label}
-            (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
+  -- ξ-Σ▹₂ : ∀ {l : Label}
+  --           (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
-             M₁ —→ M₂ → 
-             -----------------------
-             (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
+  --            M₁ —→ M₂ → 
+  --            -----------------------
+  --            (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
   ξ-Σ/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Σ (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
@@ -184,35 +184,48 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -------------------------
              Out F (In F M) —→ M
 
-  β-Π/ :  ∀ {l : Label}
-            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
-
-
-             -----------------------
-             ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
-
-  β-Σ/ :  ∀ {l : Label}
-            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
-
-             -----------------------
-             ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
-
-  β-prj : ∀  
-            (M : NormalTerm Γ (Π ρ)) (e :  NormalEnt Γ (ρ ≲ ρ)) → 
-              
-             Value M → 
-             -----------------------
-             prj M e —→ M
-
-  β-inj : ∀ 
-            (M : NormalTerm Γ (Σ ρ)) (e :  NormalEnt Γ (ρ ≲ ρ)) → 
-            
-             Value M → 
-             -----------------------
-             inj M e —→ M
-
-
   β-fix : ∀ (M : NormalTerm Γ (τ `→ τ)) → 
 
           -------------
           fix M —→ M · (fix M)
+
+  β-Π▹ : ∀ {l : Label} → 
+           (M : NormalTerm Γ τ) →
+           ((# (lab l)) Π▹ M) —→ (⟨ (l ▹ M ⨾ ∅)  ⟩)
+
+  β-Σ▹ : ∀ {l : Label} → 
+           (M : NormalTerm Γ τ) →
+           ((# (lab l)) Σ▹ M) —→ (⟨ l ▹ M ⟩via (here refl))
+
+  -- β-⊹ : 
+      
+  --        (⟨ r₁ ⟩ ⊹ ⟨ r₂ ⟩ n) —→ concat(r₁ , r₂ , n)
+
+  -- β-Π/ :  ∀ {l : Label}
+  --           (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
+
+
+  --            -----------------------
+  --            ((ℓ₁ Π▹ M) Π/ ℓ₂) —→ M
+
+  -- β-Σ/ :  ∀ {l : Label}
+  --           (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋) → 
+
+  --            -----------------------
+  --            ((ℓ₁ Σ▹ M) Σ/ ℓ₂) —→ M
+
+  -- β-prj : ∀  
+  --           (M : NormalTerm Γ (Π ρ)) (e :  NormalEnt Γ (ρ ≲ ρ)) → 
+              
+  --            Value M → 
+  --            -----------------------
+  --            prj M e —→ M
+
+  -- β-inj : ∀ 
+  --           (M : NormalTerm Γ (Σ ρ)) (e :  NormalEnt Γ (ρ ≲ ρ)) → 
+            
+  --            Value M → 
+  --            -----------------------
+  --            inj M e —→ M
+
+
