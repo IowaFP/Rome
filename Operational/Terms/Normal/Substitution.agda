@@ -152,13 +152,11 @@ sub σ s (ana ρ φ τ M) =
           (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
         (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
-sub σ s ⟨ V ⟩ = ? 
--- sub σ s ⦅ ρ ⦆ = {!!}
--- sub σ s (⟨ M ⟩ i) = ⟨ sub σ s M ⟩ 
---   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) 
---     (⊆-cong (subₖ (⇑ ∘ σ)) (subRowₖ (⇑ ∘ σ)) (subRowₖ-isMap (⇑ ∘ σ)) 
---     (⊆-cong ⇑ ⇑Row ⇑Row-isMap i)))
+sub σ s ⟨ V ⟩ = ⟨ subRecord σ s V ⟩ 
+sub σ s (⟨_▹_⟩via_ {τ} {xs = xs} {oxs} l M i) = ⟨ l ▹ sub σ s M ⟩via (∈-subₖNF σ i)
 
+subRecord σ s ∅ = ∅
+subRecord σ s (l ▹ τ ⨾ r) = l ▹ sub σ s τ ⨾ (subRecord σ s r)
 
 subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 
   n-≲ 
@@ -347,7 +345,6 @@ subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
                (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
 
 
-subRecord σ s r = {!!}     
 
 --------------------------------------------------------------------------------
 -- Extending substitutions

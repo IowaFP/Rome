@@ -137,3 +137,12 @@ IsBimapMap {A = A} {A′} f×g⋆ f g = ∀ (xs : List (A × A′)) → f×g⋆ 
                xs ⊆[ ys ⊹ zs ] →
                f×g⋆ xs ⊆[ f×g⋆ ys ⊹ f×g⋆ zs ]
 ⊆-cong-or₂ {xs = xs} {ys} {zs} f g f×g⋆ isMap i rewrite isMap xs | isMap ys | isMap zs = ⊆-map-or (bimap f g) i
+
+-----------------------------------------------------------------------------------------
+-- 
+
+∈-subst₁ : ∀ {x y : A} {xs : List A} → x ∈ xs → x ≡ y → y ∈ xs
+∈-subst₁ i refl = i
+
+∈-subst₂ : ∀ {x : A} {xs ys : List A} → x ∈ xs → xs ≡ ys → x ∈ ys
+∈-subst₂ i refl = i

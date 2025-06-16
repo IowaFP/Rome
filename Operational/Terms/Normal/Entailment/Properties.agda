@@ -342,14 +342,14 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- -- --------------------------------------------------------------------------------
 -- -- -- ε is the *unique* right identity
 
-ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ρ₃ → ρ₂ ≡ εNF
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} n e with norm-· n
-... | xs , _ , [] , _ , zs , _ , refl , refl , refl = refl
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-· x₂ x₃ x₄) refl | xs , _ , y ∷ ys , _ , zs , _ , refl , refl , refl = {!!}
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·lift n x₂ x₃ x₄) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
-ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ρ₃ → ρ₂ ≡ εNF
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n e with norm-· n
+-- ... | xs , _ , [] , _ , zs , _ , refl , refl , refl = refl
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-· x₂ x₃ x₄) refl | xs , _ , y ∷ ys , _ , zs , _ , refl , refl , refl = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·lift n x₂ x₃ x₄) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
 
 -- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-R = refl
 -- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L = refl

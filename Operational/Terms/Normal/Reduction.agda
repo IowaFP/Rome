@@ -20,11 +20,6 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
 
-
---------------------------------------------------------------------------------
--- Values
-
-
 --------------------------------------------------------------------------------
 -- Small step semantics.
 
@@ -35,17 +30,6 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
            M₁ —→ M₂ →
            -----------------
            M₁ · N —→ M₂ · N
-
---   ξ-Λ : ∀ {M₁ M₂ : NormalTerm (Γ ,, κ) τ} →
---          M₁ —→ M₂ →
---          -----------------------
---          (Λ M₁) —→ (Λ M₂)
-
---   ξ-ƛ : ∀ {M₁ M₂ : NormalTerm (Γ ,,, π) τ} →
-
---          M₁ —→ M₂ →
---          -----------------------
---          (`ƛ M₁) —→ (`ƛ M₂)
 
   ξ-·[] : ∀ {τ'} {M₁ M₂ : NormalTerm Γ (`∀ τ)} →
             M₁ —→ M₂ →
@@ -67,7 +51,14 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              -----------------------
              In F M₁ —→ In F M₂
 
-  ξ-Π▹ : ∀ {l : Label}
+  ξ-Π▹₁ : ∀ {l : Label}
+            (M : NormalTerm Γ τ) (ℓ₁ ℓ₂ : NormalTerm Γ ⌊ lab l ⌋)  → 
+
+             ℓ₁ —→ ℓ₂ → 
+             -----------------------
+             (ℓ Π▹ M) —→ (ℓ Π▹ M)
+
+  ξ-Π▹₂ : ∀ {l : Label}
             (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
              M₁ —→ M₂ → 

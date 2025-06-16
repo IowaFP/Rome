@@ -30,6 +30,15 @@ open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
+-- Membership is preserved by substitution
+
+∈-subₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow NormalType Δ₁ R[ κ ]} → 
+             (σ : SubstitutionₖNF Δ₁ Δ₂) → 
+             (l , τ) ∈ xs → (l , subₖNF σ τ) ∈ subRowₖNF σ xs
+∈-subₖNF σ (here refl) = here refl
+∈-subₖNF σ (there i) = there (∈-subₖNF σ i)
+
+--------------------------------------------------------------------------------
 -- Neutral types are equivalent to their η-normalizations
 
 η-norm-≡t : ∀ (τ : NeutralType Δ κ) → ⇑ (η-norm τ) ≡t ⇑NE τ 

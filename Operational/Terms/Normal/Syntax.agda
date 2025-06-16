@@ -17,7 +17,7 @@ open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Semantic.NBE
 
--- open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
@@ -415,7 +415,7 @@ data Value {Δ} {Γ} where
   V-Σ : ∀  {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)} → 
         (l : Label) → {M : NormalTerm Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
         -------------------------------------------
-        Value (⟨_▹_⟩via_ {oxs = oxs} l M i) -- () 
+        Value (⟨_▹_⟩via_ {oxs = oxs} l M i)       
 
 
   -- V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 
