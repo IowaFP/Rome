@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Kinds.GVars where
 
 open import Rome.Operational.Kinds.Syntax

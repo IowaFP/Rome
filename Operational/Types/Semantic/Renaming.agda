@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Semantic.Renaming where
 
 open import Rome.Operational.Prelude
@@ -63,36 +63,3 @@ renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P
 
 weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
 weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
-
--- --------------------------------------------------------------------------------
--- -- Functor laws for renaming as a functorial action
-
-renSem-id : ∀ (V : SemType Δ κ) → renSem id V ≡ V 
--- map-id' : ∀ {A : Set} (f : A → A) → (∀ (x : A) → f x ≡ x) → (xs : List A) → map f xs ≡ xs
--- map-id' f eq [] = refl
--- map-id' f eq (x ∷ xs) rewrite eq x | map-id' f eq xs = refl
-
-renSem-id {κ = ★} V = renₖNF-id V -- renₖNF-id V
-renSem-id {κ = L} V = renₖNF-id V -- renₖNF-id V
-renSem-id {κ = κ `→ κ₁} F = refl
-renSem-id {κ = R[ κ ]} (ne x) = cong ne (renₖNE-id x) 
--- Need to write congruence for _─_ over `RowType`s
-renSem-id {κ = R[ κ ]} (ρ₂ ─ ρ₁) = {!!} 
-renSem-id {κ = R[ κ ]} (l ▹ τ) = cong₂ _▹_ (renₖNE-id l) (renSem-id τ) 
--- need congruence here too
-renSem-id {κ = R[ κ ]} (row (n , P) _)  = {!!}
-
--- renSem-comp : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : SemType Δ₁ κ) → 
---              (renSem (ρ₂ ∘ ρ₁) V) ≡ (renSem ρ₂ (renSem ρ₁ V))
--- renSem-comp {κ = ★} ρ₁ ρ₂ V = renₖNF-comp _ _ _
--- renSem-comp {κ = L} ρ₁ ρ₂ V = renₖNF-comp _ _ _
--- renSem-comp {κ = κ `→ κ₁} ρ₁ ρ₂ F = refl
--- renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (neV x) = cong neV (renₖNE-comp _ _ _)
--- renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ (l ▹V τ) = (cong₂ _▹V_ (renₖNF-comp _ _ _) (renSem-comp _ _ _))
--- renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ εV = refl
--- renSem-comp {κ = R[ κ ]} ρ₁ ρ₂ ⦅ ρ ⦆V = 
---   cong ⦅_⦆V 
---   (trans 
---     (map-cong (renSem-comp ρ₁ ρ₂) ρ) 
---     (map-∘ ρ))
-

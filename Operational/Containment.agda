@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Containment where
 
 open import Rome.Operational.Prelude

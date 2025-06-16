@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Normal.Syntax where
 
 open import Rome.Operational.Prelude

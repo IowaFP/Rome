@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Substitution where
 
 open import Rome.Operational.Prelude

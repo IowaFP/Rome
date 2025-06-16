@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Theorems.Completeness.Relation where
 
 open import Rome.Operational.Prelude

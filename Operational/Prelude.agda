@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Prelude where
 
 open import Agda.Primitive public
