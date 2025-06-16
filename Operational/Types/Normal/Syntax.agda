@@ -178,6 +178,15 @@ inj-⦅⦆ {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite NormalIrrelevantOrde
                 
 
 --------------------------------------------------------------------------------
+-- Ordered lists yield ordered tails
+
+normalOrdered-tail : ∀ (x : Label × NormalType Δ κ) (ρ : SimpleRow NormalType Δ R[ κ ]) → 
+               NormalOrdered (x ∷ ρ) → 
+               NormalOrdered ρ 
+normalOrdered-tail x [] oxρ = tt
+normalOrdered-tail (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ 
+
+--------------------------------------------------------------------------------
 -- Mapping over preserves ordering
 
 normal-map-overᵣ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 

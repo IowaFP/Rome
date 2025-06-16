@@ -1,7 +1,8 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Theorems.Progress where
 
 open import Rome.Operational.Prelude
+open import Rome.Operational.Containment
 
 open import Rome.Operational.Kinds.Syntax
 
@@ -13,6 +14,7 @@ open import Rome.Operational.Types.Semantic.Syntax
 
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Normal.Substitution
@@ -26,7 +28,46 @@ open import Rome.Operational.Terms.Normal.Entailment.Properties
 open import Effect.Monad.Identity
 
 --------------------------------------------------------------------------------
--- Proof of progress
+-- Proof of progress (Entailments)
+
+data EntProgress {π : NormalPred Δ R[ κ ]} (M : NormalEnt Γ π) : Set where
+  Done : 
+         EntValue Γ π M → 
+         ----------
+         EntProgress M
+
+  StepsTo_via_ : 
+          (M' : NormalEnt Γ π) → (M =⇒ M') → 
+          --------------------------------------
+          EntProgress M
+
+entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntProgress N
+entProgress (n-≲ i₁) = Done (n-≲ i₁)
+entProgress (n-· i₁ i₂ i₃) = Done (n-· i₁ i₂ i₃)
+entProgress n@n-refl with norm-≲ n 
+... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via {!!}
+entProgress (n-trans N₁ N₂) = {!!}
+entProgress (n-·≲L N) = {!!}
+entProgress (n-·≲R N) = {!!}
+entProgress n@n-ε≲ with norm-≲ n
+... | xs , _ , ys , _ , refl , refl = StepsTo n-≲ (λ { x () }) via {!!}
+entProgress n@n-ε-R with norm-· n
+... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
+  StepsTo (n-· (λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
+entProgress n-ε-L = {!!}
+-- rewrite (stability-map F xs)
+entProgress n@(n-≲lift {F = F} N {x = ρ₁} {y = ρ₂} refl refl) with entProgress N
+... | Done (n-≲ {xs = xs} {ys = ys} i)  = StepsTo n-≲ (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
+entProgress (n-·lift N x₁ x₂ x₃) = {!!}
+entProgress (n-·complᵣ N) with norm-≲ N 
+entProgress (n-·complᵣ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
+entProgress (n-·complᵣ' N) = {!!}
+entProgress (n-·complₗ N) with norm-≲ N 
+entProgress (n-·complₗ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
+entProgress (n-·complₗ' N) = {!!}
+
+--------------------------------------------------------------------------------
+-- Proof of progress (Terms)
 
 data Progress {τ} (M : NormalTerm Γ τ) : Set where
   Done : 
@@ -68,9 +109,13 @@ progress (M Π▹ N) with progress M
 ... | StepsTo M' via M→M' = StepsTo (M' Π▹ N) via ξ-Π▹₁ N M M' M→M'
 progress (_Π/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Π/ ℓ) with progress M 
-... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via {!!} 
-... | StepsTo M' via M→M' = {!!}
-progress (prj M x₁) = {!!}
+... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via β-Π/ M' ℓ 
+... | StepsTo M' via M→M' = StepsTo M' Π/ ℓ via ξ-Π/₁ M M' ℓ M→M'
+progress (prj M n) with progress M | norm-≲ n
+... | StepsTo M' via M→M' | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
+... | Done (V-Π r rV) | xs , oxs , ys , oys , refl , refl with ≲-inv n 
+... | i = StepsTo ⟨ project r i ⟩ via {!β-prj r i!}
+
 progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁ 
 -- ... | xs , _ , ys , _ , zs , _ , refl , refl , refl with progress M₁ | progress M₂ 
 -- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 

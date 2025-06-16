@@ -191,6 +191,28 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ----------------------
              NormalEnt Γ (⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
 
+data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
+
+  n-≲ :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} → 
+
+          (i : xs ⊆ ys) → 
+          -----------------------
+          EntValue Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-≲ i)
+
+  n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} 
+           {ozs : True (normalOrdered? zs)} → 
+          (i₁ : xs ⊆ zs) → 
+          (i₂ : ys ⊆ zs) → 
+          (i₃ : zs ⊆[ xs ⊹ ys ])  → 
+          --------------------------------------------------------------------
+
+          EntValue Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-· i₁ i₂ i₃)
+          
+          
 
 --------------------------------------------------------------------------------
 -- Terms with normal types

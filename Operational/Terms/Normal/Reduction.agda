@@ -1,9 +1,11 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Normal.Reduction where
 
 open import Rome.Operational.Prelude
+open import Rome.Operational.Containment
 
 open import Rome.Operational.Kinds.Syntax
+
 
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.SynAna
@@ -13,12 +15,57 @@ open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Terms.Normal.Syntax
+open import Rome.Operational.Terms.Normal.Entailment.Properties
 open import Rome.Operational.Terms.Normal.Substitution
 
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
+
+--------------------------------------------------------------------------------
+-- Defining projection
+
+data _∈ᵣ_ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ] } → (l : Label × NormalTerm Γ τ) → Record Γ xs → Set where
+  Here : ∀ {l} {τ : NormalType Δ ★} {xs : SimpleRow NormalType Δ R[ ★ ]} {M : NormalTerm Γ τ} → 
+           {rxs : Record Γ xs} → 
+           (l , M) ∈ᵣ (l ▹ M ⨾ rxs)
+
+  There : ∀ {l l'} {τ υ : NormalType Δ ★} 
+            {xs : SimpleRow NormalType Δ R[ ★ ]} {M : NormalTerm Γ τ} {M' : NormalTerm Γ υ} → 
+            {rxs : Record Γ xs} → 
+
+           (l , M) ∈ᵣ rxs → (l , M) ∈ᵣ (l' ▹ M' ⨾ rxs)
+
+get : ∀ {l : Label} {xs : SimpleRow NormalType Δ R[ ★ ]} (rxs : Record Γ xs) → 
+      (l , τ) ∈ xs → 
+      ∃[ M ] (_∈ᵣ_ {τ = τ} (l , M) rxs)
+get ∅ ()
+get {τ = τ} {l = l} {xs} (l ▹ M ⨾ rxs) (here refl) = M , Here
+get (l ▹ M ⨾ rxs) (there i) with get rxs i 
+... | M' , loc = M' , There loc
+
+project :  ∀ {xs ys : SimpleRow NormalType Δ R[ ★ ]} → 
+            {oxs : True (normalOrdered? xs)} {oys : True (normalOrdered? ys)} →
+            (rys : Record Γ ys) → 
+            xs ⊆ ys →
+            Record Γ xs 
+project {xs = []} rys i = ∅
+project {xs = (l , τ) ∷ xs} {ys} {oxs} {oys} rys i with get rys (i (l , τ) (here refl))
+... | M , M∈rys = 
+  l ▹ M ⨾  project 
+             {oxs = fromWitness (normalOrdered-tail (l , τ) xs (toWitness oxs))} 
+             {oys} rys 
+             (truncate-⊆ i)
+
+--------------------------------------------------------------------------------
+-- Reduction of entailments in an empty context
+
+infixr 0 _=⇒_
+data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt Γ π → Set where
+
+  
+
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -191,11 +238,24 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
   β-Π▹ : ∀ {l : Label} → 
            (M : NormalTerm Γ τ) →
-           ((# (lab l)) Π▹ M) —→ (⟨ (l ▹ M ⨾ ∅)  ⟩)
+           ((# (lab l)) Π▹ M) —→ (⟨ (l ▹ M ⨾ ∅) ⟩)
 
   β-Σ▹ : ∀ {l : Label} → 
            (M : NormalTerm Γ τ) →
            ((# (lab l)) Σ▹ M) —→ (⟨ l ▹ M ⟩via (here refl))
+
+  β-Π/ : ∀ {l : Label} (M : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋) → 
+
+        ---------------------------
+        (⟨ l ▹ M ⨾ ∅ ⟩ Π/ ℓ) —→ M
+
+  β-prj : ∀ {xs ys : SimpleRow NormalType Δ R[ ★ ]} → 
+            {oxs : True (normalOrdered? xs)} {oys : True (normalOrdered? ys)} →
+            (rys : Record Γ ys) → 
+            (i : xs ⊆ ys) → 
+            ---------------------------
+            (prj (⟨_⟩ {oxs = oys} rys) (n-≲ {oxs = oxs} i) ) —→ ⟨ project {oxs = oxs} {oys = oys} rys i ⟩ 
+
 
   -- β-⊹ : 
       

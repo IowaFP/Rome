@@ -146,3 +146,12 @@ IsBimapMap {A = A} {A′} f×g⋆ f g = ∀ (xs : List (A × A′)) → f×g⋆ 
 
 ∈-subst₂ : ∀ {x : A} {xs ys : List A} → x ∈ xs → xs ≡ ys → x ∈ ys
 ∈-subst₂ i refl = i
+
+-----------------------------------------------------------------------------------------
+-- left truncation of an inclusion
+
+truncate-⊆ : ∀ {x : A} → 
+             {xs ys : List A } → 
+             (x ∷ xs) ⊆ ys → 
+             xs ⊆ ys 
+truncate-⊆ {x = x} {xs} {ys} i = λ a → i a ∘ there 
