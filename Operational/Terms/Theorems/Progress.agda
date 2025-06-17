@@ -1,3 +1,4 @@
+
 {-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Terms.Theorems.Progress where
 
@@ -45,28 +46,35 @@ entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntPr
 entProgress (n-≲ i₁) = Done (n-≲ i₁)
 entProgress (n-· i₁ i₂ i₃) = Done (n-· i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
-... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via β-refl xs oxs
-entProgress (n-trans N₁ N₂) with entProgress N₁ | entProgress N₂
-... | Done (n-≲ i₁) | Done (n-≲ i₂) = StepsTo n-≲ (⊆-trans i₁ i₂) via {!!}
-... | Done x₁ | StepsTo M' via x₂ = {!!}
-... | StepsTo M' via x₁ | Done x₂ = {!!}
-... | StepsTo M' via x₁ | StepsTo M'' via x₂ = {!!}
-entProgress (n-·≲L N) = {!!}
-entProgress (n-·≲R N) = {!!}
+... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via δ-refl xs oxs
+entProgress (n-trans M N) with entProgress M | entProgress N
+... | Done (n-≲ i₁) | Done (n-≲ i₂) = StepsTo n-≲ (⊆-trans i₁ i₂) via δ-trans i₁ i₂
+... | Done V | StepsTo N' via N=⇒N' = StepsTo (n-trans M N') via ξ-trans₂ N=⇒N' 
+... | StepsTo M' via M=⇒M' | Done _ = StepsTo (n-trans M' N) via ξ-trans₁ M=⇒M'
+... | StepsTo M' via M=⇒M' | StepsTo _ via _ = StepsTo (n-trans M' N) via ξ-trans₁ M=⇒M'
+entProgress (n-·≲L N) with entProgress N 
+... | Done (n-· i₁ i₂ i₃) = StepsTo n-≲ i₁ via δ-·≲L i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-·≲L N' via ξ-·≲L N=⇒N'
+entProgress (n-·≲R N) with entProgress N 
+... | Done (n-· i₁ i₂ i₃) = StepsTo n-≲ i₂ via δ-·≲R i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-·≲R N' via ξ-·≲R N=⇒N'
 entProgress n@n-ε≲ with norm-≲ n
 ... | xs , _ , ys , _ , refl , refl = StepsTo n-≲ (λ { x () }) via {!!}
 entProgress n@n-ε-R with norm-· n
 ... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
   StepsTo (n-· (λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
-entProgress n-ε-L = {!!}
--- rewrite (stability-map F xs)
+entProgress n@n-ε-L with norm-· n 
+... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = StepsTo n-· (λ { x () }) (λ x i → i) (λ x i → (right i)) via {!!}
 entProgress n@(n-≲lift {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
 ... | StepsTo N' via N=⇒N' = StepsTo n-≲lift {F = F} N' eq₁ eq₂ via ξ-≲lift N N' eq₁ eq₂ N=⇒N'
 entProgress (n-≲lift {F = F} N {_} {_} refl refl) | Done (n-≲ {xs = xs} {ys = ys} i) = StepsTo n-≲ (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
-entProgress (n-·lift N x₁ x₂ x₃) = {!!}
+entProgress (n-·lift N eq₁ eq₂ eq₃) with entProgress N
+... | StepsTo N' via N=⇒N' = StepsTo n-·lift N' eq₁ eq₂ eq₃ via {!via ξ-·lift N N' !}
 entProgress (n-·complᵣ N) with norm-≲ N 
 entProgress (n-·complᵣ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
-entProgress (n-·complᵣ' N) = {!!}
+entProgress (n-·complᵣ' N) with entProgress N 
+... | Done (n-≲ i) = StepsTo n-· i {!!} {!!} via {!!}
+... | StepsTo N' via N=⇒N' = {!!}
 entProgress (n-·complₗ N) with norm-≲ N 
 entProgress (n-·complₗ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
 entProgress (n-·complₗ' N) = {!!}
@@ -100,9 +108,9 @@ progress (In F M) with progress M
 ... | Done V = Done (V-In F V)
 ... | StepsTo M' via M→M' = StepsTo (In F M') via (ξ-In M→M')
 progress (Out F M) with progress M 
-... | Done (V-In .F {M'} V) = StepsTo M' via β-In
+... | Done (V-In .F {M'} V) = StepsTo M' via δ-In
 ... | StepsTo M' via M→M' = StepsTo (Out F M') via (ξ-Out M→M')
-progress (fix M) = StepsTo M · (fix M) via (β-fix M)
+progress (fix M) = StepsTo M · (fix M) via (δ-fix M)
 progress (`ƛ M) = Done (V-ƛ M)
 progress (M ·⟨ n ⟩) with progress M
 ... | Done (V-ƛ M') = StepsTo (M' βπ[ n ]) via β-ƛ
@@ -110,16 +118,19 @@ progress (M ·⟨ n ⟩) with progress M
 progress (# ℓ) = Done V-#
 progress (_Π▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Π▹ N) with progress M 
-... | Done (V-# {l = lab l}) = StepsTo ⟨ l ▹ N ⨾ ∅ ⟩ via β-Π▹ N
+... | Done (V-# {l = lab l}) = StepsTo ⟨ l ▹ N ⨾ ∅ ⟩ via δ-Π▹ N
 ... | StepsTo M' via M→M' = StepsTo (M' Π▹ N) via ξ-Π▹₁ N M M' M→M'
 progress (_Π/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Π/ ℓ) with progress M 
-... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via β-Π/ M' ℓ 
+... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via δ-Π/ M' ℓ 
 ... | StepsTo M' via M→M' = StepsTo M' Π/ ℓ via ξ-Π/₁ M M' ℓ M→M'
-progress (prj M n) with progress M | norm-≲ n
-... | StepsTo M' via M→M' | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
-... | Done (V-Π r rV) | xs , oxs , ys , oys , refl , refl with ≲-inv n 
-... | i = StepsTo ⟨ project r i ⟩ via {!β-prj r i!}
+progress (prj M n) with progress M | entProgress n | norm-≲ n
+... | StepsTo M' via M→M' | _ | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
+... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via {!!}
+progress (prj M n) | Done (V-Π r rV) | Done (n-≲ {xs = xs} {oxs = oxs} {oys} i) | _ = StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
+
+--  xs , oxs , ys , oys , refl , refl with ≲-inv n 
+-- ... | i = StepsTo ⟨ project r i ⟩ via {!δ-prj r i!}
 
 progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁ 
 -- ... | xs , _ , ys , _ , zs , _ , refl , refl , refl with progress M₁ | progress M₂ 
@@ -129,7 +140,7 @@ progress (syn ρ φ M) = {!!}
 progress (ana ρ φ τ M) = {!!}
 progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
-... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via β-Σ▹ N
+... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N
 ... | StepsTo M' via M→M' = StepsTo (M' Σ▹ N) via ξ-Σ▹₁ N M M' M→M'
 progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ/ ℓ) = {!!}
@@ -146,11 +157,11 @@ progress (⟨ l ▹ M ⟩via i) with progress M
 -- progress (In F M) = {!!}
 
 -- progress (Out F M) with progress M 
--- progress (Out F M) | Done (V-In .F {N} VM) = Steps N β-In
--- progress (Out F M) | Done (V-fix N) = Steps (Out F (N · (fix N))) (ξ-Out (β-fix N)) 
+-- progress (Out F M) | Done (V-In .F {N} VM) = Steps N δ-In
+-- progress (Out F M) | Done (V-fix N) = Steps (Out F (N · (fix N))) (ξ-Out (δ-fix N)) 
 -- progress (Out F M) | Steps M' step = Steps (Out F M') (ξ-Out step)
 
--- progress (fix M) = Steps (M · fix M) (β-fix M)
+-- progress (fix M) = Steps (M · fix M) (δ-fix M)
 
 -- progress (`ƛ M) = Done (V-ƛ M)
 
