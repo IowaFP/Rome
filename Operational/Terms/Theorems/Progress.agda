@@ -48,16 +48,16 @@ entProgress (n-plus i₁ i₂ i₃) = Done (n-plus i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
 ... | xs , oxs , ys , oys , refl , refl = StepsTo n-incl (λ x i → i) via δ-refl xs oxs
 entProgress (_n-⨾_ M N) with entProgress M | entProgress N
-... | Done (n-incl i₁) | Done (n-incl i₂) = StepsTo n-incl (⊆-trans i₁ i₂) via δ-trans i₁ i₂
-... | Done V | StepsTo N' via N=⇒N' = StepsTo (_n-⨾_ M N') via ξ-trans₂ N=⇒N' 
-... | StepsTo M' via M=⇒M' | Done _ = StepsTo (_n-⨾_ M' N) via ξ-trans₁ M=⇒M'
-... | StepsTo M' via M=⇒M' | StepsTo _ via _ = StepsTo (_n-⨾_ M' N) via ξ-trans₁ M=⇒M'
+... | Done (n-incl i₁) | Done (n-incl i₂) = StepsTo n-incl (⊆-trans i₁ i₂) via δ-⨾ i₁ i₂
+... | Done V | StepsTo N' via N=⇒N' = StepsTo (_n-⨾_ M N') via ξ-⨾₂ N=⇒N' 
+... | StepsTo M' via M=⇒M' | Done _ = StepsTo (_n-⨾_ M' N) via ξ-⨾₁ M=⇒M'
+... | StepsTo M' via M=⇒M' | StepsTo _ via _ = StepsTo (_n-⨾_ M' N) via ξ-⨾₁ M=⇒M'
 entProgress (n-plusL≲ N) with entProgress N 
-... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₁ via δ-·≲L i₁ i₂ i₃
-... | StepsTo N' via N=⇒N' = StepsTo n-plusL≲ N' via ξ-·≲L N=⇒N'
+... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₁ via δ-plusL≲ i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-plusL≲ N' via ξ-plusL≲ N=⇒N'
 entProgress (n-plusR≲ N) with entProgress N 
-... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-·≲R i₁ i₂ i₃
-... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-·≲R N=⇒N'
+... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-plusR≲ i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-plusR≲ N=⇒N'
 entProgress n@n-empty≲ with norm-≲ n
 ... | xs , _ , ys , _ , refl , refl = StepsTo n-incl (λ { x () }) via {!!}
 entProgress n@n-emptyR with norm-· n
@@ -66,7 +66,7 @@ entProgress n@n-emptyR with norm-· n
 entProgress n@n-emptyL with norm-· n 
 ... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = StepsTo n-plus(λ { x () }) (λ x i → i) (λ x i → (right i)) via {!!}
 entProgress n@(n-map≲ {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
-... | StepsTo N' via N=⇒N' = StepsTo n-map≲ {F = F} N' eq₁ eq₂ via ξ-≲lift N N' eq₁ eq₂ N=⇒N'
+... | StepsTo N' via N=⇒N' = StepsTo n-map≲ {F = F} N' eq₁ eq₂ via ξ-map≲ N N' eq₁ eq₂ N=⇒N'
 entProgress (n-map≲ {F = F} N {_} {_} refl refl) | Done (n-incl {xs = xs} {ys = ys} i) = StepsTo n-incl (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
 entProgress (n-map· N eq₁ eq₂ eq₃) with entProgress N
 ... | StepsTo N' via N=⇒N' = StepsTo n-map· N' eq₁ eq₂ eq₃ via {!via ξ-·lift N N' !}

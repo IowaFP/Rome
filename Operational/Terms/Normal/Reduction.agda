@@ -64,7 +64,7 @@ project {xs = (l , τ) ∷ xs} {ys} {oxs} {oys} rys i with get rys (i (l , τ) (
 infixr 0 _=⇒_
 data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt Γ π → Set where
   
-  ξ-trans₁ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+  ξ-⨾₁ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
                {M M' : NormalEnt Γ (ρ₁ ≲ ρ₂)}
                {N : NormalEnt Γ (ρ₂ ≲ ρ₃)} → 
 
@@ -72,7 +72,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
              ------------
               (_n-⨾_ M N) =⇒ (_n-⨾_ M' N)
 
-  ξ-trans₂ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+  ξ-⨾₂ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
                {M : NormalEnt Γ (ρ₁ ≲ ρ₂)}
                {N N' : NormalEnt Γ (ρ₂ ≲ ρ₃)} → 
 
@@ -80,14 +80,14 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
              ------------
               (_n-⨾_ M N) =⇒ (_n-⨾_ M N')
 
-  ξ-·≲L : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+  ξ-plusL≲ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
             {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
             -----------
             n-plusL≲ M =⇒ n-plusL≲ M'
 
-  ξ-·≲R : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+  ξ-plusR≲ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
             {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
@@ -96,7 +96,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
         
 
 
-  ξ-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
+  ξ-map≲ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              (N N' : NormalEnt Γ (ρ₁ ≲ ρ₂)) →
@@ -116,7 +116,9 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
          ----------------------------------------------------------
          _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-incl (λ _ i → i))
 
-  δ-trans : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
+  -- δ-empty≲ : 
+
+  δ-⨾ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
               {oxs : True (normalOrdered? xs)} 
               {oys : True (normalOrdered? ys)} 
               {ozs : True (normalOrdered? zs)} →
@@ -124,7 +126,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
               -----------------------------------------------------------------------------
               _n-⨾_ (n-incl {Γ = Γ} {oxs = oxs} {oys = oys} i₁) (n-incl {oys = ozs} i₂) =⇒ n-incl (⊆-trans i₁ i₂)
 
-  δ-·≲L : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
+  δ-plusL≲ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
             {oxs : True (normalOrdered? xs)} 
             {oys : True (normalOrdered? ys)} 
             {ozs : True (normalOrdered? zs)} →
@@ -134,7 +136,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
             -------------------------------
             n-plusL≲ (n-plus {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-incl i₁
 
-  δ-·≲R : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
+  δ-plusR≲ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
             {oxs : True (normalOrdered? xs)} 
             {oys : True (normalOrdered? ys)} 
             {ozs : True (normalOrdered? zs)} →
