@@ -87,7 +87,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
         -----------
         NormalEnt Γ π 
 
-  n-≲ :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+  n-incl :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
            {oys : True (normalOrdered? ys)} → 
 
@@ -95,7 +95,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
           --------------------------------------------
           NormalEnt Γ ((⦅ xs  ⦆ oxs) ≲ (⦅ ys ⦆ oys))
 
-  n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
+  n-plus : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
            {oys : True (normalOrdered? ys)} 
            {ozs : True (normalOrdered? zs)} → 
@@ -108,37 +108,37 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
           --------------
           NormalEnt Γ (ρ₁ ≲ ρ₁)
 
-  n-trans : 
+  _n-⨾_ : 
           NormalEnt Γ (ρ₁ ≲ ρ₂) → NormalEnt Γ (ρ₂ ≲ ρ₃) →
           ---------------------------------------
           NormalEnt Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲L : 
+  n-plusL≲ : 
         NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         NormalEnt Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲R : 
+  n-plusR≲ : 
         NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         NormalEnt Γ (ρ₂ ≲ ρ₃)
 
-  n-ε≲ : 
+  n-empty≲ : 
 
          -------------------
          NormalEnt Γ (εNF ≲ ρ)
 
-  n-ε-R : 
+  n-emptyR : 
              
         -------------------------
         NormalEnt Γ (ρ · εNF ~ ρ)
 
-  n-ε-L : 
+  n-emptyL : 
 
         -------------------------
         NormalEnt Γ (εNF · ρ ~ ρ)  
 
-  n-≲lift : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
+  n-map≲ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
              NormalEnt Γ (ρ₁ ≲ ρ₂) →
@@ -149,7 +149,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              NormalEnt Γ (x ≲ y)
 
 
-  n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+  n-map· : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
                
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
@@ -161,13 +161,13 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ---------------------------------
              NormalEnt Γ (x · y ~ z)
 
-  n-·complᵣ : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+  n-complR-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     
              NormalEnt Γ (ρ₁ ≲ ρ₂) → 
              ----------------------
              NormalEnt Γ (ρ₁ · ((ρ₂ ─ ρ₁) {nsr}) ~ ρ₂)
 
-  n-·complᵣ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+  n-complR :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
                   {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
@@ -176,13 +176,13 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ----------------------
              NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
 
-  n-·complₗ : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+  n-complL-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     
              NormalEnt Γ (ρ₁ ≲ ρ₂) → 
              ----------------------
              NormalEnt Γ (((ρ₂ ─ ρ₁) {nsr}) · ρ₁ ~ ρ₂)
 
-  n-·complₗ' :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+  n-complL :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
                   {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
@@ -193,15 +193,15 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
 
 data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
 
-  n-≲ :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
+  n-incl :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
            {oys : True (normalOrdered? ys)} → 
 
           (i : xs ⊆ ys) → 
           -----------------------
-          EntValue Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-≲ i)
+          EntValue Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-incl i)
 
-  n-· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
+  n-plus : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
            {oys : True (normalOrdered? ys)} 
            {ozs : True (normalOrdered? zs)} → 
@@ -210,7 +210,7 @@ data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalE
           (i₃ : zs ⊆[ xs ⊹ ys ])  → 
           --------------------------------------------------------------------
 
-          EntValue Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-· i₁ i₂ i₃)
+          EntValue Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-plus i₁ i₂ i₃)
           
           
 
@@ -518,7 +518,7 @@ conv-≡t eq = conv (completeness eq)
 
 -- -- Unit term
 -- uu : NormalTerm Γ UnitNF
--- uu = prj (# ll Π▹ (# ll)) (n-≲ λ { x () }) -- (♯l Π▹ ♯l) (n-≲ λ { x () })
+-- uu = prj (# ll Π▹ (# ll)) (n-incl λ { x () }) -- (♯l Π▹ ♯l) (n-incl λ { x () })
 
 -- -- shit : NormalTerm Γ UnitNF 
 -- -- shit = (♯l Π▹ uu) Π/ ♯l

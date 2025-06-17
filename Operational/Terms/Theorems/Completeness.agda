@@ -93,25 +93,25 @@ open import Rome.Operational.Containment
 ⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → NormalEnt (⇓Ctx Γ) (⇓Pred π)
 
 ⇓Ent (n-var x) = n-var (⇓PVar x)
-⇓Ent (n-≲ i) = n-≲ (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i)
-⇓Ent (n-· i₁ i₂ i₃) = n-· 
+⇓Ent (n-incl i) = n-incl (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i)
+⇓Ent (n-plus i₁ i₂ i₃) = n-plus
   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i₁) 
   (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i₂) 
   (⊆-cong-or ⇓ ⇓Row (⇓Row-isMap idEnv) i₃)
 ⇓Ent n-refl = n-refl
-⇓Ent (n-trans n₁ n₂) = n-trans (⇓Ent n₁) (⇓Ent n₂)
-⇓Ent (n-·≲L n) = n-·≲L (⇓Ent n)
-⇓Ent (n-·≲R n) = n-·≲R (⇓Ent n)
-⇓Ent n-ε-R = n-ε-R
-⇓Ent n-ε-L = n-ε-L
-⇓Ent (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} n) = 
-  n-≲lift 
+⇓Ent (_n-⨾_ n₁ n₂) = _n-⨾_ (⇓Ent n₁) (⇓Ent n₂)
+⇓Ent (n-plusL≲ n) = n-plusL≲ (⇓Ent n)
+⇓Ent (n-plusR≲ n) = n-plusR≲ (⇓Ent n)
+⇓Ent n-emptyR = n-emptyR
+⇓Ent n-emptyL = n-emptyL
+⇓Ent (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F} n) = 
+  n-map≲ 
     {F = ⇓ F} 
     (⇓Ent n) 
     (↻-<$>-⇓ F ρ₁) 
     (↻-<$>-⇓ F ρ₂)
-⇓Ent (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} n) = 
-  n-·lift 
+⇓Ent (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} n) = 
+  n-map· 
     {F = ⇓ F} 
     (⇓Ent n) 
     (↻-<$>-⇓ F ρ₁) 

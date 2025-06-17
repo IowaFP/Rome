@@ -43,41 +43,41 @@ data EntProgress {π : NormalPred Δ R[ κ ]} (M : NormalEnt Γ π) : Set where
           EntProgress M
 
 entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntProgress N
-entProgress (n-≲ i₁) = Done (n-≲ i₁)
-entProgress (n-· i₁ i₂ i₃) = Done (n-· i₁ i₂ i₃)
+entProgress (n-incl i₁) = Done (n-incl i₁)
+entProgress (n-plus i₁ i₂ i₃) = Done (n-plus i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
-... | xs , oxs , ys , oys , refl , refl = StepsTo n-≲ (λ x i → i) via δ-refl xs oxs
-entProgress (n-trans M N) with entProgress M | entProgress N
-... | Done (n-≲ i₁) | Done (n-≲ i₂) = StepsTo n-≲ (⊆-trans i₁ i₂) via δ-trans i₁ i₂
-... | Done V | StepsTo N' via N=⇒N' = StepsTo (n-trans M N') via ξ-trans₂ N=⇒N' 
-... | StepsTo M' via M=⇒M' | Done _ = StepsTo (n-trans M' N) via ξ-trans₁ M=⇒M'
-... | StepsTo M' via M=⇒M' | StepsTo _ via _ = StepsTo (n-trans M' N) via ξ-trans₁ M=⇒M'
-entProgress (n-·≲L N) with entProgress N 
-... | Done (n-· i₁ i₂ i₃) = StepsTo n-≲ i₁ via δ-·≲L i₁ i₂ i₃
-... | StepsTo N' via N=⇒N' = StepsTo n-·≲L N' via ξ-·≲L N=⇒N'
-entProgress (n-·≲R N) with entProgress N 
-... | Done (n-· i₁ i₂ i₃) = StepsTo n-≲ i₂ via δ-·≲R i₁ i₂ i₃
-... | StepsTo N' via N=⇒N' = StepsTo n-·≲R N' via ξ-·≲R N=⇒N'
-entProgress n@n-ε≲ with norm-≲ n
-... | xs , _ , ys , _ , refl , refl = StepsTo n-≲ (λ { x () }) via {!!}
-entProgress n@n-ε-R with norm-· n
+... | xs , oxs , ys , oys , refl , refl = StepsTo n-incl (λ x i → i) via δ-refl xs oxs
+entProgress (_n-⨾_ M N) with entProgress M | entProgress N
+... | Done (n-incl i₁) | Done (n-incl i₂) = StepsTo n-incl (⊆-trans i₁ i₂) via δ-trans i₁ i₂
+... | Done V | StepsTo N' via N=⇒N' = StepsTo (_n-⨾_ M N') via ξ-trans₂ N=⇒N' 
+... | StepsTo M' via M=⇒M' | Done _ = StepsTo (_n-⨾_ M' N) via ξ-trans₁ M=⇒M'
+... | StepsTo M' via M=⇒M' | StepsTo _ via _ = StepsTo (_n-⨾_ M' N) via ξ-trans₁ M=⇒M'
+entProgress (n-plusL≲ N) with entProgress N 
+... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₁ via δ-·≲L i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-plusL≲ N' via ξ-·≲L N=⇒N'
+entProgress (n-plusR≲ N) with entProgress N 
+... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-·≲R i₁ i₂ i₃
+... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-·≲R N=⇒N'
+entProgress n@n-empty≲ with norm-≲ n
+... | xs , _ , ys , _ , refl , refl = StepsTo n-incl (λ { x () }) via {!!}
+entProgress n@n-emptyR with norm-· n
 ... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
-  StepsTo (n-· (λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
-entProgress n@n-ε-L with norm-· n 
-... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = StepsTo n-· (λ { x () }) (λ x i → i) (λ x i → (right i)) via {!!}
-entProgress n@(n-≲lift {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
-... | StepsTo N' via N=⇒N' = StepsTo n-≲lift {F = F} N' eq₁ eq₂ via ξ-≲lift N N' eq₁ eq₂ N=⇒N'
-entProgress (n-≲lift {F = F} N {_} {_} refl refl) | Done (n-≲ {xs = xs} {ys = ys} i) = StepsTo n-≲ (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
-entProgress (n-·lift N eq₁ eq₂ eq₃) with entProgress N
-... | StepsTo N' via N=⇒N' = StepsTo n-·lift N' eq₁ eq₂ eq₃ via {!via ξ-·lift N N' !}
-entProgress (n-·complᵣ N) with norm-≲ N 
-entProgress (n-·complᵣ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
-entProgress (n-·complᵣ' N) with entProgress N 
-... | Done (n-≲ i) = StepsTo n-· i {!!} {!!} via {!!}
+  StepsTo (n-plus(λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
+entProgress n@n-emptyL with norm-· n 
+... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = StepsTo n-plus(λ { x () }) (λ x i → i) (λ x i → (right i)) via {!!}
+entProgress n@(n-map≲ {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
+... | StepsTo N' via N=⇒N' = StepsTo n-map≲ {F = F} N' eq₁ eq₂ via ξ-≲lift N N' eq₁ eq₂ N=⇒N'
+entProgress (n-map≲ {F = F} N {_} {_} refl refl) | Done (n-incl {xs = xs} {ys = ys} i) = StepsTo n-incl (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
+entProgress (n-map· N eq₁ eq₂ eq₃) with entProgress N
+... | StepsTo N' via N=⇒N' = StepsTo n-map· N' eq₁ eq₂ eq₃ via {!via ξ-·lift N N' !}
+entProgress (n-complR-inert N) with norm-≲ N 
+entProgress (n-complR-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
+entProgress (n-complR N) with entProgress N 
+... | Done (n-incl i) = StepsTo n-plus i {!!} {!!} via {!!}
 ... | StepsTo N' via N=⇒N' = {!!}
-entProgress (n-·complₗ N) with norm-≲ N 
-entProgress (n-·complₗ {nsr = ()} N) | xs , _ , ys , _ , refl , refl
-entProgress (n-·complₗ' N) = {!!}
+entProgress (n-complL-inert N) with norm-≲ N 
+entProgress (n-complL-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
+entProgress (n-complL N) = {!!}
 
 --------------------------------------------------------------------------------
 -- Proof of progress (Terms)
@@ -127,7 +127,7 @@ progress (M Π/ ℓ) with progress M
 progress (prj M n) with progress M | entProgress n | norm-≲ n
 ... | StepsTo M' via M→M' | _ | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
 ... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via {!!}
-progress (prj M n) | Done (V-Π r rV) | Done (n-≲ {xs = xs} {oxs = oxs} {oys} i) | _ = StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
+progress (prj M n) | Done (V-Π r rV) | Done (n-incl {xs = xs} {oxs = oxs} {oys} i) | _ = StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
 
 --  xs , oxs , ys , oys , refl , refl with ≲-inv n 
 -- ... | i = StepsTo ⟨ project r i ⟩ via {!δ-prj r i!}
@@ -210,7 +210,7 @@ progress (⟨ l ▹ M ⟩via i) with progress M
 -- _ : eval (prj (♯l Π▹ ♯l) n-refl) ≡ ((♯l Π▹ ♯l))
 -- _ = refl
 
--- _ : eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-·≲L (n-var Z)))) ≡ {! eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-·≲L (n-var Z))))  !}
+-- _ : eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-plusL≲ (n-var Z)))) ≡ {! eval (`ƛ (prj (((♯l Π▹ uu) ⊹ (♯l Π▹ uu)) (n-var Z)) (n-plusL≲ (n-var Z))))  !}
 -- _ = {!   !} 
    
 -- _ : eval (((((Λ (Λ (`ƛ (`λ (prj {ρ₂ = ne ((` Z))} {ne (` (S Z))}  (` Z) (n-var (T Z))))))) ·[ lab "l" ▹ UnitNF ]) ·[ lab "l" ▹ UnitNF ]) ·⟨ n-refl ⟩) · (♯l Π▹ uu))   ≡ ((♯l Π▹ uu)) 

@@ -70,7 +70,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
 
              M =⇒ M' →
              ------------
-              (n-trans M N) =⇒ (n-trans M' N)
+              (_n-⨾_ M N) =⇒ (_n-⨾_ M' N)
 
   ξ-trans₂ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
                {M : NormalEnt Γ (ρ₁ ≲ ρ₂)}
@@ -78,21 +78,21 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
 
              N =⇒ N' →
              ------------
-              (n-trans M N) =⇒ (n-trans M N')
+              (_n-⨾_ M N) =⇒ (_n-⨾_ M N')
 
   ξ-·≲L : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
             {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
             -----------
-            n-·≲L M =⇒ n-·≲L M'
+            n-plusL≲ M =⇒ n-plusL≲ M'
 
   ξ-·≲R : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
             {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
             -----------
-            n-·≲R M =⇒ n-·≲R M'
+            n-plusR≲ M =⇒ n-plusR≲ M'
         
 
 
@@ -106,7 +106,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
              
             N =⇒ N' → 
             ------------------------------------------
-             n-≲lift {F = F} N eq₁ eq₂ =⇒ n-≲lift {F = F} N' eq₁ eq₂
+             n-map≲ {F = F} N eq₁ eq₂ =⇒ n-map≲ {F = F} N' eq₁ eq₂
      
   ------------------------------------------------------------
   -- Computational rules
@@ -114,7 +114,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
   δ-refl : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) (oxs : True (normalOrdered? xs)) → 
 
          ----------------------------------------------------------
-         _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-≲ (λ _ i → i))
+         _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-incl (λ _ i → i))
 
   δ-trans : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
               {oxs : True (normalOrdered? xs)} 
@@ -122,7 +122,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
               {ozs : True (normalOrdered? zs)} →
               (i₁ : xs ⊆ ys) → (i₂ : ys ⊆ zs) → 
               -----------------------------------------------------------------------------
-              n-trans (n-≲ {Γ = Γ} {oxs = oxs} {oys = oys} i₁) (n-≲ {oys = ozs} i₂) =⇒ n-≲ (⊆-trans i₁ i₂)
+              _n-⨾_ (n-incl {Γ = Γ} {oxs = oxs} {oys = oys} i₁) (n-incl {oys = ozs} i₂) =⇒ n-incl (⊆-trans i₁ i₂)
 
   δ-·≲L : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
             {oxs : True (normalOrdered? xs)} 
@@ -132,7 +132,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
             (i₃ : zs ⊆[ xs ⊹ ys ]) → 
 
             -------------------------------
-            n-·≲L (n-· {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-≲ i₁
+            n-plusL≲ (n-plus {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-incl i₁
 
   δ-·≲R : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
             {oxs : True (normalOrdered? xs)} 
@@ -142,7 +142,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
             (i₃ : zs ⊆[ xs ⊹ ys ]) → 
 
             -------------------------------
-            n-·≲R (n-· {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-≲ i₂
+            n-plusR≲ (n-plus {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-incl i₂
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -331,7 +331,7 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
             (rys : Record Γ ys) → 
             (i : xs ⊆ ys) → 
             ---------------------------
-            (prj (⟨_⟩ {oxs = oys} rys) (n-≲ {oxs = oxs} i) ) —→ ⟨ project {oxs = oxs} {oys = oys} rys i ⟩ 
+            (prj (⟨_⟩ {oxs = oys} rys) (n-incl {oxs = oxs} i) ) —→ ⟨ project {oxs = oxs} {oys = oys} rys i ⟩ 
 
 
   -- β-⊹ : 

@@ -180,41 +180,41 @@ renRecord {ρ = r} R ∅ = ∅
 renRecord {ρ = r} R (_▹_⨾_ l M xs) = _▹_⨾_ l (ren R M) (renRecord R xs)
 
 renEnt {ρ = ρ} {π} (r , p) (n-var x) = n-var (p x)
-renEnt {ρ = φ} {π} R (n-≲ {xs = xs} {ys} i) = n-≲ (⊆-cong _ _ (renRowₖNF-isMap φ) i )
-renEnt {ρ = φ} {π} R (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) = 
-  n-· 
+renEnt {ρ = φ} {π} R (n-incl {xs = xs} {ys} i) = n-incl (⊆-cong _ _ (renRowₖNF-isMap φ) i )
+renEnt {ρ = φ} {π} R (n-plus {xs = xs} {ys} {zs} i₁ i₂ i₃) = 
+  n-plus 
     (⊆-cong _ _ (renRowₖNF-isMap φ) i₁) 
     (⊆-cong _ _ (renRowₖNF-isMap φ) i₂)
     (⊆-cong-or _ _ (renRowₖNF-isMap φ) i₃)
 renEnt R n-refl = n-refl
-renEnt R (n-trans e₁ e₂) = n-trans (renEnt R e₁) (renEnt R e₂)
-renEnt R (n-·≲L e) = n-·≲L (renEnt R e)
-renEnt R (n-·≲R e) = n-·≲R (renEnt R e)
-renEnt R n-ε-R = n-ε-R
-renEnt R n-ε-L = n-ε-L
-renEnt R n-ε≲ = n-ε≲
-renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
+renEnt R (_n-⨾_ e₁ e₂) = _n-⨾_ (renEnt R e₁) (renEnt R e₂)
+renEnt R (n-plusL≲ e) = n-plusL≲ (renEnt R e)
+renEnt R (n-plusR≲ e) = n-plusR≲ (renEnt R e)
+renEnt R n-emptyR = n-emptyR
+renEnt R n-emptyL = n-emptyL
+renEnt R n-empty≲ = n-empty≲
+renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
   rewrite 
     eq-ρ₁ 
   | eq-ρ₂
-  = n-≲lift 
+  = n-map≲ 
     {F = renₖNF ρ F} 
     (renEnt R e) 
     (sym (↻-ren-⇓-<$> ρ F ρ₁))
     (sym (↻-ren-⇓-<$> ρ F ρ₂))
-renEnt {ρ = ρ} R (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ₂ eq-ρ₃)
+renEnt {ρ = ρ} R (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ₂ eq-ρ₃)
   rewrite 
     eq-ρ₁ 
   | eq-ρ₂
   | eq-ρ₃
-  = n-·lift 
+  = n-map· 
     {F = renₖNF ρ F} 
     (renEnt R e) 
     (sym (↻-ren-⇓-<$> ρ F ρ₁))
     (sym (↻-ren-⇓-<$> ρ F ρ₂)) 
     (sym (↻-ren-⇓-<$> ρ F ρ₃)) 
-renEnt {ρ = ρ} R (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complᵣ (renEnt R e)
-renEnt {ρ = r} R (n-·complᵣ' {xs = xs} {ys} {ozs = ozs} e) = 
+renEnt {ρ = ρ} R (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complR-inert (renEnt R e)
+renEnt {ρ = r} R (n-complR {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
           (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
@@ -230,10 +230,10 @@ renEnt {ρ = r} R (n-·complᵣ' {xs = xs} {ys} {ozs = ozs} e) =
             (fromWitness (orderedRenRowₖNF r _ (toWitness ozs)))}
         pf) 
       refl) 
-    (n-·complᵣ' (renEnt R e))
--- renEnt R (n─·complᵣ′ e) = ? -- n-·complᵣ' (renEnt R e)
-renEnt {ρ = ρ} R (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-·complₗ (renEnt R e)
-renEnt {ρ = r} R (n-·complₗ' {xs = xs} {ys} {ozs = ozs} e) = 
+    (n-complR (renEnt R e))
+-- renEnt R (n─·complᵣ′ e) = ? -- n-complR (renEnt R e)
+renEnt {ρ = ρ} R (n-complL-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complL-inert (renEnt R e)
+renEnt {ρ = r} R (n-complL {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
           (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
@@ -249,7 +249,7 @@ renEnt {ρ = r} R (n-·complₗ' {xs = xs} {ys} {ozs = ozs} e) =
         pf) 
       refl
       refl) 
-    (n-·complₗ' (renEnt R e))  
+    (n-complL (renEnt R e))  
 
 --------------------------------------------------------------------------------
 -- Weakening is a special case of renaming (but we must convert types)

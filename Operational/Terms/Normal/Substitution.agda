@@ -158,13 +158,13 @@ sub σ s (⟨_▹_⟩via_ {τ} {xs = xs} {oxs} l M i) = ⟨ l ▹ sub σ s M ⟩
 subRecord σ s ∅ = ∅
 subRecord σ s (l ▹ τ ⨾ r) = l ▹ sub σ s τ ⨾ (subRecord σ s r)
 
-subEnt σ s {π} (n-≲ {xs = xs} {ys} i) = 
-  n-≲ 
+subEnt σ s {π} (n-incl {xs = xs} {ys} i) = 
+  n-incl 
     (⊆-cong _ _ (⇓Row-isMap idEnv) 
     (⊆-cong _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
     (⊆-cong _ _ ⇑Row-isMap i)))
-subEnt σ s {π} (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) = 
-    n-· 
+subEnt σ s {π} (n-plus {xs = xs} {ys} {zs} i₁ i₂ i₃) = 
+    n-plus
       (⊆-cong _ _ (⇓Row-isMap idEnv) 
         (⊆-cong _ _ (subRowₖ-isMap (⇑ ∘ σ)) 
         (⊆-cong _ _ ⇑Row-isMap i₁))) 
@@ -176,49 +176,49 @@ subEnt σ s {π} (n-· {xs = xs} {ys} {zs} i₁ i₂ i₃) =
         (⊆-cong-or _ _ ⇑Row-isMap i₃))) 
 subEnt σ (s , p) {π} (n-var x) = p x
 subEnt σ s {π} n-refl = n-refl
-subEnt σ s {π} (n-trans e₁ e₂) = n-trans (subEnt σ s e₁) (subEnt σ s e₂)
-subEnt σ s {π} (n-·≲L e) = (n-·≲L (subEnt σ s e))
-subEnt σ s {π} (n-·≲R e) = (n-·≲R (subEnt σ s e))
-subEnt σ s {π} n-ε≲ = n-ε≲
-subEnt σ s {π} n-ε-R = n-ε-R
-subEnt σ s {π} n-ε-L = n-ε-L
-subEnt σ s {π} (n-≲lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
+subEnt σ s {π} (_n-⨾_ e₁ e₂) = _n-⨾_ (subEnt σ s e₁) (subEnt σ s e₂)
+subEnt σ s {π} (n-plusL≲ e) = (n-plusL≲ (subEnt σ s e))
+subEnt σ s {π} (n-plusR≲ e) = (n-plusR≲ (subEnt σ s e))
+subEnt σ s {π} n-empty≲ = n-empty≲
+subEnt σ s {π} n-emptyR = n-emptyR
+subEnt σ s {π} n-emptyL = n-emptyL
+subEnt σ s {π} (n-map≲ {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
   rewrite
     ρ₁-eq 
   | ρ₂-eq =
-    n-≲lift 
+    n-map≲ 
     {F = subₖNF σ F} 
     (subEnt σ s e) 
     (sym (↻-sub-⇓-<$> σ F ρ₁))
     (sym (↻-sub-⇓-<$> σ F ρ₂))
   
-subEnt σ s {π} (n-·lift {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e  ρ₁-eq ρ₂-eq ρ₃-eq) 
+subEnt σ s {π} (n-map· {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F} e  ρ₁-eq ρ₂-eq ρ₃-eq) 
   rewrite
     ρ₁-eq 
   | ρ₂-eq 
   | ρ₃-eq =
-    n-·lift 
+    n-map· 
     {F = subₖNF σ F} 
     (subEnt σ s e) 
     (sym (↻-sub-⇓-<$> σ F ρ₁))
     (sym (↻-sub-⇓-<$> σ F ρ₂))
     (sym (↻-sub-⇓-<$> σ F ρ₃))
-subEnt σ s (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
-... | ne x₁ | ne x₂ | ih = n-·complᵣ ih
-... | ne x₁ | x₂ ▹ x₃ | ih = n-·complᵣ ih
-... | ne x₁ | row ρ x₂ | ih = n-·complᵣ ih
-... | ne x₁ | r₁ ─ r₂ | ih = n-·complᵣ ih
-... | x₁ ▹ x₂ | ne x₃ | ih = n-·complᵣ ih
-... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-·complᵣ ih
-... | x₁ ▹ x₂ | row ρ x₃ | ih = n-·complᵣ ih
-... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-·complᵣ ih
-... | row ρ x₁ | ne x₂ | ih = n-·complᵣ ih
-... | row ρ oρ | l ▹ τ | ih = n-·complᵣ ih
-... | row ρ x₁ | r₁ ─ r₂ | ih = n-·complᵣ ih
-... | r₂ ─ r₃ | ne x₁ | ih = n-·complᵣ ih
-... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-·complᵣ ih
-... | r₂ ─ r₃ | row ρ x₁ | ih = n-·complᵣ ih
-... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-·complᵣ ih
+subEnt σ s (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
+... | ne x₁ | ne x₂ | ih = n-complR-inert ih
+... | ne x₁ | x₂ ▹ x₃ | ih = n-complR-inert ih
+... | ne x₁ | row ρ x₂ | ih = n-complR-inert ih
+... | ne x₁ | r₁ ─ r₂ | ih = n-complR-inert ih
+... | x₁ ▹ x₂ | ne x₃ | ih = n-complR-inert ih
+... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-complR-inert ih
+... | x₁ ▹ x₂ | row ρ x₃ | ih = n-complR-inert ih
+... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-complR-inert ih
+... | row ρ x₁ | ne x₂ | ih = n-complR-inert ih
+... | row ρ oρ | l ▹ τ | ih = n-complR-inert ih
+... | row ρ x₁ | r₁ ─ r₂ | ih = n-complR-inert ih
+... | r₂ ─ r₃ | ne x₁ | ih = n-complR-inert ih
+... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-complR-inert ih
+... | r₂ ─ r₃ | row ρ x₁ | ih = n-complR-inert ih
+... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-complR-inert ih
 ... | row (n , Ρ) oρ₄ | row (m , Q) oρ₃ | ih = convEnt 
   (cong₃ _·_~_ 
     (cong-⦅⦆ refl) 
@@ -237,23 +237,23 @@ subEnt σ s (n-·complᵣ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (�
           (cong ⇓Row (↻-─s-─v Ρ Q))) 
            (stability (⦅ reifyRow ((n , Ρ) ─v (m , Q)) ⦆ _)))
     (cong-⦅⦆ refl)) 
-  (n-·complᵣ' ih)
-subEnt σ s (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
-... | ne x₁ | ne x₂ | ih = n-·complₗ ih
-... | ne x₁ | x₂ ▹ x₃ | ih = n-·complₗ ih
-... | ne x₁ | row ρ x₂ | ih = n-·complₗ ih
-... | ne x₁ | r₁ ─ r₂ | ih = n-·complₗ ih
-... | x₁ ▹ x₂ | ne x₃ | ih = n-·complₗ ih
-... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-·complₗ ih
-... | x₁ ▹ x₂ | row ρ x₃ | ih = n-·complₗ ih
-... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-·complₗ ih
-... | row ρ x₁ | ne x₂ | ih = n-·complₗ ih
-... | row ρ oρ | l ▹ τ | ih = n-·complₗ ih
-... | row ρ x₁ | r₁ ─ r₂ | ih = n-·complₗ ih
-... | r₂ ─ r₃ | ne x₁ | ih = n-·complₗ ih
-... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-·complₗ ih
-... | r₂ ─ r₃ | row ρ x₁ | ih = n-·complₗ ih
-... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-·complₗ ih
+  (n-complR ih)
+subEnt σ s (n-complL-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
+... | ne x₁ | ne x₂ | ih = n-complL-inert ih
+... | ne x₁ | x₂ ▹ x₃ | ih = n-complL-inert ih
+... | ne x₁ | row ρ x₂ | ih = n-complL-inert ih
+... | ne x₁ | r₁ ─ r₂ | ih = n-complL-inert ih
+... | x₁ ▹ x₂ | ne x₃ | ih = n-complL-inert ih
+... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-complL-inert ih
+... | x₁ ▹ x₂ | row ρ x₃ | ih = n-complL-inert ih
+... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-complL-inert ih
+... | row ρ x₁ | ne x₂ | ih = n-complL-inert ih
+... | row ρ oρ | l ▹ τ | ih = n-complL-inert ih
+... | row ρ x₁ | r₁ ─ r₂ | ih = n-complL-inert ih
+... | r₂ ─ r₃ | ne x₁ | ih = n-complL-inert ih
+... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-complL-inert ih
+... | r₂ ─ r₃ | row ρ x₁ | ih = n-complL-inert ih
+... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-complL-inert ih
 ... | row (n , Ρ) oρ₄ | row (m , Q) oρ₃ | ih = convEnt 
   (cong₃ _·_~_  
     (trans 
@@ -272,8 +272,8 @@ subEnt σ s (n-·complₗ {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (�
            (stability (⦅ reifyRow ((n , Ρ) ─v (m , Q)) ⦆ _)))
     (cong-⦅⦆ refl)
     (cong-⦅⦆ refl)) 
-  (n-·complₗ' ih)
-subEnt σ s (n-·complᵣ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e) 
+  (n-complL ih)
+subEnt σ s (n-complR {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e) 
   with 
     ↻-⇓-subRow σ (⇑Row ys) {fromWitness (Ordered⇑ ys (toWitness oys))} 
   | ↻-⇓-subRow σ (⇑Row xs) {fromWitness (Ordered⇑ xs (toWitness oxs))}
@@ -301,7 +301,7 @@ subEnt σ s (n-·complᵣ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
         (sym (↻-⇓-subRow σ (⇑Row (⇓Row (⇑Row ys ─s ⇑Row xs))) 
           {fromWitness (Ordered⇑ _ (reifyRowOrdered _ (evalRowOrdered (⇑Row ys ─s ⇑Row xs) idEnv (ordered-─s (Ordered⇑ ys (toWitness oys))))))}))))
     (trans (↻-⇓-sub σ (⦅ ⇑Row ys ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ ys ⦆ _))))) 
-  (n-·complᵣ' {ozs = fromWitness ozs'} (subEnt σ s e))
+  (n-complR {ozs = fromWitness ozs'} (subEnt σ s e))
   where
     ozs' = (reifyRowOrdered _ (evalRowOrdered _ idEnv 
          (ordered-─s
@@ -310,7 +310,7 @@ subEnt σ s (n-·complᵣ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
                (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
     
 
-subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e) 
+subEnt σ s (n-complL {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e) 
   with 
     ↻-⇓-subRow σ (⇑Row ys) {fromWitness (Ordered⇑ ys (toWitness oys))} 
   | ↻-⇓-subRow σ (⇑Row xs) {fromWitness (Ordered⇑ xs (toWitness oxs))}
@@ -337,7 +337,7 @@ subEnt σ s (n-·complₗ' {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
         (sym (↻-⇓-subRow σ (⇑Row (⇓Row (⇑Row ys ─s ⇑Row xs))) {fromWitness (Ordered⇑ _ (reifyRowOrdered _ (evalRowOrdered (⇑Row ys ─s ⇑Row xs) idEnv (ordered-─s (Ordered⇑ ys (toWitness oys))))))}))))
     (trans (↻-⇓-sub σ (⦅ ⇑Row xs ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ xs ⦆ _))))        
     (trans (↻-⇓-sub σ (⦅ ⇑Row ys ⦆ _)   ) (cong (subₖNF σ) (stability (⦅ ys ⦆ _))))) 
-  (n-·complₗ' {ozs = fromWitness ozs'} (subEnt σ s e))
+  (n-complL {ozs = fromWitness ozs'} (subEnt σ s e))
   where
     ozs' = (reifyRowOrdered _ (evalRowOrdered _ idEnv 
          (ordered-─s

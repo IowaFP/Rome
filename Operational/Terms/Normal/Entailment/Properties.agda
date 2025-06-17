@@ -30,7 +30,7 @@ open import Rome.Operational.Containment
 ≲-refl : ∀ {ρ₁ : SimpleRow NormalType ∅ R[ κ ]} →            
            {oρ₁ : True (normalOrdered? ρ₁)}  → 
          NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₁ ⦆ oρ₁))
-≲-refl = n-≲ (λ x x∈xs → x∈xs) 
+≲-refl = n-incl (λ x x∈xs → x∈xs) 
 
 --------------------------------------------------------------------------------
 -- Entailments in empty contexts contain only simple rows.
@@ -215,52 +215,52 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- --------------------------------------------------------------------------------
 -- Definitions
 
-≲-inv (n-≲ i) = i
+≲-inv (n-incl i) = i
 ≲-inv n-refl = λ x x∈xs → x∈xs 
-≲-inv (n-trans {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
-≲-inv (n-trans {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
-≲-inv (n-trans {ρ₂ = ρ₂@((ρ ─ ρ') {nsr})} e₁ e₂) = ⊥-elim (noComplements nsr refl)
-≲-inv (n-trans {ρ₂ = l ▹ₙ c} e₁ e₂) = ⊥-elim (noNeutrals l) 
-≲-inv (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
-≲-inv (n-·≲L {ρ₂ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
-≲-inv (n-·≲L {ρ₂ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
-≲-inv (n-·≲L {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
+≲-inv (_n-⨾_ {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
+≲-inv (_n-⨾_ {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
+≲-inv (_n-⨾_ {ρ₂ = ρ₂@((ρ ─ ρ') {nsr})} e₁ e₂) = ⊥-elim (noComplements nsr refl)
+≲-inv (_n-⨾_ {ρ₂ = l ▹ₙ c} e₁ e₂) = ⊥-elim (noNeutrals l) 
+≲-inv (n-plusL≲ {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-plusL≲ {ρ₂ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-plusL≲ {ρ₂ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
+≲-inv (n-plusL≲ {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₁
-≲-inv (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
-≲-inv (n-·≲R {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
+≲-inv (n-plusR≲ {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-plusR≲ {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₂
-≲-inv (n-·≲R {ρ₁ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
-≲-inv (n-·≲R {ρ₁ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
-≲-inv (n-≲lift {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} e refl refl) rewrite 
+≲-inv (n-plusR≲ {ρ₁ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-plusR≲ {ρ₁ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
+≲-inv (n-map≲ {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} e refl refl) rewrite 
   sym (stability-map F xs) | sym (stability-map F ys) = ⊆-map (overᵣ (F ·'_)) (≲-inv e) 
 
-≲-inv (n-≲lift {ρ₁ = ne x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
-≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
-≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₃) {nsr}} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
-≲-inv (n-≲lift {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
-≲-inv (n-≲lift {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
-≲-inv (n-≲lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
+≲-inv (n-map≲ {ρ₁ = ne x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₃) {nsr}} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
+≲-inv (n-map≲ {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
+≲-inv (n-map≲ {ρ₁ = l ▹ₙ ρ₁} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
 
-·-inv (n-· ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
-·-inv n-ε-R = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
-·-inv n-ε-L = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
-·-inv (n-·lift {ρ₁ = ⦅ x₃ ⦆ _} {⦅ x₄ ⦆ _} {⦅ x₅ ⦆ _} {F} e refl refl refl) with ·-inv e
+·-inv (n-plus ρ₁⊆ρ₃ ρ₂⊆ρ₃ ρ₃⊆) = ρ₁⊆ρ₃ , (ρ₂⊆ρ₃ , ρ₃⊆)
+·-inv n-emptyR = ⊆-refl , (λ { x () }) , (λ x x∈ρ₁ → left x∈ρ₁)
+·-inv n-emptyL = (λ { x () }) , ⊆-refl , (λ x x∈ → right x∈)
+·-inv (n-map· {ρ₁ = ⦅ x₃ ⦆ _} {⦅ x₄ ⦆ _} {⦅ x₅ ⦆ _} {F} e refl refl refl) with ·-inv e
 ... | i₁ , i₂ , i₃ rewrite 
     sym (stability-map F x₃) 
   | sym (stability-map F x₄)
   | sym (stability-map F x₅) =  ⊆-map (overᵣ (F ·'_)) i₁ , (⊆-map (overᵣ (F ·'_)) i₂) , ⊆-map-or (overᵣ (F ·'_)) i₃
-·-inv (n-·lift {ρ₁ = ne x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {ne x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {(ρ₃ ─ ρ₄) {nsr}} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl)
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {l ▹ₙ ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₄) {nsr}} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
-·-inv (n-·lift {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
-·-inv (n-·lift {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
-·-inv (n-·lift {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
-·-inv (n-·complᵣ' en) with  ≲-inv en
-·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} {oρ₃ = oρ₃} (n-·complᵣ' en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ {oρ₂ = toWitness oρ₃} ih
-·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} {oρ₃ = oρ₃} (n-·complₗ' en) with ≲-inv en 
+·-inv (n-map· {ρ₁ = ne x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {ne x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {(ρ₃ ─ ρ₄) {nsr}} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {l ▹ₙ ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₄) {nsr}} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-map· {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
+·-inv (n-map· {ρ₁ = l ▹ₙ ρ₁} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
+·-inv (n-complR en) with  ≲-inv en
+·-inv {ρ₁ = ρ₁} {ρ₃ = ρ₃} {oρ₃ = oρ₃} (n-complR en) | ih = ih , ⇓Row-⇑Row-─s-mono ρ₁ ρ₃ , ⇓Row-⇑Row-─s-mono-orᵣ ρ₁ ρ₃ {oρ₂ = toWitness oρ₃} ih
+·-inv {ρ₁ = ρ₁} {ρ₂} {ρ₃} {oρ₃ = oρ₃} (n-complL en) with ≲-inv en 
 ... | ih = ⇓Row-⇑Row-─s-mono _ _ , ih , ⇓Row-⇑Row-─s-mono-orₗ ρ₂ ρ₃ {oρ₂ = toWitness oρ₃} ih
 
 
@@ -270,43 +270,44 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 --  - If a row is contained by the empty row, it is empty (or: ε is the minimal
 --    row when ordered by inclusion).
 
-ε-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
-ε-min :  NormalEnt ∅ (ρ ≲ εNF) → ρ ≡ εNF
+-- ε-sum : NormalEnt ∅ (ρ₁ · ρ₂ ~ εNF) → ρ₁ ≡ εNF × ρ₂ ≡ εNF
+-- ε-min :  NormalEnt ∅ (ρ ≲ εNF) → ρ ≡ εNF
 
 
-ε-sum (n-· {xs = []} {[]} i₁ i₂ i₃) = refl , refl
-ε-sum (n-· {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
-ε-sum (n-· {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
-ε-sum n-ε-R = refl , refl
-ε-sum n-ε-L = refl , refl
-ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {ne x₁} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals x₁)
-ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆ oρ} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
-... | refl , refl = eq₁ , eq₂
-ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {(ρ₃ ─ ρ₄) {nsr}} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noComplements nsr refl) 
-ε-sum (n-·lift {ρ₁ = ρ₁} {ρ₂} {l ▹ₙ ρ₃} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals l)
-ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ n) with ε-min n 
-ε-sum {ρ₁ = ρ₁} {.(εNF ─ ρ₁) {()}} (n-·complᵣ n) | refl
-ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) with ε-min n
-... | refl = refl , refl
-ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complₗ n) with ε-min n 
-ε-sum {_} {.(εNF ─ ρ₂) {()}} {ρ₂} (n-·complₗ n) | refl 
-ε-sum {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) with ε-min n 
-... | refl = refl , refl
+-- ε-sum (n-plus {xs = []} {[]} i₁ i₂ i₃) = refl , refl
+-- ε-sum (n-plus {xs = xs} {y ∷ ys} i₁ i₂ i₃) = ∈-elim (i₂ y (here refl))
+-- ε-sum (n-plus {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
+-- ε-sum n-emptyR = refl , refl
+-- ε-sum n-emptyL = refl , refl
+-- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {ne x₁} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals x₁)
+-- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆ oρ} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
+-- ... | refl , refl = eq₁ , eq₂
+-- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {(ρ₃ ─ ρ₄) {nsr}} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noComplements nsr refl) 
+-- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {l ▹ₙ ρ₃} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals l)
+-- ε-sum {ρ₁ = ρ₁} {ρ₂} (n-complR-inert n) with ε-min n 
+-- ε-sum {ρ₁ = ρ₁} {.(εNF ─ ρ₁) {()}} (n-complR-inert n) | refl
+-- ε-sum {ρ₁ = ρ₁} {ρ₂} (n-complR n) with ε-min n
+-- ... | refl = refl , refl
+-- ε-sum {ρ₁ = ρ₁} {ρ₂} (n-complL-inert n) with ε-min n 
+-- ε-sum {_} {.(εNF ─ ρ₂) {()}} {ρ₂} (n-complL-inert n) | refl 
+-- ε-sum {ρ₁ = ρ₁} {ρ₂} (n-complL n) with ε-min n 
+-- ... | refl = refl , refl
 
-ε-min (n-≲ {xs = []} x₁) = refl
-ε-min (n-≲ {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
-ε-min n-refl = refl
-ε-min n-ε≲ = refl
-ε-min (n-trans n₁ n₂) with ε-min n₂
-... | refl with ε-min n₁
-... | refl = refl
-ε-min (n-·≲L n) = ε-sum n .fst
-ε-min (n-·≲R n) = ε-sum n .snd
-ε-min {ρ = ρ} (n-≲lift {ρ₂ = ne x₃} n x₁ x₂) = ⊥-elim (noNeutrals x₃)
-ε-min {ρ = ρ} (n-≲lift {ρ₂ = ⦅ [] ⦆ oρ} n x₁ x₂) with ε-min n
-... | refl = x₁
-ε-min {ρ = ρ} (n-≲lift {ρ₂ = (ρ₂ ─ ρ₃) {nsr}} n x₁ x₂) = ⊥-elim (noComplements nsr refl)
-ε-min {ρ = ρ} (n-≲lift {ρ₂ = l ▹ₙ ρ₂} n x₁ x₂) = ⊥-elim (noNeutrals l) 
+-- ε-min (n-incl {xs = []} x₁) = refl
+-- ε-min (n-incl {xs = x ∷ xs} i) = ∈-elim (i x (here refl))
+-- ε-min n-refl = refl
+-- ε-min n-empty≲ = refl
+-- ε-min (n-map≲ n x₁ x₂) = {!!}
+-- ε-min (_n-⨾_ n₁ n₂) with ε-min n₂
+-- ... | refl with ε-min n₁
+-- ... | refl = refl
+-- ε-min (n-plusL≲ n) = ε-sum n .fst
+-- ε-min (n-plusR≲ n) = ε-sum n .snd
+-- ε-min {ρ = ρ} (n-map≲ {ρ₂ = ne x₃} n x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- ε-min {ρ = ρ} (n-map≲ {ρ₂ = ⦅ [] ⦆ oρ} n x₁ x₂) with ε-min n
+-- ... | refl = x₁
+-- ε-min {ρ = ρ} (n-map≲ {ρ₂ = (ρ₂ ─ ρ₃) {nsr}} n x₁ x₂) = ⊥-elim (noComplements nsr refl)
+-- ε-min {ρ = ρ} (n-map≲ {ρ₂ = l ▹ₙ ρ₂} n x₁ x₂) = ⊥-elim (noNeutrals l) 
 
 
 -- -- --------------------------------------------------------------------------------
@@ -315,21 +316,21 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- ε-right-unique : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → ρ₁ ≡ ρ₃ → ρ₂ ≡ εNF
 -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n e with norm-· n
 -- ... | xs , _ , [] , _ , zs , _ , refl , refl , refl = refl
--- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-· x₂ x₃ x₄) refl | xs , _ , y ∷ ys , _ , zs , _ , refl , refl , refl = {!!}
--- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
--- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·lift n x₂ x₃ x₄) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
--- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complᵣ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
--- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-·complₗ' n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-plus x₂ x₃ x₄) refl | xs , _ , y ∷ ys , _ , zs , _ , refl , refl , refl = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-emptyL e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-map· n x₂ x₃ x₄) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-complR n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
+-- ε-right-unique {ρ₁ = ρ₁} {ρ₂} (n-complR n) e | xs , _ , x₁ ∷ ys , _ , zs , _ , eq₁ , eq₂ , eq₃ = {!!}
 
--- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-R = refl
--- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-ε-L = refl
--- -- ε-right-unique {ρ₁ = ne x} {_} (n-·lift e _ _ _) = ⊥-elim (noNeutrals x)
--- -- ε-right-unique {ρ₁ = _} {ne x} (n-·lift e _ _ _ ) = ⊥-elim (noNeutrals x)
--- -- ε-right-unique {ρ₁ = ε} {ε} (n-·lift e x x₁ x₂) = refl
--- -- ε-right-unique {ρ₁ = ε} {l ▹ τ} (n-·lift {ρ₁ = ε} {ρ₂ = l' ▹ τ'} {ε} {F = `λ F} e x x₁ x₂) with ε-right-unique e
+-- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-emptyR = refl
+-- -- ε-right-unique {ρ₁ = ρ₁} {ρ₂} n-emptyL = refl
+-- -- ε-right-unique {ρ₁ = ne x} {_} (n-map· e _ _ _) = ⊥-elim (noNeutrals x)
+-- -- ε-right-unique {ρ₁ = _} {ne x} (n-map· e _ _ _ ) = ⊥-elim (noNeutrals x)
+-- -- ε-right-unique {ρ₁ = ε} {ε} (n-map· e x x₁ x₂) = refl
+-- -- ε-right-unique {ρ₁ = ε} {l ▹ τ} (n-map· {ρ₁ = ε} {ρ₂ = l' ▹ τ'} {ε} {F = `λ F} e x x₁ x₂) with ε-right-unique e
 -- -- ... | () 
--- -- ε-right-unique {ρ₁ = ρ₁ ▹ ρ₂} {ε} (n-·lift e x x₁ x₂) = refl
--- -- ε-right-unique {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} (n-·lift {ρ₁ = l₃ ▹ τ₃} {ρ₂ ▹ ρ₃} {l₄ ▹ τ₄} e x x₁ x₂) = ⊥-elim (·-impossible e) 
+-- -- ε-right-unique {ρ₁ = ρ₁ ▹ ρ₂} {ε} (n-map· e x x₁ x₂) = refl
+-- -- ε-right-unique {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} (n-map· {ρ₁ = l₃ ▹ τ₃} {ρ₂ ▹ ρ₃} {l₄ ▹ τ₄} e x x₁ x₂) = ⊥-elim (·-impossible e) 
 
 -- -- --------------------------------------------------------------------------------
 -- -- -- Reflection of combination equality to propositional equality
@@ -337,30 +338,30 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- -- ε-right-identity : NormalEnt ∅ (ρ₁ · ε ~ ρ₂) → ρ₁ ≡ ρ₂
 -- -- ε-left-identity : NormalEnt ∅ (ε · ρ₁ ~ ρ₂) → ρ₁ ≡ ρ₂
 
--- -- ε-right-identity n-ε-R = refl
--- -- ε-right-identity n-ε-L = refl
--- -- ε-right-identity (n-·lift {ρ₁ = ne x₃} {ρ₂ = ε} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
--- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ne x₃} (n-·lift {ρ₁ = ε} {ρ₂ = ε} {ρ₃} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
--- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ε} (n-·lift {ρ₁ = ε} {ρ₂ = ε} {ρ₃} e x x₁ x₂) = refl
--- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ρ₂ ▹ ρ₄} (n-·lift {ρ₁ = ε} {ρ₂ = ε} {ρ₃ ▹ ρ₅} e x x₁ x₂) with ε-right-identity e
+-- -- ε-right-identity n-emptyR = refl
+-- -- ε-right-identity n-emptyL = refl
+-- -- ε-right-identity (n-map· {ρ₁ = ne x₃} {ρ₂ = ε} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ne x₃} (n-map· {ρ₁ = ε} {ρ₂ = ε} {ρ₃} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ε} (n-map· {ρ₁ = ε} {ρ₂ = ε} {ρ₃} e x x₁ x₂) = refl
+-- -- ε-right-identity {ρ₁ = ε} {ρ₂ = ρ₂ ▹ ρ₄} (n-map· {ρ₁ = ε} {ρ₂ = ε} {ρ₃ ▹ ρ₅} e x x₁ x₂) with ε-right-identity e
 -- -- ... | () 
--- -- ε-right-identity {ρ₁ = ρ₁ ▹ ρ₂} {ne x₃} (n-·lift {ρ₁ = l ▹ τ} {ρ₂ = ε} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
--- -- ε-right-identity {ρ₁ = l₁ ▹ τ₁} {ε} (n-·lift {ρ₁ = l ▹ τ} {ρ₂ = ε} e x x₁ x₂) with trans (ε-right-identity e) (ε-<$>' (sym x₂))
+-- -- ε-right-identity {ρ₁ = ρ₁ ▹ ρ₂} {ne x₃} (n-map· {ρ₁ = l ▹ τ} {ρ₂ = ε} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- -- ε-right-identity {ρ₁ = l₁ ▹ τ₁} {ε} (n-map· {ρ₁ = l ▹ τ} {ρ₂ = ε} e x x₁ x₂) with trans (ε-right-identity e) (ε-<$>' (sym x₂))
 -- -- ... | () 
--- -- ε-right-identity {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} (n-·lift {ρ₁ = l₃ ▹ τ₃} {ρ₂ = ε} {l₄ ▹ τ₄} {F} e x x₁ x₂) = 
+-- -- ε-right-identity {ρ₁ = l₁ ▹ τ₁} {l₂ ▹ τ₂} (n-map· {ρ₁ = l₃ ▹ τ₃} {ρ₂ = ε} {l₄ ▹ τ₄} {F} e x x₁ x₂) = 
 -- --   trans x (trans (cong₂ _▹_ (inj-▹ₗ (ε-right-identity e)) (cong (F ·'_) (inj-▹ᵣ (ε-right-identity e)))) (sym x₂))
 
 
--- -- ε-left-identity n-ε-R = refl
--- -- ε-left-identity n-ε-L = refl
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {ne x₃} {_} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {_} {ne x₃} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {ε} {ε} e x x₁ x₂) = trans x₁ (sym x₂)
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {ε} {ρ₃ ▹ ρ₄} e x x₁ x₂) with  ε-left-identity e  
+-- -- ε-left-identity n-emptyR = refl
+-- -- ε-left-identity n-emptyL = refl
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {ne x₃} {_} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {_} {ne x₃} e x x₁ x₂) = ⊥-elim (noNeutrals x₃)
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {ε} {ε} e x x₁ x₂) = trans x₁ (sym x₂)
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {ε} {ρ₃ ▹ ρ₄} e x x₁ x₂) with  ε-left-identity e  
 -- -- ... | () 
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ε} e x x₁ x₂) with ε-left-identity e
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ε} e x x₁ x₂) with ε-left-identity e
 -- -- ... | ()
--- -- ε-left-identity (n-·lift {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ρ₄ ▹ ρ₅} {F} e x x₁ x₂) = 
+-- -- ε-left-identity (n-map· {ρ₁ = ε} {ρ₂ ▹ ρ₃} {ρ₄ ▹ ρ₅} {F} e x x₁ x₂) = 
 -- --   trans 
 -- --     x₁ 
 -- --     (trans 
@@ -376,17 +377,17 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- -- ≲-refl :  ∀ {l₁ l₂ : NormalType ∅ L} {τ₁ τ₂ :  NormalType ∅ κ} → NormalEnt ∅ ((l₁ ▹ τ₁) ≲ (l₂ ▹ τ₂)) → (l₁ ▹ τ₁) ≡ (l₂ ▹ τ₂)
 -- -- ≲-refl (n-var ())
 -- -- ≲-refl n-refl = refl
--- -- ≲-refl (n-trans {ρ₂ = ne x} e e₁) = ⊥-elim (noNeutrals x) 
--- -- ≲-refl (n-trans {ρ₂ = ε} e e₁) with ε-minimum e
+-- -- ≲-refl (_n-⨾_ {ρ₂ = ne x} e e₁) = ⊥-elim (noNeutrals x) 
+-- -- ≲-refl (_n-⨾_ {ρ₂ = ε} e e₁) with ε-minimum e
 -- -- ... | () 
--- -- ≲-refl (n-trans {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl e) (≲-refl e₁)
--- -- ≲-refl (n-·≲L {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
--- -- ≲-refl (n-·≲L {ρ₂ = ε} e) = ε-right-identity e
--- -- ≲-refl (n-·≲L {ρ₂ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e)  
--- -- ≲-refl (n-·≲R {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
--- -- ≲-refl (n-·≲R {ρ₁ = ε} e) = ε-left-identity e
--- -- ≲-refl (n-·≲R {ρ₁ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e) 
--- -- ≲-refl (n-≲lift {ρ₁ = l₃ ▹ τ₃} {l₄ ▹ τ₄} {F} e x x₁) = 
+-- -- ≲-refl (_n-⨾_ {ρ₂ = l₂ ▹ τ₂} e e₁) = trans (≲-refl e) (≲-refl e₁)
+-- -- ≲-refl (n-plusL≲ {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+-- -- ≲-refl (n-plusL≲ {ρ₂ = ε} e) = ε-right-identity e
+-- -- ≲-refl (n-plusL≲ {ρ₂ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e)  
+-- -- ≲-refl (n-plusR≲ {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
+-- -- ≲-refl (n-plusR≲ {ρ₁ = ε} e) = ε-left-identity e
+-- -- ≲-refl (n-plusR≲ {ρ₁ = l₃ ▹ τ₃} e) = ⊥-elim (·-impossible e) 
+-- -- ≲-refl (n-map≲ {ρ₁ = l₃ ▹ τ₃} {l₄ ▹ τ₄} {F} e x x₁) = 
 -- --   trans 
 -- --     x 
 -- --     (trans 
@@ -404,7 +405,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- -- no-meaningful-combinations {ρ₁ = ρ₁} {ρ₂} {ne x} e = ⊥-elim (noNeutrals x)
 -- -- no-meaningful-combinations {ρ₁ = ε} {ρ₂} {ρ₃} e = left refl
 -- -- no-meaningful-combinations {ρ₁ = ρ₁} {ε} {ρ₃} e = right refl
--- -- no-meaningful-combinations {ρ₁ = ρ₁ ▹ ρ₄} {ρ₂ ▹ ρ₅} {ε} e = left (ε-minimum (n-·≲L e))
+-- -- no-meaningful-combinations {ρ₁ = ρ₁ ▹ ρ₄} {ρ₂ ▹ ρ₅} {ε} e = left (ε-minimum (n-plusL≲ e))
 -- -- no-meaningful-combinations {ρ₁ = ρ₁ ▹ ρ₄} {ρ₂ ▹ ρ₅} {ρ₃ ▹ ρ₆} e = ⊥-elim (·-impossible e)
 
 

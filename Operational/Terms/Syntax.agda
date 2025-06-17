@@ -84,7 +84,7 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
         -----------
         Ent Γ π
 
-  n-≲ :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]}
+  n-incl :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]}
            {oxs : True (ordered? xs)}
            {oys : True (ordered? ys)} →
 
@@ -92,7 +92,7 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
           --------------------------------------------
           Ent Γ (⦅ xs  ⦆ oxs ≲ ⦅ ys ⦆ oys)
 
-  n-· : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} →
+  n-plus : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} →
            {oxs : True (ordered? xs)}
            {oys : True (ordered? ys)}
            {ozs : True (ordered? zs)} →
@@ -105,32 +105,32 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
           --------------
           Ent Γ (ρ₁ ≲ ρ₁)
 
-  n-trans :
+  _n-⨾_ :
           Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
           ---------------------------------------
           Ent Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲L :
+  n-plusL≲ :
         Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         Ent Γ (ρ₁ ≲ ρ₃)
 
-  n-·≲R :
+  n-plusR≲ :
         Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
         Ent Γ (ρ₂ ≲ ρ₃)
 
-  n-ε-R :
+  n-emptyR :
 
         -------------------------
         Ent Γ (ρ · ⦅ [] ⦆ tt ~ ρ)
 
-  n-ε-L :
+  n-emptyL :
 
         -------------------------
         Ent Γ (⦅ [] ⦆ tt · ρ ~ ρ)
 
-  n-≲lift : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
+  n-map≲ : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
                {F : Type Δ (κ₁ `→ κ₂)} →
 
              Ent Γ (ρ₁ ≲ ρ₂) →
@@ -138,7 +138,7 @@ data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
              Ent Γ (F <$> ρ₁ ≲ F <$> ρ₂)
 
 
-  n-·lift : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
+  n-map· : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
 
                {F : Type Δ (κ₁ `→ κ₂)} →
 

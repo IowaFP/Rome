@@ -61,24 +61,24 @@ open import Rome.Operational.Containment
 
 ⇑Ent : ∀ {Γ} {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → Ent (⇑Ctx Γ) (⇑Pred π)
 ⇑Ent (n-var x) = n-var (⇑PVar x)
-⇑Ent (n-≲ i) = n-≲ (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i )
-⇑Ent (n-· i₁ i₂ i₃) = n-· (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₁)
+⇑Ent (n-incl i) = n-incl (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i )
+⇑Ent (n-plus i₁ i₂ i₃) = n-plus (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₁)
                           (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₂)
                           (⊆-cong-or₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₃)
 
 ⇑Ent n-refl = n-refl
-⇑Ent (n-trans e e₁) = n-trans (⇑Ent e) (⇑Ent e₁)
-⇑Ent (n-·≲L e) = n-·≲L (⇑Ent e)
-⇑Ent (n-·≲R e) = n-·≲R (⇑Ent e)
-⇑Ent n-ε-R = n-ε-R
-⇑Ent n-ε-L = n-ε-L
-⇑Ent (n-≲lift {ρ₁ = ρ₁} {ρ₂} {F = F} e refl refl) =
+⇑Ent (_n-⨾_ e e₁) = _n-⨾_ (⇑Ent e) (⇑Ent e₁)
+⇑Ent (n-plusL≲ e) = n-plusL≲ (⇑Ent e)
+⇑Ent (n-plusR≲ e) = n-plusR≲ (⇑Ent e)
+⇑Ent n-emptyR = n-emptyR
+⇑Ent n-emptyL = n-emptyL
+⇑Ent (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F = F} e refl refl) =
   convEnt'
      (cong₂ _≲_
        (cong ⇑ (sym (stability-<$> F ρ₁)))
        (cong ⇑ (sym (stability-<$> F ρ₂))))
-  (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-≲lift (⇑Ent e)))
-⇑Ent (n-·lift {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e refl refl refl) =
+  (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-map≲ (⇑Ent e)))
+⇑Ent (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e refl refl refl) =
   convEnt'
     (cong₃ _·_~_
       (cong ⇑ (sym (stability-<$> F ρ₁)))
@@ -86,7 +86,7 @@ open import Rome.Operational.Containment
       (cong ⇑ (sym (stability-<$> F ρ₃))))
   (convert
     ((soundness (⇑ F <$> ⇑ ρ₁)) eq-· (soundness (⇑ F <$> ⇑ ρ₂)) ~ (soundness (⇑ F <$> ⇑ ρ₃)))
-    (n-·lift (⇑Ent e)))
+    (n-map· (⇑Ent e)))
 
 ⇑Term : ∀ {Γ} {τ : NormalType Δ ★} → NormalTerm Γ τ → Term (⇑Ctx Γ) (⇑ τ)
 ⇑Term (` x) = ` (⇑Var x)
