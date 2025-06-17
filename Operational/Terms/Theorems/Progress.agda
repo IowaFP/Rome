@@ -14,6 +14,7 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Syntax
 
 open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
 
@@ -59,25 +60,38 @@ entProgress (n-plusR≲ N) with entProgress N
 ... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-plusR≲ i₁ i₂ i₃
 ... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-plusR≲ N=⇒N'
 entProgress n@n-empty≲ with norm-≲ n
-... | xs , _ , ys , _ , refl , refl = StepsTo n-incl (λ { x () }) via {!!}
+... | xs , _ , ys , _ , refl , refl = StepsTo _ via δ-empty≲
 entProgress n@n-emptyR with norm-· n
 ... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
-  StepsTo (n-plus(λ x i → i) (λ { x () }) λ x i → left i) via {!!} 
+  StepsTo _ via δ-emptyR 
 entProgress n@n-emptyL with norm-· n 
-... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = StepsTo n-plus(λ { x () }) (λ x i → i) (λ x i → (right i)) via {!!}
+... | .[] , .tt , xs , _ , xs , _ , refl , refl , refl = 
+  StepsTo _ via δ-emptyL
 entProgress n@(n-map≲ {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
 ... | StepsTo N' via N=⇒N' = StepsTo n-map≲ {F = F} N' eq₁ eq₂ via ξ-map≲ N N' eq₁ eq₂ N=⇒N'
-entProgress (n-map≲ {F = F} N {_} {_} refl refl) | Done (n-incl {xs = xs} {ys = ys} i) = StepsTo n-incl (⊆-cong _ _ (sym ∘ stability-map F) i) via {!!}
+entProgress (n-map≲ {F = F} N {_} {_} refl refl) | Done (n-incl {xs = xs} {ys = ys} i) = 
+  StepsTo n-incl (⊆-cong _ _ (sym ∘ stability-map F) i) via δ-map≲ i 
 entProgress (n-map· N eq₁ eq₂ eq₃) with entProgress N
-... | StepsTo N' via N=⇒N' = StepsTo n-map· N' eq₁ eq₂ eq₃ via {!via ξ-·lift N N' !}
+entProgress (n-map· {F = F} N refl refl refl) | Done (n-plus i₁ i₂ i₃) = StepsTo 
+  n-plus (⊆-cong _ _ (sym ∘ stability-map F) i₁) 
+         (⊆-cong _ _ (sym ∘ stability-map F) i₂) 
+         (⊆-cong-or _ _ (sym ∘ stability-map F) i₃) 
+  via δ-map· i₁ i₂ i₃
+entProgress (n-map· {F = F} N eq₁ eq₂ eq₃) |
+  StepsTo N' via N=⇒N' = StepsTo n-map· {F = F} N' eq₁ eq₂ eq₃ via ξ-map· N N' eq₁ eq₂ eq₃ N=⇒N' 
 entProgress (n-complR-inert N) with norm-≲ N 
 entProgress (n-complR-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
 entProgress (n-complR N) with entProgress N 
-... | Done (n-incl i) = StepsTo n-plus i {!!} {!!} via {!!}
-... | StepsTo N' via N=⇒N' = {!!}
+... | Done (n-incl {xs = xs} {ys = ys} {oxs = oxs} {oys} i) = 
+  StepsTo n-plus i (⇓Row-⇑Row-─s-mono xs ys) (⇓Row-⇑Row-─s-mono-orᵣ xs ys {toWitness oys} i) 
+  via δ-complR i
+... | StepsTo N' via N=⇒N' = StepsTo (n-complR N') via ξ-complR N N' N=⇒N'
 entProgress (n-complL-inert N) with norm-≲ N 
 entProgress (n-complL-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
-entProgress (n-complL N) = {!!}
+entProgress (n-complL N) with entProgress N 
+... | Done (n-incl {xs = xs} {ys = ys} {oxs = oxs} {oys} i) = 
+  StepsTo (n-plus (⇓Row-⇑Row-─s-mono xs ys) i (⇓Row-⇑Row-─s-mono-orₗ xs ys {toWitness oys} i)) via δ-complL i
+... | StepsTo N' via N=⇒N' = StepsTo (n-complL N') via ξ-complL N N' N=⇒N'
 
 --------------------------------------------------------------------------------
 -- Proof of progress (Terms)

@@ -102,7 +102,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 ... | yes p = λ { x i → there (─s-mono {ρ₁ = ρ₁} {ρ₂} x i)} 
 ... | no  q = λ { (.l , .τ) (here refl) → here refl ; x (there i) → there (─s-mono {ρ₁ = ρ₁} {ρ₂} x i) }
 
-⇓Row-⇑Row-─s-mono : ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+⇓Row-⇑Row-─s-mono : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → 
        ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊆ ρ₂
 ⇓Row-⇑Row-─s-mono ρ₁ ρ₂ = 
   subst 
@@ -184,7 +184,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | refl = right τ'∈
 
 ⇓Row-⇑Row-─s-mono-orᵣ : 
-  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) → 
+  ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → 
     {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ ρ₁ ⊹ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ]
@@ -199,7 +199,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
         (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} {oρ₂ = Ordered⇑ ρ₂ oρ₂} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
 
 ⇓Row-⇑Row-─s-mono-orₗ : 
-  ∀ (ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]) →
+  ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) →
     {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ⊹ ρ₁ ]

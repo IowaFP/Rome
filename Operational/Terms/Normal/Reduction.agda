@@ -107,6 +107,41 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
             N =⇒ N' → 
             ------------------------------------------
              n-map≲ {F = F} N eq₁ eq₂ =⇒ n-map≲ {F = F} N' eq₁ eq₂
+
+
+  ξ-map· : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+               {F : NormalType Δ (κ₁ `→ κ₂)} →
+
+             (N N' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) →
+             {x y  z : NormalType Δ R[ κ₂ ]} → 
+             (eq₁ : x ≡ (F <$>' ρ₁)) → 
+             (eq₂ : y ≡ F <$>' ρ₂) → 
+             (eq₃ : z ≡ F <$>' ρ₃) → 
+             
+            N =⇒ N' → 
+            ------------------------------------------
+             n-map· {F = F} N eq₁ eq₂ eq₃ =⇒ n-map· {F = F} N' eq₁ eq₂ eq₃
+
+
+  ξ-complR : ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]}
+              {oxs : True (normalOrdered? xs)} 
+              {oys : True (normalOrdered? ys)}
+              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+             (N N' : NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
+
+            N =⇒ N' → 
+            ------------------------------------------
+             n-complR {ozs = ozs} N =⇒ n-complR N'
+
+  ξ-complL : ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]}
+              {oxs : True (normalOrdered? xs)} 
+              {oys : True (normalOrdered? ys)}
+              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+             (N N' : NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
+
+            N =⇒ N' → 
+            ------------------------------------------
+             n-complL {ozs = ozs} N =⇒ n-complL N'
      
   ------------------------------------------------------------
   -- Computational rules
@@ -116,7 +151,18 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
          ----------------------------------------------------------
          _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-incl (λ _ i → i))
 
-  -- δ-empty≲ : 
+  δ-empty≲ : ∀ {ys : SimpleRow NormalType Δ R[ κ ]} {oys : True (normalOrdered? ys)} → 
+
+             ---------------------------------------------------------------
+             n-empty≲ =⇒ n-incl {Γ = Γ} {ys = ys} {oys = oys} (λ { x () })
+
+  δ-emptyR : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} {oxs : True (normalOrdered? xs)} → 
+
+           n-emptyR =⇒ n-plus {Γ = Γ} {xs = xs} {oxs = oxs} (λ _ i → i) (λ { x () }) (λ _ i → left i)
+
+  δ-emptyL : ∀ {ys : SimpleRow NormalType Δ R[ κ ]} {oys : True (normalOrdered? ys)} → 
+
+           n-emptyL =⇒ n-plus {Γ = Γ} {ys = ys} {oys = oys} (λ { x () }) (λ _ i → i) (λ _ i → right i)
 
   δ-⨾ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
               {oxs : True (normalOrdered? xs)} 
@@ -145,6 +191,60 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
 
             -------------------------------
             n-plusR≲ (n-plus {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) =⇒ n-incl i₂
+
+  δ-map≲ : ∀ {xs ys : SimpleRow NormalType Δ R[ κ₁ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)}
+            {F : NormalType Δ (κ₁ `→ κ₂)} → 
+            (i : xs ⊆ ys) → 
+            
+            
+            ------------------------------
+            n-map≲ {F = F} (n-incl {Γ = Γ} {oxs = oxs} {oys} i) refl refl  =⇒ n-incl (⊆-cong _ _ (sym ∘ stability-map F) i)
+
+  δ-map· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ₁ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)}
+            {ozs : True (normalOrdered? zs)}
+            {F : NormalType Δ (κ₁ `→ κ₂)} → 
+            (i₁ : xs ⊆ zs) (i₂ : ys ⊆ zs) (i₃ : zs ⊆[ xs ⊹ ys ]) → 
+            
+            
+            ------------------------------
+            n-map· {F = F} (n-plus {Γ = Γ} {oxs = oxs} {oys} {ozs} i₁ i₂ i₃) refl refl refl  =⇒ 
+            n-plus 
+              (⊆-cong _ _ (sym ∘ stability-map F) i₁) 
+              (⊆-cong _ _ (sym ∘ stability-map F) i₂) 
+              (⊆-cong-or _ _ (sym ∘ stability-map F) i₃)
+
+  δ-complR :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ₁ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)}
+            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))}
+            (i : xs ⊆ ys) → 
+
+            -----------------------------------------------------------------------------------------
+            n-complR {Γ = Γ} {ozs = ozs} (n-incl {oxs = oxs} {oys} i) =⇒ 
+            n-plus 
+              i 
+              (⇓Row-⇑Row-─s-mono xs ys) 
+              (⇓Row-⇑Row-─s-mono-orᵣ xs ys {toWitness oys} i)
+    
+
+  δ-complL :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ₁ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)}
+            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))}
+            (i : xs ⊆ ys) → 
+
+            -----------------------------------------------------------------------------------------
+            n-complL {Γ = Γ} {ozs = ozs} (n-incl {oxs = oxs} {oys} i) =⇒ 
+            n-plus 
+              (⇓Row-⇑Row-─s-mono xs ys) 
+              i
+              (⇓Row-⇑Row-─s-mono-orₗ xs ys {toWitness oys} i)
+
+
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
