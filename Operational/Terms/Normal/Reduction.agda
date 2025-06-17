@@ -257,6 +257,11 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
            -----------------
            M₁ · N —→ M₂ · N
 
+  ξ-·2 : ∀ {M : NormalTerm Γ (τ₁ `→ τ₂)} {N₁ N₂ : NormalTerm Γ τ₁} →
+           N₁ —→ N₂ →
+           -----------------
+           M · N₁ —→ M · N₂
+
   ξ-·[] : ∀ {τ'} {M₁ M₂ : NormalTerm Γ (`∀ τ)} →
             M₁ —→ M₂ →
             ------------------------
@@ -382,10 +387,13 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
   ξ-Ana : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → 
           (τ : NormalType Δ ★) → 
-          (M₁ M₂ : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) →
+          {τ₁ τ₂ : NormalType Δ ★} → 
+          (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ')
+          (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂)
+          (M₁ M₂ : NormalTerm Γ τ') →
           M₁ —→ M₂ → 
           ------------
-          ana ρ φ τ M₁ —→ ana ρ φ τ M₂          
+          ana ρ φ τ eq₁ eq₂ M₁ —→ ana ρ φ τ eq₁ eq₂ M₂          
 
   ----------------------------------------
   -- computational rules

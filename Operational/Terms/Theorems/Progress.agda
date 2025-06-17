@@ -8,6 +8,8 @@ open import Rome.Operational.Containment
 open import Rome.Operational.Kinds.Syntax
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Substitution
+open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.SynAna
 
 open import Rome.Operational.Types.Semantic.NBE
@@ -111,9 +113,12 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
 
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 progress (`λ M) = Done (V-λ M)
-progress (M₁ · M₂) with progress M₁ 
-... | Done (V-λ M) = StepsTo (M β[ M₂ ]) via β-λ
-... | StepsTo M₃ via M₁→M₃ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
+progress (M₁ · M₂) with progress M₁ | progress M₂  
+... | StepsTo M₃ via M₁→M₃ | _ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
+... | Done (V-λ M) | _ = StepsTo (M β[ M₂ ]) via β-λ
+... | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
+progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) = StepsTo (conv {!!} (M ·[ lab l ] ·[ {!eq₂!} ] ·⟨ {!!} ⟩ · # (lab l) · {!!})) via {!!}
+
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
 ... | Done (V-Λ M₁) = StepsTo (M₁ β·[ τ ]) via β-Λ
@@ -141,7 +146,8 @@ progress (M Π/ ℓ) with progress M
 progress (prj M n) with progress M | entProgress n | norm-≲ n
 ... | StepsTo M' via M→M' | _ | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
 ... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via {!!}
-progress (prj M n) | Done (V-Π r rV) | Done (n-incl {xs = xs} {oxs = oxs} {oys} i) | _ = StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
+progress (prj M n) | Done (V-Π r rV) | Done (n-incl {xs = xs} {oxs = oxs} {oys} i) | _ = 
+  StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
 
 --  xs , oxs , ys , oys , refl , refl with ≲-inv n 
 -- ... | i = StepsTo ⟨ project r i ⟩ via {!δ-prj r i!}
@@ -151,7 +157,7 @@ progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁
 -- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
 -- ... | c = {!c .snd .snd!}
 progress (syn ρ φ M) = {!!}
-progress (ana ρ φ τ M) = {!!}
+progress (ana ρ φ τ eq₁ eq₂ M) = {!!}
 progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N

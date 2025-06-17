@@ -355,9 +355,16 @@ data NormalTerm {Δ} Γ where
 
   ana : 
     
-        (ρ : NormalType Δ R[ κ ]) (φ : NormalType Δ (κ `→ ★)) (τ : NormalType Δ ★) → (M : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) → 
+        (ρ : NormalType Δ R[ κ ]) 
+        (φ : NormalType Δ (κ `→ ★)) 
+        (τ : NormalType Δ ★)
+        {τ₁ τ₂ : _}
+        (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
+        (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
+        (M : NormalTerm Γ τ₁) → 
+        
         ------------------------------------------------------------------
-        NormalTerm Γ ((⇓ (Σ · (⇑ φ <$> ⇑ ρ))) `→ τ)
+        NormalTerm Γ (τ₂ `→ τ)
 
   --------------
   -- Rω variants
@@ -443,6 +450,18 @@ data Value {Δ} {Γ} where
         (l : Label) → {M : NormalTerm Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
         -------------------------------------------
         Value (⟨_▹_⟩via_ {oxs = oxs} l M i)       
+
+  V-ana : (ρ : NormalType Δ R[ κ ]) 
+          (φ : NormalType Δ (κ `→ ★)) 
+          (τ : NormalType Δ ★) 
+          {τ₁ τ₂ : _}
+          (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
+          (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
+          (M : NormalTerm Γ τ₁) → 
+        
+          Value M → 
+          ------------------------------------
+          Value (ana ρ φ τ eq₁ eq₂ M)
 
 
   -- V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 

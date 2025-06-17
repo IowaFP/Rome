@@ -58,12 +58,40 @@ _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalT
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
+map-overᵣ-' : (ρ : SimpleRow NormalType Δ R[ κ₁ ]) (f : NormalType Δ (κ₁ `→ κ₂)) →
+                NormalOrdered ρ → NormalOrdered ((map (overᵣ (f ·'_)) ρ))
+map-overᵣ-' [] f oρ = tt
+map-overᵣ-' (x₁ ∷ []) f oρ = tt
+map-overᵣ-' (x₁ ∷ x₂ ∷ ρ) f oρ = oρ .fst , map-overᵣ-' (x₂ ∷ ρ) f (oρ .snd)
+
 --------------------------------------------------------------------------------
 -- Normality-preserving <$> 
 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
-f <$>' ρ = ⇓ (⇑ f <$> ⇑ ρ) 
+<$>'-nsr : (f : NormalType Δ (κ₁ `→ κ₂)) → (ρ₂ ρ₁ : NormalType Δ R[ κ₁ ]) → 
+           True (notSimpleRows? ρ₂ ρ₁) → 
+           True (notSimpleRows? (f <$>' ρ₂) (f <$>' ρ₁))
 
+f <$>' ne x = ne (f <$> x)
+f <$>' ⦅ ρ ⦆ oρ = ⦅ (map (overᵣ (f ·'_)) ρ) ⦆ (fromWitness (map-overᵣ-' ρ f (toWitness oρ)) )
+f <$>' ((ρ₂ ─ ρ₁) {nsr}) = ((f <$>' ρ₂) ─ (f <$>' ρ₁)) {<$>'-nsr f ρ₂ ρ₁ nsr}
+f <$>' (l ▹ₙ τ) = l ▹ₙ (f ·' τ)
+
+<$>'-nsr f (ne x₁) (ne x₂) nsr = tt
+<$>'-nsr f (ne x₁) (⦅ ρ ⦆ oρ) nsr = tt
+<$>'-nsr f (ne x₁) (ρ₁ ─ ρ₂) nsr = tt
+<$>'-nsr f (ne x₁) (l ▹ₙ ρ₁) nsr = tt
+<$>'-nsr f (⦅ ρ ⦆ oρ) (ne x₁) nsr = tt
+<$>'-nsr f (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) nsr = tt
+<$>'-nsr f (⦅ ρ ⦆ oρ) (l ▹ₙ ρ₁) nsr = tt
+<$>'-nsr f (ρ₂ ─ ρ₃) (ne x₁) nsr = tt
+<$>'-nsr f (ρ₂ ─ ρ₃) (⦅ ρ ⦆ oρ) nsr = tt
+<$>'-nsr f (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) nsr = tt
+<$>'-nsr f (ρ₂ ─ ρ₃) (l ▹ₙ ρ₁) nsr = tt
+<$>'-nsr f (l ▹ₙ ρ₂) (ne x₁) nsr = tt
+<$>'-nsr f (l ▹ₙ ρ₂) (⦅ ρ ⦆ oρ) nsr = tt
+<$>'-nsr f (l ▹ₙ ρ₂) (ρ₁ ─ ρ₃) nsr = tt
+<$>'-nsr f (l ▹ₙ ρ₂) (l₁ ▹ₙ ρ₁) nsr = tt
 -- labeled : NormalType (∅ ,, L) ★ 
 -- labeled = Π ((` Z) ▹ₙ UnitNF)
 

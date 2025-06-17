@@ -27,10 +27,10 @@ open import Rome.Operational.Containment
 -- The types of the bodies of syn and ana
 
 SynT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★
-SynT ρ φ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
+SynT {κ = κ} ρ φ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
 
 AnaT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★ → Type Δ ★
-AnaT ρ φ τ = `∀ (`∀ (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
+AnaT {κ = κ} ρ φ τ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
 
 --------------------------------------------------------------------------------
 -- SynT and AnaT respects type equality

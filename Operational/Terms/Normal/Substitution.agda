@@ -141,10 +141,10 @@ sub σ s (syn ρ φ M) =
           (cong ⇓ (sym (↻-sub-syn (⇑ ∘ σ) (⇑ ρ) (⇑ φ))))) 
         (completeness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
       (sub σ s M)))
-sub σ s (ana ρ φ τ M) = 
+sub σ s (ana ρ φ τ refl refl M) = 
   conv 
     (cong₂ _`→_ (cong Σ (↻-sub-⇓-<$> σ φ ρ)) refl) 
-    (ana (subₖNF σ ρ) (subₖNF σ φ) (subₖNF σ τ) 
+    (ana (subₖNF σ ρ) (subₖNF σ φ) (subₖNF σ τ) refl refl
     (conv 
       ((trans 
         (trans 
