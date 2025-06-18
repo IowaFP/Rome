@@ -30,8 +30,6 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
-open import Effect.Monad.Identity
-
 --------------------------------------------------------------------------------
 -- Proof of progress (Entailments)
 
@@ -167,7 +165,9 @@ progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁
 -- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
 -- ... | c = {!c .snd .snd!}
 progress (syn ρ φ M) = {!!}
-progress (ana ρ φ τ eq₁ eq₂ M) = {!!}
+progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
+... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
+... | StepsTo M' via —→M' = {!!}
 progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N
@@ -176,7 +176,8 @@ progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ/ ℓ) = {!!}
 progress (inj M x₁) = {!!}
 progress ((M ▿ M₁) x₁) = {!!}
-progress ⟨ x₁ ⟩ = {!!}
+progress ⟨ ∅ ⟩ = {!V-Π ∅ !}
+progress ⟨ l ▹ x₁ ⨾ M ⟩ = {!!}
 progress (⟨ l ▹ M ⟩via i) with progress M 
 ... | Done V = Done (V-Σ l V i)
 ... | StepsTo M' via M→M' = {!!}
