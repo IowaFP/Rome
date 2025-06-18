@@ -463,6 +463,14 @@ data Value {Δ} {Γ} where
           ------------------------------------
           Value (ana ρ φ τ eq₁ eq₂ M)
 
+  V-▿  : 
+           {e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} 
+           (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) → 
+
+            Value M → Value N → 
+            ---------------------
+            Value ((M ▿ N) e)
+
 
   -- V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 
   --           (M : NormalTerm Γ υ) → 
@@ -478,12 +486,6 @@ data Value {Δ} {Γ} where
   --           ---------------------
   --           Value ((M ⊹ N) e)
 
-  -- V-▿  : 
-  --          {e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) → 
-
-  --           Value M → Value N → 
-  --           ---------------------
-  --           Value ((M ▿ N) e)
 
   -- V-Σ   : ∀ {l : Label}
   --           (ℓ : NormalTerm Γ ⌊ lab l ⌋) → (M : NormalTerm Γ τ) → 

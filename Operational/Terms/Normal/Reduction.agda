@@ -412,6 +412,13 @@ data _—→_ where
        (N₁ —→ N₂) → 
        (M ▿ N₁) e —→ (M ▿ N₂) e
 
+  ξ-▿₃ : ∀
+         (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) 
+         (e₁ e₂ : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+         (e₁ =⇒ e₂) → 
+         (M ▿ N) e₁ —→ (M ▿ N) e₂
+
   ξ-Syn : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M₁ M₂ : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) →
           M₁ —→ M₂ → 
           ------------
@@ -488,6 +495,36 @@ data _—→_ where
             ---------------------------
             (prj (⟨_⟩ {oxs = oys} rys) (n-incl {oxs = oxs} i) ) —→ ⟨ project {oxs = oxs} {oys = oys} rys i ⟩ 
 
+
+  δ-▿₁ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)} 
+            {ozs : True (normalOrdered? zs)}
+            (F : NormalTerm Γ  (Σ (⦅ xs ⦆ oxs) `→ τ'))
+            (G : NormalTerm Γ (Σ (⦅ ys ⦆ oys) `→ τ'))
+            (e : NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
+            {l : Label}
+            (M : NormalTerm Γ τ) 
+            (i₁ : (l , τ) ∈ zs) → 
+            (i₂ : (l , τ) ∈ xs) → 
+
+           -------------------------------------------------
+           ((F ▿ G) e) · (⟨ l ▹ M ⟩via i₁) —→ F · (⟨ l ▹ M ⟩via i₂)
+
+  δ-▿₂ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]}
+            {oxs : True (normalOrdered? xs)} 
+            {oys : True (normalOrdered? ys)} 
+            {ozs : True (normalOrdered? zs)}
+            (F : NormalTerm Γ  (Σ (⦅ xs ⦆ oxs) `→ τ'))
+            (G : NormalTerm Γ (Σ (⦅ ys ⦆ oys) `→ τ'))
+            (e : NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
+            {l : Label}
+            (M : NormalTerm Γ τ) 
+            (i₁ : (l , τ) ∈ zs) → 
+            (i₂ : (l , τ) ∈ ys) → 
+
+           -------------------------------------------------
+           ((F ▿ G) e) · (⟨ l ▹ M ⟩via i₁) —→ G · (⟨ l ▹ M ⟩via i₂)
 
   -- β-⊹ : 
       

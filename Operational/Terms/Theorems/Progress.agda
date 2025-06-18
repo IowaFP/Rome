@@ -28,6 +28,7 @@ open import Rome.Operational.Terms.Normal.Reduction
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Terms.Normal.GVars
+open import Rome.Operational.Terms.Normal.Renaming
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
 --------------------------------------------------------------------------------
@@ -131,20 +132,27 @@ recordProgress (_▹_⨾_ {xs = xs} l M r) with progress M | recordProgress r
 
 progress (`λ M) = Done (V-λ M)
 progress (M₁ · M₂) with progress M₁ | progress M₂  
-... | StepsTo M₃ via M₁→M₃ | _ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
-... | Done (V-λ M) | _ = StepsTo (M β[ M₂ ]) via β-λ
-... | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
--- N.b. we only need to show stability-<$>' for ⦅⦆ case.
--- No matter what, we need to show that xs = map (overᵣ blah) ρ and that if l ∈ xs then l ∈ map .
+progress (M₁ · M₂) | StepsTo M₃ via M₁→M₃ | _ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
+progress (M₁ · M₂) | Done (V-λ M) | _ = StepsTo (M β[ M₂ ]) via β-λ
+progress (M₁ · M₂) | Done (V-▿ F G vF vG) | StepsTo M₂' via M₂—→M₂' = StepsTo (F ▿ G) _ · M₂' via ξ-·2 M₂—→M₂'
+progress (M₁ · M₂) | Done (V-▿ {e = e} F G vF vG) | Done (V-Σ {τ = τ} l {M} vM i) with entProgress e 
+... | StepsTo e' via e=⇒e' = StepsTo (F ▿ G) e' · (⟨ l ▹ M ⟩via i) via
+                               ξ-·1 (ξ-▿₃ F G e e' e=⇒e')
+... | Done (n-plus {xs = xs} {ys} {zs} i₁ i₂ i₃) with i₃ (l , τ) i 
+... | left inxs = StepsTo (F · (⟨ l ▹ M ⟩via inxs)) via δ-▿₁ F G e M i inxs
+... | right inys = StepsTo (G · (⟨ l ▹ M ⟩via inys)) via δ-▿₂ F G e M i inys 
+progress (M₁ · M₂) | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
+-- TODO: Abstract the ana logic to its own function, á la β-reduction above.
+-- Also: 
 -- We can use (subst (λ x → (l , τ₃) ∈ x) eq i) to grab an index of (map (overᵣ (φ ·'_)) ρ) which should
 -- (in theory) give us an index in ρ, which will give us a type with kind κ. May need to write write an inversion
 -- that takes (l , τ₃) ∈ (map f ρ) and yields an (l , τ₃') ∈ ρ s.t. τ₃ = f τ₃'.
-progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} eq₁@refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) with 
+progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} eq₁@refl eq₂ M (V-Λ M₄)) | Done (V-Σ {τ₃} l {M₃} V₂ i) with 
       row-canonicity-∅ ρ
 ... | xs , oxs , refl with inj-⦅⦆ (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
 ... |  eq =  StepsTo 
     
-    (conv {!eq₂!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ n-incl {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
+    (conv {!!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ n-incl {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
@@ -192,8 +200,15 @@ progress (M Σ/ ℓ) with progress M
 ... | Done (V-Σ l {M'} V (here refl)) = StepsTo M' via (δ-Σ/ M' ℓ)
 ... | StepsTo M' via M→M' = StepsTo M' Σ/ ℓ via ξ-Σ/₁ M M' ℓ M→M'
 progress (inj M x₁) = {!!}
-progress ((M ▿ M₁) x₁) = {!!}
--- need to write progressRecord here
+progress ((M₁ ▿ M₂) n) with progress M₁ | progress M₂ | entProgress n 
+... | Done x₁ | Done x₂ | Done x₃ = {!!}
+... | Done x₁ | Done x₂ | StepsTo M' via x₃ = {!!}
+... | Done x₁ | StepsTo M' via x₂ | Done x₃ = {!!}
+... | Done x₁ | StepsTo M' via x₂ | StepsTo M'' via x₃ = {!!}
+... | StepsTo M' via x₁ | Done x₂ | Done x₃ = {!!}
+... | StepsTo M' via x₁ | Done x₂ | StepsTo M'' via x₃ = {!!}
+... | StepsTo M' via x₁ | StepsTo M'' via x₂ | Done x₃ = {!!}
+... | StepsTo M' via x₁ | StepsTo M'' via x₂ | StepsTo M''' via x₃ = {!!}
 progress ⟨ r ⟩ with recordProgress r 
 ... | Done V = Done (V-Π r V)
 ... | StepsTo r' via r—→r' = StepsTo ⟨ r' ⟩ via ξ-⟨⟩ r—→r'
