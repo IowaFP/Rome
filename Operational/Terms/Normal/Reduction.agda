@@ -154,15 +154,15 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
   δ-empty≲ : ∀ {ys : SimpleRow NormalType Δ R[ κ ]} {oys : True (normalOrdered? ys)} → 
 
              ---------------------------------------------------------------
-             n-empty≲ =⇒ n-incl {Γ = Γ} {ys = ys} {oys = oys} (λ { x () })
+             n-empty≲ =⇒ n-incl {Γ = Γ} {ys = ys} {oys = oys} (λ x ())
 
   δ-emptyR : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} {oxs : True (normalOrdered? xs)} → 
 
-           n-emptyR =⇒ n-plus {Γ = Γ} {xs = xs} {oxs = oxs} (λ _ i → i) (λ { x () }) (λ _ i → left i)
+           n-emptyR =⇒ n-plus {Γ = Γ} {xs = xs} {oxs = oxs} (λ _ i → i) (λ x ()) (λ _ i → left i)
 
   δ-emptyL : ∀ {ys : SimpleRow NormalType Δ R[ κ ]} {oys : True (normalOrdered? ys)} → 
 
-           n-emptyL =⇒ n-plus {Γ = Γ} {ys = ys} {oys = oys} (λ { x () }) (λ _ i → i) (λ _ i → right i)
+           n-emptyL =⇒ n-plus {Γ = Γ} {ys = ys} {oys = oys} (λ x ()) (λ _ i → i) (λ _ i → right i)
 
   δ-⨾ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]}
               {oxs : True (normalOrdered? xs)} 
