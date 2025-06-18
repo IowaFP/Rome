@@ -30,8 +30,6 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
-open import Effect.Monad.Identity
-
 --------------------------------------------------------------------------------
 -- Proof of progress (Entailments)
 
@@ -50,7 +48,7 @@ entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntPr
 entProgress (n-incl i₁) = Done (n-incl i₁)
 entProgress (n-plus i₁ i₂ i₃) = Done (n-plus i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
-... | xs , oxs , ys , oys , refl , refl = StepsTo n-incl (λ x i → i) via δ-refl xs oxs
+... | xs , oxs , ys , oys , refl , refl = StepsTo (n-incl (λ x i → i)) via δ-refl xs oxs
 entProgress (_n-⨾_ M N) with entProgress M | entProgress N
 ... | Done (n-incl i₁) | Done (n-incl i₂) = StepsTo n-incl (⊆-trans i₁ i₂) via δ-⨾ i₁ i₂
 ... | Done V | StepsTo N' via N=⇒N' = StepsTo (_n-⨾_ M N') via ξ-⨾₂ N=⇒N' 
@@ -63,7 +61,7 @@ entProgress (n-plusR≲ N) with entProgress N
 ... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-plusR≲ i₁ i₂ i₃
 ... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-plusR≲ N=⇒N'
 entProgress n@n-empty≲ with norm-≲ n
-... | xs , _ , ys , _ , refl , refl = StepsTo _ via δ-empty≲
+... | xs , _ , ys , _ , refl , refl = StepsTo n-incl (λ x ()) via δ-empty≲
 entProgress n@n-emptyR with norm-· n
 ... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
   StepsTo _ via δ-emptyR 
@@ -73,7 +71,7 @@ entProgress n@n-emptyL with norm-· n
 entProgress n@(n-map≲ {F = F} N {x = ρ₁} {y = ρ₂} eq₁ eq₂) with entProgress N
 ... | StepsTo N' via N=⇒N' = StepsTo n-map≲ {F = F} N' eq₁ eq₂ via ξ-map≲ N N' eq₁ eq₂ N=⇒N'
 entProgress (n-map≲ {F = F} N {_} {_} refl refl) | Done (n-incl {xs = xs} {ys = ys} i) = 
-  StepsTo n-incl (⊆-cong _ _ (sym ∘ stability-map F) i) via δ-map≲ i 
+  StepsTo n-incl ((⊆-cong _ _ (sym ∘ stability-map F) i)) via δ-map≲ i 
 entProgress (n-map· N eq₁ eq₂ eq₃) with entProgress N
 entProgress (n-map· {F = F} N refl refl refl) | Done (n-plus i₁ i₂ i₃) = StepsTo 
   n-plus (⊆-cong _ _ (sym ∘ stability-map F) i₁) 
@@ -167,7 +165,9 @@ progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁
 -- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
 -- ... | c = {!c .snd .snd!}
 progress (syn ρ φ M) = {!!}
-progress (ana ρ φ τ eq₁ eq₂ M) = {!!}
+progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
+... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
+... | StepsTo M' via —→M' = {!!}
 progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N
@@ -176,7 +176,8 @@ progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ/ ℓ) = {!!}
 progress (inj M x₁) = {!!}
 progress ((M ▿ M₁) x₁) = {!!}
-progress ⟨ x₁ ⟩ = {!!}
+progress ⟨ ∅ ⟩ = {!V-Π ∅ !}
+progress ⟨ l ▹ x₁ ⨾ M ⟩ = {!!}
 progress (⟨ l ▹ M ⟩via i) with progress M 
 ... | Done V = Done (V-Σ l V i)
 ... | StepsTo M' via M→M' = {!!}
