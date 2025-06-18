@@ -108,9 +108,27 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
           --------------------------------------
           Progress M
 
+data RecordProgress {xs} (r : Record Γ xs) : Set where
+  Done : 
+         RecordValue Γ xs r → 
+         ----------
+         RecordProgress r
 
+  StepsTo_via_ : ∀ 
+                   (r' : Record Γ xs) → (r —→ᵣ r') → 
+                 --------------------------------------
+                 RecordProgress r
 
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
+recordProgress : ∀ {xs} → 
+                   (M : Record ∅ xs) → RecordProgress M 
+recordProgress ∅ = Done ∅
+recordProgress (_▹_⨾_ {xs = xs} l M r) with progress M | recordProgress r 
+... | Done V | Done rV = Done (l ▹ V ⨾ rV)
+... | StepsTo M' via M—→M' | Done x₂ = StepsTo (l ▹ M' ⨾ r) via ξ-record₂ M—→M'
+... | Done V | StepsTo r' via r—→r' = StepsTo l ▹ M ⨾ r' via ξ-record₁ r—→r'
+... | StepsTo M' via x₁ | StepsTo r' via x₂ = StepsTo l ▹ M ⨾ r' via ξ-record₁ x₂
+
 progress (`λ M) = Done (V-λ M)
 progress (M₁ · M₂) with progress M₁ | progress M₂  
 ... | StepsTo M₃ via M₁→M₃ | _ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
@@ -125,7 +143,8 @@ progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} eq₁@refl eq₂ 
       row-canonicity-∅ ρ
 ... | xs , oxs , refl with inj-⦅⦆ (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
 ... |  eq =  StepsTo 
-    (conv {!eq₁!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
+    
+    (conv {!eq₂!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ n-incl {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
@@ -153,13 +172,9 @@ progress (M Π/ ℓ) with progress M
 ... | StepsTo M' via M→M' = StepsTo M' Π/ ℓ via ξ-Π/₁ M M' ℓ M→M'
 progress (prj M n) with progress M | entProgress n | norm-≲ n
 ... | StepsTo M' via M→M' | _ | _ = StepsTo prj M' n via ξ-prj M M' n M→M'
-... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via {!!}
+... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via ξ-prj⇒ M n n' n=⇒n'
 progress (prj M n) | Done (V-Π r rV) | Done (n-incl {xs = xs} {oxs = oxs} {oys} i) | _ = 
   StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
-
---  xs , oxs , ys , oys , refl , refl with ≲-inv n 
--- ... | i = StepsTo ⟨ project r i ⟩ via {!δ-prj r i!}
-
 progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁ 
 -- ... | xs , _ , ys , _ , zs , _ , refl , refl , refl with progress M₁ | progress M₂ 
 -- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
@@ -167,20 +182,25 @@ progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁
 progress (syn ρ φ M) = {!!}
 progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
 ... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
-... | StepsTo M' via —→M' = {!!}
+... | StepsTo M' via M—→M' = StepsTo ana ρ φ τ eq₁ eq₂ M' via ξ-Ana ρ φ τ eq₁ eq₂ M M' M—→M'
 progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N
 ... | StepsTo M' via M→M' = StepsTo (M' Σ▹ N) via ξ-Σ▹₁ N M M' M→M'
 progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
-progress (M Σ/ ℓ) = {!!}
+progress (M Σ/ ℓ) with progress M 
+... | Done (V-Σ l {M'} V (here refl)) = StepsTo M' via (δ-Σ/ M' ℓ)
+... | StepsTo M' via M→M' = StepsTo M' Σ/ ℓ via ξ-Σ/₁ M M' ℓ M→M'
 progress (inj M x₁) = {!!}
 progress ((M ▿ M₁) x₁) = {!!}
-progress ⟨ ∅ ⟩ = {!V-Π ∅ !}
-progress ⟨ l ▹ x₁ ⨾ M ⟩ = {!!}
-progress (⟨ l ▹ M ⟩via i) with progress M 
+-- need to write progressRecord here
+progress ⟨ r ⟩ with recordProgress r 
+... | Done V = Done (V-Π r V)
+... | StepsTo r' via r—→r' = StepsTo ⟨ r' ⟩ via ξ-⟨⟩ r—→r'
+progress (⟨_▹_⟩via_ {xs = xs} {oxs} l M i) with progress M 
 ... | Done V = Done (V-Σ l V i)
-... | StepsTo M' via M→M' = {!!}
+... | StepsTo M' via M→M' = StepsTo (⟨ l ▹ M' ⟩via i) via ξ-Σ M M' i M→M'
+
 -- progress (`λ M) = Done (V-λ M)
 -- progress (M · N) = {!!}
 -- progress (Λ M) = Done (V-Λ M)

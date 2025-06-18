@@ -250,8 +250,25 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
 --------------------------------------------------------------------------------
 -- Small step semantics.
 
-infixr 0 _—→_
-data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
+infixr 0 _—→_ _—→ᵣ_
+
+data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set
+data _—→ᵣ_ : ∀ {xs} → Record Γ xs → Record Γ xs → Set where
+
+  ξ-record₁ : ∀ {l} {xs} {M : NormalTerm Γ τ} {r r' : Record Γ xs} → 
+
+              
+           r —→ᵣ r' → 
+           ------------------------------
+           (l ▹ M ⨾ r) —→ᵣ (l ▹ M ⨾ r') 
+  
+  ξ-record₂ : ∀ {l} {xs} {M M' : NormalTerm Γ τ} {r : Record Γ xs} → 
+
+           (M —→ M') → 
+           ------------------------------
+           (l ▹ M ⨾ r) —→ᵣ (l ▹ M' ⨾ r) 
+
+data _—→_ where
   -- congruence rules
   ξ-·1 : ∀ {M₁ M₂ : NormalTerm Γ (τ₁ `→ τ₂)} {N : NormalTerm Γ τ₁} →
            M₁ —→ M₂ →
@@ -289,6 +306,13 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
              ℓ₁ —→ ℓ₂ → 
              -----------------------
              (ℓ₁ Π▹ M) —→ (ℓ₂ Π▹ M)
+
+  ξ-Σ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)}
+             {l : Label} (M₁ M₂ : NormalTerm Γ τ) (i : (l , τ) ∈ xs) → 
+
+        M₁ —→ M₂ → 
+        ------------------------------------
+        ⟨_▹_⟩via_ {xs = xs} {oxs} l M₁ i —→ ⟨ l ▹ M₂ ⟩via i
 
   -- ξ-Π▹₂ : ∀ {l : Label}
   --           (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
@@ -346,6 +370,13 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
             ------------ 
             prj M₁ e —→ prj M₂ e
 
+  ξ-prj⇒ : ∀ 
+            (M : NormalTerm Γ (Π ρ₂)) (e₁ e₂ : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+
+            e₁ =⇒ e₂ → 
+            ------------ 
+            prj M e₁ —→ prj M e₂
+
   ξ-inj : ∀ 
             (M₁ M₂ : NormalTerm Γ (Σ ρ₁)) (e : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
 
@@ -389,12 +420,20 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
   ξ-Ana : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → 
           (τ : NormalType Δ ★) → 
           {τ₁ τ₂ : NormalType Δ ★} → 
-          (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ')
+          (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁)
           (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂)
-          (M₁ M₂ : NormalTerm Γ τ') →
+          (M₁ M₂ : NormalTerm Γ τ₁) →
           M₁ —→ M₂ → 
           ------------
-          ana ρ φ τ eq₁ eq₂ M₁ —→ ana ρ φ τ eq₁ eq₂ M₂          
+          ana ρ φ τ eq₁ eq₂ M₁ —→ ana ρ φ τ eq₁ eq₂ M₂  
+
+
+  ξ-⟨⟩ : ∀  {xs} {oxs : True (normalOrdered? xs)} {r r' : Record Γ xs} → 
+
+              
+           r —→ᵣ r' → 
+           ------------------------------
+           (⟨_⟩ {oxs = oxs} r) —→ ⟨ r' ⟩
 
   ----------------------------------------
   -- computational rules
@@ -436,6 +475,11 @@ data _—→_ : ∀ {τ} → NormalTerm Γ τ → NormalTerm Γ τ → Set where
 
         ---------------------------
         (⟨ l ▹ M ⨾ ∅ ⟩ Π/ ℓ) —→ M
+
+  δ-Σ/ : ∀ {l : Label} (M : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋) → 
+
+        ---------------------------
+        ((⟨ l ▹ M ⟩via (here refl)) Σ/ ℓ) —→ M
 
   δ-prj : ∀ {xs ys : SimpleRow NormalType Δ R[ ★ ]} → 
             {oxs : True (normalOrdered? xs)} {oys : True (normalOrdered? ys)} →
