@@ -118,17 +118,16 @@ progress (M₁ · M₂) with progress M₁ | progress M₂
 ... | StepsTo M₃ via M₁→M₃ | _ = StepsTo (M₃ · M₂) via (ξ-·1 M₁→M₃)
 ... | Done (V-λ M) | _ = StepsTo (M β[ M₂ ]) via β-λ
 ... | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
-progress (M₁ · M₂) | Done (V-ana (ne x₁) φ τ {τ₁} {τ₂} refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) = ⊥-elim (noNeutrals x₁)
 -- N.b. we only need to show stability-<$>' for ⦅⦆ case.
 -- No matter what, we need to show that xs = map (overᵣ blah) ρ and that if l ∈ xs then l ∈ map .
 -- We can use (subst (λ x → (l , τ₃) ∈ x) eq i) to grab an index of (map (overᵣ (φ ·'_)) ρ) which should
 -- (in theory) give us an index in ρ, which will give us a type with kind κ. May need to write write an inversion
 -- that takes (l , τ₃) ∈ (map f ρ) and yields an (l , τ₃') ∈ ρ s.t. τ₃ = f τ₃'.
-progress (M₁ · M₂) | Done (V-ana (⦅ ρ ⦆ oρ) φ τ {τ₁} {τ₂} refl eq₂@refl M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) with  inj-⦅⦆ (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ ρ))))))
-... | eq =  StepsTo (conv {!eq!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
-progress (M₁ · M₂) | Done (V-ana ((ρ ─ ρ₁) {nsr}) φ τ {τ₁} {τ₂} refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) = ⊥-elim (noComplements nsr refl)
-progress (M₁ · M₂) | Done (V-ana (l₁ ▹ₙ ρ) φ τ {τ₁} {τ₂} refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) = ⊥-elim (noNeutrals l₁)
--- 
+progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} eq₁@refl eq₂ M vM) | Done (V-Σ {τ₃} l {M₃} V₂ i) with 
+      row-canonicity-∅ ρ
+... | xs , oxs , refl with inj-⦅⦆ (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
+... |  eq =  StepsTo 
+    (conv {!eq₁!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 

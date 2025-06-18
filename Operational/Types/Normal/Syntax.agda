@@ -409,6 +409,15 @@ row-canonicity (x ▹ₙ ρ) = tt
 -- row-canonicity (F <$> x ─₁ ρ) = tt
 row-canonicity (ρ₂ ─ ρ₁) = tt
 
+row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
+                    ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
+                    (ρ ≡ ⦅ xs ⦆ oxs)
+row-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
+row-canonicity-∅ (⦅ ρ ⦆ oρ) = ρ , oρ , refl
+row-canonicity-∅ ((ρ ─ ρ₁) {nsr}) = ⊥-elim (noComplements nsr refl)
+row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
+
+
 --------------------------------------------------------------------------------
 -- arrow-canonicity
 

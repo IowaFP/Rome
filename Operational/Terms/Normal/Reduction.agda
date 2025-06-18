@@ -200,7 +200,8 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
             
             
             ------------------------------
-            n-map≲ {F = F} (n-incl {Γ = Γ} {oxs = oxs} {oys} i) refl refl  =⇒ n-incl (⊆-cong _ _ (sym ∘ stability-map F) i)
+            n-map≲ {F = F} (n-incl {Γ = Γ} {oxs = oxs} {oys} i) refl refl  =⇒ 
+            n-incl (⊆-cong _ _ (sym ∘ stability-map F) i)
 
   δ-map· : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ₁ ]}
             {oxs : True (normalOrdered? xs)} 
