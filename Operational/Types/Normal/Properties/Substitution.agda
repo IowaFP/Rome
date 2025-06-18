@@ -413,11 +413,11 @@ stability-·' f N = trans
     (sym (stability (f ·' N))) 
     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
 
--- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
---                   f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
--- stability-<$>─ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (ρ₂ ρ₁ : NormalType Δ R[ κ₁ ]) → 
---                    {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
---                   f <$>' ((ρ₂ ─ ρ₁) {nsr}) ≡ ⇓ (⇑ f <$> (⇑ ρ₂ ─ ⇑ ρ₁))
+stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
+                  f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
+stability-<$>─ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (ρ₂ ρ₁ : NormalType Δ R[ κ₁ ]) → 
+                   {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+                  f <$>' ((ρ₂ ─ ρ₁) {nsr}) ≡ ⇓ (⇑ f <$> (⇑ ρ₂ ─ ⇑ ρ₁))
 
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
                 map (overᵣ (_·'_ f)) xs ≡ reifyRow 
@@ -428,33 +428,32 @@ stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow N
 stability-map f [] = refl
 stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (x .snd))) (stability-map f xs))
 
+complements-bad : ∀ (ρ v₂ v₁ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                       {nr : NotRow v₂ or NotRow v₁} → 
+                       ¬ (reify ρ ≡ v₂ ─ v₁) → ¬ (reify ((v₂ ─ v₁) {nr}) ≡ reify ρ)
+complements-bad (ne x₁) v₂ v₁ {nr} e = {!!}
+complements-bad (x₁ ▹ x₂) v₂ v₁ {nr} e = {!!}
+complements-bad (row ρ x₁) v₂ v₁ {nr} e = {!!}
+complements-bad (ρ₂ ─ ρ₁) v₂ v₁ {nr} e₁ = {!e₁!}
 
--- stability-<$>─ f (ne x₁) (ne x₂) {nsr} with stabilityNE x₁ | stabilityNE x₂ 
--- ... | c | d rewrite c | d = trans (sym (stability (f <$>' (ne x₁ ─ ne x₂)))) {!c!}
--- stability-<$>─ f (ne x₁) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (ne x₁) (ρ₁ ─ ρ₂) {nsr} = {!!}
--- stability-<$>─ f (ne x₁) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (ρ₁ ─ ρ₃) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (l₁ ▹ₙ ρ₁) {nsr} = {!!}
+stability-<$>─ f ρ₂ ρ₁ {nsr} with eval (⇑ ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stability ρ₂ | stability ρ₁
+stability-<$>─ f (ne x₁) ρ₁ {nsr} | ne x₂ | v₁ | fund₂ | fund₁ = {!!}
+stability-<$>─ f (ne x₁) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!complements-bad (ne x₁) v₂ v₃  !}
+stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | row ρ₂ x₁ | v₁ | fund₂ | fund₁ = {!fund₂!}
+stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!fund₂!}
+stability-<$>─ f (ρ₂ ─ ρ₃) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!!}
+stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | x₁ ▹ x₂ | v₁ | fund₂ | fund₁ = {!!}
+stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!fund₂!}
 
--- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
--- stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
--- stability-<$> f ((ρ₂ ─ ρ₁) {nsr})  = stability-<$>─ f ρ₂ ρ₁ {nsr}
---   -- trans (sym (stability (f <$>' (ρ₂ ─ ρ₁)))) 
---   -- (trans (cong₂ (λ x₁ y₁ → reify (eval (⇑ x₁) idEnv ─V eval (⇑ y₁) idEnv)) (stability-<$> f ρ₂)
---   --               (stability-<$> f ρ₁)) {!ρ₂!})
--- stability-<$> f (l ▹ₙ τ) with ⇓ (⇑NE l) | stabilityNE l
--- ... | ne x₁ | refl = cong (l ▹ₙ_) (stability-·' f τ)
--- ... | lab l₁ | ()
+stability-<$> f (ne x) = sym (stability (f <$>' ne x))
+stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
+stability-<$> f ((ρ₂ ─ ρ₁) {nsr})  = stability-<$>─ f ρ₂ ρ₁ {nsr}
+  -- trans (sym (stability (f <$>' (ρ₂ ─ ρ₁)))) 
+  -- (trans (cong₂ (λ x₁ y₁ → reify (eval (⇑ x₁) idEnv ─V eval (⇑ y₁) idEnv)) (stability-<$> f ρ₂)
+  --               (stability-<$> f ρ₁)) {!ρ₂!})
+stability-<$> f (l ▹ₙ τ) with ⇓ (⇑NE l) | stabilityNE l
+... | ne x₁ | refl = cong (l ▹ₙ_) (stability-·' f τ)
+... | lab l₁ | ()
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>

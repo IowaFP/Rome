@@ -11,6 +11,8 @@ open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.Renaming
+open import Rome.Operational.Types.Normal.Substitution
 
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Equivalence.Properties
@@ -31,6 +33,9 @@ SynT {κ = κ} ρ φ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (
 
 AnaT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★ → Type Δ ★
 AnaT {κ = κ} ρ φ τ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
+
+NormalAnaT : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★ → NormalType Δ ★
+NormalAnaT {κ = κ} ρ φ τ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ₙ η-norm (` Z)) ≲ (weakenₖNF (weakenₖNF ρ))) ⇒ (⌊ ne (` (S Z)) ⌋ `→ (weakenₖNF (weakenₖNF φ) ·' η-norm (` Z)) `→ weakenₖNF (weakenₖNF τ))))
 
 --------------------------------------------------------------------------------
 -- SynT and AnaT respects type equality

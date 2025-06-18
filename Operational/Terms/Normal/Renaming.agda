@@ -165,14 +165,14 @@ ren {ρ = r} R (syn ρ φ M) =
     (syn (renₖNF r ρ) (renₖNF r φ) 
   (conv (cong ⇓ (sym (SynT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ))))
   (conv-≡t (inst (↻-ren-syn r (⇑ ρ) (⇑ φ)) ) (conv (↻-ren-⇓ r (SynT (⇑ ρ) (⇑ φ))) (ren R M)))))
-ren {ρ = r} R (ana ρ φ τ refl refl M) = 
-  conv 
-    (cong₂ _`→_ (cong Σ (↻-ren-⇓-<$> r φ ρ)) refl) 
-  (ana (renₖNF r ρ) (renₖNF r φ) (renₖNF r τ) refl refl
-    (conv 
-      ((cong ⇓ (sym (AnaT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ) (↻-ren-⇑ r τ)))))
-    (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
-    (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
+ren {ρ = r} R (ana ρ φ τ refl refl M) = conv {!!} (ana (renₖNF r ρ) (renₖNF r φ) (renₖNF r τ) {!!} {!!} (ren R M))
+  -- conv 
+  --   (cong₂ _`→_ (cong Σ (↻-ren-⇓-<$> r φ ρ)) refl) 
+  -- (ana (renₖNF r ρ) (renₖNF r φ) (renₖNF r τ) refl refl
+  --   (conv 
+  --     ((cong ⇓ (sym (AnaT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ) (↻-ren-⇑ r τ)))))
+  --   (conv (cong ⇓ (↻-ren-ana r (⇑ ρ) (⇑ φ) (⇑ τ))) 
+  --   (conv (↻-ren-⇓ r (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) (ren R M)))))
 ren R ⟨ xs ⟩ = ⟨ renRecord R xs ⟩
 ren {ρ = r} R (⟨ l ▹ M ⟩via i) = ⟨ l ▹ (ren R M) ⟩via ∈-renₖNF r i 
 
