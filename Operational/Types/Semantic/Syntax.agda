@@ -65,6 +65,13 @@ SemType Δ L = NormalType Δ L
 SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
 
+-- cong-─Sem : {τ₂ υ₂ τ₁ υ₁ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]}
+--             {nr₁ : NotRow τ₂ or NotRow τ₁} 
+--             {nr₂ : NotRow υ₂ or NotRow υ₁} → 
+--                  τ₂ ≡ υ₂ → 
+--                  τ₁ ≡ υ₁ → 
+--                 _≡_ {A = RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]} ((τ₂ ─ τ₁) {nr₁}) ((υ₂ ─ υ₁) {nr₂})
+
 --------------------------------------------------------------------------------
 -- renames
 

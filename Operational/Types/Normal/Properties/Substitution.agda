@@ -428,29 +428,55 @@ stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow N
 stability-map f [] = refl
 stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (x .snd))) (stability-map f xs))
 
+inj-reify-─ : ∀ (ρ₂ ρ₁ v₂ v₁ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                {nr-ρ  : NotRow ρ₂ or NotRow ρ₁} → 
+                {nr-v : NotRow v₂ or NotRow v₁} → 
+                reify ((ρ₂ ─ ρ₁) {nr-ρ}) ≡ reify ((v₂ ─ v₁) {nr-v}) → 
+                (ρ₂ ─ ρ₁) {nr-ρ} ≡ (v₂ ─ v₁) {nr-v}
+inj-reify-─ ρ₂ ρ₁ v₂ v₁ {nr-ρ} {nr-v} e = {!reify-≋!}
+
 complements-bad : ∀ (ρ v₂ v₁ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
                        {nr : NotRow v₂ or NotRow v₁} → 
-                       ¬ (reify ρ ≡ v₂ ─ v₁) → ¬ (reify ((v₂ ─ v₁) {nr}) ≡ reify ρ)
-complements-bad (ne x₁) v₂ v₁ {nr} e = {!!}
-complements-bad (x₁ ▹ x₂) v₂ v₁ {nr} e = {!!}
-complements-bad (row ρ x₁) v₂ v₁ {nr} e = {!!}
-complements-bad (ρ₂ ─ ρ₁) v₂ v₁ {nr} e₁ = {!e₁!}
+                       (reify ((v₂ ─ v₁) {nr}) ≡ reify ρ) → (ρ ≡ (v₂ ─ v₁) {nr})
+complements-bad (ne x₁) (row ρ x₂) (row ρ₁ x₃) {left ()} e
+complements-bad (ne x₁) (row ρ x₂) (row ρ₁ x₃) {right ()} e
+complements-bad (x₁ ▹ x₂) (row ρ x₃) (row ρ₁ x₄) {left ()} e
+complements-bad (x₁ ▹ x₂) (row ρ x₃) (row ρ₁ x₄) {right ()} e
+complements-bad (row ρ x₁) (row ρ₁ x₂) (row ρ₂ x₃) {left ()} e
+complements-bad (row ρ x₁) (row ρ₁ x₂) (row ρ₂ x₃) {right ()} e
+complements-bad (ne x₁ ─ ρ₁) (ne x₂) v₁ {nr} e = {!inj-─ e!}
+complements-bad (ne x₁ ─ ρ₁) (row ρ x₂) v₁ {nr} e = {!!}
+complements-bad (ne x₁ ─ ρ₁) (v₂ ─ v₃) v₁ {nr} e = {!!}
+complements-bad ((x₁ ▹ x₂) ─ ρ₁) v₂ v₁ {nr} e = {!!}
+complements-bad (row ρ x₁ ─ ρ₁) v₂ v₁ {nr} e = {!!}
+complements-bad ((ρ₂ ─ ρ₃) ─ ρ₁) v₂ v₁ {nr} e = {!!}
 
 stability-<$>─ f ρ₂ ρ₁ {nsr} with eval (⇑ ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stability ρ₂ | stability ρ₁
-stability-<$>─ f (ne x₁) ρ₁ {nsr} | ne x₂ | v₁ | fund₂ | fund₁ = {!!}
-stability-<$>─ f (ne x₁) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!complements-bad (ne x₁) v₂ v₃  !}
+stability-<$>─ f (ne x₁) ρ₁ {nsr} | ne x₂ | v₁ | fund₂ | fund₁ = {!stability f!}
+stability-<$>─ f (ne x₁) ρ₁ {nsr} | (row ρ x₂ ─ row ρ₂ x₃) {left ()} | v₁ | fund₂ | fund₁
+stability-<$>─ f (ne x₁) ρ₁ {nsr} | (row ρ x₂ ─ row ρ₂ x₃) {right ()} | v₁ | fund₂ | fund₁
 stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | row ρ₂ x₁ | v₁ | fund₂ | fund₁ = {!fund₂!}
-stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!fund₂!}
-stability-<$>─ f (ρ₂ ─ ρ₃) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!!}
-stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | x₁ ▹ x₂ | v₁ | fund₂ | fund₁ = {!!}
-stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!fund₂!}
+stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | (row ρ₂ x₁ ─ row ρ₃ x₂) {left ()} | v₁ | fund₂ | fund₁
+stability-<$>─ f (⦅ ρ ⦆ oρ) ρ₁ {nsr} | (row ρ₂ x₁ ─ row ρ₃ x₂) {right ()} | v₁ | fund₂ | fund₁
+stability-<$>─ f (l₁ ▹ₙ τ₁) ρ₁ {nsr} | l₂ ▹ τ₂ | v₁ | refl | fund₁ = {!!}
+stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | (row ρ x₁ ─ row ρ₃ x₂) {left ()} | v₁ | fund₂ | fund₁ 
+stability-<$>─ f (l ▹ₙ ρ₂) ρ₁ {nsr} | (row ρ x₁ ─ row ρ₃ x₂) {right ()} | v₁ | fund₂ | fund₁ 
+stability-<$>─ f (ρ₂ ─ ρ₃) ρ₁ {nsr} | v₂ ─ v₃ | v₁ | fund₂ | fund₁ = {!stability-<$> f ρ₁!}
 
 stability-<$> f (ne x) = sym (stability (f <$>' ne x))
 stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
-stability-<$> f ((ρ₂ ─ ρ₁) {nsr})  = stability-<$>─ f ρ₂ ρ₁ {nsr}
-  -- trans (sym (stability (f <$>' (ρ₂ ─ ρ₁)))) 
-  -- (trans (cong₂ (λ x₁ y₁ → reify (eval (⇑ x₁) idEnv ─V eval (⇑ y₁) idEnv)) (stability-<$> f ρ₂)
-  --               (stability-<$> f ρ₁)) {!ρ₂!})
+stability-<$> f ((ρ₂ ─ ρ₁) {nsr})  = 
+  trans (sym (stability (f <$>' (ρ₂ ─ ρ₁)))) 
+  (trans (cong₂ (λ x₁ y₁ → reify (eval (⇑ x₁) idEnv ─V eval (⇑ y₁) idEnv)) (stability-<$> f ρ₂)
+                (stability-<$> f ρ₁)) (reify-≋
+                                         {V₁ =
+                                          eval (⇑ (⇓ (⇑ f <$> ⇑ ρ₂))) idEnv ─V
+                                          eval (⇑ (⇓ (⇑ f <$> ⇑ ρ₁))) idEnv}
+                                         {V₂ =
+                                          eval (⇑ f) (λ x₁ → reflect (` x₁)) <$>V
+                                          (eval (⇑ ρ₂) (λ x₁ → reflect (` x₁)) ─V
+                                           eval (⇑ ρ₁) (λ x₁ → reflect (` x₁)))}
+                                         {!cong-─V!}))
 stability-<$> f (l ▹ₙ τ) with ⇓ (⇑NE l) | stabilityNE l
 ... | ne x₁ | refl = cong (l ▹ₙ_) (stability-·' f τ)
 ... | lab l₁ | ()
