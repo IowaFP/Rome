@@ -11,6 +11,7 @@ open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.SynAna
+open import Rome.Operational.Types.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Syntax
@@ -22,6 +23,14 @@ open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
+
+open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Operational.Types.Equivalence.Properties
+
+open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Soundness
+
 
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Normal.Substitution
@@ -135,17 +144,65 @@ magic : ∀ (φ : NormalType ∅ (κ `→ ★))
               NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Syn {Γ = ∅} φ (⦅ zs ⦆ ozs)
 magic (`λ m) zs ozs M l τ n ℓ with ≲-inv n 
 ... | i with i (l , τ) (here refl)
-... | thr = conv {!!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (l' , τ') (here refl) → {!!} }) ⟩ · ℓ)
+... | thr = conv {!↻-subₖ-eval!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (.l , τ') (here refl) → {!here ?!} }) ⟩ · ℓ)
 -- 
+
+subst-≡t : ∀ (τ₁ τ₂ : Type Δ κ) → (P : Type Δ κ → Set) → τ₁ ≡t τ₂ → P τ₁ → P τ₂
+subst-≡t τ₁ τ₂ p eq Pτ₁ = {!!} 
+
+fuck : ∀ (l : Label) (τ : NormalType Δ κ) → 
+     subₖ (⇑ ∘ extendₖNF idSubst τ) -- (λ x₁ → ⇑ (extendₖNF (λ x₂ → reify (reflect (` x₂))) τ x₁))
+      (⇑
+       (reify
+        (eval
+         (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+          (⇑ (reify (reflect (` Z)))))
+         (lifte idEnv))))
+      ≡t
+      subₖ (⇑ ∘ extendₖNF idSubst τ)
+      (⇑
+       (reify
+        (eval
+         (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+          (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))
+         (lifte idEnv))))
+-- ↻-sub-⇑ (liftsₖNF (extendₖNF idSubst (lab l))) (reify (reflect (` Z)))
+-- ↻-sub-⇑ (liftsₖNF (extendₖNF (η-norm ∘ `) (lab l)))
+
+↻-liftsₖ-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : Type (Δ₁ ,, κ₁) κ) → 
+             subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ 
+↻-liftsₖ-⇑ σ τ = 
+  subₖ-cong-≡t 
+    {σ₁ = liftsₖ (⇑ ∘ σ)} 
+    {⇑ ∘ liftsₖNF σ} 
+    (λ { Z → eq-sym (η-norm-≡t (` Z)) ; (S x₁) → inst (sym (↻-ren-⇑ S (σ x₁))) }) τ
+
+fuck l τ = eq-trans (subₖ-≡t⇑ {σ = extendₖNF idSubst τ}
+                       {τ₁ =
+                        ⇑
+                        (reify
+                         (eval
+                          (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+                           (⇑ (reify (reflect (` Z)))))
+                          (lifte idEnv)))}
+                       {!!}) {!↻-sub-⇑ (liftsₖNF (extendₖNF idSubst (lab l))) (reify (reflect (` Z)))!}
 
 synRecord : ∀ (φ : NormalType ∅ (κ `→ ★)) 
               (zs : SimpleRow NormalType ∅ R[ κ ])
               (ozs : True (normalOrdered? zs)) → 
               NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (overᵣ (φ ·'_)) zs)
 synRecord φ [] ozs M = ∅
-synRecord φ ((l , τ) ∷ zs) ozs M = l ▹ magic φ ((l , τ) ∷ zs) ozs M l  τ (n-incl λ { x (here refl) → here refl }) (# (lab l))  ⨾ synRecord φ zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!}
-  -- l ▹ conv {!!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (l' , τ') (here refl) → here (cong₂ _,_ refl {!cong ⇓!}) }) ⟩ · # (lab l))  ⨾ 
-  -- (synRecord (`λ f) zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!})
+synRecord (`λ N) ((l , τ) ∷ zs) ozs M = 
+  -- l ▹ magic φ ((l , τ) ∷ zs) ozs M l  τ (n-incl λ { x (here refl) → here refl }) (# (lab l))  ⨾ 
+  -- synRecord φ zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!}
+  l ▹ conv {!↻-eval-!} 
+           (M ·[ lab l ] 
+              ·[ τ ] 
+              ·⟨ n-incl (λ { (l' , τ') 
+                 (here refl) → 
+                   here (cong₂ _,_ refl (completeness (fuck l τ))) }) ⟩ 
+             · # (lab l))  ⨾ 
+       (synRecord (`λ N) zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!})
 
 --------------------------------------------------------------------------------
 -- Proof of progress

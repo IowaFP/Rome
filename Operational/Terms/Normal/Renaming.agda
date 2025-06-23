@@ -161,11 +161,11 @@ ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)
 ren {ρ = ρ} R ((M ⊹ N) e) = ((ren R M) ⊹ (ren R N)) (renEnt R e)
 ren {ρ = ρ} R ((M ▿ N) e) = ((ren R M) ▿ (ren R N)) (renEnt R e)
 ren {ρ = ρ} R (fix M) = fix (ren R M)
-ren {ρ = r} R (syn ρ φ M) = 
-  conv (cong Π (↻-ren-⇓-<$> r φ ρ)) 
-    (syn (renₖNF r ρ) (renₖNF r φ) 
-  (conv (cong ⇓ (sym (SynT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ))))
-  (conv-≡t (inst (↻-ren-syn r (⇑ ρ) (⇑ φ)) ) (conv (↻-ren-⇓ r (SynT (⇑ ρ) (⇑ φ))) (ren R M)))))
+ren {ρ = r} R (syn ρ φ M) = {!!}
+  -- conv (cong Π (↻-ren-⇓-<$> r φ ρ)) 
+  --   (syn (renₖNF r ρ) (renₖNF r φ) 
+  -- (conv (cong ⇓ (sym (SynT-cong (↻-ren-⇑ r ρ) (↻-ren-⇑ r φ))))
+  -- (conv-≡t (inst (↻-ren-syn r (⇑ ρ) (⇑ φ)) ) (conv (↻-ren-⇓ r (SynT (⇑ ρ) (⇑ φ))) (ren R M)))))
 ren {ρ = r} R (ana ρ φ τ refl refl M) = 
   conv 
     (cong₂ _`→_ (cong Σ (↻-ren-⇓-<$> r φ ρ)) refl) 
