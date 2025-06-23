@@ -12,6 +12,7 @@ open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.SynAna
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Substitution
@@ -349,9 +350,9 @@ data NormalTerm {Δ} Γ where
 
   syn : 
     
-        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
+        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M : NormalTerm Γ (SynT' ρ φ)) → 
         ------------------------------------------------------------------
-        NormalTerm Γ (⇓ (Π · (⇑ φ <$> ⇑ ρ)))
+        NormalTerm Γ (Π (φ <$>' ρ))
 
   ana : 
     

@@ -17,6 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.SynAna
+open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
@@ -120,6 +122,34 @@ data RecordProgress {xs} (r : Record Γ xs) : Set where
                  --------------------------------------
                  RecordProgress r
 
+--------------------------------------------------------------------------------
+-- Syn & Ana helpers
+
+Syn : ∀ {Δ} {Γ} {κ} → (f : NormalType Δ (κ `→ ★)) (z : NormalType Δ R[ κ ]) → Set 
+Syn {Δ} {Γ} {κ} f z =  ∀ (l : Label) (τ : NormalType Δ κ) 
+                   (n : NormalEnt Γ ((l ▹' τ) ≲ z)) (ℓ : NormalTerm Γ (⌊ lab l ⌋)) → NormalTerm Γ (f ·' τ)
+
+magic : ∀ (φ : NormalType ∅ (κ `→ ★)) 
+              (zs : SimpleRow NormalType ∅ R[ κ ])
+              (ozs : True (normalOrdered? zs)) → 
+              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Syn {Γ = ∅} φ (⦅ zs ⦆ ozs)
+magic (`λ m) zs ozs M l τ n ℓ with ≲-inv n 
+... | i with i (l , τ) (here refl)
+... | thr = conv {!!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (l' , τ') (here refl) → {!!} }) ⟩ · ℓ)
+-- 
+
+synRecord : ∀ (φ : NormalType ∅ (κ `→ ★)) 
+              (zs : SimpleRow NormalType ∅ R[ κ ])
+              (ozs : True (normalOrdered? zs)) → 
+              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (overᵣ (φ ·'_)) zs)
+synRecord φ [] ozs M = ∅
+synRecord φ ((l , τ) ∷ zs) ozs M = l ▹ magic φ ((l , τ) ∷ zs) ozs M l  τ (n-incl λ { x (here refl) → here refl }) (# (lab l))  ⨾ synRecord φ zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!}
+  -- l ▹ conv {!!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (l' , τ') (here refl) → here (cong₂ _,_ refl {!cong ⇓!}) }) ⟩ · # (lab l))  ⨾ 
+  -- (synRecord (`λ f) zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!})
+
+--------------------------------------------------------------------------------
+-- Proof of progress
+       
 progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
 recordProgress : ∀ {xs} → 
                    (M : Record ∅ xs) → RecordProgress M 
@@ -183,11 +213,14 @@ progress (prj M n) with progress M | entProgress n | norm-≲ n
 ... | _ | StepsTo n' via n=⇒n' | _ = StepsTo (prj M n') via ξ-prj⇒ M n n' n=⇒n'
 progress (prj M n) | Done (V-Π r rV) | Done (n-incl {xs = xs} {oxs = oxs} {oys} i) | _ = 
   StepsTo ⟨ project {oxs = oxs} {oys = oys} r i ⟩ via (δ-prj r i)
-progress ((M₁ ⊹ M₂) x₁) = {!!} -- with norm-· x₁ 
--- ... | xs , _ , ys , _ , zs , _ , refl , refl , refl with progress M₁ | progress M₂ 
--- ... | Done (V-Π r x₂) | Done (V-Π r₁ x₃) with ·-inv x₁ 
--- ... | c = {!c .snd .snd!}
-progress (syn ρ φ M) = {!!}
+progress ((M₁ ⊹ M₂) n) with progress M₁ | progress M₂ | entProgress n 
+... | StepsTo M₁' via M₁—→M₁' | _ | _ = StepsTo (M₁' ⊹ M₂) n via ξ-⊹₁ M₁ M₁' M₂ n M₁—→M₁'
+... | _ | StepsTo M₂' via M₂—→M₂' | _ = StepsTo (M₁ ⊹ M₂') n via ξ-⊹₂ M₁ M₂ M₂' n M₂—→M₂' 
+... | _ | _ | StepsTo n' via n=⇒n' = StepsTo (M₁ ⊹ M₂) n' via ξ-⊹₃ M₁ M₂ n n' n=⇒n'
+... | Done (V-Π {xs} r₁ Vr₁) | Done (V-Π {ys} r₂ Vr₂) | Done (n-plus i₁ i₂ i₃) = StepsTo ⟨ concatRec r₁ r₂ i₃ ⟩ via δ-⊹ r₁ r₂ i₁ i₂ i₃
+progress (syn ρ φ M) with progress M | row-canonicity-∅ ρ
+... | Done V | xs , oxs , refl = StepsTo (conv (cong Π (cong-⦅⦆ (stability-map φ xs))) ⟨ synRecord φ xs oxs M   ⟩) via {!!}
+... | StepsTo M' via M—→M' | _ = StepsTo syn ρ φ M' via ξ-Syn ρ φ M M' M—→M'
 progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
 ... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
 ... | StepsTo M' via M—→M' = StepsTo ana ρ φ τ eq₁ eq₂ M' via ξ-Ana ρ φ τ eq₁ eq₂ M M' M—→M'

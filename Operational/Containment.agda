@@ -155,3 +155,9 @@ truncate-⊆ : ∀ {x : A} →
              (x ∷ xs) ⊆ ys → 
              xs ⊆ ys 
 truncate-⊆ {x = x} {xs} {ys} i = λ a → i a ∘ there 
+
+truncate-⊆-or : ∀ {z : A} → 
+             {xs ys zs : List A } → 
+             (z ∷ zs) ⊆[ xs ⊹ ys ] → 
+             zs ⊆[ xs ⊹ ys ] 
+truncate-⊆-or {z = z} i = λ a → i a ∘ there

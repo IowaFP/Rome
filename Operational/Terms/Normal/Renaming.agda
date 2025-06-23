@@ -1,4 +1,5 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 
 module Rome.Operational.Terms.Normal.Renaming where
 

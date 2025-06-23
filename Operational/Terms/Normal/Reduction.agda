@@ -10,6 +10,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Operational.Types.Normal.SynAna
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
@@ -57,6 +58,16 @@ project {xs = (l , τ) ∷ xs} {ys} {oxs} {oys} rys i with get rys (i (l , τ) (
              {oxs = fromWitness (normalOrdered-tail (l , τ) xs (toWitness oxs))} 
              {oys} rys 
              (truncate-⊆ i)
+
+concatRec : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]} → 
+            (rxs : Record Γ xs) → 
+            (rys : Record Γ ys) → 
+            zs ⊆[ xs ⊹ ys ] → 
+            Record Γ zs 
+concatRec {zs = []} rxs rys i₃ = ∅
+concatRec {zs = (l , τ) ∷ zs} rxs rys i₃ with i₃ (l , τ) (here refl) 
+... | left inxs  = l ▹ (get rxs inxs .fst) ⨾ concatRec rxs rys (truncate-⊆-or i₃) 
+... | right inys = l ▹ (get rys inys .fst) ⨾ concatRec rxs rys (truncate-⊆-or i₃) 
 
 --------------------------------------------------------------------------------
 -- Reduction of entailments in an empty context
@@ -405,6 +416,13 @@ data _—→_ where
        (N₁ —→ N₂) → 
        (M ⊹ N₁) e —→ (M ⊹ N₂) e
 
+  ξ-⊹₃ : ∀
+         (M : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) 
+         (e₁ e₂ : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+    
+       (e₁ =⇒ e₂) → 
+       (M ⊹ N) e₁ —→ (M ⊹ N) e₂
+
   ξ-▿₁ : ∀
          (M₁ M₂ : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) 
          (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
@@ -426,7 +444,7 @@ data _—→_ where
          (e₁ =⇒ e₂) → 
          (M ▿ N) e₁ —→ (M ▿ N) e₂
 
-  ξ-Syn : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M₁ M₂ : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) →
+  ξ-Syn : (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) → (M₁ M₂ : NormalTerm Γ (SynT' ρ φ)) →
           M₁ —→ M₂ → 
           ------------
           syn ρ φ M₁ —→ syn ρ φ M₂
@@ -510,6 +528,19 @@ data _—→_ where
             ---------------------------
             inj (⟨ l ▹ M ⟩via h) (n-incl {oxs = oxs} {oys} i) —→ ⟨ l ▹ M ⟩via (i (l , τ) h)
 
+
+  δ-⊹ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]} → 
+          {oxs : True (normalOrdered? xs)} 
+          {oys : True (normalOrdered? ys)}
+          {ozs : True (normalOrdered? zs)} →
+          (r₁ : Record Γ xs) (r₂ : Record Γ ys) → 
+          (i₁ : xs ⊆ zs) 
+          (i₂ : ys ⊆ zs) 
+          (i₃ : zs ⊆[ xs ⊹ ys ]) → 
+
+
+        ---------------------------------------------
+        (⟨ r₁ ⟩ ⊹ ⟨ r₂ ⟩) (n-plus {oxs = oxs} {oys = oys} {ozs} i₁ i₂ i₃) —→ ⟨ concatRec r₁ r₂ i₃ ⟩ 
 
   δ-▿₁ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]}
             {oxs : True (normalOrdered? xs)} 

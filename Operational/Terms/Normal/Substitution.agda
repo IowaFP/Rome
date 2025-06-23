@@ -1,4 +1,6 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
+
 module Rome.Operational.Terms.Normal.Substitution where
 
 open import Rome.Operational.Prelude
