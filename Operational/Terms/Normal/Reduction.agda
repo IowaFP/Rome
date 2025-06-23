@@ -384,6 +384,13 @@ data _—→_ where
             ------------ 
             inj M₁ e —→ inj M₂ e
 
+  ξ-inj⇒ : ∀ 
+            (M : NormalTerm Γ (Σ ρ₁)) (e₁ e₂ : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+
+            e₁ =⇒ e₂ → 
+            ------------ 
+            inj M e₁ —→ inj M e₂
+
   ξ-⊹₁ : ∀
          (M₁ M₂ : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) 
          (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
@@ -494,6 +501,14 @@ data _—→_ where
             (i : xs ⊆ ys) → 
             ---------------------------
             (prj (⟨_⟩ {oxs = oys} rys) (n-incl {oxs = oxs} i) ) —→ ⟨ project {oxs = oxs} {oys = oys} rys i ⟩ 
+
+  δ-inj : ∀ {xs ys : SimpleRow NormalType Δ R[ ★ ]} → 
+            {oxs : True (normalOrdered? xs)} {oys : True (normalOrdered? ys)} →
+            (l : Label) (M : NormalTerm Γ τ) → 
+            (i : xs ⊆ ys)
+            (h : (l , τ) ∈ xs) → 
+            ---------------------------
+            inj (⟨ l ▹ M ⟩via h) (n-incl {oxs = oxs} {oys} i) —→ ⟨ l ▹ M ⟩via (i (l , τ) h)
 
 
   δ-▿₁ : ∀ {xs ys zs : SimpleRow NormalType Δ R[ ★ ]}

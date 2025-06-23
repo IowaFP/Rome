@@ -199,16 +199,15 @@ progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ/ ℓ) with progress M 
 ... | Done (V-Σ l {M'} V (here refl)) = StepsTo M' via (δ-Σ/ M' ℓ)
 ... | StepsTo M' via M→M' = StepsTo M' Σ/ ℓ via ξ-Σ/₁ M M' ℓ M→M'
-progress (inj M x₁) = {!!}
+progress (inj M n) with progress M | entProgress n 
+... | StepsTo M' via M—→M' | _  = StepsTo (inj M' n) via (ξ-inj M M' n M—→M')
+... | Done V  | StepsTo n' via n—→n'  = StepsTo inj M n' via ξ-inj⇒ M n n' n—→n'
+... | Done (V-Σ l {M'} V i) | Done (n-incl i₁) = StepsTo (⟨ l ▹ M' ⟩via i₁ (l , _) i) via δ-inj l M' i₁ i
 progress ((M₁ ▿ M₂) n) with progress M₁ | progress M₂ | entProgress n 
-... | Done x₁ | Done x₂ | Done x₃ = {!!}
-... | Done x₁ | Done x₂ | StepsTo M' via x₃ = {!!}
-... | Done x₁ | StepsTo M' via x₂ | Done x₃ = {!!}
-... | Done x₁ | StepsTo M' via x₂ | StepsTo M'' via x₃ = {!!}
-... | StepsTo M' via x₁ | Done x₂ | Done x₃ = {!!}
-... | StepsTo M' via x₁ | Done x₂ | StepsTo M'' via x₃ = {!!}
-... | StepsTo M' via x₁ | StepsTo M'' via x₂ | Done x₃ = {!!}
-... | StepsTo M' via x₁ | StepsTo M'' via x₂ | StepsTo M''' via x₃ = {!!}
+... | StepsTo M₁' via M₁—→M₁' | _ | _ = StepsTo (M₁' ▿ M₂) n via ξ-▿₁ M₁ M₁' M₂ n M₁—→M₁'
+... | _ | StepsTo M₂' via M₂—→M₂' | _ = StepsTo (M₁ ▿ M₂') n via ξ-▿₂ M₁ M₂ M₂' n M₂—→M₂'
+... | _ | _ | StepsTo n' via n=⇒n' = StepsTo (M₁ ▿ M₂) n' via ξ-▿₃ M₁ M₂ n n' n=⇒n'
+... | Done V₁ | Done V₂ | Done Vn = Done (V-▿ M₁ M₂ V₁ V₂)
 progress ⟨ r ⟩ with recordProgress r 
 ... | Done V = Done (V-Π r V)
 ... | StepsTo r' via r—→r' = StepsTo ⟨ r' ⟩ via ξ-⟨⟩ r—→r'
