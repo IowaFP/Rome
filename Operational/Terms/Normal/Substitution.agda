@@ -417,5 +417,10 @@ _βπ[_] {τ = τ} {π} M e =
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ βₖNF[ τ₂ ])
 M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem' M
-  
+
+--------------------------------------------------------------------------------
+-- Helpers for applications by terms, types, and predicates
+
+-- _·₁_ : NormalTerm Γ (τ₁ `→ τ₂) → NormalTerm Γ τ₁ → NormalTerm Γ τ₂
+-- M ·₁ N = {!M!}
    

@@ -132,60 +132,79 @@ data RecordProgress {xs} (r : Record Γ xs) : Set where
                  RecordProgress r
 
 --------------------------------------------------------------------------------
--- Syn & Ana helpers
+-- Syn & Record helpers
 
 Syn : ∀ {Δ} {Γ} {κ} → (f : NormalType Δ (κ `→ ★)) (z : NormalType Δ R[ κ ]) → Set 
 Syn {Δ} {Γ} {κ} f z =  ∀ (l : Label) (τ : NormalType Δ κ) 
                    (n : NormalEnt Γ ((l ▹' τ) ≲ z)) (ℓ : NormalTerm Γ (⌊ lab l ⌋)) → NormalTerm Γ (f ·' τ)
 
-magic : ∀ (φ : NormalType ∅ (κ `→ ★)) 
-              (zs : SimpleRow NormalType ∅ R[ κ ])
-              (ozs : True (normalOrdered? zs)) → 
-              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Syn {Γ = ∅} φ (⦅ zs ⦆ ozs)
-magic (`λ m) zs ozs M l τ n ℓ with ≲-inv n 
-... | i with i (l , τ) (here refl)
-... | thr = conv {!↻-subₖ-eval!} (M ·[ lab l ] ·[ τ ] ·⟨ n-incl (λ { (.l , τ') (here refl) → {!here ?!} }) ⟩ · ℓ)
--- 
-
-subst-≡t : ∀ (τ₁ τ₂ : Type Δ κ) → (P : Type Δ κ → Set) → τ₁ ≡t τ₂ → P τ₁ → P τ₂
-subst-≡t τ₁ τ₂ p eq Pτ₁ = {!!} 
-
-fuck : ∀ (l : Label) (τ : NormalType Δ κ) → 
-     subₖ (⇑ ∘ extendₖNF idSubst τ) -- (λ x₁ → ⇑ (extendₖNF (λ x₂ → reify (reflect (` x₂))) τ x₁))
+lem₁ : ∀ (l : Label) (τ : NormalType Δ κ) → 
+     subₖ (⇑ ∘ extendₖNF idSubst τ) 
       (⇑
        (reify
         (eval
          (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
           (⇑ (reify (reflect (` Z)))))
          (lifte idEnv))))
-      ≡t
-      subₖ (⇑ ∘ extendₖNF idSubst τ)
-      (⇑
-       (reify
+      ≡t ⇑ τ 
+lem₁ {κ = κ} l τ = 
+  eq-trans 
+    (subₖ-≡t⇑ {σ = extendₖNF idSubst τ}
+       {τ₁ =
+        ⇑
+        (reify
+         (eval
+          (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+           (⇑ (reify (reflect (` Z)))))
+          (lifte idEnv)))}
+       (eq-sym (soundness-liftsₖ  (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+         (⇑ (reify (reflect (` Z)))))))) 
+  (eq-trans 
+    (eq-sym (inst (subₖ-comp (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst (lab l) x₁)))
+        (⇑ (reify (reflect (` Z))))) ))) 
+  (eq-trans 
+    (eq-sym (inst (subₖ-comp (⇑ (reify (reflect (` Z))))))) 
+  (subₖ-≡t {τ₁ = ⇑ (reify (reflect (` Z)))} (η-norm-≡t (` Z)))))
+
+
+
+emptySub : ∀ (τ : Type ∅ κ) → (σ : Substitutionₖ ∅ ∅) → 
+                subₖ σ τ ≡ τ
+emptySub τ σ = trans (subₖ-cong {σ₁ = σ} {σ₂ = `} (λ { () }) τ) (subₖ-id τ)
+
+lem₂ :  ∀ (l : Label) (τ : NormalType ∅ κ) → 
+        subₖ (⇑ ∘ extendₖNF idSubst τ)
+        (⇑
+        (reify
         (eval
          (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
           (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))
-         (lifte idEnv))))
--- ↻-sub-⇑ (liftsₖNF (extendₖNF idSubst (lab l))) (reify (reflect (` Z)))
--- ↻-sub-⇑ (liftsₖNF (extendₖNF (η-norm ∘ `) (lab l)))
-
-↻-liftsₖ-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : Type (Δ₁ ,, κ₁) κ) → 
-             subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ 
-↻-liftsₖ-⇑ σ τ = 
-  subₖ-cong-≡t 
-    {σ₁ = liftsₖ (⇑ ∘ σ)} 
-    {⇑ ∘ liftsₖNF σ} 
-    (λ { Z → eq-sym (η-norm-≡t (` Z)) ; (S x₁) → inst (sym (↻-ren-⇑ S (σ x₁))) }) τ
-
-fuck l τ = eq-trans (subₖ-≡t⇑ {σ = extendₖNF idSubst τ}
-                       {τ₁ =
-                        ⇑
-                        (reify
-                         (eval
-                          (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
-                           (⇑ (reify (reflect (` Z)))))
-                          (lifte idEnv)))}
-                       {!!}) {!↻-sub-⇑ (liftsₖNF (extendₖNF idSubst (lab l))) (reify (reflect (` Z)))!}
+         (lifte idEnv)))) ≡t ⇑ τ
+-- soundness-liftsₖ (weakenₖ (weakenₖ (⇑ τ)))
+lem₂ {κ = κ} l τ = 
+  eq-trans (subₖ-≡t⇑ {σ = extendₖNF idSubst τ}
+              {τ₁ =
+               ⇑
+               (reify
+                (eval
+                 (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst (lab l)))
+                  (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))
+                 (lifte idEnv)))}
+              (eq-sym (soundness-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst (lab l) x₁)))
+         (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))) )) 
+  (eq-trans (inst (sym (subₖ-comp (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst (lab l) x₁)))
+        (⇑
+         (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))))) 
+  (eq-trans (inst (sym (subₖ-comp (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv)))))))) 
+  (eq-trans 
+    (subₖ-≡t (eq-sym (reify-⟦⟧≋ (fundS (weakenₖ (weakenₖ (⇑ τ))) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idSR))))) ) 
+  (eq-trans 
+    (inst (sym (subₖ-comp (weakenₖ (weakenₖ (⇑ τ)))))) 
+  (eq-trans 
+      (eq-sym (inst (↻-subₖ-renₖ (weakenₖ (⇑ τ))))) 
+  (eq-trans 
+    (eq-sym (inst (↻-subₖ-renₖ (⇑ τ)))) 
+  (inst (emptySub (⇑ τ) _))))))))
 
 synRecord : ∀ (φ : NormalType ∅ (κ `→ ★)) 
               (zs : SimpleRow NormalType ∅ R[ κ ])
@@ -193,16 +212,26 @@ synRecord : ∀ (φ : NormalType ∅ (κ `→ ★))
               NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (overᵣ (φ ·'_)) zs)
 synRecord φ [] ozs M = ∅
 synRecord (`λ N) ((l , τ) ∷ zs) ozs M = 
-  -- l ▹ magic φ ((l , τ) ∷ zs) ozs M l  τ (n-incl λ { x (here refl) → here refl }) (# (lab l))  ⨾ 
-  -- synRecord φ zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!}
   l ▹ conv {!↻-eval-!} 
            (M ·[ lab l ] 
               ·[ τ ] 
               ·⟨ n-incl (λ { (l' , τ') 
                  (here refl) → 
-                   here (cong₂ _,_ refl (completeness (fuck l τ))) }) ⟩ 
+                   here (cong₂ _,_ refl (completeness (eq-trans (lem₁ l τ) (eq-sym (lem₂ l τ)) ))) }) ⟩ 
              · # (lab l))  ⨾ 
        (synRecord (`λ N) zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) {!!})
+
+--------------------------------------------------------------------------------
+-- Ana helpers
+
+getApplicand : ∀ {l : Label} {φ : NormalType Δ (κ₁ `→ κ₂)} {φτ : NormalType Δ κ₂} 
+                 {xs : SimpleRow NormalType Δ R[ κ₁ ]} → 
+               (l , φτ) ∈ (map (overᵣ (φ ·'_)) xs) → 
+               ∃[ τ ] ((l , τ) ∈ xs × φτ ≡ φ ·' τ)
+getApplicand {xs = []} ()
+getApplicand {xs = ((l , τ) ∷ xs)} (here refl) = τ , ((here refl) , refl)
+getApplicand {l = l} {φ} {φτ} {xs = (_ ∷ xs)} (there i) with getApplicand {l = l} {φ} {φτ} {xs} i
+... | τ , i' , eq = τ , ((there i') , eq)
 
 --------------------------------------------------------------------------------
 -- Proof of progress
@@ -229,17 +258,20 @@ progress (M₁ · M₂) | Done (V-▿ {e = e} F G vF vG) | Done (V-Σ {τ = τ} 
 ... | left inxs = StepsTo (F · (⟨ l ▹ M ⟩via inxs)) via δ-▿₁ F G e M i inxs
 ... | right inys = StepsTo (G · (⟨ l ▹ M ⟩via inys)) via δ-▿₂ F G e M i inys 
 progress (M₁ · M₂) | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
--- TODO: Abstract the ana logic to its own function, á la β-reduction above.
--- Also: 
--- We can use (subst (λ x → (l , τ₃) ∈ x) eq i) to grab an index of (map (overᵣ (φ ·'_)) ρ) which should
--- (in theory) give us an index in ρ, which will give us a type with kind κ. May need to write write an inversion
--- that takes (l , τ₃) ∈ (map f ρ) and yields an (l , τ₃') ∈ ρ s.t. τ₃ = f τ₃'.
-progress (M₁ · M₂) | Done (V-ana ρ φ τ {τ₁} {τ₂} eq₁@refl eq₂ M (V-Λ M₄)) | Done (V-Σ {τ₃} l {M₃} V₂ i) with 
+progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M VM) | Done (V-Σ {φυ} l {M₃} V₂ i) with 
       row-canonicity-∅ ρ
-... | xs , oxs , refl with inj-⦅⦆ (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
-... |  eq =  StepsTo 
+... | xs , oxs , refl with inj-⦅⦆ 
+                           {wf₂ = fromWitness (normal-map-overᵣ xs (φ ·'_) (toWitness oxs))} 
+                           (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
+... |  refl with getApplicand {φ = φ} i 
+... | υ , i' , refl =  StepsTo 
     
-    (conv {!!} (M ·[ lab l ] ·[ {!subst (λ x → (l , τ₃) ∈ x) eq i!} ] ·⟨ n-incl {!!} ⟩ · # (lab l) · {!M₃!})) via {!!}
+    (conv {!M₃!} 
+      (M ·[ lab l ] 
+         ·[ υ ] 
+         ·⟨ n-incl (λ { (.l , τ') (here refl) → {!i'!} }) ⟩ 
+         · # (lab l) 
+         · conv {!.M₃!} M₃)) via {!!}
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
@@ -276,7 +308,12 @@ progress ((M₁ ⊹ M₂) n) with progress M₁ | progress M₂ | entProgress n
 ... | _ | _ | StepsTo n' via n=⇒n' = StepsTo (M₁ ⊹ M₂) n' via ξ-⊹₃ M₁ M₂ n n' n=⇒n'
 ... | Done (V-Π {xs} r₁ Vr₁) | Done (V-Π {ys} r₂ Vr₂) | Done (n-plus i₁ i₂ i₃) = StepsTo ⟨ concatRec r₁ r₂ i₃ ⟩ via δ-⊹ r₁ r₂ i₁ i₂ i₃
 progress (syn ρ φ M) with progress M | row-canonicity-∅ ρ
-... | Done V | xs , oxs , refl = StepsTo (conv (cong Π (cong-⦅⦆ (stability-map φ xs))) ⟨ synRecord φ xs oxs M   ⟩) via {!!}
+... | Done V | xs , oxs , refl = 
+  StepsTo 
+    (conv (cong Π (cong-⦅⦆ 
+      {wf₁ = fromWitness (normal-map-overᵣ xs (φ ·'_) (toWitness oxs))} 
+      (stability-map φ xs))) 
+    ⟨ synRecord φ xs oxs M   ⟩) via {!!}
 ... | StepsTo M' via M—→M' | _ = StepsTo syn ρ φ M' via ξ-Syn ρ φ M M' M—→M'
 progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
 ... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)

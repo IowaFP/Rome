@@ -97,21 +97,15 @@ reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
 Env : KEnv → KEnv → Set
 Env Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → SemType Δ₂ κ
 
+idEnv : Env Δ Δ
+idEnv = reflect ∘ `
+
 extende : (η : Env Δ₁ Δ₂) → (V : SemType Δ₂ κ) → Env (Δ₁ ,, κ) Δ₂
 extende η V Z     = V
 extende η V (S x) = η x
 
 lifte : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
-lifte {Δ₁} {Δ₂} {κ} η  = extende η' V
-  where
-    η' : Env Δ₁ (Δ₂ ,, κ)
-    η' {κ'} v = (weakenSem {Δ = Δ₂} {κ₁ = κ'} {κ₂ = κ}) (η v)
-
-    V  : SemType (Δ₂ ,, κ) κ
-    V = reflect ((` Z))
-
-idEnv : Env Δ Δ
-idEnv x = reflect ((` x))
+lifte {Δ₁} {Δ₂} {κ} η  = extende (weakenSem ∘ η) (idEnv Z)
 
 --------------------------------------------------------------------------------
 -- Semantic application

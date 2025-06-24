@@ -37,7 +37,7 @@ SynT' {κ = κ} ρ φ = ⇓ (SynT (⇑ ρ) (⇑ φ))
   --       (((` (S Z) ▹ₙ η-norm (` Z)) ≲ (weakenₖNF (weakenₖNF ρ))) ⇒ 
   --         (⌊ ne (` (S Z)) ⌋ `→ 
   --           (weakenₖNF (weakenₖNF φ) ·' η-norm (` Z)))))
--- 
+
 
 AnaT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★ → NormalType Δ ★
 AnaT' {κ = κ} ρ φ τ = ⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))

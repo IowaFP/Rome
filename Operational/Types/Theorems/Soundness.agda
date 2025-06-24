@@ -683,6 +683,12 @@ fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
 
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
 soundness τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
+
+-- soundness in lifted environments
+soundness-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
+soundness-liftsₖ τ = 
+  reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))
+ 
   
  --------------------------------------------------------------------------------
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
