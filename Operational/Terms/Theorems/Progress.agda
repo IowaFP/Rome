@@ -287,14 +287,14 @@ cutSyn :  ∀ (φ : NormalType ∅ (κ `→ ★)) (z : Label × NormalType ∅ �
             {ozs : True (normalOrdered? (z ∷ zs))} {ozs' : True (normalOrdered? zs)} → 
             NormalTerm ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs') φ)
 cutSyn φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ 
-           (conv {!lem₃  !} 
+           (conv #1 
            (weakenTermByType (weakenTermByPred (weakenTermByKind (weakenTermByKind {κ = L} M))) 
            ·[ ℓℓ ] 
            ·[ u ] 
            -- Prove hole #2 and substitute this equivalence in hole #3 to get orderedness
            ·⟨ (n-var 
                 (convPVar 
-                  (cong₂ _≲_ (cong₂ _▹ₙ_ refl (sym #1)) 
+                  (cong₂ _≲_ (cong₂ _▹ₙ_ refl (sym #2)) 
                   (cong-⦅⦆ {!completeness-row!})) (T Z))) n-⨾ 
                   n-incl {oxs = fromWitness {!subst !}} (λ x i → there i) ⟩ 
            · ⌊ℓ⌋) )))))
@@ -302,7 +302,26 @@ cutSyn φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
          ℓℓ = ne (` (S Z))
          u = η-norm (` Z)
          ⌊ℓ⌋ = ` Z
-         #1 : reify
+
+         -- should be mostly the same as lem₃
+         #1 : eval {κ = ★}
+              (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
+               (⇑
+                (eval {κ = ★}
+                 (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
+                  (⇑
+                   (renₖNF (liftₖ (liftₖ S))
+                    (renₖNF (liftₖ (liftₖ S))
+                     (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
+                      (lifte (lifte idEnv) Z))))))
+                 (lifte idEnv))))
+              idEnv
+              ≡
+              (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
+               (lifte (lifte idEnv) Z))
+         #1 = {!!}
+
+         #2 : reify
                (eval
                 (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
                  (⇑
@@ -315,8 +334,7 @@ cutSyn φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
                     (extende (λ x₁ → weakenSem (reflect (` x₁))) (idEnv Z))))))
                 (λ x₁ → reflect (` x₁)))
                ≡ reify (reflect (` Z))
-         -- #2 : ⇓Row (subRowₖ (⇑ ∘ extendₖNF idSubst u) (⇑Row (reifyRow (evalRow ())))
-         #1 = trans 
+         #2 = trans 
                 (completeness
                      (subₖ-≡t⇑ {σ = extendₖNF idSubst u}
                       (eq-trans 
