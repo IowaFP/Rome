@@ -262,25 +262,6 @@ cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
                 _≡_ {A = NormalType Δ R[ κ ]} ((τ₂ ─ τ₁) {nsr₁}) ((υ₂ ─ υ₁) {nsr₂})
 cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite Dec→Irrelevant _ (notSimpleRows? τ₂ τ₁) x x₁ = refl
 
--- cong-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
---           {τ₁ υ₁ : NeutralType Δ R[ κ ]}
---           {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
---                  τ₂ ≡ υ₂ → 
---                  τ₁ ≡ υ₁ → 
---                 _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂})
--- cong-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl refl rewrite NormalIrrelevant τ₂ isNorm₁ isNorm₂ = refl
-
--- inj-─₂ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
---           {τ₁ υ₁ : NeutralType Δ R[ κ ]}
---           {isNorm₁ : True (isNormal? τ₂)} {isNorm₂ : True (isNormal? υ₂)} → 
---           _≡_ {A = NeutralType Δ R[ κ ]} ((τ₂ ─₂ τ₁) {isNorm₁}) ((υ₂ ─₂ υ₁) {isNorm₂}) → 
---           τ₁ ≡ υ₁ × τ₂ ≡ υ₂
--- inj-─₂ {τ₂ = τ₂} {isNorm₁ = isNorm₁} {isNorm₂} refl rewrite NormalIrrelevant τ₂ isNorm₁ isNorm₂ = refl , refl
-
-
---------------------------------------------------------------------------------
--- 
-
 --------------------------------------------------------------------------------
 -- There are no neutral types in empty contexts
 
@@ -336,16 +317,6 @@ inj-· : ∀ {f₁ f₂ : NeutralType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : Norm
          f₁ ≡ f₂ × τ₁ ≡ τ₂ 
 inj-· refl = refl , refl
 
--- inj-<$> : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : NeutralType Δ R[ κ₁ ]} → 
---           φ₁ <$> τ₁ ≡ φ₂ <$> τ₂ → 
---           φ₁ ≡ φ₂ × τ₁ ≡ τ₂ 
--- inj-<$> refl = refl , refl
-
--- inj-─₁ : ∀ {ρ₄ ρ₂ : NeutralType Δ R[ κ ]} {ρ₃ ρ₁ : NormalType Δ R[ κ ]} → 
---            ρ₄ ─₁ ρ₃ ≡ ρ₂ ─₁ ρ₁ → 
---            ρ₄ ≡ ρ₂ × ρ₃ ≡ ρ₁ 
--- inj-─₁ refl = refl , refl
-
 inj-`λ :  {τ₁ τ₂ : NormalType (Δ ,, κ₁) κ₂} → `λ τ₁ ≡ `λ τ₂ → τ₁ ≡ τ₂
 inj-`λ refl = refl
 
@@ -396,17 +367,12 @@ cong-ne : ∀ {x y : NeutralType Δ κ} {g₁ : True (ground? κ)} {g₂ : True 
 cong-ne {κ = κ} {g₁ = g₁} {g₂} refl rewrite Dec→Irrelevant (Ground κ) (ground? κ) g₁ g₂ = refl
 
 --------------------------------------------------------------------------------
--- Rows are either neutral or labeled types
+-- Canonical forms of rows
 
 row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤
 row-canonicity (⦅ x ⦆ oρ) = tt
 row-canonicity (ne x) = tt
--- row-canonicity (ρ <$> x) = tt
--- row-canonicity (x ─₁ ρ) = tt
--- row-canonicity (x ─₂ ρ) = tt
--- -- row-canonicity ([ x ▹ ρ ]─ ρ₁) = tt
 row-canonicity (x ▹ₙ ρ) = tt
--- row-canonicity (F <$> x ─₁ ρ) = tt
 row-canonicity (ρ₂ ─ ρ₁) = tt
 
 row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
@@ -417,7 +383,6 @@ row-canonicity-∅ (⦅ ρ ⦆ oρ) = ρ , oρ , refl
 row-canonicity-∅ ((ρ ─ ρ₁) {nsr}) = ⊥-elim (noComplements nsr refl)
 row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
 
-
 --------------------------------------------------------------------------------
 -- arrow-canonicity
 
@@ -427,30 +392,21 @@ arrow-canonicity (`λ f) = f , refl
 --------------------------------------------------------------------------------
 -- label canonicity
 
--- label-canonicity : (l : NormalType Δ L) → ⊤ 
--- label-canonicity (ne x) = {!!}
--- label-canonicity (lab l) = {!!}
--- label-canonicity (ΠL l) = {!!}
--- label-canonicity (ΣL l) = {!!}
---                     ∃[ l₁ ] (l ≡ ΠL l₁) or
---                     ∃[ l₂ ] (l ≡ ΣL l₂) or
---                     ∃[ x  ] (l ≡ ne x)
--- label-canonicity (ne x) = right (right (x , refl))
--- label-canonicity (ΠL l) = left (l , refl)
--- label-canonicity (ΣL l) = right (left (l , refl))
+label-canonicity : (l : NormalType Δ L) → ⊤ 
+label-canonicity (ne x) = tt
+label-canonicity (lab l) = tt
 
+label-canonicity-∅ : ∀ (l : NormalType ∅ L) → ∃[ s ] (l ≡ lab s)
+label-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
+label-canonicity-∅ (lab s) = s , refl
 
 --------------------------------------------------------------------------------
 -- Embedding Normal/neutral types back to Types
 
 ⇑ : NormalType Δ κ → Type Δ κ
 ⇑Row : SimpleRow NormalType Δ R[ κ ] → SimpleRow Type Δ R[ κ ]
-
 ⇑NE : NeutralType Δ κ → Type Δ κ
--- ⇑NEapp : NeutralType Δ κ → Type Δ κ
-
 ⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
-
 Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ → 
              Ordered (⇑Row ρ)
 
@@ -465,11 +421,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (Σ x) = Σ · ⇑ x
 ⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
--- ⇑ (F <$> x ─₁ ρ) = ((⇑ F) <$> (⇑NE x)) ─ (⇑ ρ)
 ⇑ (ρ₂ ─ ρ₁) = ⇑ ρ₂ ─ ⇑ ρ₁
--- ⇑ (x ─₁ ρ) = ⇑NE x ─ ⇑ ρ
--- ⇑ (x ─₂ ρ) = ⇑ x ─ ⇑NE ρ
--- ⇑ ([ l ▹ τ ]─ ρ) = ((⇑NE l) ▹ (⇑ τ)) ─ (⇑ ρ)
 ⇑ (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
 
 ⇑Row [] = []
@@ -488,11 +440,6 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
 ⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 
-
--- ⇑NE (app x) = ⇑NEapp x
--- ⇑NE (ρ₂ ─₁ ρ₁) = (⇑NE ρ₂) ─ (⇑ ρ₁)
--- ⇑NE (ρ₂ ─₂ ρ₁) = (⇑ ρ₂) ─ (⇑NE ρ₁)
-
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
 
@@ -502,7 +449,6 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 
 εNF : NormalType Δ R[ κ ]
 εNF = ⦅ [] ⦆ tt
-
 _▹'_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
 x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
 
