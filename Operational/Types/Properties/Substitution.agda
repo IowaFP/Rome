@@ -293,3 +293,10 @@ renₖ-subₖ-id σ r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (
               map (overᵣ (subₖ σ F ·_)) (subRowₖ σ ρ) ≡ subRowₖ σ (map (overᵣ (F ·_)) ρ)
 ↻-sub-map σ F [] = refl 
 ↻-sub-map σ F (x ∷ ρ) = cong (_ ∷_) (↻-sub-map σ F ρ)
+
+--------------------------------------------------------------------------------
+-- An empty substitution behaves as the identity
+
+emptySub : ∀ (τ : Type ∅ κ) → (σ : Substitutionₖ ∅ ∅) → 
+                subₖ σ τ ≡ τ
+emptySub τ σ = trans (subₖ-cong {σ₁ = σ} {σ₂ = `} (λ { () }) τ) (subₖ-id τ)

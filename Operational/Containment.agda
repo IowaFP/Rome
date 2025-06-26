@@ -161,3 +161,10 @@ truncate-⊆-or : ∀ {z : A} →
              (z ∷ zs) ⊆[ xs ⊹ ys ] → 
              zs ⊆[ xs ⊹ ys ] 
 truncate-⊆-or {z = z} i = λ a → i a ∘ there
+
+--------------------------------------------------------------------------------
+-- A tail is contained by itself
+
+tail-⊆ : ∀ {x : A} {xs : List A} → 
+         xs ⊆ (x ∷ xs)
+tail-⊆ {x} {xs} a a∈xs = there a∈xs 
