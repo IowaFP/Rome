@@ -143,7 +143,7 @@ getApplicand {l = l} {φ} {φτ} {xs = (_ ∷ xs)} (there i) with getApplicand {
 ... | τ , i' , eq = τ , ((there i') , eq)
 
 --------------------------------------------------------------------------------
--- Syn & Record helpers
+-- Syn & Ana & Record lemmas
 
 ↻-subₖ-subₖNF : ∀ (σ : SubstitutionₖNF (Δ₁ ,, κ) Δ₂)  (τ₂ : Type (Δ₁ ,, κ) κ₂) → 
                   subₖ (⇑ ∘ σ)
@@ -268,92 +268,6 @@ lem₃ φ τ l =
     (inst (emptySub (⇑ φ) _)))))) eq-refl))) 
   (sym (stability-·' φ τ))
 
-lem₄ : ∀ (φ : NormalType ∅ (κ₁ `→ ★)) → 
-         let u  = η-norm (` Z) 
-             ℓℓ = ne (` (S Z)) in 
-              eval {κ = ★}
-              (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
-               (⇑
-                (eval {κ = ★}
-                 (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-                  (⇑
-                   (renₖNF (liftₖ (liftₖ S))
-                    (renₖNF (liftₖ (liftₖ S))
-                     (eval {κ =  κ₁ `→ ★} (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
-                      (idEnv Z))))))
-                 (lifte idEnv))))
-              idEnv
-              ≡ (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
-                      (idEnv Z))
-lem₄ φ  = let υ  = η-norm (` Z) 
-              ℓℓ = ne (` (S Z)) 
-              τ  = (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id (idEnv Z)) in 
-  trans 
-  (completeness
-    {τ₁ =
-     subₖ (λ x₁ → ⇑ (extendₖNF idSubst υ x₁))
-     (⇑
-      (eval {κ = ★}
-       (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-        (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ))))
-       (lifte idEnv)))}
-    {τ₂ = ⇑ τ}
-    (eq-trans 
-      (subₖ-≡t (eq-sym (soundness-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-         (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ))))))) 
-    (eq-trans (inst (sym (subₖ-comp (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-        (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ))))) )) 
-    (eq-trans 
-        (inst (sym (subₖ-comp (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ)))))) 
-    (eq-trans 
-      (subₖ-≡t
-         {τ₁ = ⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ))} 
-         (eq-trans 
-           ((inst (↻-ren-⇑ (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) τ)))) 
-           (inst (cong (renₖ (liftₖ (liftₖ S))) (↻-ren-⇑ (liftₖ (liftₖ S)) τ))))) 
-    (eq-trans 
-      (inst (sym (↻-subₖ-renₖ (renₖ (liftₖ (liftₖ S)) (⇑ τ))))) 
-    (eq-trans 
-      (inst (sym (↻-subₖ-renₖ (⇑ τ)))) 
-    (eq-trans
-       (subₖ-cong-≡t
-        {σ₁ =
-         ((subₖ (subₖ (λ x₁ → ⇑ (extendₖNF idSubst υ x₁)) ∘ liftsₖ `) ∘
-           liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-          ∘ liftₖ (liftₖ S))
-         ∘ liftₖ (liftₖ S)}
-        {σ₂ = ⇑ ∘ σ} (λ { Z → eq-refl ; (S Z) → eq-trans
-                                                  (subₖ-cong-≡t
-                                                   {σ₁ =
-                                                    λ x₁ → subₖ (λ x₂ → ⇑ (extendₖNF idSubst υ x₂)) (liftsₖ ` x₁)}
-                                                   {σ₂ = extendₖ ` (⇑ υ)} (λ { Z → eq-refl ; (S y₁) → η-norm-≡t (` y₁) }) (weakenₖ (⇑ ℓℓ)))
-                                                  (inst (subₖ-weaken (⇑ ℓℓ) (⇑ υ))) }) (⇑ τ))
-       (eq-trans 
-         (subₖ-≡t {σ = ⇑ ∘ σ} {τ₁ = ⇑ τ} (eq-sym ((fundS (weakenₖ (weakenₖ (⇑ φ)) · ` Z) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idSR)))))) 
-       (eq-trans 
-         (eq-· 
-           ((inst (sym ((subₖ-comp (weakenₖ (weakenₖ (⇑ φ)))))) )) 
-           eq-refl) 
-       (eq-trans 
-         (eq-· 
-           (subₖ-cong-≡t {σ₁ = (subₖ (λ x₁ → ⇑ (σ x₁)) ∘
-             (λ z → liftsₖ (λ {κ} z₁ → liftsₖ (λ {κ = κ₃} z₂ → ` z₂) z₁) z))} 
-               {σ₂ = ⇑ ∘ σ} 
-               (λ { Z → eq-refl ; (S Z) → eq-refl }) 
-               (weakenₖ (weakenₖ (⇑ φ)))) 
-           eq-refl) 
-         (eq-trans (eq-· 
-                   (eq-trans 
-                     (inst (sym (↻-subₖ-renₖ (weakenₖ (⇑ φ))))) 
-                     (inst (sym (↻-subₖ-renₖ (⇑ φ))))) (η-norm-≡t (` Z))) 
-         {!soundness (subₖ (λ x → ⇑ (σ (S (S x)))) (⇑ φ) · ` Z)!})))))))))))) 
-    (stability τ)
-  where
-    σ : SubstitutionₖNF ((∅ ,, _) ,, _) ((∅ ,, _) ,, _)
-    σ Z     = η-norm (` Z) 
-    σ (S Z) = ne (` ( S Z))  -- extendₖ (extendₖ ` (⇑ υ)) (⇑ ℓℓ)
-
-
 
 -- Syn : ∀ {Δ} {Γ} {κ} → (φ : NormalType Δ (κ `→ ★)) (z : NormalType Δ R[ κ ]) → Set 
 -- Syn {Δ} {Γ} {κ} φ z =  ∀ (l : Label) (τ : NormalType Δ κ) 
@@ -379,7 +293,7 @@ cutSyn φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
            ·⟨ (n-var 
                 (convPVar 
                   (cong₂ _≲_ (cong₂ _▹ₙ_ refl (sym #2)) 
-                  (cong-⦅⦆ {!completeness-row!})) (T Z))) n-⨾ 
+                  (cong-⦅⦆ {!#3!})) (T Z))) n-⨾ 
                   n-incl {oxs = fromWitness {!subst !}} (λ x i → there i) ⟩ 
            · ⌊ℓ⌋) )))))
        where
@@ -540,9 +454,38 @@ progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M
     (conv (trans (completeness (lem₂ υ (lab l) t)) (stability t)) 
       (M ·[ lab l ] 
          ·[ υ ] 
-         ·⟨ n-incl (λ { (.l , τ') (here refl) → subst (λ X → (l , τ') ∈ X) {!stabilityRow xs!} (subst (λ X → (l , X) ∈ _) (trans (sym (stability υ)) (sym (completeness (lem₁ (lab l) υ)))) i') }) ⟩ 
+         ·⟨ n-incl (λ { (.l , τ') (here refl) → 
+                   subst (λ X → (l , τ') ∈ X) (#1 xs) (subst (λ X → (l , X) ∈ _) (trans (sym (stability υ)) (sym (completeness (lem₁ (lab l) υ)))) i') }) ⟩ 
          · # (lab l) 
          · conv (sym (lem₃ φ υ (lab l))) M₃)) via {!!}
+    where
+      #1 : ∀ (xs : SimpleRow NormalType ∅ R[ _ ]) → xs ≡ reifyRow
+                (evalRow
+                 (subRowₖ (λ x₁ → ⇑ (extendₖNF idSubst υ x₁))
+                  (⇑Row
+                   (reifyRow
+                    (evalRow
+                     (subRowₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst (lab l) x₁)))
+                      (⇑Row
+                       (reifyRow'
+                        (evalRow (renRowₖ S (renRowₖ S (⇑Row xs)))
+                         (extende
+                          (λ x₁ →
+                             renSem S
+                             (extende (λ x₂ → renSem S (reflect (` x₂))) (ne (` Z)) x₁))
+                          (reflect (` Z)))
+                         .fst)
+                        (evalRow (renRowₖ S (renRowₖ S (⇑Row xs)))
+                         (extende
+                          (λ x₁ →
+                             renSem S
+                             (extende (λ x₂ → renSem S (reflect (` x₂))) (ne (` Z)) x₁))
+                          (reflect (` Z)))
+                         .snd))))
+                     (lifte idEnv)))))
+                     idEnv)   
+      #1 [] = refl
+      #1 ((l' , τ) ∷ xs) = cong₂ _∷_ (cong₂ _,_ refl (trans (sym (stability τ)) (sym (completeness (lem₂ υ (lab l) τ))) )) (#1 xs)
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
