@@ -450,7 +450,10 @@ progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M
                            (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
 ... |  refl with getApplicand {φ = φ} i 
 ... | υ , i' , refl =  StepsTo 
-    
+    -- TODO: Abstract this logic to a function so that reduction rule is just  
+     -- ana ⦅ xs ⦆ oxs φ t refl eq₂ M · (⟨ l ▹ N ⟩via i —→ 
+     -- analyze xs φ t eq₂ M l N i
+
     (conv (trans (completeness (lem₂ υ (lab l) t)) (stability t)) 
       (M ·[ lab l ] 
          ·[ υ ] 
