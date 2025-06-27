@@ -300,3 +300,7 @@ renₖ-subₖ-id σ r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (
 emptySub : ∀ (τ : Type ∅ κ) → (σ : Substitutionₖ ∅ ∅) → 
                 subₖ σ τ ≡ τ
 emptySub τ σ = trans (subₖ-cong {σ₁ = σ} {σ₂ = `} (λ { () }) τ) (subₖ-id τ)
+
+realEmptySub : ∀ (τ : Type ∅ κ) → 
+               subₖ (λ ()) τ ≡ τ 
+realEmptySub τ = trans (subₖ-cong {σ₁ = λ ()} {σ₂ = `} (λ { () }) τ) (subₖ-id τ)
