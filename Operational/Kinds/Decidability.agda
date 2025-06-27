@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Rome.Operational.Kinds.Decidability where
 
 open import Rome.Operational.Prelude
