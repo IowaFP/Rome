@@ -23,6 +23,7 @@ open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
+open import Rome.Operational.Terms.Normal.SynAna
 
 --------------------------------------------------------------------------------
 -- Defining projection
@@ -255,8 +256,6 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
               (⇓Row-⇑Row-─s-mono xs ys) 
               i
               (⇓Row-⇑Row-─s-mono-orₗ xs ys {toWitness oys} i)
-
-
 
 --------------------------------------------------------------------------------
 -- Small step semantics.
@@ -572,5 +571,18 @@ data _—→_ where
            -------------------------------------------------
            ((F ▿ G) e) · (⟨ l ▹ M ⟩via i₁) —→ G · (⟨ l ▹ M ⟩via i₂)
 
-  -- δ-ana : 
-
+  -- δ-ana : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} 
+  --           {oxs : True (normalOrdered? xs)}
+  --           {oxs' : True (normalOrdered? _)}
+  --           (φ : NormalType Δ (κ `→ ★))
+  --           (τ υ : NormalType Δ ★) 
+  --           {τ₂ : _}
+  --           (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ τ₂) 
+  --           (M : NormalTerm Γ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
+  --           (l : Label) 
+  --           (N : NormalTerm Γ (φ ·' υ))
+  --           (v : NormalTerm ∅ (Σ (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs'))) →
+  --           (V : Value v) → 
+  --           (i : (l , _) ∈ (map (overᵣ (_·'_ φ)) xs)) →
+  --         (ana (⦅ xs ⦆ oxs) φ τ refl refl M · (⟨ l ▹ N ⟩via i)) —→
+  --         (anaVariant φ xs τ oxs oxs' M (⟨ l ▹ N ⟩via i) (V-Σ l V i))

@@ -195,7 +195,6 @@ normal-map-overᵣ [] f oρ = tt
 normal-map-overᵣ (x ∷ []) f oρ = tt
 normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
-
 --------------------------------------------------------------------------------
 -- IsNeutral and IsNormal predicates
 
