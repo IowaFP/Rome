@@ -586,3 +586,11 @@ data _—→_ where
             (i : (l , φυ) ∈ (map (overᵣ (_·'_ φ)) xs)) →
           (ana (⦅ xs ⦆ oxs) φ τ refl eq₂ M · (⟨ l ▹ N ⟩via i)) —→ 
           (anaVariant φ xs τ oxs oxs' M (⟨ l ▹ N ⟩via i) (V-Σ l V i))
+
+  δ-syn : ∀ {xs : SimpleRow NormalType ∅ R[ κ ]} 
+            {oxs : True (normalOrdered? xs)}
+            (φ : NormalType ∅ (κ `→ ★))
+            {oxs' : True (normalOrdered? (map (overᵣ (φ ·'_)) xs))}
+            (eq : Π (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs') ≡ (⇓ (Π · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))))
+            (M : NormalTerm ∅ (SynT' (⦅ xs ⦆ oxs) φ)) →
+            (syn (⦅ xs ⦆ oxs) φ M) —→ (conv eq ⟨ synRecord φ xs oxs M ⟩)
