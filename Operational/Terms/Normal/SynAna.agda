@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Terms.Normal.SynAna where
 
 open import Rome.Operational.Prelude
@@ -211,22 +211,26 @@ lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (
 --------------------------------------------------------------------------------
 -- cutSyn takes a syn body M, which synthesizes a term at type Π {ℓ ▹ τ , ρ},
 -- and builds a body M' that synthesizes a term at type Π ρ. This is necessary
--- for us to inductively synthesize records.
+-- for us to recursively synthesize records.
 
 cutSyn :  ∀ (φ : NormalType ∅ (κ `→ ★)) (z : Label × NormalType ∅ κ) (zs : SimpleRow NormalType ∅ R[ κ ]) →
             {ozs : True (normalOrdered? (z ∷ zs))} {ozs' : True (normalOrdered? zs)} → 
             NormalTerm ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs') φ)
-cutSyn {κ = κ} φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ 
+cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ 
            (conv (lem₅ t) 
            (weakenTermByType (weakenTermByPred (weakenTermByKind (weakenTermByKind {κ = L} M))) 
            ·[ ℓℓ ] 
            ·[ u ] 
-           -- Prove hole #2 and substitute this equivalence in hole #3 to get orderedness
            ·⟨ (n-var 
                 (convPVar 
                   (cong₂ _≲_ (cong₂ _▹ₙ_ refl (sym #2)) 
                   (cong-⦅⦆ (#3 zs))) (T Z))) n-⨾ 
-                  n-incl {oxs = fromWitness (subst (λ X → NormalOrdered X) (#3 zs) {!!})} (λ x i → there i) ⟩ 
+                  n-incl {oxs = fromWitness (subst NormalOrdered (#3 zs) 
+                                            (reifyRowOrdered _ 
+                                              (evalRowOrdered (renRowₖ S (renRowₖ S (⇑Row zs))) (lifte (lifte idEnv)) 
+                                                (orderedRenRowₖ S (renRowₖ S (⇑Row zs)) 
+                                                  (orderedRenRowₖ S (⇑Row zs) (Ordered⇑ _ (toWitness ozs')))))))} 
+                         (λ x i → there i) ⟩ 
            · ⌊ℓ⌋) )))))
        where
          ℓℓ = ne (` (S Z))
@@ -240,30 +244,22 @@ cutSyn {κ = κ} φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
          σ Z     = u
          σ (S Z) = ℓℓ
 
-         -- should be mostly the same as lem₃
-         lem₅ : ∀ (t : NormalType _ ★) → eval {κ = ★}
+         lem₅ : ∀ {κ} (t : NormalType _ κ) → 
+              reify (eval {κ = κ}
               (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
                (⇑
-                (eval {κ = ★}
+                (reify (eval {κ = κ}
                  (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                   (⇑
                    (renₖNF (liftₖ (liftₖ S))
                     (renₖNF (liftₖ (liftₖ S))
                      t))))
-                 (lifte idEnv))))
-              idEnv
+                 (lifte idEnv)))))
+              idEnv)
               ≡
               t
          lem₅ t = trans 
                 (completeness
-                  {τ₁ =
-                   subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
-                   (⇑
-                    (eval {κ = ★}
-                     (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
-                      (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) t))))
-                     (lifte idEnv)))}
-                  {τ₂ = ⇑ t}
                   (eq-trans 
                     (subₖ-≡t (eq-sym (soundness-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                        (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) t))))))) 
@@ -288,12 +284,13 @@ cutSyn {κ = κ} φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
                          liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                         ∘ liftₖ (liftₖ S))
                        ∘ liftₖ (liftₖ S)}
-                      {σ₂ = ⇑ ∘ σ} (λ { Z → eq-refl ; (S Z) → eq-trans
-                                                                (subₖ-cong-≡t
-                                                                 {σ₁ =
-                                                                  λ x₁ → subₖ (λ x₂ → ⇑ (extendₖNF idSubst u x₂)) (liftsₖ ` x₁)}
-                                                                 {σ₂ = extendₖ ` (⇑ u)} (λ { Z → eq-refl ; (S y₁) → η-norm-≡t (` y₁) }) (weakenₖ (⇑ ℓℓ)))
-                                                                (inst (subₖ-weaken (⇑ ℓℓ) (⇑ u))) }) (⇑ t))
+                      {σ₂ = ⇑ ∘ σ} (λ { Z → eq-refl 
+                                      ; (S Z) → eq-trans
+                                                   (subₖ-cong-≡t
+                                                    {σ₁ =
+                                                     λ x₁ → subₖ (λ x₂ → ⇑ (extendₖNF idSubst u x₂)) (liftsₖ ` x₁)}
+                                                    {σ₂ = extendₖ ` (⇑ u)} (λ { Z → eq-refl ; (S y₁) → η-norm-≡t (` y₁) }) (weakenₖ (⇑ ℓℓ)))
+                                                   (inst (subₖ-weaken (⇑ ℓℓ) (⇑ u))) }) (⇑ t))
                      (eq-trans 
                          (subₖ-cong-≡t 
                            {σ₁ = ⇑ ∘ σ} 
@@ -396,12 +393,7 @@ cutSyn {κ = κ} φ (l , τ) zs M = (Λ (Λ (`ƛ (`λ
                         (lifte idEnv) .snd x₂))))
              idEnv .snd x₁)     
          #3 [] = refl
-         #3 ((l , υ) ∷ zs) = cong₂ _∷_ (cong₂ _,_ refl {!lem₅ (eval (renₖ S (renₖ S (⇑ υ)))
-       (extende
-        (λ x₁ →
-           renSem S
-           (extende (λ x₂ → renSem S (reflect (` x₂))) (ne (` Z)) x₁))
-        (reflect (` Z)))) !}) (#3 zs)
+         #3 ((l , υ) ∷ zs) = cong₂ _∷_ (cong₂ _,_ refl (sym (lem₅ _)  )) (#3 zs)
 
 
 --------------------------------------------------------------------------------

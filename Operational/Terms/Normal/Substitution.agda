@@ -1,5 +1,5 @@
 -- {-# OPTIONS --safe #-}
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 
 module Rome.Operational.Terms.Normal.Substitution where
 
@@ -133,16 +133,16 @@ sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
 sub σ s ((M ▿ N) e) = (sub σ s M ▿ sub σ s N) (subEnt σ s e)
 sub σ s (fix M) = fix (sub σ s M)
-sub σ s (syn ρ φ M) = {!!}
-  -- conv (cong Π (↻-sub-⇓-<$> σ φ ρ)) 
-  --   (syn (subₖNF σ ρ) (subₖNF σ φ) 
-  --   (conv
-  --     (trans 
-  --       (trans 
-  --         (sym (↻-⇓-sub σ (SynT (⇑ ρ) (⇑ φ))) ) 
-  --         (cong ⇓ (sym (↻-sub-syn (⇑ ∘ σ) (⇑ ρ) (⇑ φ))))) 
-  --       (completeness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
-  --     (sub σ s M)))
+sub σ s (syn ρ φ M) =
+  conv (cong Π (↻-sub-⇓-<$> σ φ ρ)) 
+    (syn (subₖNF σ ρ) (subₖNF σ φ) 
+    (conv
+      (trans 
+        (trans 
+          (sym (↻-⇓-sub σ (SynT (⇑ ρ) (⇑ φ))) ) 
+          (cong ⇓ (sym (↻-sub-syn (⇑ ∘ σ) (⇑ ρ) (⇑ φ))))) 
+        (completeness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
+      (sub σ s M)))
 sub σ s (ana ρ φ τ refl refl M) = 
   conv 
     (cong₂ _`→_ (cong Σ (↻-sub-⇓-<$> σ φ ρ)) refl) 

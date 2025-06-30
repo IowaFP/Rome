@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Terms.Normal.Reduction where
 
 open import Rome.Operational.Prelude
@@ -576,8 +576,6 @@ data _—→_ where
             (φ : NormalType ∅ (κ `→ ★))
             {oxs' : True (normalOrdered? (map (overᵣ (φ ·'_)) xs))}
             (τ φυ : NormalType ∅ ★) 
-            (υ : NormalType ∅ κ)
-            (φυ≡ : φυ ≡ φ ·' υ) 
             (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ Σ (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs'))
             (M : NormalTerm ∅ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
             (l : Label) 
