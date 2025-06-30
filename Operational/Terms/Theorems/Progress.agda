@@ -40,8 +40,7 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.GVars
 open import Rome.Operational.Terms.Normal.Renaming
 open import Rome.Operational.Terms.Normal.Entailment.Properties
-
-open import Rome.Operational.Terms.Theorems.Progress.Lemmas
+open import Rome.Operational.Terms.Normal.SynAna
 
 --------------------------------------------------------------------------------
 -- Proof of progress (Entailments)
@@ -169,7 +168,11 @@ progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M
 ... | xs , oxs , refl with inj-⦅⦆ 
                            {wf₂ = fromWitness (normal-map-overᵣ xs (φ ·'_) (toWitness oxs))} 
                            (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
-... |  refl = StepsTo anaVariant φ xs t oxs oxs'  M _ V  via {!oxs!}     
+... |  refl with getApplicand {φ = φ} i 
+... | υ , i' , refl = 
+  StepsTo 
+    anaVariant φ xs t oxs oxs'  M _ V  via 
+    δ-ana {xs = xs} φ t φυ υ refl eq₂ M l N V' i     
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 

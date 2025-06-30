@@ -571,18 +571,18 @@ data _—→_ where
            -------------------------------------------------
            ((F ▿ G) e) · (⟨ l ▹ M ⟩via i₁) —→ G · (⟨ l ▹ M ⟩via i₂)
 
-  -- δ-ana : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} 
-  --           {oxs : True (normalOrdered? xs)}
-  --           {oxs' : True (normalOrdered? _)}
-  --           (φ : NormalType Δ (κ `→ ★))
-  --           (τ υ : NormalType Δ ★) 
-  --           {τ₂ : _}
-  --           (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ τ₂) 
-  --           (M : NormalTerm Γ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
-  --           (l : Label) 
-  --           (N : NormalTerm Γ (φ ·' υ))
-  --           (v : NormalTerm ∅ (Σ (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs'))) →
-  --           (V : Value v) → 
-  --           (i : (l , _) ∈ (map (overᵣ (_·'_ φ)) xs)) →
-  --         (ana (⦅ xs ⦆ oxs) φ τ refl refl M · (⟨ l ▹ N ⟩via i)) —→
-  --         (anaVariant φ xs τ oxs oxs' M (⟨ l ▹ N ⟩via i) (V-Σ l V i))
+  δ-ana : ∀ {xs : SimpleRow NormalType ∅ R[ κ ]} 
+            {oxs : True (normalOrdered? xs)}
+            (φ : NormalType ∅ (κ `→ ★))
+            {oxs' : True (normalOrdered? (map (overᵣ (φ ·'_)) xs))}
+            (τ φυ : NormalType ∅ ★) 
+            (υ : NormalType ∅ κ)
+            (φυ≡ : φυ ≡ φ ·' υ) 
+            (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ Σ (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs'))
+            (M : NormalTerm ∅ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
+            (l : Label) 
+            (N : NormalTerm ∅ φυ)
+            (V : Value N) → 
+            (i : (l , φυ) ∈ (map (overᵣ (_·'_ φ)) xs)) →
+          (ana (⦅ xs ⦆ oxs) φ τ refl eq₂ M · (⟨ l ▹ N ⟩via i)) —→ 
+          (anaVariant φ xs τ oxs oxs' M (⟨ l ▹ N ⟩via i) (V-Σ l V i))
