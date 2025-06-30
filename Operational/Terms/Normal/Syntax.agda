@@ -12,7 +12,6 @@ open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.SynAna
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Substitution

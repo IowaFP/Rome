@@ -18,9 +18,6 @@ open import Rome.Operational.Types.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Stability
-
 open import Rome.Operational.Containment
 
 --------------------------------------------------------------------------------

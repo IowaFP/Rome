@@ -40,13 +40,8 @@ renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
 renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
--- renₖNF r (ρ <$> x ─₁ ρ₁) = (renₖNF r ρ) <$> (renₖNE r x) ─₁ (renₖNF r ρ₁)
 renₖNF ρ (l ▹ₙ τ) = renₖNE ρ l ▹ₙ (renₖNF ρ τ)
--- renₖNF ρ (r <$> x) = renₖNF ρ r <$> renₖNE ρ x
--- renₖNF ρ (x ─₁ r) = renₖNE ρ x ─₁ renₖNF ρ r
--- renₖNF ρ (x ─₂ r) = (renₖNF ρ x ─₂ renₖNE ρ r) {isNormal = {!!}}
 renₖNF r ((ρ₂ ─ ρ₁) {nsr}) = (renₖNF r ρ₂ ─ renₖNF r ρ₁) {nsr = fromWitness (nsrRenₖNF r ρ₁ ρ₂ (toWitness nsr))}
--- renₖNF ρ ([ x ▹ r ]─ r₁) = [ renₖNE ρ x ▹ renₖNF ρ r ]─ renₖNF ρ r₁
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
@@ -60,19 +55,6 @@ nsrRenₖNF' r (x ▹ₙ ρ) nsr = tt
 
 nsrRenₖNF r ρ₁ ρ₂ (left x) = left (nsrRenₖNF' r ρ₂ x)
 nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y) 
-
--- isNormalRenₖNF r (`λ x) witness = tt
--- isNormalRenₖNF r (x `→ x₁) witness = tt
--- isNormalRenₖNF r (`∀ x) witness = tt
--- isNormalRenₖNF r (μ x) witness = tt
--- isNormalRenₖNF r (π ⇒ x) witness = tt
--- isNormalRenₖNF r (⦅ ρ ⦆ oρ) witness = tt
--- isNormalRenₖNF r (lab l) witness = tt
--- isNormalRenₖNF r ⌊ x ⌋ witness = tt
--- isNormalRenₖNF r (Π x) witness = tt
--- isNormalRenₖNF r (Σ x) witness = tt
--- isNormalRenₖNF r (l ▹ₙ τ) witness = tt
--- isNormalRenₖNF r (ρ <$> x ─ ρ₁) witness = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt

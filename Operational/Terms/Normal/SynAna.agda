@@ -17,7 +17,6 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.SynAna
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming

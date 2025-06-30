@@ -10,7 +10,6 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.SynAna
 open import Rome.Operational.Types.Normal.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
