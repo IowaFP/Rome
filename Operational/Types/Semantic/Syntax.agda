@@ -37,7 +37,7 @@ notRows? : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → (ρ₂ ρ₁ : RowType Δ �
 
 data RowType Δ 𝒯 where
 
-  _<$>_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ κ₁ → RowType Δ 𝒯 R[ κ₂ ]
+  _<$>_ : (∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → NeutralType Δ R[ κ₁ ] → RowType Δ 𝒯 R[ κ₂ ]
   ne : NeutralType Δ R[ κ ] → RowType Δ 𝒯 R[ κ ]
 
   _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
