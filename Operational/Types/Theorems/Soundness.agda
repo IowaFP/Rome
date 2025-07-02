@@ -694,25 +694,27 @@ embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ 
 embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
 
 --------------------------------------------------------------------------------
--- Our definitions Soundness is equivalent to the converse of completeness
-
+-- Our definition of Soundness is equivalent to the converse of completeness
 
 Completeness⁻¹ : Set 
 Completeness⁻¹ = ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
 
 -- Soundness implies completeness-converse
-soundness→Completeness⁻¹ : Soundness → Completeness⁻¹ 
-soundness→Completeness⁻¹ soundness τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
+Soundness→Completeness⁻¹ : Soundness → Completeness⁻¹ 
+Soundness→Completeness⁻¹ soundness τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
 
-Completeness⁻¹→soundness : Completeness⁻¹ → Soundness
-Completeness⁻¹→soundness ⇑-inj τ = (⇑-inj τ (⇑ (⇓ τ))) (sym (stability (⇓ τ)))
+Completeness⁻¹→Soundness : Completeness⁻¹ → Soundness
+Completeness⁻¹→Soundness ⇑-inj τ = (⇑-inj τ (⇑ (⇓ τ))) (sym (stability (⇓ τ)))
 
 --------------------------------------------------------------------------------
--- ⇑ is injective w.r.t. type equivalence (converse of completeness lemma)
+-- ⇓ is injective w.r.t. type equivalence (converse of completeness lemma)
 
-⇑-inj≡t : Completeness⁻¹ 
-⇑-inj≡t = soundness→Completeness⁻¹ soundness
+completeness⁻¹ : Completeness⁻¹ 
+completeness⁻¹ = Soundness→Completeness⁻¹ soundness
 
+-- A separate (and technically circular) proof of soundness
+soundness₂ : Soundness
+soundness₂ = Completeness⁻¹→Soundness completeness⁻¹
 
 --------------------------------------------------------------------------------
 -- 
