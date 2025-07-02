@@ -28,11 +28,8 @@ NormalPred = Pred NormalType
 NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set 
 normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
 
-IsNeutral IsNormal : NormalType Δ κ → Set 
 NotSimpleRow : NormalType Δ R[ κ ] → Set 
 
-isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
-isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
 notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ₁ or NotSimpleRow τ₂)
 
 data NeutralType Δ : Kind → Set where
@@ -48,11 +45,6 @@ data NeutralType Δ : Kind → Set where
       ---------------------------
       NeutralType Δ κ
 
-  _<$>_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
-          --------------------------------------------------
-          NeutralType Δ R[ κ₂ ]
-
-
 data NormalType Δ where
 
   ne : 
@@ -60,6 +52,10 @@ data NormalType Δ where
       (x : NeutralType Δ κ) → {ground : True (ground? κ)} → 
       --------------
       NormalType Δ κ
+
+  _<$>_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
+          --------------------------------------------------
+          NormalType Δ R[ κ₂ ]
 
   `λ :
 
@@ -195,62 +191,22 @@ normal-map-overᵣ [] f oρ = tt
 normal-map-overᵣ (x ∷ []) f oρ = tt
 normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
---------------------------------------------------------------------------------
--- IsNeutral and IsNormal predicates
-
-IsNeutral (ne x) = ⊤ 
-IsNeutral _ = ⊥
-
-isNeutral? (ne x) = yes tt
-isNeutral? (l ▹ₙ τ) = no λ ()
-isNeutral? (`λ x) = no λ ()
-isNeutral? (x `→ x₁) = no λ ()
-isNeutral? (`∀ x) = no λ ()
-isNeutral? (μ x) = no λ ()
-isNeutral? (π ⇒ x) = no λ ()
-isNeutral? (⦅ ρ ⦆ oρ) = no λ ()
-isNeutral? (lab l) = no λ ()
-isNeutral? ⌊ x ⌋ = no λ ()
-isNeutral? (Π x) = no λ ()
-isNeutral? (Σ x) = no λ ()
--- isNeutral? (x ─₁ ρ) = no λ ()
--- isNeutral? (ρ ─₂ x) = no λ ()
--- isNeutral? (_<$>_─₁_ c x d) = no λ ()
-isNeutral? (c ─ c₁) = no λ ()
-
-IsNormal (ne x)     = ⊥
-IsNormal _     = ⊤
-
-isNormal? (ne x) = no λ ()
-isNormal? (l ▹ₙ τ) = yes tt
-isNormal? (`λ x) = yes tt
-isNormal? (x `→ x₁) = yes tt
-isNormal? (`∀ x) = yes tt
-isNormal? (μ x) = yes tt
-isNormal? (π ⇒ x) = yes tt
-isNormal? (⦅ ρ ⦆ oρ) = yes tt
-isNormal? (lab l) = yes tt
-isNormal? ⌊ x ⌋ = yes tt
-isNormal? (Π x) = yes tt
-isNormal? (Σ x) = yes tt
-isNormal? (ρ₂ ─ ρ₁) = yes tt
-
 NotSimpleRow (ne x) = ⊤
+NotSimpleRow (φ <$> τ) = ⊤
 NotSimpleRow (⦅ ρ ⦆ oρ) = ⊥
 NotSimpleRow (τ ─ τ₁) = ⊤
 NotSimpleRow (x ▹ₙ τ) = ⊤
 
 notSimpleRows? (ne x) _ = yes (left tt)
+notSimpleRows? (τ₁ <$> ρ) _ = yes (left tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (ne x) = yes (right tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (⦅ ρ₁ ⦆ oρ₁) = no λ { (left ()) ; (right ()) }
 notSimpleRows? (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) = yes (right tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (x ▹ₙ ρ₁) = yes (right tt)
+notSimpleRows? (⦅ ρ ⦆ oρ) (φ <$> _) = yes (right tt)
 notSimpleRows? (ρ₂ ─ ρ₃) _ = yes (left tt)
 notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
-
-NormalIrrelevant : ∀ (τ : NormalType Δ κ) → Irrelevant (True (isNormal? τ))
-NormalIrrelevant ρ = Dec→Irrelevant (IsNormal ρ) (isNormal? ρ)
 
 cong-─ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
           {τ₁ υ₁ : NormalType Δ R[ κ ]}
@@ -267,7 +223,7 @@ cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite D
 noNeutrals : NeutralType ∅ κ → ⊥
 
 noNeutrals (n · τ) = noNeutrals n 
-noNeutrals (φ <$> n) = noNeutrals n
+-- noNeutrals (φ <$> n) = noNeutrals n
 
 --------------------------------------------------------------------------------
 -- There are no complements in empty contexts 
@@ -280,8 +236,10 @@ noComplements {ρ₁ = ne x₁ ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals x�
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ne x₁} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ((ρ₂ ─ ρ₃) {nsr'})} {_} {_} nsr refl = noComplements {ρ₂ = ρ₃} {ρ₂} nsr' refl
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (l ▹ₙ ρ₂)} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (φ <$> τ)} {_} {_} nsr refl = ⊥-elim (noNeutrals τ)
 noComplements {ρ₁ = ((ρ₃ ─ ρ₂) {nsr'}) ─ _} {_} {_} nsr refl = noComplements {ρ₂ = ρ₂} {ρ₃} nsr' refl
 noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
+noComplements {ρ₁ = (φ <$> τ) ─ _} nsr refl = ⊥-elim (noNeutrals τ)
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -372,6 +330,7 @@ row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤
 row-canonicity (⦅ x ⦆ oρ) = tt
 row-canonicity (ne x) = tt
 row-canonicity (x ▹ₙ ρ) = tt
+row-canonicity (φ <$> ρ) = tt
 row-canonicity (ρ₂ ─ ρ₁) = tt
 
 row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
@@ -381,6 +340,7 @@ row-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
 row-canonicity-∅ (⦅ ρ ⦆ oρ) = ρ , oρ , refl
 row-canonicity-∅ ((ρ ─ ρ₁) {nsr}) = ⊥-elim (noComplements nsr refl)
 row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
+row-canonicity-∅ (φ <$> ρ) = ⊥-elim (noNeutrals ρ)
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -422,6 +382,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
 ⇑ (ρ₂ ─ ρ₁) = ⇑ ρ₂ ─ ⇑ ρ₁
 ⇑ (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
+⇑ (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
 
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
@@ -437,7 +398,7 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-⇑NE (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
+
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

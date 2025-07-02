@@ -6,7 +6,6 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-
 open import Rome.Operational.Types.Renaming
 
 open import Rome.Operational.Types.Normal.Syntax
@@ -190,11 +189,16 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
-F <$>V ne x = ne (reifyKripke F <$> x)
+_⊙_ : ∀ {κ₃} → NormalType Δ (κ₂ `→ κ₃) → NormalType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₃)
+(`λ M) ⊙ (`λ N) = `λ {!N βₖ[ (` Z) ]!}
+
+F <$>V ne x = (reifyKripke F) <$> x -- (reifyKripke F <$> x)
  -- (λ r n → F r (reflect n)) <$> x -- (λ r n → F r (reflect n)) <$> x ─ (row εV tt)
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
+F <$>V (G <$> n) = `λ (ne {! F id (reflect (G · ` Z))!}) <$> n
+
 
 NotRow<$> {F = F} {ne x₁} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt

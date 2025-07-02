@@ -26,7 +26,6 @@ nsrRenₖNF' : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : NormalType Δ₁ R[ κ ])
 
 renₖNE r (` x) = ` (r x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
-renₖNE ρ (r <$> x) = renₖNF ρ r <$> renₖNE ρ x
 
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
@@ -42,6 +41,7 @@ renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
 renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
 renₖNF ρ (l ▹ₙ τ) = renₖNE ρ l ▹ₙ (renₖNF ρ τ)
 renₖNF r ((ρ₂ ─ ρ₁) {nsr}) = (renₖNF r ρ₂ ─ renₖNF r ρ₁) {nsr = fromWitness (nsrRenₖNF r ρ₁ ρ₂ (toWitness nsr))}
+renₖNF ρ (r <$> x) = renₖNF ρ r <$> renₖNE ρ x
 
 renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
 renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
@@ -52,6 +52,7 @@ renRowₖNF r ((l , τ) ∷ ρ) = (l , renₖNF r τ) ∷ renRowₖNF r ρ
 nsrRenₖNF' r (ne x) nsr = tt
 nsrRenₖNF' r (ρ ─ ρ₁) nsr = tt
 nsrRenₖNF' r (x ▹ₙ ρ) nsr = tt
+nsrRenₖNF' r (φ <$> ρ) nsr = tt
 
 nsrRenₖNF r ρ₁ ρ₂ (left x) = left (nsrRenₖNF' r ρ₂ x)
 nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y) 
