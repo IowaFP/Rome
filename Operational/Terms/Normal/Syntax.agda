@@ -74,12 +74,6 @@ noPVar p (K x) = noPVar p x
 
 --------------------------------------------------------------------------------
 -- Entailment relation on predicates 
-
--- private
---   variable 
---       l l₁ l₂ l₃ : NormalType Δ L 
---       τ τ₁ τ₂ τ₃ : NormalType Δ κ 
---       υ υ₁ υ₂ υ₃ : NormalType Δ κ 
       
 data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 

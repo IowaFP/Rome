@@ -27,6 +27,7 @@ open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Soundness.Relation public
 
 --------------------------------------------------------------------------------
@@ -680,19 +681,42 @@ fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
 --------------------------------------------------------------------------------
 -- Soundness claim  
 
+Soundness : Set 
+Soundness = ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
 
-soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
+soundness : Soundness
 soundness τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
 
--- soundness in lifted environments
-soundness-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
-soundness-liftsₖ τ = 
-  reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))
- 
-  
  --------------------------------------------------------------------------------
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
 
 embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
 embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
 
+--------------------------------------------------------------------------------
+-- Our definitions Soundness is equivalent to the converse of completeness
+
+
+Completeness⁻¹ : Set 
+Completeness⁻¹ = ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+
+-- Soundness implies completeness-converse
+soundness→Completeness⁻¹ : Soundness → Completeness⁻¹ 
+soundness→Completeness⁻¹ soundness τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
+
+Completeness⁻¹→soundness : Completeness⁻¹ → Soundness
+Completeness⁻¹→soundness ⇑-inj τ = (⇑-inj τ (⇑ (⇓ τ))) (sym (stability (⇓ τ)))
+
+--------------------------------------------------------------------------------
+-- ⇑ is injective w.r.t. type equivalence (converse of completeness lemma)
+
+⇑-inj≡t : Completeness⁻¹ 
+⇑-inj≡t = soundness→Completeness⁻¹ soundness
+
+
+--------------------------------------------------------------------------------
+-- 
+-- soundness in lifted environments
+soundness-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
+soundness-liftsₖ τ = 
+  reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))
