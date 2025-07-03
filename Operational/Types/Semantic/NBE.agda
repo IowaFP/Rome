@@ -50,6 +50,25 @@ reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ 
 
 reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
                      (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ─ ρ₂) {nr}))
+reifyPreservesNR<$> : ∀ (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → SemType Δ' κ₂) (ρ : NeutralType Δ R[ κ₁ ]) → NotSimpleRow (reify (φ <$> ρ))
+
+¬notId?⇒equalKinds : ∀ (φ : NormalType Δ (κ₁ `→ κ₂)) → ¬ (NotId φ) → κ₁ ≡ κ₂ 
+¬notId?⇒equalKinds (`λ (ne (` Z))) p = refl
+¬notId?⇒equalKinds (`λ (ne (` (S α)))) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (ne (x · τ))) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ ((φ <$> x) x₁)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (`λ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (φ `→ φ₁)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (`∀ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (μ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (π ⇒ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (⦅ ρ ⦆ oρ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (lab l)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ ⌊ φ ⌋) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (Π φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (Σ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (φ ─ φ₁)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ (l ▹ₙ φ)) p = ⊥-elim (p tt)
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
@@ -57,31 +76,47 @@ reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect ((` Z)))))
 -- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+reify {κ = R[ κ ]} ((φ <$> τ)) with (reify (φ S (` Z))) | inspect (λ x → reify (φ S (` x))) Z | notId? (`λ (reify (φ S (` Z))))
+... | w | [[ refl ]] | yes p = ((`λ (reify (φ S (` Z)))) <$> τ) (fromWitness p)
+... | w | [[ refl ]] | no p with ¬notId?⇒equalKinds (`λ (reify (φ S (` Z)))) p 
+... | refl = ne τ
 reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = tt}
+reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = fromWitness (left (reifyPreservesNR<$> φ τ))}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ne x₁) = (reify (row ρ x) ─ reify (ne x₁)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
+reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (φ <$> τ)) {nsr = fromWitness (reifyPreservesNR (row ρ x) (φ <$> τ) (right tt))} 
 reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
 reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
+
+reifyPreservesNR<$> φ ρ  with notId? (`λ (reify (φ S (` Z))))
+... | yes p = tt
+... | no  p with ¬notId?⇒equalKinds (`λ (reify (φ S (` Z)))) p 
+... | refl = tt
 
 reifyPreservesNR (ne x₁) ρ₂ (left x) = left tt
 reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
 reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
+reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left (reifyPreservesNR<$> φ ρ)
 reifyPreservesNR ρ₁ (ne x) (right y) = right tt
 reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
 reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
+reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right (reifyPreservesNR<$> φ ρ₂)
 
 reifyPreservesNR' (ne x₁) ρ₂ (left x) = tt
 reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
 reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (left x) = tt
 reifyPreservesNR' (ne x) ρ₂ (right y) = tt
+reifyPreservesNR' (φ <$> n) ρ₂ (left x) = tt
+reifyPreservesNR' (φ <$> n) ρ₂ (right y) = tt
 reifyPreservesNR' (x ▹ x₁) ρ₂ (right y) = tt
 reifyPreservesNR' (row ρ x) (ne x₁) (right y) = tt
 reifyPreservesNR' (row ρ x) (x₁ ▹ x₂) (right y) = tt
 reifyPreservesNR' (row ρ x) (ρ₂ ─ ρ₃) (right y) = tt
+reifyPreservesNR' (row ρ x) (φ <$> n) (right y) = tt
 reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
 
 --------------------------------------------------------------------------------
@@ -200,9 +235,11 @@ F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
 NotRow<$> {F = F} {ne x₁} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {ρ₂ ─ ρ₃} {ρ₁} (left x) = left tt
+NotRow<$> {F = F} {φ <$> n} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {ρ₂} {ne x} (right y) = right tt
 NotRow<$> {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
 NotRow<$> {F = F} {ρ₂} {ρ₁ ─ ρ₃} (right y) = right tt
+NotRow<$> {F = F} {ρ₂} {φ <$> n} (right y) = right tt
 
 
 -- -- -- --------------------------------------------------------------------------------
@@ -215,22 +252,9 @@ row ρ₂ oρ₂ ─V row ρ₁ oρ₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ�
 ρ₂@(row ρ x) ─V ρ₁@(ne x₁) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ₂@(row ρ x) ─V ρ₁@(x₁ ▹ x₂) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ₂@(row ρ x) ─V ρ₁@(_ ─ _) = (ρ₂ ─ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ─V ρ₁@(_ <$> _) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ@(ρ₂ ─ ρ₃) ─V ρ' = (ρ ─ ρ') {nr = left tt}
-
--- F <$> ρ₂ ─ (ρ₃ ─V ρ₁)
-
--- ne x ─V ρ = x ─₁ ρ
--- ρ ─V ne x = ρ ─₂ x
--- ρ ─V (x ▹ τ) = {!compl!} 
--- ρ ─V (ρ₂ ─₁ ρ₁) = {!!} -- ρ ─₁ (reflect ρ₂ ─V ρ₁) 
--- ρ ─V (ρ₂ ─₂ ρ₁) = {!!} 
--- row ρ x ─V row ρ₁ x₁ = {!!}
-
--- -- ne x ─V ρ = ? -- (ne x) ─ ρ
--- -- ρ₂ ─V ne x₂ = ρ₂ ─ (ne x₂)
--- -- (x ▹ x₁) ─V ρ = {!!} -- (x ▹ₙ (reify x₁)) ─₁ ρ
--- -- (x ─₁ ρ₂) ─V (x₁ ▹ x₂) = {!!}
--- -- (x ─₁ ρ₂) ─V row ρ x₁ = {!!}
+ρ@(φ <$> n) ─V ρ' = (ρ ─ ρ') {nr = left tt}
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap

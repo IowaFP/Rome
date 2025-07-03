@@ -29,8 +29,10 @@ NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set
 normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
 
 NotSimpleRow : NormalType Δ R[ κ ] → Set 
-
 notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ₁ or NotSimpleRow τ₂)
+
+NotId : NormalType Δ (κ₁ `→ κ₂) → Set 
+notId? : ∀ (φ : NormalType Δ (κ₁ `→ κ₂)) → Dec (NotId φ)
 
 data NeutralType Δ : Kind → Set where
   ` : 
@@ -53,7 +55,7 @@ data NormalType Δ where
       --------------
       NormalType Δ κ
 
-  _<$>_ : NormalType Δ (κ₁ `→ κ₂) → NeutralType Δ R[ κ₁ ] → 
+  _<$>_ : (φ : NormalType Δ (κ₁ `→ κ₂)) → NeutralType Δ R[ κ₁ ] → True (notId? φ) → 
           --------------------------------------------------
           NormalType Δ R[ κ₂ ]
 
@@ -131,6 +133,50 @@ data NormalType Δ where
          ------------------------------------
          NormalType Δ R[ κ ]
 
+--------------------------------------------------------------------------------
+-- Identifying the identity
+
+NotId (`λ (ne (` Z))) = ⊥
+NotId (`λ (ne (` (S α)))) = ⊤
+NotId (`λ (ne (x · τ))) = ⊤
+NotId (`λ ((φ <$> x) x₁)) = ⊤
+NotId (`λ (`λ φ)) = ⊤
+NotId (`λ (φ `→ φ₁)) = ⊤
+NotId (`λ (`∀ φ)) = ⊤
+NotId (`λ (μ φ)) = ⊤
+NotId (`λ (π ⇒ φ)) = ⊤
+NotId (`λ (⦅ ρ ⦆ oρ)) = ⊤
+NotId (`λ (lab l)) = ⊤
+NotId (`λ ⌊ φ ⌋) = ⊤
+NotId (`λ (Π φ)) = ⊤
+NotId (`λ (Σ φ)) = ⊤
+NotId (`λ (φ ─ φ₁)) = ⊤
+NotId (`λ (l ▹ₙ φ)) = ⊤
+notId? (`λ (ne (` Z))) = no (λ ())
+notId? (`λ (ne (` (S α)))) = yes tt
+notId? (`λ (ne (x · τ))) = yes tt
+notId? (`λ ((φ <$> x) x₁)) = yes tt
+notId? (`λ (`λ φ)) = yes tt
+notId? (`λ (φ `→ φ₁)) = yes tt
+notId? (`λ (`∀ φ)) = yes tt
+notId? (`λ (μ φ)) = yes tt
+notId? (`λ (π ⇒ φ)) = yes tt
+notId? (`λ (⦅ ρ ⦆ oρ)) = yes tt
+notId? (`λ (lab l)) = yes tt
+notId? (`λ ⌊ φ ⌋) = yes tt
+notId? (`λ (Π φ)) = yes tt
+notId? (`λ (Σ φ)) = yes tt
+notId? (`λ (φ ─ φ₁)) = yes tt
+notId? (`λ (l ▹ₙ φ)) = yes tt
+
+cong-<$>ne : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)}
+               {τ₁ τ₂ : NeutralType Δ R[ κ₁ ]} 
+               {nid₁ : True (notId? φ₁)}
+               {nid₂ : True (notId? φ₂)} → 
+               φ₁ ≡ φ₂ → τ₁ ≡ τ₂ → 
+               (φ₁ <$> τ₁) nid₁ ≡ (φ₂ <$> τ₂) nid₂
+cong-<$>ne {φ₁ = φ₁} {nid₁ = nid₁} {nid₂} refl refl rewrite Dec→Irrelevant _ (notId? φ₁) nid₁ nid₂ =  refl
+               
 
 --------------------------------------------------------------------------------
 -- Ordered predicate
@@ -192,18 +238,18 @@ normal-map-overᵣ (x ∷ []) f oρ = tt
 normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
 
 NotSimpleRow (ne x) = ⊤
-NotSimpleRow (φ <$> τ) = ⊤
+NotSimpleRow ((φ <$> τ) _) = ⊤
 NotSimpleRow (⦅ ρ ⦆ oρ) = ⊥
 NotSimpleRow (τ ─ τ₁) = ⊤
 NotSimpleRow (x ▹ₙ τ) = ⊤
 
 notSimpleRows? (ne x) _ = yes (left tt)
-notSimpleRows? (τ₁ <$> ρ) _ = yes (left tt)
+notSimpleRows? ((τ₁ <$> ρ) _) _ = yes (left tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (ne x) = yes (right tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (⦅ ρ₁ ⦆ oρ₁) = no λ { (left ()) ; (right ()) }
 notSimpleRows? (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) = yes (right tt)
 notSimpleRows? (⦅ ρ ⦆ oρ) (x ▹ₙ ρ₁) = yes (right tt)
-notSimpleRows? (⦅ ρ ⦆ oρ) (φ <$> _) = yes (right tt)
+notSimpleRows? (⦅ ρ ⦆ oρ) ((φ <$> _) _) = yes (right tt)
 notSimpleRows? (ρ₂ ─ ρ₃) _ = yes (left tt)
 notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
@@ -236,10 +282,10 @@ noComplements {ρ₁ = ne x₁ ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals x�
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ne x₁} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ((ρ₂ ─ ρ₃) {nsr'})} {_} {_} nsr refl = noComplements {ρ₂ = ρ₃} {ρ₂} nsr' refl
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (l ▹ₙ ρ₂)} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
-noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ (φ <$> τ)} {_} {_} nsr refl = ⊥-elim (noNeutrals τ)
+noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ((φ <$> τ) _)} {_} {_} nsr refl = ⊥-elim (noNeutrals τ)
 noComplements {ρ₁ = ((ρ₃ ─ ρ₂) {nsr'}) ─ _} {_} {_} nsr refl = noComplements {ρ₂ = ρ₂} {ρ₃} nsr' refl
 noComplements {ρ₁ = (l ▹ₙ ρ₃) ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals l)
-noComplements {ρ₁ = (φ <$> τ) ─ _} nsr refl = ⊥-elim (noNeutrals τ)
+noComplements {ρ₁ = ((φ <$> τ) _) ─ _} nsr refl = ⊥-elim (noNeutrals τ)
 
 --------------------------------------------------------------------------------
 -- Mapping type definitions over predicates 
@@ -330,7 +376,7 @@ row-canonicity : (ρ : NormalType Δ R[ κ ]) →  ⊤
 row-canonicity (⦅ x ⦆ oρ) = tt
 row-canonicity (ne x) = tt
 row-canonicity (x ▹ₙ ρ) = tt
-row-canonicity (φ <$> ρ) = tt
+row-canonicity ((φ <$> ρ) _) = tt
 row-canonicity (ρ₂ ─ ρ₁) = tt
 
 row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) → 
@@ -340,7 +386,7 @@ row-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
 row-canonicity-∅ (⦅ ρ ⦆ oρ) = ρ , oρ , refl
 row-canonicity-∅ ((ρ ─ ρ₁) {nsr}) = ⊥-elim (noComplements nsr refl)
 row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
-row-canonicity-∅ (φ <$> ρ) = ⊥-elim (noNeutrals ρ)
+row-canonicity-∅ ((φ <$> ρ) _) = ⊥-elim (noNeutrals ρ)
 
 --------------------------------------------------------------------------------
 -- arrow-canonicity
@@ -382,7 +428,7 @@ Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ →
 ⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
 ⇑ (ρ₂ ─ ρ₁) = ⇑ ρ₂ ─ ⇑ ρ₁
 ⇑ (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
-⇑ (F <$> τ) = (⇑ F) <$> (⇑NE τ) 
+⇑ ((F <$> τ) _) = (⇑ F) <$> (⇑NE τ) 
 
 ⇑Row [] = []
 ⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)

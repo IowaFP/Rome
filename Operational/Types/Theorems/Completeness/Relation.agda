@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Theorems.Completeness.Relation where
 
 open import Rome.Operational.Prelude
@@ -37,6 +37,10 @@ _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
 _≋_ {Δ₁} {R[ κ ]} (ne τ₁) (ne τ₂) = τ₁ ≡ τ₂
+_≋_ {Δ₁} {R[ κ₂ ]} (_<$>_ {κ₃} φ₁ n₁) (_<$>_ {κ₁} φ₂ n₂) = 
+  reify {Δ = Δ₁} {κ = R[ κ₂ ]} (φ₁ <$> n₁) ≡ reify (φ₂ <$> n₂)
+_≋_ {Δ₁} {R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
+_≋_ {Δ₁} {R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (ne x₁) (x₂ ▹ x₃) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (ne x₁) (row ρ x₂) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (ne x₁) (ρ₂ ─ ρ₃) = ⊥
@@ -100,6 +104,7 @@ sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) =
   refl , 
   (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
 sym-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (sym-≋ rel₁) , (sym-≋ rel₂)
+sym-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} rel = sym rel
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
 
@@ -115,6 +120,7 @@ trans-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} (eq-
 trans-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} {row (o , R) _} (refl , rel₁) (refl , rel₂) = 
   refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≋ (rel₁ i .snd) (rel₂ i .snd) }
 trans-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} {ρ₆ ─ ρ₅} (rel₁ , rel₂) (rel₃ , rel₄) = (trans-≋ rel₁ rel₃) , (trans-≋ rel₂ rel₄)
+trans-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} {φ₃ <$> n₃} rel₁ rel₂ = trans rel₁ rel₂
 
 trans-≋ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel₁) (refl , rel₂) = refl , (λ { i → trans (rel₁ i .fst) (rel₂ i .fst)  , trans-≋ (rel₁ i .snd) (rel₂ i .snd) })
 -- --------------------------------------------------------------------------------
@@ -209,13 +215,17 @@ reify-≋ {κ = R[ κ ]} {row (zero , P) _} {row (_ , Q) _} (refl , eq) = refl
 reify-≋ {κ = R[ κ ]} {row (suc n , P) _} {row (_ , Q) _} (refl , eq) = 
   cong-⦅⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq i)
 reify-≋ {κ = R[ κ ]} {ne x₁ ─ ρ₁} {ne x₂ ─ ρ₃} (rel₁ , rel₂) = cong-─ (cong-ne rel₁) (reify-≋ rel₂)
+reify-≋ {κ = R[ κ ]} {(φ₁ <$> n₁) ─ V₂} {(φ₂ <$> n₂) ─ V₃} (rel₁ , rel₂) = cong-─ rel₁ (reify-≋ rel₂)
+
 reify-≋ {κ = R[ κ ]} {(x₁ ▹ x₂) ─ ρ₁} {(x₃ ▹ x₄) ─ ρ₃} ((refl , rel₁) , rel₂) = cong-─ (cong (x₁ ▹ₙ_) (reify-≋ rel₁)) (reify-≋ rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ ne x₃} {row (m , Q) x₂ ─ ne x₄} ((refl , rel) , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) (cong-ne rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (x₃ ▹ x₄)} {row (m , Q) x₂ ─ (x₅ ▹ x₆)} ((refl , rel₁) , refl , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel₁ )) (cong (x₃ ▹ₙ_) (reify-≋ rel₂))
 reify-≋ {κ = R[ κ ]} {row ρ x₁ ─ row ρ₁ x₃} {(row ρ₂ x₂ ─ row ρ₃ x₄) {left ()}} (rel₁ , rel₂)
 reify-≋ {κ = R[ κ ]} {row ρ x₁ ─ row ρ₁ x₃} {(row ρ₂ x₂ ─ row ρ₃ x₄) {right ()}} (rel₁ , rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (ρ₁ ─ ρ₃)} {row (n , Q) x₂ ─ (ρ₄ ─ ρ₅)} ((refl , rel₁) , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel₁)) (reify-≋ {V₁ = ρ₁ ─ ρ₃} {V₂ = ρ₄ ─ ρ₅} rel₂)
+reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (φ₁ <$> n₁)} {row (n' , Q) x₂ ─ (φ₂ <$> n₂)} ((refl , rel) , rel') = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) rel'
 reify-≋ {κ = R[ κ ]} {(ρ₂ ─ ρ₄) ─ ρ₁} {(ρ₅ ─ ρ₆) ─ ρ₃} (rel₁ , rel₂) = cong-─ (reify-≋ {V₁ = ρ₂ ─ ρ₄} {ρ₅ ─ ρ₆} rel₁) (reify-≋ rel₂)
+reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} rel = rel
 
 reifyRow-≋ {n = zero} P Q eq = refl
 reifyRow-≋ {n = suc n} P Q eq = 
@@ -255,6 +265,11 @@ reifyRow-≋' P Q refl i = reifyRow-≋ P Q i
         (Unif-G S (liftₖ ρ) _ _ (reflect-≋ refl)) 
         (refl-Extᵣ Ext (S ∘ ρ) (↻-ren-reflect (liftₖ ρ) (` Z))))))
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {ne x₁} {ne y} refl = cong-ne refl
+↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {φ₁ <$> n₁} {φ₂ <$> n₂} rel with notId? (`λ (reify (φ₁ S (` Z)))) | notId? (`λ (reify (φ₂ (S ∘ ρ) (` Z)))) 
+... | yes p | yes q = {!cong-<$>ne!}
+... | yes p | no  q = {!↻-ren-reify ρ rel!}
+... | no  p | yes q = {!↻-ren-reify ρ rel!}
+... | no  p | no  q = {!  ↻-ren-reify ρ rel!}
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , q) = cong (renₖNE ρ l₁ ▹ₙ_) (↻-ren-reify ρ q)
 ↻-ren-reify {Δ₁} {Δ₂} {κ = R[ κ ]} ρ {row (n , P) _} {row (_ , Q) _} (refl , eq) = 
   cong-⦅⦆ (↻-ren-reifyRow P Q ρ λ i → eq i)

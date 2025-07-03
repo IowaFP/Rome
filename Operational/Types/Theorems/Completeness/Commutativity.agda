@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Theorems.Completeness.Commutativity where
 
 open import Rome.Operational.Prelude
