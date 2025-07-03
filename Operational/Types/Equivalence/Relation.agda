@@ -20,6 +20,7 @@ infix 0 _≡t_
 infix 0 _≡p_
 data _≡p_ : Pred Type Δ R[ κ ] → Pred Type Δ R[ κ ] → Set
 data _≡t_ : Type Δ κ → Type Δ κ → Set 
+data _≡FL_ : Type Δ κ → Type Δ κ → Set 
 
 private
     variable
@@ -219,6 +220,15 @@ data _≡t_ where
 
                  --------------------------------------------
                  (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ (xs ─s ys) ⦆ ozs
+
+
+data _≡FL_ where
+  
+  eq-id : ∀ {τ : Type Δ R[ κ ]} → 
+            ((`λ (` Z)) <$> τ) ≡FL τ
+
+  eq-∘ : ∀ {κ₃} (f : Type Δ (κ₂ `→ κ₃)) (g : Type Δ (κ₁ `→ κ₂)) (τ : Type Δ R[ κ₁ ]) → 
+         (f <$> (g <$> τ)) ≡FL ((f ∘t g) <$> τ)
 
 -- -------------------------------------------------------------------------------
 -- -- Lifting propositional equality to type equivalence

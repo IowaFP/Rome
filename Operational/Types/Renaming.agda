@@ -62,3 +62,8 @@ weakenₖ = renₖ S
 weakenPredₖ : Pred Type Δ R[ κ₂ ] → Pred Type (Δ ,, κ₁) R[ κ₂ ]
 weakenPredₖ = renPredₖ S
 
+--------------------------------------------------------------------------------
+-- Composition
+
+_∘t_ : ∀ {κ₃} → Type Δ (κ₂ `→ κ₃) → Type Δ (κ₁ `→ κ₂) → Type Δ (κ₁ `→ κ₃)
+f ∘t g = `λ (weakenₖ f · (weakenₖ g · (` Z)))

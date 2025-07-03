@@ -220,6 +220,31 @@ completeness-row {ρ₁ = ρ₁} {ρ₂} eq with
   | fundC-Row {ρ₁ = ρ₁} {ρ₂} idEnv-≋ eq 
 ... | n , P | m , Q | refl , I = reifyRow-≋ P Q I
 
+--------------------------------------------------------------------------------
+-- completeness w.r.t. functor identity laws
+
+completeness-FunctorIdNE : ∀ (τ : NeutralType Δ R[ κ ]) →  (⇓FunctorIdNE ((`λ (η-norm (` Z))) <$> τ)) ≡ τ
+completeness-FunctorIdNE {κ = ★} (` Z) = refl
+completeness-FunctorIdNE {κ = L} (` Z) = refl
+completeness-FunctorIdNE {κ = κ `→ κ₁} (` Z) = {!!}
+completeness-FunctorIdNE {κ = R[ κ ]} (` Z) = refl
+completeness-FunctorIdNE (` (S α)) = {!!}
+completeness-FunctorIdNE (τ · τ₁) = {!!}
+completeness-FunctorIdNE (x₁ <$> τ) = {!!}
+
+completeness-FunctorLaws : ∀ (τ₁ τ₂ : Type Δ R[ κ ]) → τ₁ ≡FL τ₂ → (⇓FunctorID ∘ ⇓FunctorComp ∘ ⇓) τ₁ ≡ (⇓FunctorID ∘ ⇓FunctorComp ∘ ⇓) τ₂
+completeness-FunctorLaws _ (` α) eq-id = {!!}
+completeness-FunctorLaws _ (τ₂ · τ₃) eq-id = {!!}
+completeness-FunctorLaws _ (⦅ xs ⦆ ordered) eq-id = {!!}
+completeness-FunctorLaws _ (τ₂ ▹ τ₃) eq-id = {!!}
+completeness-FunctorLaws _ (τ₂ <$> τ₃) eq-id = {!!}
+completeness-FunctorLaws _ (τ₂ ─ τ₃) eq-id = {!!}
+completeness-FunctorLaws τ₁ τ₂ (eq-∘ f g τ) = {!!}
+
+completeness-FunctorComp : ∀ {κ₃} (f : Type Δ (κ₂ `→ κ₃)) (g : Type Δ (κ₁ `→ κ₂)) (τ : Type Δ R[ κ₁ ]) → 
+                             f <$> (g <$> τ) ≡t ((f ∘t g) <$> τ) → 
+                             (⇓FunctorComp ∘ ⇓) (f <$> (g <$> τ)) ≡ (⇓FunctorComp ∘ ⇓) ((f ∘t g) <$> τ)
+completeness-FunctorComp f g τ eq  = cong ⇓FunctorComp (completeness eq)
  
 
 --------------------------------------------------------------------------------

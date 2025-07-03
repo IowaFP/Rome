@@ -354,6 +354,29 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 ↑ τ = eval (⇑ τ) idEnv
 
 --------------------------------------------------------------------------------
+-- Implementing functor laws
+
+_∘N_ : ∀ {κ₃} → NormalType Δ (κ₂ `→ κ₃) → NormalType Δ (κ₁ `→ κ₂) → NormalType Δ (κ₁ `→ κ₃)
+F ∘N G = reifyKripke (λ {Δ} r → ↑ F r ∘ ↑ G r) 
+
+⇓FunctorCompNE : NeutralType Δ R[ κ ] → NeutralType Δ R[ κ ]
+⇓FunctorCompNE (f <$> (g <$> n)) = (f ∘N g) <$> ⇓FunctorCompNE n
+⇓FunctorCompNE n = n
+
+⇓FunctorComp : NormalType Δ R[ κ ] → NormalType Δ R[ κ ]
+⇓FunctorComp (ne n) = ne (⇓FunctorCompNE n)
+⇓FunctorComp τ = τ
+
+
+⇓FunctorIdNE : NeutralType Δ R[ κ ] → NeutralType Δ R[ κ ]
+⇓FunctorIdNE (`λ (ne (` Z)) <$> n) = n
+⇓FunctorIdNE n = n
+
+⇓FunctorID : NormalType Δ R[ κ ] → NormalType Δ R[ κ ]
+⇓FunctorID (ne n) = ne (⇓FunctorIdNE n)
+⇓FunctorID τ = τ
+
+--------------------------------------------------------------------------------
 -- Testing compl operator
 
 p : Fin 5 → Label × SemType ∅ ★
