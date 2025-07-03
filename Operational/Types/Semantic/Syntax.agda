@@ -75,7 +75,9 @@ SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]
 -- renames
 
 KripkeFunction : KEnv → Kind → Kind → Set
+KripkeFunctionNE : KEnv → Kind → Kind → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 
 --------------------------------------------------------------------------------

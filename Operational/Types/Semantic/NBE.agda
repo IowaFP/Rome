@@ -25,7 +25,9 @@ reflect {κ = R[ κ ]} ρ       = ne ρ
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
+reifyKripkeNE : KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
+reifyKripkeNE F = `λ (reify (F S (` Z)))
 
 reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
 reifyRow' zero P    = []
@@ -76,10 +78,10 @@ reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect ((` Z)))))
 -- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} ((φ <$> τ)) with (reify (φ S (` Z))) | inspect (λ x → reify (φ S (` x))) Z | notId? (`λ (reify (φ S (` Z))))
-... | w | [[ refl ]] | yes p = ((`λ (reify (φ S (` Z)))) <$> τ) (fromWitness p)
-... | w | [[ refl ]] | no p with ¬notId?⇒equalKinds (`λ (reify (φ S (` Z)))) p 
-... | refl = ne τ
+reify {κ = R[ κ ]} ((φ <$> τ)) with (reify (φ S (` Z))) | inspect (λ x → reify (φ S (` x))) Z | notId? (reifyKripkeNE φ)
+... | w | [[ refl ]] | yes p = (reifyKripkeNE φ <$> τ) (fromWitness p)
+... | w | [[ refl ]] | no p = ne (subst (λ X → NeutralType _ R[ X ]) (¬notId?⇒equalKinds (reifyKripkeNE φ) p) τ) --  ¬notId?⇒equalKinds (reifyKripkeNE φ) p 
+-- ... | refl = ne τ
 reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = fromWitness (left (reifyPreservesNR<$> φ τ))}
@@ -92,9 +94,9 @@ reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (�
 reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
 reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
 
-reifyPreservesNR<$> φ ρ  with notId? (`λ (reify (φ S (` Z))))
+reifyPreservesNR<$> φ ρ  with notId? (reifyKripkeNE φ)
 ... | yes p = tt
-... | no  p with ¬notId?⇒equalKinds (`λ (reify (φ S (` Z)))) p 
+... | no  p with ¬notId?⇒equalKinds (reifyKripkeNE φ) p 
 ... | refl = tt
 
 reifyPreservesNR (ne x₁) ρ₂ (left x) = left tt

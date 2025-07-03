@@ -26,6 +26,8 @@ nsrRenₖNF' : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : NormalType Δ₁ R[ κ ])
 
 ¬idRenₖNF : ∀ (r : Renamingₖ Δ₁ Δ₂) (φ : NormalType Δ₁ (κ₁ `→ κ₂)) → 
               NotId φ → NotId (renₖNF r φ)
+¬idRenₖNF⁻¹ : ∀ (r : Renamingₖ Δ₁ Δ₂) (φ : NormalType Δ₁ (κ₁ `→ κ₂)) → 
+                NotId (renₖNF r φ) → NotId φ 
 
 renₖNE r (` x) = ` (r x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
@@ -75,6 +77,22 @@ nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y)
 ¬idRenₖNF r (`λ (Σ φ)) ¬-id = tt
 ¬idRenₖNF r (`λ (φ ─ φ₁)) ¬-id = tt
 ¬idRenₖNF r (`λ (l ▹ₙ φ)) ¬-id = tt
+
+¬idRenₖNF⁻¹ r (`λ (ne (` (S α)))) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (ne (x · τ))) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ ((τ <$> x) x₁)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (`λ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (τ `→ τ₁)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (`∀ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (μ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (π ⇒ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (⦅ ρ ⦆ oρ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (lab l)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ ⌊ τ ⌋) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (Π τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (Σ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (τ ─ τ₁)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (l ▹ₙ τ)) ¬-id = tt
 
 orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
