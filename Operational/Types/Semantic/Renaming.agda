@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Semantic.Renaming where
 
 open import Rome.Operational.Prelude

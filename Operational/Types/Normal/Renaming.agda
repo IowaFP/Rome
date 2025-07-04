@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Normal.Renaming where
 
 open import Rome.Operational.Prelude
@@ -65,7 +65,7 @@ nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y)
 ¬idRenₖNF r (`λ (ne (` (S α)))) ¬-id = tt
 ¬idRenₖNF r (`λ (ne (x · τ))) ¬-id = tt
 ¬idRenₖNF r (`λ ((φ <$> x) x₁)) ¬-id = tt
-¬idRenₖNF r (`λ (`λ φ)) ¬-id = tt
+¬idRenₖNF r (`λ (`λ φ)) ¬-id = {! ¬idRenₖNF r  !}
 ¬idRenₖNF r (`λ (φ `→ φ₁)) ¬-id = tt
 ¬idRenₖNF r (`λ (`∀ φ)) ¬-id = tt
 ¬idRenₖNF r (`λ (μ φ)) ¬-id = tt
@@ -81,7 +81,7 @@ nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y)
 ¬idRenₖNF⁻¹ r (`λ (ne (` (S α)))) ¬-id = tt
 ¬idRenₖNF⁻¹ r (`λ (ne (x · τ))) ¬-id = tt
 ¬idRenₖNF⁻¹ r (`λ ((τ <$> x) x₁)) ¬-id = tt
-¬idRenₖNF⁻¹ r (`λ (`λ τ)) ¬-id = tt
+¬idRenₖNF⁻¹ r (`λ (`λ τ)) ¬-id = {!   !}
 ¬idRenₖNF⁻¹ r (`λ (τ `→ τ₁)) ¬-id = tt
 ¬idRenₖNF⁻¹ r (`λ (`∀ τ)) ¬-id = tt
 ¬idRenₖNF⁻¹ r (`λ (μ τ)) ¬-id = tt

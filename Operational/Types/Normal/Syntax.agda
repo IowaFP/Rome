@@ -144,7 +144,10 @@ NotId (`λ (ne (` Z))) = ⊥
 NotId (`λ (ne (` (S α)))) = ⊤
 NotId (`λ (ne (x · τ))) = ⊤
 NotId (`λ ((φ <$> x) x₁)) = ⊤
-NotId (`λ (`λ φ)) = ⊤
+NotId (`λ (`λ {κ₂ = ★} φ)) = ⊤
+NotId (`λ (`λ {κ₂ = L} φ)) = ⊤
+NotId (`λ (`λ {κ₂ = κ₂ `→ κ₃} φ)) = NotId φ
+NotId (`λ (`λ {κ₂ = R[ κ₂ ]} φ)) = ⊤
 NotId (`λ (φ `→ φ₁)) = ⊤
 NotId (`λ (`∀ φ)) = ⊤
 NotId (`λ (μ φ)) = ⊤
@@ -160,7 +163,10 @@ notId? (`λ (ne (` Z))) = no (λ ())
 notId? (`λ (ne (` (S α)))) = yes tt
 notId? (`λ (ne (x · τ))) = yes tt
 notId? (`λ ((φ <$> x) x₁)) = yes tt
-notId? (`λ (`λ φ)) = yes tt
+notId? (`λ (`λ {κ₂ = ★} φ)) = yes tt
+notId? (`λ (`λ {κ₂ = L} φ)) = yes tt
+notId? (`λ (`λ {κ₂ = κ₂ `→ κ₃} φ)) = notId? φ
+notId? (`λ (`λ {κ₂ = R[ κ₂ ]} φ)) = yes tt
 notId? (`λ (φ `→ φ₁)) = yes tt
 notId? (`λ (`∀ φ)) = yes tt
 notId? (`λ (μ φ)) = yes tt

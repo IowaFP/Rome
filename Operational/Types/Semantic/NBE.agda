@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Operational.Types.Semantic.NBE where
 
 open import Rome.Operational.Prelude
@@ -59,7 +59,7 @@ reifyPreservesNR<$> : ∀ (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType
 ¬notId?⇒equalKinds (`λ (ne (` (S α)))) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (ne (x · τ))) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ ((φ <$> x) x₁)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (`λ φ)) p = ⊥-elim (p tt)
+¬notId?⇒equalKinds (`λ M@(`λ {κ₁} φ)) p = {! ¬notId?⇒equalKinds   !}
 ¬notId?⇒equalKinds (`λ (φ `→ φ₁)) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (`∀ φ)) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (μ φ)) p = ⊥-elim (p tt)
@@ -403,3 +403,31 @@ y = compl {Δ = ∅} {κ = ★} p q
 
 -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
 -- -- _ = refl
+
+Id-Canonical : ∀ κ → NormalType Δ (κ `→ κ) 
+Id-Canonical ★ = `λ (ne (` Z))
+Id-Canonical L = `λ (ne (` Z))
+Id-Canonical (κ₁ `→ κ₂) = `λ (η-norm (` Z))
+Id-Canonical R[ κ ] = `λ (ne (` Z))
+
+id-canonical : ∀ (φ : NormalType Δ (κ₁ `→ κ₁)) → ¬ (NotId φ) → φ ≡ `λ (η-norm (` Z))
+id-canonical {κ₁ = ★} (`λ (ne (` Z))) ¬¬id = refl
+id-canonical {κ₁ = L} (`λ (ne (` Z))) ¬¬id = refl
+id-canonical {κ₁ = R[ κ₁ ]} (`λ (ne (` Z))) ¬¬id = refl
+id-canonical (`λ (ne (` (S α)))) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (ne (x · τ))) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ ((φ <$> x) x₁)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (`λ φ)) ¬¬id with notId? (`λ φ) 
+... | yes p = {! ¬notId?⇒equalKinds (`λ φ)     !}
+... | no  q  = {!   !} 
+id-canonical (`λ (φ `→ φ₁)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (`∀ φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (μ φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (π ⇒ φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (⦅ ρ ⦆ oρ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (lab l)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ ⌊ φ ⌋) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (Π φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (Σ φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (φ ─ φ₁)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical (`λ (l ▹ₙ φ)) ¬¬id = ⊥-elim (¬¬id tt)

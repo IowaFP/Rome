@@ -83,6 +83,13 @@ stability ((ρ₂ ─ ρ₁) {nsr}) with eval (⇑ ρ₂) idEnv | eval (⇑ ρ�
 stability (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE l
 ... | ne x₁ | yes p | refl = cong (l ▹ₙ_) (stability τ)
 ... | .(ne l) | no q | refl = ⊥-elim (q tt)
+stability ((φ <$> n) ¬id) rewrite stability φ | stabilityNE n with 
+    notId? (`λ (reify (eval (⇑ φ) (λ x₁ → reflect (` x₁)) S (reflect (` Z)))))
+... | yes p = cong-<$>ne (stability φ) refl 
+... | no  q with (¬notId?⇒equalKinds
+                    (reifyKripkeNE
+                        (λ {Δ'} r n₁ → eval (⇑ φ) (λ x₁ → reflect (` x₁)) r (reflect n₁))) q)  
+...| refl                    = {!   !}
 
 stabilityRow [] = refl
 stabilityRow ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (stability τ)) (stabilityRow ρ)
