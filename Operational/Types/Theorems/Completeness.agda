@@ -173,16 +173,45 @@ fundC {η₁ = η₁} {η₂} e (eq-labTy {l = l} {τ = τ} eq) with eval l η�
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) 
   with eval ρ₂ η₁ | eval ρ₂ η₂ | idext e ρ₂
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | ne x₁ | ne .x₁ | refl = 
-  cong (_<$> x₁) (cong `λ (reify-≋ (idext e F .snd .snd S (reflect-≋ refl)))) , cong-<$> (idext e F) (idext e ρ₁)
+  (refl , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .fst r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .snd .fst r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) ,
+  (λ r n → idext e F .snd .snd r (reflect-≋ refl)) ,
+  refl) , 
+  cong-<$> (idext e F) (idext e ρ₁) 
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ▹ x₂ | x₃ ▹ x₄ | fst₁ , snd₁ = 
   (fst₁ , idext e F .snd .snd id snd₁) , (cong-<$> (idext e F) (idext e ρ₁))
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ─ x₂ | y₁ ─ y₂ | fst₁ , snd₁ = 
   ((cong-<$> (idext e F) fst₁) , (cong-<$> (idext e F) snd₁)) , (cong-<$> (idext e F) (idext e ρ₁))
+fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl = 
+  (refl , 
+  (λ r₁ r₂ n → trans-≋ 
+      (idext e F .fst r₁ r₂ (φ₁ r₁ n) (φ₂ r₁ n) (Ext-φ r₁ n)) 
+      (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋ 
+        (Unif-φ₂ r₁ r₂ n) 
+        (sym-≋ (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n)))))) , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .snd .fst r₁ r₂ (φ₂ r₁ n) (φ₁ r₁ n)
+     (sym-≋ (Ext-φ r₁ n)))
+    (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋
+      (Unif-φ₁ r₁ r₂ n) 
+      (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n))))) , 
+  (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
+  refl) ,
+  (cong-<$> (idext e F) (idext e ρ₁))
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , P) oρ₂-1 | row (.n , P') oρ₂-2 | refl , I
   with eval ρ₁ η₁ | eval ρ₁ η₂ | idext e ρ₁ 
 ... | ne x₃ | ne .x₃ | refl = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , 
-  (cong (_<$> x₃) (cong `λ (reify-≋ (idext e F .snd .snd S (reflect-≋ refl)))))
+  refl , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .fst r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .snd .fst r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) ,
+  (λ r n → idext e F .snd .snd r (reflect-≋ refl)) ,
+  refl
 ... | x₃ ▹ x₄ | x₅ ▹ x₆ | fst₂ , snd₂ = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , fst₂ , (idext e F .snd .snd id snd₂)
 ... | c₂ ─ c₁ | d₂ ─ d₁ | fst₂ , snd₂ = 
@@ -193,6 +222,22 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
+... | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl = 
+  (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , 
+  refl , 
+  (λ r₁ r₂ n → trans-≋ 
+      (idext e F .fst r₁ r₂ (φ₁ r₁ n) (φ₂ r₁ n) (Ext-φ r₁ n)) 
+      (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋ 
+        (Unif-φ₂ r₁ r₂ n) 
+        (sym-≋ (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n)))))) , 
+  (λ r₁ r₂ n → trans-≋
+    (idext e F .snd .fst r₁ r₂ (φ₂ r₁ n) (φ₁ r₁ n)
+     (sym-≋ (Ext-φ r₁ n)))
+    (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋
+      (Unif-φ₁ r₁ r₂ n) 
+      (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n))))) , 
+  (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
+  refl
 fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = ↻-syn/sem-compl xs ys e
 
 
