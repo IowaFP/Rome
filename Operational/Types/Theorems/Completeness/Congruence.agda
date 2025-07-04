@@ -46,9 +46,14 @@ ren-≋ {κ = R[ κ ]} {V₁ = (l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ρ (refl , r
 ren-≋ {κ = R[ κ ]} {V₁ = row _ _ } {row _ _} ρ (refl , eq) = 
   refl , λ { i → eq i .fst , ren-≋ ρ (eq i .snd) }
 ren-≋ {κ = R[ κ ]} {V₁ = ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} r (rel₁ , rel₂) = (ren-≋ r rel₁) , (ren-≋ r rel₂)
-
--- --------------------------------------------------------------------------------
--- -- Application respects ≋
+ren-≋ {κ = R[ κ ]} {V₁ = φ₁ <$> n₁} {φ₂ <$> n₂} r (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = 
+  refl , 
+  (λ r₁ r₂ v → Unif-φ₁ (r₁ ∘ r) r₂ v) , 
+  (λ r₁ r₂ v → Unif-φ₂ (r₁ ∘ r) r₂ v) , 
+  (λ r' v → Ext (r' ∘ r) v) , 
+  refl
+--------------------------------------------------------------------------------
+-- Application respects ≋
 
 cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
            _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
@@ -88,7 +93,17 @@ cong-<$> {V₁ = V₁} {V₂} rel@(Unif-V₁ , Unif-V₂ , Ext-V) {ne x} {ne x�
 cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = refl , (cong-App v rel)
 cong-<$> v {row (n , P) _} {row (m , Q) _} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
 cong-<$> v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (cong-<$> v rel₁) , (cong-<$> v rel₂)
-cong-<$> v {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = refl , {!   !} , {!   !} , {!   !} , refl
+cong-<$> {V₁ = F} {G} (Unif-F , Unif-G , Ext-FG) {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl) = 
+  refl , 
+  (λ r₁ r₂ V → trans-≋ 
+    (Unif-F r₁ r₂ (φ₁ r₁ V) (φ₁ r₁ V) (trans-≋ (Ext-φ r₁ V) (sym-≋ (Ext-φ r₁ V)))) 
+    (refl-Extₗ Ext-FG (r₂ ∘ r₁) (Unif-φ₁ r₁ r₂ V))) , 
+  (λ r₁ r₂ V → trans-≋ 
+    (Unif-G r₁ r₂ (φ₂ r₁ V) (φ₂ r₁ V) (trans-≋ (sym-≋ (Ext-φ r₁ V)) (Ext-φ r₁ V))) 
+    (refl-Extᵣ Ext-FG (r₂ ∘ r₁) (Unif-φ₂ r₁ r₂ V))) , 
+  (λ r V → Ext-FG r (Ext-φ r V)) , 
+  refl
+
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.
 -- (This goal appears with the use of the flapping operator (??).)
@@ -157,15 +172,24 @@ cong-─V {V₁ = ne x₁} {ne x₂} {ne x₃} {ne x₄} rel₁ rel₂ = rel₁ 
 cong-─V {V₁ = ne x₁} {x₂ ▹ x₃} {ne x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = ne x₁} {V₂ <$> V₃} {ne x₂} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {row ρ x₃} {x₄ ▹ x₅} {row ρ₁ x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {V₂ ─ V₃} {x₃ ▹ x₄} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = x₁ ▹ x₂} {V₂ <$> V₃} {x₃ ▹ x₄} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {ne x₂} {row ρ₁ x₃} {ne x₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {x₂ ▹ x₃} {row ρ₁ x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = cong-─v rel₁ rel₂
 cong-─V {V₁ = row ρ x₁} {V₂ ─ V₃} {row ρ₁ x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = row ρ x₁} {V₂ <$> V₃} {row ρ₁ x₂} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {ne x₁} {W₁ ─ W₂} {ne x₂} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {x₁ ▹ x₂} {W₁ ─ W₂} {x₃ ▹ x₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {row ρ x₁} {W₁ ─ W₂} {row ρ₁ x₂} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {V₃ ─ V₄} {W₁ ─ W₂} {W₃ ─ W₄} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = V₁ ─ V₂} {_ <$> _} {W₁ ─ W₂} {_ <$> _} rel₁ rel₂ = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {ψ₁ <$> x₁} {φ₂ <$> n₂} {ψ₂ <$> x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {ne x₁} {φ₂ <$> n₂} {ne x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {x₁ ▹ x₂} {φ₂ <$> n₂} {x₃ ▹ x₄} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {row ρ x₁} {φ₂ <$> n₂} {row ρ₁ x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {x₁ ─ x₂} {φ₂ <$> n₂} {y₁ ─ y₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
