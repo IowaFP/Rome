@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Theorems.Completeness.Relation where
 
 open import Rome.Operational.Prelude
@@ -46,10 +46,11 @@ _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G =
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
 _≋_ {Δ₁} {R[ κ ]} (ne τ₁) (ne τ₂) = τ₁ ≡ τ₂
 _≋_ {Δ₁} {R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = 
-  Σ[ pf ∈ (κ₁ ≡ κ₁') ]
-  (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂ ×
-  UniformNE φ₁ × UniformNE φ₂ ×
-  convNE pf n₁ ≡ n₂)
+  Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
+    UniformNE φ₁
+  × UniformNE φ₂
+  × (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂
+  × convNE pf n₁ ≡ n₂)
 _≋_ {Δ₁} {R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
 _≋_ {Δ₁} {R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (ne x₁) (x₂ ▹ x₃) = ⊥
@@ -123,7 +124,7 @@ sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) =
   refl , 
   (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
 sym-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (sym-≋ rel₁) , (sym-≋ rel₂)
-sym-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Ext , Unif-φ₁ , Unif-φ₂ , refl) = refl , (λ r v → sym-≋ (Ext r v) ) , Unif-φ₂ , Unif-φ₁ , refl
+sym-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = refl  , Unif-φ₂ , Unif-φ₁ , (λ r v → sym-≋ (Ext r v) ) , refl
 refl-≋ₗ q = trans-≋ q (sym-≋ q)
 refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
 
@@ -139,7 +140,7 @@ trans-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} (eq-
 trans-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} {row (o , R) _} (refl , rel₁) (refl , rel₂) = 
   refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≋ (rel₁ i .snd) (rel₂ i .snd) }
 trans-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} {ρ₆ ─ ρ₅} (rel₁ , rel₂) (rel₃ , rel₄) = (trans-≋ rel₁ rel₃) , (trans-≋ rel₂ rel₄)
-trans-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} {φ₃ <$> n₃} (refl , Ext₁ , Unif-φ₁ , _ , refl) (refl , Ext₂ , _ , Unif-φ₃ , refl) = refl , (λ r v → trans-≋ (Ext₁ r v) (Ext₂ r v) ) , Unif-φ₁ , Unif-φ₃ , refl
+trans-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} {φ₃ <$> n₃} (refl , Unif-φ₁ , Unif-φ₂ , Ext₁ , refl) (refl , _ , Unif-φ₃ , Ext₂ , refl) = refl , Unif-φ₁ , Unif-φ₃ , (λ r v → trans-≋ (Ext₁ r v) (Ext₂ r v) ) , refl
 
 trans-≋ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel₁) (refl , rel₂) = refl , (λ { i → trans (rel₁ i .fst) (rel₂ i .fst)  , trans-≋ (rel₁ i .snd) (rel₂ i .snd) })
 -- --------------------------------------------------------------------------------
@@ -245,7 +246,7 @@ reify-≋ {κ = R[ κ ]} {row ρ x₁ ─ row ρ₁ x₃} {(row ρ₂ x₂ ─ r
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (ρ₁ ─ ρ₃)} {row (n , Q) x₂ ─ (ρ₄ ─ ρ₅)} ((refl , rel₁) , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel₁)) (reify-≋ {V₁ = ρ₁ ─ ρ₃} {V₂ = ρ₄ ─ ρ₅} rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (φ₁ <$> n₁)} {row (n' , Q) x₂ ─ (φ₂ <$> n₂)} ((refl , rel) , rel') = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) (reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} rel')
 reify-≋ {κ = R[ κ ]} {(ρ₂ ─ ρ₄) ─ ρ₁} {(ρ₅ ─ ρ₆) ─ ρ₃} (rel₁ , rel₂) = cong-─ (reify-≋ {V₁ = ρ₂ ─ ρ₄} {ρ₅ ─ ρ₆} rel₁) (reify-≋ rel₂)
-reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Ext , _ , _ , refl) with notId? (reifyKripkeNE φ₁) | notId? (reifyKripkeNE φ₂) | Ext S (` Z) 
+reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , _ , _ , Ext , refl) with notId? (reifyKripkeNE φ₁) | notId? (reifyKripkeNE φ₂) | Ext S (` Z) 
 ... | yes p | yes q | c = cong-<$>ne (cong `λ (reify-≋ c)) refl
 ... | no  p | yes q | c  = ⊥-elim (p (subst (λ X → X) (cong (NotId ∘ `λ) (reify-≋ (sym-≋ c))) q ))
 ... | yes p | no  q | c = ⊥-elim (q (subst (λ X → X) (cong (NotId ∘ `λ) (reify-≋ c)) p)) 
@@ -281,7 +282,7 @@ reifyRow-≋' P Q refl i = reifyRow-≋ P Q i
 
 -- Being forced to repeat this logic is stupid
 ↻-ren-reify-R[κ] : ∀ (r : Renamingₖ Δ₁ Δ₂) (x y : SemType Δ₁ R[ κ ])  → x ≋ y → renₖNF r (reify x) ≡ reify (renSem r y)
-↻-ren-reify-R[κ] r (φ₁ <$> τ₁) (φ₂ <$> τ₂) rel@(refl , Ext , Unif-φ₁ , Unif-φ₂ , refl) with 
+↻-ren-reify-R[κ] r (φ₁ <$> τ₁) (φ₂ <$> τ₂) rel@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) with 
       notId? (`λ (reify (φ₁ S (` Z)))) 
     | notId? (`λ (reify (φ₂ (S ∘ r) (` Z)))) 
 ... | yes p | yes q = cong-<$>ne (cong `λ (trans (↻-ren-reify (liftₖ r) (Ext S (` Z))) (reify-≋ (Unif-φ₂ S (liftₖ r) (` Z))))) refl
@@ -384,8 +385,8 @@ renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext)
 renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {ne x} {ne y} refl = renₖNE-comp _ _ _
 renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = (renₖNE-comp ρ₁ ρ₂ l₁) , (renSem-comp-≋ ρ₁ ρ₂ rel)
 renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
-renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Ext , Unif-φ₁ , Unif-φ₂ , refl) = 
-  refl , (λ r₃ V → Ext (r₃ ∘ r₂ ∘ r₁) V) , (λ ρ₁ ρ₂ V → Unif-φ₁ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , (λ ρ₁ ρ₂ V → Unif-φ₂ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , renₖNE-comp r₁ r₂ n₁ 
+renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = 
+  refl , (λ ρ₁ ρ₂ V → Unif-φ₁ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , (λ ρ₁ ρ₂ V → Unif-φ₂ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , (λ r₃ V → Ext (r₃ ∘ r₂ ∘ r₁) V) , renₖNE-comp r₁ r₂ n₁ 
 renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-comp-≋ r₁ r₂ rel₁) , (renSem-comp-≋ r₁ r₂ rel₂)
 
 ↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 

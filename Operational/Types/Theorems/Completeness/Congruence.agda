@@ -71,11 +71,24 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> v {ne x} {ne x₁} refl = cong (_<$> x) (reify-≋ v)
+cong-<$> {V₁ = V₁} {V₂} rel@(Unif-V₁ , Unif-V₂ , Ext-V) {ne x} {ne x₁} refl = 
+  refl , 
+  (λ r₁ r₂ n → 
+    trans-≋ 
+      (Unif-V₁ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) 
+      (refl-Extₗ Ext-V (r₂ ∘ r₁) (↻-ren-reflect r₂ n)) ) , 
+  -- (λ r₁ r₂ n → subst (λ X → renSem r₂ (V₁ r₁ (reflect n)) ≋
+  --     V₁ (λ x₂ → r₂ (r₁ x₂)) X) ? (Unif-V₁ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl))) , 
+  (λ r₁ r₂ n → 
+    trans-≋ 
+      (Unif-V₂ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) 
+      (refl-Extᵣ Ext-V (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) , 
+  (λ r V → Ext-V r (reflect-≋ refl)) ,
+  refl
 cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = refl , (cong-App v rel)
 cong-<$> v {row (n , P) _} {row (m , Q) _} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
 cong-<$> v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (cong-<$> v rel₁) , (cong-<$> v rel₂)
-
+cong-<$> v {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = refl , {!   !} , {!   !} , {!   !} , refl
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.
 -- (This goal appears with the use of the flapping operator (??).)
