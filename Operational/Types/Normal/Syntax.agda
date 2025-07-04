@@ -28,6 +28,10 @@ NormalPred = Pred NormalType
 NormalOrdered : SimpleRow NormalType Δ R[ κ ] → Set 
 normalOrdered? : ∀ (xs : SimpleRow NormalType Δ R[ κ ]) → Dec (NormalOrdered xs)
 
+IsNeutral IsNormal : NormalType Δ κ → Set 
+isNeutral? : ∀ (τ : NormalType Δ κ) → Dec (IsNeutral τ)
+isNormal? : ∀ (τ : NormalType Δ κ) → Dec (IsNormal τ)
+
 NotSimpleRow : NormalType Δ R[ κ ] → Set 
 notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow τ₁ or NotSimpleRow τ₂)
 
@@ -176,7 +180,45 @@ cong-<$>ne : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)}
                φ₁ ≡ φ₂ → τ₁ ≡ τ₂ → 
                (φ₁ <$> τ₁) nid₁ ≡ (φ₂ <$> τ₂) nid₂
 cong-<$>ne {φ₁ = φ₁} {nid₁ = nid₁} {nid₂} refl refl rewrite Dec→Irrelevant _ (notId? φ₁) nid₁ nid₂ =  refl
-               
+
+--------------------------------------------------------------------------------
+-- IsNeutral and IsNormal predicates
+
+IsNeutral (ne x) = ⊤ 
+IsNeutral _ = ⊥
+
+isNeutral? (ne x) = yes tt
+isNeutral? (l ▹ₙ τ) = no λ ()
+isNeutral? (`λ x) = no λ ()
+isNeutral? (x `→ x₁) = no λ ()
+isNeutral? (`∀ x) = no λ ()
+isNeutral? (μ x) = no λ ()
+isNeutral? (π ⇒ x) = no λ ()
+isNeutral? (⦅ ρ ⦆ oρ) = no λ ()
+isNeutral? (lab l) = no λ ()
+isNeutral? ⌊ x ⌋ = no λ ()
+isNeutral? (Π x) = no λ ()
+isNeutral? (Σ x) = no λ ()
+isNeutral? (c ─ c₁) = no λ ()
+isNeutral? ((φ <$> n) ¬id) = no λ ()
+
+IsNormal (ne x)     = ⊥
+IsNormal _     = ⊤
+
+isNormal? (ne x) = no λ ()
+isNormal? (l ▹ₙ τ) = yes tt
+isNormal? (`λ x) = yes tt
+isNormal? (x `→ x₁) = yes tt
+isNormal? (`∀ x) = yes tt
+isNormal? (μ x) = yes tt
+isNormal? (π ⇒ x) = yes tt
+isNormal? (⦅ ρ ⦆ oρ) = yes tt
+isNormal? (lab l) = yes tt
+isNormal? ⌊ x ⌋ = yes tt
+isNormal? (Π x) = yes tt
+isNormal? (Σ x) = yes tt
+isNormal? (ρ₂ ─ ρ₁) = yes tt
+isNormal? ((φ <$> n) ¬id) = yes tt                
 
 --------------------------------------------------------------------------------
 -- Ordered predicate
