@@ -74,7 +74,7 @@ reifyPreservesNR<$> : ∀ (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect ((` Z)))))
+reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 -- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
