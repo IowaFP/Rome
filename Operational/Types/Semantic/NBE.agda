@@ -59,7 +59,7 @@ reifyPreservesNR<$> : ∀ (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType
 ¬notId?⇒equalKinds (`λ (ne (` (S α)))) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (ne (x · τ))) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ ((φ <$> x) x₁)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ M@(`λ {κ₁} φ)) p = {! ¬notId?⇒equalKinds   !}
+¬notId?⇒equalKinds (`λ M@(`λ {κ₁} φ)) p = {! ¬notId?⇒equalKinds M   !}
 ¬notId?⇒equalKinds (`λ (φ `→ φ₁)) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (`∀ φ)) p = ⊥-elim (p tt)
 ¬notId?⇒equalKinds (`λ (μ φ)) p = ⊥-elim (p tt)
@@ -404,6 +404,8 @@ y = compl {Δ = ∅} {κ = ★} p q
 -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
 -- -- _ = refl
 
+-- This is a deadend---need to inductively define the identity function at all kinds
+-- and inductively define NotId or IsId.
 Id-Canonical : ∀ κ → NormalType Δ (κ `→ κ) 
 Id-Canonical ★ = `λ (ne (` Z))
 Id-Canonical L = `λ (ne (` Z))
@@ -414,20 +416,16 @@ id-canonical : ∀ (φ : NormalType Δ (κ₁ `→ κ₁)) → ¬ (NotId φ) →
 id-canonical {κ₁ = ★} (`λ (ne (` Z))) ¬¬id = refl
 id-canonical {κ₁ = L} (`λ (ne (` Z))) ¬¬id = refl
 id-canonical {κ₁ = R[ κ₁ ]} (`λ (ne (` Z))) ¬¬id = refl
-id-canonical (`λ (ne (` (S α)))) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (ne (x · τ))) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ ((φ <$> x) x₁)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (`λ φ)) ¬¬id with notId? (`λ φ) 
-... | yes p = {! ¬notId?⇒equalKinds (`λ φ)     !}
-... | no  q  = {!   !} 
-id-canonical (`λ (φ `→ φ₁)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (`∀ φ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (μ φ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (π ⇒ φ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (⦅ ρ ⦆ oρ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (lab l)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ ⌊ φ ⌋) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (Π φ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (Σ φ)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (φ ─ φ₁)) ¬¬id = ⊥-elim (¬¬id tt)
-id-canonical (`λ (l ▹ₙ φ)) ¬¬id = ⊥-elim (¬¬id tt)
+id-canonical {κ₁ = ★} (`λ (ne (` (S α)))) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (ne (x₁ · τ))) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (M `→ M₁)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (`∀ M)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (μ M)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (π ⇒ M)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ ⌊ M ⌋) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (Π M)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = ★} (`λ (Σ M)) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = L} (`λ M) ¬¬id = cong `λ {!   !}
+id-canonical {κ₁ = κ₁ `→ κ₂} (`λ (`λ M)) ¬¬id with ¬notId?⇒equalKinds (`λ M) {!   !} 
+... | refl = cong `λ {! id-canonical (`λ M) ?  !}
+id-canonical {κ₁ = R[ κ₁ ]} (`λ M) ¬¬id = cong `λ {!   !}

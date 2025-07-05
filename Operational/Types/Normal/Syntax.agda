@@ -140,6 +140,13 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- Identifying the identity
 
+-- data IsId : NormalType Δ (κ₁ `→ κ₂) → Set where 
+--    id★ : IsId (`λ {κ₁ = ★} (ne (` Z)))
+--    idL :  IsId (`λ {κ₁ = L} (ne (` Z)))
+--    idR[_] : ∀ κ → IsId (`λ {κ₁ = R[ κ ]} (ne (` Z)))
+--    id→ : ∀ (τ : NormalType (Δ ,, κ₁) (κ₁ `→ κ₂))  → 
+--             IsId (`λ {κ₁ = κ₁} (ne (τ · (` Z))))
+
 NotId (`λ (ne (` Z))) = ⊥
 NotId (`λ (ne (` (S α)))) = ⊤
 NotId (`λ (ne (x · τ))) = ⊤
