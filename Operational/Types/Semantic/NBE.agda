@@ -412,6 +412,11 @@ Id-Canonical L = `λ (ne (` Z))
 Id-Canonical (κ₁ `→ κ₂) = `λ (η-norm (` Z))
 Id-Canonical R[ κ ] = `λ (ne (` Z))
 
+id' : NormalType ∅ (((★ `→ ★ `→ ★) `→ (★ `→ ★ `→ ★)))
+id' =  ⇓ (`λ (` Z))
+
+_ = {! id'  !}
+
 id-canonical : ∀ (φ : NormalType Δ (κ₁ `→ κ₁)) → ¬ (NotId φ) → φ ≡ `λ (η-norm (` Z))
 id-canonical {κ₁ = ★} (`λ (ne (` Z))) ¬¬id = refl
 id-canonical {κ₁ = L} (`λ (ne (` Z))) ¬¬id = refl

@@ -140,20 +140,44 @@ data NormalType Δ where
 --------------------------------------------------------------------------------
 -- Identifying the identity
 
+-- data IsIdNE : NeutralType Δ κ₁ → Set where 
+-- --     -- ne-id★ : IsIdNE (` {κ = ★} Z)
+-- --     -- ne-idL : IsIdNE (` {κ = L} Z)
+-- --     -- ne-idR[_] : ∀ κ → IsIdNE (` {κ = R[ κ ]} Z)
+-- --     ne-app : (f : NeutralType f · τ 
+
 -- data IsId : NormalType Δ (κ₁ `→ κ₂) → Set where 
 --    id★ : IsId (`λ {κ₁ = ★} (ne (` Z)))
 --    idL :  IsId (`λ {κ₁ = L} (ne (` Z)))
 --    idR[_] : ∀ κ → IsId (`λ {κ₁ = R[ κ ]} (ne (` Z)))
---    id→ : ∀ (τ : NormalType (Δ ,, κ₁) (κ₁ `→ κ₂))  → 
---             IsId (`λ {κ₁ = κ₁} (ne (τ · (` Z))))
+--    id→ : ∀ (τ : NeutralType (Δ ,, (κ₁ `→ κ₁)) κ₁)  → 
+--             IsId (`λ {κ₁ = κ₁} ?)
 
+-- -- η-expandVar : KVar Δ κ → NeutralType Δ κ
+-- η-expand : NeutralType Δ κ → NormalType Δ κ 
+
+-- η-expand {κ = ★} τ = ne τ
+-- η-expand {κ = L} τ = ne τ
+-- η-expand {κ = κ₁ `→ κ₂} (` α) = `λ (η-expand ((` (S α)) · (η-expand (` Z)))) 
+-- η-expand {κ = κ₁ `→ κ₂} (τ₁ · τ₂) = `λ (η-expand ({! τ₁ · τ₂  !} · {! η-expand (` Z)  !}))
+-- η-expand {κ = R[ κ ]} τ = ne τ 
+
+-- idλ : ∀ κ → NormalType Δ (κ `→ κ)
+-- idλ ★ = `λ (ne (` Z))
+-- idλ L = `λ (ne (` Z))
+-- idλ (κ₁ `→ κ₂) = `λ (`λ {!   !})
+-- idλ R[ κ ] = `λ (ne (` Z))
+
+open import Rome.Operational.Kinds.Decidability
 NotId (`λ (ne (` Z))) = ⊥
 NotId (`λ (ne (` (S α)))) = ⊤
 NotId (`λ (ne (x · τ))) = ⊤
 NotId (`λ ((φ <$> x) x₁)) = ⊤
 NotId (`λ (`λ {κ₂ = ★} φ)) = ⊤
 NotId (`λ (`λ {κ₂ = L} φ)) = ⊤
-NotId (`λ (`λ {κ₂ = κ₂ `→ κ₃} φ)) = NotId φ
+NotId (`λ {κ₁ = κ₁} {κ₂ = κ₂ `→ κ₃ `→ κ₄} (`λ {κ₂} {κ₂ = κ₃ `→ κ₄} φ)) with κ₁ ≡k? κ₃ | κ₂ ≡k? κ₄ 
+... | yes refl | yes refl  = {!   !}
+... | _        | _       = ⊥ 
 NotId (`λ (`λ {κ₂ = R[ κ₂ ]} φ)) = ⊤
 NotId (`λ (φ `→ φ₁)) = ⊤
 NotId (`λ (`∀ φ)) = ⊤
@@ -172,7 +196,7 @@ notId? (`λ (ne (x · τ))) = yes tt
 notId? (`λ ((φ <$> x) x₁)) = yes tt
 notId? (`λ (`λ {κ₂ = ★} φ)) = yes tt
 notId? (`λ (`λ {κ₂ = L} φ)) = yes tt
-notId? (`λ (`λ {κ₂ = κ₂ `→ κ₃} φ)) = notId? φ
+notId? (`λ (`λ {κ₂ = κ₂ `→ κ₃} φ)) = {!   !}
 notId? (`λ (`λ {κ₂ = R[ κ₂ ]} φ)) = yes tt
 notId? (`λ (φ `→ φ₁)) = yes tt
 notId? (`λ (`∀ φ)) = yes tt
