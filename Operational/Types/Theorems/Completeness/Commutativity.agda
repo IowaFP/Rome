@@ -39,14 +39,6 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
            {W₁ W₂ : SemType Δ₁ R[ κ₁ ]} → 
             _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} r (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} r V₂ <$>V renSem {κ = R[ κ₁ ]} r W₂)
-↻-renSem-<$> r {F} {G} (Unif-F , Unif-G , Ext) {ne x} {ne _} refl = 
-  refl , 
-  (λ r₁ r₂ n → trans-≋
-    (Unif-F (r₁ ∘ r) r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extₗ Ext (r₂ ∘ r₁ ∘ r) (↻-ren-reflect r₂ n))) , 
-  (λ r₁ r₂ n → trans-≋
-    (Unif-G (r₁ ∘ r) r₂ (reflect n) (reflect n) (reflect-≋ refl)) (refl-Extᵣ Ext (r₂ ∘ r₁ ∘ r) (↻-ren-reflect r₂ n))) , 
-  (λ r' v → Ext (r' ∘ r) (reflect-≋ refl)) , 
-  refl 
 ↻-renSem-<$> r {V₁} {V₂} v {l₁ ▹ τ₁} {l₁ ▹ τ₂} (refl , rel) = refl , (↻-renSem-app r v rel)
 ↻-renSem-<$> r {V₁} {V₂} v {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app r v (eq i .snd))
 ↻-renSem-<$> r {V₁} {V₂} v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (↻-renSem-<$> r v rel₁) , (↻-renSem-<$> r v rel₂)
@@ -100,28 +92,20 @@ open import Rome.Operational.Types.Theorems.Completeness.Congruence
               V₂ ≋ W₂ → 
               V₁ ≋ W₁ → 
               renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
-↻-renSem-─V r ρ₁@{ne x₁} ρ₂@{ne x₂} ρ₃@{ne x₃} ρ₄@{ne x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{ne x₁} ρ₂@{x₂ ▹ x₃} ρ₃@{ne x₄} ρ₄@{x₅ ▹ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{ne x₁} ρ₂@{row _ x₂} ρ₃@{ne x₃} ρ₄@{row _ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{ne x₁} ρ₂@{V₂ ─ V₃} ρ₃@{ne x₂} ρ₄@{W₂ ─ W₃} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{ne x₁} ρ₂@{_ <$> _} ρ₃@{ne x₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{ne x₃} ρ₃@{x₄ ▹ x₅} ρ₄@{ne x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+
 ↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{x₃ ▹ x₄} ρ₃@{x₅ ▹ x₆} ρ₄@{x₇ ▹ x₈} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{row _ x₃} ρ₃@{x₄ ▹ x₅} ρ₄@{row _ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{(V₂ ─ V₃) {nr₁}} ρ₃@{x₃ ▹ x₄} ρ₄@{(W₂ ─ W₃) {nr₂}} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{_ <$> _} ρ₃@{x₃ ▹ x₄} ρ₄@{_ <$> _} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{ne x₂} ρ₃@{row _ x₃} ρ₄@{ne x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{x₂ ▹ x₃} ρ₃@{row _ x₄} ρ₄@{x₅ ▹ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r {row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = ↻-renSem-─v r rel₁ rel₂
 ↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{V₂ ─ V₃} ρ₃@{row _ x₂} ρ₄@{W₂ ─ W₃} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{_ <$> _} ρ₃@{row _ x₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{ne x₁} ρ₃@{W₁ ─ W₂} ρ₄@{ne x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{x₁ ▹ x₂} ρ₃@{W₁ ─ W₂} ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{row _ x₁} ρ₃@{W₁ ─ W₂} ρ₄@{row _ x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{V₃ ─ V₄} ρ₃@{W₁ ─ W₂} ρ₄@{W₃ ─ W₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{_ <$> _} ρ₃@{W₁ ─ W₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{φ <$> x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{φ₃ <$> x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{ne x₁} {ρ₃@(φ₂ <$> n₂)}    ρ₄@{ne x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{x₁ ▹ x₂} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{row ρ x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{row _ _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 ↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{_ ─ _} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{_ ─  _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
@@ -708,6 +692,12 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
 ... | a | refl | lem₁ = refl , λ { fzero → (PP fzero .fst) , (F≋G .snd .snd id (PP fzero .snd)) ; (fsuc i) → lem₁ i }
 
 --------------------------------------------------------------------------------
---
+-- Map ID law for semantic rows 
+
+map-id-≋ : ∀ {ρ₁ ρ₂ : SemType Δ R[ κ ]} → ρ₁ ≋ ρ₂ → ((λ ρ v → v) <$>V ρ₁) ≋ ρ₂
+map-id-≋ {ρ₁ = φ <$> x₁} {ρ₂ = _ <$> _} rel = rel
+map-id-≋ {ρ₁ = x₁ ▹ x₂} {ρ₂ = _ ▹ _} rel = rel
+map-id-≋ {ρ₁ = row ρ x₁} {ρ₂ = row _ _} rel = rel
+map-id-≋ {ρ₁ = ρ₂ ─ ρ₁} {ρ₂ = _ ─ _} (rel₂ , rel₁) = map-id-≋ rel₂ , map-id-≋ rel₁ 
 
 

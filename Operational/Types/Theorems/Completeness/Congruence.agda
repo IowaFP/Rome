@@ -41,7 +41,6 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
   (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ κ ]} {V₁ = ne x} {ne y} ρ refl = refl
 ren-≋ {κ = R[ κ ]} {V₁ = (l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ρ (refl , rel) = refl , (ren-≋ ρ rel)
 ren-≋ {κ = R[ κ ]} {V₁ = row _ _ } {row _ _} ρ (refl , eq) = 
   refl , λ { i → eq i .fst , ren-≋ ρ (eq i .snd) }
@@ -76,20 +75,6 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> {V₁ = V₁} {V₂} rel@(Unif-V₁ , Unif-V₂ , Ext-V) {ne x} {ne x₁} refl = 
-  refl , 
-  (λ r₁ r₂ n → 
-    trans-≋ 
-      (Unif-V₁ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) 
-      (refl-Extₗ Ext-V (r₂ ∘ r₁) (↻-ren-reflect r₂ n)) ) , 
-  -- (λ r₁ r₂ n → subst (λ X → renSem r₂ (V₁ r₁ (reflect n)) ≋
-  --     V₁ (λ x₂ → r₂ (r₁ x₂)) X) ? (Unif-V₁ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl))) , 
-  (λ r₁ r₂ n → 
-    trans-≋ 
-      (Unif-V₂ r₁ r₂ (reflect n) (reflect n) (reflect-≋ refl)) 
-      (refl-Extᵣ Ext-V (r₂ ∘ r₁) (↻-ren-reflect r₂ n))) , 
-  (λ r V → Ext-V r (reflect-≋ refl)) ,
-  refl
 cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = refl , (cong-App v rel)
 cong-<$> v {row (n , P) _} {row (m , Q) _} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
 cong-<$> v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (cong-<$> v rel₁) , (cong-<$> v rel₂)
@@ -168,28 +153,20 @@ cong-─V : ∀ {V₁ V₂ W₁ W₂ : SemType Δ R[ κ ]} →
            V₂ ≋ W₂ → 
            V₁ ≋ W₁ → 
            (V₂ ─V V₁) ≋ (W₂ ─V W₁)
-cong-─V {V₁ = ne x₁} {ne x₂} {ne x₃} {ne x₄} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = ne x₁} {x₂ ▹ x₃} {ne x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = ne x₁} {row ρ x₂} {ne x₃} {row ρ₁ x₄} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = ne x₁} {V₂ ─ V₃} {ne x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = ne x₁} {V₂ <$> V₃} {ne x₂} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = x₁ ▹ x₂} {ne x₃} {x₄ ▹ x₅} {ne x₆} rel₁ rel₂ = rel₁ , rel₂
+
 cong-─V {V₁ = x₁ ▹ x₂} {x₃ ▹ x₄} {x₅ ▹ x₆} {x₇ ▹ x₈} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {row ρ x₃} {x₄ ▹ x₅} {row ρ₁ x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {V₂ ─ V₃} {x₃ ▹ x₄} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = x₁ ▹ x₂} {V₂ <$> V₃} {x₃ ▹ x₄} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = row ρ x₁} {ne x₂} {row ρ₁ x₃} {ne x₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {x₂ ▹ x₃} {row ρ₁ x₄} {x₅ ▹ x₆} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = cong-─v rel₁ rel₂
 cong-─V {V₁ = row ρ x₁} {V₂ ─ V₃} {row ρ₁ x₂} {W₂ ─ W₃} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = row ρ x₁} {V₂ <$> V₃} {row ρ₁ x₂} {W₂ <$> W₃} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = V₁ ─ V₂} {ne x₁} {W₁ ─ W₂} {ne x₂} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {x₁ ▹ x₂} {W₁ ─ W₂} {x₃ ▹ x₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {row ρ x₁} {W₁ ─ W₂} {row ρ₁ x₂} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {V₃ ─ V₄} {W₁ ─ W₂} {W₃ ─ W₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {_ <$> _} {W₁ ─ W₂} {_ <$> _} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = φ₁ <$> n₁} {ψ₁ <$> x₁} {φ₂ <$> n₂} {ψ₂ <$> x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
-cong-─V {V₁ = φ₁ <$> n₁} {ne x₁} {φ₂ <$> n₂} {ne x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
 cong-─V {V₁ = φ₁ <$> n₁} {x₁ ▹ x₂} {φ₂ <$> n₂} {x₃ ▹ x₄} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
 cong-─V {V₁ = φ₁ <$> n₁} {row ρ x₁} {φ₂ <$> n₂} {row ρ₁ x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
 cong-─V {V₁ = φ₁ <$> n₁} {x₁ ─ x₂} {φ₂ <$> n₂} {y₁ ─ y₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
