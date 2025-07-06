@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Semantic.Syntax where
 
 open import Data.Product using (_×_ ; _,_)

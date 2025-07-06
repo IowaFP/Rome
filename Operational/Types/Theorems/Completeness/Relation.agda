@@ -235,23 +235,18 @@ reify-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = (cong�
 reify-≋ {κ = R[ κ ]} {row (zero , P) _} {row (_ , Q) _} (refl , eq) = refl
 reify-≋ {κ = R[ κ ]} {row (suc n , P) _} {row (_ , Q) _} (refl , eq) = 
   cong-⦅⦆ (reifyRow-≋ {n = suc n} P Q λ i → eq i)
-reify-≋ {κ = R[ κ ]} {ne x₁ ─ ρ₁} {ne x₂ ─ ρ₃} (rel₁ , rel₂) = cong-─ (cong-ne rel₁) (reify-≋ rel₂)
+reify-≋ {κ = R[ κ ]} {ne x₁ ─ ρ₁} {ne x₂ ─ ρ₃} (rel₁ , rel₂) = cong-─ (cong₂ _<$>_ refl rel₁) (reify-≋ rel₂) -- cong-─ (cong-ne rel₁) (reify-≋ rel₂)
 reify-≋ {κ = R[ κ ]} {a@(φ₁ <$> n₁) ─ V₂} {b@(φ₂ <$> n₂) ─ V₃} (rel₁@(refl , Ext , _ , _ , refl) , rel₂) = cong-─ (reify-≋ {V₁ = a} {V₂ = b} rel₁) (reify-≋ rel₂)
 
 reify-≋ {κ = R[ κ ]} {(x₁ ▹ x₂) ─ ρ₁} {(x₃ ▹ x₄) ─ ρ₃} ((refl , rel₁) , rel₂) = cong-─ (cong (x₁ ▹ₙ_) (reify-≋ rel₁)) (reify-≋ rel₂)
-reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ ne x₃} {row (m , Q) x₂ ─ ne x₄} ((refl , rel) , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) (cong-ne rel₂)
+reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ ne x₃} {row (m , Q) x₂ ─ ne x₄} ((refl , rel) , refl) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) refl
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (x₃ ▹ x₄)} {row (m , Q) x₂ ─ (x₅ ▹ x₆)} ((refl , rel₁) , refl , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel₁ )) (cong (x₃ ▹ₙ_) (reify-≋ rel₂))
 reify-≋ {κ = R[ κ ]} {row ρ x₁ ─ row ρ₁ x₃} {(row ρ₂ x₂ ─ row ρ₃ x₄) {left ()}} (rel₁ , rel₂)
 reify-≋ {κ = R[ κ ]} {row ρ x₁ ─ row ρ₁ x₃} {(row ρ₂ x₂ ─ row ρ₃ x₄) {right ()}} (rel₁ , rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (ρ₁ ─ ρ₃)} {row (n , Q) x₂ ─ (ρ₄ ─ ρ₅)} ((refl , rel₁) , rel₂) = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel₁)) (reify-≋ {V₁ = ρ₁ ─ ρ₃} {V₂ = ρ₄ ─ ρ₅} rel₂)
 reify-≋ {κ = R[ κ ]} {row (n , P) x₁ ─ (φ₁ <$> n₁)} {row (n' , Q) x₂ ─ (φ₂ <$> n₂)} ((refl , rel) , rel') = cong-─ (cong-⦅⦆ (reifyRow-≋ P Q rel)) (reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} rel')
 reify-≋ {κ = R[ κ ]} {(ρ₂ ─ ρ₄) ─ ρ₁} {(ρ₅ ─ ρ₆) ─ ρ₃} (rel₁ , rel₂) = cong-─ (reify-≋ {V₁ = ρ₂ ─ ρ₄} {ρ₅ ─ ρ₆} rel₁) (reify-≋ rel₂)
-reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , _ , _ , Ext , refl) with notId? (reifyKripkeNE φ₁) | notId? (reifyKripkeNE φ₂) | Ext S (` Z) 
-... | yes p | yes q | c = cong-<$>ne (cong `λ (reify-≋ c)) refl
-... | no  p | yes q | c  = ⊥-elim (p (subst (λ X → X) (cong (NotId ∘ `λ) (reify-≋ (sym-≋ c))) q ))
-... | yes p | no  q | c = ⊥-elim (q (subst (λ X → X) (cong (NotId ∘ `λ) (reify-≋ c)) p)) 
-... | no  p | no  q | c with (¬notId?⇒equalKinds (`λ (reify (φ₁ S (` Z)))) p) | (¬notId?⇒equalKinds (`λ (reify (φ₂ S (` Z)))) q)
-... | refl | refl = cong-ne refl
+reify-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , _ , _ , Ext , refl) = cong-<$>ne (cong `λ (reify-≋ (Ext S (` Z)))) refl
 
 reifyRow-≋ {n = zero} P Q eq = refl
 reifyRow-≋ {n = suc n} P Q eq = 
@@ -280,28 +275,12 @@ reifyRow-≋' P Q refl i = reifyRow-≋ P Q i
 -- NormalType Δ₁ κ ----------> NormalType Δ₂ κ
 --                   ren ρ 
 
--- Being forced to repeat this logic is stupid
 ↻-ren-reify-R[κ] : ∀ (r : Renamingₖ Δ₁ Δ₂) (x y : SemType Δ₁ R[ κ ])  → x ≋ y → renₖNF r (reify x) ≡ reify (renSem r y)
-↻-ren-reify-R[κ] r (φ₁ <$> τ₁) (φ₂ <$> τ₂) rel@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) with 
-      notId? (`λ (reify (φ₁ S (` Z)))) 
-    | notId? (`λ (reify (φ₂ (S ∘ r) (` Z)))) 
-... | yes p | yes q = cong-<$>ne (cong `λ (trans (↻-ren-reify (liftₖ r) (Ext S (` Z))) (reify-≋ (Unif-φ₂ S (liftₖ r) (` Z))))) refl
-... | yes p | no  q = ⊥-elim (q 
-                             (subst NotId 
-                                    (cong `λ (reify-≋ (Ext (S ∘ r) (` Z)))) 
-                                          (subst NotId 
-                                                 (cong `λ (trans
-                                                             (trans (↻-ren-reify (liftₖ r) (Ext S (` Z)))
-                                                              (reify-≋ (Unif-φ₂ S (liftₖ r) (` Z))))
-                                                             (sym (reify-≋ (Ext (S ∘ r) (` Z)))))) 
-                                                 (¬idRenₖNF r (reifyKripkeNE φ₁) p))))
-... | no  p | yes q =
-  ⊥-elim (p (¬idRenₖNF⁻¹ r (reifyKripkeNE φ₁) 
-            (subst NotId (cong `λ (trans (sym (reify-≋ (Ext (S ∘ r) (` Z)))) 
-                                  (trans (sym (reify-≋ (Unif-φ₁ S (liftₖ r) (` Z)))) (sym (↻-ren-reify (liftₖ r) (refl-≋ₗ (Ext S (` Z)))))))) q)))
-... | no  p | no  q with (¬notId?⇒equalKinds (reifyKripkeNE φ₁) p) | (¬notId?⇒equalKinds (reifyKripkeNE (λ r' → φ₂ (λ x₁ → r' (r x₁)))) q) 
-... | refl | refl = refl
-↻-ren-reify-R[κ] r (ne x₁) (ne x₂) refl = refl
+↻-ren-reify-R[κ] r (φ₁ <$> τ₁) (φ₂ <$> τ₂) rel@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = cong-<$>ne (cong `λ (trans (↻-ren-reify (liftₖ r) (Ext S (` Z))) (reify-≋ (Unif-φ₂ S (liftₖ r) (` Z))))) refl
+↻-ren-reify-R[κ] r (ne x₁) (ne x₂) refl = cong₂ _<$>_ (cong `λ (trans
+   (↻-ren-reify (liftₖ r) {reflect (` Z)} {reflect (` Z)}
+    (reflect-≋ refl))
+   (reify-≋ (↻-ren-reflect (liftₖ r) (` Z))))) refl
 ↻-ren-reify-R[κ] r (x₁ ▹ x₂) (x₃ ▹ x₄) (refl , rel) = (cong₂ (_▹ₙ_) refl (↻-ren-reify r rel))
 ↻-ren-reify-R[κ] r (row (n , P) x₁) (row (m , Q) x₂) (refl , i) = (cong-⦅⦆ (↻-ren-reifyRow P Q r i))
 ↻-ren-reify-R[κ] r (x₁ ─ x₂) (y₁ ─ y₂) (rel₁ , rel₂) = ↻-ren-reify-─ r rel₁ rel₂ 

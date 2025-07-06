@@ -52,7 +52,7 @@ stability-β {Δ = Δ} τ =
 stability {κ = ★} (ne x) = stabilityNE x
 stability {κ = L} (ne x) = stabilityNE x
 stability {_} {κ `→ κ₁} (ne x {()})
-stability {κ = R[ κ ]} (ne x) rewrite stabilityNE x = refl
+stability {κ = R[ κ ]} (ne x {()})
 stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
 stability (`∀ τ) = cong (`∀) (stability-β τ)
 stability (μ τ)  rewrite stability τ = refl
@@ -65,31 +65,30 @@ stability (Σ x)  rewrite stability x = refl
 stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ) 
 stability (lab l) = refl
 stability ((ρ₂ ─ ρ₁) {nsr}) with eval (⇑ ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stability ρ₂ | stability ρ₁
+... | φ₁ <$> n₁ | _ | refl | refl = refl 
 ... | ne x₁ | ne x₂ | refl | refl = refl
 ... | ne x₁ | x₂ ▹ x₃ | refl | refl = refl
 ... | ne x₁ | row ρ x₂ | refl | refl = refl
 ... | ne x₁ | d ─ d₁ | refl | refl = refl
+... | ne x₁ | φ <$> n | refl | refl = refl 
 ... | x₁ ▹ x₂ | ne x₃ | refl | refl = refl
 ... | x₁ ▹ x₂ | x₃ ▹ x₄ | refl | refl = refl
 ... | x₁ ▹ x₂ | row ρ x₃ | refl | refl = refl
 ... | x₁ ▹ x₂ | d ─ d₁ | refl | refl = refl
+... | x₁ ▹ x₂ | φ <$> n | refl | refl = refl
 ... | row ρ x₁ | ne x₂ | refl | refl = refl
 ... | row ρ x₁ | x₂ ▹ x₃ | refl | refl = refl
 ... | row ρ x₁ | d ─ d₁ | refl | refl = cong-─ (cong-⦅⦆ refl) refl
+... | row ρ x₁ | φ <$> n | refl | refl = refl
 ... | c ─ c₁ | ne x₁ | refl | refl = cong-─ refl refl
 ... | c ─ c₁ | x₁ ▹ x₂ | refl | refl = cong-─ refl refl
 ... | c ─ c₁ | row ρ x₁ | refl | refl = cong-─ refl (cong-⦅⦆ refl)
 ... | c ─ c₁ | d ─ d₁ | refl | refl = cong-─ refl refl
+... | c ─ c₁ | φ <$> n | refl | refl = cong-─ refl refl
 stability (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE l
 ... | ne x₁ | yes p | refl = cong (l ▹ₙ_) (stability τ)
 ... | .(ne l) | no q | refl = ⊥-elim (q tt)
-stability ((φ <$> n) ¬id) rewrite stability φ | stabilityNE n with 
-    notId? (`λ (reify (eval (⇑ φ) (λ x₁ → reflect (` x₁)) S (reflect (` Z)))))
-... | yes p = cong-<$>ne (stability φ) refl 
-... | no  q with (¬notId?⇒equalKinds
-                    (reifyKripkeNE
-                        (λ {Δ'} r n₁ → eval (⇑ φ) (λ x₁ → reflect (` x₁)) r (reflect n₁))) q)  
-...| refl                    = {!   !}
+stability ((φ <$> n)) rewrite stabilityNE n = cong₂ _<$>_ (stability φ) refl
 
 stabilityRow [] = refl
 stabilityRow ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (stability τ)) (stabilityRow ρ)

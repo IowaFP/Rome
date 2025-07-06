@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Semantic.NBE where
 
 open import Rome.Operational.Prelude
@@ -52,25 +52,6 @@ reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ 
 
 reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
                      (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ─ ρ₂) {nr}))
-reifyPreservesNR<$> : ∀ (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → SemType Δ' κ₂) (ρ : NeutralType Δ R[ κ₁ ]) → NotSimpleRow (reify (φ <$> ρ))
-
-¬notId?⇒equalKinds : ∀ (φ : NormalType Δ (κ₁ `→ κ₂)) → ¬ (NotId φ) → κ₁ ≡ κ₂ 
-¬notId?⇒equalKinds (`λ (ne (` Z))) p = refl
-¬notId?⇒equalKinds (`λ (ne (` (S α)))) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (ne (x · τ))) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ ((φ <$> x) x₁)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ M@(`λ {κ₁} φ)) p = {! ¬notId?⇒equalKinds M   !}
-¬notId?⇒equalKinds (`λ (φ `→ φ₁)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (`∀ φ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (μ φ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (π ⇒ φ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (⦅ ρ ⦆ oρ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (lab l)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ ⌊ φ ⌋) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (Π φ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (Σ φ)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (φ ─ φ₁)) p = ⊥-elim (p tt)
-¬notId?⇒equalKinds (`λ (l ▹ₙ φ)) p = ⊥-elim (p tt)
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
@@ -78,35 +59,28 @@ reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 -- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} ((φ <$> τ)) with (reify (φ S (` Z))) | inspect (λ x → reify (φ S (` x))) Z | notId? (reifyKripkeNE φ)
-... | w | [[ refl ]] | yes p = (reifyKripkeNE φ <$> τ) (fromWitness p)
-... | w | [[ refl ]] | no p = ne (subst (λ X → NeutralType _ R[ X ]) (¬notId?⇒equalKinds (reifyKripkeNE φ) p) τ) --  ¬notId?⇒equalKinds (reifyKripkeNE φ) p 
--- ... | refl = ne τ
-reify {κ = R[ κ ]} (ne x) = ne x
+reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
+reify {κ = R[ κ ]} (ne x) = `λ (reify (reflect {κ = κ} (` Z))) <$> x
 reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = tt}
-reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = fromWitness (left (reifyPreservesNR<$> φ τ))}
+reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ne x₁) = (reify (row ρ x) ─ reify (ne x₁)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
-reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (φ <$> τ)) {nsr = fromWitness (reifyPreservesNR (row ρ x) (φ <$> τ) (right tt))} 
+reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (φ <$> τ)) {nsr = tt} 
 reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
 reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
 
-reifyPreservesNR<$> φ ρ  with notId? (reifyKripkeNE φ)
-... | yes p = tt
-... | no  p with ¬notId?⇒equalKinds (reifyKripkeNE φ) p 
-... | refl = tt
 
 reifyPreservesNR (ne x₁) ρ₂ (left x) = left tt
 reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
 reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
-reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left (reifyPreservesNR<$> φ ρ)
+reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left tt
 reifyPreservesNR ρ₁ (ne x) (right y) = right tt
 reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
 reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
-reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right (reifyPreservesNR<$> φ ρ₂)
+reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right tt
 
 reifyPreservesNR' (ne x₁) ρ₂ (left x) = tt
 reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
@@ -404,33 +378,3 @@ y = compl {Δ = ∅} {κ = ★} p q
 -- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
 -- -- _ = refl
 
--- This is a deadend---need to inductively define the identity function at all kinds
--- and inductively define NotId or IsId.
-Id-Canonical : ∀ κ → NormalType Δ (κ `→ κ) 
-Id-Canonical ★ = `λ (ne (` Z))
-Id-Canonical L = `λ (ne (` Z))
-Id-Canonical (κ₁ `→ κ₂) = `λ (η-norm (` Z))
-Id-Canonical R[ κ ] = `λ (ne (` Z))
-
-id' : NormalType ∅ (((★ `→ ★ `→ ★) `→ (★ `→ ★ `→ ★)))
-id' =  ⇓ (`λ (` Z))
-
-_ = {! id'  !}
-
-id-canonical : ∀ (φ : NormalType Δ (κ₁ `→ κ₁)) → ¬ (NotId φ) → φ ≡ `λ (η-norm (` Z))
-id-canonical {κ₁ = ★} (`λ (ne (` Z))) ¬¬id = refl
-id-canonical {κ₁ = L} (`λ (ne (` Z))) ¬¬id = refl
-id-canonical {κ₁ = R[ κ₁ ]} (`λ (ne (` Z))) ¬¬id = refl
-id-canonical {κ₁ = ★} (`λ (ne (` (S α)))) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (ne (x₁ · τ))) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (M `→ M₁)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (`∀ M)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (μ M)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (π ⇒ M)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ ⌊ M ⌋) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (Π M)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = ★} (`λ (Σ M)) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = L} (`λ M) ¬¬id = cong `λ {!   !}
-id-canonical {κ₁ = κ₁ `→ κ₂} (`λ (`λ M)) ¬¬id with ¬notId?⇒equalKinds (`λ M) {!   !} 
-... | refl = cong `λ {! id-canonical (`λ M) ?  !}
-id-canonical {κ₁ = R[ κ₁ ]} (`λ M) ¬¬id = cong `λ {!   !}

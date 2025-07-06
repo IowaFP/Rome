@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Rome.Operational.Types.Normal.Properties.Renaming where
 
 open import Rome.Operational.Prelude
@@ -63,7 +63,7 @@ renₖNF-cong eq (Σ x) rewrite renₖNF-cong eq x = refl
 renₖNF-cong eq (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-cong-row eq ρ)
 renₖNF-cong eq (ρ₂ ─ ρ₁) = cong-─ (renₖNF-cong eq ρ₂) (renₖNF-cong eq ρ₁) 
 renₖNF-cong eq (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-cong eq l) (renₖNF-cong eq τ) 
-renₖNF-cong eq ((x <$> τ) nid) = cong-<$>ne (renₖNF-cong eq x) (renₖNE-cong eq τ)
+renₖNF-cong eq ((x <$> τ) ) = cong-<$>ne (renₖNF-cong eq x) (renₖNE-cong eq τ)
 
 renₖNF-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-cong eq ρ₁ | renₖNF-cong eq ρ₂ | renₖNF-cong eq ρ₃ = refl
@@ -111,7 +111,7 @@ renₖNF-id (Σ x)  rewrite renₖNF-id x  = refl
 renₖNF-id (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-id-row ρ)
 renₖNF-id (ρ₂ ─ ρ₁) = cong-─ (renₖNF-id ρ₂) (renₖNF-id ρ₁)
 renₖNF-id (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-id l) (renₖNF-id τ)
-renₖNF-id ((x <$> τ) nid) = cong-<$>ne (renₖNF-id x) (renₖNE-id τ)
+renₖNF-id ((x <$> τ) ) = cong-<$>ne (renₖNF-id x) (renₖNE-id τ)
 
 renₖNF-id-pred (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-id ρ₁ | renₖNF-id ρ₂ | renₖNF-id ρ₃ = refl
@@ -158,7 +158,7 @@ renₖNF-comp ρ₁ ρ₂ (Σ x)  rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-comp-row ρ₁ ρ₂ ρ)
 renₖNF-comp r₁ r₂ (ρ₂ ─ ρ₁) = cong-─ (renₖNF-comp r₁ r₂ ρ₂) (renₖNF-comp r₁ r₂ ρ₁)
 renₖNF-comp r₁ r₂ (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-comp r₁ r₂ l) (renₖNF-comp r₁ r₂ τ)
-renₖNF-comp ρ₁ ρ₂ ((x <$> τ) nid) = cong-<$>ne (renₖNF-comp ρ₁ ρ₂ x) (renₖNE-comp ρ₁ ρ₂ τ)
+renₖNF-comp ρ₁ ρ₂ ((x <$> τ) ) = cong-<$>ne (renₖNF-comp ρ₁ ρ₂ x) (renₖNE-comp ρ₁ ρ₂ τ)
 
 renₖNF-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ | renₖNF-comp ρ ρ' ρ₃ = refl
@@ -217,7 +217,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ
 ↻-ren-⇑ ρ (Σ r)  = cong (λ x → Σ · x) (↻-ren-⇑ ρ r)
 ↻-ren-⇑ r (⦅ ρ ⦆ oρ) = cong-SimpleRow (↻-ren-⇑Row r ρ)
 ↻-ren-⇑ r (ρ₂ ─ ρ₁) = cong₂ _─_ (↻-ren-⇑ r ρ₂) (↻-ren-⇑ r ρ₁)
-↻-ren-⇑ ρ ((φ <$> τ) nid) = cong₂ _<$>_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
+↻-ren-⇑ ρ ((φ <$> τ) ) = cong₂ _<$>_ (↻-ren-⇑ ρ φ) (↻-ren-⇑NE ρ τ)
 
 ↻-ren-⇑NE ρ (` α) = refl
 ↻-ren-⇑NE ρ (τ₁ · τ₂) = cong₂ _·_ (↻-ren-⇑NE ρ τ₁) (↻-ren-⇑ ρ τ₂)
