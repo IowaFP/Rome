@@ -21,7 +21,7 @@ reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
 reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
-reflect {κ = R[ κ ]} ρ       = ne ρ
+reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
@@ -60,11 +60,8 @@ reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
-reify {κ = R[ κ ]} (ne x) = `λ (reify (reflect {κ = κ} (` Z))) <$> x
-reify {κ = R[ κ ]} (ne x ─ ρ₂) = (reify (ne x) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
-reify {κ = R[ κ ]} (row ρ x ─ ne x₁) = (reify (row ρ x) ─ reify (ne x₁)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
 reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
@@ -73,23 +70,18 @@ reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((rei
 reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
 
 
-reifyPreservesNR (ne x₁) ρ₂ (left x) = left tt
 reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
 reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
 reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left tt
-reifyPreservesNR ρ₁ (ne x) (right y) = right tt
 reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
 reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
 reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right tt
 
-reifyPreservesNR' (ne x₁) ρ₂ (left x) = tt
 reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
 reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (left x) = tt
-reifyPreservesNR' (ne x) ρ₂ (right y) = tt
 reifyPreservesNR' (φ <$> n) ρ₂ (left x) = tt
 reifyPreservesNR' (φ <$> n) ρ₂ (right y) = tt
 reifyPreservesNR' (x ▹ x₁) ρ₂ (right y) = tt
-reifyPreservesNR' (row ρ x) (ne x₁) (right y) = tt
 reifyPreservesNR' (row ρ x) (x₁ ▹ x₂) (right y) = tt
 reifyPreservesNR' (row ρ x) (ρ₂ ─ ρ₃) (right y) = tt
 reifyPreservesNR' (row ρ x) (φ <$> n) (right y) = tt
@@ -200,19 +192,18 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
-F <$>V ne x = (λ {Δ'} r n → F r (reflect n) ) <$> x -- (reifyKripke F <$> x)
- -- (λ r n → F r (reflect n)) <$> x -- (λ r n → F r (reflect n)) <$> x ─ (row εV tt)
+-- F <$>V ne x = (λ {Δ'} r n → F r (reflect n) ) <$> x 
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
 
 
-NotRow<$> {F = F} {ne x₁} {ρ₁} (left x) = left tt
+
 NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {ρ₂ ─ ρ₃} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {φ <$> n} {ρ₁} (left x) = left tt
-NotRow<$> {F = F} {ρ₂} {ne x} (right y) = right tt
+
 NotRow<$> {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
 NotRow<$> {F = F} {ρ₂} {ρ₁ ─ ρ₃} (right y) = right tt
 NotRow<$> {F = F} {ρ₂} {φ <$> n} (right y) = right tt
@@ -223,9 +214,7 @@ NotRow<$> {F = F} {ρ₂} {φ <$> n} (right y) = right tt
 
 _─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
 row ρ₂ oρ₂ ─V row ρ₁ oρ₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ oρ₂ oρ₁)
-ρ₂@(ne x) ─V ρ₁ = (ρ₂ ─ ρ₁) {nr = left tt}
 ρ₂@(x ▹ x₁) ─V ρ₁ = (ρ₂ ─ ρ₁) {nr = left tt}
-ρ₂@(row ρ x) ─V ρ₁@(ne x₁) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ₂@(row ρ x) ─V ρ₁@(x₁ ▹ x₂) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ₂@(row ρ x) ─V ρ₁@(_ ─ _) = (ρ₂ ─ ρ₁) {nr = right tt}
 ρ₂@(row ρ x) ─V ρ₁@(_ <$> _) = (ρ₂ ─ ρ₁) {nr = right tt}

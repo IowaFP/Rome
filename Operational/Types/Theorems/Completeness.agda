@@ -239,6 +239,13 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
   (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
   refl
 fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = ↻-syn/sem-compl xs ys e
+fundC {η₁ = η₁} {η₂} e (eq-map-id {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
+... | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext , refl  = refl , Unif-φ₁ , Unif-φ₂ , Ext , refl
+... | ne x₁ | ne x₂ | rel = {!   !}
+... | x₁ ▹ x₂ | x₃ ▹ x₄ | rel = rel
+... | row ρ x₁ | row ρ₁ x₂ | rel = rel
+... | c ─ c₁ | d ─ d₁ | rel = {! rel  !} 
+fundC e eq-map-∘ = {!   !} 
 
 
 fundC-Row e eq-[] = refl , (λ ())

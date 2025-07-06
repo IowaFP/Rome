@@ -40,7 +40,6 @@ nrRenSem' : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ₂ ρ₁ : RowType Δ₁ (
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
-renSem {κ = R[ κ ]} r (ne x) = ne (renₖNE r x)
 renSem {κ = R[ κ ]} r (φ <$> x) = (λ r' → φ (r' ∘ r)) <$> (renₖNE r x)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
 renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
@@ -49,7 +48,6 @@ renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r 
 nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
 nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
 
-nrRenSem r (ne x) nr = tt
 nrRenSem r (x ▹ x₁) nr = tt
 nrRenSem r (ρ ─ ρ₁) nr = tt
 nrRenSem r (φ <$> ρ) nr = tt
