@@ -692,7 +692,44 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
 ... | a | refl | lem₁ = refl , λ { fzero → (PP fzero .fst) , (F≋G .snd .snd id (PP fzero .snd)) ; (fsuc i) → lem₁ i }
 
 --------------------------------------------------------------------------------
--- Map ID law for semantic rows 
+-- Functions f are point-wise equivalent to their weakened η-expansions
+
+weaken-η-≋ : ∀ {κ'} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : Env Δ₁ Δ₂} → 
+               (Env-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+               {V₁ V₂ : SemType Δ₃ κ₁} → 
+               V₁ ≋ V₂ → 
+               (W : SemType Δ₃ κ') → 
+               W ≋ W → 
+             eval f η₁ r V₁ ≋ eval (renₖ S f) (extende (renSem r ∘ η₂) W) id V₂
+weaken-η-≋ f {η₁} {η₂} e r {V₁} {V₂} v W w =  sym-≋ 
+    (trans-≋ 
+        (third (↻-renₖ-eval S f 
+                    {η₂ = (extende (λ {κ} v' → renSem r (η₂ v')) W)} 
+                    (extend-≋ (ren-≋ r ∘ refl-≋ᵣ ∘ e) w)) 
+                    id 
+                    (sym-≋ v)) 
+        ((↻-eval-Kripke f r (refl-≋ₗ v) (sym-≋ ∘ e))))
+
+weaken-η-≋' : ∀ {κ'} {Δ₄} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : Env Δ₁ Δ₂} → 
+               (Env-≋ η₁ η₂) →  (r₁ : Renamingₖ Δ₂ Δ₃) (r₂ : Renamingₖ Δ₃ Δ₄) → 
+               {V₁ V₂ : SemType Δ₃ κ₁} → 
+               V₁ ≋ V₂ → 
+               (W : SemType Δ₃ κ') → 
+               W ≋ W → 
+             eval f η₁ (r₂ ∘ r₁) (renSem r₂ V₁) ≋ eval (renₖ S f) (extende (renSem r₁ ∘ η₂) W) r₂ (renSem r₂ V₂)
+weaken-η-≋' f {η₁ = η₁} {η₂} e r₁ r₂ v W w = 
+  trans-≋ 
+    (weaken-η-≋ f e (r₂ ∘ r₁) (ren-≋ r₂ v) _ (ren-≋ r₂ w)) 
+    (trans-≋ 
+      (idext 
+        {η₁ = extende (renSem (r₂ ∘ r₁) ∘ η₂) (renSem r₂ W)} 
+        {renSem r₂ ∘ extende (renSem r₁ ∘ η₁) W} 
+        (λ { Z     → ren-≋ r₂ w ; 
+            (S x₁) → renSem-comp-≋ r₁ r₂ (sym-≋ (e x₁)) }) (renₖ S f) .snd .snd id (ren-≋ r₂ (sym-≋ v))) 
+      (↻-eval-Kripke (renₖ S f) r₂ (ren-≋ r₂ v) (extend-≋ (ren-≋ r₁ ∘ e) w)))
+
+--------------------------------------------------------------------------------
+-- Map ID & composition law for semantic rows 
 
 map-id-≋ : ∀ {ρ₁ ρ₂ : SemType Δ R[ κ ]} → ρ₁ ≋ ρ₂ → ((λ ρ v → v) <$>V ρ₁) ≋ ρ₂
 map-id-≋ {ρ₁ = φ <$> x₁} {ρ₂ = _ <$> _} rel = rel
@@ -701,3 +738,54 @@ map-id-≋ {ρ₁ = row ρ x₁} {ρ₂ = row _ _} rel = rel
 map-id-≋ {ρ₁ = ρ₂ ─ ρ₁} {ρ₂ = _ ─ _} (rel₂ , rel₁) = map-id-≋ rel₂ , map-id-≋ rel₁ 
 
 
+map-∘-≋ :  ∀ {κ₃} (f : Type Δ₁ (κ₂ `→ κ₃)) (g : Type Δ₁ (κ₁ `→ κ₂)) 
+             {η₁ η₂ : Env Δ₁ Δ₂} → 
+             (Env-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+             {ρ₁ ρ₂ : SemType Δ₂ R[ κ₁ ]} → 
+             ρ₁ ≋ ρ₂ →
+             (eval f η₁ <$>V (eval g η₁ <$>V ρ₁)) ≋
+                  ((λ ρ v →
+                      eval (renₖ S f) (extende (λ {κ} v' → renSem ρ (η₂ v')) v)
+                      (λ x₁ → x₁)
+                      (eval (renₖ S g) (extende (λ {κ} v' → renSem ρ (η₂ v')) v)
+                       (λ x₁ → x₁) v))
+                   <$>V ρ₂)
+map-∘-≋ f g {η₁ = η₁} {η₂} e r {φ₁ <$> x₁} {φ₂ <$> x₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl) with idext e f | idext e g 
+... | Unif-f₁ , Unif-f₂ , Ext-f | Unif-g₁ , Unif-g₂ , Ext-g = 
+  refl , 
+  (λ r₁ r₂ V → 
+    trans-≋ 
+      (Unif-f₁ r₁ r₂ _ _ (Ext-g  r₁ (Ext-φ r₁ V) )) 
+      (refl-Extₗ Ext-f (r₂ ∘ r₁) 
+    (trans-≋ (Unif-g₂ r₁ r₂ _ _ (refl-≋ᵣ (Ext-φ r₁ V))) 
+       (sym-≋ (Ext-g (r₂ ∘ r₁) (trans-≋ 
+         (sym-≋ (Unif-φ₁ r₁ r₂ V)) 
+         (ren-≋ r₂ (Ext-φ r₁ V)))) )))) , 
+  (λ r₁ r₂ V → 
+    let Unif-f' , _ , Ext-f' = idext (extend-≋ (ren-≋ r₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ᵣ (Ext-φ r₁ V))) (renₖ S f) in
+    let Unif-g' , _ , Ext-g' = idext (extend-≋ (ren-≋ r₁ ∘ refl-≋ᵣ ∘ e) (refl-≋ᵣ (Ext-φ r₁ V))) (renₖ S g) in
+    trans-≋ 
+      (trans-≋ 
+        (Unif-f' id r₂ _ _ (sym-≋ (weaken-η-≋ g e r₁ (refl-≋ᵣ (Ext-φ r₁ V)) _ ((refl-≋ᵣ (Ext-φ r₁ V)))) ) ) 
+        (trans-≋
+           (sym-≋ (weaken-η-≋' f e r₁ r₂ (refl-Extₗ Ext-g r₁ (refl-≋ᵣ (Ext-φ r₁ V)) ) (φ₂ r₁ V) (refl-≋ᵣ (Ext-φ r₁ V))) )
+           (refl-Extₗ Ext-f (r₂ ∘ r₁) 
+           (trans-≋ 
+             (Unif-g₁ r₁ r₂ _ _ (refl-≋ᵣ (Ext-φ r₁ V))) 
+             (sym-≋ (refl-Extₗ Ext-g (r₂ ∘ r₁) (sym-≋ (Unif-φ₂ r₁ r₂ V)))))))) 
+      (weaken-η-≋ f e (r₂ ∘ r₁) 
+         (weaken-η-≋ g e (r₂ ∘ r₁) ((refl-≋ᵣ (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ V)))) (φ₂ (r₂ ∘ r₁) (renₖNE r₂ V)) (refl-≋ᵣ (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ V)))) 
+         (φ₂ (r₂ ∘ r₁) (renₖNE r₂ V)) 
+         (refl-≋ᵣ (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ V)))))
+      , 
+  (λ r V → weaken-η-≋ f e r (weaken-η-≋ g e r (Ext-φ r V) (φ₂ r V) (refl-≋ᵣ (Ext-φ r V))) (φ₂ r V) (refl-≋ᵣ (Ext-φ r V))) , 
+  refl
+map-∘-≋ f g e r {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) =
+  refl , weaken-η-≋ f e id (weaken-η-≋ g e id rel τ₂ (refl-≋ᵣ rel)) τ₂ (refl-≋ᵣ rel)
+map-∘-≋ f g {η₁ = η₁} {η₂} e r {row (zero , P) x₁} {row (zero , Q) x₂} rel = refl , λ ()
+map-∘-≋ f g {η₁ = η₁} {η₂} e r {row (suc n , P) x₁} {row (suc m , Q) x₂} (refl , rel) = 
+      refl , λ { i → (rel i .fst) , 
+                 (weaken-η-≋ f e id (weaken-η-≋ g e id (rel i .snd) _ (refl-≋ᵣ (rel i .snd))) _ (refl-≋ᵣ (rel i .snd))) }
+
+
+map-∘-≋ f g e r {ρ₁ ─ ρ₂} {ρ₃ ─ ρ₄} (rel₁ , rel₂) = map-∘-≋ f g e r rel₁ , map-∘-≋ f g e r rel₂

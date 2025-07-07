@@ -114,15 +114,7 @@ fundC e (eq-λ {τ = τ} {υ = υ} eq) =
 fundC {η₁ = η₁} {η₂ = η₂} e (eq-η {f = f}) = 
   fst (idext e f) , 
   fst (snd (idext {η₁ = η₁} {η₂ = η₂} e (`λ (weakenₖ f · (` Z))))) , 
-  λ ρ {V₁} {V₂} v → 
-  sym-≋ 
-    (trans-≋ 
-        (third (↻-renₖ-eval S f 
-                    {η₂ = (extende (λ {κ} v' → renSem ρ (η₂ v')) V₂)} 
-                    (extend-≋ (λ x → ren-≋ ρ (refl-≋ᵣ (e x))) (refl-≋ᵣ v))) 
-                    id 
-                    (sym-≋ v)) 
-        ((↻-eval-Kripke f ρ (refl-≋ₗ v) (sym-≋ ∘ e))))
+  λ r {V₁} {V₂} v → weaken-η-≋ f e r v V₂ (refl-≋ᵣ v)
 
 fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) = 
     trans-≋ 
@@ -221,16 +213,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
   (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
   refl
 fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = ↻-syn/sem-compl xs ys e
-fundC {η₁ = η₁} {η₂} e (eq-map-id {τ = τ}) with eval τ η₁ | eval τ η₂ | idext e τ 
-... | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext , refl  = refl , Unif-φ₁ , Unif-φ₂ , Ext , refl
-... | x₁ ▹ x₂ | x₃ ▹ x₄ | rel = rel
-... | row ρ x₁ | row ρ₁ x₂ | rel = rel
-... | ρ₂ ─ ρ₁ | ρ₄ ─ ρ₃ | rel₁ , rel₂ = map-id-≋ rel₁ , map-id-≋ rel₂ 
-fundC {η₁ = η₁} {η₂} e (eq-map-∘ {f = f} {g = g} {τ = τ}) with eval f η₁ | idext e f | eval g η₁ | idext e g | eval τ η₁ | eval τ η₂ | idext e τ 
-... | F | rel-f | G | rel-g | φ <$> x₁ | φ₁ <$> x₂ | rel-t = {!   !}
-... | F | rel-f | G | rel-g | x₁ ▹ x₂ | x₃ ▹ x₄ | refl , rel = refl , {! rel-f .snd .snd id (rel-g .snd .snd id rel)  !}
-... | F | rel-f | G | rel-g | row ρ x₁ | row ρ₁ x₂ | rel-t = {!   !}
-... | F | rel-f | G | rel-g | t₁ ─ t₂ | t₃ ─ t₄ | rel-t = {!   !} 
+fundC {η₁ = η₁} {η₂} e (eq-map-id {τ = τ}) = map-id-≋ (idext e τ) 
+fundC {η₁ = η₁} {η₂} e (eq-map-∘ {f = f} {g = g} {τ = τ}) = map-∘-≋ f g e id (idext e τ)
 
 
 fundC-Row e eq-[] = refl , (λ ())
