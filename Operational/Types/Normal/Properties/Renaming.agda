@@ -230,4 +230,3 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ
 
 ↻-ren-⇑Row r [] = refl
 ↻-ren-⇑Row r ((l , τ) ∷ ρ) rewrite ↻-ren-⇑ r τ | ↻-ren-⇑Row r ρ = refl
-

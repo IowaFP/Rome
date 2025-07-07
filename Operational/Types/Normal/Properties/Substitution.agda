@@ -40,33 +40,6 @@ open import Rome.Operational.Types.Theorems.Stability
 ∈-subₖNF σ (there i) = there (∈-subₖNF σ i)
 
 --------------------------------------------------------------------------------
--- Neutral types are equivalent to their η-normalizations
-
-η-norm-≡t'ren : ∀ (τ : NeutralType Δ₁ κ) {r : Renamingₖ Δ₁ Δ₂} → 
-                  ⇑ (renₖNF r (η-norm τ)) ≡t ⇑NE (renₖNE r τ)
-η-norm-≡t'ren {κ = ★} τ = eq-refl
-η-norm-≡t'ren {κ = L} τ = eq-refl
-η-norm-≡t'ren {κ = κ `→ κ₁} τ {r} = 
-  eq-trans 
-    (eq-λ (η-norm-≡t'ren (renₖNE S τ · reify (reflect (` Z))) {liftₖ r})) 
-  (eq-trans 
-    (eq-λ (eq-· 
-      (inst (trans (↻-ren-⇑NE (liftₖ r) (renₖNE S τ)) (cong (renₖ (liftₖ r)) (↻-ren-⇑NE S  τ)))) 
-      (η-norm-≡t'ren (` Z) {liftₖ r}))) 
-  (eq-trans (eq-λ (eq-· (eq-trans (inst (↻-liftₖ-weaken r (⇑NE τ))) (inst (cong (renₖ S) (sym (↻-ren-⇑NE  r τ))))) eq-refl)) 
-    (eq-sym eq-η)))
-η-norm-≡t'ren {κ = R[ κ ]} τ = eq-refl
-
-η-norm-≡t : ∀ (τ : NeutralType Δ κ) → ⇑ (η-norm τ) ≡t ⇑NE τ 
-η-norm-≡t  τ = 
-  eq-trans 
-    (subst 
-      (λ X → ⇑ X ≡t ⇑NE (renₖNE id τ)) {x = renₖNF id (η-norm τ)} 
-      (renₖNF-id  (η-norm τ)) 
-      ((η-norm-≡t'ren τ {id}))) 
-  (inst (cong ⇑NE (renₖNE-id τ)))
-
---------------------------------------------------------------------------------
 -- Substitution and normalization commute
 
 ↻-⇓-sub : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
