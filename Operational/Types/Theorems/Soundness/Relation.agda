@@ -243,7 +243,15 @@ ren-⟦⟧≋ {κ = ★} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-
 ren-⟦⟧≋ {κ = L} ρ {v} {V} rel-v = eq-trans (renₖ-≡t ρ rel-v) (eq-sym ((inst (↻-ren-⇑ ρ V))))
 ren-⟦⟧≋ {κ = κ `→ κ₁} ρ₁ {v₁} {V₁} rel-v₁ ρ₂ {v₂} {V₂} rel-v₂  = subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ₁ ρ₂ v₁)) eq-refl) (rel-v₁ (ρ₂ ∘ ρ₁) rel-v₂)
 ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {φ <$> n} (eq , rel-v) = 
-  eq-trans (renₖ-≡t ρ eq) (eq-<$> (eq-trans {!!} {!!}) (eq-sym (inst (↻-ren-⇑NE ρ n)))) , {!!}
+  eq-trans (renₖ-≡t ρ eq) 
+    (eq-<$> 
+      (eq-λ (eq-trans 
+          (reify-⟦⟧≋ (ren-⟦⟧≋ (liftₖ ρ) 
+            {(⇑ (reify (φ S (` Z))))} 
+            {φ S (` Z)} 
+            (refl-⟦⟧≋ (rel-v S {` Z} {` Z} (eq-sym (η-norm-≡t (` Z))))))) 
+            (reify-⟦⟧≋ {! refl-⟦⟧≋   !}))) 
+            (eq-sym (inst (↻-ren-⇑NE ρ n)))) , {!!}
   -- eq-trans 
   --   (renₖ-≡t ρ rel-v) 
   --   (eq-<$> (eq-λ 
