@@ -67,6 +67,10 @@ renₖ-≡t r (eq-compl {xs = xs} {ys} {ozs = ozs}) =
     (eq-compl  
       {ozs = fromWitness (subst Ordered (↻-renRowₖ-─s r {xs} {ys}) ((orderedRenRowₖ r (xs ─s ys) (toWitness ozs))))}) 
     (eq-row (instᵣ (sym (↻-renRowₖ-─s r {xs} {ys}))))
+renₖ-≡t r (eq-map-id) = eq-map-id
+renₖ-≡t r (eq-map-∘ {f = f} {g = g} {τ = τ}) = 
+  eq-trans (eq-map-∘ {f = renₖ r f} {g = renₖ r g} {τ = renₖ r τ}) 
+  (eq-<$> (eq-λ (eq-· (inst (sym (↻-liftₖ-weaken r f))) (eq-· (inst (sym (↻-liftₖ-weaken r g))) eq-refl))) eq-refl)
 
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r eq-[] = eq-[]
 renₖ-≡r {ρ₁ = ρ₁} {ρ₂} r (eq-cons l x eq) = eq-cons l (renₖ-≡t _ x) (renₖ-≡r r eq )
@@ -178,6 +182,13 @@ subₖ-≡t {σ = σ} (eq-compl {xs = xs} {ys} {zs} {ozs = ozs}) =
     (eq-compl  
       {ozs = fromWitness (subst Ordered (↻-subRowₖ-─s σ {xs} {ys}) ((orderedSubRowₖ σ (xs ─s ys) (toWitness ozs))))}) 
     (eq-row (instᵣ (sym (↻-subRowₖ-─s σ {xs} {ys}))))
+subₖ-≡t {σ = σ} (eq-map-id) = eq-map-id
+subₖ-≡t {σ = σ} (eq-map-∘ {f = f} {g = g} {τ = τ}) = 
+  eq-trans 
+    (eq-map-∘ {f = subₖ σ f} {subₖ σ g} {subₖ σ τ}) 
+    (eq-<$> 
+      (eq-λ (eq-· (inst (sym (↻-liftsₖ-weaken σ f))) (eq-· (inst (sym (↻-liftsₖ-weaken σ g))) eq-refl))) 
+      eq-refl)
 
 
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
