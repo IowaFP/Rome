@@ -206,18 +206,18 @@ subEnt σ s {π} (n-map· {ρ₁ = ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} {F = F
     (sym (↻-sub-⇓-<$> σ F ρ₂))
     (sym (↻-sub-⇓-<$> σ F ρ₃))
 subEnt σ s (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
-... | ne x₁ | ne x₂ | ih = n-complR-inert ih
-... | ne x₁ | x₂ ▹ x₃ | ih = n-complR-inert ih
-... | ne x₁ | row ρ x₂ | ih = n-complR-inert ih
-... | ne x₁ | r₁ ─ r₂ | ih = n-complR-inert ih
-... | x₁ ▹ x₂ | ne x₃ | ih = n-complR-inert ih
+... | φ₁ <$> x₁ | φ₂ <$> x₂ | ih = n-complR-inert ih
+... | φ <$> x₁ | x₂ ▹ x₃ | ih = n-complR-inert ih
+... | φ <$> x₁ | row ρ x₂ | ih = n-complR-inert ih
+... | φ <$> x₁ | r₁ ─ r₂ | ih = n-complR-inert ih
+... | x₁ ▹ x₂ | φ <$> x₃ | ih = n-complR-inert ih
 ... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-complR-inert ih
 ... | x₁ ▹ x₂ | row ρ x₃ | ih = n-complR-inert ih
 ... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-complR-inert ih
-... | row ρ x₁ | ne x₂ | ih = n-complR-inert ih
+... | row ρ x₁ | φ <$> x₂ | ih = n-complR-inert ih
 ... | row ρ oρ | l ▹ τ | ih = n-complR-inert ih
 ... | row ρ x₁ | r₁ ─ r₂ | ih = n-complR-inert ih
-... | r₂ ─ r₃ | ne x₁ | ih = n-complR-inert ih
+... | r₂ ─ r₃ | φ <$> x₁ | ih = n-complR-inert ih
 ... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-complR-inert ih
 ... | r₂ ─ r₃ | row ρ x₁ | ih = n-complR-inert ih
 ... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-complR-inert ih
@@ -241,18 +241,18 @@ subEnt σ s (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (
     (cong-⦅⦆ refl)) 
   (n-complR ih)
 subEnt σ s (n-complL-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) with eval (subₖ (⇑ ∘ σ) (⇑ ρ₂)) idEnv | eval (subₖ (⇑ ∘ σ) (⇑ ρ₁)) idEnv | subEnt σ s e 
-... | ne x₁ | ne x₂ | ih = n-complL-inert ih
-... | ne x₁ | x₂ ▹ x₃ | ih = n-complL-inert ih
-... | ne x₁ | row ρ x₂ | ih = n-complL-inert ih
-... | ne x₁ | r₁ ─ r₂ | ih = n-complL-inert ih
-... | x₁ ▹ x₂ | ne x₃ | ih = n-complL-inert ih
+... | φ₁ <$> x₁ | φ₂ <$> x₂ | ih = n-complL-inert ih
+... | φ <$> x₁ | x₂ ▹ x₃ | ih = n-complL-inert ih
+... | φ <$> x₁ | row ρ x₂ | ih = n-complL-inert ih
+... | φ <$> x₁ | r₁ ─ r₂ | ih = n-complL-inert ih
+... | x₁ ▹ x₂ | φ <$> x₃ | ih = n-complL-inert ih
 ... | x₁ ▹ x₂ | x₃ ▹ x₄ | ih = n-complL-inert ih
 ... | x₁ ▹ x₂ | row ρ x₃ | ih = n-complL-inert ih
 ... | x₁ ▹ x₂ | r₁ ─ r₂ | ih = n-complL-inert ih
-... | row ρ x₁ | ne x₂ | ih = n-complL-inert ih
+... | row ρ x₁ | φ <$> x₂ | ih = n-complL-inert ih
 ... | row ρ oρ | l ▹ τ | ih = n-complL-inert ih
 ... | row ρ x₁ | r₁ ─ r₂ | ih = n-complL-inert ih
-... | r₂ ─ r₃ | ne x₁ | ih = n-complL-inert ih
+... | r₂ ─ r₃ | φ <$> x₁ | ih = n-complL-inert ih
 ... | r₂ ─ r₃ | x₁ ▹ x₂ | ih = n-complL-inert ih
 ... | r₂ ─ r₃ | row ρ x₁ | ih = n-complL-inert ih
 ... | r₂ ─ r₃ | r₁ ─ r₄ | ih = n-complL-inert ih

@@ -45,21 +45,22 @@ norm-· : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) →
         ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
         ∃[ zs ] Σ[ ozs ∈ True (normalOrdered? zs) ] 
         (ρ₁ ≡ ⦅ xs ⦆ oxs × ρ₂ ≡ ⦅ ys ⦆ oys × ρ₃ ≡ ⦅ zs ⦆ ozs)
-norm-≲ {ρ₁ = ne x₁} {ρ₂ = ρ₂} n = ⊥-elim (noNeutrals x₁)
-norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ne x₁} n = ⊥-elim (noNeutrals x₁)
+norm-≲ {ρ₁ = φ <$> x} {ρ₂ = ρ₂} n = ⊥-elim (noNeutrals x)
+norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = φ <$> x₁} n = ⊥-elim (noNeutrals x₁)
 norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = (ρ₂ ─ ρ₃) {nsr}} n = ⊥-elim (noComplements nsr refl)
 norm-≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = l ▹ₙ ρ₂} n = ⊥-elim (noNeutrals l)
 norm-≲ {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂ = ρ₂} n = ⊥-elim (noComplements nsr refl)
 norm-≲ {ρ₁ = l ▹ₙ ρ₁} {ρ₂ = ρ₂} n = ⊥-elim (noNeutrals l)
 norm-≲ {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} n = xs , oxs , ys , oys , refl , refl
 
-norm-· {ρ₁ = ne x₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x₁)
+
+norm-· {ρ₁ = φ <$> x} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x)
 norm-· {ρ₁ = (ρ₁ ─ ρ₄) {nsr}} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noComplements nsr refl)
 norm-· {ρ₁ = l ▹ₙ ρ₁} {ρ₂ = ρ₂} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals l)
-norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ne x₁} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x₁)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = φ <$> x₁} {ρ₃ = ρ₃} n = ⊥-elim (noNeutrals x₁)
 norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = (ρ₂ ─ ρ₄) {nsr}} {ρ₃ = ρ₃} n = ⊥-elim (noComplements nsr refl)
 norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = l ▹ₙ ρ₂} {ρ₃ = ρ₃} n =  ⊥-elim (noNeutrals l)
-norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = ne x₁} n = ⊥-elim (noNeutrals x₁)
+norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = φ <$> x₁} n = ⊥-elim (noNeutrals x₁)
 norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = (ρ₃ ─ ρ₄) {nsr}} n = ⊥-elim (noComplements nsr refl)
 norm-· {ρ₁ = ⦅ ρ ⦆ oρ} {ρ₂ = ⦅ ρ₁ ⦆ oρ₁} {ρ₃ = l ▹ₙ ρ₃} n = ⊥-elim (noNeutrals l)
 norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ ozs} n = xs , oxs , ys , oys , zs , ozs , refl , refl , refl
@@ -217,16 +218,16 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 
 ≲-inv (n-incl i) = i
 ≲-inv n-refl = λ x x∈xs → x∈xs 
-≲-inv (_n-⨾_ {ρ₂ = ne x} e₁ e₂) = ⊥-elim (noNeutrals x)
+≲-inv (_n-⨾_ {ρ₂ = φ <$> x} e₁ e₂) = ⊥-elim (noNeutrals x)
 ≲-inv (_n-⨾_ {ρ₂ = ⦅ ρ₂ ⦆ _} e₁ e₂) = ⊆-trans (≲-inv e₁) (≲-inv e₂)
 ≲-inv (_n-⨾_ {ρ₂ = ρ₂@((ρ ─ ρ') {nsr})} e₁ e₂) = ⊥-elim (noComplements nsr refl)
 ≲-inv (_n-⨾_ {ρ₂ = l ▹ₙ c} e₁ e₂) = ⊥-elim (noNeutrals l) 
-≲-inv (n-plusL≲ {ρ₂ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-plusL≲ {ρ₂ = φ <$> x} e) = ⊥-elim (noNeutrals x)
 ≲-inv (n-plusL≲ {ρ₂ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
 ≲-inv (n-plusL≲ {ρ₂ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
 ≲-inv (n-plusL≲ {ρ₂ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₁
-≲-inv (n-plusR≲ {ρ₁ = ne x} e) = ⊥-elim (noNeutrals x)
+≲-inv (n-plusR≲ {ρ₁ = φ <$> x} e) = ⊥-elim (noNeutrals x)
 ≲-inv (n-plusR≲ {ρ₁ = ⦅ ρ₂ ⦆ _} e) with ·-inv e 
 ... | (i₁ , i₂ , i₃) = i₂
 ≲-inv (n-plusR≲ {ρ₁ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
@@ -234,8 +235,8 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ≲-inv (n-map≲ {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} e refl refl) rewrite 
   sym (stability-map F xs) | sym (stability-map F ys) = ⊆-map (overᵣ (F ·'_)) (≲-inv e) 
 
-≲-inv (n-map≲ {ρ₁ = ne x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
-≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-map≲ {ρ₁ = φ <$> x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
+≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {φ <$> x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
 ≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₃) {nsr}} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
 ≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {l ▹ₙ ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals l)
 ≲-inv (n-map≲ {ρ₁ = (ρ₁ ─ ρ₃) {nsr}} {ρ₂} c x₁ x₂) = ⊥-elim (noComplements nsr refl)
@@ -249,9 +250,9 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
     sym (stability-map F x₃) 
   | sym (stability-map F x₄)
   | sym (stability-map F x₅) =  ⊆-map (overᵣ (F ·'_)) i₁ , (⊆-map (overᵣ (F ·'_)) i₂) , ⊆-map-or (overᵣ (F ·'_)) i₃
-·-inv (n-map· {ρ₁ = ne x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
-·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {ne x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
-·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {ne x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = φ <$> x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {φ <$> x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
+·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {φ <$> x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
 ·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {(ρ₃ ─ ρ₄) {nsr}} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl)
 ·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {l ▹ₙ ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals l)
 ·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {(ρ₂ ─ ρ₄) {nsr}} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noComplements nsr refl) 
@@ -279,7 +280,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 -- ε-sum (n-plus {xs = x ∷ xs} {ys} i₁ i₂ i₃) = ∈-elim (i₁ x (here refl))
 -- ε-sum n-emptyR = refl , refl
 -- ε-sum n-emptyL = refl , refl
--- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {ne x₁} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals x₁)
+-- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {φ <$> x₁} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noNeutrals x₁)
 -- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {⦅ [] ⦆ oρ} {F = F} e eq₁ eq₂ eq₃) with ε-sum e 
 -- ... | refl , refl = eq₁ , eq₂
 -- ε-sum (n-map· {ρ₁ = ρ₁} {ρ₂} {(ρ₃ ─ ρ₄) {nsr}} {F = F} e eq₁ eq₂ eq₃) = ⊥-elim (noComplements nsr refl) 
