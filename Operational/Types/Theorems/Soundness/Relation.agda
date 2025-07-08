@@ -341,3 +341,19 @@ overᵣ-⟦⟧≋ : ∀ {n : ℕ}
 overᵣ-⟦⟧≋ {n = zero} F rel-f rel = tt
 overᵣ-⟦⟧≋ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) = 
   (refl , (refl-⟦⟧≋ (rel-f id rel-fzero))) , overᵣ-⟦⟧≋ {n = n} F rel-f rel-fsuc 
+
+--------------------------------------------------------------------------------
+-- To be clear, although we use an existential in defining ⟦ τ ⟧≋(φ <$> n), 
+-- we know more precisely that τ ≡t `λ (⇑ (reify (φ₂ S (` Z)))) <$> ⇑NE n.
+
+reifySoundKripkeNE-≡t : ∀ {τ : Type Δ R[ κ₂ ]} {f : Type Δ (κ₁ `→ κ₂)} {n : NeutralType Δ R[ κ₁ ]} 
+        {φ : KripkeFunctionNE Δ κ₁ κ₂} → 
+        τ ≡t f <$> ⇑NE n → 
+        SoundKripkeNE f φ → 
+        τ ≡t (`λ (⇑ (reify (φ S (` Z)))) <$> ⇑NE n)
+reifySoundKripkeNE-≡t eq rel-f = 
+  (eq-trans 
+      eq
+      (eq-<$> 
+        (eq-trans eq-η (eq-λ (reify-⟦⟧≋ (rel-f S {` Z} (eq-sym (η-norm-≡t (` Z))))))) 
+        eq-refl))
