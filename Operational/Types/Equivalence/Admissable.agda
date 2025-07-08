@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Equivalence.Relation.Admissable where
+module Rome.Operational.Types.Equivalence.Admissable where
 
 open import Rome.Operational.Prelude
 open import Rome.Operational.Kinds.Syntax
@@ -8,7 +8,7 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Types.Syntax
 open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Substitution
-open import Rome.Operational.Types.Equivalence .Relation
+open import Rome.Operational.Types.Equivalence.Relation
 
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Substitution

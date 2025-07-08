@@ -46,20 +46,10 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 ... | yes refl = yes refl 
 ... | no  p = no (λ { refl → p refl }) 
 ` x ≡NE? (d · τ) = no (λ ())
-` x ≡NE? (φ <$> d) = no (λ ()) 
 (x · τ) ≡NE? ` α = no (λ ())
 (_·_ {κ₁} x τ₁) ≡NE? (_·_ {κ₂} y τ₂) with κ₁ ≡k? κ₂ 
 ... | no  q = no (λ { refl → q refl })
 ... | yes refl with x ≡NE? y | τ₁ ≡? τ₂ 
-... | yes refl | yes refl = yes refl
-... | _ | no q = no (λ { refl → q refl })
-... | no p  | _ = no (λ { refl → p refl })
-(x · τ) ≡NE? (φ <$> y) = no (λ ())
-(φ <$> x) ≡NE? ` α = no (λ ())
-(φ <$> x) ≡NE? (y · τ) = no (λ ())
-(_<$>_ {κ₁} f x) ≡NE? (_<$>_ {κ₂} g y) with κ₁ ≡k? κ₂ 
-... | no  q = no (λ { refl → q refl })
-... | yes refl with f ≡? g | x ≡NE? y
 ... | yes refl | yes refl = yes refl
 ... | _ | no q = no (λ { refl → q refl })
 ... | no p  | _ = no (λ { refl → p refl })
@@ -83,7 +73,12 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 
 _≡?_ {κ = ★} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
 _≡?_ {κ = L} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
-_≡?_ {κ = R[ κ ]} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
+(_<$>_ {κ₁} f x) ≡? (_<$>_ {κ₂} g y) with κ₁ ≡k? κ₂ 
+... | no  q = no (λ { refl → q refl })
+... | yes refl with f ≡? g | x ≡NE? y
+... | yes refl | yes refl = yes refl
+... | _ | no q = no (λ { refl → q refl })
+... | no p  | _ = no (λ { refl → p refl })
 `λ τ₁ ≡? `λ τ₂ = map′ (cong `λ) (λ { refl → refl }) (τ₁ ≡? τ₂)
 μ τ₁ ≡? μ τ₂ = map′ (cong μ) (λ { refl → refl})  (τ₁ ≡? τ₂)
 (_⇒_ {κ₁ = κ₁} π₁ τ₁) ≡? (_⇒_ {κ₁ = κ₂} π₂ τ₂) with κ₁ ≡k? κ₂
@@ -97,10 +92,6 @@ _≡?_ {κ = R[ κ ]} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {t
 (τ₁ `→ τ₂) ≡? (τ₃ `→ τ₄) with τ₁ ≡? τ₃
 ... | no  p = no (λ { refl → p  refl })
 ... | yes refl = map′ (cong (τ₁ `→_)) (λ { refl → refl }) (τ₂ ≡? τ₄)
--- ε ≡? ε = yes refl
--- (l₁ ▹ τ₁) ≡? (l₂ ▹ τ₂) with l₁ ≡? l₂
--- ... | no  p = no (λ { refl → p  refl })
--- ... | yes refl = map′ (cong (l₁ ▹_)) (λ { refl → refl }) (τ₁ ≡? τ₂)
 Π τ₁ ≡? Π τ₂ = map′ (cong Π) (λ { refl → refl }) (τ₁ ≡? τ₂)
 lab l₁ ≡? lab l₂ = map′ (cong lab) (λ { refl → refl }) (l₁ ≟ l₂)
 ⌊ τ₁ ⌋ ≡? ⌊ τ₂ ⌋ = map′ (cong ⌊_⌋) (λ { refl → refl }) (τ₁ ≡? τ₂)
@@ -111,6 +102,15 @@ ne τ₁ ≡? ne τ₂ with τ₁ ≡NE? τ₂
 ⦅ ρ₁ ⦆ oρ₁ ≡? ⦅ ρ₂ ⦆ oρ₂ with ρ₁ ≡Row? ρ₂ 
 ... | yes refl rewrite NormalIrrelevantOrdered ρ₁ oρ₁ oρ₂  = yes refl
 ... | no  p  = no (λ { refl → p refl })
+(x₁ ─ x₂) ≡? (y₁ ─ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 
+... | yes refl | yes refl = yes (cong-─ refl refl)
+... | _     | no q = no (λ { refl → q refl })
+... | no p  | _ = no (λ { refl → p refl })
+(l ▹ₙ x₁) ≡? (l₁ ▹ₙ y₁) with l ≡NE? l₁ | x₁ ≡? y₁ 
+... | yes refl | yes refl = yes refl
+... | no p     | _     = no (λ { refl → p refl }) 
+... | _        | no q  = no (λ { refl → q refl }) 
+
 -- nuisance cases
 ne x ≡? (τ₂ `→ τ₃) = no (λ ())
 ne x ≡? `∀ τ₂ = no (λ ())
@@ -120,7 +120,6 @@ ne x ≡? lab l = no (λ ())
 ne x ≡? ⌊ τ₂ ⌋ = no (λ ())
 ne x ≡? Π τ₂ = no (λ ())
 ne x ≡? Σ τ₂ = no (λ ())
-
 ne x ≡? ⦅ x₁ ⦆ _ = no (λ ())
 ⦅ x ⦆ _ ≡? ne x₁ = no (λ ())
 (τ₁ `→ τ₂) ≡? ne x = no (λ ())
@@ -173,24 +172,20 @@ lab l ≡? ne x = no (λ ())
 Σ τ₁ ≡? (π ⇒ τ₂) = no (λ ())
 Σ τ₁ ≡? ⌊ τ₂ ⌋ = no (λ ())
 Σ τ₁ ≡? Π τ₂ = no (λ ())
-ne x₁ ≡? (y₁ ─ y₂) = no (λ ())
-ne x₁ ≡? (l ▹ₙ y₁) = no (λ ())
 ⦅ ρ ⦆ oρ ≡? (y₁ ─ y₂) = no (λ ())
 ⦅ ρ ⦆ oρ ≡? (l ▹ₙ y₁) = no (λ ())
+⦅ ρ ⦆ oρ ≡? (_ <$> _) = no (λ ())
 (x₁ ─ x₂) ≡? ne x₃ = no (λ ())
 (x₁ ─ x₂) ≡? ⦅ ρ ⦆ oρ = no (λ ())
-(x₁ ─ x₂) ≡? (y₁ ─ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 
-... | yes refl | yes refl = yes (cong-─ refl refl)
-... | _     | no q = no (λ { refl → q refl })
-... | no p  | _ = no (λ { refl → p refl })
 (x₁ ─ x₂) ≡? (l ▹ₙ y₁) = no (λ ())
+(x₁ ─ x₂) ≡? (_ <$> _) = no (λ ())
 (l ▹ₙ x₁) ≡? ne x₂ = no (λ ())
 (l ▹ₙ x₁) ≡? ⦅ ρ ⦆ oρ = no (λ ())
 (l ▹ₙ x₁) ≡? (y₁ ─ y₂) = no (λ ())
-(l ▹ₙ x₁) ≡? (l₁ ▹ₙ y₁) with l ≡NE? l₁ | x₁ ≡? y₁ 
-... | yes refl | yes refl = yes refl
-... | no p     | _     = no (λ { refl → p refl }) 
-... | _        | no q  = no (λ { refl → q refl }) 
+(l ▹ₙ x₁) ≡? (_ <$> _) = no (λ ())
+_<$>_ {κ₁} f x ≡? ⦅ ρ ⦆ oρ = no (λ ())
+_<$>_ {κ₁} f x ≡? (τ ─ τ₁) = no (λ ())
+_<$>_ {κ₁} f x ≡? (l ▹ₙ τ) = no (λ ())
 
 -- --------------------------------------------------------------------------------
 -- -- Type equivalence is decidable
