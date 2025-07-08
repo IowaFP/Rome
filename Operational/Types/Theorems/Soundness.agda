@@ -233,9 +233,49 @@ sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} {nl = ()} ρ {v} {V} q
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) = 
   λ r {v'} {V'} rel-v → 
-  {!   !}
-sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) = {!   !} 
--- sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {ne g} q = λ ρ {v} {V} eq → 
+  subst-⟦⟧≋ 
+    (eq-· (eq-· eq-refl (eq-sym (renₖ-≡t r eq))) eq-refl) 
+  (subst-⟦⟧≋ 
+    (eq-sym eq-Π-assoc)
+    (sound-Π id 
+    (_ , 
+    ((eq-trans 
+        (eq-· eq-β eq-refl) 
+    (eq-trans 
+      eq-β 
+    (eq-trans 
+      eq-map-∘ 
+    (eq-<$> 
+      (eq-trans 
+        (eq-λ (eq-· 
+          (eq-λ (eq-· 
+            eq-refl 
+            (eq-trans 
+              (inst (↻-liftₖ-weaken S v')) 
+              eq-refl))) 
+          (eq-· 
+            (renₖ-≡t S (inst (subₖ-weaken (renₖ r f) v'))) eq-refl))) 
+        (eq-trans 
+          (eq-λ eq-β) 
+        (eq-trans (eq-λ (eq-· eq-refl (inst (subₖ-weaken (renₖ S v') _)))) eq-refl)))
+      (eq-trans 
+        (inst (subₖ-weaken (renₖ r (⇑NE n)) v')) 
+        (eq-sym (inst (↻-ren-⇑NE r n)))))))) , 
+    {!   !}))))
+sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) = 
+  (`λ (weakenₖ Π · (weakenₖ f · ` Z))) , 
+  (eq-trans (eq-· eq-refl eq) (eq-trans eq-Π (eq-trans eq-map-∘ eq-refl))) , 
+  λ r m → subst-⟦⟧≋ 
+    (eq-· eq-refl (eq-sym m)) 
+    (subst-⟦⟧≋ 
+      (eq-sym eq-β) 
+      (sound-Π id 
+        (subst-⟦⟧≋ 
+          (eq-· 
+            (inst (subₖ-weaken-over-lift r f (⇑ (η-norm _)))) 
+            m)
+          (sound-f r m))))
+-- sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {n{!   !} g} q {!   !} λ ρ {v} {V} eq → 
 --   subst-⟦⟧≋ 
 --   (eq-sym (eq-Π-assoc {ρ = renₖ ρ f} {τ = v})) 
 --   (subst-⟦⟧≋ 
@@ -243,7 +283,6 @@ sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) = {!   !}
 --       (eq-trans 
 --         (eq-· eq-refl 
 --           (eq-trans 
---             (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
 --             eq-β)) 
 --           eq-refl)) 
 --         (sound-Π ρ
