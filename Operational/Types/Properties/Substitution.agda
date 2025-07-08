@@ -253,11 +253,23 @@ subRowₖ-comp ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (subₖ-comp 
 
 
 -------------------------------------------------------------------------------
+-- Renaming by r is equivalent to substitution by the identity sub composed with r 
+
+renₖ-subₖ-id : ∀ (r : Renamingₖ Δ₂ Δ₃) 
+                (τ :  Type Δ₂ κ) → renₖ r τ ≡ subₖ (` ∘ r) τ
+renₖ-subₖ-id r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
+
+-------------------------------------------------------------------------------
 -- 
 
-renₖ-subₖ-id : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (r : Renamingₖ Δ₂ Δ₃) 
-                (τ :  Type Δ₂ κ) → renₖ r τ ≡ subₖ (` ∘ r) τ
-renₖ-subₖ-id σ r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
+subₖ-weaken-over-lift : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ₁) (v : Type Δ₂ κ₂) → 
+                        renₖ r τ ≡ subₖ (extendₖ ` v) (renₖ (liftₖ r) (weakenₖ τ))
+subₖ-weaken-over-lift r τ v = 
+  (trans 
+    (trans 
+      (renₖ-subₖ-id r τ)
+      (↻-subₖ-renₖ τ))
+    (↻-subₖ-renₖ (weakenₖ τ)))
 
 -------------------------------------------------------------------------------
 -- Renamingₖ commutes with β-reduction

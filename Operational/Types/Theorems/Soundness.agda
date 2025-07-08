@@ -36,20 +36,20 @@ open import Rome.Operational.Types.Theorems.Soundness.Relation public
 ↻-⇑-reify-─ : ∀ (ρ₂ ρ₁ : RowType Δ₂ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]) → 
                    {nr   : NotRow ρ₂ or NotRow ρ₁} → 
                   ⇑ (reify ((ρ₂ ─ ρ₁) {nr})) ≡t ⇑ (reify ρ₂) ─ ⇑ (reify ρ₁)
-↻-⇑-reify-─ (ne x₁) (ne x₂) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (x₂ ▹ x₃) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (row ρ x₂) {nr} = eq-refl
-↻-⇑-reify-─ (ne x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (x₁ ▹ x₂) (ne x₃) {nr} = eq-refl
+↻-⇑-reify-─ (φ <$> n) (φ' <$> n') {nr} = eq-refl
+↻-⇑-reify-─ (φ <$> n) (x₂ ▹ x₃) {nr} = eq-refl
+↻-⇑-reify-─ (φ <$> n) (row ρ x₂) {nr} = eq-refl
+↻-⇑-reify-─ (φ <$> n) (ρ₁ ─ ρ₂) {nr} = eq-refl
+↻-⇑-reify-─ (x₁ ▹ x₂) (φ <$> n) {nr} = eq-refl
 ↻-⇑-reify-─ (x₁ ▹ x₂) (x₃ ▹ x₄) {nr} = eq-refl
 ↻-⇑-reify-─ (x₁ ▹ x₂) (row ρ x₃) {nr} = eq-refl
 ↻-⇑-reify-─ (x₁ ▹ x₂) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (row ρ x₁) (ne x₂) {nr} = eq-refl
+↻-⇑-reify-─ (row ρ x₁) (φ <$> n) {nr} = eq-refl
 ↻-⇑-reify-─ (row ρ x₁) (x₂ ▹ x₃) {nr} = eq-refl
 ↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {left ()}
 ↻-⇑-reify-─ (row ρ x₁) (row ρ₁ x₂) {right ()}
 ↻-⇑-reify-─ (row ρ x₁) (ρ₁ ─ ρ₂) {nr} = eq-refl
-↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ne x₁) {nr} = eq-refl
+↻-⇑-reify-─ (ρ₂ ─ ρ₃) (φ <$> n) {nr} = eq-refl
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (x₁ ▹ x₂) {nr} = eq-refl
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (row ρ x₁) {nr} = eq-refl
 ↻-⇑-reify-─ (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nr} = eq-refl
@@ -76,7 +76,18 @@ cong-<$>⟦⟧≋ : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ 
                 ⟦ f ⟧≋ F → 
                 ⟦ v ⟧≋ V → 
                 ⟦ f <$> v ⟧≋ F <$>V V 
-cong-<$>⟦⟧≋ f F v (ne x₁) rel-f rel-v = eq-<$> (reify-⟦⟧≋ rel-f) rel-v
+cong-<$>⟦⟧≋ f F v (φ <$> n) rel-f (g , g-eq , g-sound) = 
+  (`λ (weakenₖ f · (weakenₖ g · (` Z)))) , 
+  (eq-trans (eq-<$> eq-refl g-eq) eq-map-∘) , 
+  (λ r vee → 
+    subst-⟦⟧≋ 
+      (eq-trans 
+        (eq-· 
+          (inst (subₖ-weaken-over-lift r f _)) 
+          (eq-· 
+            (inst (subₖ-weaken-over-lift r g _)) 
+            eq-refl)) (eq-sym eq-β)) 
+      (rel-f r (g-sound r vee)))
 cong-<$>⟦⟧≋ f F v (l ▹ τ) rel-f (eq , rel) = 
   eq-trans 
     (eq-<$> eq-refl eq) 
@@ -220,36 +231,40 @@ map-Σ : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemTyp
 
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} {nl = ()} ρ {v} {V} q
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {ne g} q = λ ρ {v} {V} eq → 
-  subst-⟦⟧≋ 
-  (eq-sym (eq-Π-assoc {ρ = renₖ ρ f} {τ = v})) 
-  (subst-⟦⟧≋ 
-    (eq-sym 
-      (eq-trans 
-        (eq-· eq-refl 
-          (eq-trans 
-            (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
-            eq-β)) 
-          eq-refl)) 
-        (sound-Π ρ
-           {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
-           (eq-<$> 
-             (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
-             (eq-trans 
-               (eq-trans 
-                 (inst (subₖ-weaken (renₖ ρ f) v)) 
-                 (renₖ-≡t ρ q)) 
-               (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
-sound-Π {κ₁ = R[ κ ]} ρ {v} {ne x} q =
- eq-trans 
-        (eq-· eq-refl q) 
-        (eq-trans 
-            eq-Π 
-            (eq-<$> 
-                (eq-trans 
-                    eq-η 
-                    (eq-λ (reify-⟦⟧≋ (sound-Π id eq-refl)))) 
-                eq-refl))
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) = 
+  λ r {v'} {V'} rel-v → 
+  {!   !}
+sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) = {!   !} 
+-- sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {ne g} q = λ ρ {v} {V} eq → 
+--   subst-⟦⟧≋ 
+--   (eq-sym (eq-Π-assoc {ρ = renₖ ρ f} {τ = v})) 
+--   (subst-⟦⟧≋ 
+--     (eq-sym 
+--       (eq-trans 
+--         (eq-· eq-refl 
+--           (eq-trans 
+--             (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
+--             eq-β)) 
+--           eq-refl)) 
+--         (sound-Π ρ
+--            {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
+--            (eq-<$> 
+--              (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
+--              (eq-trans 
+--                (eq-trans 
+--                  (inst (subₖ-weaken (renₖ ρ f) v)) 
+--                  (renₖ-≡t ρ q)) 
+--                (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
+-- sound-Π {κ₁ = R[ κ ]} ρ {v} {ne x} q =
+--  eq-trans 
+--         (eq-· eq-refl q) 
+--         (eq-trans 
+--             eq-Π 
+--             (eq-<$> 
+--                 (eq-trans 
+--                     eq-η 
+--                     (eq-λ (reify-⟦⟧≋ (sound-Π id eq-refl)))) 
+--                 eq-refl))
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (eq , rel) ρ₂ {v} {V} rel-v = 
   subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) (sound-Π ρ₂ {renₖ ρ₂ f ?? v} 
   ((eq-trans 
@@ -377,36 +392,36 @@ map-Π {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Π {n
 
 sound-Σ {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Σ {κ₁ = L} {nl = ()} ρ {v} {V} q
-sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {f} {ne g} q = λ ρ {v} {V} eq → 
-  subst-⟦⟧≋ 
-  (eq-sym (eq-Σ-assoc {ρ = renₖ ρ f} {τ = v})) 
-  (subst-⟦⟧≋ 
-    (eq-sym 
-      (eq-trans 
-        (eq-· eq-refl 
-          (eq-trans 
-            (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
-            eq-β)) 
-          eq-refl)) 
-        (sound-Σ ρ
-           {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
-           (eq-<$> 
-             (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
-             (eq-trans 
-               (eq-trans 
-                 (inst (subₖ-weaken (renₖ ρ f) v)) 
-                 (renₖ-≡t ρ q)) 
-               (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
-sound-Σ {κ₁ = R[ κ ]} ρ {v} {ne x} q =
- eq-trans 
-        (eq-· eq-refl q) 
-        (eq-trans 
-            eq-Σ 
-            (eq-<$> 
-                (eq-trans 
-                    eq-η 
-                    (eq-λ (reify-⟦⟧≋ (sound-Σ id eq-refl)))) 
-                eq-refl))
+-- sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {f} {ne g} q = λ ρ {v} {V} eq → 
+--   subst-⟦⟧≋ 
+--   (eq-sym (eq-Σ-assoc {ρ = renₖ ρ f} {τ = v})) 
+--   (subst-⟦⟧≋ 
+--     (eq-sym 
+--       (eq-trans 
+--         (eq-· eq-refl 
+--           (eq-trans 
+--             (eq-· (eq-β {τ₁ = (`λ (`λ (` Z · ` (S Z)) <$> ` (S Z)))}  {τ₂ = renₖ ρ f}) eq-refl) 
+--             eq-β)) 
+--           eq-refl)) 
+--         (sound-Σ ρ
+--            {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
+--            (eq-<$> 
+--              (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
+--              (eq-trans 
+--                (eq-trans 
+--                  (inst (subₖ-weaken (renₖ ρ f) v)) 
+--                  (renₖ-≡t ρ q)) 
+--                (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
+-- sound-Σ {κ₁ = R[ κ ]} ρ {v} {ne x} q =
+--  eq-trans 
+--         (eq-· eq-refl q) 
+--         (eq-trans 
+--             eq-Σ 
+--             (eq-<$> 
+--                 (eq-trans 
+--                     eq-η 
+--                     (eq-λ (reify-⟦⟧≋ (sound-Σ id eq-refl)))) 
+--                 eq-refl))
 sound-Σ {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (eq , rel) ρ₂ {v} {V} rel-v = 
   subst-⟦⟧≋ (eq-sym (eq-Σ-assoc)) (sound-Σ ρ₂ {renₖ ρ₂ f ?? v} 
   ((eq-trans 
@@ -578,7 +593,7 @@ fundS (`λ τ) {σ} {η} e ρ {v} {V} q =
     (subst-⟦⟧≋ 
       (eq-trans 
         (eq-trans 
-          (inst (subₖ-cong (λ { Z → refl ; (S x) → trans (renₖ-subₖ-id σ ρ (σ x)) (↻-subₖ-renₖ (σ x)) }) τ)) 
+          (inst (subₖ-cong (λ { Z → refl ; (S x) → trans (renₖ-subₖ-id ρ (σ x)) (↻-subₖ-renₖ (σ x)) }) τ)) 
           (inst (subₖ-comp τ))) 
         (inst (↻-subₖ-renₖ (subₖ (liftsₖ σ) τ)))) 
       (fundS τ (extend-⟦⟧≋ (ren-⟦⟧≋ ρ ∘ e) q)))
@@ -598,15 +613,16 @@ fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
 fundS (Π {notLabel = nl}) {σ} {η} e = sound-Π {nl = nl}
 fundS Σ {σ} {η} e = sound-Σ
 fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fundS τ₂ e 
-... | ne x | [[ eq ]] | w =
-  eq-<$> 
-    (eq-trans 
-      eq-η 
-      (eq-λ 
-        (reify-⟦⟧≋ (fundS τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
-    (eq-trans 
-      (reify-⟦⟧≋ (fundS τ₂ e)) 
-      (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
+... | φ <$> n | [[ eq ]] | w = {!   !} 
+-- ... | ne x | [[ eq ]] | w =
+--   eq-<$> 
+--     (eq-trans 
+--       eq-η 
+--       (eq-λ 
+--         (reify-⟦⟧≋ (fundS τ₁ e S {` Z} {reflect (` Z)} (reflect-⟦⟧≋ eq-refl))))) 
+--     (eq-trans 
+--       (reify-⟦⟧≋ (fundS τ₂ e)) 
+--       (eq-trans (inst (cong (⇑ ∘ reify) eq)) eq-refl))
 ... | row (n , P) _ | [[ eq ]] | eqₜ , rel = 
     (eq-trans 
       (eq-<$> 
@@ -639,18 +655,18 @@ fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
 fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
 fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)
 fundS (ρ₂ ─ ρ₁) {σ} {η} e with eval ρ₂ η | fundS ρ₂ e 
-fundS (ρ₂ ─ ρ₁) {σ} {η} e | ne x₁ | ih with eval ρ₁ η | fundS ρ₁ e 
-... | ne x₂    | ih' = (eq-─ ih ih') , (eq-refl , eq-refl)
-... | x₂ ▹ x₃  | ih' = (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd)))
-... | row ρ x₂ | ih' = (eq-─ ih (eq-trans (ih' .fst) (eq-row reflᵣ))) , (eq-refl , ((eq-row reflᵣ) , (ih' .snd)))
-... | c ─ c₁   | ih' = (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
+fundS (ρ₂ ─ ρ₁) {σ} {η} e | φ <$> n | ih with eval ρ₁ η | fundS ρ₁ e 
+... | φ₂ <$> n₂    | ih' = {!   !} -- (eq-─ ih ih') , (eq-refl , eq-refl)
+... | x₂ ▹ x₃  | ih' = {!   !} -- (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd)))
+... | row ρ x₂ | ih' = {!   !} -- (eq-─ ih (eq-trans (ih' .fst) (eq-row reflᵣ))) , (eq-refl , ((eq-row reflᵣ) , (ih' .snd)))
+... | c ─ c₁   | ih' = {!   !} -- (eq-─ ih (ih' .fst)) , (eq-refl , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁ η | fundS ρ₁ e 
-... | ne x₂    | ih' = (eq-─ eq ih') , (eq-refl , rel) , eq-refl
+... | φ <$> n    | ih' = {!   !} -- (eq-─ eq ih') , (eq-refl , rel) , eq-refl
 ... | x₂ ▹ x₃  | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
 ... | row ρ x₂ | ih' = eq-─ eq (eq-trans (ih' .fst) (eq-row reflᵣ)) , (eq-refl , rel) , (eq-row reflᵣ , (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
-... | ne x₂    | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
+... | φ <$> n    | ih' = {!   !} -- eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) ih' , ((eq-row reflᵣ , (ih .snd)) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row (m , Q) oQ | ih' = 
   eq-trans 
@@ -662,7 +678,7 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | f
   refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
 fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
-... | ne x₂    | ih' = eq-─ (ih .fst) ih' , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)
+... | φ <$> n    | ih' = {!   !} -- eq-─ (ih .fst) ih' , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , eq-refl)
 ... | x₂ ▹ x₃  | ih' = eq-─ (ih .fst) (ih' .fst) , ((eq-refl , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row ρ x₂ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) (eq-─ eq-refl (eq-row reflᵣ)) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-row reflᵣ , (ih' .snd)))
 ... | c ─ c₁   | ih' = eq-─ (ih .fst) (ih' .fst) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
