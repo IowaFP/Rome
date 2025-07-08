@@ -704,7 +704,7 @@ Soundness→Completeness⁻¹ : Soundness → Completeness⁻¹
 Soundness→Completeness⁻¹ soundness τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
 
 Completeness⁻¹→Soundness : Completeness⁻¹ → Soundness
-Completeness⁻¹→Soundness ⇑-inj τ = (⇑-inj τ (⇑ (⇓ τ))) (sym (stability (⇓ τ)))
+Completeness⁻¹→Soundness ⇓-inj τ = (⇓-inj τ (⇑ (⇓ τ))) (sym (stability (⇓ τ)))
 
 --------------------------------------------------------------------------------
 -- ⇓ is injective w.r.t. type equivalence (converse of completeness lemma)
