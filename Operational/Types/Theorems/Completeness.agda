@@ -74,7 +74,7 @@ open import Rome.Operational.Types.Equivalence.Relation
 ... | no  p | no  q = cong₂ _∷_ refl (↻-─s-─v (P ∘ fsuc) Q) 
 
 -------------------------------------------------------------------------------
--- Fundamental theorem
+-- Fundamental theorem (completeness)
 
 fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
        Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
@@ -82,7 +82,6 @@ fundC-pred : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ�
             Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
 fundC-Row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
             Env-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
-
 
 fundC-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundC e τ₁)) (reify-≋ (fundC e τ₂))
 fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite

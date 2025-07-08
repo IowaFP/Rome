@@ -34,7 +34,6 @@ subRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (subRowₖ-∈L r l ev)
 ... | no  p | yes q = ⊥-elim (p (subRowₖ-∈L r l q))
 ... | no  p | no q = cong ((l , subₖ r τ) ∷_) (↻-subRowₖ-─s r {ρ₂} {ρ₁})
 
-
 -------------------------------------------------------------------------------
 -- Functor laws for lifting
 
@@ -81,7 +80,6 @@ subₖ-cong e ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite
 subₖ-cong e ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
   subₖ-cong e ρ₁ | subₖ-cong e ρ₂ | subₖ-cong e τ = refl
 subₖ-cong e (lab l) = refl
--- subₖ-cong e (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-cong e τ₁) (subₖ-cong e τ₂)
 subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
 subₖ-cong e Π = refl
 subₖ-cong e Σ = refl
@@ -110,7 +108,6 @@ subₖ-id ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) rewrite
 subₖ-id ((ρ₁ ≲ ρ₂) ⇒ τ) rewrite
   subₖ-id ρ₁ | subₖ-id ρ₂ | subₖ-id τ = refl
 subₖ-id (lab l) = refl
--- subₖ-id (τ₁ ▹ τ₂) = cong₂ _▹_ (subₖ-id τ₁) (subₖ-id τ₂)
 subₖ-id ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-id τ)
 subₖ-id Π = refl
 subₖ-id Σ = refl
@@ -146,7 +143,6 @@ subRowₖ-id ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (subₖ-id τ))
   | ↻-subₖ-renₖ {r = r} {σ} r₂ 
   | ↻-subₖ-renₖ {r = r} {σ} τ = refl
 ↻-subₖ-renₖ {r = r} {σ} (lab l) = refl
--- ↻-subₖ-renₖ {r = r} {σ} (τ₁ ▹ τ₂) = cong₂ _▹_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
 ↻-subₖ-renₖ {r = r} {σ} ⌊ τ ⌋ = cong ⌊_⌋ (↻-subₖ-renₖ τ)
 ↻-subₖ-renₖ {r = r} {σ} Π = refl
 ↻-subₖ-renₖ {r = r} {σ} Σ = refl
@@ -240,7 +236,6 @@ subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (l ▹ τ) = cong₂ _▹_ (subₖ-c
 subRowₖ-comp [] = refl
 subRowₖ-comp ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (subₖ-comp τ)) (subRowₖ-comp ρ)
 
-
 -------------------------------------------------------------------------------
 -- lifting commutes with weakening
 
@@ -260,7 +255,7 @@ renₖ-subₖ-id : ∀ (r : Renamingₖ Δ₂ Δ₃)
 renₖ-subₖ-id r τ = trans (cong (renₖ r) (sym (subₖ-id τ))) (trans (sym (↻-renₖ-subₖ τ)) refl )
 
 -------------------------------------------------------------------------------
--- 
+-- Extension of a weakening over a lifting is just the renaming
 
 subₖ-weaken-over-lift : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ₁) (v : Type Δ₂ κ₂) → 
                         renₖ r τ ≡ subₖ (extendₖ ` v) (renₖ (liftₖ r) (weakenₖ τ))

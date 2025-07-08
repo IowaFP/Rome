@@ -71,6 +71,7 @@ _≡Row?_ : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → Dec (ρ₁ �
 --------------------------------------------------------------------------------
 -- Decidability of NormalType equality
 
+-- meaningful cases first
 _≡?_ {κ = ★} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
 _≡?_ {κ = L} (ne x .{tt}) (ne y .{tt}) = map′ (cong (λ x → ne x {tt})) (λ { refl → refl }) (x ≡NE? y) 
 (_<$>_ {κ₁} f x) ≡? (_<$>_ {κ₂} g y) with κ₁ ≡k? κ₂ 
@@ -110,7 +111,6 @@ ne τ₁ ≡? ne τ₂ with τ₁ ≡NE? τ₂
 ... | yes refl | yes refl = yes refl
 ... | no p     | _     = no (λ { refl → p refl }) 
 ... | _        | no q  = no (λ { refl → q refl }) 
-
 -- nuisance cases
 ne x ≡? (τ₂ `→ τ₃) = no (λ ())
 ne x ≡? `∀ τ₂ = no (λ ())

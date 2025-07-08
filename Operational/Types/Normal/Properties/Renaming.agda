@@ -63,7 +63,7 @@ renₖNF-cong eq (Σ x) rewrite renₖNF-cong eq x = refl
 renₖNF-cong eq (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-cong-row eq ρ)
 renₖNF-cong eq (ρ₂ ─ ρ₁) = cong-─ (renₖNF-cong eq ρ₂) (renₖNF-cong eq ρ₁) 
 renₖNF-cong eq (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-cong eq l) (renₖNF-cong eq τ) 
-renₖNF-cong eq ((x <$> τ) ) = cong-<$>ne (renₖNF-cong eq x) (renₖNE-cong eq τ)
+renₖNF-cong eq ((x <$> τ) ) = cong₂ _<$>_ (renₖNF-cong eq x) (renₖNE-cong eq τ)
 
 renₖNF-cong-pred eq (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-cong eq ρ₁ | renₖNF-cong eq ρ₂ | renₖNF-cong eq ρ₃ = refl
@@ -158,7 +158,7 @@ renₖNF-comp ρ₁ ρ₂ (Σ x)  rewrite renₖNF-comp ρ₁ ρ₂ x = refl
 renₖNF-comp ρ₁ ρ₂ (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-comp-row ρ₁ ρ₂ ρ)
 renₖNF-comp r₁ r₂ (ρ₂ ─ ρ₁) = cong-─ (renₖNF-comp r₁ r₂ ρ₂) (renₖNF-comp r₁ r₂ ρ₁)
 renₖNF-comp r₁ r₂ (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-comp r₁ r₂ l) (renₖNF-comp r₁ r₂ τ)
-renₖNF-comp ρ₁ ρ₂ ((x <$> τ) ) = cong-<$>ne (renₖNF-comp ρ₁ ρ₂ x) (renₖNE-comp ρ₁ ρ₂ τ)
+renₖNF-comp ρ₁ ρ₂ ((x <$> τ) ) = cong₂ _<$>_ (renₖNF-comp ρ₁ ρ₂ x) (renₖNE-comp ρ₁ ρ₂ τ)
 
 renₖNF-comp-pred ρ ρ' (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-comp ρ ρ' ρ₁ | renₖNF-comp ρ ρ' ρ₂ | renₖNF-comp ρ ρ' ρ₃ = refl

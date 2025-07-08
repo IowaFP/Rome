@@ -11,14 +11,16 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 open import Rome.Operational.Types.Normal.Syntax
 
 --------------------------------------------------------------------------------
--- Normal Type renaming.
+-- Normal Type renaming
 
 renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
+
 orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalType Δ₁ R[ κ ]) → NormalOrdered xs → 
                  NormalOrdered (renRowₖNF r xs)
+
 nsrRenₖNF : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ₁ ρ₂ : NormalType Δ₁ R[ κ ]) → NotSimpleRow ρ₂ or NotSimpleRow ρ₁ → 
               NotSimpleRow (renₖNF r ρ₂) or NotSimpleRow (renₖNF r ρ₁)
 nsrRenₖNF' : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : NormalType Δ₁ R[ κ ]) → NotSimpleRow ρ → 
@@ -26,7 +28,6 @@ nsrRenₖNF' : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : NormalType Δ₁ R[ κ ])
 
 renₖNE r (` x) = ` (r x)
 renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
-
 
 renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
 renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)

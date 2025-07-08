@@ -40,7 +40,8 @@ open import Rome.Operational.Terms.Normal.Renaming
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
 --------------------------------------------------------------------------------
---
+-- Lifting soundness result over substitution by (⇑ ∘ σ)
+
 soundness-under-subₖ : ∀ (σ : SubstitutionₖNF (Δ₁ ,, κ) Δ₂)  (τ₂ : Type (Δ₁ ,, κ) κ₂) → 
                   subₖ (⇑ ∘ σ)
                   (⇑ (reify (eval τ₂ (lifte idEnv)))) ≡t subₖ (⇑ ∘ σ) τ₂
@@ -50,6 +51,10 @@ soundness-under-subₖ σ τ₂ =
   (eq-trans 
     (inst (sym (subₖ-comp τ₂))) (subₖ-cong-≡t {σ₁ = subₖ (⇑ ∘ σ) ∘ liftsₖ `}
                                    {σ₂ = ⇑ ∘ σ} (λ { Z → eq-refl ; (S x₁) → eq-refl }) τ₂))
+
+--------------------------------------------------------------------------------
+-- Lifting η-normalization result over substitution by (⇑ ∘ σ)
+
 η-norm-under-subₖ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (x : KVar Δ₁ κ) → 
               subₖ (⇑ ∘ σ) ((⇑ ∘ η-norm ∘ `) x) ≡t ⇑ (σ x)
 η-norm-under-subₖ σ x = (subₖ-≡t⇑ {σ = σ} {τ₁ = (⇑ ∘ η-norm ∘ `) x} {τ₂ = ` x} (η-norm-≡t (` x)))
@@ -60,9 +65,8 @@ soundness-under-subₖ σ τ₂ =
   eq-trans (inst (sym (subₖ-comp ((⇑ ∘ η-norm ∘ `) x)))) 
   (subₖ-≡t (η-norm-≡t (` x)))
   
-
 --------------------------------------------------------------------------------
--- Lemma 1
+-- Lemma 1 (for defining record synthesis & variant analysis)
               
 lem₁ : ∀ (l : NormalType Δ κ₁) (τ : NormalType Δ κ₂) → 
      subₖ (⇑ ∘ extendₖNF idSubst τ) 
@@ -80,7 +84,7 @@ lem₁ {κ₂ = κ} l τ = eq-trans
                     (η-norm-under-subₖ-liftsₖ (extendₖNF idSubst l) (extendₖNF idSubst τ) Z)
 
 --------------------------------------------------------------------------------
--- Lemma 2
+-- Lemma 2 (for defining record synthesis & variant analysis)
 
 lem₂ :  ∀ (l₁ : NormalType ∅ κ₁) (l₂ : NormalType ∅ κ₂) (τ : NormalType ∅ κ) → 
         subₖ (⇑ ∘ extendₖNF idSubst l₁)
@@ -109,7 +113,7 @@ lem₂ {κ = κ} l₁ l₂ τ =
   (inst (emptySub _ _)))))))
 
 --------------------------------------------------------------------------------
--- Lemma 3
+-- Lemma 3 (for defining record synthesis & variant analysis)
 
 lem₃ : ∀ (φ : NormalType ∅ (κ `→ ★)) (τ : NormalType ∅ κ) (l : NormalType _ L) → 
        eval {κ = ★}
@@ -175,7 +179,7 @@ lem₃ φ τ l =
   (sym (stability-·' φ τ))
 
 --------------------------------------------------------------------------------
--- lemma 4
+-- lemma 4 (for defining record synthesis & variant analysis)
 
 lem₄ : ∀ (xs : SimpleRow NormalType ∅ R[ κ ]) (υ₁ : NormalType ∅ κ) (υ₂ : NormalType ∅ L) → xs ≡ reifyRow
           (evalRow

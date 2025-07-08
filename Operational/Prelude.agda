@@ -35,7 +35,6 @@ open import Data.List.Relation.Unary.Any
   renaming (map to map-any) public
 open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; map-∘) public
 open import Data.List.Membership.Propositional using (_∈_ ; _∉_ ) public
--- open import Data.List.Membership.DecPropositional using (_∈?_ ; _∉?_) public
 import Data.Vec as Vec using (Vec; tabulate)
 open Vec public
 
@@ -76,13 +75,13 @@ both :  ∀ {A B : Set} → (A → B) → A × A → B × B
 both f (x , y) = (f x , f y)
 
 ------------------------------------------------------------------------------
--- Some lemmas I couldn't find elsewhere
+-- A lemma that certainly is somewhere in the std-lib
 
 left-inversion : ∀ {A B : Set} {x y : A} → left {B = B} x ≡ left y → x ≡ y
 left-inversion {x = x} {y = y} refl = refl 
 
 --------------------------------------------------------------------------------
---
+-- congruence over a 3-ary function
 
 cong₃ : ∀ {A B C D : Set} (f : A → B → C → D) {x y u v l m} → x ≡ y → u ≡ v → l ≡ m → f x u l ≡ f y v m
 cong₃ f refl refl refl = refl

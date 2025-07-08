@@ -174,9 +174,6 @@ sound-Σ : ∀ {nl : True (notLabel? κ₁)} →
         SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Σ {notLabel = nl}) Σ-Kripke
 
 -- Mapping _apply_ over a row is semantic application
--- REFACTOR:
---  - restate and reprove using map-over-⇑Row; observe that subRowₖ (extendₖ ` v) (renRowₖ S ...
---    can be reduced.
 map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
@@ -627,7 +624,6 @@ fundS-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →
                 ⟦ σ ⟧≋e η → 
                 ⟦ map (overᵣ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
-
 fundS-map-app zero P _ _ _ = tt
 fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
   (refl , (subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id (rel-fzero .snd)))) ,
@@ -795,8 +791,8 @@ soundness₂ : Soundness
 soundness₂ = Completeness⁻¹→Soundness completeness⁻¹
 
 --------------------------------------------------------------------------------
--- 
 -- soundness in lifted environments
+
 soundness-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
 soundness-liftsₖ τ = 
   reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))

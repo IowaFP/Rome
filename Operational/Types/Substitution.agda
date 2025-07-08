@@ -13,7 +13,7 @@ open import Rome.Operational.Types.Renaming
 Substitutionₖ : KEnv → KEnv → Set
 Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
 
--- ↑ing a substitution over binders.
+-- lifting a substitution over binders.
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
 liftsₖ σ Z = ` Z
 liftsₖ σ (S x) = weakenₖ (σ x)
@@ -36,7 +36,6 @@ subₖ σ (μ F) = μ (subₖ σ F)
 subₖ σ (Π {notLabel = nl}) = Π {notLabel = nl}
 subₖ σ (Σ {notLabel = nl}) = Σ {notLabel = nl}
 subₖ σ (lab x) = lab x
--- subₖ σ (l ▹ τ) = subₖ σ l ▹ subₖ σ τ
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
 subₖ σ (ρ₂ ─ ρ₁) = subₖ σ ρ₂ ─ subₖ σ ρ₁
@@ -58,15 +57,7 @@ subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)
 subPredₖ σ (ρ₁ · ρ₂ ~ ρ₃) = subₖ σ ρ₁ · subₖ σ ρ₂ ~ subₖ σ ρ₃
 subPredₖ σ (ρ₁ ≲ ρ₂) = (subₖ σ ρ₁) ≲ (subₖ σ ρ₂) 
 
--- "Substitutionₖs could be implemented as lists of types and then the cons
--- constructor would extend a subₖstitution by an additional term. Using our
--- functional representation for subₖstitutions, it is convenient to define an
--- operation for this. This effectively defines a new func that,
---   - if it is applied to the Z variable, returns our additional terms,
---   - and otherwise invokes the original subₖstitution."
---
--- AH> This is analogous to the following procedure: define a "list" as a
---     function Int -> A and then write cons : A -> (Int -> A) -> (Int -> A).
+-- Extension of a substitution by A
 extendₖ : Substitutionₖ Δ₁ Δ₂ → (A : Type Δ₂ κ) → Substitutionₖ(Δ₁ ,, κ) Δ₂
 extendₖ σ A Z = A
 extendₖ σ A (S x) = σ x

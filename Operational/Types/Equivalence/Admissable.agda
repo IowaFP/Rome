@@ -16,12 +16,14 @@ open import Rome.Operational.Types.Properties.Substitution
 -------------------------------------------------------------------------------
 -- Admissable rules
 
+-- Nested rows have Π/Σ pushed inwards
 eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]}{nl : True (notLabel? κ)} → 
 
         ----------------------------
         (Π {notLabel = nl} · (l ▹ τ)) ≡t (l ▹ (Π {notLabel = nl} · τ))
 eq-Π▹ = eq-trans eq-Π eq-▹$
 
+-- η-expansion is lifted over binders
 eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} {nl : True (notLabel? κ₂)} → 
 
         Π {notLabel = nl} · (l ▹ `λ τ) ≡t `λ (Π {notLabel = nl} · (weakenₖ l ▹ τ))

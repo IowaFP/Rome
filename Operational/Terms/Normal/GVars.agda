@@ -6,8 +6,6 @@ open import Rome.Operational.Kinds.GVars
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Types.Normal.Syntax
 
-
-
 variable
   Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ
   τ τ' υ υ' τ₁ τ₂ υ₁ υ₂  : NormalType Δ ★

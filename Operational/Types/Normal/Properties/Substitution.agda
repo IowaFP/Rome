@@ -56,12 +56,6 @@ open import Rome.Operational.Types.Theorems.Stability
              {oρ : True (ordered? ρ)} → 
              ⇓Row (subRowₖ (⇑ ∘ σ) ρ) ≡ subRowₖNF σ (⇓Row ρ)
 ↻-⇓-subRow σ ρ {oρ} = inj-⦅⦆ (↻-⇓-sub σ (⦅ ρ ⦆ oρ))
-  -- trans 
-  --   (reify-≋ (↻-subₖ-eval τ idEnv-≋ (⇑ ∘ σ))) 
-  --   (sym (trans 
-  --     (reify-≋ (↻-subₖ-eval (⇑ (⇓ τ)) idEnv-≋ (⇑ ∘ σ))) 
-  --     (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (soundness τ))))))
-
 
 --------------------------------------------------------------------------------
 -- Substitution respects the functor identity law
@@ -78,8 +72,6 @@ subₖNF-id τ =
 
 subPredₖNF-id : ∀ (π : NormalPred Δ R[ κ ]) → subPredₖNF idSubst π ≡ π
 subPredₖNF-id π = trans (mapPredHO (λ τ → subₖNF idSubst τ) id subₖNF-id π) (mapPred-id π)
-
-
 
 --------------------------------------------------------------------------------
 -- Substitution respects the functor composition
@@ -100,7 +92,7 @@ subₖNF-comp σ₁ σ₂ τ =
     (↻-⇓-sub σ₂ (subₖ (⇑ ∘ σ₁) (⇑ τ)))
 
 --------------------------------------------------------------------------------
---               
+-- Lifting type equivalence over substitution by (⇑ ∘ σ)               
 
 subₖ-≡t⇑ :  ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
                   τ₁ ≡t τ₂ → subₖ (⇑ ∘ σ) τ₁ ≡t subₖ (⇑ ∘ σ) τ₂
@@ -246,8 +238,6 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Immediate application of a weakened type has no effect
 
--- TODO: generalize τ to kind κ
-
 weakenₖNF-β-id   : ∀ {κ'} (τ : NormalType Δ κ) {τ₂ : NormalType Δ κ'} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
 weakenₖNF-β-id τ {τ₂} = 
   trans 
@@ -262,7 +252,6 @@ weakenₖNF-β-id τ {τ₂} =
         (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ)))) 
       (↻-subₖNF-renₖNF S (extendₖNF idSubst τ₂) τ))
 
--- Use MapPredHO here
 weakenPredₖNF-Β-id : ∀ {κ'} (π : NormalPred Δ R[ κ ]) {τ₂ : NormalType Δ κ'} → π ≡ subPredₖNF (extendₖNF (λ x₁ → η-norm (` x₁)) τ₂) (weakenPredₖNF π)
 weakenPredₖNF-Β-id π {τ₂} with mapPredHO id  (λ τ → (weakenₖNF τ) βₖNF[ τ₂ ]) (λ τ → weakenₖNF-β-id τ {τ₂}) π 
 weakenPredₖNF-Β-id (ρ₁ · ρ₂ ~ ρ₃) {τ₂} | c = c
@@ -270,8 +259,6 @@ weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} | c = c
 
 --------------------------------------------------------------------------------
 -- Liftsₖ and liftsₖNF fusion under ≡t
--- N.b. this law holds definitionally in Chapman et al's development but,
--- due to η-normalization, only holds w.r.t. type equivalence here. 
 
 liftsₖ-liftsₖNF≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
                    ∀ (x : KVar (Δ₁ ,, κ₁) κ) →
@@ -333,7 +320,6 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding
 
-
 ↻-sub-⇑ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (subₖNF σ τ) ≡t subₖ (⇑ ∘ σ) (⇑ τ)
 ↻-sub-⇑ σ τ = embed-≡t (⇑-inj  (subₖNF σ τ) (⇓ (subₖ (⇑ ∘ σ) (⇑ τ))) refl)
@@ -390,18 +376,12 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
     (eq-sym eq-β)
 
 --------------------------------------------------------------------------------
--- _·'_ and _<$>'_ are stable (Denormalization followed by renormalization yields themselves)
+-- _·'_ and mapping are stable (Denormalization followed by renormalization yields themselves)
 
 stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
 stability-·' f N = trans 
     (sym (stability (f ·' N))) 
     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
-
--- stability-<$> : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (v : NormalType Δ R[ κ₁ ]) → 
---                   f <$>' v ≡ ⇓ (⇑ f <$> ⇑ v)
--- stability-<$>─ : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (ρ₂ ρ₁ : NormalType Δ R[ κ₁ ]) → 
---                    {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
---                   f <$>' ((ρ₂ ─ ρ₁) {nsr}) ≡ ⇓ (⇑ f <$> (⇑ ρ₂ ─ ⇑ ρ₁))
 
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
                 map (overᵣ (_·'_ f)) xs ≡ reifyRow 
@@ -411,34 +391,6 @@ stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow N
                     (eval (⇑ f) idEnv id ((evalRow (⇑Row xs) idEnv .snd i) .snd)))) 
 stability-map f [] = refl
 stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (x .snd))) (stability-map f xs))
-
-
--- stability-<$>─ f (ne x₁) (ne x₂) {nsr} with stabilityNE x₁ | stabilityNE x₂ 
--- ... | c | d rewrite c | d = trans (sym (stability (f <$>' (ne x₁ ─ ne x₂)))) {!c!}
--- stability-<$>─ f (ne x₁) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (ne x₁) (ρ₁ ─ ρ₂) {nsr} = {!!}
--- stability-<$>─ f (ne x₁) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (ρ₁ ─ ρ₂) {nsr} = {!!}
--- stability-<$>─ f (⦅ ρ ⦆ oρ) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (ρ₁ ─ ρ₄) {nsr} = {!!}
--- stability-<$>─ f (ρ₂ ─ ρ₃) (l ▹ₙ ρ₁) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (ne x₁) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (⦅ ρ ⦆ oρ) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (ρ₁ ─ ρ₃) {nsr} = {!!}
--- stability-<$>─ f (l ▹ₙ ρ₂) (l₁ ▹ₙ ρ₁) {nsr} = {!!}
-
--- stability-<$> f (ne x) = sym (stability (f <$>' ne x))
--- stability-<$> f (⦅ xs ⦆ oρ) = cong-⦅⦆ (stability-map f xs)
--- stability-<$> f ((ρ₂ ─ ρ₁) {nsr})  = stability-<$>─ f ρ₂ ρ₁ {nsr}
---   -- trans (sym (stability (f <$>' (ρ₂ ─ ρ₁)))) 
---   -- (trans (cong₂ (λ x₁ y₁ → reify (eval (⇑ x₁) idEnv ─V eval (⇑ y₁) idEnv)) (stability-<$> f ρ₂)
---   --               (stability-<$> f ρ₁)) {!ρ₂!})
--- stability-<$> f (l ▹ₙ τ) with ⇓ (⇑NE l) | stabilityNE l
--- ... | ne x₁ | refl = cong (l ▹ₙ_) (stability-·' f τ)
--- ... | lab l₁ | ()
 
 --------------------------------------------------------------------------------
 -- Normality preserving substitution commutes over <$>

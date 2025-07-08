@@ -15,7 +15,7 @@ data Kind : Set where
 infixr 5 _`→_
 
 --------------------------------------------------------------------------------
--- Partitioning of kinds by rows and row-valued functions.
+-- Partitioning of kinds by labels and label-valued functions
 
 NotLabel : Kind → Set 
 NotLabel ★ = ⊤
@@ -31,7 +31,7 @@ notLabel? R[ κ ] = notLabel? κ
 
 
 --------------------------------------------------------------------------------
--- Partitioning of kinds by rows and row-valued functions.
+-- Partitioning of kinds by row/arrow kind
 
 Ground : Kind → Set 
 Ground ★ = ⊤
@@ -45,33 +45,15 @@ ground? L = yes tt
 ground? (_ `→ _) = no (λ ())
 ground? R[ _ ] = no (λ ())
 
--- Arrow : Kind → Set 
--- Arrow ★ = ⊥
--- Arrow L = ⊥
--- Arrow (κ `→ κ₁) = ⊤
--- Arrow R[ κ ] = ⊥
-
--- arrow? : ∀ κ → Dec (Arrow κ)
--- arrow? ★ = no (λ ())
--- arrow? L = no (λ ())
--- arrow? (_ `→ _) = yes tt
--- arrow? R[ _ ] = no (λ ())
-
--- ¬Arrow→Ground : ∀ {κ} → (¬ Arrow κ) → Ground κ
--- ¬Arrow→Ground {★} a = tt
--- ¬Arrow→Ground {L} a = tt
--- ¬Arrow→Ground {κ `→ κ₁} a = ⊥-elim (a tt)
--- ¬Arrow→Ground {R[ κ ]} a = tt
-
 --------------------------------------------------------------------------------
--- 2.2 contexts
+-- contexts
 
 data KEnv : Set where
   ∅ : KEnv
   _,,_ : KEnv → Kind → KEnv
 
 --------------------------------------------------------------------------------
--- 2.3 Type variables
+-- Type variables
 
 private
   variable

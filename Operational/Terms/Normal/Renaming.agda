@@ -232,7 +232,6 @@ renEnt {ρ = r} R (n-complR {xs = xs} {ys} {ozs = ozs} e) =
         pf) 
       refl) 
     (n-complR (renEnt R e))
--- renEnt R (n─·complᵣ′ e) = ? -- n-complR (renEnt R e)
 renEnt {ρ = ρ} R (n-complL-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complL-inert (renEnt R e)
 renEnt {ρ = r} R (n-complL {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
@@ -269,7 +268,6 @@ weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convV
 
 weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt (Γ , τ) π 
 weakenEntByType {π = π} M = convEnt (renₖNF-id-pred π) (renEnt (convVar (sym (renₖNF-id _)) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
-
 
 weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → NormalEnt Γ π → NormalEnt (Γ ,, κ₂) (weakenPredₖNF π)
 weakenEntByKind = renEnt (K , K)

@@ -323,13 +323,6 @@ data _—→_ where
         ------------------------------------
         ⟨_▹_⟩via_ {xs = xs} {oxs} l M₁ i —→ ⟨ l ▹ M₂ ⟩via i
 
-  -- ξ-Π▹₂ : ∀ {l : Label}
-  --           (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
-
-  --            M₁ —→ M₂ → 
-  --            -----------------------
-  --            (ℓ Π▹ M₁) —→ (ℓ Π▹ M₂)
-
   ξ-Π/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
 
@@ -350,13 +343,6 @@ data _—→_ where
              ℓ₁ —→ ℓ₂ → 
              -----------------------
              (ℓ₁ Σ▹ M) —→ (ℓ₂ Σ▹ M)
-
-  -- ξ-Σ▹₂ : ∀ {l : Label}
-  --           (M₁ M₂ : NormalTerm Γ τ) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
-
-  --            M₁ —→ M₂ → 
-  --            -----------------------
-  --            (ℓ Σ▹ M₁) —→ (ℓ Σ▹ M₂)
 
   ξ-Σ/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Σ (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 

@@ -92,7 +92,6 @@ subRecord : ∀ {xs : SimpleRow NormalType Δ₁ R[ ★ ]}
             Record Γ₁ xs →
             Record Γ₂ (subRowₖNF σ xs)
 
-
 sub σ (s , p) {τ} (` x) = s x
 sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
 sub σ s {τ} (M · N) = sub σ s M · sub σ s N
@@ -346,8 +345,6 @@ subEnt σ s (n-complL {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
            (Ordered⇑ _ 
              (reifyRowOrdered _ 
                (evalRowOrdered (subRowₖ (⇑ ∘ σ) (⇑Row ys)) idEnv (ordered-subRowₖ-⇑ σ (toWitness oys))))))))
-
-
 
 --------------------------------------------------------------------------------
 -- Extending substitutions

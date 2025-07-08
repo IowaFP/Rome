@@ -134,8 +134,8 @@ trans-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} {ρ₆ ─ ρ₅} (
 trans-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} {φ₃ <$> n₃} (refl , Unif-φ₁ , Unif-φ₂ , Ext₁ , refl) (refl , _ , Unif-φ₃ , Ext₂ , refl) = refl , Unif-φ₁ , Unif-φ₃ , (λ r v → trans-≋ (Ext₁ r v) (Ext₂ r v) ) , refl
 
 trans-≋ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel₁) (refl , rel₂) = refl , (λ { i → trans (rel₁ i .fst) (rel₂ i .fst)  , trans-≋ (rel₁ i .snd) (rel₂ i .snd) })
--- --------------------------------------------------------------------------------
--- -- Pointwise extensionality (accordingly) forms a PER
+--------------------------------------------------------------------------------
+-- Pointwise extensionality (accordingly) forms a PER
 
 refl-Extₗ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ F F
 refl-Extₗ Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋ₗ (sym-≋ q))))
@@ -150,29 +150,8 @@ trans-Ext : ∀ {F G H : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F 
 trans-Ext Ext-FG Ext-GH ρ q = trans-≋ (Ext-FG ρ q) (trans-≋ (Ext-GH ρ (sym-≋ q)) (refl-Extᵣ Ext-GH ρ q))
 
 -- --------------------------------------------------------------------------------
--- -- Reasoning
-
--- infixr 2 _≋⟨_⟩∎ _≋⟨_⟩_
-
--- _≋⟨_⟩∎ : ∀ (V₁ : SemType Δ κ) {V₂ : SemType Δ κ}
---   → V₁ ≋ V₂
---     -----
---   → V₁ ≋ V₂
--- x ≋⟨ q ⟩∎  =  q
-  
--- _≋⟨_⟩_ : ∀ {V₂ V₃ : SemType Δ κ} → 
---           (V₁ : SemType Δ κ) → 
---           (V₁ ≋ V₂) →
---           (V₂ ≋ V₃) →
---           V₁ ≋ V₃
--- V₁ ≋⟨ q ⟩ r = trans-≋ q r
-
--- --------------------------------------------------------------------------------
--- -- The first step in a proof by logical relation is to assert that well-typed 
--- -- entities inhabit the relation. 
-
--- -- The following definitions are necessarily mutually recursive;
--- -- ideally some of these would be put in Theorems.Completeness.Commutativity.
+-- Reification of semantic equality and reflection of propositional equality
+-- N.b. other definitions necessarily mutually recursive.
 
 reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
 reify-≋    : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → reify V₁   ≡ reify V₂ 
@@ -196,8 +175,8 @@ reifyRow-≋ : ∀ {n} (P Q : Fin n → Label × SemType Δ κ) →
                         (∀ (i : Fin n) → P i ≋₂ Q i) → 
                         renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , λ i → overᵣ (renSem ρ) (Q i)) 
 
--- -- --------------------------------------------------------------------------------
--- -- -- reflect-≋ asserts that well kinded types are in the relation
+--------------------------------------------------------------------------------
+-- reflect-≋ asserts that well kinded neutral types are in the relation
 
 reflect-≋ {κ = ★} refl = refl
 reflect-≋ {κ = L} refl = refl
@@ -214,8 +193,8 @@ reflect-≋ {κ = κ `→ κ₁} {f} refl = Unif-f , Unif-f , PE-f
     PE-f ρ v = reflect-≋ (cong₂ _·_ refl (reify-≋ {κ = κ} v))
 reflect-≋ {κ = R[ κ ]} {τ₁ = τ₁} refl = refl , (λ _ → ↻-ren-reflect) , ((λ _ → ↻-ren-reflect)) , (λ r V → reflect-≋ refl) , refl
 
--- -- --------------------------------------------------------------------------------
--- -- -- reify-≋ asserts that related semantic types reify to the same normal form.
+--------------------------------------------------------------------------------
+-- reify-≋ asserts that related semantic types reify to the same normal form.
 
 reify-≋ {κ = ★}  sem-eq = sem-eq
 reify-≋ {κ = L} sem-eq = sem-eq

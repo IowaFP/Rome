@@ -156,12 +156,6 @@ open Xi
         (↻-ren-reify r x≋y) 
         (reify-≋ (ren-≋ r (refl-≋ᵣ x≋y)))))
 ↻-renSem-ξ Ξ {L} r x y x≋y = refl
-  -- trans 
-  --   (Ξ .ren-L r (reify x)) 
-  --   (cong (Ξ .ΞL) 
-  --     (trans 
-  --       (↻-ren-reify r x≋y) 
-  --       (reify-≋ (ren-≋ r (refl-≋ᵣ x≋y)))))
 ↻-renSem-ξ Ξ {κ₁ `→ κ₂} r f g f≋g =
   ren-Uniform 
     {F = λ ρ₁ v → ξ Ξ (renSem ρ₁ f <?>V  v)} 
@@ -311,8 +305,7 @@ idext-row :  {η₁ η₂ : Env Δ₁ Δ₂} → (e : Env-≋ η₁ η₂) →
 
 -- ------------------------------------------------------------------------------
 -- idext 
-
--- Evaluating types in related environments yields related semantic types.
+--   Evaluating types in related environments yields related semantic types.
 
 
 idext-pred e (ρ₁ · ρ₂ ~ ρ₃) rewrite 
@@ -350,7 +343,6 @@ idext {κ = κ} e (`∀ τ) = cong (`∀) (idext (extend-≋ (ren-≋ S ∘ e) (
 idext {κ = ★} {η₁} {η₂} e (μ τ) with eval τ η₁ | eval τ η₂ | idext e τ
 ... | F | G | (Unif-F , Unif-G , Ext) = cong μ (cong `λ (Ext S refl))
 idext {κ = κ} e (lab x) = refl
--- idext {κ = R[ κ ]} {η₁} {η₂} e (l ▹ τ) = cong-⁅⁆ (idext e τ)
 idext {κ = κ} e ⌊ τ ⌋ = cong ⌊_⌋ (idext e τ)
 idext {κ = R[ κ₁ ] `→ κ₁} {η₁} {η₂} e Π = 
   Unif-Π , 
@@ -370,7 +362,6 @@ idext {η₁ = η₁} {η₂} e (l ▹ τ) with eval l η₁ | idext e l
 idext-row e [] = refl , (λ { () })
 idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ 
 ... | n , P | refl , eq = refl , (λ { fzero → refl , (idext e (x .snd)) ; (fsuc i) → eq i })
-
 
 --------------------------------------------------------------------------------
 -- Syntactic renaming commutes with evaluation
@@ -455,11 +446,9 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ... | n , P | refl , eq = 
   refl , (λ { fzero → refl , ↻-renₖ-eval r (x .snd) e  ; (fsuc i) → eq i })
 
-
 --------------------------------------------------------------------------------
 -- Substitution lemma
--- 
--- Evaluation commutes with syntactic substitution
+--   Evaluation commutes with syntactic substitution
 
 ↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
@@ -692,7 +681,7 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
 ... | a | refl | lem₁ = refl , λ { fzero → (PP fzero .fst) , (F≋G .snd .snd id (PP fzero .snd)) ; (fsuc i) → lem₁ i }
 
 --------------------------------------------------------------------------------
--- Functions f are point-wise equivalent to their weakened η-expansions
+-- A function f are is pointwise equivalent to its η-expansion
 
 weaken-η-≋ : ∀ {κ'} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : Env Δ₁ Δ₂} → 
                (Env-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 

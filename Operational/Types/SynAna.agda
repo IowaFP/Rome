@@ -77,7 +77,6 @@ AnaT-cong-≡t eq₁ eq₂ eq₃ =
         (eq-· (renₖ-≡t S (renₖ-≡t S eq₂)) eq-refl) 
         (renₖ-≡t S (renₖ-≡t S eq₃))))))
 
-
 --------------------------------------------------------------------------------
 -- Renaming commutes over syn and ana
 

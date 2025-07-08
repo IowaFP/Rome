@@ -10,7 +10,6 @@ open import Data.String using (_<_; _<?_)
 --------------------------------------------------------------------------------
 -- Types
 
-
 infixl 5 _·_
 infixr 5 _≲_
 data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
@@ -186,14 +185,6 @@ _─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
 ((l , τ) ∷ xs) ─s ys with l ∈L? ys 
 ... | yes _ = xs ─s ys
 ... | no  _ = (l , τ) ∷ (xs ─s ys)
-
---------------------------------------------------------------------------------
--- Helpers for mapping over the tuples inside rows
-
-fmap× : ∀ {Ty : KEnv → Kind → Set} → 
-          (∀ {κ} → Ty Δ₁ κ → Ty Δ₂ κ) → 
-          Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
-fmap× f (x , y) = f x , f y
 
 --------------------------------------------------------------------------------
 -- Ordered lemmas 

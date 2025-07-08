@@ -17,7 +17,7 @@ _≈_ : ∀ {Δ₁} (ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂) → Set
 _≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : KVar Δ₁ κ) → ρ₁ x ≡ ρ₂ x
 
 
--- ↑ing over binders.
+-- lifting over binders.
 liftₖ : Renamingₖ Δ₁ Δ₂ → Renamingₖ (Δ₁ ,, κ) (Δ₂ ,, κ)
 liftₖ ρ Z = Z
 liftₖ ρ (S x) = S (ρ x)
@@ -28,7 +28,6 @@ renRowₖ : Renamingₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleR
 orderedRenRowₖ : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ]) → Ordered xs → 
                  Ordered (renRowₖ r xs)
 
--- renₖ r ε  = ε
 renₖ r (` x) = ` (r x)
 renₖ r (`λ τ) = `λ (renₖ (liftₖ r) τ)
 renₖ r (τ₁ · τ₂) = (renₖ r τ₁) · (renₖ r τ₂)
@@ -39,7 +38,6 @@ renₖ r (μ F) = μ (renₖ r F)
 renₖ r (Π {notLabel = nl}) = Π {notLabel = nl}
 renₖ r (Σ {notLabel = nl}) = Σ {notLabel = nl}
 renₖ r (lab x) = lab x
--- renₖ r (l ▹ τ) = renₖ r l ▹ renₖ r τ
 renₖ r ⌊ ℓ ⌋ = ⌊ (renₖ r ℓ) ⌋
 renₖ r (f <$> m) = renₖ r f <$> renₖ r m
 renₖ r (⦅ xs ⦆ oxs) = ⦅ renRowₖ r xs ⦆ (fromWitness (orderedRenRowₖ r xs (toWitness oxs)))

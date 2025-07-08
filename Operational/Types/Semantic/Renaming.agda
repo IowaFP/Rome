@@ -18,8 +18,8 @@ open import Data.List.Properties using (map-id ; map-cong; map-∘)
 import Data.List.Relation.Unary.All as All
 open All using (All)
 
--- --------------------------------------------------------------------------------
--- -- Renaming semantic types.
+--------------------------------------------------------------------------------
+-- Renaming semantic types.
 
 renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
@@ -58,8 +58,8 @@ orderedRenRow {n = suc (suc n)} {P} r (l₁<l₂ , o) =  l₁<l₂  , (orderedRe
 
 renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P 
 
--- --------------------------------------------------------------------------------
--- -- Weakening
+--------------------------------------------------------------------------------
+-- Weakening
 
 weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
 weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ

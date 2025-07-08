@@ -16,7 +16,6 @@ open import Rome.Operational.Types.Equivalence.Properties
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming 
 open import Rome.Operational.Types.Normal.Properties.Renaming
--- open import Rome.Operational.Types.Normal.Properties.Substitution
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
@@ -30,7 +29,7 @@ open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- Soundness of type normalization: 
--- All types are equivalent (under ≡t) to their normal forms.
+--   All types are equivalent (under ≡t) to their normal forms.
 
 infix 0 ⟦_⟧≋_
 ⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
@@ -43,7 +42,8 @@ infix 0 ⟦_⟧≋_
 SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
 SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
 
-
+-- τ is equivalent to neutral `n` if it's equivalent 
+-- to the η and map-id expansion of n
 ⟦_⟧≋ne_ τ n = τ ≡t ⇑ (η-norm n)
 
 ⟦_⟧≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
@@ -99,9 +99,9 @@ SoundKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =
       ((η-norm-≡t'ren τ {id}))) 
   (inst (cong ⇑NE (renₖNE-id τ)))
 
--- -- --------------------------------------------------------------------------------
--- -- -- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
--- -- -- - Types related under _≋_ have reifications equivalent under _≡t_
+--------------------------------------------------------------------------------
+-- - Types equivalent to neutral types under ≡t reflect to equivalence under _≋_, and 
+-- - Types related under _≋_ have reifications equivalent under _≡t_
 
 reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
              τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
@@ -154,8 +154,8 @@ reify-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {V :  Row (SemType Δ κ
 reify-⟦⟧r≋ {xs = []} {zero , P} rel = eq-[]
 reify-⟦⟧r≋ {xs = x ∷ xs} {suc n , P} (eq , I) = eq-cons (eq .fst) (reify-⟦⟧≋ (eq .snd)) (reify-⟦⟧r≋ I)
 
--- --------------------------------------------------------------------------------
--- -- Equivalent types relate to the same semantic types
+--------------------------------------------------------------------------------
+-- Equivalent types relate to the same semantic types
 
 subst-⟦⟧≋ : ∀ {τ₁ τ₂ : Type Δ κ} → 
   τ₁ ≡t τ₂ → 
@@ -308,7 +308,6 @@ extend-⟦⟧≋ : ∀ {κ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ �
 extend-⟦⟧≋ p q Z = q
 extend-⟦⟧≋ p q (S x) = p x
 
-
 --------------------------------------------------------------------------------
 -- Weakened substitutions relate to weakened environments
  
@@ -319,7 +318,7 @@ weaken-⟦⟧≋ e Z = reflect-⟦⟧≋ eq-refl
 weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)           
 
 --------------------------------------------------------------------------------
--- 
+--  Substituting syntactic substitutions in related environments
 
 substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
@@ -328,7 +327,7 @@ substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env �
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
 
 --------------------------------------------------------------------------------
--- 
+-- A necessary lemma difficult to describe
 
 overᵣ-⟦⟧≋ : ∀ {n : ℕ} 
              {P : Fin n → Label × SemType Δ₂ κ₁} 

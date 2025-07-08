@@ -14,7 +14,6 @@ open import Rome.Operational.Types.Renaming
 open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Renaming
--- open import Rome.Operational.Types.Normal.Properties.Decidability
 
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
@@ -61,12 +60,6 @@ cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            (V₁ ·V W₁) ≋ (V₂ ·V W₂)
 cong-App {V₁ = F} {G} (unif-F , unif-G , Ext) q = Ext id q           
 
--- --------------------------------------------------------------------------------
--- -- Singleton formation respects ≋
-
--- cong-⁅⁆ : ∀ {V₁ V₂ : Label × SemType Δ κ} → V₁ ≋₂ V₂ → (row (⁅ V₁ ⁆ , tt)) ≋ (right (⁅ V₂ ⁆ , tt))
--- cong-⁅⁆ {V₁ = V₁} {V₂} v = refl , (λ { fzero → v })
-
 --------------------------------------------------------------------------------
 -- Mapping respects ≋
 
@@ -110,7 +103,7 @@ cong-apply v =
   λ ρ v' → third v' id (ren-≋ ρ v)  
 
 -- -- --------------------------------------------------------------------------------
--- -- -- Mapping respects ≋
+-- -- -- Flapping respects ≋
 
 cong-<?> : ∀ {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} → 
            _≋_ {κ = R[ κ₁ `→ κ₂ ]} V₁ V₂ → 

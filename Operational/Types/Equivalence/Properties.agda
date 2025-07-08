@@ -55,7 +55,6 @@ renₖ-≡t {τ = τ} {υ} r (eq-map {F = F} {ρ = (l , τ') ∷ ρ}) =
     eq-trans 
         (eq-map) 
         (eq-row (eq-cons refl eq-refl (instᵣ (↻-ren-map r F ρ))))
--- renₖ-≡t r eq-labTy = eq-labTy
 renₖ-≡t r (eq-lab refl) = eq-refl
 renₖ-≡t r (eq-▹ l τ) = eq-▹ (renₖ-≡t r l) (renₖ-≡t r τ)
 renₖ-≡t r (eq-─ ρ υ) = eq-─ (renₖ-≡t r ρ) (renₖ-≡t r υ)
@@ -190,15 +189,12 @@ subₖ-≡t {σ = σ} (eq-map-∘ {f = f} {g = g} {τ = τ}) =
       (eq-λ (eq-· (inst (sym (↻-liftsₖ-weaken σ f))) (eq-· (inst (sym (↻-liftsₖ-weaken σ g))) eq-refl))) 
       eq-refl)
 
-
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} eq-[] = eq-[]
 subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons l x eq) = eq-cons l (subₖ-≡t x) (subₖ-≡r eq )
 
 
 -- --------------------------------------------------------------------------------
 -- -- Properties of row equivalence
-
-
 
 eq-reflᵣ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → xs ≡r xs 
 eq-reflᵣ [] = eq-[]

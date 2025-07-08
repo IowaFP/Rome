@@ -16,6 +16,7 @@ open import Rome.Operational.Types.Semantic.Renaming
 
 -- --------------------------------------------------------------------------------
 -- -- reflection of neutral types & reification of semantic types
+
 reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
 reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
 
@@ -56,7 +57,6 @@ reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
 reify {κ = κ₁ `→ κ₂} F = reifyKripke F
--- reify {κ = R[ κ ]} (ne x) = ne x
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
@@ -192,13 +192,10 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
--- F <$>V ne x = (λ {Δ'} r n → F r (reflect n) ) <$> x 
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
-
-
 
 NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {ρ₂ ─ ρ₃} {ρ₁} (left x) = left tt
@@ -294,20 +291,8 @@ eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η))
 eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
 eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
-
-----------------------------------------
--- Label evaluation.
-
 eval {κ = L} (lab l) η = lab l
-
-----------------------------------------
--- function evaluation.
-
 eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
-
-----------------------------------------
--- Type constants
-
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
@@ -342,28 +327,4 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 -- reabstraction
 ↑ : ∀ {Δ} → NormalType Δ κ → SemType Δ κ 
 ↑ τ = eval (⇑ τ) idEnv
-
---------------------------------------------------------------------------------
--- Testing compl operator
-
-p : Fin 5 → Label × SemType ∅ ★
-p fzero = "a" , UnitNF
-p (fsuc fzero) = "b" , UnitNF
-p (fsuc (fsuc fzero)) = "c" , UnitNF
-p (fsuc (fsuc (fsuc fzero))) = "e" , UnitNF
-p (fsuc (fsuc (fsuc (fsuc fzero)))) = "f" , UnitNF
-
-q : Fin 3 → Label × SemType ∅ ★
-q fzero = "b" , UnitNF
-q (fsuc fzero) = "a" , UnitNF
-q (fsuc (fsuc fzero)) = "d" , UnitNF
-
-x : Dec (Σ-syntax (Fin 5) (λ i → "e" ≡ p i .fst))
-x =  _∈Row?_  {Δ = ∅} {κ = ★} {m = 5} "e" p
-
-y : Row (SemType ∅ ★)
-y = compl {Δ = ∅} {κ = ★} p q
-
--- -- _ = reifyRow {κ = ★} y ≡  [ (lab "d" , UnitNF) ]
--- -- _ = refl
 

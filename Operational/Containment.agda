@@ -102,44 +102,8 @@ IsMap {A} f* f = ∀ (xs : List A) → f* xs ≡ map f xs
             f* xs ⊆[ f* ys ⊹ f* zs ]
 ⊆-cong-or {xs = xs} {ys} {zs} f f* isMap i rewrite isMap xs | isMap ys | isMap zs = ⊆-map-or f i
 
-
--- --------------------------------------------------------------------------------
--- Okay, let's attempt to repeat the above exercise, but now for maps over pairs...
---
--- When I look back at this ... perhaps I could have saved myself some effort by
--- using λ (x , y) → (⇑ x , ⇑ y) and the above definitions? Welp, too late now...
---
-
-variable
-    A′ B′ : Set
-
--- Surely this is actually defined somewhere?
-
-bimap : (A → B) → (A′ → B′) → (A × A′) → B × B′
-bimap f g (x , y) = (f x , g y)
-
-
-IsBimapMap : {A A′ B B′ : Set} → (f⋆ : List (A × A′) → List (B × B′)) → (f : A → B) → (g : A′ → B′) → Set
-IsBimapMap {A = A} {A′} f×g⋆ f g = ∀ (xs : List (A × A′)) → f×g⋆ xs ≡ map (bimap f g) xs
-
-⊆-cong₂ : ∀ {xs ys : List (A × A′)} →
-            (f : A → B) → (g : A′ → B′) →
-            (f×g⋆ : List (A × A′) → List (B × B′)) →
-            IsBimapMap f×g⋆ f g →
-            xs ⊆ ys →
-            f×g⋆ xs ⊆ f×g⋆ ys
-⊆-cong₂ {xs = xs} {ys} f g f×g⋆ isMap i rewrite isMap xs | isMap ys = ⊆-map (bimap f g) i
-
-
-⊆-cong-or₂ : ∀ {xs ys zs : List (A × A′)}
-               (f : A → B) (g : A′ → B′) (f×g⋆ : List (A × A′) → List (B × B′)) →
-               IsBimapMap f×g⋆ f g →
-               xs ⊆[ ys ⊹ zs ] →
-               f×g⋆ xs ⊆[ f×g⋆ ys ⊹ f×g⋆ zs ]
-⊆-cong-or₂ {xs = xs} {ys} {zs} f g f×g⋆ isMap i rewrite isMap xs | isMap ys | isMap zs = ⊆-map-or (bimap f g) i
-
 -----------------------------------------------------------------------------------------
--- 
+-- substitution of the membership relation
 
 ∈-subst₁ : ∀ {x y : A} {xs : List A} → x ∈ xs → x ≡ y → y ∈ xs
 ∈-subst₁ i refl = i

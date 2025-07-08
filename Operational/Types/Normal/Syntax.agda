@@ -11,15 +11,8 @@ open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
 
 
 --------------------------------------------------------------------------------
--- 3.1. NormalType types
---
--- - NeutralType types are either 
---    (i)  variables, or
---    (ii) applications with variables stuck in head position. 
---         (And hence cannot reduce).
--- - NormalType types are types precluded from any applications (barring neutral forms).
+-- Normal & Neutral types 
 
--- infixr 1 _▹_
 data NormalType (Δ : KEnv) : Kind → Set
 
 NormalPred : KEnv → Kind → Set 
@@ -133,43 +126,6 @@ data NormalType Δ where
   _▹ₙ_ : (l : NeutralType Δ L) (τ : NormalType Δ κ) → 
          ------------------------------------
          NormalType Δ R[ κ ]
-
---------------------------------------------------------------------------------
--- Identifying the identity
-
--- data IsIdNE : NeutralType Δ κ₁ → Set where 
--- --     -- ne-id★ : IsIdNE (` {κ = ★} Z)
--- --     -- ne-idL : IsIdNE (` {κ = L} Z)
--- --     -- ne-idR[_] : ∀ κ → IsIdNE (` {κ = R[ κ ]} Z)
--- --     ne-app : (f : NeutralType f · τ 
-
--- data IsId : NormalType Δ (κ₁ `→ κ₂) → Set where 
---    id★ : IsId (`λ {κ₁ = ★} (ne (` Z)))
---    idL :  IsId (`λ {κ₁ = L} (ne (` Z)))
---    idR[_] : ∀ κ → IsId (`λ {κ₁ = R[ κ ]} (ne (` Z)))
---    id→ : ∀ (τ : NeutralType (Δ ,, (κ₁ `→ κ₁)) κ₁)  → 
---             IsId (`λ {κ₁ = κ₁} ?)
-
--- -- η-expandVar : KVar Δ κ → NeutralType Δ κ
--- η-expand : NeutralType Δ κ → NormalType Δ κ 
-
--- η-expand {κ = ★} τ = ne τ
--- η-expand {κ = L} τ = ne τ
--- η-expand {κ = κ₁ `→ κ₂} (` α) = `λ (η-expand ((` (S α)) · (η-expand (` Z)))) 
--- η-expand {κ = κ₁ `→ κ₂} (τ₁ · τ₂) = `λ (η-expand ({! τ₁ · τ₂  !} · {! η-expand (` Z)  !}))
--- η-expand {κ = R[ κ ]} τ = ne τ 
-
--- idλ : ∀ κ → NormalType Δ (κ `→ κ)
--- idλ ★ = `λ (ne (` Z))
--- idλ L = `λ (ne (` Z))
--- idλ (κ₁ `→ κ₂) = `λ (`λ {!   !})
--- idλ R[ κ ] = `λ (ne (` Z))
-
-cong-<$>ne : ∀ {φ₁ φ₂ : NormalType Δ (κ₁ `→ κ₂)}
-               {τ₁ τ₂ : NeutralType Δ R[ κ₁ ]} →
-               φ₁ ≡ φ₂ → τ₁ ≡ τ₂ → 
-               (φ₁ <$> τ₁) ≡ (φ₂ <$> τ₂)
-cong-<$>ne refl refl = refl
 
 --------------------------------------------------------------------------------
 -- IsNeutral and IsNormal predicates
@@ -301,7 +257,6 @@ cong-─ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite D
 noNeutrals : NeutralType ∅ κ → ⊥
 
 noNeutrals (n · τ) = noNeutrals n 
--- noNeutrals (φ <$> n) = noNeutrals n
 
 --------------------------------------------------------------------------------
 -- There are no complements in empty contexts 
@@ -342,7 +297,7 @@ mapPred-id (ρ₁ · ρ₂ ~ ρ₃) = refl
 mapPred-id (ρ₁ ≲ ρ₂) = refl
 
 --------------------------------------------------------------------------------
--- Injectivity lemmas for fucking everything
+-- Injectivity lemmas for all the NormalType syntax
 
 inj-` : ∀ {α β : KVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
 inj-` refl = refl
@@ -389,7 +344,7 @@ inj-Σ refl = refl
 
 
 --------------------------------------------------------------------------------
--- injectivity ne constructor
+-- injectivity of ne constructor (erasing proofs)
 
 inj-ne : ∀ {e₁ e₂ : NeutralType Δ κ} {g₁ g₂ : True (ground? κ)} → ne e₁ {g₁} ≡ ne e₂ {ground = g₂} → e₁ ≡ e₂
 inj-ne {κ = κ} {g₁ = g₁} {g₂ = g₂} refl rewrite Dec→Irrelevant (Ground κ) (ground? κ) g₁ g₂ = refl
@@ -476,7 +431,6 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 
 ⇑NE (` x) = ` x
 ⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
-
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)

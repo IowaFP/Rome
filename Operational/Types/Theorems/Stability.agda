@@ -35,8 +35,6 @@ stabilityRow : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → reifyRow (evalRow 
 
 stabilityNE {κ = κ} (` x) = refl
 stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong₂ _·_ (renₖNE-id τ₁) refl) 
--- stabilityNE {κ = R[ κ ]} (F <$> τ) 
---   rewrite stabilityNE τ | stability F = refl 
 
 stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
       (eval (⇑ τ)
