@@ -1,29 +1,36 @@
 all: clean build html
-	+make -f Makefile.coq all
+	
 
 clean:
 	@find . -type f -name '*.agdai' -delete
 
 build:
-	agda ./ROmega/All.agda
+	agda ./Operational/All.agda
 
 html:
 	rm -rf ./html/
-	agda --html ./Rome.agda
+	agda --html ./All.agda
 
 supp: clean
 	rm -rf ./Rome-supp-materials/
 	mkdir  ./Rome-supp-materials/
-	cp -rf ./Rome/ ./Rome-supp-materials/
-	cp -rf ./Rome.agda ./Rome-supp-materials/
-	cp -rf ./IndexCalculus/ ./Rome-supp-materials/
-	cp -rf ./IndexCalculus.agda ./Rome-supp-materials/	
-	cp -rf ./Preludes/ ./Rome-supp-materials/	
-	cp -rf ./Prelude.agda ./Rome-supp-materials/	
-	cp -rf ./Shared/ ./Rome-supp-materials/	
-	cp     ./README.md ./Rome-supp-materials/
-	rm -rf ./Rome-supp-materials/Rome/Programs/
-	rm -rf ./Rome-supp-materials/Rome/Programs/
-	rm -rf ./Rome-supp-materials/IndexCalculus/Trash/
-	rm -rf ./Rome-supp-materials/Rome/Examples/
-	rm Rome-supp-POPL25.zip & zip -r Rome-supp-POPL25.zip ./Rome-supp-materials/;
+	mkdir  ./Rome-supp-materials/Rome/
+
+	cp -rf ./Rome/Operational/* ./Rome-supp-materials/Rome/
+
+	rm -rf ./Rome-supp-materials/Rome/Writing/
+	rm -rf ./Rome-supp-materials/Rome/Types/Pre/
+	rm -rf ./Rome-supp-materials/Rome/Types/Checking.agda
+	rm -rf ./Rome-supp-materials/Rome/Types/Presentation.agda
+	rm -rf ./Rome-supp-materials/Rome/Types/Semantic/Examples.agda
+
+	rm -rf ./Rome-supp-materials/Rome/Terms/Examples.agda 
+	rm -rf ./Rome-supp-materials/Rome/Terms/Examples.agda 
+	rm -rf ./Rome-supp-materials/Rome/Terms/Theorems/Completeness.agda
+	rm -rf ./Rome-supp-materials/Rome/Terms/Theorems/Soundness.agda
+
+	cd Rome-supp-materials/Rome/
+	agda --html ./All.agda 
+	cd -
+
+	rm Rome-supp-POPL26.zip & zip -r Rome-supp-POPL26.zip ./Rome-supp-materials/;
