@@ -231,8 +231,7 @@ map-Σ : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemTyp
 
 sound-Π {κ₁ = ★} ρ {v} {V} q = eq-· eq-refl (reify-⟦⟧≋ q)
 sound-Π {κ₁ = L} {nl = ()} ρ {v} {V} q
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) = 
-  λ r {v'} {V'} rel-v → 
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) r {v'} {V'} rel-v = 
   subst-⟦⟧≋ 
     (eq-· (eq-· eq-refl (eq-sym (renₖ-≡t r eq))) eq-refl) 
   (subst-⟦⟧≋ 
@@ -261,7 +260,25 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) =
       (eq-trans 
         (inst (subₖ-weaken (renₖ r (⇑NE n)) v')) 
         (eq-sym (inst (↻-ren-⇑NE r n)))))))) , 
-    {!   !}))))
+    (λ {Δ} → sound {Δ})))))
+    where 
+      sound : SoundKripkeNE 
+              (`λ (renₖ S (renₖ r f) · ` Z · renₖ S v'))
+              (λ {Δ'} r₁ x₁ → apply V' r₁ (φ (r₁ ∘ r) x₁))
+      sound r₁ n = 
+        subst-⟦⟧≋ 
+          (eq-trans 
+            (eq-trans 
+              (eq-· 
+                (eq-· 
+                  (inst (trans (renₖ-id _) (renₖ-comp r r₁  f))) 
+                  (inst (renₖ-id _))) 
+                eq-refl) 
+              (eq-· 
+                (eq-· (inst (subₖ-weaken-over-lift r₁ (renₖ r f) _)) eq-refl) 
+                (inst (subₖ-weaken-over-lift r₁ v' _)))) 
+            (eq-sym eq-β)) 
+          (sound-f (r₁ ∘ r) n id (ren-⟦⟧≋ r₁ rel-v))     
 sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) = 
   (`λ (weakenₖ Π · (weakenₖ f · ` Z))) , 
   (eq-trans (eq-· eq-refl eq) (eq-trans eq-Π (eq-trans eq-map-∘ eq-refl))) , 
@@ -275,35 +292,6 @@ sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) =
             (inst (subₖ-weaken-over-lift r f (⇑ (η-norm _)))) 
             m)
           (sound-f r m))))
--- sound-Π {κ₁ = κ₁ `→ κ₂} ρ {f} {n{!   !} g} q {!   !} λ ρ {v} {V} eq → 
---   subst-⟦⟧≋ 
---   (eq-sym (eq-Π-assoc {ρ = renₖ ρ f} {τ = v})) 
---   (subst-⟦⟧≋ 
---     (eq-sym 
---       (eq-trans 
---         (eq-· eq-refl 
---           (eq-trans 
---             eq-β)) 
---           eq-refl)) 
---         (sound-Π ρ
---            {v = `λ (` Z · renₖ S v) <$> subₖ (extendₖ ` v) (renₖ S (renₖ ρ f))} 
---            (eq-<$> 
---              (eq-λ (reify-⟦⟧≋ (reflect-⟦⟧≋ (eq-· eq-refl (reify-⟦⟧≋ (ren-⟦⟧≋ S eq)))))) 
---              (eq-trans 
---                (eq-trans 
---                  (inst (subₖ-weaken (renₖ ρ f) v)) 
---                  (renₖ-≡t ρ q)) 
---                (eq-sym (inst (↻-ren-⇑NE ρ g)) )))))
--- sound-Π {κ₁ = R[ κ ]} ρ {v} {ne x} q =
---  eq-trans 
---         (eq-· eq-refl q) 
---         (eq-trans 
---             eq-Π 
---             (eq-<$> 
---                 (eq-trans 
---                     eq-η 
---                     (eq-λ (reify-⟦⟧≋ (sound-Π id eq-refl)))) 
---                 eq-refl))
 sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (eq , rel) ρ₂ {v} {V} rel-v = 
   subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) (sound-Π ρ₂ {renₖ ρ₂ f ?? v} 
   ((eq-trans 
