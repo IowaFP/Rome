@@ -111,7 +111,7 @@ renₖNF-id (Σ x)  rewrite renₖNF-id x  = refl
 renₖNF-id (⦅ ρ ⦆ oρ) = cong-⦅⦆ (renₖNF-id-row ρ)
 renₖNF-id (ρ₂ ─ ρ₁) = cong-─ (renₖNF-id ρ₂) (renₖNF-id ρ₁)
 renₖNF-id (l ▹ₙ τ) = cong₂ _▹ₙ_ (renₖNE-id l) (renₖNF-id τ)
-renₖNF-id ((x <$> τ) ) = cong-<$>ne (renₖNF-id x) (renₖNE-id τ)
+renₖNF-id ((x <$> τ) ) = cong₂ _<$>_ (renₖNF-id x) (renₖNE-id τ)
 
 renₖNF-id-pred (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite renₖNF-id ρ₁ | renₖNF-id ρ₂ | renₖNF-id ρ₃ = refl
