@@ -161,12 +161,6 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
 
          ----------------------------------------------------------
          _=⇒_ {Γ = Γ} (n-refl {ρ₁ = ⦅ xs ⦆ oxs}) (n-incl (λ _ i → i))
-
-  δ-empty≲ : ∀ {ys : SimpleRow NormalType Δ R[ κ ]} {oys : True (normalOrdered? ys)} → 
-
-             ---------------------------------------------------------------
-             n-empty≲ =⇒ n-incl {Γ = Γ} {ys = ys} {oys = oys} (λ x ())
-
   δ-emptyR : ∀ {xs : SimpleRow NormalType Δ R[ κ ]} {oxs : True (normalOrdered? xs)} → 
 
            n-emptyR =⇒ n-plus {Γ = Γ} {xs = xs} {oxs = oxs} (λ _ i → i) (λ x ()) (λ _ i → left i)

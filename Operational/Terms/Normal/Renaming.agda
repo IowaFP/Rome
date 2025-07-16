@@ -193,7 +193,6 @@ renEnt R (n-plusL≲ e) = n-plusL≲ (renEnt R e)
 renEnt R (n-plusR≲ e) = n-plusR≲ (renEnt R e)
 renEnt R n-emptyR = n-emptyR
 renEnt R n-emptyL = n-emptyL
-renEnt R n-empty≲ = n-empty≲
 renEnt {Γ₂ = Γ₂} {ρ = ρ} R (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F} e eq-ρ₁ eq-ρ₂) 
   rewrite 
     eq-ρ₁ 

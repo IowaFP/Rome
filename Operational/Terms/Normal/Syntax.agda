@@ -117,11 +117,6 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
         ---------------------
         NormalEnt Γ (ρ₂ ≲ ρ₃)
 
-  n-empty≲ : 
-
-         -------------------
-         NormalEnt Γ (εNF ≲ ρ)
-
   n-emptyR : 
              
         -------------------------

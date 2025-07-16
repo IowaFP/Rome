@@ -180,7 +180,6 @@ subEnt σ s {π} n-refl = n-refl
 subEnt σ s {π} (_n-⨾_ e₁ e₂) = _n-⨾_ (subEnt σ s e₁) (subEnt σ s e₂)
 subEnt σ s {π} (n-plusL≲ e) = (n-plusL≲ (subEnt σ s e))
 subEnt σ s {π} (n-plusR≲ e) = (n-plusR≲ (subEnt σ s e))
-subEnt σ s {π} n-empty≲ = n-empty≲
 subEnt σ s {π} n-emptyR = n-emptyR
 subEnt σ s {π} n-emptyL = n-emptyL
 subEnt σ s {π} (n-map≲ {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 

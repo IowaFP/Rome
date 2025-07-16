@@ -71,8 +71,6 @@ entProgress (n-plusL≲ N) with entProgress N
 entProgress (n-plusR≲ N) with entProgress N 
 ... | Done (n-plus i₁ i₂ i₃) = StepsTo n-incl i₂ via δ-plusR≲ i₁ i₂ i₃
 ... | StepsTo N' via N=⇒N' = StepsTo n-plusR≲ N' via ξ-plusR≲ N=⇒N'
-entProgress n@n-empty≲ with norm-≲ n
-... | xs , _ , ys , _ , refl , refl = StepsTo n-incl (λ x ()) via δ-empty≲
 entProgress n@n-emptyR with norm-· n
 ... | xs , _ , ys , _ , zs , _ , refl , refl , refl = 
   StepsTo _ via δ-emptyR 
