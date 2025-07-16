@@ -40,7 +40,8 @@ open import Rome.Operational.Containment
 ⇑Ctx (Γ ,,, π) = ⇑Ctx Γ ,,, ⇑Pred π
 
 --------------------------------------------------------------------------------
--- Soundness of typing: Given a well-typed NormalTerm, we can produce a well-typed Term.
+-- Soundness of typing: Given a well-typed NormalTerm, we can produce a well-typed Term...
+-- or: if Γ ⊢nf M : τ then Γ ⊢ M : ⇑ τ.
 
 
 ⇑Var : ∀ {Γ} {τ : NormalType Δ ★} → NormalVar Γ τ → Var (⇑Ctx Γ) (⇑ τ)
@@ -55,16 +56,16 @@ open import Rome.Operational.Containment
 ⇑PVar (T v) = T (⇑PVar v)
 ⇑PVar (K v) = convPVar' (sym (↻-ren-⇑Pred S _)) (K (⇑PVar v))
 
-⇑Row-isBimapMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → ⇑Row xs ≡ map (bimap ⇑  ⇑) xs
-⇑Row-isBimapMap [] = refl
-⇑Row-isBimapMap (x ∷ xs) rewrite ⇑Row-isBimapMap xs = refl
+-- ⇑Row-isBimapMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → ⇑Row xs ≡ map (bimap ⇑  ⇑) xs
+-- ⇑Row-isBimapMap [] = refl
+-- ⇑Row-isBimapMap (x ∷ xs) rewrite ⇑Row-isBimapMap xs = refl
 
 ⇑Ent : ∀ {Γ} {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → Ent (⇑Ctx Γ) (⇑Pred π)
 ⇑Ent (n-var x) = n-var (⇑PVar x)
-⇑Ent (n-incl i) = n-incl (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i )
-⇑Ent (n-plus i₁ i₂ i₃) = n-plus (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₁)
-                          (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₂)
-                          (⊆-cong-or₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₃)
+⇑Ent (n-incl i) = n-incl {!⊆-cong ⇑ _ !} -- n-incl (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i )
+⇑Ent (n-plus i₁ i₂ i₃) = {!!} -- n-plus (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₁)
+                          -- (⊆-cong₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₂)
+                          -- (⊆-cong-or₂ ⇑ ⇑ ⇑Row ⇑Row-isBimapMap i₃)
 
 ⇑Ent n-refl = n-refl
 ⇑Ent (_n-⨾_ e e₁) = _n-⨾_ (⇑Ent e) (⇑Ent e₁)
@@ -72,21 +73,21 @@ open import Rome.Operational.Containment
 ⇑Ent (n-plusR≲ e) = n-plusR≲ (⇑Ent e)
 ⇑Ent n-emptyR = n-emptyR
 ⇑Ent n-emptyL = n-emptyL
-⇑Ent (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F = F} e refl refl) =
-  convEnt'
-     (cong₂ _≲_
-       (cong ⇑ (sym (stability-<$> F ρ₁)))
-       (cong ⇑ (sym (stability-<$> F ρ₂))))
-  (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-map≲ (⇑Ent e)))
-⇑Ent (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e refl refl refl) =
-  convEnt'
-    (cong₃ _·_~_
-      (cong ⇑ (sym (stability-<$> F ρ₁)))
-      (cong ⇑ (sym (stability-<$> F ρ₂)))
-      (cong ⇑ (sym (stability-<$> F ρ₃))))
-  (convert
-    ((soundness (⇑ F <$> ⇑ ρ₁)) eq-· (soundness (⇑ F <$> ⇑ ρ₂)) ~ (soundness (⇑ F <$> ⇑ ρ₃)))
-    (n-map· (⇑Ent e)))
+⇑Ent (n-map≲ {ρ₁ = ρ₁} {ρ₂} {F = F} e refl refl) = {!!}
+  -- convEnt'
+  --    (cong₂ _≲_
+  --      (cong ⇑ (sym (stability-<$> F ρ₁)))
+  --      (cong ⇑ (sym (stability-<$> F ρ₂))))
+  -- (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-map≲ (⇑Ent e)))
+⇑Ent (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e refl refl refl) = {!!}
+  -- convEnt'
+  --   (cong₃ _·_~_
+  --     (cong ⇑ (sym (stability-<$> F ρ₁)))
+  --     (cong ⇑ (sym (stability-<$> F ρ₂)))
+  --     (cong ⇑ (sym (stability-<$> F ρ₃))))
+  -- (convert
+  --   ((soundness (⇑ F <$> ⇑ ρ₁)) eq-· (soundness (⇑ F <$> ⇑ ρ₂)) ~ (soundness (⇑ F <$> ⇑ ρ₃)))
+  --   (n-map· (⇑Ent e)))
 
 ⇑Term : ∀ {Γ} {τ : NormalType Δ ★} → NormalTerm Γ τ → Term (⇑Ctx Γ) (⇑ τ)
 ⇑Term (` x) = ` (⇑Var x)
@@ -99,12 +100,12 @@ open import Rome.Operational.Containment
 ⇑Term (`ƛ M) = `ƛ (⇑Term M)
 ⇑Term (M ·⟨ e ⟩) = (⇑Term M) ·⟨ ⇑Ent e  ⟩
 ⇑Term (# l) = # (⇑ l)
-⇑Term (l Π▹ M) = convert (eq-· eq-refl eq-refl) (⇑Term l Π▹ ⇑Term M)
-⇑Term (M Π/ l) = (convert (eq-· eq-refl (eq-sym eq-refl)) (⇑Term M)) Π/ (⇑Term l)
+⇑Term (l Π▹ M) = convert (eq-· eq-refl (eq-labTy eq-refl)) (⇑Term l Π▹ ⇑Term M) 
+⇑Term (M Π/ l) = (convert (eq-· eq-refl (eq-sym (eq-labTy eq-refl))) (⇑Term M)) Π/ (⇑Term l)
 ⇑Term (prj M n) = prj (⇑Term M) (⇑Ent n)
 ⇑Term ((M ⊹ N) n) = ((⇑Term M) ⊹ (⇑Term N)) (⇑Ent n)
-⇑Term (l Σ▹ M) = convert (eq-· eq-refl eq-refl) (⇑Term l Σ▹ ⇑Term M)
-⇑Term (M Σ/ l) = (convert (eq-· eq-refl (eq-sym eq-refl)) (⇑Term M)) Σ/ (⇑Term l)
+⇑Term (l Σ▹ M) = {!!} -- convert (eq-· eq-refl eq-refl) (⇑Term l Σ▹ ⇑Term M)
+⇑Term (M Σ/ l) = {!!} -- (convert (eq-· eq-refl (eq-sym eq-refl)) (⇑Term M)) Σ/ (⇑Term l)
 ⇑Term (inj M n) = inj (⇑Term M) (⇑Ent n)
 ⇑Term ((M ▿ N) n) = ((⇑Term M) ▿ (⇑Term N)) (⇑Ent n)
 ⇑Term (fix M) = fix (⇑Term M)
@@ -116,12 +117,19 @@ open import Rome.Operational.Containment
         (soundness  (⇑ φ <$> ⇑ ρ))
         eq-refl))
   (syn (⇑ ρ) (⇑ φ) (convert (eq-sym (soundness (SynT (⇑ ρ) (⇑ φ)))) (⇑Term M)))
-⇑Term (ana ρ φ τ M) =
-  convert
-    (eq-→
-      (eq-·
-        eq-refl
-        (eq-trans (soundness (⇑ φ <$> ⇑ ρ)) eq-refl))
-      eq-refl)
-  (ana (⇑ ρ) (⇑ φ) (⇑ τ)
-    (convert (eq-sym (soundness (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) (⇑Term M)))
+⇑Term (τ Π▹ne τ₁) = {!!}
+⇑Term (τ Π/ne τ₁) = {!!}
+⇑Term (ana ρ φ τ eq₁ eq₂ τ₁) = {!!}
+⇑Term (τ Σ▹ne τ₁) = {!!}
+⇑Term (τ Σ/ne τ₁) = {!!}
+⇑Term ⟨ x ⟩ = {!!}
+⇑Term (⟨ l ▹ τ ⟩via x) = {!!}
+-- ⇑Term (ana ρ φ τ M) =
+--   convert
+--     (eq-→
+--       (eq-·
+--         eq-refl
+--         (eq-trans (soundness (⇑ φ <$> ⇑ ρ)) eq-refl))
+--       eq-refl)
+--   (ana (⇑ ρ) (⇑ φ) (⇑ τ)
+--     (convert (eq-sym (soundness (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) (⇑Term M)))

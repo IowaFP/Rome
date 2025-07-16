@@ -1,0 +1,9 @@
+- Restore Terms.Theorems.{Soundness,Completeness}
+- Index kinds by ℓeveℓ 
+- Better denotation of Rωμ
+- Writeup on type normalization, for Edinburgh (Aug. 4?) *highest priority*
+-- ... and later publication to CPP (Sep 12, 2025)
+
+Today is July 16th. I would like to perform the above in order. But the highest priority is the Edinburgh writeup.
+
+Maybe I give myself until the 23rd to work on Agda before I context switch.
