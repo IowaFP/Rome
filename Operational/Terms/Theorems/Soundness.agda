@@ -89,7 +89,7 @@ open import Rome.Operational.Containment
   --   ((soundness (⇑ F <$> ⇑ ρ₁)) eq-· (soundness (⇑ F <$> ⇑ ρ₂)) ~ (soundness (⇑ F <$> ⇑ ρ₃)))
   --   (n-map· (⇑Ent e)))
 ⇑Ent (n-complR-inert n) = n-complR (⇑Ent n)
-⇑Ent (n-complR {xs = xs} {ys} n) = convert (eq-refl eq-· {!soundness (⦅ ⇑Row ys ─s ⇑Row xs ⦆ _) !} ~ eq-refl) (n-complR (⇑Ent n))
+⇑Ent (n-complR {xs = xs} {ys} n) = convert (eq-refl eq-· {! !} ~ eq-refl) (n-complR (⇑Ent n))
 ⇑Ent (n-complL-inert n) = n-complL (⇑Ent n)
 ⇑Ent (n-complL n) = {!!}
 
