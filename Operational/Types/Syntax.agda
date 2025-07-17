@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Operational.Types.Syntax where
 
 open import Rome.Operational.Prelude
@@ -12,33 +12,30 @@ open import Data.String using (_<_; _<?_)
 
 infixl 5 _·_
 infixr 5 _≲_
-data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
-data Type Δ : Kind → Set 
+data Pred (Ty : Set) : Set
+data Type {ι₁} (Δ : KEnv ι₁) : ∀ {ι₂} → Kind ι₂ → Set 
 
-SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set 
-SimpleRow Ty Δ ★        = ⊥
-SimpleRow Ty Δ L        = ⊥
-SimpleRow Ty Δ (_ `→ _) = ⊥
-SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
+SimpleRow : (Ty : Set) → Set 
+SimpleRow Ty   = List (Label × Ty)
 
-Ordered : SimpleRow Type Δ R[ κ ] → Set 
-ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
+Ordered : SimpleRow (Type Δ κ) → Set 
+ordered? : ∀ (xs : SimpleRow (Type Δ κ)) → Dec (Ordered xs)
 
 --------------------------------------------------------------------------------
 -- Predicates
 
-data Pred Ty Δ where
+data Pred Ty where
   _·_~_ : 
 
-       (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → 
+       (ρ₁ ρ₂ ρ₃ : Ty) → 
        --------------------- 
-       Pred Ty Δ R[ κ ]
+       Pred Ty
 
   _≲_ : 
 
-       (ρ₁ ρ₂ : Ty Δ R[ κ ]) →
+       (ρ₁ ρ₂ : Ty) →
        ----------
-       Pred Ty Δ R[ κ ]  
+       Pred Ty  
        
 data Type Δ where
 
@@ -47,7 +44,7 @@ data Type Δ where
       --------
       Type Δ κ
 
-  `λ : 
+  `λ : {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
       
       (τ : Type (Δ ,, κ₁) κ₂) → 
       ---------------
@@ -62,37 +59,37 @@ data Type Δ where
 
   _`→_ : 
 
-         (τ₁ : Type Δ ★) →
-         (τ₂ : Type Δ ★) → 
+         (τ₁ : Type Δ (★ {ι₁})) →
+         (τ₂ : Type Δ (★ {ι₂})) → 
          --------
-         Type Δ ★
+         Type Δ (★ {ι₁ ⊔ ι₂})
 
   `∀    :
       
-         {κ : Kind} → (τ : Type (Δ ,, κ) ★) →
+         {κ : Kind ικ} → (τ : Type (Δ ,, κ) (★ {ι})) →
          -------------
-         Type Δ ★
+         Type Δ (★ {ι ⊔ (lsuc ικ)})
 
   μ     :
       
-         (φ : Type Δ (★ `→ ★)) → 
+         (φ : Type Δ ((★ {ι}) `→ (★ {ι}))) → 
          -------------
-         Type Δ ★
+         Type Δ (★ {ι})
 
   ------------------------------------------------------------------
   -- Qualified types
 
   _⇒_ : 
 
-         (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
+         (π : Pred (Type Δ R[ κ₁ ])) → (τ : Type Δ (★ {ι})) → 
          ---------------------
-         Type Δ ★       
+         Type Δ (★ {ι})       
 
 
   ------------------------------------------------------------------
   -- Rω business
 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
+  ⦅_⦆ : (xs : SimpleRow (Type Δ κ)) (ordered : True (ordered? xs)) →
         ----------------------
         Type Δ R[ κ ]
 
@@ -101,17 +98,17 @@ data Type Δ where
     
         (l : Label) → 
         --------
-        Type Δ L
+        Type Δ (L {ι})
 
   -- label constant formation
   ⌊_⌋ :
-        (τ : Type Δ L) →
+        (τ : Type Δ (L {ι})) →
         ----------
-        Type Δ ★
+        Type Δ (★ {ι})
 
   -- Row formation
   _▹_ :
-         (l : Type Δ L) → (τ : Type Δ κ) → 
+         (l : Type Δ (L {ι})) → (τ : Type Δ κ) → 
          -------------------
          Type Δ R[ κ ]
 
@@ -155,7 +152,7 @@ ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ 
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
 
-cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
+cong-SimpleRow : {sr₁ sr₂ : SimpleRow (Type Δ κ)} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
 cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
@@ -165,13 +162,13 @@ cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant
 
 infix 0 _∈L_
 
-data _∈L_ : (l : Label) → SimpleRow Type Δ R[ κ ] → Set  where
-  Here : ∀ {τ : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} {l : Label} → 
+data _∈L_ : (l : Label) → SimpleRow (Type Δ κ) → Set  where
+  Here : ∀ {τ : Type Δ κ} {xs : SimpleRow (Type Δ κ)} {l : Label} → 
          l ∈L (l , τ) ∷ xs
-  There : ∀ {τ : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} {l l' : Label} → 
+  There : ∀ {τ : Type Δ κ} {xs : SimpleRow (Type Δ κ)} {l l' : Label} → 
           l ∈L xs → l ∈L (l' , τ) ∷ xs
 
-_∈L?_ : ∀ (l : Label) (xs : SimpleRow Type Δ R[ κ ]) → Dec (l ∈L xs)
+_∈L?_ : ∀ (l : Label) (xs : SimpleRow (Type Δ κ)) → Dec (l ∈L xs)
 l ∈L? [] = no (λ { () })
 l ∈L? ((l' , _) ∷ xs) with l ≟ l' 
 ... | yes refl = yes Here
@@ -180,7 +177,7 @@ l ∈L? ((l' , _) ∷ xs) with l ≟ l'
 ...         | no  q = no λ { Here → p refl ; (There x) → q x }
 
 
-_─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
+_─s_ : ∀ (xs ys : SimpleRow (Type Δ κ)) → SimpleRow (Type Δ κ)
 [] ─s ys = []
 ((l , τ) ∷ xs) ─s ys with l ∈L? ys 
 ... | yes _ = xs ─s ys
@@ -197,22 +194,22 @@ private
   variable
     l : Label
     τ : Type Δ κ 
-    xs ys : SimpleRow Type Δ R[ κ ]
+    xs ys : SimpleRow (Type Δ κ)
 
-ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow Type Δ R[ κ ]) → 
+ordered-cons : ∀ (x : Label × Type Δ κ) (ρ : SimpleRow (Type Δ κ)) → 
                Ordered (x ∷ ρ) → 
                Ordered ρ 
 ordered-cons x [] oxρ = tt
 ordered-cons (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ 
 
-ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} → 
+ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow (Type Δ κ)} → 
                 l < l' → 
                 Ordered ((l' , τ') ∷ xs) → 
                 Ordered ((l , τ) ∷ xs)
 ordered-swap {xs = []} l<l' oxs = tt
 ordered-swap {l = l} {l'} {xs = (l'' , τ'') ∷ xs} l<l' (l'<l'' , oxs) = <-trans {i = l} {j = l'} {k = l''} l<l' l'<l'' , oxs 
                 
-map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
+map-overᵣ : ∀ (ρ : SimpleRow (Type Δ₁ κ₁)) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
 map-overᵣ (x ∷ []) f oρ = tt
@@ -255,12 +252,47 @@ flap = `λ (`λ ((`λ ((` Z) · (` (S Z)))) <$> (` (S Z))))
 _??_ : Type Δ (R[ κ₁ `→ κ₂ ]) → Type Δ κ₁ → Type Δ R[ κ₂ ]
 f ?? a = flap · f · a
 
-Unit : Type Δ ★
-Unit = Π · ε
+-- Unit : Type Δ (★ {ι})
+-- Unit = Π · ε
 
-Empty : Type Δ ★ 
-Empty = Σ · ε 
+-- Empty : Type Δ (★ {ι}) 
+-- Empty = Σ · ε 
 
--- Example simple row
-sr : Type Δ R[ ★ ] 
-sr = ⦅ ("a" , Unit) ∷ ("b" , Empty) ∷ ("c" , ((`λ (` Z)) · Unit)) ∷ ("d" , Unit) ∷ [] ⦆ tt
+
+--------------------------------------------------------------------------------
+-- Denotation
+
+open import Rome.IndexCalculus using (Row)
+open import Data.Unit.Polymorphic renaming (⊤ to ⊤') 
+
+⟦_⟧k : Kind ι → Set (lsuc ι)
+⟦ ★ {ι} ⟧k = Set ι
+⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
+⟦ L {ι} ⟧k = ⊤' {lsuc ι}
+⟦ R[ k ] ⟧k = Row ⟦ k ⟧k
+
+⟦_⟧ke : KEnv ι → Set (lsuc ι)
+⟦ (∅ {ι = ι}) ⟧ke = ⊤' {lsuc ι}
+⟦ Δ ,, κ ⟧ke =  ⟦ Δ ⟧ke × ⟦ κ ⟧k
+
+
+⟦_⟧tv : KVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
+⟦ Z ⟧tv (_ , t) = t
+⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
+
+⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k 
+⟦ ` α ⟧t η = ⟦ α ⟧tv η
+⟦ `λ τ ⟧t η = {!   !}
+⟦ τ · τ₁ ⟧t η = {!   !}
+⟦ τ `→ τ₁ ⟧t η = {!   !}
+⟦ `∀ τ ⟧t η = {!   !}
+⟦ μ τ ⟧t η = {!   !}
+⟦ π ⇒ τ ⟧t η = {!   !}
+⟦ ⦅ xs ⦆ ordered ⟧t η = {!   !}
+⟦ lab l ⟧t η = {!   !}
+⟦ ⌊ τ ⌋ ⟧t η = {!   !}
+⟦ τ ▹ τ₁ ⟧t η = {!   !}
+⟦ τ <$> τ₁ ⟧t η = {!   !}
+⟦ Π ⟧t η = {!   !}
+⟦ Σ ⟧t η = {!   !}
+⟦ τ ─ τ₁ ⟧t η = {!   !} 
