@@ -264,7 +264,7 @@ f ?? a = flap · f · a
 
 open import Rome.IndexCalculus using (Row)
 open import Data.Unit.Polymorphic renaming (⊤ to ⊤') 
-
+ 
 ⟦_⟧k : Kind ι → Set (lsuc ι)
 ⟦ ★ {ι} ⟧k = Set ι
 ⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
@@ -282,9 +282,9 @@ open import Data.Unit.Polymorphic renaming (⊤ to ⊤')
 
 ⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k 
 ⟦ ` α ⟧t η = ⟦ α ⟧tv η
-⟦ `λ τ ⟧t η = {!   !}
-⟦ τ · τ₁ ⟧t η = {!   !}
-⟦ τ `→ τ₁ ⟧t η = {!   !}
+⟦ `λ {κ₁ = κ₁} τ ⟧t η = λ (x : ⟦ κ₁ ⟧k ) → ⟦ τ ⟧t (η , x)
+⟦ τ₁ · τ₂ ⟧t η = {! (⟦ τ₁ ⟧t η) (⟦ τ₂ ⟧t η)  !}
+⟦ τ₁ `→ τ₂ ⟧t η = ⟦ τ₁ ⟧t η  → ⟦ τ₂ ⟧t η
 ⟦ `∀ τ ⟧t η = {!   !}
 ⟦ μ τ ⟧t η = {!   !}
 ⟦ π ⇒ τ ⟧t η = {!   !}
@@ -295,4 +295,26 @@ open import Data.Unit.Polymorphic renaming (⊤ to ⊤')
 ⟦ τ <$> τ₁ ⟧t η = {!   !}
 ⟦ Π ⟧t η = {!   !}
 ⟦ Σ ⟧t η = {!   !}
-⟦ τ ─ τ₁ ⟧t η = {!   !} 
+⟦ τ₂ ─ τ₁ ⟧t η = {!   !} 
+
+-- wts that 
+--  - ⟦ τ ⟧t ≡ ⟦ ⇓ τ ⟧NF (would need functional extensionality)
+--  - if Δ ⊢ τ ≡t υ : κ then ⟦ τ ⟧t ≡ ⟦ υ ⟧t 
+-- I'm not sure if I want to let define ⟦_⟧t as the first line. Then 
+-- the second line follows from completeness. Is this a cop out?
+-- A counter---I only define term reduction on normal types. So 
+-- my goal is:
+--   soundness : ∀ {τ : NormalType ∅ ★} {M N : NormalTerm ∅ τ} → 
+--               M —→ N → ⟦ M ⟧ ≡ ⟦ N ⟧
+-- Where ⟦_⟧, the meaning of terms, is typed by
+--              ⟦_⟧ : NormalTerm Γ τ → ⟦ Γ ⟧ →  ⟦ τ ⟧. 
+-- so in this case we do not need a meaning of `Type`, just of `NormalType`.
+-- Pros of independnent definitions of ⟦_⟧ : Type and ⟦_⟧ : NormalType:
+--   - Shows that ⟦_⟧ on `Type`s obeys definitional equality
+--   - cooler?
+-- Pros of defining as ⟦ τ ⟧t ≡ ⟦ ⇓ τ ⟧NF:
+--   - metatheory for free
+--   - No need to relate two differing implementations
+--   - Don't actually need the meaning of non-normal types
+--   - I said I would deliver the soundness claim above, 
+--     who is going to quibble? Just get the Ph.D.
