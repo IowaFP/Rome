@@ -97,16 +97,45 @@
 \newunicodechar{ᵣ}{$_r$}
 \newunicodechar{⟦}{$\llbracket$}
 \newunicodechar{⟧}{$\rrbracket$}
+\newunicodechar{⁻}{$^{-}$}
+\newunicodechar{¹}{$^{1}$}
 
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
-We describe the normalization-by-evaluation (NBE) of types in \Rome. Types are normalized modulo $\beta$- and $\eta$-equivalence---that is, to $\beta\eta$-long forms. Because the type system of \Rome is a strict extension of System \Fome, type level computation for arrow kinds is isomorphic to reduction of arrow types in the STLC. Novel to this report are the reductions of $\Pi$, $\Sigma$, and label bound terms. 
 
-\section{Syntax of kinds}
-Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any description of untyped syntax. The syntax of types is indexed by kinding environments and kinds, defined below.
+\begin{code}[hide]
+postulate
+  bot : ∀ (X : Set) → X
+\end{code}
+We describe the normalization-by-evaluation (NBE) of types in \Rome. Types are normalized modulo $\beta$- and $\eta$-equivalence---that is, to $\beta\eta$-long forms. Because the type system of \Rome is a strict extension of System \Fome, type level computation for arrow kinds is isomorphic to reduction of arrow types in the STLC. Novel to this report are the reductions of $\Pi$, $\Sigma$, and row types.
+
+\section{The \Rome{} calculus}
+
+We present the type calculus of \Rome. The syntax of kinds, types, and predicates are given in \figref{syntax-types} for reference. We describe the mechanized syntax in the sections that follow.
+
+\begin{figure}[H]
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+\text{Type variables} & \alpha \in \mathcal A & \text{Labels} & \ell \in \mathcal L
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Kinds}} & \kappa & ::= & \TypeK \mid \LabK \mid \RowK \kappa \mid \kappa \to \kappa \\
+  \mcl{\text{Predicates}} & \pi, \psi & ::= & \LeqP \rho \rho \mid \PlusP \rho \rho \rho \\
+  \text{Types} & \mcr{\Types \ni \phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
+               &                              &     & \mid    & \RowIx i 0 m {\LabTy {\xi_i} {\tau_i}} \mid \ell \mid \Sing{\tau} \mid \Mapp{\phi}{\rho} \mid \rho \Compl \rho \\ 
+               &                              &     & \mid & \tau \to \tau \mid \Pi \, \rho \mid \Sigma \, \rho \mid \mu \, \phi 
+\end{doublesyntaxarray}
+\end{gather*}
+\caption{Syntax}
+\label{fig:syntax-types}
+\end{figure}
+
+\subsection{Kind syntax}
+Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of / indexing by untyped syntax. The syntax of types is indexed by kinding environments and kinds, defined below.
 
 \begin{code}
 data Kind : Set where
@@ -118,7 +147,7 @@ data Kind : Set where
 infixr 5 _`→_
 \end{code}
 
-The kind system of \Rome defines $\star$ as the type of types; $L$ as the type of labels; $(\to)$ as the type of type operators; and $R[\kappa]$ as the type of \emph{rows} containing types at kind $\kappa$. As shorthand, we write $R^{n}[\kappa]$ to denote $n$ repeated applications of $R$ to the type $\kappa$--e.g., $R^3[\kappa]$ is shorthand for $R[ R[ R[ \kappa ]]]$.
+The kind system of \Rome defines $\star$ as the type of types; $L$ as the type of labels; $(\to)$ as the type of type operators; and $R[\kappa]$ as the type of \emph{rows} containing types at kind $\kappa$.
 
 The syntax of kinding environments is given below. Kinding environments are isomorphic to lists of kinds.
 
@@ -137,15 +166,15 @@ private
     κ κ₁ κ₂ : Kind
 \end{code}
 
-The syntax of intrinsically well-scoped De-Bruijn type variables is given below. We say that the kind variable $x$ is indexed by kinding environment $\Delta$ and kind $\kappa$ to specify that $x$ has kind $\kappa$ in kinding environment $\Delta$.
+The syntax of intrinsically well-scoped De-Bruijn type variables is given below. We say that the type variable $x$ is indexed by kinding environment $\Delta$ and kind $\kappa$ to specify that $x$ has kind $\kappa$ in kinding environment $\Delta$.
 
 \begin{code}
-data KVar : KEnv → Kind → Set where
-  Z : KVar (Δ ,, κ) κ
-  S : KVar Δ κ₁ → KVar (Δ ,, κ₂) κ₁
+data TVar : KEnv → Kind → Set where
+  Z : TVar (Δ ,, κ) κ
+  S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁
 \end{code}
 
-\section{Syntax of types}
+\subsection{Type syntax}
 
 \Rome is a qualified type system with predicates of the form $\rho_1 \lesssim \rho_2$ and $\rho_1 \cdot \rho_2 \sim \rho_3$ for row-kinded types $\rho_1$, $\rho_2$, and $\rho_3$. Because predicates occur in types and types occur in predicates, the syntax of well-kinded types and well-kinded predicates are mutually recursive. The syntax for each is given below. we describe (in this order) the syntactic components belonging to System $\Fome$, qualified type systems, and system \RO.
 
@@ -163,7 +192,7 @@ data Type Δ : Kind → Set
 data Type Δ where
 
   ` : 
-    (α : KVar Δ κ) →
+    (α : TVar Δ κ) →
     Type Δ κ
 
   `λ : 
@@ -244,7 +273,7 @@ Rows in \Rome are eliminated by the \verb!Π! and \verb!Σ! constructors.
 
 Given a type $\rho$ at row kind, $\Pi \rho$ constructs a record with label-type associations from \verb!ρ! and $\Sigma \rho$ constructs a variant that has label and type from \verb!ρ!. We choose to represent \verb!Π! and \verb!Σ! as type constants at kind \verb!(R[ κ ] `→ κ)!; we will show that many applications of \verb!Π! and \verb!Σ! induce type reductions, and hence it is convenient to group such reductions with type application.
 
-The syntax of predicates is given below. The predicate $\LeqP {\rho_1} {\rho_2}$ states that label-to-type mappings in $\rho_1$ are a subset of those in $\rho_2$; the predicate $\RowPlusP {\rho_1} {\rho_2} {\rho_3}$ states that the combination of mappings in $\rho_1$ and $\rho_2$ equals $\rho_3$.
+The syntax of predicates is given below. The predicate $\LeqP {\rho_1} {\rho_2}$ states that label-to-type mappings in $\rho_1$ are a subset of those in $\rho_2$; the predicate $\PlusP {\rho_1} {\rho_2} {\rho_3}$ states that the combination of mappings in $\rho_1$ and $\rho_2$ equals $\rho_3$.
 
 \begin{code}
 data Pred Δ where
@@ -276,16 +305,13 @@ f <?> a = flap · f · a
 \Ni (We choose to define \verb!_<?>_! as the application of \verb!flap! to inputs \verb!f! and \verb!a! so that we needn't pollute the definition with weakenings of its arguments.)
 
 
-
-
-
-\subsection{Type renaming}
+\subsubsection{Type renaming}
 
 We closely follow \citet{plfa22} and \citet{ChapmanKNW19}  in defining a \emph{type renaming} as a function from type variables in one kinding environment to type variables in another. This is the \emph{parallel renaming and substitution} approach for which weakening and single variable substitution are special cases. The code we establish now will be mimicked again for both normal types and for terms; many names are reused, and so we find it helpful to index duplicate names by a suffix. The suffix $_k$ specifies that this definition describes the \verb!Type! syntax.
 
 \begin{code}
 Renamingₖ : KEnv → KEnv → Set
-Renamingₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → KVar Δ₂ κ
+Renamingₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → TVar Δ₂ κ
 \end{code}
 
 \Ni We will let the metavariable $\rho$ range over both renamings and types at row kind.
@@ -334,7 +360,7 @@ weakenₖ : Type Δ κ₂ → Type (Δ ,, κ₁) κ₂
 weakenₖ = renₖ S
 \end{code}
 
-\subsection{Type substitution}
+\subsubsection{Type substitution}
 
 We wish to give both a declarative and algorithmic treatment of type equivalence. For the latter, we will normalize types to normal forms, meaning types are equivalent iff their normal forms are definitionally equal. For the former, we must define $\beta$-substitution syntactically so that we can express $\beta$-equivalence of types declaratively. In our development, $\beta$-reduction is a special case of substitution.
 
@@ -342,7 +368,7 @@ We define a substitution as a function mapping type variables in context $\Delta
 
 \begin{code}
 Substitutionₖ : KEnv → KEnv → Set
-Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
+Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
 \end{code}
 
 Substitutions must be lifted over binders, just as is done for renamings. 
@@ -386,14 +412,14 @@ extendₖ σ τ Z = τ
 extendₖ σ τ (S x) = σ x
 \end{code}
 
-Finally, $\beta$-substitution is simply a special case of substitution. Note that the constructor \verb!`! has type \verb!KVar Δ κ → Type Δ κ!, making it a substitution. It is in fact an identity substitution, which fixes the meaning of its type variables, hence it is the substitution we choose to extend when defining $\beta$-substitution.
+Finally, $\beta$-substitution is simply a special case of substitution. Note that the constructor \verb!`! has type \verb!TVar Δ κ → Type Δ κ!, making it a substitution. It is in fact an identity substitution, which fixes the meaning of its type variables, hence it is the substitution we choose to extend when defining $\beta$-substitution.
 
 \begin{code}
 _βₖ[_] : Type (Δ ,, κ₁) κ₂ → Type Δ κ₁ → Type Δ κ₂
 τ₁ βₖ[ τ₂ ] = subₖ (extendₖ ` τ₂) τ₁
 \end{code}
 
-\section{Type equivalence}
+\subsection{Type equivalence}
 
 We define type and predicate equivalence mutually recursively. You may think of type equivalence also as a sort of small-step relation on types, as we include rules to equate $\beta$-equivalent and $\eta$-equivalent types, as well as a number of computational steps a row kinded type may take.
 
@@ -557,7 +583,7 @@ A type is neutral if it is (respectively) (i) a variable, (ii) the application o
 \begin{code}
 data NeutralType Δ where
   ` : 
-    (α : KVar Δ κ) → 
+    (α : TVar Δ κ) → 
     NeutralType Δ κ
 
   _·_ :     
@@ -684,7 +710,7 @@ The rest of the \verb!NormalType! syntax is identical to the \verb!Type! syntax 
     NormalType Δ L
 \end{code}
 
-\subsection{Renaming}
+\subsubsection{Renaming}
 We define renaming over \verb!NormalType!s in the same fashion as defined over \verb!Type!s. Note that we use the suffix \verb!ₖNF! now to denote functions which operate on \verb!NormalType! syntax. Definitions are unsurprising and omitted.
 
 \begin{code}
@@ -913,7 +939,7 @@ Towards writing an evaluator, we define a semantic environment as a function map
 
 \begin{code}
 Env : KEnv → KEnv → Set
-Env Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → SemType Δ₂ κ
+Env Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → SemType Δ₂ κ
 \end{code}
 
 \Ni Environment extension and lifting can be written in a straightforward manner.
@@ -1077,20 +1103,41 @@ Finally, we define a normalizer as the reification of evaluation.
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
 \end{code}
 
-\section{Correctness}
+\section{Metatheory}
 
-We desire a normalization algorithm to remove the need for explicit type conversion proofs in terms: two types are equal iff they reduce to the same normal form, and so a normalization algorithm effectively gives a decision procedure for type equivalence. It next falls upon us to verify that this normalization algorithm indeed respects our syntactic account of type equivalence. How we do so is fairly routine to other normalization-by-evaluation efforts. We first show that the algorithm is complete with respect to syntactic type equivalence:
+% AH> We also desire normalization algorithm because you can't reason over an equivalence relation.
+% We desire a normalization algorithm to remove the need for explicit type conversion proofs in terms: two types are equal iff they reduce to the same normal form, and so a normalization algorithm effectively gives a decision procedure for type equivalence. 
+
+\InlineOn{}
+We now verify that \verb!⇓! indeed behaves as a normalization function ought to. We first show that normalization is \emph{stable}. Stability states that embedding \verb!⇑! is a right-inverse to normalization \verb!⇓!, or, in categorical terms, that \verb!⇓! is a split-monomorphism. The proof is by induction over \verb!τ!.
+
+\begin{code}
+stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
+\end{code}
+\begin{code}[hide]
+stability = bot _
+\end{code}
+
+\Ni It is desirable that a normalization algorithm adheres to this property, as it states effectively that there is "no more work" to be done by re-normalization. Both idempotency and surjectivity are implied.
+
+\begin{code} 
+idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
+idempotency τ rewrite stability (⇓ τ) = refl
+
+surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
+surjectivity τ = ( ⇑ τ , stability τ ) 
+\end{code}
+
+It next falls upon us to verify that this normalization algorithm indeed respects our syntactic account of type equivalence. How we do so is fairly routine to other normalization-by-evaluation efforts. We show that the algorithm is complete with respect to syntactic type equivalence:
 
 \begin{code}
 completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 \end{code}
 \begin{code}[hide]
-postulate
-  bot : ∀ (X : Set) → X
 completeness = bot _
 \end{code}
 
-\Ni Completeness here states that equivalent types normalize to the same types. Conversely, soundness states that every type is equivalent to its normalization. (In particular, every type is equivalent to the normalization of its embedding.)
+\Ni Completeness here states that equivalent types normalize to the same types. Soundness states that every type is equivalent to its normalization.
 
 \begin{code}
 soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
@@ -1099,7 +1146,22 @@ soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)
 soundness = bot _
 \end{code}
 
-\subsection{A logical relation}
+Soundness implies the converse of \verb!completeness!, hence we may conclude that \verb!τ₁ ≡t τ₂! iff \verb!⇓ τ₁ ≡ ⇓ τ₂!.
+
+\begin{code}
+completeness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+completeness⁻¹ τ₁ τ₂ eq = 
+  eq-trans 
+    (soundness τ₁) 
+  (eq-trans 
+    (inst (cong ⇑ eq)) 
+  (eq-sym (soundness τ₂)))
+  where
+    inst : ∀ {υ₁ υ₂ : Type Δ κ} → υ₁ ≡ υ₂ → υ₁ ≡t υ₂
+    inst refl = eq-refl
+\end{code}
+
+\subsection{A logical relation for completeness}
 We will prove completeness using a logical relation on semantic types. We would like to be able to equate semantic types, but they prove to be "too large": in particular, our definition of Kripke functions permit functions which may not respect composition of renaming. The solution is to reason about semantic types modulo a partial equivalence relation (PER) that both respects renamings (which we call \emph{uniformity}) and also equates functions extensionally. We write \verb!τ₁ ≋ τ₂! to denote that the semantic types \verb!τ₁! and \verb!τ₂! are equivalent modulo this relation. For clarity, we give names to the two properties (\emph{uniformity} and \emph{point equality}) we desire related types to hold, and define them mutually recursively.
 
 \begin{code}
@@ -1192,7 +1254,7 @@ We would like to show that all well-kinded equivalent types have semantically eq
 
 \begin{code}
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+Env-≋ η₁ η₂ = ∀ {κ} (x : TVar _ κ) → (η₁ x) ≋ (η₂ x)
 \end{code}
 
 \Ni We show that related environments remain related when extended with related arguments.
@@ -1234,11 +1296,11 @@ Completeness eq = reify-≋ (fundC idEnv-≋ eq)
 \end{code}
 
 
-\section{Soundness}
+\subsection{Soundness}
 
 Soundness states that every type is equivalent to its normalization. Intuitively, completeness tells us that all "computation" inherent in the equivalence relation is captured by normalization; coversely, soundness tells us that all computation inherent in the normalization algorithm is declared in the equivalence relation.
 
-\subsection{A logical relation}
+\subsubsection{A logical relation}
 
 We prove soundness by a separate logical relation that relates (unnormalized) types to semantic types. We write \verb!⟦ τ ⟧≋ V! to denote that the type $\tau$ is related to the semantic type $V$. This syntax is inspired by the result we wish to show: that evaluating $\tau$ yields a semantic type $V$. We give the type synonym \verb!SoundKripke! for the functional case.
 
@@ -1286,13 +1348,13 @@ reflect-⟦⟧≋ = bot _
 reify-⟦⟧≋ = bot _
 \end{code}
 
-\subsection{The fundamental theorem \& soundness}
+\subsubsection{The fundamental theorem \& soundness}
 
 Towards defining the fundamental theorem, we first define a relation between syntactic environments (substitutions) and semantic environments. Intuitively, the substitution $\sigma$ is related to the environment $\eta$ if each type mapped to by $\sigma$ point-wise relates to the semantic type mapped to by $\eta$.
 
 \begin{code}
 ⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
-⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 \end{code}
 
 The fundamental theorem for soundness states that the substitution of $\tau$ by $\sigma$ is related to the evaluation of $\tau$ by $\eta$. Intuitively, substitution may be thought of as a syntactic notion of evaluation, and hence we are stating that syntactic and semantic evaluations relate.
@@ -1327,28 +1389,6 @@ Soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fund
 \end{code}
 \begin{code}[hide]
 subₖ-id = bot _
-\end{code}
-
-
-\section{Stability}
-
-Stability states that embedding \verb!⇑! is a right-inverse to normalization \verb!⇓!, or, in categorical terms, that \verb!⇓! is a split-monomorphism.
-
-\begin{code}
-stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
-\end{code}
-\begin{code}[hide]
-stability = bot _
-\end{code}
-
-\Ni It is desirable that a normalization algorithm adheres to this property, as it states effectively that there is "no more work" to be done by re-normalization. Indeed, both idempotency and surjectivity are implied.
-
-\begin{code} 
-idempotency : ∀ (τ : Type Δ κ) → (⇑ (⇓ (⇑ (⇓ τ)))) ≡ ⇑ (⇓ τ)
-idempotency τ rewrite stability (⇓ τ) = refl
-
-surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
-surjectivity τ = ( ⇑ τ , stability τ ) 
 \end{code}
 
 
