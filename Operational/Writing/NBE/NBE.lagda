@@ -100,6 +100,7 @@
 \newunicodechar{⟧}{$\rrbracket$}
 \newunicodechar{⁻}{$^{-}$}
 \newunicodechar{¹}{$^{1}$}
+\newunicodechar{₄}{$_{4}$}
 \newunicodechar{⦅}{$\llparenthesis$}
 \newunicodechar{⦆}{$\rrparenthesis$}
 \newunicodechar{─}{$\setminus$}
@@ -107,6 +108,10 @@
 \newunicodechar{ₖ}{$_{k}$}
 \newunicodechar{ₙ}{$_{n}$}
 \newunicodechar{≟}{$\overset{?}{=}$}
+\newunicodechar{𝒯}{$\mathcal T$}
+\newunicodechar{⨾}{$\co$}
+\newunicodechar{Ξ}{$\Xi$}
+\newunicodechar{ξ}{$\xi$}
 
 \begin{document}
 
@@ -776,6 +781,13 @@ data _≡t_ where
                  (⦅ xs ⦆ oxs) ─ (⦅ ys ⦆ oys) ≡t ⦅ (xs ─s ys) ⦆ ozs
 \end{code}
 
+Finally, it is helpful to reflect instances of propositional equality in Agda to proofs of type-equivalence.
+
+\begin{code}
+inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
+inst refl = eq-refl
+\end{code}
+
 \subsubsection{Some admissable rules} We confirm that (i) $\Pi$ and $\Sigma$ are mapped over nested rows, and (ii) $\lambda$-bindings $\eta$-expand over $\Pi$ and $\Sigma$.
 
 \begin{code}
@@ -1114,28 +1126,906 @@ label-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
 label-canonicity-∅ (lab s) = s , refl
 \end{code}
 
+\subsection{Renaming}
+
+Renaming over normal types is defined in an entirely straightforward manner.
+
+\begin{code}
+renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
+renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
+renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
+renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
+\end{code}
+
+Care must be given to ensure that the \verb!NormalOrdered! and \verb!NotSimpleRow! predicates are preserved.
+
+\begin{code}
+orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalType Δ₁ R[ κ ]) → NormalOrdered xs → 
+                 NormalOrdered (renRowₖNF r xs)
+
+nsrRenₖNF : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ₁ ρ₂ : NormalType Δ₁ R[ κ ]) → NotSimpleRow ρ₂ or NotSimpleRow ρ₁ → 
+              NotSimpleRow (renₖNF r ρ₂) or NotSimpleRow (renₖNF r ρ₁)
+nsrRenₖNF' : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : NormalType Δ₁ R[ κ ]) → NotSimpleRow ρ → 
+              NotSimpleRow (renₖNF r ρ)
+\end{code}
+
+\begin{code}[hide]
+renₖNE r (` x) = ` (r x)
+renₖNE ρ (τ₁ · τ₂) = renₖNE ρ τ₁ · renₖNF ρ τ₂
+
+renₖNF ρ (ne τ {g}) = ne (renₖNE ρ τ) {g}
+renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
+renₖNF ρ (τ₁ `→ τ₂) = (renₖNF ρ τ₁) `→ (renₖNF ρ τ₂)
+renₖNF ρ (π ⇒ τ) = renPredₖNF ρ π ⇒ renₖNF ρ τ
+renₖNF ρ (`∀ τ) = `∀ (renₖNF (liftₖ ρ) τ)
+renₖNF ρ (μ τ) = μ (renₖNF ρ τ)
+renₖNF ρ (lab x) = lab x
+renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
+renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
+renₖNF ρ (Σ τ) = Σ (renₖNF ρ τ)
+renₖNF r (⦅ ρ ⦆ oρ) = ⦅ renRowₖNF r ρ ⦆ (fromWitness (orderedRenRowₖNF r ρ (toWitness oρ)))
+renₖNF ρ (l ▹ₙ τ) = renₖNE ρ l ▹ₙ (renₖNF ρ τ)
+renₖNF r ((ρ₂ ─ ρ₁) {nsr}) = (renₖNF r ρ₂ ─ renₖNF r ρ₁) {nsr = fromWitness (nsrRenₖNF r ρ₁ ρ₂ (toWitness nsr))}
+renₖNF ρ ((φ <$> x)) = (renₖNF ρ φ <$> renₖNE ρ x) 
+
+renPredₖNF ρ (ρ₁ · ρ₂ ~ ρ₃) = (renₖNF ρ ρ₁) · (renₖNF ρ ρ₂) ~ (renₖNF ρ ρ₃)
+renPredₖNF ρ (ρ₁ ≲ ρ₂) = (renₖNF ρ ρ₁) ≲ (renₖNF ρ ρ₂)
+
+renRowₖNF _ [] = []
+renRowₖNF r ((l , τ) ∷ ρ) = (l , renₖNF r τ) ∷ renRowₖNF r ρ
+
+nsrRenₖNF' r (ne x) nsr = tt
+nsrRenₖNF' r (ρ ─ ρ₁) nsr = tt
+nsrRenₖNF' r (x ▹ₙ ρ) nsr = tt
+nsrRenₖNF' r ((φ <$> ρ)) nsr = tt
+
+nsrRenₖNF r ρ₁ ρ₂ (left x) = left (nsrRenₖNF' r ρ₂ x)
+nsrRenₖNF r ρ₁ ρ₂ (right y) = right (nsrRenₖNF' r ρ₁ y) 
+
+orderedRenRowₖNF r [] oxs = tt
+orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
+orderedRenRowₖNF r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((l₂ , υ) ∷ xs) oxs
+
+renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
+                  renRowₖNF r xs ≡ map (overᵣ (renₖNF r)) xs 
+renRowₖNF-isMap r [] = refl
+renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)
+
+weakenₖNF : NormalType Δ κ₂ → NormalType (Δ ,, κ₁) κ₂
+weakenₖNF = renₖNF S
+weakenₖNE : NeutralType Δ κ₂ → NeutralType (Δ ,, κ₁) κ₂
+weakenₖNE = renₖNE S 
+weakenPredₖNF : NormalPred Δ R[ κ₂ ] → NormalPred (Δ ,, κ₁) R[ κ₂ ]
+weakenPredₖNF = renPredₖNF S
+\end{code}
+
+\subsection{Embedding}
+
+\begin{code}
+⇑ : NormalType Δ κ → Type Δ κ
+⇑Row : SimpleRow NormalType Δ R[ κ ] → SimpleRow Type Δ R[ κ ]
+⇑NE : NeutralType Δ κ → Type Δ κ
+⇑Pred : NormalPred Δ R[ κ ] → Pred Type Δ R[ κ ] 
+Ordered⇑ : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → NormalOrdered ρ → 
+             Ordered (⇑Row ρ)
+
+⇑ (ne x) = ⇑NE x
+⇑ (`λ τ) = `λ (⇑ τ)
+⇑ (τ₁ `→ τ₂) = ⇑ τ₁ `→ ⇑ τ₂
+⇑ (`∀ τ) = `∀ (⇑ τ)
+⇑ (μ τ) = μ (⇑ τ)
+⇑ (lab l) = lab l
+⇑ ⌊ τ ⌋ = ⌊ ⇑ τ ⌋
+⇑ (Π x) = Π · ⇑ x
+⇑ (Σ x) = Σ · ⇑ x
+⇑ (π ⇒ τ) = (⇑Pred π) ⇒ (⇑ τ)
+⇑ (⦅ ρ ⦆ oρ) = ⦅ ⇑Row ρ ⦆ (fromWitness (Ordered⇑ ρ (toWitness oρ)))
+⇑ (ρ₂ ─ ρ₁) = ⇑ ρ₂ ─ ⇑ ρ₁
+⇑ (l ▹ₙ τ) = (⇑NE l) ▹ (⇑ τ)
+⇑ ((F <$> τ)) = (⇑ F) <$> (⇑NE τ) 
+
+⇑Row [] = []
+⇑Row ((l , τ) ∷ ρ) = ((l , ⇑ τ) ∷ ⇑Row ρ)
+
+Ordered⇑ [] oρ = tt
+Ordered⇑ (x ∷ []) oρ = tt
+Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Ordered⇑ ((l₂ , _) ∷ ρ) oρ
+
+⇑Row-isMap : ∀ (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
+               ⇑Row xs ≡ map (λ { (l , τ) → l , ⇑ τ }) xs
+⇑Row-isMap [] = refl
+⇑Row-isMap (x ∷ xs) = cong₂ _∷_ refl (⇑Row-isMap xs)
+
+⇑NE (` x) = ` x
+⇑NE (τ₁ · τ₂) = (⇑NE τ₁) · (⇑ τ₂)
+
+⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
+⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
+\end{code}
 
 
 \section{Semantic types}
 
+\begin{code}
+
+--------------------------------------------------------------------------------
+-- Semantic types (definition)
+
+Row : Set → Set 
+Row A = ∃[ n ](Fin n → Label × A)
+
+--------------------------------------------------------------------------------
+-- Ordered predicate on semantic rows
+
+OrderedRow' : ∀ {A : Set} → (n : ℕ) → (Fin n → Label × A) → Set
+OrderedRow' zero P = ⊤
+OrderedRow' (suc zero) P = ⊤
+OrderedRow' (suc (suc n)) P = (P fzero .fst < P (fsuc fzero) .fst)  × OrderedRow' (suc n) (P ∘ fsuc)
+
+OrderedRow : ∀ {A} → Row A → Set
+OrderedRow (n , P) = OrderedRow' n P
+
+--------------------------------------------------------------------------------
+-- Defining SemType Δ R[ κ ]
+
+data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set 
+NotRow : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → RowType Δ 𝒯 R[ κ ] → Set 
+notRows? : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → Dec (NotRow ρ₂ or NotRow ρ₁)
+
+data RowType Δ 𝒯 where
+  _<$>_ : (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
+          NeutralType Δ R[ κ₁ ] → 
+          RowType Δ 𝒯 R[ κ₂ ]
+
+  _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
+
+  row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
+
+  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
+        RowType Δ 𝒯 R[ κ ]
+
+NotRow (x ▹ x₁) = ⊤
+NotRow (row ρ x) = ⊥
+NotRow (ρ ─ ρ₁) = ⊤
+NotRow (φ <$> ρ) = ⊤
+
+notRows? (x ▹ x₁) ρ₁ = yes (left tt)
+notRows? (ρ₂ ─ ρ₃) ρ₁ = yes (left tt)
+notRows? (φ <$> ρ) ρ₁ = yes (left tt)
+notRows? (row ρ x) (x₁ ▹ x₂) = yes (right tt)
+notRows? (row ρ x) (row ρ₁ x₁) = no (λ { (left ()) ; (right ()) })
+notRows? (row ρ x) (ρ₁ ─ ρ₂) = yes (right tt)
+notRows? (row ρ x) (φ <$> τ) = yes (right tt)
+
+--------------------------------------------------------------------------------
+-- Defining Semantic types
+
+SemType : KEnv → Kind → Set
+SemType Δ ★ = NormalType Δ ★
+SemType Δ L = NormalType Δ L
+SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
+SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
+
+--------------------------------------------------------------------------------
+-- aliases
+
+KripkeFunction : KEnv → Kind → Kind → Set
+KripkeFunctionNE : KEnv → Kind → Kind → Set
+KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
+
+--------------------------------------------------------------------------------
+-- Truncating a row preserves ordering
+
+ordered-cut : ∀ {n : ℕ} → {P : Fin (suc n) → Label × SemType Δ κ} → 
+              OrderedRow (suc n , P) → OrderedRow (n , P ∘ fsuc)
+ordered-cut {n = zero} oρ = tt
+ordered-cut {n = suc n} oρ = oρ .snd
+
+
+--------------------------------------------------------------------------------
+-- Ordering is preserved by mapping
+
+orderedOverᵣ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
+               (f : SemType Δ κ₁ → SemType Δ κ₂) → 
+               OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
+orderedOverᵣ {n = zero} {P} f oρ = tt
+orderedOverᵣ {n = suc zero} {P} f oρ = tt
+orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
+
+--------------------------------------------------------------------------------
+-- Semantic row operators
+
+_⨾⨾_ :  Label × SemType Δ κ → Row (SemType Δ κ) → Row (SemType Δ κ)
+
+τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
+                          ; (fsuc x) → P x }
+-- the empty row                                  
+εV : Row (SemType Δ κ)
+εV = 0 , λ ()
+\end{code}
+
+
 \subsection{Renaming and substitution}
+
+\begin{code}
+renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
+renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
+
+renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
+renRow : Renamingₖ Δ₁ Δ₂ → 
+         Row (SemType Δ₁ κ) → 
+         Row (SemType Δ₂ κ)
+
+orderedRenRow : ∀ {n} {P : Fin n → Label × SemType Δ₁ κ} → (r : Renamingₖ Δ₁ Δ₂) → 
+                OrderedRow' n P → OrderedRow' n (λ i → (P i .fst) , renSem r (P i .snd))
+
+nrRenSem :  ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+             NotRow ρ → NotRow (renSem r ρ)
+nrRenSem' : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ₂ ρ₁ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+             NotRow ρ₂ or NotRow ρ₁ → NotRow (renSem r ρ₂) or NotRow (renSem r ρ₁)
+
+renSem {κ = ★} r τ = renₖNF r τ
+renSem {κ = L} r τ = renₖNF r τ
+renSem {κ = κ `→ κ₁} r F = renKripke r F
+renSem {κ = R[ κ ]} r (φ <$> x) = (λ r' → φ (r' ∘ r)) <$> (renₖNE r x)
+renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
+renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
+renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = nrRenSem' r ρ₂ ρ₁ nr}
+
+nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
+nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
+
+nrRenSem r (x ▹ x₁) nr = tt
+nrRenSem r (ρ ─ ρ₁) nr = tt
+nrRenSem r (φ <$> ρ) nr = tt
+
+orderedRenRow {n = zero} {P} r o = tt
+orderedRenRow {n = suc zero} {P} r o = tt
+orderedRenRow {n = suc (suc n)} {P} r (l₁<l₂ , o) =  l₁<l₂  , (orderedRenRow {n = suc n} {P ∘ fsuc} r o)
+
+renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P 
+
+weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
+weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
+\end{code}
 
 \section{Normalization by Evaluation}
 
+\begin{code}
+reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
+reify : ∀ {κ} → SemType Δ κ → NormalType Δ κ
+
+reflect {κ = ★} τ            = ne τ
+reflect {κ = L} τ            = ne τ
+reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
+reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
+
+reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
+reifyKripkeNE : KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
+reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
+reifyKripkeNE F = `λ (reify (F S (` Z)))
+
+reifyRow' : (n : ℕ) → (Fin n → Label × SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow' zero P    = []
+reifyRow' (suc n) P with P fzero
+... | (l , τ) = (l , reify τ) ∷ reifyRow' n (P ∘ fsuc)
+
+reifyRow : Row (SemType Δ κ) → SimpleRow NormalType Δ R[ κ ]
+reifyRow (n , P) = reifyRow' n P
+
+reifyRowOrdered : ∀ (ρ : Row (SemType Δ κ)) → OrderedRow ρ →  NormalOrdered (reifyRow ρ)
+reifyRowOrdered' : ∀  (n : ℕ) → (P : Fin n → Label × SemType Δ κ) → 
+                      OrderedRow (n , P) →  NormalOrdered (reifyRow (n , P))
+
+reifyRowOrdered' zero P oρ = tt
+reifyRowOrdered' (suc zero) P oρ = tt
+reifyRowOrdered' (suc (suc n)) P (l₁<l₂ , ih) = l₁<l₂ , (reifyRowOrdered' (suc n) (P ∘ fsuc) ih)
+
+reifyRowOrdered (n , P) oρ = reifyRowOrdered' n P oρ
+
+reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ρ₁) or NotSimpleRow (reify ρ₂)
+
+reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
+                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ─ ρ₂) {nr}))
+
+reify {κ = ★} τ = τ
+reify {κ = L} τ = τ
+reify {κ = κ₁ `→ κ₂} F = reifyKripke F
+reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
+reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
+reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
+reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
+reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
+reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
+reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
+reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
+reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (φ <$> τ)) {nsr = tt} 
+reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
+reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
+
+
+reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
+reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
+reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left tt
+reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
+reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
+reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right tt
+
+reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
+reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (left x) = tt
+reifyPreservesNR' (φ <$> n) ρ₂ (left x) = tt
+reifyPreservesNR' (φ <$> n) ρ₂ (right y) = tt
+reifyPreservesNR' (x ▹ x₁) ρ₂ (right y) = tt
+reifyPreservesNR' (row ρ x) (x₁ ▹ x₂) (right y) = tt
+reifyPreservesNR' (row ρ x) (ρ₂ ─ ρ₃) (right y) = tt
+reifyPreservesNR' (row ρ x) (φ <$> n) (right y) = tt
+reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
+
+--------------------------------------------------------------------------------
+-- η normalization of neutral types
+
+η-norm : NeutralType Δ κ → NormalType Δ κ 
+η-norm = reify ∘ reflect
+
+-- --------------------------------------------------------------------------------
+-- -- Semantic environments
+
+Env : KEnv → KEnv → Set
+Env Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → SemType Δ₂ κ
+
+idEnv : Env Δ Δ
+idEnv = reflect ∘ `
+
+extende : (η : Env Δ₁ Δ₂) → (V : SemType Δ₂ κ) → Env (Δ₁ ,, κ) Δ₂
+extende η V Z     = V
+extende η V (S x) = η x
+
+lifte : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifte {Δ₁} {Δ₂} {κ} η  = extende (weakenSem ∘ η) (idEnv Z)
+\end{code}
+
+
 \subsection{Helping evaluation}
+
+\begin{code}
+-----------------------
+-- Semantic application
+
+_·V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ κ₁ → SemType Δ κ₂
+F ·V V = F id V
+
+----------------------
+-- Semantic complement
+
+_∈Row_ : ∀ {m} → (l : Label) → 
+         (Q : Fin m → Label × SemType Δ κ) → 
+         Set 
+_∈Row_ {m = m} l Q = Σ[ i ∈ Fin m ] (l ≡ Q i .fst)
+
+_∈Row?_ : ∀ {m} → (l : Label) → 
+         (Q : Fin m → Label × SemType Δ κ) → 
+         Dec (l ∈Row Q)
+_∈Row?_ {m = zero} l Q = no λ { () }
+_∈Row?_ {m = suc m} l Q with l ≟ Q fzero .fst
+... | yes p = yes (fzero , p)
+... | no  p with l ∈Row? (Q ∘ fsuc)
+...        | yes (n , q) = yes ((fsuc n) , q) 
+...        | no  q = no λ { (fzero , q') → p q' ; (fsuc n , q') → q (n , q') }
+
+compl : ∀ {n m} → 
+        (P : Fin n → Label × SemType Δ κ) 
+        (Q : Fin m → Label × SemType Δ κ) → 
+        Row (SemType Δ κ)
+compl {n = zero} {m} P Q = εV
+compl {n = suc n} {m} P Q with P fzero .fst ∈Row? Q 
+... | yes _ = compl (P ∘ fsuc) Q 
+... | no _ = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
+
+-- --------------------------------------------------------------------------------
+-- -- Semantic complement preserves well-ordering
+lemma : ∀ {n m q} → 
+          (P : Fin (suc n) → Label × SemType Δ κ)
+          (Q : Fin m → Label × SemType Δ κ) → 
+          (R : Fin (suc q) → Label × SemType Δ κ) → 
+             OrderedRow (suc n , P) →
+             compl (P ∘ fsuc) Q ≡ (suc q , R) → 
+          P fzero .fst < R fzero .fst
+lemma {n = suc n} {q = q} P Q R oP eq₁ with P (fsuc fzero) .fst ∈Row? Q 
+lemma {κ = _} {suc n} {q = q} P Q R oP refl | no _ = oP .fst
+... | yes _ = <-trans {i = P fzero .fst} {j = P (fsuc fzero) .fst} {k = R fzero .fst} (oP .fst) (lemma {n = n} (P ∘ fsuc) Q R (oP .snd) eq₁)
+
+ordered-⨾⨾ : ∀ {n m} → 
+                 (P : Fin (suc n) → Label × SemType Δ κ) 
+                 (Q : Fin m → Label × SemType Δ κ) → 
+                 OrderedRow (suc n , P) → 
+                 OrderedRow (compl (P ∘ fsuc) Q) → OrderedRow (P fzero ⨾⨾ compl (P ∘ fsuc) Q)
+ordered-⨾⨾ {n = n} P Q oP oC with compl (P ∘ fsuc) Q | inspect (compl (P ∘ fsuc)) Q
+... | zero , R  | _        = tt
+... | suc n , R | [[ eq ]] = lemma P Q R oP eq  , oC
+
+ordered-compl :  ∀ {n m} → 
+                 (P : Fin n → Label × SemType Δ κ) 
+                 (Q : Fin m → Label × SemType Δ κ) → 
+                 OrderedRow (n , P) → OrderedRow (m , Q) → OrderedRow (compl P Q)
+ordered-compl {n = zero} P Q oρ₁ oρ₂ = tt
+ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row? Q
+... | yes _ = ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂
+... | no _ = ordered-⨾⨾ P Q oρ₁ (ordered-compl (P ∘ fsuc) Q (ordered-cut oρ₁) oρ₂)
+
+--------------------------------------------------------------------------------
+-- Semantic complement on Rows
+                
+_─v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
+(n , P) ─v (m , Q) = compl P Q
+
+ordered─v : ∀ (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
+ordered─v (n , P) (m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
+
+-- -- -- --------------------------------------------------------------------------------
+-- -- -- -- Semantic lifting
+
+_<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ R[ κ₂ ]
+NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
+              NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
+
+F <$>V (l ▹ τ) = l ▹ (F ·V τ)
+F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
+F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
+F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
+
+NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
+NotRow<$> {F = F} {ρ₂ ─ ρ₃} {ρ₁} (left x) = left tt
+NotRow<$> {F = F} {φ <$> n} {ρ₁} (left x) = left tt
+
+NotRow<$> {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
+NotRow<$> {F = F} {ρ₂} {ρ₁ ─ ρ₃} (right y) = right tt
+NotRow<$> {F = F} {ρ₂} {φ <$> n} (right y) = right tt
+
+
+-- -- -- --------------------------------------------------------------------------------
+-- -- -- -- Semantic complement on SemTypes
+
+_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+row ρ₂ oρ₂ ─V row ρ₁ oρ₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ oρ₂ oρ₁)
+ρ₂@(x ▹ x₁) ─V ρ₁ = (ρ₂ ─ ρ₁) {nr = left tt}
+ρ₂@(row ρ x) ─V ρ₁@(x₁ ▹ x₂) = (ρ₂ ─ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ─V ρ₁@(_ ─ _) = (ρ₂ ─ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ─V ρ₁@(_ <$> _) = (ρ₂ ─ ρ₁) {nr = right tt}
+ρ@(ρ₂ ─ ρ₃) ─V ρ' = (ρ ─ ρ') {nr = left tt}
+ρ@(φ <$> n) ─V ρ' = (ρ ─ ρ') {nr = left tt}
+
+-- --------------------------------------------------------------------------------
+-- -- Semantic flap
+
+apply : SemType Δ κ₁ → SemType Δ ((κ₁ `→ κ₂) `→ κ₂)
+apply a = λ ρ F → F ·V (renSem ρ a)
+
+infixr 0 _<?>V_
+_<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[ κ₂ ]
+f <?>V a = apply a <$>V f
+\end{code}
+
+\subsection{$\Pi$ and $\Sigma$ as operators}
+
+\begin{code}
+record Xi : Set where 
+  field
+    Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
+    ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+
+open Xi
+ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
+ξ {κ = L} Ξ x = lab "impossible"
+ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
+ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+
+Π-rec Σ-rec : Xi 
+Π-rec = record
+  {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
+Σ-rec = 
+  record
+  { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
+
+ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+ΠV = ξ Π-rec
+ΣV = ξ Σ-rec
+
+ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
+ξ-Kripke Ξ ρ v = ξ Ξ v
+
+Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+Π-Kripke = ξ-Kripke Π-rec
+Σ-Kripke = ξ-Kripke Σ-rec
+\end{code}
+
 \subsection{Evaluation}
+\begin{code}
+eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
+
+evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row (SemType Δ₂ κ)
+evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
+
+evalRow [] η = εV 
+evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
+
+⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
+                      reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
+⇓Row-isMap η [] = refl
+⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
+
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
+eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
+eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
+eval {κ = L} (lab l) η = lab l
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
+eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
+eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
+eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval (⦅ ρ ⦆ oρ) η = row (evalRow ρ η) (evalRowOrdered ρ η (toWitness oρ))
+eval (l ▹ τ) η with eval l η 
+... | ne x = (x ▹ eval τ η)
+... | lab l₁ = row (1 , λ { fzero → (l₁ , eval τ η) }) tt
+evalRowOrdered [] η oρ = tt
+evalRowOrdered (x₁ ∷ []) η oρ = tt
+evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
+  evalRow ρ η | evalRowOrdered ((l₂ , τ₂) ∷ ρ) η oρ
+... | zero , P | ih = l₁<l₂ , tt
+... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
+\end{code}
+
+\subsection{Normalization}
+\begin{code}
+⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
+
+⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
+⇓Pred π = evalPred π idEnv
+
+⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
+⇓Row ρ = reifyRow (evalRow ρ idEnv)
+
+⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
+\end{code}
 
 \section{Metatheory}
+
+\subsection{Stability}
+
+\begin{code}
+stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
+stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
+stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
+stabilityRow : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → reifyRow (evalRow (⇑Row ρ) idEnv) ≡ ρ
+\end{code}
+\begin{code}[hide]
+stability     = bot _
+stabilityNE   = bot _
+stabilityPred = bot _
+stabilityRow = bot _
+\end{code}
+
+Stability implies surjectivity and idempotency.
+
+\begin{code}
+idempotency : ∀ (τ : Type Δ κ) → (⇑ ∘ ⇓ ∘ ⇑ ∘ ⇓) τ ≡  (⇑ ∘ ⇓)  τ
+idempotency τ rewrite stability (⇓ τ) = refl
+
+surjectivity : ∀ (τ : NormalType Δ κ) → ∃[ υ ] (⇓ υ ≡ τ)
+surjectivity τ = ( ⇑ τ , stability τ ) 
+\end{code}
+
+Dual to surjectivity, stability also implies that embedding is injective.
+ 
+\begin{code}
+⇑-inj : ∀ (τ₁ τ₂ : NormalType Δ κ) → ⇑ τ₁ ≡ ⇑ τ₂ → τ₁ ≡ τ₂                   
+⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
+\end{code}
+
 \subsection{A logical relation for completeness}
-\subsubsection{Properties}
+
+\begin{code}
+subst-Row : ∀ {A : Set} {n m : ℕ} → (n ≡ m) → (f : Fin n → A) → Fin m → A 
+subst-Row refl f = f
+
+-- Completeness relation on semantic types
+_≋_ : SemType Δ κ → SemType Δ κ → Set
+_≋₂_ : ∀ {A} → (x y : A × SemType Δ κ) → Set
+(l₁ , τ₁) ≋₂ (l₂ , τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋R_ : (ρ₁ ρ₂ : Row (SemType Δ κ)) → Set 
+(n , P) ≋R (m , Q) = Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) →  (subst-Row pf P) i ≋₂ Q i)
+
+PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
+PointEqualNE-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunctionNE Δ₁ κ₁ κ₂) → Set
+Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
+UniformNE :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunctionNE Δ κ₁ κ₂ → Set
+
+convNE : κ₁ ≡ κ₂ → NeutralType Δ R[ κ₁ ] → NeutralType Δ R[ κ₂ ]
+convNE refl n = n 
+
+convKripkeNE₁ : ∀ {κ₁'} → κ₁ ≡ κ₁' → KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₁' κ₂
+convKripkeNE₁ refl f = f
+
+_≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
+_≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
+_≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
+  Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
+_≋_ {Δ₁} {R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = 
+  Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
+    UniformNE φ₁
+  × UniformNE φ₂
+  × (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂
+  × convNE pf n₁ ≡ n₂)
+_≋_ {Δ₁} {R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
+_≋_ {Δ₁} {R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {Δ₁} {R[ κ ]} (x₁ ▹ x₂) (row ρ x₃) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (x₁ ▹ x₂) (ρ₂ ─ ρ₃) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (row ρ x₁) (x₂ ▹ x₃) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (row (n , P) x₁) (row (m , Q) x₂) = (n , P) ≋R (m , Q)
+_≋_ {Δ₁} {R[ κ ]} (row ρ x₁) (ρ₂ ─ ρ₃) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (x₁ ▹ x₂) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (row ρ x₁) = ⊥
+_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (ρ₃ ─ ρ₄) = ρ₁ ≋ ρ₃ × ρ₂ ≋ ρ₄
+
+PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
+  ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
+  V₁ ≋ V₂ → F ρ V₁ ≋ G ρ V₂
+
+PointEqualNE-≋ {Δ₁} {κ₁} {κ₂} F G = 
+  ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) (V : NeutralType Δ₂ κ₁) → 
+  F ρ V ≋ G ρ V
+
+Uniform {Δ₁} {κ₁} {κ₂} F = 
+  ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
+  V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (renKripke ρ₁ F ρ₂ (renSem ρ₂ V₂))
+
+UniformNE {Δ₁} {κ₁} {κ₂} F = 
+  ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : NeutralType Δ₂ κ₁) →
+  (renSem ρ₂ (F ρ₁ V)) ≋ F (ρ₂ ∘ ρ₁) (renₖNE ρ₂ V)
+
+Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
+Env-≋ η₁ η₂ = ∀ {κ} (x : TVar _ κ) → (η₁ x) ≋ (η₂ x)
+
+-- extension
+extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 
+            {V₁ V₂ : SemType Δ₂ κ} → 
+            V₁ ≋ V₂ → 
+            Env-≋ (extende η₁ V₁) (extende η₂ V₂)
+extend-≋ p q Z = q
+extend-≋ p q (S v) = p v
+\end{code}
+\begin{code}[hide]
+
+refl-≋ₗ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₁ ≋ V₁
+refl-≋ᵣ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₂ ≋ V₂
+sym-≋ : ∀ {τ₁ τ₂ : SemType Δ κ}      → τ₁ ≋ τ₂ → τ₂ ≋ τ₁
+trans-≋ : ∀ {τ₁ τ₂ τ₃ : SemType Δ κ} → τ₁ ≋ τ₂ → τ₂ ≋ τ₃ → τ₁ ≋ τ₃
+trans-≋ᵣ : ∀ {τ₁ τ₂ τ₃ : Row (SemType Δ κ)} → τ₁ ≋R τ₂ → τ₂ ≋R τ₃ → τ₁ ≋R τ₃
+
+sym-≋ {κ = ★}  refl = refl
+sym-≋ {κ = L}  refl = refl
+sym-≋ {κ = κ `→ κ₁} 
+  {F} {G} 
+  (Unif-F , (Unif-G , Ext)) = 
+     Unif-G ,  Unif-F , (λ {Δ₂} ρ {V₁} {V₂} z → sym-≋ (Ext ρ (sym-≋ z)))
+sym-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} (eq , rel) = sym eq  , sym-≋ rel
+sym-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} (refl , eq-ρ) =
+  refl , 
+  (λ i → (sym (eq-ρ i .fst)) , (sym-≋ (eq-ρ i .snd)))
+sym-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (sym-≋ rel₁) , (sym-≋ rel₂)
+sym-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = refl  , Unif-φ₂ , Unif-φ₁ , (λ r v → sym-≋ (Ext r v) ) , refl
+refl-≋ₗ q = trans-≋ q (sym-≋ q)
+refl-≋ᵣ q = refl-≋ₗ (sym-≋ q)
+
+trans-≋ {κ = ★} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = L} q₁ q₂ = trans q₁ q₂
+trans-≋ {κ = κ₁ `→ κ₂} {F} {G} {H} 
+  (unif-F , unif-G , Ext-F-G) (unif-G' , unif-H , Ext-G-H) = 
+    unif-F , 
+    unif-H , 
+    λ ρ q → trans-≋ (Ext-F-G ρ q) (Ext-G-H ρ (refl-≋ₗ (sym-≋ q)))
+trans-≋ {κ = R[ κ ]} {l₁ ▹ τ₁} {l₂ ▹ τ₂} {l₃ ▹ τ₃} (eq-l₁ , rel-τ₁) (eq-l₂ , rel-τ₂) = trans eq-l₁ eq-l₂  , trans-≋ rel-τ₁ rel-τ₂
+trans-≋ {κ = R[ κ ]} {row (n , P) _} {row (m , Q) _} {row (o , R) _} (refl , rel₁) (refl , rel₂) = 
+  refl , λ { i → trans (rel₁ i .fst) (rel₂ i .fst) , trans-≋ (rel₁ i .snd) (rel₂ i .snd) }
+trans-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} {ρ₆ ─ ρ₅} (rel₁ , rel₂) (rel₃ , rel₄) = (trans-≋ rel₁ rel₃) , (trans-≋ rel₂ rel₄)
+trans-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} {φ₃ <$> n₃} (refl , Unif-φ₁ , Unif-φ₂ , Ext₁ , refl) (refl , _ , Unif-φ₃ , Ext₂ , refl) = refl , Unif-φ₁ , Unif-φ₃ , (λ r v → trans-≋ (Ext₁ r v) (Ext₂ r v) ) , refl
+
+trans-≋ᵣ {τ₁ = (n , P)} {τ₂ = (m , Q)} {τ₃ = (j , K)} (refl , rel₁) (refl , rel₂) = refl , (λ { i → trans (rel₁ i .fst) (rel₂ i .fst)  , trans-≋ (rel₁ i .snd) (rel₂ i .snd) })
+
+refl-Extₗ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ F F
+refl-Extₗ Ext ρ q = trans-≋ (Ext ρ q) (sym-≋ (Ext ρ (refl-≋ₗ (sym-≋ q))))
+
+sym-Ext : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G F
+sym-Ext Ext ρ q = trans-≋ (refl-≋ₗ (sym-≋ (Ext ρ (sym-≋ q)))) (sym-≋ (Ext ρ (sym-≋ q)))
+
+refl-Extᵣ : ∀ {F G : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G G
+refl-Extᵣ Ext ρ q = refl-Extₗ (sym-Ext Ext) ρ q
+
+trans-Ext : ∀ {F G H : KripkeFunction Δ₁ κ₁ κ₂} → PointEqual-≋ F G → PointEqual-≋ G H → PointEqual-≋ F H
+trans-Ext Ext-FG Ext-GH ρ q = trans-≋ (Ext-FG ρ q) (trans-≋ (Ext-GH ρ (sym-≋ q)) (refl-Extᵣ Ext-GH ρ q))
+\end{code}
+
+\subsubsection{Properties}~
+
+\begin{code}
+reflect-≋  : ∀ {τ₁ τ₂ : NeutralType Δ κ} → τ₁ ≡ τ₂ → reflect τ₁ ≋ reflect τ₂
+reify-≋    : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → reify V₁   ≡ reify V₂ 
+reifyRow-≋ : ∀ {n} (P Q : Fin n → Label × SemType Δ κ) →  
+               (∀ (i : Fin n) → P i ≋₂ Q i) → 
+               reifyRow (n , P) ≡ reifyRow (n , Q)
+\end{code}
+\begin{code}
+\end{code}
+\begin{code}[hide]
+reflect-≋  = bot _ 
+reify-≋    = bot _ 
+reifyRow-≋ = bot _ 
+\end{code}
 
 \subsection{The fundamental theorem and completeness}
 
+\begin{code}
+fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
+       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fundC-pred : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+fundC-Row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
+            Env-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
+\end{code}
+\begin{code}[hide]
+fundC = bot _
+fundC-pred = bot _
+fundC-Row = bot _
+\end{code}
+
+\begin{code}
+idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
+idEnv-≋ x = reflect-≋ refl
+
+completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
+completeness eq = reify-≋ (fundC idEnv-≋ eq)  
+
+completeness-row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
+\end{code}
+\begin{code}[hide]
+completeness-row = bot _
+\end{code}
+
 \subsection{A logical relation for soundness}
-\subsubsection{Properties}
+\begin{code}
+infix 0 ⟦_⟧≋_
+⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
+⟦_⟧≋ne_ : ∀ {κ} → Type Δ κ → NeutralType Δ κ → Set
+
+⟦_⟧r≋_ : ∀ {κ} → SimpleRow Type Δ R[ κ ] → Row (SemType Δ κ) → Set
+⟦_⟧≋₂_ : ∀ {κ} → Label × Type Δ κ → Label × SemType Δ κ → Set
+⟦ (l₁ , τ) ⟧≋₂ (l₂ , V) = (l₁ ≡ l₂) × (⟦ τ ⟧≋ V)
+
+SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
+SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
+
+-- τ is equivalent to neutral `n` if it's equivalent 
+-- to the η and map-id expansion of n
+⟦_⟧≋ne_ τ n = τ ≡t ⇑ (η-norm n)
+
+⟦_⟧≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
+⟦_⟧≋_ {κ = L} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
+⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (row (n , P)  oρ) =
+    let xs = ⇑Row (reifyRow (n , P)) in 
+    (τ ≡t ⦅ xs ⦆ (fromWitness (Ordered⇑ (reifyRow (n , P)) (reifyRowOrdered' n P oρ)))) × 
+    (⟦ xs ⟧r≋ (n , P))
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = (τ ≡t (⇑NE l ▹ ⇑ (reify V))) × (⟦ ⇑ (reify V) ⟧≋ V)
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ─ ρ₁) {nr}) = (τ ≡t (⇑ (reify ((ρ₂ ─ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁)
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (φ <$> n) = 
+  ∃[ f ] ((τ ≡t (f <$> ⇑NE n)) × (SoundKripkeNE f φ))
+⟦ [] ⟧r≋ (zero , P) = ⊤
+⟦ [] ⟧r≋ (suc n , P) = ⊥
+⟦ x ∷ ρ ⟧r≋ (zero , P) = ⊥
+⟦ x ∷ ρ ⟧r≋ (suc n , P) =  (⟦ x ⟧≋₂ (P fzero)) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
+
+SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+    ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
+      ⟦ v ⟧≋ V → 
+      ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V)
+
+SoundKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+    ∀ {Δ₂} (r : Renamingₖ Δ₁ Δ₂) {v V} → 
+      ⟦ v ⟧≋ne  V → 
+      ⟦ (renₖ r f · v) ⟧≋ (F r V)
+\end{code}
+
+\subsubsection{Properties}~
+\begin{code}
+reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} → 
+             τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
+reify-⟦⟧≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
+               ⟦ τ ⟧≋ V → τ ≡t ⇑ (reify V)
+η-norm-≡t : ∀ (τ : NeutralType Δ κ) → ⇑ (η-norm τ) ≡t ⇑NE τ 
+subst-⟦⟧≋ : ∀ {τ₁ τ₂ : Type Δ κ} → 
+  τ₁ ≡t τ₂ → {V : SemType Δ κ} → ⟦ τ₁ ⟧≋ V → ⟦ τ₂ ⟧≋ V 
+\end{code}
+
+\subsubsection{Logical environments}~
+\begin{code}
+⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
+⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+
+-- Identity relation
+idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
+idSR α = reflect-⟦⟧≋ eq-refl
+\end{code}
+\begin{code}[hide]
+reflect-⟦⟧≋ = bot _
+reify-⟦⟧≋ = bot _
+η-norm-≡t = bot _
+subst-⟦⟧≋ = bot _
+\end{code}
 \subsection{The fundamental theorem and soundness}
+\begin{code}
+fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
+fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
+fundSPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+          ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η) 
+\end{code}
+
+\begin{code}[hide]
+fundS = bot _
+fundSRow = bot _
+fundSPred = bot _
+\end{code}
+
+\begin{code}
+--------------------------------------------------------------------------------
+-- Fundamental theorem when substitution is the identity
+subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ 
+
+⊢⟦_⟧≋ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≋ eval τ idEnv
+⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundS τ idSR)
+\end{code}
+\begin{code}[hide]
+subₖ-id τ = bot _
+\end{code}
+
+\begin{code}
+--------------------------------------------------------------------------------
+-- Soundness claim  
+
+soundness :  ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
+soundness τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
+
+ --------------------------------------------------------------------------------
+-- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
+
+embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
+embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
+
+--------------------------------------------------------------------------------
+-- Soundness implies the converse of completeness, as desired
+
+Completeness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+Completeness⁻¹ τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
+\end{code}
 
 \section{The rest of the picture}
+
+In the remainder of the development, we intrinsically represent terms as typing judgments indexed by normal types. We then give a typed reduction relation on terms and show progress.
 
 \section{Most closely related work}
 \subsubsection{\citet{ChapmanKNW19}}
