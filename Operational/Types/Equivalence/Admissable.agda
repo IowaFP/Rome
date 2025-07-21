@@ -25,7 +25,6 @@ eq-Π▹ = eq-trans eq-Π eq-▹$
 
 -- η-expansion is lifted over binders
 eq-Πλ : ∀ {l} {τ : Type (Δ ,, κ₁) κ₂} {nl : True (notLabel? κ₂)} → 
-
         Π {notLabel = nl} · (l ▹ `λ τ) ≡t `λ (Π {notLabel = nl} · (weakenₖ l ▹ τ))
 eq-Πλ {l = l} {τ = τ} = 
   eq-trans 

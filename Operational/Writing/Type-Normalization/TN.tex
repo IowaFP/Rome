@@ -123,7 +123,7 @@ We describe the normalization-by-evaluation (NBE) of types in \Rome. Types are n
 
 \section{The \Rome{} calculus}
 
-We present the type calculus of \Rome. The syntax of kinds, types, and predicates are given in \figref{syntax-types} for reference. We describe the mechanized syntax in the section that follows.
+We present the type calculus of \Rome. The syntax of kinds, types, and predicates are given in \figref{syntax-types} for reference. We describe the mechanized syntax in the sections that follow.
 
 \begin{figure}[H]
 \begin{gather*}
@@ -136,7 +136,7 @@ We present the type calculus of \Rome. The syntax of kinds, types, and predicate
   \mcl{\text{Predicates}} & \pi, \psi & ::= & \LeqP \rho \rho \mid \PlusP \rho \rho \rho \\
   \text{Types} & \mcr{\Types \ni \phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
                &                              &     & \mid    & \RowIx i 0 m {\LabTy {\xi_i} {\tau_i}} \mid \ell \mid \Sing{\tau} \mid \Mapp{\phi}{\rho} \mid \rho \Compl \rho \\ 
-               &                              &     & \mid & \tau \to \tau \mid \KFam \Pi \kappa \, \rho \mid \KFam \Sigma \kappa \, \rho \mid \mu \, \phi 
+               &                              &     & \mid & \tau \to \tau \mid \Pi \, \rho \mid \Sigma \, \rho \mid \mu \, \phi 
 \end{doublesyntaxarray}
 \end{gather*}
 \caption{Syntax}
@@ -272,7 +272,7 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaGeneralizable{κ₁}\<%
 \end{code}
 
-\subsection{Syntax of types}
+\subsection{Type syntax}
 
 \Rome is a qualified type system with predicates of the form $\rho_1 \lesssim \rho_2$ and $\rho_1 \cdot \rho_2 \sim \rho_3$ for row-kinded types $\rho_1$, $\rho_2$, and $\rho_3$. Because predicates occur in types and types occur in predicates, the syntax of well-kinded types and well-kinded predicates are mutually recursive. The syntax for each is given below. we describe (in this order) the syntactic components belonging to System $\Fome$, qualified type systems, and system \RO.
 
