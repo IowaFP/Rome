@@ -283,7 +283,6 @@ A simple row is \emph{ordered} if it is of length $\leq 1$ or its corresponding 
 \begin{code} 
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
 ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
-
 Ordered [] = ⊤
 Ordered (x ∷ []) = ⊤
 Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((l₂ , τ) ∷ xs)
@@ -294,130 +293,97 @@ The syntax of well-kinded predicates is exactly as expected.
 \begin{code}
 data Pred Ty Δ where
   _·_~_ : 
-
-       (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → 
-       --------------------- 
-       Pred Ty Δ R[ κ ]
+    (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → 
+    Pred Ty Δ R[ κ ]
 
   _≲_ : 
-
-       (ρ₁ ρ₂ : Ty Δ R[ κ ]) →
-       ----------
-       Pred Ty Δ R[ κ ]  
+    (ρ₁ ρ₂ : Ty Δ R[ κ ]) →
+    Pred Ty Δ R[ κ ]  
 \end{code}
 
 The syntax of kinding judgments is given below. The first 6 cases are standard for System \Fome. 
 
 \begin{code}
 data Type Δ where
-
   ` : 
-      (α : TVar Δ κ) →
-      --------
-      Type Δ κ
+    (α : TVar Δ κ) →
+    Type Δ κ
 
   `λ : 
-      
-      (τ : Type (Δ ,, κ₁) κ₂) → 
-      ---------------
-      Type Δ (κ₁ `→ κ₂)
+    (τ : Type (Δ ,, κ₁) κ₂) → 
+    Type Δ (κ₁ `→ κ₂)
 
   _·_ : 
-      
-      (τ₁ : Type Δ (κ₁ `→ κ₂)) → 
-      (τ₂ : Type Δ κ₁) → 
-      ----------------
-      Type Δ κ₂
+    (τ₁ : Type Δ (κ₁ `→ κ₂)) → 
+    (τ₂ : Type Δ κ₁) → 
+    Type Δ κ₂
 
   _`→_ : 
-
-         (τ₁ : Type Δ ★) →
-         (τ₂ : Type Δ ★) → 
-         --------
-         Type Δ ★
+      (τ₁ : Type Δ ★) →
+      (τ₂ : Type Δ ★) → 
+      Type Δ ★
 
   `∀    :
-      
-         {κ : Kind} → (τ : Type (Δ ,, κ) ★) →
-         -------------
-         Type Δ ★
+    {κ : Kind} → (τ : Type (Δ ,, κ) ★) →
+    Type Δ ★
 
   μ     :
-      
-         (φ : Type Δ (★ `→ ★)) → 
-         -------------
-         Type Δ ★
+    (φ : Type Δ (★ `→ ★)) → 
+    Type Δ ★
 \end{code} 
 
 The constructor \verb!_⇒_! forms a qualified type given a well-kinded predicate.
 
 \begin{code}
-
   _⇒_ : 
-
-         (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
-         ---------------------
-         Type Δ ★       
+    (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
+    Type Δ ★       
 \end{code}
 
 \Ni Labels are formed from label literals and cast to kind $\star$ via the \verb!⌊_⌋! constructor.
 
 \begin{code}
-  -- labels
   lab :
-    
-        (l : Label) → 
-        --------
-        Type Δ L
+    (l : Label) → 
+    Type Δ L
 
   -- label constant formation
   ⌊_⌋ :
-        (τ : Type Δ L) →
-        ----------
-        Type Δ ★
+    (τ : Type Δ L) →
+    Type Δ ★
 \end{code}
 
 \Ni We finally describe row formation.
 
 \begin{code} 
+  ⦅_⦆ : 
+    (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
+    Type Δ R[ κ ]
 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
-        ----------------------
-        Type Δ R[ κ ]
-
-  -- Row formation
   _▹_ :
-         (l : Type Δ L) → (τ : Type Δ κ) → 
-         -------------------
-         Type Δ R[ κ ]
+    (l : Type Δ L) → (τ : Type Δ κ) → 
+    Type Δ R[ κ ]
 
   _<$>_ : 
-
-       (φ : Type Δ (κ₁ `→ κ₂)) → (τ : Type Δ R[ κ₁ ]) → 
-       ----------------------------------------
-       Type Δ R[ κ₂ ]
+    (φ : Type Δ (κ₁ `→ κ₂)) → (τ : Type Δ R[ κ₁ ]) → 
+    Type Δ R[ κ₂ ]
 
   -- Record formation
   Π     :
-          {notLabel : True (notLabel? κ)} →
-          ----------------
-          Type Δ (R[ κ ] `→ κ)
+    {notLabel : True (notLabel? κ)} →
+    Type Δ (R[ κ ] `→ κ)
 
   -- Variant formation
   Σ     :
-
-          {notLabel : True (notLabel? κ)} →
-          ----------------
-          Type Δ (R[ κ ] `→ κ)
+    {notLabel : True (notLabel? κ)} →
+    Type Δ (R[ κ ] `→ κ)
 
   _─_ : 
-      
-        Type Δ R[ κ ] → Type Δ R[ κ ] → 
-        ---------------------------------
-        Type Δ R[ κ ]
+    Type Δ R[ κ ] → Type Δ R[ κ ] → 
+    Type Δ R[ κ ]
 \end{code}
 
-% \subsubsection{The ordering predicate}~
+\subsubsection{The ordering predicate}~
 \begin{code}[hide]
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
@@ -426,12 +392,17 @@ ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ 
 ... | yes p | no q  = no (λ { (_ , oxs) → q oxs })
 ... | no p  | yes q  = no (λ { (x , _) → p x})
 ... | no  p | no  q  = no (λ { (x , _) → p x})
-
+\end{code} 
+We impose on the \verb!⦅_⦆! constructor a witness of the form \verb!True (ordered? xs)!, although it may seem more intuitive to have instead simply required a witness that \verb!Ordered xs!. The reason for this is that the \verb!True! predicate quotients each proof down to a single inhabitant \verb!tt!, which grants us proof irrelevance when comparing rows. This is desirable and yields congruence rules that would otherwise be blocked by two differing proofs of well-orderedness. The congruence rule below asserts that two simple rows are equivalent even with differing proofs. (This pattern is replicable for any decidable predicate.)
+\begin{code}
 cong-SimpleRow : {sr₁ sr₂ : SimpleRow Type Δ R[ κ ]} {wf₁ : True (ordered? sr₁)} {wf₂ : True (ordered? sr₂)} → 
                  sr₁ ≡ sr₂ → 
                 ⦅ sr₁ ⦆ wf₁ ≡ ⦅ sr₂ ⦆ wf₂
-cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
+cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl 
+  rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
+\end{code} 
 
+\begin{code} 
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
               Ordered ρ → Ordered (map (overᵣ f) ρ)
 map-overᵣ [] f oρ = tt
