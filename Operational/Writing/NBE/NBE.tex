@@ -193,7 +193,7 @@ desugar : forall y. BoolF < y, LamF < y - BoolF =>
 
 \subsection{Kind syntax}
 
-Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of or indexing-by untyped syntax. Arguably the only "untyped" syntax is that of kinds, which are well-formed grammatically. We give the syntax of kinds and kinding environments below.
+Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of or indexing-by untyped syntax. The only "untyped" syntax is that of kinds, which are well-formed grammatically. We give the syntax of kinds and kinding environments below.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -285,7 +285,7 @@ Let the metavariables $\Delta$ and $\kappa$ range over kinding environments and 
 \AgdaDatatype{Kind}\<%
 \end{code}
 
-The syntax of intrinsically well-scoped De-Bruijn type variables is given below. We say that the type variable $x$ is indexed by kinding environment $\Delta$ and kind $\kappa$ to specify that $x$ has kind $\kappa$ in kinding environment $\Delta$.
+The syntax of intrinsically well-scoped De-Bruijn type variables is given below. Type variables indexed in this way are analogous to the \verb!_∈_! relation for Agda lists---that is, each type variable is itself a proof of its location within the kinding environment.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -321,7 +321,7 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaGeneralizable{κ₁}\<%
 \end{code}
 
-\subsubsection{Quotienting kinds}~
+\subsubsection{Quotienting kinds} We will find it necessary to quotient kinds by two partitions for reasons which we discuss later. The predicate \verb!NotLabel κ! is satisfied if $\kappa$ is neither of label kind, a row of label kind, nor a type operator that returns a labelled kind. It is trivial to show that this predicate is decidable.
 
 \begin{minipage}[t]{0.45\textwidth}
 \begin{code}%
@@ -401,6 +401,8 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \end{code}
 \end{minipage}
 
+The predicate \verb!Ground κ! is satisfied when $\kappa$ is the kind of types or labels, and is necessary to reserve the promotion of neutral types to just those at these kinds. It is again trivial to show that this predicate is decidable, and so a definition of \verb!ground?! is omitted.
+
 \begin{code}%
 \>[0]\AgdaFunction{Ground}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -475,6 +477,8 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 
 \subsection{Type syntax}
 
+We now lay the groundwork to describe the type system of \Rome. We represent the judgment $\KindJ \Gamma \tau \kappa$ intrinsically as the data type \verb!Type!; The data type \verb!Pred! represents well-kinded predicates. The two are necessarily mutually inductive. Note that the syntax of predicates will be the same for both types and normalized types, and so the \verb!Pred! datatype is indexed abstractly by type \verb!Ty!.
+
 \begin{code}%
 \>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
 \AgdaNumber{2}\AgdaSpace{}%
@@ -510,9 +514,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaDatatype{Kind}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaPrimitive{Set}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code} 
+
+We must also define syntax for \emph{simple rows}, that is, row literals. For uniformity of kind indexing, we define a \verb!SimpleRow! by pattern matching on the syntax of kinds. Again, a row literal of \verb!Type!s and of types in normal form will not differ in shape, and so \verb!SimpleRow! abstracts over its content type \verb!Ty!. 
+
+\begin{code}%
 \>[0]\AgdaFunction{SimpleRow}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{Ty}\AgdaSpace{}%
@@ -549,9 +555,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaCatchallClause{\AgdaSymbol{\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{⊥}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code} 
+
+A simple row is \emph{ordered} if it is of length $\leq 1$ or its corresponding labels are ordered ascendingly according to some total order $<$. We will restrict the formation of rows to just those that are ordered, which has three key consequences: first, it guarantees a normal form (later) for simple rows; second, it only permits variable labels in singleton rows; and third, it enforces that labels be unique in each row. It is easy to show that the \verb!Ordered! predicate is decidable (definition omitted).
+
+\begin{code} %
 \>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
@@ -578,7 +586,45 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaRecord{Dec}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSymbol{)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
+\AgdaInductiveConstructor{[]}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaRecord{⊤}\<%
+\\
+\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaRecord{⊤}\<%
+\\
+\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaBound{l₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{l₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{τ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{xs}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaBound{l₁}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{<}}\AgdaSpace{}%
+\AgdaBound{l₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
+\AgdaFunction{Ordered}\AgdaSpace{}%
+\AgdaSymbol{((}\AgdaBound{l₂}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{τ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
+\AgdaBound{xs}\AgdaSymbol{)}\<%
 \end{code}
+
+The syntax of well-kinded predicates is exactly as expected.
 
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
@@ -620,11 +666,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}≲\AgdaUnderscore{}}}%
-\>[267I]\AgdaSymbol{:}\<%
+\>[295I]\AgdaSymbol{:}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[267I][@{}l@{\AgdaIndent{0}}]%
+\>[295I][@{}l@{\AgdaIndent{0}}]%
 \>[7]\AgdaSymbol{(}\AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -647,6 +693,8 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \end{code}
 
+The syntax of kinding judgments is given below. The first 6 cases are standard for System \Fome. 
+
 \begin{code}%
 \>[0]\AgdaKeyword{data}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -657,9 +705,9 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 \>[0][@{}l@{\AgdaIndent{0}}]%
 \>[2]\AgdaInductiveConstructor{`}%
-\>[284I]\AgdaSymbol{:}\<%
+\>[312I]\AgdaSymbol{:}\<%
 \\
-\>[284I][@{}l@{\AgdaIndent{0}}]%
+\>[312I][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaSymbol{(}\AgdaBound{α}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{TVar}\AgdaSpace{}%
@@ -679,11 +727,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaInductiveConstructor{`λ}%
-\>[292I]\AgdaSymbol{:}\<%
+\>[320I]\AgdaSymbol{:}\<%
 \\
 \>[0]\<%
 \\
-\>[292I][@{}l@{\AgdaIndent{0}}]%
+\>[320I][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -707,11 +755,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}·\AgdaUnderscore{}}}%
-\>[304I]\AgdaSymbol{:}\<%
+\>[332I]\AgdaSymbol{:}\<%
 \\
 \>[0]\<%
 \\
-\>[.][@{}l@{}]\<[304I]%
+\>[.][@{}l@{}]\<[332I]%
 \>[6]\AgdaSymbol{(}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -741,11 +789,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}`→\AgdaUnderscore{}}}%
-\>[319I]\AgdaSymbol{:}\<%
+\>[347I]\AgdaSymbol{:}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[319I][@{}l@{\AgdaIndent{0}}]%
+\>[347I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaSymbol{(}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -824,24 +872,20 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \>[9]\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaInductiveConstructor{★}\<%
+\end{code} 
+
+The constructor \verb!_⇒_! forms a qualified type given a well-kinded predicate.
+
+\begin{code}%
+\>[0]\<%
 \\
-%
-\\[\AgdaEmptyExtraSkip]%
-%
-\>[2]\AgdaComment{------------------------------------------------------------------}\<%
-\\
-%
-\>[2]\AgdaComment{--\ Qualified\ types}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⇒\AgdaUnderscore{}}}%
-\>[354I]\AgdaSymbol{:}\<%
+\>[382I]\AgdaSymbol{:}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[354I][@{}l@{\AgdaIndent{0}}]%
+\>[382I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaSymbol{(}\AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Pred}\AgdaSpace{}%
@@ -865,59 +909,21 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \>[9]\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaInductiveConstructor{★}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-%
-\\[\AgdaEmptyExtraSkip]%
-%
-\>[2]\AgdaComment{------------------------------------------------------------------}\<%
-\\
-%
-\>[2]\AgdaComment{--\ Rω\ business}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-%
-\>[2]\AgdaOperator{\AgdaInductiveConstructor{⦅\AgdaUnderscore{}⦆}}\AgdaSpace{}%
-\AgdaSymbol{:}%
-\>[372I]\AgdaSymbol{(}\AgdaBound{xs}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{SimpleRow}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
-\AgdaGeneralizable{κ}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{ordered}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaFunction{True}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{ordered?}\AgdaSpace{}%
-\AgdaBound{xs}\AgdaSymbol{))}\AgdaSpace{}%
-\AgdaSymbol{→}\<%
-\\
-\>[.][@{}l@{}]\<[372I]%
-\>[8]\AgdaComment{----------------------}\<%
-\\
-%
-\>[8]\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaBound{Δ}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
-\AgdaGeneralizable{κ}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{]}}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+\end{code}
+
+\Ni Labels are formed from label literals and cast to kind $\star$ via the \verb!⌊_⌋! constructor.
+
+\begin{code}%
 %
 \>[2]\AgdaComment{--\ labels}\<%
 \\
 %
 \>[2]\AgdaInductiveConstructor{lab}%
-\>[390I]\AgdaSymbol{:}\<%
+\>[399I]\AgdaSymbol{:}\<%
 \\
 \>[0]\<%
 \\
-\>[390I][@{}l@{\AgdaIndent{0}}]%
+\>[399I][@{}l@{\AgdaIndent{0}}]%
 \>[8]\AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Label}\AgdaSymbol{)}\AgdaSpace{}%
@@ -938,9 +944,9 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{⌊\AgdaUnderscore{}⌋}}%
-\>[396I]\AgdaSymbol{:}\<%
+\>[405I]\AgdaSymbol{:}\<%
 \\
-\>[396I][@{}l@{\AgdaIndent{0}}]%
+\>[405I][@{}l@{\AgdaIndent{0}}]%
 \>[8]\AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -955,6 +961,40 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \>[8]\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaInductiveConstructor{★}\<%
+\end{code}
+
+\Ni We finally describe row formation.
+
+\begin{code} %
+\>[0]\<%
+\\
+%
+\>[2]\AgdaOperator{\AgdaInductiveConstructor{⦅\AgdaUnderscore{}⦆}}\AgdaSpace{}%
+\AgdaSymbol{:}%
+\>[414I]\AgdaSymbol{(}\AgdaBound{xs}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{SimpleRow}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{ordered}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{True}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{ordered?}\AgdaSpace{}%
+\AgdaBound{xs}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
+\>[.][@{}l@{}]\<[414I]%
+\>[8]\AgdaComment{----------------------}\<%
+\\
+%
+\>[8]\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaBound{Δ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
+\AgdaGeneralizable{κ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
@@ -963,9 +1003,9 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}▹\AgdaUnderscore{}}}%
-\>[404I]\AgdaSymbol{:}\<%
+\>[432I]\AgdaSymbol{:}\<%
 \\
-\>[404I][@{}l@{\AgdaIndent{0}}]%
+\>[432I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
@@ -1089,11 +1129,11 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}─\AgdaUnderscore{}}}%
-\>[462I]\AgdaSymbol{:}\<%
+\>[490I]\AgdaSymbol{:}\<%
 \\
 \>[0]\<%
 \\
-\>[462I][@{}l@{\AgdaIndent{0}}]%
+\>[490I][@{}l@{\AgdaIndent{0}}]%
 \>[8]\AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -1118,44 +1158,8 @@ The syntax of intrinsically well-scoped De-Bruijn type variables is given below.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \end{code}
 
-\subsubsection{The ordering predicate}~
-\begin{code}%
-\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaRecord{⊤}\<%
-\\
-\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaRecord{⊤}\<%
-\\
-\>[0]\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaSymbol{((}\AgdaBound{l₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{l₂}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{τ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{xs}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaBound{l₁}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{<}}\AgdaSpace{}%
-\AgdaBound{l₂}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{×}}\AgdaSpace{}%
-\AgdaFunction{Ordered}\AgdaSpace{}%
-\AgdaSymbol{((}\AgdaBound{l₂}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaBound{τ}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
-\AgdaBound{xs}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
+% \subsubsection{The ordering predicate}~
+\begin{code}[hide]%
 \>[0]\AgdaFunction{ordered?}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%

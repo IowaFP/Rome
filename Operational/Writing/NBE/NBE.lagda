@@ -180,7 +180,7 @@ desugar : forall y. BoolF < y, LamF < y - BoolF =>
 
 \subsection{Kind syntax}
 
-Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of or indexing-by untyped syntax. Arguably the only "untyped" syntax is that of kinds, which are well-formed grammatically. We give the syntax of kinds and kinding environments below.
+Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of or indexing-by untyped syntax. The only "untyped" syntax is that of kinds, which are well-formed grammatically. We give the syntax of kinds and kinding environments below.
 
 \begin{code}
 data Kind : Set where
@@ -211,7 +211,7 @@ private
     κ κ₁ κ₂ : Kind
 \end{code}
 
-The syntax of intrinsically well-scoped De-Bruijn type variables is given below. We say that the type variable $x$ is indexed by kinding environment $\Delta$ and kind $\kappa$ to specify that $x$ has kind $\kappa$ in kinding environment $\Delta$.
+The syntax of intrinsically well-scoped De-Bruijn type variables is given below. Type variables indexed in this way are analogous to the \verb!_∈_! relation for Agda lists---that is, each type variable is itself a proof of its location within the kinding environment.
 
 \begin{code}
 data TVar : KEnv → Kind → Set where
@@ -219,7 +219,7 @@ data TVar : KEnv → Kind → Set where
   S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁
 \end{code}
 
-\subsubsection{Quotienting kinds}~
+\subsubsection{Quotienting kinds} We will find it necessary to quotient kinds by two partitions for reasons which we discuss later. The predicate \verb!NotLabel κ! is satisfied if $\kappa$ is neither of label kind, a row of label kind, nor a type operator that returns a labelled kind. It is trivial to show that this predicate is decidable.
 
 \begin{minipage}[t]{0.45\textwidth}
 \begin{code}
@@ -241,6 +241,8 @@ notLabel? R[ κ ] = notLabel? κ
 \end{code}
 \end{minipage}
 
+The predicate \verb!Ground κ! is satisfied when $\kappa$ is the kind of types or labels, and is necessary to reserve the promotion of neutral types to just those at these kinds. It is again trivial to show that this predicate is decidable, and so a definition of \verb!ground?! is omitted.
+
 \begin{code}
 Ground : Kind → Set 
 ground? : ∀ κ → Dec (Ground κ)
@@ -258,20 +260,36 @@ ground? R[ _ ] = no (λ ())
 
 \subsection{Type syntax}
 
+We now lay the groundwork to describe the type system of \Rome. We represent the judgment $\KindJ \Gamma \tau \kappa$ intrinsically as the data type \verb!Type!; The data type \verb!Pred! represents well-kinded predicates. The two are necessarily mutually inductive. Note that the syntax of predicates will be the same for both types and normalized types, and so the \verb!Pred! datatype is indexed abstractly by type \verb!Ty!.
+
 \begin{code}
 infixr 2 _⇒_
 infixl 5 _·_
 infixr 5 _≲_
 data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
 data Type Δ : Kind → Set 
+\end{code} 
 
+We must also define syntax for \emph{simple rows}, that is, row literals. For uniformity of kind indexing, we define a \verb!SimpleRow! by pattern matching on the syntax of kinds. Again, a row literal of \verb!Type!s and of types in normal form will not differ in shape, and so \verb!SimpleRow! abstracts over its content type \verb!Ty!. 
+
+\begin{code}
 SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set 
 SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 SimpleRow _ _ _ = ⊥
+\end{code} 
 
+A simple row is \emph{ordered} if it is of length $\leq 1$ or its corresponding labels are ordered ascendingly according to some total order $<$. We will restrict the formation of rows to just those that are ordered, which has three key consequences: first, it guarantees a normal form (later) for simple rows; second, it only permits variable labels in singleton rows; and third, it enforces that labels be unique in each row. It is easy to show that the \verb!Ordered! predicate is decidable (definition omitted).
+
+\begin{code} 
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
 ordered? : ∀ (xs : SimpleRow Type Δ R[ κ ]) → Dec (Ordered xs)
+
+Ordered [] = ⊤
+Ordered (x ∷ []) = ⊤
+Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((l₂ , τ) ∷ xs)
 \end{code}
+
+The syntax of well-kinded predicates is exactly as expected.
 
 \begin{code}
 data Pred Ty Δ where
@@ -287,6 +305,8 @@ data Pred Ty Δ where
        ----------
        Pred Ty Δ R[ κ ]  
 \end{code}
+
+The syntax of kinding judgments is given below. The first 6 cases are standard for System \Fome. 
 
 \begin{code}
 data Type Δ where
@@ -327,24 +347,22 @@ data Type Δ where
          (φ : Type Δ (★ `→ ★)) → 
          -------------
          Type Δ ★
+\end{code} 
 
-  ------------------------------------------------------------------
-  -- Qualified types
+The constructor \verb!_⇒_! forms a qualified type given a well-kinded predicate.
+
+\begin{code}
 
   _⇒_ : 
 
          (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → 
          ---------------------
          Type Δ ★       
+\end{code}
 
+\Ni Labels are formed from label literals and cast to kind $\star$ via the \verb!⌊_⌋! constructor.
 
-  ------------------------------------------------------------------
-  -- Rω business
-
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
-        ----------------------
-        Type Δ R[ κ ]
-
+\begin{code}
   -- labels
   lab :
     
@@ -357,6 +375,15 @@ data Type Δ where
         (τ : Type Δ L) →
         ----------
         Type Δ ★
+\end{code}
+
+\Ni We finally describe row formation.
+
+\begin{code} 
+
+  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) →
+        ----------------------
+        Type Δ R[ κ ]
 
   -- Row formation
   _▹_ :
@@ -390,12 +417,8 @@ data Type Δ where
         Type Δ R[ κ ]
 \end{code}
 
-\subsubsection{The ordering predicate}~
-\begin{code}
-Ordered [] = ⊤
-Ordered (x ∷ []) = ⊤
-Ordered ((l₁ , _) ∷ (l₂ , τ) ∷ xs) = l₁ < l₂ × Ordered ((l₂ , τ) ∷ xs)
-
+% \subsubsection{The ordering predicate}~
+\begin{code}[hide]
 ordered? [] = yes tt
 ordered? (x ∷ []) = yes tt
 ordered? ((l₁ , _) ∷ (l₂ , _) ∷ xs) with l₁ <? l₂ | ordered? ((l₂ , _) ∷ xs)
