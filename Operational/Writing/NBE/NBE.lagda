@@ -118,7 +118,7 @@
 \maketitle
 
 \section*{Abstract}
-We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types, qualified types, and a novel \emph{row complement} operator. Types are normalized modulo $\beta$- and $\eta$-equivalence---that is, to $\beta\eta$-long forms. Because the type system of \Rome is a strict extension of System \Fome, type level computation for arrow kinds is isomorphic to reduction of arrow types in the STLC. Novel to this report are the reductions of $\Pi$, $\Sigma$, and row types.
+We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types, qualified types, and a novel \emph{row complement} operator. Types are normalized to $\beta\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome is a strict extension of System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
 
 \begin{code}[hide]
 postulate
@@ -129,7 +129,7 @@ open import Prelude
 
 \section{The \Rome{} calculus}
 
-For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome.
+For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We forego further description to the next section.
 
 \begin{figure}[H]
 \begin{gather*}
@@ -219,7 +219,7 @@ data TVar : KEnv → Kind → Set where
   S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁
 \end{code}
 
-\subsubsection{Quotienting kinds} We will find it necessary to quotient kinds by two partitions for reasons which we discuss later. The predicate \verb!NotLabel κ! is satisfied if $\kappa$ is neither of label kind, a row of label kind, nor a type operator that returns a labelled kind. It is trivial to show that this predicate is decidable.
+\subsubsection{Partitioning kinds} It will be necessary to partition kinds by two predicates. The predicate \verb!NotLabel κ! is satisfied if $\kappa$ is neither of label kind, a row of label kind, nor a type operator that returns a labeled kind. It is trivial to show that this predicate is decidable.
 
 \begin{minipage}[t]{0.45\textwidth}
 \begin{code}
@@ -260,17 +260,19 @@ ground? R[ _ ] = no (λ ())
 
 \subsection{Type syntax}
 
-We now lay the groundwork to describe the type system of \Rome. We represent the judgment $\KindJ \Gamma \tau \kappa$ intrinsically as the data type \verb!Type!; The data type \verb!Pred! represents well-kinded predicates. The two are necessarily mutually inductive. Note that the syntax of predicates will be the same for both types and normalized types, and so the \verb!Pred! datatype is indexed abstractly by type \verb!Ty!.
+We represent the judgment $\KindJ \Gamma \tau \kappa$ intrinsically as the data type \verb!Type Δ κ!. The data type \verb!Pred Type Δ R[ κ ]! represents well-kinded predicates indexed by \verb!Type Δ κ!. The two are necessarily mutually inductive. Note that the syntax of predicates will be the same for both types and normalized types, and so the \verb!Pred! data type is indexed abstractly by type \verb!Ty!.
 
-\begin{code}
+\begin{code}[hide]
 infixr 2 _⇒_
 infixl 5 _·_
 infixr 5 _≲_
+\end{code}
+\begin{code}
 data Pred (Ty : KEnv → Kind → Set) Δ : Kind → Set
 data Type Δ : Kind → Set 
 \end{code} 
 
-We must also define syntax for \emph{simple rows}, that is, row literals. For uniformity of kind indexing, we define a \verb!SimpleRow! by pattern matching on the syntax of kinds. Again, a row literal of \verb!Type!s and of types in normal form will not differ in shape, and so \verb!SimpleRow! abstracts over its content type \verb!Ty!. 
+We must also define syntax for \emph{simple rows}, that is, row literals. For uniformity of kind indexing, we define a \verb!SimpleRow! by pattern matching on the syntax of kinds. Like with \verb!Pred!, simple rows are indexed by abstract type \verb!Ty! so that we may reuse the same pattern for normalized types.
 
 \begin{code}
 SimpleRow : (Ty : KEnv → Kind → Set) → KEnv → Kind → Set 
@@ -278,7 +280,7 @@ SimpleRow Ty Δ R[ κ ]   = List (Label × Ty Δ κ)
 SimpleRow _ _ _ = ⊥
 \end{code} 
 
-A simple row is \emph{ordered} if it is of length $\leq 1$ or its corresponding labels are ordered ascendingly according to some total order $<$. We will restrict the formation of rows to just those that are ordered, which has two key consequences: first, it guarantees a normal form (later) for simple rows, and second, it enforces that labels be unique in each row. It is easy to show that the \verb!Ordered! predicate is decidable (definition omitted).
+A simple row is \emph{ordered} if it is of length $\leq 1$ or its corresponding labels are ordered according to some total order $<$. We will restrict the formation of row literals to just those that are ordered, which has two key consequences: first, it guarantees a normal form (later) for simple rows, and second, it enforces that labels be unique in each row. It is easy to show that the \verb!Ordered! predicate is decidable.
 
 \begin{code} 
 Ordered : SimpleRow Type Δ R[ κ ] → Set 
@@ -292,16 +294,11 @@ The syntax of well-kinded predicates is exactly as expected.
 
 \begin{code}
 data Pred Ty Δ where
-  _·_~_ : 
-    (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → 
-    Pred Ty Δ R[ κ ]
-
-  _≲_ : 
-    (ρ₁ ρ₂ : Ty Δ R[ κ ]) →
-    Pred Ty Δ R[ κ ]  
+  _·_~_ : (ρ₁ ρ₂ ρ₃ : Ty Δ R[ κ ]) → Pred Ty Δ R[ κ ]
+  _≲_ : (ρ₁ ρ₂ : Ty Δ R[ κ ]) → Pred Ty Δ R[ κ ]  
 \end{code}
 
-The syntax of kinding judgments is given below. The formation rules for $\lambda$-abstractions, applications, arrow types, and $\forall$ and $\mu$ types are standard, uninteresting, and omitted.
+The syntax of kinding judgments is given below. The formation rules for $\lambda$-abstractions, applications, arrow types, and $\forall$ and $\mu$ types are standard and omitted.
 
 \begin{code}
 data Type Δ where
@@ -340,7 +337,7 @@ data Type Δ where
   ⌊_⌋ : (τ : Type Δ L) → Type Δ ★
 \end{code}
 
-\Ni We finally describe row formation. The constructor \verb!⦅_⦆! forms a row literal from a well-ordered simple row. We additionally allow the syntax \verb!_▹_! for constructing row singletons of (perhaps) variable label; this role can be performed by \verb!⦅_⦆! when the label is a literal. The \verb!_<$>_! describes the map of a type operator over a row. \verb!Π! and \verb!Σ! form records and variants from rows for which the \verb!NotLabel! predicate is satisfied. Finally, the \verb!_─_! constructor forms the relative complement of two rows. The novelty in this report will come from showing how types of these forms reduce.
+\Ni We finally describe row formation. The constructor \verb!⦅_⦆! forms a row literal from a well-ordered simple row. We additionally allow the syntax \verb!_▹_! for constructing row singletons of (perhaps) variable label; this role can be performed by \verb!⦅_⦆! when the label is a literal. The \verb!_<$>_! constructor describes the map of a type operator over a row. \verb!Π! and \verb!Σ! form records and variants from rows for which the \verb!NotLabel! predicate is satisfied. Finally, the \verb!_─_! constructor forms the relative complement of two rows. The novelty in this report will come from showing how types of these forms reduce.
 
 \begin{code} 
   ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) → Type Δ R[ κ ]
@@ -370,7 +367,7 @@ cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl
   rewrite Dec→Irrelevant (Ordered sr₁) (ordered? sr₁) wf₁ wf₂ = refl
 \end{code} 
 
-In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction that their kinds satisfy the \verb!NotLabel! predicate, although it is of no consequence (as each are constants and so congruence rules are unnecessary.) Our reason for this restriction is instead metatheoretic: without it, nonsensical labels could be formed such as \verb!Π (lab "a" ▹ lab "b")! or \verb!Π ε!. Each of these types have kind \verb!L!, which violates a label canonicity theorem we later show that all label-kinded types in normal form are label literals or neutral.
+In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction that their kinds satisfy the \verb!NotLabel! predicate, although our reason for this restriction is instead metatheoretic: without it, nonsensical labels could be formed such as \verb!Π (lab "a" ▹ lab "b")! or \verb!Π ε!. Each of these types have kind \verb!L!, which violates a label canonicity theorem we later show that all label-kinded types in normal form are label literals or neutral.
 
 \begin{code}[hide]
 map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
@@ -394,10 +391,12 @@ f ?? a = flap · f · a
 
 \subsubsection{The (syntactic) complement operator}~
 
-It is necessary to give a syntactic account of the computation incurred by the complement of two row literals so that we can state this computation later in the type equivalence relation. (It will, however, be \emph{tedious}, as we must repeat this process in the semantic domain during normalization!) First, define a relation \verb!ℓ ∈L ρ! that is inhabited when the label literal $\ell$ occurs in the row $\rho$. This relation is decidable (\verb!_∈L?_!); its definition is expected and omitted.
+It is necessary to give a syntactic account of the computation incurred by the complement of two row literals so that we can state this computation later in the type equivalence relation. First, define a relation \verb!ℓ ∈L ρ! that is inhabited when the label literal $\ell$ occurs in the row $\rho$. This relation is decidable (\verb!_∈L?_!, definition omitted).
 
-\begin{code}
+\begin{code}[hide]
 infix 0 _∈L_
+\end{code}
+\begin{code}
 data _∈L_ : (l : Label) → SimpleRow Type Δ R[ κ ] → Set where
   Here : ∀ {τ : Type Δ κ} {xs : SimpleRow Type Δ R[ κ ]} {l : Label} → 
          l ∈L (l , τ) ∷ xs
@@ -415,7 +414,7 @@ l ∈L? ((l' , _) ∷ xs) with l ≟ l'
 ...         | no  q = no λ { Here → p refl ; (There x) → q x }
 \end{code}
 
-We now define the syntactic \emph{row complement} as a linear filter: when a label on the left is found in the row on the right, we exclude that labeled entry from the resulting row.
+We now define the syntactic \emph{row complement} effectively as a filter: when a label on the left is found in the row on the right, we exclude that labeled entry from the resulting row.
 
 \begin{code}
 _─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
@@ -427,11 +426,15 @@ _─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
 
 \subsubsection{Type renaming and substitution}~ 
 
-Type variable renaming is standard for this intrinsic style (\cf{} \citet{plfa22, ChapmanKNW19}) and so definitions are omitted. The only deviation of interest is that we have an obligation to show that renaming preserves the \verb!Ordered!-ness of simple rows. Note that we use the suffix $_k$ for common operations over the \verb!Type! and \verb!Predicate! syntax; we will use the suffix \verb!ₖNF! for equivalent operations over the normal type (et al) data types.
-
+A type variable renaming is a map from type variables in environment \verb!Δ₁! to type variables in environment \verb!Δ₂!. 
 \begin{code}
 Renamingₖ : KEnv → KEnv → Set
 Renamingₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → TVar Δ₂ κ
+\end{code}
+
+\Ni This definition and approach is standard for the intrinsic style (\cf{} \citet{plfa22, ChapmanKNW19}) and so definitions are omitted. The only deviation of interest is that we have an obligation to show that renaming preserves the well-orderedness of simple rows. Note that we use the suffix \verb!_ₖ! for common operations over the \verb!Type! and \verb!Pred! syntax; we will use the suffix \verb!_ₖNF! for equivalent operations over the normal type syntax.
+
+\begin{code}
 liftₖ : Renamingₖ Δ₁ Δ₂ → Renamingₖ (Δ₁ ,, κ) (Δ₂ ,, κ)
 renₖ : Renamingₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 renPredₖ : Renamingₖ Δ₁ Δ₂ → Pred Type Δ₁ R[ κ ] → Pred Type Δ₂ R[ κ ]
@@ -481,11 +484,16 @@ weakenPredₖ : Pred Type Δ R[ κ₂ ] → Pred Type (Δ ,, κ₁) R[ κ₂ ]
 weakenPredₖ = renPredₖ S
 \end{code}
 
-Parallel renaming and substitution is likewise standard for this approach, and so definitions are omitted. As will become a theme, we must show that substitution preserves row well-orderedness.
+A substitution is a map from type variables to types.
 
 \begin{code}
 Substitutionₖ : KEnv → KEnv → Set
 Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
+\end{code}
+
+\Ni Parallel renaming and substitution is likewise standard for this approach, and so definitions are omitted. As will become a theme, we must show that substitution preserves row well-orderedness.
+
+\begin{code}
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
 subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
@@ -544,11 +552,13 @@ B βₖ[ A ] = subₖ (extendₖ ` A) B
 
 \subsection{Type equivalence}
 
-We define reduction on types $\tau \RedT \tau'$ by directing the following type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right. We define in a later section a normalization function \verb!⇓! for which \verb!τ₁ ≡t τ₂! iff \verb!⇓ τ₁ ≡ ⇓ τ₂!. Note below that we equate types under the relation \verb!_≡t_!, predicates under the relation \verb!_≡p_!, and row literals under the relation \verb!_≡r_!.
+We define reduction on types $\tau \RedT \tau'$ by directing the following type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right. We equate types under the relation \verb!_≡t_!, predicates under the relation \verb!_≡p_!, and row literals under the relation \verb!_≡r_!.
 
-\begin{code}
+\begin{code}[hide]
 infix 0 _≡t_
 infix 0 _≡p_
+\end{code}
+\begin{code}
 data _≡p_ : Pred Type Δ R[ κ ] → Pred Type Δ R[ κ ] → Set
 data _≡t_ : Type Δ κ → Type Δ κ → Set 
 data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set
@@ -575,14 +585,12 @@ data _≡r_ where
     ((ℓ₁ , τ₁) ∷ xs) ≡r ((ℓ₂ , τ₂) ∷ ys)
 
 data _≡p_ where
-  _eq-≲_ : 
-    τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₁ ≲ τ₂ ≡p  υ₁ ≲ υ₂
-  _eq-·_~_ : 
-    τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ → 
-    τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
+  _eq-≲_ : τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₁ ≲ τ₂ ≡p  υ₁ ≲ υ₂
+  _eq-·_~_ : τ₁ ≡t υ₁ → τ₂ ≡t υ₂ → τ₃ ≡t υ₃ → 
+             τ₁ · τ₂ ~ τ₃ ≡p  υ₁ · υ₂ ~ υ₃
 \end{code}
 
-The first three equivalence rules enforce that \verb!_≡t_! forms an equivalence relation.
+The first three type equivalence rules enforce that \verb!_≡t_! forms an equivalence relation.
 \begin{code}
 data _≡t_ where 
     eq-refl : τ ≡t τ 
@@ -664,10 +672,15 @@ data _≡t_ where
            (ρ₂ ─ ρ₁) ≡t (υ₂ ─ υ₁)
 \end{code} 
 
-We have two "expansion" rules and one composition rule. Firstly, arrow-kinded types are $\eta$-expanded to have an outermost lambda binding. This later ensures canonicity of arrow-kinded types. Analogously, row-kinded variables left alone are expanded to a map by the identity function according to the functor identity. Additionally, nested maps are composed together into one map. These rules together ensure canonical forms for row-kinded normal types. Observe that the last two rules are effectively functorial laws.
+We have two "expansion" rules and one composition rule. Firstly, arrow-kinded types are $\eta$-expanded to have an outermost lambda binding. This later ensures canonicity of arrow-kinded types. 
 
 \begin{code}    
     eq-η : ∀ {f : Type Δ (κ₁ `→ κ₂)} → f ≡t `λ (weakenₖ f · (` Z))
+\end{code}
+
+\Ni Analogously, row-kinded variables left alone are expanded to a map by the identity function. Additionally, nested maps are composed together into one map. These rules together ensure canonical forms for row-kinded normal types. Observe that the last two rules are effectively functorial laws.
+
+\begin{code}    
     eq-map-id : ∀ {κ} {τ : Type Δ R[ κ ]} → τ ≡t (`λ {κ₁ = κ} (` Z)) <$> τ
     eq-map-∘ : ∀ {κ₃} {f : Type Δ (κ₂ `→ κ₃)} {g : Type Δ (κ₁ `→ κ₂)} {τ : Type Δ R[ κ₁ ]} → 
       (f <$> (g <$> τ))  ≡t (`λ (weakenₖ f · (weakenₖ g · (` Z)))) <$> τ 
@@ -722,7 +735,7 @@ inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂
 inst refl = eq-refl
 \end{code}
 
-\subsubsection{Some admissable rules} In early versions of this equivalence relation, we thought it would be necessary to impose the following two rules directly. Surprisingly, we can confirm their admissability. The first rule states that $\Pi$ and $\Sigma$ are mapped over nested rows, and the second (definition omitted) states that $\lambda$-bindings $\eta$-expand over $\Pi$. (These results hold identically for \verb!Σ!.)
+\subsubsection{Some admissable rules} In early versions of this equivalence relation, we thought it would be necessary to impose the following two rules directly. However, we can confirm their admissability. The first rule states that $\Pi$ is mapped over nested rows, and the second (definition omitted) states that $\lambda$-bindings $\eta$-expand over $\Pi$. (These results hold identically for \verb!Σ!.)
 
 \begin{code}
 eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]}{nl : True (notLabel? κ)} → 
@@ -741,7 +754,7 @@ eq-Πλ = bot _
 
 By directing the type equivalence relation we define computation on types. This serves as a sort of specification on the shape normal forms of types ought to have. Our grammar for normal types must be carefully crafted so as to be neither too "large" nor too "small". In particular, we wish our normalization algorithm to be \emph{stable}, which implies surjectivity. Hence if the normal syntax is too large---i.e., it produces junk types---then these junk types will have pre-images in the domain of normalization. Inversely, if the normal syntax is too small, then there will be types whose normal forms cannot be expressed. \Cref{fig:type-normalization} specifies the syntax and typing of normal types, given as reference. We describe the syntax in more depth by describing its intrinsic mechanization.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{gather*}
 \begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
   \text{Type variables} & \alpha \in \mathcal A &
@@ -752,30 +765,10 @@ By directing the type equivalence relation we define computation on types. This 
   \mcl{\text{Kinds}}         & \kappa    & ::= & \gamma \mid \kappa \to \kappa \mid  \RowK \kappa \\
   \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}} \\
   \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
-  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \hat{\phi}^{\star} \, n \mid \Normal{\rho} \mid \Normal{\pi} \then \Normal{\tau} \mid \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau} \\
-                             &       &     & \mid & \LabTy n {\Normal \tau} \mid \ell \mid \Sing {\Normal \tau} \mid {\Normal \tau} \Compl {\Normal \tau} \mid \KFam \Pi \TypeK \, {\Normal \tau} \mid \KFam \Sigma \TypeK \, {\Normal \tau}  \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \Mapp {\hat{\phi}} {n} \mid \Normal{\rho} \mid \Normal{\pi} \then \Normal{\tau} \mid \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau} \\
+                             &       &     & \mid & \LabTy n {\Normal \tau} \mid \ell \mid \Sing {\Normal \tau} \mid {\Normal \tau} \Compl {\Normal \tau} \mid \Pi \, {\Normal \tau} \mid \Sigma \, {\Normal \tau}  \\
 \end{doublesyntaxarray}
 \end{gather*}
-\begin{small}
-\begin{gather*}
-\fbox{$\KindJNF \Delta {\Normal \tau} {\kappa}$} \, \fbox{$\KindJNE \Delta {n} {\kappa}$} \\
-\ib{
-  \irule[\kruleNF{ne}]
-    {\KindJNE \Delta n \gamma};
-    {\KindJNF \Delta n \gamma}}
-\isp
-\ib{
-  \irule[\kruleNF{$\Compl$}]
-    {\KindJNF \Delta {\Normal {\tau_i}} {\RowK \kappa}}
-    {\Normal{\tau_1} \notin \NormalRows \, \text{or}\, \Normal{\tau_2} \notin \NormalRows};
-    {\KindJNF \Delta {\Normal{\tau_2} \Compl \Normal{\tau_1}} {\RowK \kappa}}}
-\isp
-\ib{
-  \irule[\kruleNF{$\triangleright$}]
-    {\KindJNE \Delta {n} {\LabK}}{\KindJNF \Delta {\Normal \tau} \kappa};
-    {\KindJNF \Delta {\LabTy n {\Normal \tau}}{\RowK \kappa}}}
-\end{gather*}
-\end{small}
 \caption{Normal type forms}
 \label{fig:type-normalization}
 \end{figure}
