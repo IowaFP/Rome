@@ -182,36 +182,39 @@ desugar : forall y. BoolF < y, LamF < y - BoolF =>
 
 Our formalization of \Rome types is \emph{intrinsic}, meaning we define the syntax of \emph{typing} and \emph{kinding judgments}, foregoing any formalization of or indexing-by untyped syntax. The only "untyped" syntax is that of kinds, which are well-formed grammatically. We give the syntax of kinds and kinding environments below.
 
+
+\begin{minipage}[t]{0.45\textwidth}
 \begin{code}
 data Kind : Set where
   ★     : Kind
   L     : Kind
   _`→_ : Kind → Kind → Kind
   R[_]  : Kind → Kind
-
-infixr 5 _`→_
 \end{code}
-
-The kind system of \Rome defines $\star$ as the type of types; $L$ as the type of labels; $(\to)$ as the type of type operators; and $R[\kappa]$ as the type of \emph{rows} containing types at kind $\kappa$.
-
-The syntax of kinding environments is given below. Kinding environments are isomorphic to lists of kinds.
-
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
 \begin{code}
 data KEnv : Set where
   ∅ : KEnv
   _,,_ : KEnv → Kind → KEnv
 \end{code}
+\end{minipage}
+\begin{code}[hide]
+infixr 5 _`→_
+\end{code}
 
-Let the metavariables $\Delta$ and $\kappa$ range over kinding environments and kinds, respectively. Correspondingly, we define \emph{generalized variables} in Agda at these names. 
+The kind system of \Rome defines $\star$ as the type of types; $L$ as the type of labels; $(\to)$ as the type of type operators; and $R[\kappa]$ as the type of \emph{rows} containing types at kind $\kappa$. Kinding environments are isomorphic to lists of kinds.
 
-\begin{code}
+
+\begin{code}[hide]
 private
   variable
     Δ Δ₁ Δ₂ Δ₃ : KEnv
     κ κ₁ κ₂ : Kind
 \end{code}
 
-The syntax of intrinsically well-scoped De-Bruijn type variables is given below. Type variables indexed in this way are analogous to the \verb!_∈_! relation for Agda lists---that is, each type variable is itself a proof of its location within the kinding environment.
+The syntax of intrinsically well-scoped De-Bruijn type variables is given below. Type variables indexed in this way are analogous to the \verb!_∈_! relation for Agda lists---that is, each type variable is itself a proof of its location within the kinding environment. Let the metavariables $\Delta$ and $\kappa$ range over kinding environments and kinds, respectively. 
 
 \begin{code}
 data TVar : KEnv → Kind → Set where
@@ -298,11 +301,20 @@ data Pred Ty Δ where
   _≲_ : (ρ₁ ρ₂ : Ty Δ R[ κ ]) → Pred Ty Δ R[ κ ]  
 \end{code}
 
-The syntax of kinding judgments is given below. The formation rules for $\lambda$-abstractions, applications, arrow types, and $\forall$ and $\mu$ types are standard and omitted.
+The syntax of kinding judgments is given below. The formation rules for $\lambda$-abstractions, applications, arrow types, and $\forall$ and $\mu$ types are standard and omitted. The constructor \verb!_⇒_! forms a qualified type given a well-kinded predicate \verb!π! and a \verb!★!-kinded body \verb!τ!. Labels are formed from label literals and cast to kind $\star$ via the \verb!⌊_⌋! constructor. The remaining constructors describe row formation: The constructor \verb!⦅_⦆! forms a row literal from a well-ordered simple row. We additionally allow the syntax \verb!_▹_! for constructing row singletons of (perhaps) variable label; this role can be performed by \verb!⦅_⦆! when the label is a literal. The \verb!_<$>_! constructor describes the map of a type operator over a row. \verb!Π! and \verb!Σ! form records and variants from rows for which the \verb!NotLabel! predicate is satisfied. Finally, the \verb!_─_! constructor forms the relative complement of two rows. The novelty in this report will come from showing how types of these forms reduce.
 
 \begin{code}
 data Type Δ where
   ` : (α : TVar Δ κ) → Type Δ κ
+  _⇒_ : (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → Type Δ ★ 
+  lab : (l : Label) → Type Δ L
+  ⌊_⌋ : (τ : Type Δ L) → Type Δ ★  
+  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) → Type Δ R[ κ ]
+  _▹_ : (l : Type Δ L) → (τ : Type Δ κ) → Type Δ R[ κ ]
+  _<$>_ : (φ : Type Δ (κ₁ `→ κ₂)) → (τ : Type Δ R[ κ₁ ]) → Type Δ R[ κ₂ ]
+  Π     : {notLabel : True (notLabel? κ)} → Type Δ (R[ κ ] `→ κ)
+  Σ     : {notLabel : True (notLabel? κ)} → Type Δ (R[ κ ] `→ κ)
+  _─_ : Type Δ R[ κ ] → Type Δ R[ κ ] → Type Δ R[ κ ]      
 \end{code}
 \begin{code}[hide]
   `λ : 
@@ -323,30 +335,6 @@ data Type Δ where
     (φ : Type Δ (★ `→ ★)) → 
     Type Δ ★
 \end{code} 
-
-\Ni The constructor \verb!_⇒_! forms a qualified type given a well-kinded predicate \verb!π! and a \verb!★!-kinded body \verb!τ!.
-
-\begin{code}
-  _⇒_ : (π : Pred Type Δ R[ κ₁ ]) → (τ : Type Δ ★) → Type Δ ★       
-\end{code}
-
-\Ni Labels are formed from label literals and cast to kind $\star$ via the \verb!⌊_⌋! constructor.
-
-\begin{code}
-  lab : (l : Label) → Type Δ L
-  ⌊_⌋ : (τ : Type Δ L) → Type Δ ★
-\end{code}
-
-\Ni We finally describe row formation. The constructor \verb!⦅_⦆! forms a row literal from a well-ordered simple row. We additionally allow the syntax \verb!_▹_! for constructing row singletons of (perhaps) variable label; this role can be performed by \verb!⦅_⦆! when the label is a literal. The \verb!_<$>_! constructor describes the map of a type operator over a row. \verb!Π! and \verb!Σ! form records and variants from rows for which the \verb!NotLabel! predicate is satisfied. Finally, the \verb!_─_! constructor forms the relative complement of two rows. The novelty in this report will come from showing how types of these forms reduce.
-
-\begin{code} 
-  ⦅_⦆ : (xs : SimpleRow Type Δ R[ κ ]) (ordered : True (ordered? xs)) → Type Δ R[ κ ]
-  _▹_ : (l : Type Δ L) → (τ : Type Δ κ) → Type Δ R[ κ ]
-  _<$>_ : (φ : Type Δ (κ₁ `→ κ₂)) → (τ : Type Δ R[ κ₁ ]) → Type Δ R[ κ₂ ]
-  Π     : {notLabel : True (notLabel? κ)} → Type Δ (R[ κ ] `→ κ)
-  Σ     : {notLabel : True (notLabel? κ)} → Type Δ (R[ κ ] `→ κ)
-  _─_ : Type Δ R[ κ ] → Type Δ R[ κ ] → Type Δ R[ κ ]
-\end{code}
 
 \subsubsection{The ordered predicate}~
 \begin{code}[hide]
@@ -807,36 +795,18 @@ data NeutralType Δ : Kind → Set where
         NeutralType Δ κ
 \end{code}
 
-We define the normal type syntax firstly by restricting the promotion of neutral types to normal forms at only \emph{ground} kind.
+We define the normal type syntax firstly by restricting the promotion of neutral types to normal forms at only \emph{ground} kind. As discussed above, we restrict the formation of inert row complements to just those in which at least one operand is non-literal. We define inert maps as part of the \verb!NormalType! syntax rather than the \verb!NeutralType! syntax. Observe that a consequence of this decision (as opposed to letting the form \verb!_<$>_! be neutral) is that all inert maps must have the mapped function composed into just one applicand. For example, the type \verb!φ₂ <$> (φ₁ n)! must recompose into \verb!(`λ α. (φ₂ (φ₁ α))) <$> n! to be in normal form. Finally, we need only permit the formation of records and variants at kind \verb!★!, and we restrict the formation of neutral-labeled rows to just the singleton constructor \verb!_▹ₙ_!. The remaining cases are identical to the regular \verb!Type! syntax and omitted.
 
 \begin{code}
 data NormalType Δ where
   ne : (x : NeutralType Δ κ) → {ground : True (ground? κ)} → NormalType Δ κ
-\end{code}
-
-As discussed above, we restrict the formation of inert row complements to just those in which at least one operand is non-literal.
-
-\begin{code}
   _─_ : (ρ₂ ρ₁ : NormalType Δ R[ κ ]) → {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
         NormalType Δ R[ κ ]
-\end{code}
-
-We define inert maps as part of the \verb!NormalType! syntax rather than the \verb!NeutralType! syntax. Observe that a consequence of this decision (as opposed to letting the form \verb!_<$>_! be neutral) is that all inert maps must have the mapped function composed into just one applicand. For example, the type \verb!φ₂ <$> (φ₁ n)! must recompose into \verb!(`λ α. (φ₂ (φ₁ α)) <$> n! to be in normal form.
- 
-\begin{code}
   _<$>_ : (φ : NormalType Δ (κ₁ `→ κ₂)) → NeutralType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
-\end{code}
-
-\Ni we need only permit the formation of records and variants at kind \verb!★!, and we restrict the formation of neutral-labeled rows to just the singleton constructor \verb!_▹ₙ_!.
-
-\begin{code}
   Π  : (ρ : NormalType Δ R[ ★ ]) → NormalType Δ ★
   Σ  : (ρ : NormalType Δ R[ ★ ]) → NormalType Δ ★
   _▹ₙ_ : (l : NeutralType Δ L) (τ : NormalType Δ κ) → NormalType Δ R[ κ ]
 \end{code}
-
-The remaining cases are identical to the regular \verb!Type! syntax and omitted.
-
 \begin{code}[hide]
   `λ :
 
@@ -970,16 +940,22 @@ notSimpleRows? (x ▹ₙ ρ₂) _ = yes (left tt)
 
 The syntax of normal types is defined precisely so as to enjoy canonical forms based on kind. We first demonstrate that neutral types and inert complements cannot occur in empty contexts.
 
+\begin{minipage}[t]{0.45\textwidth}
 \begin{code}
 noNeutrals : NeutralType ∅ κ → ⊥
-
 noNeutrals (n · τ) = noNeutrals n 
-
-noComplements : ∀ {ρ₁ ρ₂ ρ₃ : NormalType ∅ R[ κ ]}
-                  (nsr : True (notSimpleRows? ρ₃ ρ₂)) → 
-                  ρ₁ ≡ (ρ₃ ─ ρ₂) {nsr} → 
-                  ⊥
 \end{code}
+\end{minipage}%
+\begin{minipage}[t]{0.45\textwidth}
+\begin{code}
+noComplements : ∀ 
+  {ρ₁ ρ₂ ρ₃ : NormalType ∅ R[ κ ]}
+  (nsr : True (notSimpleRows? ρ₃ ρ₂)) → 
+  ρ₁ ≡ (ρ₃ ─ ρ₂) {nsr} → 
+  ⊥
+\end{code}
+\end{minipage}
+
 \begin{code}[hide]
 noComplements {ρ₁ = ne x₁ ─ _} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
 noComplements {ρ₁ = ⦅ ρ ⦆ oρ ─ ne x₁} {_} {_} nsr refl = ⊥-elim (noNeutrals x₁)
@@ -1005,6 +981,8 @@ row-canonicity-∅ : (ρ : NormalType ∅ R[ κ ]) →
                     ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
                     (ρ ≡ ⦅ xs ⦆ oxs)
 row-canonicity-∅ (⦅ ρ ⦆ oρ) = ρ , oρ , refl
+\end{code}
+\begin{code}[hide]
 row-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
 row-canonicity-∅ ((ρ ─ ρ₁) {nsr}) = ⊥-elim (noComplements nsr refl)
 row-canonicity-∅ (l ▹ₙ ρ) = ⊥-elim (noNeutrals l)
@@ -1171,23 +1149,15 @@ NotRow : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → RowType Δ 𝒯 R[ κ ] → S
 
 data RowType Δ 𝒯 where
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
-\end{code}
-
-Neutral-labeled singleton rows are evaluated into the \verb!_▹_! constructor; inert complements are evaluated into the \verb!_─_! constructor. Just as \verb!OrderedRow! is the semantic version of row well-orderedness, the predicate \verb!NotRow! asserts that a given \verb!RowType! is not a row literal (constructed by \verb!row!). This ensures that complements constructed by \verb!_─_! are indeed inert.
-
-\begin{code}
   _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
   _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
-        RowType Δ 𝒯 R[ κ ]
+    RowType Δ 𝒯 R[ κ ]
+  _<$>_ : (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') →
+    NeutralType Δ R[ κ₁ ] → 
+    RowType Δ 𝒯 R[ κ₂ ]        
 \end{code}
 
-\Ni We would like to compose nested maps. Borrowing from \citet{AllaisBM13}, we thus interpret the left applicand of a map as a Kripke function space mapping neutral types in environment \verb!Δ'! to the type \verb!𝒯 Δ'!, which we will later specify to be that of semantic types in environment \verb!Δ'! at kind \verb!κ!. To avoid running afoul of Agda's positivity checker, we let the domain type of this Kripke function be \emph{neutral types}, which may always be reflected into semantic types. We define semantic types (\verb!SemType!) below, but replacing \verb!NeutralType Δ' κ₁! with \verb!SemType Δ' κ₁! would not be strictly positive. 
-
-\begin{code}
-  _<$>_ : (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
-          NeutralType Δ R[ κ₁ ] → 
-          RowType Δ 𝒯 R[ κ₂ ]
-\end{code}
+Neutral-labeled singleton rows are evaluated into the \verb!_▹_! constructor; inert complements are evaluated into the \verb!_─_! constructor. Just as \verb!OrderedRow! is the semantic version of row well-orderedness, the predicate \verb!NotRow! asserts that a given \verb!RowType! is not a row literal (constructed by \verb!row!). This ensures that complements constructed by \verb!_─_! are indeed inert. Regarding the inert map constructor, we would like to compose nested maps. Borrowing from \citet{AllaisBM13}, we thus interpret the left applicand of a map as a Kripke function space mapping neutral types in environment \verb!Δ'! to the type \verb!𝒯 Δ'!, which we will later specify to be that of semantic types in environment \verb!Δ'! at kind \verb!κ!. To avoid running afoul of Agda's positivity checker, we let the domain type of this Kripke function be \emph{neutral types}, which may always be reflected into semantic types. We define semantic types (\verb!SemType!) below, but replacing \verb!NeutralType Δ' κ₁! with \verb!SemType Δ' κ₁! would not be strictly positive. 
 \begin{code}[hide]
 NotRow (x ▹ x₁) = ⊤
 NotRow (row ρ x) = ⊥
@@ -1195,37 +1165,38 @@ NotRow (ρ ─ ρ₁) = ⊤
 NotRow (φ <$> ρ) = ⊤
 \end{code}
 
-We finally define the semantic domain by induction on the kind \verb!κ!. Types with \verb!★! and label kind are simply \verb!NormalType!s. 
+We finally define the semantic domain by induction on the kind \verb!κ!. Types with \verb!★! and label kind are simply \verb!NormalType!s. We interpret functions into \emph{Kripke function spaces}---that is, functions that operate over \verb!SemType! inputs at any possible environment \verb!Δ₂!, provided a renaming into \verb!Δ₂!. We interpret row-kinded types into the \verb!RowType! type, defined above. Note some more trickery which we have borrowed from \citet{AllaisBM13}: we cannot pass \verb!SemType! itself as an argument to \verb!RowType! (which would violate termination checking), but we can instead pass to \verb!RowType! the function \verb!(λ Δ' → SemType Δ' κ)!, which enforces a strictly smaller recursive call on the kind \verb!κ!. Observe too that abstraction over the kinding environment \verb!Δ'! is necessary because our representation of inert maps \verb!_<$>_! interprets the mapped applicand as a Kripke function space over neutral type 
 
 \begin{code}
 SemType : KEnv → Kind → Set
 SemType Δ ★ = NormalType Δ ★
 SemType Δ L = NormalType Δ L
-\end{code}
-
-\Ni We interpret functions into \emph{Kripke function spaces}---that is, functions that operate over \verb!SemType! inputs at any possible environment \verb!Δ₂!, provided a renaming into \verb!Δ₂!.
-
-\begin{code}
 SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → (r : Renamingₖ Δ₁ Δ₂) 
                         (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
-\end{code}
-
-We interpret row-kinded types into the \verb!RowType! type, defined above. Note some more trickery which we have borrowed from \citet{AllaisBM13}: we cannot pass \verb!SemType! itself as an argument to \verb!RowType! (which would violate termination checking), but we can instead pass to \verb!RowType! the function \verb!(λ Δ' → SemType Δ' κ)!, which enforces a strictly smaller recursive call on the kind \verb!κ!. Observe too that abstraction over the kinding environment \verb!Δ'! is necessary because our representation of inert maps \verb!_<$>_! interprets the mapped applicand as a Kripke function space over neutral type domain.
-
-\begin{code}
-SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
+SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]                          
 \end{code}
 
 For abbreviation later, we alias our two types of Kripke function spaces as so:
 
+\begin{minipage}[t]{0.45\textwidth}
+{\small
 \begin{code}
 KripkeFunction : KEnv → Kind → Kind → Set
-KripkeFunctionNE : KEnv → Kind → Kind → Set
-KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → 
+KripkeFunction Δ₁ κ₁ κ₂ =  
+  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → 
   SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
-KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → 
+\end{code}}
+\end{minipage}%
+\begin{minipage}[t]{0.50\textwidth}
+{\small 
+\begin{code}
+KripkeFunctionNE : KEnv → Kind → Kind → Set
+KripkeFunctionNE Δ₁ κ₁ κ₂ =
+  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ →
   NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
-\end{code}
+\end{code}}
+\end{minipage}
+
 \begin{code}[hide]
 --------------------------------------------------------------------------------
 -- Truncating a row preserves ordering
@@ -1260,24 +1231,24 @@ _⨾⨾_ :  Label × SemType Δ κ → Row (SemType Δ κ) → Row (SemType Δ �
 
 
 \subsection{Renaming}
-
-Renaming over normal types is defined in a straightforward manner. Observe that renaming a Kripke function is nothing more than providing the appropriate renaming to the function.
+Renaming a Kripke function is nothing more than providing the appropriate renaming to the function.
 
 \begin{code}
+renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
 renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → KripkeFunction Δ₂ κ₁ κ₂
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 \end{code}
 
-We will make some reference to semantic renaming, so we give it the name \verb!renSem! here. Its definition is expected.
+Renaming a row is simply pre-composition of the renaming \verb!r! over the row's map \verb!P!. The helper \verb!overᵣ! lifts \verb!renSem r! over the tuple, applying \verb!renSem r! to the second component. 
 
 \begin{code}
-renSem : Renamingₖ Δ₁ Δ₂ → SemType Δ₁ κ → SemType Δ₂ κ
+renRow : Renamingₖ Δ₁ Δ₂ → Row (SemType Δ₁ κ) → Row (SemType Δ₂ κ)
+renRow r (n , P) = n , overᵣ (renSem r) ∘ P  
 \end{code}
-\begin{code}[hide]
-renRow : Renamingₖ Δ₁ Δ₂ → 
-         Row (SemType Δ₁ κ) → 
-         Row (SemType Δ₂ κ)
 
+Renaming over semantic types is otherwise defined in a straightforward manner. At kinds $\TypeK$ and $\LabK$, we defer to the renaming of normal types. The other cases are described above or simply compositional. Some care must be given to ensure that the \verb!NotRow! and well-ordered predicates are preserved. (We omit the auxiliary lemmas \verb!orderedRenRow! and \verb!nrRenSem'!.)
+
+\begin{code}[hide]
 orderedRenRow : ∀ {n} {P : Fin n → Label × SemType Δ₁ κ} → (r : Renamingₖ Δ₁ Δ₂) → 
                 OrderedRow' n P → OrderedRow' n (λ i → (P i .fst) , renSem r (P i .snd))
 
@@ -1286,14 +1257,19 @@ nrRenSem :  ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : RowType Δ₁ (λ Δ' �
 nrRenSem' : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ₂ ρ₁ : RowType Δ₁ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
              NotRow ρ₂ or NotRow ρ₁ → NotRow (renSem r ρ₂) or NotRow (renSem r ρ₁)
 
+weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
+weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
+\end{code}
+\begin{code}
 renSem {κ = ★} r τ = renₖNF r τ
 renSem {κ = L} r τ = renₖNF r τ
 renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (φ <$> x) = (λ r' → φ (r' ∘ r)) <$> (renₖNE r x)
+renSem {κ = R[ κ ]} r (row (n , P) q) = row (renRow r (n , P)) (orderedRenRow r q)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
-renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( overᵣ (renSem r) ∘ P)) (orderedRenRow r q)
 renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = nrRenSem' r ρ₂ ρ₁ nr}
-
+\end{code}
+\begin{code}[hide]
 nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
 nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
 
@@ -1304,14 +1280,14 @@ nrRenSem r (φ <$> ρ) nr = tt
 orderedRenRow {n = zero} {P} r o = tt
 orderedRenRow {n = suc zero} {P} r o = tt
 orderedRenRow {n = suc (suc n)} {P} r (l₁<l₂ , o) =  l₁<l₂  , (orderedRenRow {n = suc n} {P ∘ fsuc} r o)
-
-renRow φ (n , P) = n , overᵣ (renSem φ) ∘ P 
-
-weakenSem : SemType Δ κ₁ → SemType (Δ ,, κ₂) κ₁
-weakenSem {Δ} {κ₁} τ = renSem {Δ₁ = Δ} {κ = κ₁} S τ
 \end{code}
 
-\section{Normalization by Evaluation}
+
+\section{Normalization by Evaluation (NbE)}
+
+We have now declared three domains: the syntax of types, the syntax of normal and neutral types, and the embedded domain of semantic types. Normalization by evaluation (NbE), as we follows it, involves producing a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows thereafter that normalization is the reification of evaluation. Because we reason about types modulo $\eta$-expansion, reflection and reification are necessarily mutually recursive. (This is not the case however with e.g. \citet{ChapmanKNW19}.)
+
+We describe the reflection logic before reification. Types at kind \verb!★! and \verb!L! can be promoted straightforwardly with the \verb!ne! constructor. A neutral row (e.g., a row variable) must be expanded into an inert mapping by \verb!(λ r n → reflect n)!, which is effectively the identity function. Finally, neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified. 
 
 \begin{code}
 reflect : ∀ {κ} → NeutralType Δ κ → SemType Δ κ
@@ -1321,7 +1297,11 @@ reflect {κ = ★} τ            = ne τ
 reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
+\end{code}
 
+Stopping here.
+
+\begin{code}
 reifyKripke : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripkeNE : KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
