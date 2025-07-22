@@ -1216,15 +1216,17 @@ We interpret row-kinded types into the \verb!RowType! type, defined above. Note 
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
 \end{code}
 
-\begin{code}[hide]
---------------------------------------------------------------------------------
--- aliases
+For abbreviation later, we alias our two types of Kripke function spaces as so:
 
+\begin{code}
 KripkeFunction : KEnv → Kind → Kind → Set
 KripkeFunctionNE : KEnv → Kind → Kind → Set
-KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
-KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
-
+KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → 
+  SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → 
+  NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
+\end{code}
+\begin{code}[hide]
 --------------------------------------------------------------------------------
 -- Truncating a row preserves ordering
 
