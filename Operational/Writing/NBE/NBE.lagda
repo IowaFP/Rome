@@ -739,6 +739,8 @@ eq-Πλ = bot _
 
 \section{Normal forms}
 
+By directing the type equivalence relation we define computation on types. This serves as a sort of specification on the shape normal forms of types ought to have. Our grammar for normal types must be carefully crafted so as to be neither too "large" nor too "small". In particular, we wish our normalization algorithm to be \emph{stable}, which implies surjectivity. Hence if the normal syntax is too large---i.e., it produces junk types---then these junk types will have pre-images in the domain of normalization. Inversely, if the normal syntax is too small, then there will be types whose normal forms cannot be expressed. \Cref{fig:type-normalization} specifies the syntax and typing of normal types, given as reference. We describe the syntax in more depth by describing its intrinsic mechanization.
+
 \begin{figure}
 \begin{gather*}
 \begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
@@ -777,8 +779,6 @@ eq-Πλ = bot _
 \caption{Normal type forms}
 \label{fig:type-normalization}
 \end{figure}
-
-We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \varepsilon \tau {\tau'} \kappa$ from left to right (with the exception of rule \errule{map$_\mathsf{id}$}, which reduces right-to-left).
 
 \subsection{Mechanized syntax}
 

@@ -3784,7 +3784,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaBound{ozs}\<%
 \end{code}
 
-Before concluding, we share an a auxiliary definition that reflects instances of propositional equality in Agda to proofs of type-equivalence. The same role could be performed via Agda's \verb!subst! but without the convenience.
+Before concluding, we share an auxiliary definition that reflects instances of propositional equality in Agda to proofs of type-equivalence. The same role could be performed via Agda's \verb!subst! but without the convenience.
 
 \begin{code}%
 \>[0]\AgdaFunction{inst}\AgdaSpace{}%
@@ -3908,6 +3908,8 @@ Before concluding, we share an a auxiliary definition that reflects instances of
 
 \section{Normal forms}
 
+By directing the type equivalence relation we define computation on types. This serves as a sort of specification on the shape normal forms of types ought to have. Our grammar for normal types must be carefully crafted so as to be neither too "large" nor too "small". In particular, we wish our normalization algorithm to be \emph{stable}, which implies surjectivity. Hence if the normal syntax is too large---i.e., it produces junk types---then these junk types will have pre-images in the domain of normalization. Inversely, if the normal syntax is too small, then there will be types whose normal forms cannot be expressed. \Cref{fig:type-normalization} specifies the syntax and typing of normal types, given as reference. We describe the syntax in more depth when describing its mechanization.
+
 \begin{figure}
 \begin{gather*}
 \begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
@@ -3946,8 +3948,6 @@ Before concluding, we share an a auxiliary definition that reflects instances of
 \caption{Normal type forms}
 \label{fig:type-normalization}
 \end{figure}
-
-We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \varepsilon \tau {\tau'} \kappa$ from left to right (with the exception of rule \errule{map$_\mathsf{id}$}, which reduces right-to-left).
 
 \subsection{Mechanized syntax}
 

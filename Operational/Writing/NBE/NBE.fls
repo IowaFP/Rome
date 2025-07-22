@@ -830,7 +830,6 @@ INPUT NBE.ptb
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinLibertineT-tlf-sc-t1.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinBiolinumT-tlf-t1.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinLibertineT-tlf-t1.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinLibertineT-tlf-sc-t1.tfm
 OUTPUT NBE.ptb
 INPUT NBE.ptb
 INPUT c:/texlive/2025/texmf-dist/fonts/vf/public/libertine/LinLibertineTI-tlf-t1.vf
@@ -846,10 +845,6 @@ INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/newtx/NewTXMI7.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/newtx/stxscr.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/vf/public/libertine/LinLibertineT-tlf-ot1.vf
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinLibertineT-tlf-ot1--base.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/vf/public/libertine/LinLibertineT-tlf-sc-t1.vf
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinLibertineT-tlf-sc-t1--base.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/vf/public/libertine/LinBiolinumT-tlf-t1.vf
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/libertine/LinBiolinumT-tlf-t1--base.tfm
 OUTPUT NBE.ptb
 INPUT NBE.ptb
 OUTPUT NBE.ptb
