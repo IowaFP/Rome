@@ -552,8 +552,8 @@ data _≡t_ : Type Δ κ → Type Δ κ → Set
 data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set
 \end{code} 
 
-Declare the following as generalized metavariables to reduce clutter. (N.b., generalized variables in Agda are not dependent upon eachother, e.g., it is not true that \verb!ρ₁! and \verb!ρ₂! must have equal kinds when \verb!ρ₁! and \verb!ρ₂! appear in the same type signature.)
-\begin{code} 
+% Declare the following as generalized metavariables to reduce clutter. (N.b., generalized variables in Agda are not dependent upon eachother, e.g., it is not true that \verb!ρ₁! and \verb!ρ₂! must have equal kinds when \verb!ρ₁! and \verb!ρ₂! appear in the same type signature.)
+\begin{code}[hide]
 private
     variable
         ℓ ℓ₁ ℓ₂ ℓ₃ : Label
@@ -666,7 +666,7 @@ We have two "expansion" rules and one composition rule. Firstly, arrow-kinded ty
     eq-η : ∀ {f : Type Δ (κ₁ `→ κ₂)} → f ≡t `λ (weakenₖ f · (` Z))
 \end{code}
 
-\Ni Analogously, row-kinded variables left alone are expanded to a map by the identity function. Additionally, nested maps are composed together into one map. These rules together ensure canonical forms for row-kinded normal types. Observe that the last two rules are effectively functorial laws.
+\Ni Analogously, row-kinded variables left alone are expanded to a map by the identity function. Additionally, nested maps are composed together into one map. These rules together ensure canonical forms for row-kinded normal types. (Observe that these two rules are effectively functorial laws.)
 
 \begin{code}    
     eq-map-id : ∀ {κ} {τ : Type Δ R[ κ ]} → τ ≡t (`λ {κ₁ = κ} (` Z)) <$> τ
@@ -676,8 +676,7 @@ We have two "expansion" rules and one composition rule. Firstly, arrow-kinded ty
 
 We now describe the computational rules that incur type reduction. Rule \verb!eq-β! is the usual $\beta$-reduction rule. Rule \verb!eq-labTy! asserts that the constructor \verb!_▹_! is indeed superfluous when describing singleton rows with a label literal; singleton rows of the form \verb!(ℓ ▹ τ)! are normalized into row literals. 
 \begin{code}
-    eq-β : ∀ {τ₁ : Type (Δ ,, κ₁) κ₂} {τ₂ : Type Δ κ₁} → 
-      ((`λ τ₁) · τ₂) ≡t (τ₁ βₖ[ τ₂ ])
+    eq-β : ∀ {τ₁ : Type (Δ ,, κ₁) κ₂} {τ₂ : Type Δ κ₁} → ((`λ τ₁) · τ₂) ≡t (τ₁ βₖ[ τ₂ ])
     eq-labTy : l ≡t lab ℓ → (l ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆ tt
 \end{code} 
 
@@ -687,12 +686,12 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
       (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
-         F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))      
+      F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))      
     eq-<$>-─ : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : Type Δ R[ κ₁ ]} → 
       F <$> (ρ₂ ─ ρ₁) ≡t (F <$> ρ₂) ─ (F <$> ρ₁)
 \end{code} 
 
-\Ni The rules \verb!eq-Π! and \verb!eq-Σ! give the defining equations of \verb!Π! and \verb!Σ! at nested row kind. This is to say, application of \verb!Π! to a nested row is equivalent to mapping \verb!Π! over the row.
+\Ni The rules \verb!eq-Π! and \verb!eq-Σ! give the defining equations of \verb!Π! and \verb!Σ! at nested row kind. This is to say, application of \verb!Π! to a nested row is equivalent to mapping \verb!Π! over the row. 
 \begin{code} 
     eq-Π : ∀ {ρ : Type Δ R[ R[ κ ] ]} {nl : True (notLabel? κ)} → 
          Π {notLabel = nl} · ρ ≡t Π {notLabel = nl} <$> ρ
@@ -708,7 +707,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
         (Σ {notLabel = nl} · ρ) · τ ≡t Σ {notLabel = nl} · (ρ ?? τ)
 \end{code}
 
-\Ni Finally, the rule \verb!eq-compl! gives computational content to the relative row complement operator applied to row literals.
+\Ni Finally, the rule \verb!eq-compl! gives computational content to the relative row complement operator applied to row literals. (We defined the syntactic complement \verb!_─s_! precisely for this reason.)
 
 \begin{code} 
     eq-compl : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} 
@@ -723,7 +722,7 @@ inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂
 inst refl = eq-refl
 \end{code}
 
-\subsubsection{Some admissable rules} In early versions of this equivalence relation, we thought it would be necessary to impose the following two rules directly. However, we can confirm their admissability. The first rule states that $\Pi$ is mapped over nested rows, and the second (definition omitted) states that $\lambda$-bindings $\eta$-expand over $\Pi$. (These results hold identically for \verb!Σ!.)
+\subsubsection{Some admissable rules} Early versions of this equivalence relation imposed the following two rules directly; they intuit how we think $\Pi$ and $\Sigma$ ought to reduce as applicands. However, we can confirm their admissability. The first rule states that $\Pi$ is mapped over nested rows, and the second (definition omitted) states that $\lambda$-bindings $\eta$-expand over $\Pi$. (These results hold identically for \verb!Σ!.)
 
 \begin{code}
 eq-Π▹ : ∀ {l} {τ : Type Δ R[ κ ]}{nl : True (notLabel? κ)} → 
