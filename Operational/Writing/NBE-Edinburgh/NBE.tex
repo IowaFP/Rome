@@ -258,7 +258,8 @@ Metatheory is difficult, particularly in the presence of conversion rules, of wh
 
 Conversion rules complicate metatheory. To list a few reasons: 
 \begin{enumerate}[nolistsep]
-  \item decidability of type checking now rests upon the decidability of type conversion. 
+  \item Decidability of type checking now rests upon the decidability of type conversion. 
+  \item Relatedly, users of the surface language may be forced to write conversion rules by hand if type equivalence is not shown to be decidable.
   \item Conversion rules block proofs of progress. Let !M! have type !t!, let !pf! be a proof that !t = u!, and consider the term !conv M pf!; ideally, one would expect this to reduce to !M! (we've changed nothing semantically about the term). But this breaks type preservation, as !conv M pf! (at type !u!) has stepped to a term at type !t!. 
   \item Inversion of the typing judgment $\TypeJ \Delta \Phi \Gamma  M \tau$---that is, induction over derivations---must consider the possibility that this derivation was constructed via conversion. But conversion from what type? Proofs by induction over derivations often thus get stuck. 
 \end{enumerate}
@@ -430,8 +431,6 @@ For well-kinded $\tau , \upsilon \in \Types$ at kind $\kappa$, If $\TEqvJ \Delta
 For well-kinded $\tau \in \Types$ at kind $\kappa$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
 \end{theorem}
 \Ni Soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
-
-Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable. Consequently, the user has no obligation to provide proofs of equivalence in type and predicate conversion (rules \trule{conv} and \entrule{conv}).
 
 \subsubsection{Decidability of type conversion}
 
