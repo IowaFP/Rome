@@ -118,7 +118,7 @@
 \maketitle
 
 \section*{Abstract}
-We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types, qualified types, and a novel \emph{row complement} operator. Types are normalized to $\beta\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome is a strict extension of System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
+We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types and a novel \emph{row complement} operator. Types are normalized to $\beta$-short, $\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome is a strict extension of System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
 
 \section{The \Rome{} calculus}
 
@@ -145,8 +145,7 @@ For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates
 \InlineOn{}
 \subsection{Example types and the need for reduction}
 % Add motivation for where this incurs type normalization. Show "hidden" maps and hidden reductions. How does $(\Pi\, (\ell \triangleright f)) \, \tau$ reduce?
-We will write Rome types in the slightly-altered syntax of \emph{Rosi}, our experimental implementation of \Rome. 
-Wand's problem. Let us consider the role of type computation in a handful of \Rome types. 
+We will write Rome types in the slightly-altered syntax of \emph{Rosi}, our experimental implementation of \Rome. Let us consider the role of type computation in a handful of \Rome types. 
 
 
 \subsubsection{Wand's problem} \Rome, \RO, \Rose, and thus Rosi stem from the desire to express Wand's problem (and its dual !dnaw!):
@@ -157,7 +156,7 @@ dnaw : forall l x y z t. x + y ~ z, {l := t} < z => #l ->
       (Sigma x -> t) -> (Sigma y -> t) -> Sigma z -> t
 \end{rosi}
 
-\Ni The novelty here is that, in other languages with extensible records and variants (e.g., OCaml), one has to specify precisely in which of the inputs !l! occurs. Here, the predicates !x + y ~ z! and !{l := t} < z! are sufficient to express that the input row !z! has an !{l := t}! field without specifying if it is in !x! or !y!. This type demonstrates that \Rose is cool. However, \Rose is not higher-order, and so there is no type-level reduction to perform. Things become more complicated in the higher order scenario.
+\Ni The novelty here is that, in other languages with extensible records and variants (e.g., OCaml), one has to specify precisely in which of the inputs !l! occurs. Here, the predicates !x + y ~ z! and !{l := t} < z! are sufficient to express that the input row !z! has an !{l := t}! field without specifying if it is in !x! or !y!. This type demonstrates that \Rose is cool. However, \Rose is not higher-order, and so there is no type-level reduction to perform. Things become much less clear in the presence of type computation.
 
 
 \InlineOff{}
