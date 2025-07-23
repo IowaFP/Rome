@@ -212,7 +212,7 @@ ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂)
 ren-⟦⟧r≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
              (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
            ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
-           ⟦ ⇑Row (reifyRow (n , overᵣ (renSem ρ) ∘ P)) ⟧r≋ (n , overᵣ (renSem ρ) ∘ P)
+           ⟦ ⇑Row (reifyRow (n , map₂ (renSem ρ) ∘ P)) ⟧r≋ (n , map₂ (renSem ρ) ∘ P)
 
 ren-⟦⟧r≋' : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
              (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
@@ -329,17 +329,17 @@ substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
 --------------------------------------------------------------------------------
 -- A necessary lemma difficult to describe
 
-overᵣ-⟦⟧≋ : ∀ {n : ℕ} 
+map₂-⟦⟧≋ : ∀ {n : ℕ} 
              {P : Fin n → Label × SemType Δ₂ κ₁} 
              {σ : Substitutionₖ Δ₁ Δ₂}
              {η : Env Δ₁ Δ₂}
              (f : Type Δ₁ (κ₁ `→ κ₂)) → 
              ⟦ subₖ σ f ⟧≋ (eval f η) → 
              ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
-            ⟦ ⇑Row (reifyRow (n , overᵣ (eval f η id) ∘ P)) ⟧r≋ (n , (overᵣ (eval f η id)) ∘ P)
-overᵣ-⟦⟧≋ {n = zero} F rel-f rel = tt
-overᵣ-⟦⟧≋ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) = 
-  (refl , (refl-⟦⟧≋ (rel-f id rel-fzero))) , overᵣ-⟦⟧≋ {n = n} F rel-f rel-fsuc 
+            ⟦ ⇑Row (reifyRow (n , map₂ (eval f η id) ∘ P)) ⟧r≋ (n , (map₂ (eval f η id)) ∘ P)
+map₂-⟦⟧≋ {n = zero} F rel-f rel = tt
+map₂-⟦⟧≋ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) = 
+  (refl , (refl-⟦⟧≋ (rel-f id rel-fzero))) , map₂-⟦⟧≋ {n = n} F rel-f rel-fsuc 
 
 --------------------------------------------------------------------------------
 -- To be clear, although we use an existential in defining ⟦ τ ⟧≋(φ <$> n), 

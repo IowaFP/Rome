@@ -163,7 +163,7 @@ progress (M₁ · M₂) | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂'
 progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M VM) | Done V@(V-Σ {φυ} {oxs = oxs'} l {N} V' i) with 
       row-canonicity-∅ ρ
 ... | xs , oxs , refl with inj-⦅⦆ 
-                           {wf₂ = fromWitness (normal-map-overᵣ xs (φ ·'_) (toWitness oxs))} 
+                           {wf₂ = fromWitness (normal-map-map₂ xs (φ ·'_) (toWitness oxs))} 
                            (inj-Σ (trans (sym eq₂) (cong Σ (cong-⦅⦆ (sym (stability-map φ xs))))))
 ... |  refl =
   StepsTo 
@@ -207,7 +207,7 @@ progress ((M₁ ⊹ M₂) n) with progress M₁ | progress M₂ | entProgress n
 progress (syn ρ φ M) with progress M | row-canonicity-∅ ρ
 ... | Done V | xs , oxs , refl = 
   let eq-mapOver = (cong Π (cong-⦅⦆ 
-                   {wf₁ = fromWitness (normal-map-overᵣ xs (φ ·'_) (toWitness oxs))} 
+                   {wf₁ = fromWitness (normal-map-map₂ xs (φ ·'_) (toWitness oxs))} 
                    (stability-map φ xs))) in
   StepsTo 
     (conv eq-mapOver ⟨ synRecord φ xs oxs M ⟩) via δ-syn φ eq-mapOver M

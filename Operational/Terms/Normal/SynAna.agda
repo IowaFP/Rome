@@ -405,7 +405,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
 synRecord : ∀ (φ : NormalType ∅ (κ `→ ★)) 
               (zs : SimpleRow NormalType ∅ R[ κ ])
               (ozs : True (normalOrdered? zs)) → 
-              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (overᵣ (φ ·'_)) zs)
+              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (map₂ (φ ·'_)) zs)
 synRecord φ [] ozs M = ∅
 synRecord φ ((l , τ) ∷ zs) ozs M = 
   l ▹ conv (lem₃ φ τ (lab l)) 
@@ -427,7 +427,7 @@ synRecord φ ((l , τ) ∷ zs) ozs M =
 
 getApplicand : ∀ {l : Label} {φ : NormalType Δ (κ₁ `→ κ₂)} {φτ : NormalType Δ κ₂} 
                  {xs : SimpleRow NormalType Δ R[ κ₁ ]} → 
-               (l , φτ) ∈ (map (overᵣ (φ ·'_)) xs) → 
+               (l , φτ) ∈ (map (map₂ (φ ·'_)) xs) → 
                ∃[ τ ] ((l , τ) ∈ xs × φτ ≡ φ ·' τ)
 getApplicand {xs = []} ()
 getApplicand {xs = ((l , τ) ∷ xs)} (here refl) = τ , ((here refl) , refl)
@@ -438,9 +438,9 @@ anaVariant : ∀ (φ : NormalType ∅ (κ `→ ★))
               (zs : SimpleRow NormalType ∅ R[ κ ])
               (τ : NormalType ∅ ★)
               (ozs : True (normalOrdered? zs))
-              (ozs' : True (normalOrdered? (map (overᵣ (φ ·'_)) zs)))
+              (ozs' : True (normalOrdered? (map (map₂ (φ ·'_)) zs)))
               (M : NormalTerm ∅ (AnaT' (⦅ zs ⦆ ozs) φ τ))
-              (v : NormalTerm ∅ (Σ (⦅ map (overᵣ (φ ·'_)) zs ⦆ ozs'))) →
+              (v : NormalTerm ∅ (Σ (⦅ map (map₂ (φ ·'_)) zs ⦆ ozs'))) →
               Value v → 
               NormalTerm ∅ τ
 anaVariant φ zs τ ozs ozs' M v (V-Σ l {M'} V i) with getApplicand {φ = φ} i 

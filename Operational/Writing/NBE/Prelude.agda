@@ -18,7 +18,7 @@ open Sum using (_or_ ; left ; right) public
 import Data.Product as Product
   renaming (proj₁ to fst ; proj₂ to snd) 
 open Product 
-  using (_×_ ; fst ; snd ; _,_ ; Σ-syntax ; ∃ ; ∃-syntax) 
+  using (_×_ ; fst ; snd ; _,_ ; Σ-syntax ; ∃ ; ∃-syntax ; map₂) 
   public
 open import Data.Product.Properties using (,-injectiveʳ ; ,-injectiveˡ) public
 

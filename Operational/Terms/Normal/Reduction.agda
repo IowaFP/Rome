@@ -553,21 +553,21 @@ data _—→_ where
   δ-ana : ∀ {xs : SimpleRow NormalType ∅ R[ κ ]} 
             {oxs : True (normalOrdered? xs)}
             (φ : NormalType ∅ (κ `→ ★))
-            {oxs' : True (normalOrdered? (map (overᵣ (φ ·'_)) xs))}
+            {oxs' : True (normalOrdered? (map (map₂ (φ ·'_)) xs))}
             (τ φυ : NormalType ∅ ★) 
-            (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ Σ (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs'))
+            (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ Σ (⦅ map (map₂ (φ ·'_)) xs ⦆ oxs'))
             (M : NormalTerm ∅ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
             (l : Label) 
             (N : NormalTerm ∅ φυ)
             (V : Value N) → 
-            (i : (l , φυ) ∈ (map (overᵣ (_·'_ φ)) xs)) →
+            (i : (l , φυ) ∈ (map (map₂ (_·'_ φ)) xs)) →
           (ana (⦅ xs ⦆ oxs) φ τ refl eq₂ M · (⟨ l ▹ N ⟩via i)) —→ 
           (anaVariant φ xs τ oxs oxs' M (⟨ l ▹ N ⟩via i) (V-Σ l V i))
 
   δ-syn : ∀ {xs : SimpleRow NormalType ∅ R[ κ ]} 
             {oxs : True (normalOrdered? xs)}
             (φ : NormalType ∅ (κ `→ ★))
-            {oxs' : True (normalOrdered? (map (overᵣ (φ ·'_)) xs))}
-            (eq : Π (⦅ map (overᵣ (φ ·'_)) xs ⦆ oxs') ≡ (⇓ (Π · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))))
+            {oxs' : True (normalOrdered? (map (map₂ (φ ·'_)) xs))}
+            (eq : Π (⦅ map (map₂ (φ ·'_)) xs ⦆ oxs') ≡ (⇓ (Π · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))))
             (M : NormalTerm ∅ (SynT' (⦅ xs ⦆ oxs) φ)) →
             (syn (⦅ xs ⦆ oxs) φ M) —→ (conv eq ⟨ synRecord φ xs oxs M ⟩)

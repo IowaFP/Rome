@@ -59,11 +59,11 @@ _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalT
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
-map-overᵣ-' : (ρ : SimpleRow NormalType Δ R[ κ₁ ]) (f : NormalType Δ (κ₁ `→ κ₂)) →
-                NormalOrdered ρ → NormalOrdered ((map (overᵣ (f ·'_)) ρ))
-map-overᵣ-' [] f oρ = tt
-map-overᵣ-' (x₁ ∷ []) f oρ = tt
-map-overᵣ-' (x₁ ∷ x₂ ∷ ρ) f oρ = oρ .fst , map-overᵣ-' (x₂ ∷ ρ) f (oρ .snd)
+map-map₂-' : (ρ : SimpleRow NormalType Δ R[ κ₁ ]) (f : NormalType Δ (κ₁ `→ κ₂)) →
+                NormalOrdered ρ → NormalOrdered ((map (map₂ (f ·'_)) ρ))
+map-map₂-' [] f oρ = tt
+map-map₂-' (x₁ ∷ []) f oρ = tt
+map-map₂-' (x₁ ∷ x₂ ∷ ρ) f oρ = oρ .fst , map-map₂-' (x₂ ∷ ρ) f (oρ .snd)
 
 --------------------------------------------------------------------------------
 -- Normality-preserving <$> 

@@ -212,11 +212,11 @@ ordered-swap : ∀ {l l' : Label} {τ τ' : Type Δ κ} {xs : SimpleRow Type Δ 
 ordered-swap {xs = []} l<l' oxs = tt
 ordered-swap {l = l} {l'} {xs = (l'' , τ'') ∷ xs} l<l' (l'<l'' , oxs) = <-trans {i = l} {j = l'} {k = l''} l<l' l'<l'' , oxs 
                 
-map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
-              Ordered ρ → Ordered (map (overᵣ f) ρ)
-map-overᵣ [] f oρ = tt
-map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+map-map₂ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
+              Ordered ρ → Ordered (map (map₂ f) ρ)
+map-map₂ [] f oρ = tt
+map-map₂ (x ∷ []) f oρ = tt
+map-map₂ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-map₂ ((l₂ , _) ∷ ρ) f oρ)
 
 ordered-─s-cons : Ordered ((l , τ) ∷ xs) → 
         Ordered ((l , τ) ∷ (xs ─s ys))

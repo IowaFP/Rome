@@ -1,4 +1,4 @@
-\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart}
+\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart} % % use acmtog for two-column
 \overfullrule=1mm
 % \usepackage[margin=1.5in]{geometry}
 
@@ -358,11 +358,11 @@ cong-SimpleRow {sr₁ = sr₁} {_} {wf₁} {wf₂} refl
 In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction that their kinds satisfy the \verb!NotLabel! predicate, although our reason for this restriction is instead metatheoretic: without it, nonsensical labels could be formed such as \verb!Π (lab "a" ▹ lab "b")! or \verb!Π ε!. Each of these types have kind \verb!L!, which violates a label canonicity theorem we later show that all label-kinded types in normal form are label literals or neutral.
 
 \begin{code}[hide]
-map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
-              Ordered ρ → Ordered (map (overᵣ f) ρ)
-map-overᵣ [] f oρ = tt
-map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+map-map₂ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
+              Ordered ρ → Ordered (map (map₂ f) ρ)
+map-map₂ [] f oρ = tt
+map-map₂ (x ∷ []) f oρ = tt
+map-map₂ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-map₂ ((l₂ , _) ∷ ρ) f oρ)
 \end{code}
 
 \subsubsection{Flipped map operator}~
@@ -518,7 +518,7 @@ orderedSubRowₖ r ((l , τ) ∷ []) oxs = tt
 orderedSubRowₖ r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((l₂ , υ) ∷ xs) oxs
 
 subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
-                  subRowₖ σ xs ≡ map (overᵣ (subₖ σ)) xs
+                  subRowₖ σ xs ≡ map (map₂ (subₖ σ)) xs
 
 subRowₖ-isMap σ [] = refl
 subRowₖ-isMap σ (x ∷ xs) = cong₂ _∷_ refl (subRowₖ-isMap σ xs)
@@ -680,13 +680,13 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
     eq-labTy : l ≡t lab ℓ → (l ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆ tt
 \end{code} 
 
-\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!overᵣ! (definition omitted) is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
+\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!map₂! is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
 
 \begin{code}
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
       (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
-      F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))      
+      F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (map₂ (F ·_)) ρ ⦆ (fromWitness (map-map₂ ρ (F ·_) (toWitness oρ)))      
     eq-<$>-─ : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : Type Δ R[ κ₁ ]} → 
       F <$> (ρ₂ ─ ρ₁) ≡t (F <$> ρ₂) ─ (F <$> ρ₁)
 \end{code} 
@@ -908,11 +908,11 @@ normalOrdered-tail (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
 --------------------------------------------------------------------------------
 -- Mapping over preserves ordering
 
-normal-map-overᵣ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 
-                   NormalOrdered ρ → NormalOrdered (map (overᵣ f) ρ)
-normal-map-overᵣ [] f oρ = tt
-normal-map-overᵣ (x ∷ []) f oρ = tt
-normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+normal-map-map₂ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 
+                   NormalOrdered ρ → NormalOrdered (map (map₂ f) ρ)
+normal-map-map₂ [] f oρ = tt
+normal-map-map₂ (x ∷ []) f oρ = tt
+normal-map-map₂ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-map₂ ((l₂ , _) ∷ ρ) f oρ)
 \end{code}
 
 \begin{code}[hide]
@@ -1052,7 +1052,7 @@ orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
 orderedRenRowₖNF r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((l₂ , υ) ∷ xs) oxs
 
 renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-                  renRowₖNF r xs ≡ map (overᵣ (renₖNF r)) xs 
+                  renRowₖNF r xs ≡ map (map₂ (renₖNF r)) xs 
 renRowₖNF-isMap r [] = refl
 renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)
 
@@ -1209,12 +1209,12 @@ ordered-cut {n = suc n} oρ = oρ .snd
 --------------------------------------------------------------------------------
 -- Ordering is preserved by mapping
 
-orderedOverᵣ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
+orderedMap₂ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
                (f : SemType Δ κ₁ → SemType Δ κ₂) → 
-               OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
-orderedOverᵣ {n = zero} {P} f oρ = tt
-orderedOverᵣ {n = suc zero} {P} f oρ = tt
-orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
+               OrderedRow (n , P) → OrderedRow (n , map₂ f ∘ P)
+orderedMap₂ {n = zero} {P} f oρ = tt
+orderedMap₂ {n = suc zero} {P} f oρ = tt
+orderedMap₂ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedMap₂ f (oρ .snd))
 
 --------------------------------------------------------------------------------
 -- Semantic row operators
@@ -1238,11 +1238,11 @@ renKripke : Renamingₖ Δ₁ Δ₂ → KripkeFunction Δ₁ κ₁ κ₂ → Kri
 renKripke {Δ₁} ρ F {Δ₂} = λ ρ' → F (ρ' ∘ ρ) 
 \end{code}
 
-Renaming a row is simply pre-composition of the renaming \verb!r! over the row's map \verb!P!. The helper \verb!overᵣ! lifts \verb!renSem r! over the tuple, applying \verb!renSem r! to the second component. 
+Renaming a row is simply pre-composition of the renaming \verb!r! over the row's map \verb!P!. The helper \verb!map₂! lifts \verb!renSem r! over the tuple, applying \verb!renSem r! to the second component. 
 
 \begin{code}
 renRow : Renamingₖ Δ₁ Δ₂ → Row (SemType Δ₁ κ) → Row (SemType Δ₂ κ)
-renRow r (n , P) = n , overᵣ (renSem r) ∘ P  
+renRow r (n , P) = n , map₂ (renSem r) ∘ P  
 \end{code}
 
 Renaming over semantic types is otherwise defined in a straightforward manner. At kinds $\TypeK$ and $\LabK$, we defer to the renaming of normal types. The other cases are described above or simply compositional. Some care must be given to ensure that the \verb!NotRow! and well-ordered predicates are preserved. (We omit the auxiliary lemmas \verb!orderedRenRow! and \verb!nrRenSem'!.)
@@ -1471,7 +1471,7 @@ NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (�
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
-F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
+F <$>V row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
 

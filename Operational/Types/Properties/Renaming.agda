@@ -164,6 +164,6 @@ renRowₖ-comp r₁ r₂ ((l , τ) ∷ r) = cong₂ _∷_ (cong₂ _,_ refl (ren
 -- Renaming commutes with mapping over rows
 
 ↻-ren-map : ∀ (r : Renamingₖ Δ₁ Δ₂) (F : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → 
-              map (overᵣ (renₖ r F ·_)) (renRowₖ r ρ) ≡ renRowₖ r (map (overᵣ (F ·_)) ρ)
+              map (map₂ (renₖ r F ·_)) (renRowₖ r ρ) ≡ renRowₖ r (map (map₂ (F ·_)) ρ)
 ↻-ren-map φ F [] = refl 
 ↻-ren-map φ F (x ∷ ρ) = cong (_ ∷_) (↻-ren-map φ F ρ)

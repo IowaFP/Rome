@@ -61,7 +61,7 @@ map-over-⇑Row : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `�
                 (n : ℕ) (P : Fin n → Label × SemType Δ κ₁) → 
                 ⟦ f ⟧≋ F → 
                 ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
-                ⟦ map (overᵣ (f ·_)) (⇑Row (reifyRow (n , P))) ⟧r≋ (n , overᵣ (F id) ∘ P)
+                ⟦ map (map₂ (f ·_)) (⇑Row (reifyRow (n , P))) ⟧r≋ (n , map₂ (F id) ∘ P)
 map-over-⇑Row f F zero P rel-f rel-P = tt
 map-over-⇑Row f F (suc n) P rel-f rel-P = 
   (refl , 
@@ -179,7 +179,7 @@ map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ�
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
                (rel-v : ⟦ v ⟧≋ V) → 
-             ⟦ map (overᵣ (_·_ (`λ (` Z · weakenₖ v))))
+             ⟦ map (map₂ (_·_ (`λ (` Z · weakenₖ v))))
                (subRowₖ (extendₖ ` v)
                  (renRowₖ S (renRowₖ φ (⇑Row (reifyRow (n , P))))))
              ⟧r≋ (n , λ x → (P x . fst) , apply V id (renKripke φ (P x .snd)))
@@ -217,11 +217,11 @@ map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
 
 map-Π : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-        ⟦ map (overᵣ (_·_ (Π {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΠV (P i .snd))
+        ⟦ map (map₂ (_·_ (Π {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΠV (P i .snd))
 
 map-Σ : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
         (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-        ⟦ map (overᵣ (_·_ (Σ {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΣV (P i .snd))
+        ⟦ map (map₂ (_·_ (Σ {notLabel = nl}))) (⇑Row (reifyRow' n P)) ⟧r≋ (n ,  λ i → P i .fst , ΣV (P i .snd))
 
 --------------------------------------------------------------------------------
 -- Soundness of Π and ΠV definition
@@ -622,7 +622,7 @@ fundS-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                 {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
                 ⟦ σ ⟧≋e η → 
-                ⟦ map (overᵣ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
+                ⟦ map (map₂ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
 fundS-map-app zero P _ _ _ = tt
 fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =

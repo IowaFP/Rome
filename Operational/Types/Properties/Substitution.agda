@@ -297,7 +297,7 @@ subₖ-weaken-over-lift r τ v =
 -- Substitution commutes with mapping over rows
 
 ↻-sub-map : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (F : Type Δ₁ (κ₁ `→ κ₂)) (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → 
-              map (overᵣ (subₖ σ F ·_)) (subRowₖ σ ρ) ≡ subRowₖ σ (map (overᵣ (F ·_)) ρ)
+              map (map₂ (subₖ σ F ·_)) (subRowₖ σ ρ) ≡ subRowₖ σ (map (map₂ (F ·_)) ρ)
 ↻-sub-map σ F [] = refl 
 ↻-sub-map σ F (x ∷ ρ) = cong (_ ∷_) (↻-sub-map σ F ρ)
 

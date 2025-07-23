@@ -193,7 +193,7 @@ NotRow<$> : ∀ {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (�
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
 F <$>V (l ▹ τ) = l ▹ (F ·V τ)
-F <$>V row (n , P) q = row (n , overᵣ (F id) ∘ P) (orderedOverᵣ (F id) q)
+F <$>V row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
 

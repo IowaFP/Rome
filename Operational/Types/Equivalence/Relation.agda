@@ -192,7 +192,7 @@ data _≡t_ where
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
 
          -------------------------------
-         F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (overᵣ (F ·_)) ρ ⦆ (fromWitness (map-overᵣ ρ (F ·_) (toWitness oρ)))
+         F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (map₂ (F ·_)) ρ ⦆ (fromWitness (map-map₂ ρ (F ·_) (toWitness oρ)))
 
     eq-map-id : ∀ {κ} {τ : Type Δ R[ κ ]} → 
 

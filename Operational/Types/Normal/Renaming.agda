@@ -63,7 +63,7 @@ orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
 orderedRenRowₖNF r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((l₂ , υ) ∷ xs) oxs
 
 renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
-                  renRowₖNF r xs ≡ map (overᵣ (renₖNF r)) xs 
+                  renRowₖNF r xs ≡ map (map₂ (renₖNF r)) xs 
 renRowₖNF-isMap r [] = refl
 renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)
 

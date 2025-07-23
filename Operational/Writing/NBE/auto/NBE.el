@@ -7,11 +7,11 @@
                      '(("acmart" "authoryear" "acmsmall" "screen" "review" "nonacm")))
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("inputenc" "utf8") ("fontenc" "T1")))
-   (add-to-list 'LaTeX-verbatim-environments-local "rosi")
-   (add-to-list 'LaTeX-verbatim-environments-local "haskell")
-   (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
-   (add-to-list 'LaTeX-verbatim-environments-local "code")
    (add-to-list 'LaTeX-verbatim-environments-local "codef")
+   (add-to-list 'LaTeX-verbatim-environments-local "code")
+   (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
+   (add-to-list 'LaTeX-verbatim-environments-local "haskell")
+   (add-to-list 'LaTeX-verbatim-environments-local "rosi")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
    (TeX-run-style-hooks

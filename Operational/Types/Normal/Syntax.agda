@@ -219,11 +219,11 @@ normalOrdered-tail (l , snd₁) ((l₁ , snd₂) ∷ ρ) (_ , oxρ) = oxρ
 --------------------------------------------------------------------------------
 -- Mapping over preserves ordering
 
-normal-map-overᵣ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 
-                   NormalOrdered ρ → NormalOrdered (map (overᵣ f) ρ)
-normal-map-overᵣ [] f oρ = tt
-normal-map-overᵣ (x ∷ []) f oρ = tt
-normal-map-overᵣ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-overᵣ ((l₂ , _) ∷ ρ) f oρ)
+normal-map-map₂ : ∀ (ρ : SimpleRow NormalType Δ₁ R[ κ₁ ]) (f : NormalType Δ₁ κ₁ → NormalType Δ₁ κ₂) → 
+                   NormalOrdered ρ → NormalOrdered (map (map₂ f) ρ)
+normal-map-map₂ [] f oρ = tt
+normal-map-map₂ (x ∷ []) f oρ = tt
+normal-map-map₂ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (normal-map-map₂ ((l₂ , _) ∷ ρ) f oρ)
 
 NotSimpleRow (ne x) = ⊤
 NotSimpleRow ((φ <$> τ)) = ⊤

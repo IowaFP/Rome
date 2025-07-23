@@ -92,12 +92,12 @@ ordered-cut {n = suc n} oρ = oρ .snd
 --------------------------------------------------------------------------------
 -- Ordering is preserved by mapping
 
-orderedOverᵣ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
+orderedMap₂ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
                (f : SemType Δ κ₁ → SemType Δ κ₂) → 
-               OrderedRow (n , P) → OrderedRow (n , overᵣ f ∘ P)
-orderedOverᵣ {n = zero} {P} f oρ = tt
-orderedOverᵣ {n = suc zero} {P} f oρ = tt
-orderedOverᵣ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedOverᵣ f (oρ .snd))
+               OrderedRow (n , P) → OrderedRow (n , map₂ f ∘ P)
+orderedMap₂ {n = zero} {P} f oρ = tt
+orderedMap₂ {n = suc zero} {P} f oρ = tt
+orderedMap₂ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedMap₂ f (oρ .snd))
 
 --------------------------------------------------------------------------------
 -- Semantic row operators

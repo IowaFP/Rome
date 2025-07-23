@@ -384,7 +384,7 @@ stability-·' f N = trans
     (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
 
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
-                map (overᵣ (_·'_ f)) xs ≡ reifyRow 
+                map (map₂ (_·'_ f)) xs ≡ reifyRow 
                   ((evalRow (⇑Row xs) idEnv .fst) ,
                   (λ i → 
                     ((evalRow (⇑Row xs) idEnv .snd i) .fst) , 

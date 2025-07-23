@@ -146,10 +146,10 @@ fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
 fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = go ρ
   where
     go : (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → (evalRow ρ η₁ .fst ,
-       (λ x₁ → overᵣ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
+       (λ x₁ → map₂ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
       ≋R
-      (evalRow (map (overᵣ (_·_ F)) ρ) η₂ .fst ,
-       evalRow (map (overᵣ (_·_ F)) ρ) η₂ .snd)
+      (evalRow (map (map₂ (_·_ F)) ρ) η₂ .fst ,
+       evalRow (map (map₂ (_·_ F)) ρ) η₂ .snd)
     go [] = refl , (λ ())
     go (x ∷ ρ) with evalRow ρ η₁ | go ρ
     ... | n , P | refl , eq = refl , (λ { fzero → refl , (cong-App (idext e F) (idext e (x . snd))) ; (fsuc i) → eq i })
@@ -267,7 +267,7 @@ completeness-row {ρ₁ = ρ₁} {ρ₂} eq with
 ... | n , P | m , Q | j , K | (refl , d) | (refl , rel₁) | (refl , rel₂) | (refl , rel₃) =
   trans 
     (↻-ren-reifyRow P P r (λ { i → refl , d i .snd })   ) 
-    (reifyRow-≋ (λ i → overᵣ (renSem r) (P i)) K (λ { i → (trans (rel₂ i .fst) (trans (rel₃ i .fst) (sym (rel₁ i .fst)))) , (trans-≋ (rel₂ i .snd) (trans-≋ (rel₃ i .snd) (sym-≋ (rel₁ i .snd)))) }))
+    (reifyRow-≋ (λ i → map₂ (renSem r) (P i)) K (λ { i → (trans (rel₂ i .fst) (trans (rel₃ i .fst) (sym (rel₁ i .fst)))) , (trans-≋ (rel₂ i .snd) (trans-≋ (rel₃ i .snd) (sym-≋ (rel₁ i .snd)))) }))
  
 -------------------------------------------------------------------------------
 -- Helper to substitute under an eval

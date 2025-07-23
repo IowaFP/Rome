@@ -1,4 +1,4 @@
-\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart}
+\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart} % % use acmtog for two-column
 \overfullrule=1mm
 % \usepackage[margin=1.5in]{geometry}
 
@@ -1154,7 +1154,7 @@ We impose on the \verb!⦅_⦆! constructor a witness of the form \verb!True! \v
 In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction that their kinds satisfy the \verb!NotLabel! predicate, although our reason for this restriction is instead metatheoretic: without it, nonsensical labels could be formed such as \verb!Π (lab "a" ▹ lab "b")! or \verb!Π ε!. Each of these types have kind \verb!L!, which violates a label canonicity theorem we later show that all label-kinded types in normal form are label literals or neutral.
 
 \begin{code}[hide]%
-\>[0]\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
 \>[662I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
@@ -1182,18 +1182,18 @@ In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction 
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{map}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSpace{}%
 \AgdaBound{oρ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
@@ -1202,7 +1202,7 @@ In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction 
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{l₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
@@ -1219,7 +1219,7 @@ In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction 
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{l₁<l₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{l₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
@@ -2462,7 +2462,7 @@ A substitution is a map from type variables to types.
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
 \AgdaFunction{map}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{subₖ}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{xs}\<%
@@ -3430,7 +3430,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaInductiveConstructor{tt}\<%
 \end{code} 
 
-\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!overᵣ! (definition omitted) is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
+\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!map₂! (definition omitted) is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
 
 \begin{code}%
 %
@@ -3501,13 +3501,13 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaOperator{\AgdaDatatype{≡t}}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⦅}}\AgdaSpace{}%
 \AgdaFunction{map}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{·\AgdaUnderscore{}}}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⦆}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{fromWitness}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{map-overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map-map₂}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{·\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4812,7 +4812,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{normal-map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaSymbol{:}%
 \>[3268I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
@@ -4840,18 +4840,18 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaFunction{NormalOrdered}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{map}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{normal-map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSpace{}%
 \AgdaBound{oρ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{normal-map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{x}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{∷}}\AgdaSpace{}%
 \AgdaInductiveConstructor{[]}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4860,7 +4860,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{normal-map-overᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{l₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
@@ -4877,7 +4877,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{l₁<l₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{normal-map-overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaSymbol{((}\AgdaBound{l₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{})}\AgdaSpace{}%
@@ -5977,7 +5977,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
 \AgdaFunction{map}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renₖNF}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{xs}\<%
@@ -6947,7 +6947,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{:}%
 \>[4901I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -6984,12 +6984,12 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaFunction{OrderedRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{∘}}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{n}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{zero}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -6999,7 +6999,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{n}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{suc}\AgdaSpace{}%
@@ -7010,7 +7010,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{tt}\<%
 \\
-\>[0]\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\>[0]\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{n}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{suc}\AgdaSpace{}%
@@ -7023,7 +7023,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaSymbol{(}\AgdaBound{oρ}\AgdaSpace{}%
 \AgdaSymbol{.}\AgdaField{fst}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaBound{f}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{oρ}\AgdaSpace{}%
 \AgdaSymbol{.}\AgdaField{snd}\AgdaSymbol{))}\<%
@@ -7147,7 +7147,7 @@ Renaming a Kripke function is nothing more than providing the appropriate renami
 \AgdaBound{ρ}\AgdaSymbol{)}\<%
 \end{code}
 
-Renaming a row is simply pre-composition of the renaming \verb!r! over the row's map \verb!P!. The helper \verb!overᵣ! lifts \verb!renSem r! over the tuple, applying \verb!renSem r! to the second component. 
+Renaming a row is simply pre-composition of the renaming \verb!r! over the row's map \verb!P!. The helper \verb!map₂! lifts \verb!renSem r! over the tuple, applying \verb!renSem r! to the second component. 
 
 \begin{code}%
 \>[0]\AgdaFunction{renRow}\AgdaSpace{}%
@@ -7174,7 +7174,7 @@ Renaming a row is simply pre-composition of the renaming \verb!r! over the row's
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renSem}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{∘}}\AgdaSpace{}%
@@ -9410,12 +9410,12 @@ Stopping here.
 \AgdaInductiveConstructor{row}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
-\AgdaFunction{overᵣ}\AgdaSpace{}%
+\AgdaFunction{map₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaFunction{id}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{∘}}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{orderedOverᵣ}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
 \AgdaFunction{id}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{)}\<%

@@ -226,7 +226,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ≲-inv (n-plusR≲ {ρ₁ = (c ─ c₁) {nsr}} e) = ⊥-elim (noComplements nsr refl)
 ≲-inv (n-plusR≲ {ρ₁ = l ▹ₙ c} e) = ⊥-elim (noNeutrals l)
 ≲-inv (n-map≲ {ρ₁ = ⦅ xs ⦆ _} {⦅ ys ⦆ _} {F} e refl refl) rewrite 
-  sym (stability-map F xs) | sym (stability-map F ys) = ⊆-map (overᵣ (F ·'_)) (≲-inv e) 
+  sym (stability-map F xs) | sym (stability-map F ys) = ⊆-map (map₂ (F ·'_)) (≲-inv e) 
 
 ≲-inv (n-map≲ {ρ₁ = φ <$> x₃} {ρ₂} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
 ≲-inv (n-map≲ {ρ₁ = ⦅ ρ ⦆ oρ} {φ <$> x₃} c x₁ x₂) = ⊥-elim (noNeutrals x₃)
@@ -242,7 +242,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | i₁ , i₂ , i₃ rewrite 
     sym (stability-map F x₃) 
   | sym (stability-map F x₄)
-  | sym (stability-map F x₅) =  ⊆-map (overᵣ (F ·'_)) i₁ , (⊆-map (overᵣ (F ·'_)) i₂) , ⊆-map-or (overᵣ (F ·'_)) i₃
+  | sym (stability-map F x₅) =  ⊆-map (map₂ (F ·'_)) i₁ , (⊆-map (map₂ (F ·'_)) i₂) , ⊆-map-or (map₂ (F ·'_)) i₃
 ·-inv (n-map· {ρ₁ = φ <$> x₄} {ρ₂} {ρ₃} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
 ·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {φ <$> x₄} {_} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)
 ·-inv (n-map· {ρ₁ = ⦅ ρ ⦆ oρ} {⦅ ρ₁ ⦆ oρ₁} {φ <$> x₄} en x₁ x₂ x₃) = ⊥-elim (noNeutrals x₄)

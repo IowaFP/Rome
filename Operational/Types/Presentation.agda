@@ -242,11 +242,11 @@ fmap× : ∀ {Ty : KEnv → Kind → Set} → (∀ {κ} → Ty Δ₁ κ → Ty �
           Ty Δ₁ L × Ty Δ₁ κ → Ty Δ₂ L × Ty Δ₂ κ
 fmap× f (x , y) = f x , f y
 
-map-overᵣ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
-              Ordered ρ → Ordered (map (overᵣ f) ρ)
-map-overᵣ [] f oρ = tt
-map-overᵣ (x ∷ []) f oρ = tt
-map-overᵣ ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , map-overᵣ ((lab l₂ , τ) ∷ ρ) f oρ
+map-map₂ : ∀ (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) (f : Type Δ₁ κ₁ → Type Δ₁ κ₂) → 
+              Ordered ρ → Ordered (map (map₂ f) ρ)
+map-map₂ [] f oρ = tt
+map-map₂ (x ∷ []) f oρ = tt
+map-map₂ ((lab l₁ , _) ∷ (lab l₂ , τ) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , map-map₂ ((lab l₂ , τ) ∷ ρ) f oρ
 
 --------------------------------------------------------------------------------
 -- Some examples.

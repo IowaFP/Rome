@@ -173,7 +173,7 @@ reifyRow-≋ : ∀ {n} (P Q : Fin n → Label × SemType Δ κ) →
 ↻-ren-reifyRow : ∀ {n} (P Q : Fin n → Label × SemType Δ₁ κ) →  
                         (ρ : Renamingₖ Δ₁ Δ₂) → 
                         (∀ (i : Fin n) → P i ≋₂ Q i) → 
-                        renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , λ i → overᵣ (renSem ρ) (Q i)) 
+                        renRowₖNF ρ (reifyRow (n , P)) ≡ reifyRow (n , λ i → map₂ (renSem ρ) (Q i)) 
 
 --------------------------------------------------------------------------------
 -- reflect-≋ asserts that well kinded neutral types are in the relation
