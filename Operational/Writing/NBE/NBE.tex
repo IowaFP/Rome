@@ -1176,7 +1176,7 @@ In the same fashion, we impose on \verb!Π! and \verb!Σ! a similar restriction 
 \AgdaGeneralizable{κ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[662I]%
+\>[662I][@{}l@{\AgdaIndent{0}}]%
 \>[14]\AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -3430,7 +3430,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaInductiveConstructor{tt}\<%
 \end{code} 
 
-\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!map₂! (definition omitted) is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
+\Ni The rule \verb!eq-▹$! describes that mapping \verb!F! over a singleton row is simply application of \verb!F! over the row's contents. Rule \verb!eq-map! asserts exactly the same except for row literals; the function \verb!map₂! is simply fmap over a pair's right component. Rule \verb!eq-<$>-─! asserts that mapping \verb!F! over a row complement is distributive. 
 
 \begin{code}%
 %
@@ -3468,8 +3468,8 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 %
 \>[4]\AgdaInductiveConstructor{eq-map}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
-\AgdaSymbol{∀}\AgdaSpace{}%
-\AgdaSymbol{\{}\AgdaBound{F}\AgdaSpace{}%
+\AgdaSymbol{∀}%
+\>[2354I]\AgdaSymbol{\{}\AgdaBound{F}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -3491,6 +3491,18 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaBound{ρ}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
+\>[.][@{}l@{}]\<[2354I]%
+\>[15]\AgdaSymbol{\{}\AgdaBound{oρ'}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaFunction{True}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{ordered?}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{map₂}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{·\AgdaUnderscore{}}}\AgdaSymbol{))}\AgdaSpace{}%
+\AgdaBound{ρ}\AgdaSymbol{))\}}\AgdaSpace{}%
+\AgdaSymbol{→}\<%
+\\
 \>[4][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaBound{F}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{<\$>}}\AgdaSpace{}%
@@ -3506,13 +3518,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaOperator{\AgdaInductiveConstructor{·\AgdaUnderscore{}}}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⦆}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{fromWitness}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{map-map₂}\AgdaSpace{}%
-\AgdaBound{ρ}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{F}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{·\AgdaUnderscore{}}}\AgdaSymbol{)}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{toWitness}\AgdaSpace{}%
-\AgdaBound{oρ}\AgdaSymbol{)))}\<%
+\AgdaBound{oρ'}\<%
 \\
 %
 \>[4]\AgdaInductiveConstructor{eq-<\$>-─}\AgdaSpace{}%
@@ -3555,7 +3561,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \begin{code} %
 %
 \>[4]\AgdaInductiveConstructor{eq-Π}%
-\>[2425I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2428I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -3573,7 +3579,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaGeneralizable{κ}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2425I]%
+\>[.][@{}l@{}]\<[2428I]%
 \>[9]\AgdaInductiveConstructor{Π}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{notLabel}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -3590,7 +3596,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \\
 %
 \>[4]\AgdaInductiveConstructor{eq-Σ}%
-\>[2454I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[2457I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -3608,7 +3614,7 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
 \AgdaGeneralizable{κ}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2454I]%
+\>[.][@{}l@{}]\<[2457I]%
 \>[9]\AgdaInductiveConstructor{Σ}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{notLabel}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -3803,7 +3809,7 @@ Before concluding, we share an auxiliary definition that reflects instances of p
 \begin{code}%
 \>[0]\AgdaFunction{eq-Π▹}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2622I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2625I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{l}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -3818,7 +3824,7 @@ Before concluding, we share an auxiliary definition that reflects instances of p
 \AgdaGeneralizable{κ}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2622I]%
+\>[.][@{}l@{}]\<[2625I]%
 \>[8]\AgdaSymbol{(}\AgdaInductiveConstructor{Π}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{notLabel}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -3847,7 +3853,7 @@ Before concluding, we share an auxiliary definition that reflects instances of p
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{eq-Πλ}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2657I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2660I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{l}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -3863,7 +3869,7 @@ Before concluding, we share an auxiliary definition that reflects instances of p
 \AgdaGeneralizable{κ₂}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2657I]%
+\>[.][@{}l@{}]\<[2660I]%
 \>[8]\AgdaInductiveConstructor{Π}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{notLabel}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -3991,7 +3997,7 @@ Further, we define the predicate \verb!NotSimpleRow ρ! to be true precisely whe
 \\
 \>[0]\AgdaFunction{notSimpleRows?}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2743I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[2746I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -4002,7 +4008,7 @@ Further, we define the predicate \verb!NotSimpleRow ρ! to be true precisely whe
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2743I]%
+\>[.][@{}l@{}]\<[2746I]%
 \>[17]\AgdaRecord{Dec}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{NotSimpleRow}\AgdaSpace{}%
 \AgdaBound{τ₁}\AgdaSpace{}%
@@ -4039,7 +4045,7 @@ Neutral types are type variables and applications with type variables in head po
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}·\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2775I]\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
+\>[2778I]\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NeutralType}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
@@ -4054,7 +4060,7 @@ Neutral types are type variables and applications with type variables in head po
 \AgdaGeneralizable{κ₁}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2775I]%
+\>[.][@{}l@{}]\<[2778I]%
 \>[8]\AgdaDatatype{NeutralType}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaGeneralizable{κ}\<%
@@ -4090,7 +4096,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}─\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[2811I]\AgdaSymbol{(}\AgdaBound{ρ₂}\AgdaSpace{}%
+\>[2814I]\AgdaSymbol{(}\AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4107,7 +4113,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaBound{ρ₁}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2811I]%
+\>[.][@{}l@{}]\<[2814I]%
 \>[8]\AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -4190,11 +4196,11 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \begin{code}[hide]%
 %
 \>[2]\AgdaInductiveConstructor{`λ}%
-\>[2890I]\AgdaSymbol{:}\<%
+\>[2893I]\AgdaSymbol{:}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[2890I][@{}l@{\AgdaIndent{0}}]%
+\>[2893I][@{}l@{\AgdaIndent{0}}]%
 \>[6]\AgdaSymbol{(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4303,11 +4309,11 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}⇒\AgdaUnderscore{}}}%
-\>[2929I]\AgdaSymbol{:}\<%
+\>[2932I]\AgdaSymbol{:}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[2929I][@{}l@{\AgdaIndent{0}}]%
+\>[2932I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaSymbol{(}\AgdaBound{π}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{NormalPred}\AgdaSpace{}%
@@ -4345,8 +4351,8 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\[\AgdaEmptyExtraSkip]%
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{⦅\AgdaUnderscore{}⦆}}%
-\>[2945I]\AgdaSymbol{:}%
-\>[2946I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
+\>[2948I]\AgdaSymbol{:}%
+\>[2949I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4362,10 +4368,10 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaBound{ρ}\AgdaSymbol{))}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[2946I]%
+\>[.][@{}l@{}]\<[2949I]%
 \>[8]\AgdaComment{----------------------}\<%
 \\
-\>[2945I][@{}l@{\AgdaIndent{0}}]%
+\>[2948I][@{}l@{\AgdaIndent{0}}]%
 \>[7]\AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{R[}}\AgdaSpace{}%
@@ -4378,11 +4384,11 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
 \>[2]\AgdaInductiveConstructor{lab}%
-\>[2965I]\AgdaSymbol{:}\<%
+\>[2968I]\AgdaSymbol{:}\<%
 \\
 \>[0]\<%
 \\
-\>[.][@{}l@{}]\<[2965I]%
+\>[.][@{}l@{}]\<[2968I]%
 \>[6]\AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Label}\AgdaSymbol{)}\AgdaSpace{}%
@@ -4403,9 +4409,9 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\
 %
 \>[2]\AgdaOperator{\AgdaInductiveConstructor{⌊\AgdaUnderscore{}⌋}}%
-\>[2971I]\AgdaSymbol{:}\<%
+\>[2974I]\AgdaSymbol{:}\<%
 \\
-\>[.][@{}l@{}]\<[2971I]%
+\>[.][@{}l@{}]\<[2974I]%
 \>[6]\AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4610,7 +4616,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \>[0]\AgdaFunction{cong-⦅⦆}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{sr₁}%
-\>[3124I]\AgdaBound{sr₂}\AgdaSpace{}%
+\>[3127I]\AgdaBound{sr₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -4630,13 +4636,13 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaBound{sr₂}\AgdaSymbol{)\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3124I][@{}l@{\AgdaIndent{0}}]%
+\>[3127I][@{}l@{\AgdaIndent{0}}]%
 \>[17]\AgdaBound{sr₁}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
 \AgdaBound{sr₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3124I][@{}l@{\AgdaIndent{0}}]%
+\>[3127I][@{}l@{\AgdaIndent{0}}]%
 \>[16]\AgdaOperator{\AgdaDatatype{\AgdaUnderscore{}≡\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaArgument{A}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -4676,7 +4682,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{inj-⦅⦆}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3176I]\AgdaSymbol{\{}\AgdaBound{sr₁}\AgdaSpace{}%
+\>[3179I]\AgdaSymbol{\{}\AgdaBound{sr₁}\AgdaSpace{}%
 \AgdaBound{sr₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
@@ -4686,7 +4692,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaGeneralizable{κ}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{\}}\<%
 \\
-\>[.][@{}l@{}]\<[3176I]%
+\>[.][@{}l@{}]\<[3179I]%
 \>[9]\AgdaSymbol{\{}\AgdaBound{wf₁}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{True}\AgdaSpace{}%
@@ -4814,7 +4820,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{normal-map-map₂}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3268I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[3271I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
@@ -4834,7 +4840,7 @@ We define the normal type syntax firstly by restricting the promotion of neutral
 \AgdaGeneralizable{κ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3268I]%
+\>[3271I][@{}l@{\AgdaIndent{0}}]%
 \>[19]\AgdaFunction{NormalOrdered}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -5290,7 +5296,7 @@ Now, in any context an arrow-kinded type is canonically $\lambda$-bound:
 \begin{code}%
 \>[0]\AgdaFunction{row-canonicity-∅}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3642I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
+\>[3645I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
 \AgdaInductiveConstructor{∅}\AgdaSpace{}%
@@ -5299,7 +5305,7 @@ Now, in any context an arrow-kinded type is canonically $\lambda$-bound:
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3642I][@{}l@{\AgdaIndent{0}}]%
+\>[3645I][@{}l@{\AgdaIndent{0}}]%
 \>[20]\AgdaFunction{∃[}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaFunction{]}\AgdaSpace{}%
@@ -5479,7 +5485,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \\
 \>[0]\AgdaFunction{orderedRenRowₖNF}%
-\>[3786I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[3789I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -5499,7 +5505,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3786I]%
+\>[.][@{}l@{}]\<[3789I]%
 \>[17]\AgdaFunction{NormalOrdered}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renRowₖNF}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSpace{}%
@@ -5510,7 +5516,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \>[0]\AgdaFunction{nsrRenₖNF}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[3810I]\AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
+\>[3813I]\AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
@@ -5531,7 +5537,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[3810I]%
+\>[.][@{}l@{}]\<[3813I]%
 \>[14]\AgdaFunction{NotSimpleRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renₖNF}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSpace{}%
@@ -5544,7 +5550,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \\
 \>[0]\AgdaFunction{nsrRenₖNF'}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[3839I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[3842I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -5562,7 +5568,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[3839I][@{}l@{\AgdaIndent{0}}]%
+\>[3842I][@{}l@{\AgdaIndent{0}}]%
 \>[14]\AgdaFunction{NotSimpleRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{renₖNF}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSpace{}%
@@ -5955,7 +5961,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{renRowₖNF-isMap}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[4171I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[4174I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -5971,7 +5977,7 @@ Renaming over normal types is defined in an entirely straightforward manner. Typ
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[4171I]%
+\>[.][@{}l@{}]\<[4174I]%
 \>[18]\AgdaFunction{renRowₖNF}\AgdaSpace{}%
 \AgdaBound{r}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
@@ -6122,7 +6128,7 @@ Note that it is precisely in "embedding" the \verb!NormalOrdered! predicate that
 \>[0]\AgdaFunction{Ordered⇑}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[4297I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
+\>[4300I]\AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -6135,7 +6141,7 @@ Note that it is precisely in "embedding" the \verb!NormalOrdered! predicate that
 \AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[4297I]%
+\>[.][@{}l@{}]\<[4300I]%
 \>[13]\AgdaFunction{Ordered}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{⇑Row}\AgdaSpace{}%
 \AgdaBound{ρ}\AgdaSymbol{)}\<%
@@ -6346,7 +6352,7 @@ Note that it is precisely in "embedding" the \verb!NormalOrdered! predicate that
 \>[0]\AgdaFunction{⇑Row-isMap}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[4470I]\AgdaSymbol{(}\AgdaBound{xs}\AgdaSpace{}%
+\>[4473I]\AgdaSymbol{(}\AgdaBound{xs}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SimpleRow}\AgdaSpace{}%
 \AgdaDatatype{NormalType}\AgdaSpace{}%
@@ -6356,7 +6362,7 @@ Note that it is precisely in "embedding" the \verb!NormalOrdered! predicate that
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[4470I]%
+\>[.][@{}l@{}]\<[4473I]%
 \>[15]\AgdaFunction{⇑Row}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡}}\AgdaSpace{}%
@@ -6760,7 +6766,7 @@ We finally define the semantic domain by induction on the kind \verb!κ!. Types 
 \AgdaOperator{\AgdaInductiveConstructor{`→}}\AgdaSpace{}%
 \AgdaBound{κ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{=}%
-\>[4778I]\AgdaSymbol{(∀}\AgdaSpace{}%
+\>[4781I]\AgdaSymbol{(∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
@@ -6769,7 +6775,7 @@ We finally define the semantic domain by induction on the kind \verb!κ!. Types 
 \AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSymbol{)}\<%
 \\
-\>[.][@{}l@{}]\<[4778I]%
+\>[.][@{}l@{}]\<[4781I]%
 \>[24]\AgdaSymbol{(}\AgdaBound{v}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SemType}\AgdaSpace{}%
@@ -6887,7 +6893,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{ordered-cut}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[4858I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[4861I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{ℕ}\AgdaSymbol{\}}\AgdaSpace{}%
@@ -6905,7 +6911,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[4858I]%
+\>[.][@{}l@{}]\<[4861I]%
 \>[14]\AgdaFunction{OrderedRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSpace{}%
@@ -6949,7 +6955,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{orderedMap₂}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[4901I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[4904I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -6963,7 +6969,7 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaGeneralizable{κ₁}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[4901I]%
+\>[4904I][@{}l@{\AgdaIndent{0}}]%
 \>[15]\AgdaSymbol{(}\AgdaBound{f}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SemType}\AgdaSpace{}%
@@ -7066,12 +7072,12 @@ For abbreviation later, we alias our two types of Kripke function spaces as so:
 \AgdaBound{n}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{λ}%
-\>[4990I]\AgdaSymbol{\{}\AgdaSpace{}%
+\>[4993I]\AgdaSymbol{\{}\AgdaSpace{}%
 \AgdaInductiveConstructor{fzero}%
 \>[37]\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaBound{τ}\<%
 \\
-\>[.][@{}l@{}]\<[4990I]%
+\>[.][@{}l@{}]\<[4993I]%
 \>[26]\AgdaSymbol{;}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{fsuc}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{)}\AgdaSpace{}%
@@ -7186,7 +7192,7 @@ Renaming over semantic types is otherwise defined in a straightforward manner. A
 \begin{code}[hide]%
 \>[0]\AgdaFunction{orderedRenRow}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[5074I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[5077I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -7206,7 +7212,7 @@ Renaming over semantic types is otherwise defined in a straightforward manner. A
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[5074I]%
+\>[.][@{}l@{}]\<[5077I]%
 \>[16]\AgdaFunction{OrderedRow'}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSpace{}%
 \AgdaBound{P}\AgdaSpace{}%
@@ -7263,7 +7269,7 @@ Renaming over semantic types is otherwise defined in a straightforward manner. A
 \\
 \>[0]\AgdaFunction{nrRenSem'}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[5138I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[5141I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -7286,7 +7292,7 @@ Renaming over semantic types is otherwise defined in a straightforward manner. A
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[5138I][@{}l@{\AgdaIndent{0}}]%
+\>[5141I][@{}l@{\AgdaIndent{0}}]%
 \>[13]\AgdaFunction{NotRow}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
@@ -7897,7 +7903,7 @@ Stopping here.
 \>[0]\AgdaFunction{reifyPreservesNR}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[5642I]\AgdaSymbol{(}\AgdaBound{ρ₁}\AgdaSpace{}%
+\>[5645I]\AgdaSymbol{(}\AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{RowType}\AgdaSpace{}%
@@ -7913,7 +7919,7 @@ Stopping here.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[5642I]%
+\>[.][@{}l@{}]\<[5645I]%
 \>[21]\AgdaSymbol{(}\AgdaBound{nr}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{NotRow}\AgdaSpace{}%
@@ -7934,7 +7940,7 @@ Stopping here.
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{reifyPreservesNR'}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[5672I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[5675I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -7951,7 +7957,7 @@ Stopping here.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[5672I][@{}l@{\AgdaIndent{0}}]%
+\>[5675I][@{}l@{\AgdaIndent{0}}]%
 \>[21]\AgdaSymbol{(}\AgdaBound{nr}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{NotRow}\AgdaSpace{}%
@@ -8601,7 +8607,7 @@ Stopping here.
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∈Row\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[6198I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[6201I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{l}\AgdaSpace{}%
@@ -8609,7 +8615,7 @@ Stopping here.
 \AgdaFunction{Label}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[6198I]%
+\>[.][@{}l@{}]\<[6201I]%
 \>[9]\AgdaSymbol{(}\AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
@@ -8647,7 +8653,7 @@ Stopping here.
 %
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}∈Row?\AgdaUnderscore{}}}%
-\>[6232I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[6235I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -8656,7 +8662,7 @@ Stopping here.
 \AgdaFunction{Label}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[6232I][@{}l@{\AgdaIndent{0}}]%
+\>[6235I][@{}l@{\AgdaIndent{0}}]%
 \>[9]\AgdaSymbol{(}\AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
@@ -8766,12 +8772,12 @@ Stopping here.
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaFunction{compl}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[6325I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[6328I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
 \AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[6325I]%
+\>[.][@{}l@{}]\<[6328I]%
 \>[8]\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
@@ -8861,12 +8867,12 @@ Stopping here.
 \>[0]\AgdaFunction{lemma}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[6395I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
+\>[6398I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
 \AgdaBound{m}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[6395I]%
+\>[.][@{}l@{}]\<[6398I]%
 \>[10]\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
@@ -8894,7 +8900,7 @@ Stopping here.
 \\
 %
 \>[10]\AgdaSymbol{(}\AgdaBound{R}%
-\>[6419I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[6422I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
 \AgdaBound{q}\AgdaSymbol{)}\AgdaSpace{}%
@@ -8906,7 +8912,7 @@ Stopping here.
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[6419I]%
+\>[.][@{}l@{}]\<[6422I]%
 \>[13]\AgdaFunction{OrderedRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaInductiveConstructor{suc}\AgdaSpace{}%
 \AgdaBound{n}\AgdaSpace{}%
@@ -9020,11 +9026,11 @@ Stopping here.
 \>[0]\AgdaFunction{ordered-⨾⨾}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[6526I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
+\>[6529I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSpace{}%
 \AgdaBound{m}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[6526I][@{}l@{\AgdaIndent{0}}]%
+\>[6529I][@{}l@{\AgdaIndent{0}}]%
 \>[17]\AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Fin}\AgdaSpace{}%
@@ -9345,7 +9351,7 @@ Stopping here.
 \>[0]\AgdaFunction{NotRow<\$>}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[6778I]\AgdaSymbol{\{}\AgdaBound{F}\AgdaSpace{}%
+\>[6781I]\AgdaSymbol{\{}\AgdaBound{F}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{SemType}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -9368,7 +9374,7 @@ Stopping here.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[6778I]%
+\>[.][@{}l@{}]\<[6781I]%
 \>[14]\AgdaFunction{NotRow}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{or}}\AgdaSpace{}%
@@ -10127,7 +10133,7 @@ Stopping here.
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{η}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[7389I]\AgdaFunction{Env}\AgdaSpace{}%
+\>[7392I]\AgdaFunction{Env}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₁}\AgdaSpace{}%
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
@@ -10141,7 +10147,7 @@ Stopping here.
 \AgdaOperator{\AgdaInductiveConstructor{]}}\AgdaSymbol{)}%
 \>[66]\AgdaSymbol{→}\<%
 \\
-\>[7389I][@{}l@{\AgdaIndent{0}}]%
+\>[7392I][@{}l@{\AgdaIndent{0}}]%
 \>[22]\AgdaFunction{reifyRow}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{evalRow}\AgdaSpace{}%
 \AgdaBound{xs}\AgdaSpace{}%
@@ -11590,7 +11596,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 \>[0]\AgdaFunction{extend-≋}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[8562I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[8565I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{η₁}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -11603,7 +11609,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{η₂}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[8562I][@{}l@{\AgdaIndent{0}}]%
+\>[8565I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaSymbol{\{}\AgdaBound{V₁}\AgdaSpace{}%
 \AgdaBound{V₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -12427,7 +12433,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \>[0]\AgdaFunction{reifyRow-≋}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[9255I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
+\>[9258I]\AgdaSymbol{\{}\AgdaBound{n}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{P}\AgdaSpace{}%
 \AgdaBound{Q}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -12441,7 +12447,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{κ}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[9255I]%
+\>[.][@{}l@{}]\<[9258I]%
 \>[15]\AgdaSymbol{(∀}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{i}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -12490,7 +12496,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 
 \begin{code}%
 \>[0]\AgdaFunction{fundC}%
-\>[9294I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[9297I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
@@ -12506,7 +12512,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[9294I][@{}l@{\AgdaIndent{0}}]%
+\>[9297I][@{}l@{\AgdaIndent{0}}]%
 \>[7]\AgdaFunction{Env-≋}\AgdaSpace{}%
 \AgdaBound{η₁}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
@@ -12524,7 +12530,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{η₂}\<%
 \\
 \>[0]\AgdaFunction{fundC-pred}%
-\>[9323I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[9326I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{π₁}\AgdaSpace{}%
 \AgdaBound{π₂}\AgdaSpace{}%
@@ -12543,7 +12549,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[9323I][@{}l@{\AgdaIndent{0}}]%
+\>[9326I][@{}l@{\AgdaIndent{0}}]%
 \>[12]\AgdaFunction{Env-≋}\AgdaSpace{}%
 \AgdaBound{η₁}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
@@ -12562,7 +12568,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 \>[0]\AgdaFunction{fundC-Row}\AgdaSpace{}%
 \AgdaSymbol{:}%
-\>[9356I]\AgdaSymbol{∀}\AgdaSpace{}%
+\>[9359I]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{ρ₁}\AgdaSpace{}%
 \AgdaBound{ρ₂}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -12580,7 +12586,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[9356I]%
+\>[.][@{}l@{}]\<[9359I]%
 \>[12]\AgdaFunction{Env-≋}\AgdaSpace{}%
 \AgdaBound{η₁}\AgdaSpace{}%
 \AgdaBound{η₂}\AgdaSpace{}%
@@ -13093,7 +13099,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀}%
-\>[9782I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
+\>[9785I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{ρ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -13103,7 +13109,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{V}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[9782I]%
+\>[.][@{}l@{}]\<[9785I]%
 \>[6]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{v}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋}}\AgdaSpace{}%
@@ -13142,7 +13148,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
 \>[4]\AgdaSymbol{∀}%
-\>[9818I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
+\>[9821I]\AgdaSymbol{\{}\AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaBound{r}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaFunction{Renamingₖ}\AgdaSpace{}%
@@ -13152,7 +13158,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{V}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[9818I]%
+\>[.][@{}l@{}]\<[9821I]%
 \>[6]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{v}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋ne}}%
@@ -13175,7 +13181,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \subsubsection{Properties}~
 \begin{code}%
 \>[0]\AgdaFunction{reflect-⟦⟧≋}%
-\>[9839I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[9842I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -13189,7 +13195,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[9839I][@{}l@{\AgdaIndent{0}}]%
+\>[9842I][@{}l@{\AgdaIndent{0}}]%
 \>[13]\AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaDatatype{≡t}}\AgdaSpace{}%
 \AgdaFunction{⇑NE}\AgdaSpace{}%
@@ -13204,7 +13210,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \>[0]\AgdaFunction{reify-⟦⟧≋}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[9862I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
+\>[9865I]\AgdaSymbol{\{}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\AgdaSpace{}%
 \AgdaGeneralizable{Δ}\AgdaSpace{}%
@@ -13216,7 +13222,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{κ}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[9862I][@{}l@{\AgdaIndent{0}}]%
+\>[9865I][@{}l@{\AgdaIndent{0}}]%
 \>[15]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋}}\AgdaSpace{}%
@@ -13362,7 +13368,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \>[0]\AgdaFunction{fundS}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}%
-\>[9980I]\AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
+\>[9983I]\AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSpace{}%
 \AgdaBound{κ}\AgdaSymbol{\}(}\AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -13379,7 +13385,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[9980I]%
+\>[.][@{}l@{}]\<[9983I]%
 \>[10]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋e}}\AgdaSpace{}%
@@ -13395,7 +13401,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{η}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{fundSRow}%
-\>[10007I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[10010I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{Δ₂}\AgdaSpace{}%
@@ -13417,7 +13423,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[10007I][@{}l@{\AgdaIndent{0}}]%
+\>[10010I][@{}l@{\AgdaIndent{0}}]%
 \>[10]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋e}}\AgdaSpace{}%
@@ -13433,7 +13439,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{η}\AgdaSymbol{)}\<%
 \\
 \>[0]\AgdaFunction{fundSPred}%
-\>[10039I]\AgdaSymbol{:}\AgdaSpace{}%
+\>[10042I]\AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
 \AgdaBound{κ}\AgdaSymbol{\}(}\AgdaBound{π}\AgdaSpace{}%
@@ -13454,7 +13460,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaGeneralizable{Δ₂}\AgdaSymbol{\}}\AgdaSpace{}%
 \AgdaSymbol{→}\<%
 \\
-\>[.][@{}l@{}]\<[10039I]%
+\>[.][@{}l@{}]\<[10042I]%
 \>[10]\AgdaOperator{\AgdaFunction{⟦}}\AgdaSpace{}%
 \AgdaBound{σ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{⟧≋e}}\AgdaSpace{}%

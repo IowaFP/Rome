@@ -1,0 +1,702 @@
+\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart} % % use acmtog for two-column
+\overfullrule=1mm
+% \usepackage[margin=1.5in]{geometry}
+
+\include{header.tex} 
+\usepackage{agda}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% ACM garbage
+\setcopyright{none}
+\citestyle{acmauthoryear}
+\settopmatter{printacmref=false, printfolios=true}
+\renewcommand{\footnotetextcopyrightpermission}{} 
+% Redefine the \acmDOI command to do nothing 
+\pagestyle{empty}
+\fancyfoot{}
+
+%\usepackage[utf8]{inputenc}
+% \numberwithin{equation}{section}
+% \numberwithin{theorem}{section}
+
+\title{Normalization By Evaluation of Types in \Rome}
+\author{Alex Hubers}
+\orcid{0000-0002-6237-3326}
+\affiliation{
+  \department{Department of Computer Science}
+  \institution{The University of Iowa}
+  \streetaddress{14 MacLean Hall}
+  \city{Iowa City}
+  \state{Iowa}
+  \country{USA}}
+\email{alexander-hubers@uiowa.edu}
+
+\usepackage{newunicodechar}
+\newunicodechar{∋}{$\ni$}
+\newunicodechar{ε}{$\epsilon$}
+\newunicodechar{·}{$\cdot$}
+\newunicodechar{⊢}{$\vdash$}
+\newunicodechar{⋆}{${}^\star$}
+\newunicodechar{Π}{$\Pi$}
+\newunicodechar{⇒}{$\Rightarrow$}
+\newunicodechar{ƛ}{$\lambdabar$}
+\newunicodechar{∅}{$\emptyset$}
+\newunicodechar{∀}{$\forall$}
+\newunicodechar{ϕ}{$\Phi$}
+\newunicodechar{φ}{$\phi$}
+\newunicodechar{ψ}{$\Psi$}
+\newunicodechar{ρ}{$\rho$}
+\newunicodechar{α}{$\alpha$}
+\newunicodechar{β}{$\beta$}
+\newunicodechar{μ}{$\mu$}
+\newunicodechar{σ}{$\sigma$}
+\newunicodechar{≡}{$\equiv$}
+\newunicodechar{Γ}{$\Gamma$}
+\newunicodechar{∥}{$\parallel$}
+\newunicodechar{Λ}{$\Lambda$}
+\newunicodechar{₂}{$_2$}
+\newunicodechar{θ}{$\theta$}
+\newunicodechar{Θ}{$\Theta$}
+\newunicodechar{∘}{$\circ$}
+\newunicodechar{Δ}{$\Delta$}
+\newunicodechar{★}{$\star$}
+\newunicodechar{λ}{$\lambda$}
+\newunicodechar{⊧}{$\models$}
+\newunicodechar{⊎}{$\uplus$}
+\newunicodechar{η}{$\eta$}
+\newunicodechar{⊥}{$\bot$}
+\newunicodechar{Σ}{$\Sigma$}
+\newunicodechar{ξ}{$\xi$}
+\newunicodechar{₁}{$_1$}
+\newunicodechar{ₖ}{$_k$}
+\newunicodechar{₃}{$_3$}
+\newunicodechar{ℕ}{$\mathbb{N}$}
+\newunicodechar{ᶜ}{${}^c$}
+\newunicodechar{Φ}{$\Phi$}
+\newunicodechar{Ψ}{$\Psi$}
+\newunicodechar{⊤}{$\top$}
+\newunicodechar{κ}{$\kappa$}
+\newunicodechar{τ}{$\tau$}
+\newunicodechar{π}{$\pi$}
+\newunicodechar{⌊}{$\lfloor$}
+\newunicodechar{⌋}{$\rfloor$}
+\newunicodechar{≲}{$\lesssim$}
+\newunicodechar{▹}{$\triangleright$}
+\newunicodechar{ℓ}{$\ell$}
+\newunicodechar{υ}{$\upsilon$}
+
+\newunicodechar{→}{$\rightarrow$}
+\newunicodechar{×}{$\times$}
+\newunicodechar{ω}{$\omega$}
+\newunicodechar{∃}{$\exists$}
+\newunicodechar{∈}{$\in$}
+\newunicodechar{⇑}{$\Uparrow$}
+\newunicodechar{⇓}{$\Downarrow$}
+\newunicodechar{≋}{$\approx$}
+\newunicodechar{ₗ}{$_l$}
+\newunicodechar{ᵣ}{$_r$}
+\newunicodechar{⟦}{$\llbracket$}
+\newunicodechar{⟧}{$\rrbracket$}
+\newunicodechar{⁻}{$^{-}$}
+\newunicodechar{¹}{$^{1}$}
+\newunicodechar{₄}{$_{4}$}
+\newunicodechar{⦅}{$\llparenthesis$}
+\newunicodechar{⦆}{$\rrparenthesis$}
+\newunicodechar{─}{$\setminus$}
+\newunicodechar{∷}{$\co\co$}
+\newunicodechar{ₖ}{$_{k}$}
+\newunicodechar{ₙ}{$_{n}$}
+\newunicodechar{≟}{$\overset{?}{=}$}
+\newunicodechar{𝒯}{$\mathcal T$}
+\newunicodechar{⨾}{$\co$}
+\newunicodechar{Ξ}{$\Xi$}
+\newunicodechar{ξ}{$\xi$}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types, qualified types, and a novel \emph{row complement} operator. Types are normalized to $\beta\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome is a strict extension of System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
+
+\section{The \Rome{} calculus}
+
+For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We forego further description to the next section.
+
+\begin{figure}[H]
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+\text{Type variables} & \alpha \in \mathcal A & \text{Labels} & \ell \in \mathcal L
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Kinds}} & \kappa & ::= & \TypeK \mid \LabK \mid \RowK \kappa \mid \kappa \to \kappa \\
+  \mcl{\text{Predicates}} & \pi, \psi & ::= & \LeqP \rho \rho \mid \PlusP \rho \rho \rho \\
+  \text{Types} & \mcr{\Types \ni \phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
+               &                              &     & \mid    & \RowIx i 0 m {\LabTy {\xi_i} {\tau_i}} \mid \ell \mid \Sing{\tau} \mid \Mapp{\phi}{\rho} \mid \rho \Compl \rho \\ 
+               &                              &     & \mid & \tau \to \tau \mid \Pi \mid \Sigma \mid \mu \, \phi 
+\end{doublesyntaxarray}
+\end{gather*}
+\caption{Syntax}
+\label{fig:syntax-types}
+\end{figure}
+
+\subsection{Example types and the need for reduction}
+% Add motivation for where this incurs type normalization. Show "hidden" maps and hidden reductions. How does $(\Pi\, (\ell \triangleright f)) \, \tau$ reduce?
+We will write Rome types in programs in the slightly-altered syntax of \emph{Rosi}, our experimental implementation of \Rome. 
+Wand's problem:
+
+\begin{rosi}
+wand : forall l x y z t. x + y ~ z, {l := t} < z => #l -> Pi x -> Pi y -> t
+\end{rosi}
+
+Here we can simulate the deriving of functor typeclass instances: given a record of \verb!fmap! instances, I can give you a \verb!Functor! instance for $\Sigma\, z$.
+
+\begin{rosi}
+type Functor : (* -> *) -> *
+type Functor = \f. forall a b. (a -> b) -> f a -> f b
+
+fmapS : forall z : R[* -> *]. Pi (Functor z) -> Functor (Sigma z)
+\end{rosi}
+
+Let's first elaborate this type by rendering some implicit notation (e.g., maps) explicit.
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. Pi (Functor z) -> Functor (Sigma z)
+\end{rosi}
+
+\Ni And a desugaring of booleans to Church encodings:
+
+\begin{rosi}
+desugar : forall y. BoolF < y, LamF < y - BoolF =>
+          Pi (Functor (y - BoolF)) -> Mu (Sigma y) -> Mu (Sigma (y - BoolF))
+\end{rosi}
+
+\section{Type Reduction}
+\subsection{Normal forms}
+
+By directing the type equivalence relation we define computation on types. This serves as a sort of specification on the shape normal forms of types ought to have. Our grammar for normal types must be carefully crafted so as to be neither too "large" nor too "small". In particular, we wish our normalization algorithm to be \emph{stable}, which implies surjectivity. Hence if the normal syntax is too large---i.e., it produces junk types---then these junk types will have pre-images in the domain of normalization. Inversely, if the normal syntax is too small, then there will be types whose normal forms cannot be expressed. \Cref{fig:type-normalization} specifies the syntax and typing of normal types, given as reference. We describe the syntax in more depth by describing its intrinsic mechanization.
+
+\begin{figure}[H]
+\begin{gather*}
+\begin{array}{r@{\hspace{7px}}l@{\qquad\qquad}r@{\hspace{7px}}l}
+  \text{Type variables} & \alpha \in \mathcal A &
+  \text{Labels} & \ell \in \mathcal L
+\end{array} \\
+\begin{doublesyntaxarray}
+  \mcl{\text{Ground Kinds}}  & \gamma   & ::= & \TypeK \mid \LabK \\
+  \mcl{\text{Kinds}}         & \kappa    & ::= & \gamma \mid \kappa \to \kappa \mid  \RowK \kappa \\
+  \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}} \\
+  \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \Mapp {\hat{\phi}} {n} \mid \Normal{\rho} \mid \Normal{\pi} \then \Normal{\tau} \mid \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau} \\
+                             &       &     & \mid & \LabTy n {\Normal \tau} \mid \ell \mid \Sing {\Normal \tau} \mid {\Normal \tau} \Compl {\Normal \tau} \mid \Pi \, {\Normal \tau} \mid \Sigma \, {\Normal \tau}  \\
+\end{doublesyntaxarray}
+\end{gather*}
+\caption{Normal type forms}
+\label{fig:type-normalization}
+\end{figure}
+
+\subsection{Metatheory}
+\subsubsection{Canonicity of normal types}
+
+The syntax of normal types is defined precisely so as to enjoy canonical forms
+based on kind.
+\subsubsection{Completeness of normalization}
+\subsubsection{Soundness of normalization}
+\subsubsection{Decidability of type conversion}
+
+\section{Normalization by Evaluation (NbE)}
+\begin{code}[hide]%
+\>[0]\AgdaKeyword{postulate}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaPostulate{bot}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{X}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaPrimitive{Set}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{X}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Kinds.Syntax}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Kinds.GVars}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Types.Syntax}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Types.Normal.Syntax}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Types.Semantic.Syntax}\<%
+\\
+\>[0]\AgdaKeyword{open}\AgdaSpace{}%
+\AgdaKeyword{import}\AgdaSpace{}%
+\AgdaModule{Rome.Prelude}\<%
+\end{code}
+
+\subsection{The semantic domain}
+
+\subsection{reflection \& reification}
+
+\subsection{Evaluation}
+
+\subsection{Normalization}
+\begin{code}%
+\>[0]\AgdaComment{--\ ⇓\ :\ ∀\ \{Δ\}\ →\ Type\ Δ\ κ\ →\ NormalType\ Δ\ κ}\<%
+\\
+\>[0]\AgdaComment{--\ ⇓\ τ\ =\ reify\ (eval\ τ\ idEnv)}\<%
+\end{code}
+
+\section{Mechanizing Metatheory}
+
+\subsection{Stability}
+
+\begin{code}%
+\>[0]\AgdaComment{--\ stability\ \ \ :\ ∀\ (τ\ :\ NormalType\ Δ\ κ)\ →\ ⇓\ (⇑\ τ)\ ≡\ τ}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityNE\ :\ ∀\ (τ\ :\ NeutralType\ Δ\ κ)\ →\ eval\ (⇑NE\ τ)\ (idEnv\ \{Δ\})\ ≡\ reflect\ τ}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityPred\ :\ ∀\ (π\ :\ NormalPred\ Δ\ R[\ κ\ ])\ →\ evalPred\ (⇑Pred\ π)\ idEnv\ ≡\ π}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityRow\ :\ ∀\ (ρ\ :\ SimpleRow\ NormalType\ Δ\ R[\ κ\ ])\ →\ reifyRow\ (evalRow\ (⇑Row\ ρ)\ idEnv)\ ≡\ ρ}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ stability\ \ \ \ \ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityNE\ \ \ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityPred\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ stabilityRow\ =\ bot\ \AgdaUnderscore{}}\<%
+\end{code}
+
+Stability implies surjectivity and idempotency.
+
+\begin{code}%
+\>[0]\AgdaComment{--\ idempotency\ :\ ∀\ (τ\ :\ Type\ Δ\ κ)\ →\ (⇑\ ∘\ ⇓\ ∘\ ⇑\ ∘\ ⇓)\ τ\ ≡\ \ (⇑\ ∘\ ⇓)\ \ τ}\<%
+\\
+\>[0]\AgdaComment{--\ idempotency\ τ\ rewrite\ stability\ (⇓\ τ)\ =\ refl}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ surjectivity\ :\ ∀\ (τ\ :\ NormalType\ Δ\ κ)\ →\ ∃[\ υ\ ]\ (⇓\ υ\ ≡\ τ)}\<%
+\\
+\>[0]\AgdaComment{--\ surjectivity\ τ\ =\ (\ ⇑\ τ\ ,\ stability\ τ\ )\ }\<%
+\end{code}
+
+Dual to surjectivity, stability also implies that embedding is injective.
+ 
+\begin{code}%
+\>[0]\AgdaComment{--\ ⇑-inj\ :\ ∀\ (τ₁\ τ₂\ :\ NormalType\ Δ\ κ)\ →\ ⇑\ τ₁\ ≡\ ⇑\ τ₂\ →\ τ₁\ ≡\ τ₂\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\<%
+\\
+\>[0]\AgdaComment{--\ ⇑-inj\ τ₁\ τ₂\ eq\ =\ trans\ (sym\ (stability\ τ₁))\ (trans\ (cong\ ⇓\ eq)\ (stability\ τ₂))}\<%
+\end{code}
+
+\subsection{A logical relation for completeness}
+
+\begin{code}%
+\>[0]\AgdaComment{--\ subst-Row\ :\ ∀\ \{A\ :\ Set\}\ \{n\ m\ :\ ℕ\}\ →\ (n\ ≡\ m)\ →\ (f\ :\ Fin\ n\ →\ A)\ →\ Fin\ m\ →\ A\ }\<%
+\\
+\>[0]\AgdaComment{--\ subst-Row\ refl\ f\ =\ f}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ --\ Completeness\ relation\ on\ semantic\ types}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ :\ SemType\ Δ\ κ\ →\ SemType\ Δ\ κ\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋₂\AgdaUnderscore{}\ :\ ∀\ \{A\}\ →\ (x\ y\ :\ A\ ×\ SemType\ Δ\ κ)\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ (l₁\ ,\ τ₁)\ ≋₂\ (l₂\ ,\ τ₂)\ =\ l₁\ ≡\ l₂\ ×\ τ₁\ ≋\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋R\AgdaUnderscore{}\ :\ (ρ₁\ ρ₂\ :\ Row\ (SemType\ Δ\ κ))\ →\ Set\ }\<%
+\\
+\>[0]\AgdaComment{--\ (n\ ,\ P)\ ≋R\ (m\ ,\ Q)\ =\ Σ[\ pf\ ∈\ (n\ ≡\ m)\ ]\ (∀\ (i\ :\ Fin\ m)\ →\ \ (subst-Row\ pf\ P)\ i\ ≋₂\ Q\ i)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ PointEqual-≋\ :\ ∀\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ (F\ G\ :\ KripkeFunction\ Δ₁\ κ₁\ κ₂)\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ PointEqualNE-≋\ :\ ∀\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ (F\ G\ :\ KripkeFunctionNE\ Δ₁\ κ₁\ κ₂)\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ Uniform\ :\ \ ∀\ \{Δ\}\ \{κ₁\}\ \{κ₂\}\ →\ KripkeFunction\ Δ\ κ₁\ κ₂\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ UniformNE\ :\ \ ∀\ \{Δ\}\ \{κ₁\}\ \{κ₂\}\ →\ KripkeFunctionNE\ Δ\ κ₁\ κ₂\ →\ Set}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{κ\ =\ ★\}\ τ₁\ τ₂\ =\ τ₁\ ≡\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{κ\ =\ L\}\ τ₁\ τ₂\ =\ τ₁\ ≡\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{κ\ =\ κ₁\ `→\ κ₂\}\ F\ G\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ Uniform\ F\ ×\ Uniform\ G\ ×\ PointEqual-≋\ \{Δ₁\}\ F\ G\ }\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ₂\ ]\}\ (\AgdaUnderscore{}<\$>\AgdaUnderscore{}\ \{κ₁\}\ φ₁\ n₁)\ (\AgdaUnderscore{}<\$>\AgdaUnderscore{}\ \{κ₁'\}\ φ₂\ n₂)\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ Σ[\ pf\ ∈\ (κ₁\ ≡\ κ₁')\ ]\ \ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ UniformNE\ φ₁}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ×\ UniformNE\ φ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ×\ (PointEqualNE-≋\ (convKripkeNE₁\ pf\ φ₁)\ φ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ×\ convNE\ pf\ n₁\ ≡\ n₂)}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ₂\ ]\}\ (φ₁\ <\$>\ n₁)\ \AgdaUnderscore{}\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ₂\ ]\}\ \AgdaUnderscore{}\ (φ₁\ <\$>\ n₁)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (l₁\ ▹\ τ₁)\ (l₂\ ▹\ τ₂)\ =\ l₁\ ≡\ l₂\ ×\ τ₁\ ≋\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (x₁\ ▹\ x₂)\ (row\ ρ\ x₃)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (x₁\ ▹\ x₂)\ (ρ₂\ ─\ ρ₃)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (row\ ρ\ x₁)\ (x₂\ ▹\ x₃)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (row\ (n\ ,\ P)\ x₁)\ (row\ (m\ ,\ Q)\ x₂)\ =\ (n\ ,\ P)\ ≋R\ (m\ ,\ Q)}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (row\ ρ\ x₁)\ (ρ₂\ ─\ ρ₃)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (ρ₁\ ─\ ρ₂)\ (x₁\ ▹\ x₂)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (ρ₁\ ─\ ρ₂)\ (row\ ρ\ x₁)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ \AgdaUnderscore{}≋\AgdaUnderscore{}\ \{Δ₁\}\ \{R[\ κ\ ]\}\ (ρ₁\ ─\ ρ₂)\ (ρ₃\ ─\ ρ₄)\ =\ ρ₁\ ≋\ ρ₃\ ×\ ρ₂\ ≋\ ρ₄}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ PointEqual-≋\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ F\ G\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ∀\ \{Δ₂\}\ (ρ\ :\ Renamingₖ\ Δ₁\ Δ₂)\ \{V₁\ V₂\ :\ SemType\ Δ₂\ κ₁\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ V₁\ ≋\ V₂\ →\ F\ ρ\ V₁\ ≋\ G\ ρ\ V₂}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ PointEqualNE-≋\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ F\ G\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ∀\ \{Δ₂\}\ (ρ\ :\ Renamingₖ\ Δ₁\ Δ₂)\ (V\ :\ NeutralType\ Δ₂\ κ₁)\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ F\ ρ\ V\ ≋\ G\ ρ\ V}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ Uniform\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ F\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ∀\ \{Δ₂\ Δ₃\}\ (ρ₁\ :\ Renamingₖ\ Δ₁\ Δ₂)\ (ρ₂\ :\ Renamingₖ\ Δ₂\ Δ₃)\ (V₁\ V₂\ :\ SemType\ Δ₂\ κ₁)\ →}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ V₁\ ≋\ V₂\ →\ (renSem\ ρ₂\ (F\ ρ₁\ V₁))\ ≋\ (renKripke\ ρ₁\ F\ ρ₂\ (renSem\ ρ₂\ V₂))}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ UniformNE\ \{Δ₁\}\ \{κ₁\}\ \{κ₂\}\ F\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ∀\ \{Δ₂\ Δ₃\}\ (ρ₁\ :\ Renamingₖ\ Δ₁\ Δ₂)\ (ρ₂\ :\ Renamingₖ\ Δ₂\ Δ₃)\ (V\ :\ NeutralType\ Δ₂\ κ₁)\ →}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ (renSem\ ρ₂\ (F\ ρ₁\ V))\ ≋\ F\ (ρ₂\ ∘\ ρ₁)\ (renₖNE\ ρ₂\ V)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ Env-≋\ :\ (η₁\ η₂\ :\ Env\ Δ₁\ Δ₂)\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ Env-≋\ η₁\ η₂\ =\ ∀\ \{κ\}\ (x\ :\ TVar\ \AgdaUnderscore{}\ κ)\ →\ (η₁\ x)\ ≋\ (η₂\ x)}\<%
+\end{code}
+
+\subsubsection{Properties}~
+
+\begin{code}%
+\>[0]\AgdaComment{--\ reflect-≋\ \ :\ ∀\ \{τ₁\ τ₂\ :\ NeutralType\ Δ\ κ\}\ →\ τ₁\ ≡\ τ₂\ →\ reflect\ τ₁\ ≋\ reflect\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ reify-≋\ \ \ \ :\ ∀\ \{V₁\ V₂\ :\ SemType\ Δ\ κ\}\ \ \ \ \ →\ V₁\ ≋\ V₂\ →\ reify\ V₁\ \ \ ≡\ reify\ V₂\ }\<%
+\\
+\>[0]\AgdaComment{--\ reifyRow-≋\ :\ ∀\ \{n\}\ (P\ Q\ :\ Fin\ n\ →\ Label\ ×\ SemType\ Δ\ κ)\ →\ \ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (∀\ (i\ :\ Fin\ n)\ →\ P\ i\ ≋₂\ Q\ i)\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reifyRow\ (n\ ,\ P)\ ≡\ reifyRow\ (n\ ,\ Q)}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ reflect-≋\ \ =\ bot\ \AgdaUnderscore{}\ }\<%
+\\
+\>[0]\AgdaComment{--\ reify-≋\ \ \ \ =\ bot\ \AgdaUnderscore{}\ }\<%
+\\
+\>[0]\AgdaComment{--\ reifyRow-≋\ =\ bot\ \AgdaUnderscore{}\ }\<%
+\end{code}
+
+\subsection{The fundamental theorem and completeness}
+
+\begin{code}%
+\>[0]\AgdaComment{--\ fundC\ :\ ∀\ \{τ₁\ τ₂\ :\ Type\ Δ₁\ κ\}\ \{η₁\ η₂\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ Env-≋\ η₁\ η₂\ →\ τ₁\ ≡t\ τ₂\ →\ eval\ τ₁\ η₁\ ≋\ eval\ τ₂\ η₂}\<%
+\\
+\>[0]\AgdaComment{--\ fundC-pred\ :\ ∀\ \{π₁\ π₂\ :\ Pred\ Type\ Δ₁\ R[\ κ\ ]\}\ \{η₁\ η₂\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ Env-≋\ η₁\ η₂\ →\ π₁\ ≡p\ π₂\ →\ evalPred\ π₁\ η₁\ ≡\ evalPred\ π₂\ η₂}\<%
+\\
+\>[0]\AgdaComment{--\ fundC-Row\ :\ ∀\ \{ρ₁\ ρ₂\ :\ SimpleRow\ Type\ Δ₁\ R[\ κ\ ]\}\ \{η₁\ η₂\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ Env-≋\ η₁\ η₂\ →\ ρ₁\ ≡r\ ρ₂\ →\ evalRow\ ρ₁\ η₁\ ≋R\ evalRow\ ρ₂\ η₂}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ fundC\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ fundC-pred\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ fundC-Row\ =\ bot\ \AgdaUnderscore{}}\<%
+\end{code}
+
+\begin{code}%
+\>[0]\AgdaComment{--\ idEnv-≋\ :\ ∀\ \{Δ\}\ →\ Env-≋\ (idEnv\ \{Δ\})\ (idEnv\ \{Δ\})}\<%
+\\
+\>[0]\AgdaComment{--\ idEnv-≋\ x\ =\ reflect-≋\ refl}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ completeness\ :\ ∀\ \{τ₁\ τ₂\ :\ Type\ Δ\ κ\}\ →\ τ₁\ ≡t\ τ₂\ →\ ⇓\ τ₁\ ≡\ ⇓\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ completeness\ eq\ =\ reify-≋\ (fundC\ idEnv-≋\ eq)\ \ }\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ completeness-row\ :\ ∀\ \{ρ₁\ ρ₂\ :\ SimpleRow\ Type\ Δ\ R[\ κ\ ]\}\ →\ ρ₁\ ≡r\ ρ₂\ →\ ⇓Row\ ρ₁\ ≡\ ⇓Row\ ρ₂}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ completeness-row\ =\ bot\ \AgdaUnderscore{}}\<%
+\end{code}
+
+\subsection{A logical relation for soundness}
+\begin{code}%
+\>[0]\AgdaComment{--\ infix\ 0\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ :\ ∀\ \{κ\}\ →\ Type\ Δ\ κ\ →\ SemType\ Δ\ κ\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋ne\AgdaUnderscore{}\ :\ ∀\ \{κ\}\ →\ Type\ Δ\ κ\ →\ NeutralType\ Δ\ κ\ →\ Set}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧r≋\AgdaUnderscore{}\ :\ ∀\ \{κ\}\ →\ SimpleRow\ Type\ Δ\ R[\ κ\ ]\ →\ Row\ (SemType\ Δ\ κ)\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋₂\AgdaUnderscore{}\ :\ ∀\ \{κ\}\ →\ Label\ ×\ Type\ Δ\ κ\ →\ Label\ ×\ SemType\ Δ\ κ\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\ (l₁\ ,\ τ)\ ⟧≋₂\ (l₂\ ,\ V)\ =\ (l₁\ ≡\ l₂)\ ×\ (⟦\ τ\ ⟧≋\ V)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ SoundKripke\ :\ Type\ Δ₁\ (κ₁\ `→\ κ₂)\ →\ KripkeFunction\ Δ₁\ κ₁\ κ₂\ →\ Set}\<%
+\\
+\>[0]\AgdaComment{--\ SoundKripkeNE\ :\ Type\ Δ₁\ (κ₁\ `→\ κ₂)\ →\ KripkeFunctionNE\ Δ₁\ κ₁\ κ₂\ →\ Set}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ --\ τ\ is\ equivalent\ to\ neutral\ `n`\ if\ it's\ equivalent\ }\<%
+\\
+\>[0]\AgdaComment{--\ --\ to\ the\ η\ and\ map-id\ expansion\ of\ n}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋ne\AgdaUnderscore{}\ τ\ n\ =\ τ\ ≡t\ ⇑\ (η-norm\ n)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{κ\ =\ ★\}\ τ₁\ τ₂\ =\ τ₁\ ≡t\ ⇑\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{κ\ =\ L\}\ τ₁\ τ₂\ =\ τ₁\ ≡t\ ⇑\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{Δ₁\}\ \{κ\ =\ κ₁\ `→\ κ₂\}\ f\ F\ =\ SoundKripke\ f\ F}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{Δ\}\ \{κ\ =\ R[\ κ\ ]\}\ τ\ (row\ (n\ ,\ P)\ \ oρ)\ =}\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ let\ xs\ =\ ⇑Row\ (reifyRow\ (n\ ,\ P))\ in\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ (τ\ ≡t\ ⦅\ xs\ ⦆\ (fromWitness\ (Ordered⇑\ (reifyRow\ (n\ ,\ P))\ (reifyRowOrdered'\ n\ P\ oρ))))\ ×\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ (⟦\ xs\ ⟧r≋\ (n\ ,\ P))}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{Δ\}\ \{κ\ =\ R[\ κ\ ]\}\ τ\ (l\ ▹\ V)\ =\ (τ\ ≡t\ (⇑NE\ l\ ▹\ ⇑\ (reify\ V)))\ ×\ (⟦\ ⇑\ (reify\ V)\ ⟧≋\ V)}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{Δ\}\ \{κ\ =\ R[\ κ\ ]\}\ τ\ ((ρ₂\ ─\ ρ₁)\ \{nr\})\ =\ (τ\ ≡t\ (⇑\ (reify\ ((ρ₂\ ─\ ρ₁)\ \{nr\}))))\ ×\ (⟦\ ⇑\ (reify\ ρ₂)\ ⟧≋\ ρ₂)\ ×\ (⟦\ ⇑\ (reify\ ρ₁)\ ⟧≋\ ρ₁)}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋\AgdaUnderscore{}\ \{Δ\}\ \{κ\ =\ R[\ κ\ ]\}\ τ\ (φ\ <\$>\ n)\ =\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ ∃[\ f\ ]\ ((τ\ ≡t\ (f\ <\$>\ ⇑NE\ n))\ ×\ (SoundKripkeNE\ f\ φ))}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\ []\ ⟧r≋\ (zero\ ,\ P)\ =\ ⊤}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\ []\ ⟧r≋\ (suc\ n\ ,\ P)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\ x\ ∷\ ρ\ ⟧r≋\ (zero\ ,\ P)\ =\ ⊥}\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\ x\ ∷\ ρ\ ⟧r≋\ (suc\ n\ ,\ P)\ =\ \ (⟦\ x\ ⟧≋₂\ (P\ fzero))\ ×\ ⟦\ ρ\ ⟧r≋\ (n\ ,\ P\ ∘\ fsuc)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ SoundKripke\ \{Δ₁\ =\ Δ₁\}\ \{κ₁\ =\ κ₁\}\ \{κ₂\ =\ κ₂\}\ f\ F\ =\ \ \ \ \ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ ∀\ \{Δ₂\}\ (ρ\ :\ Renamingₖ\ Δ₁\ Δ₂)\ \{v\ V\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ ⟦\ v\ ⟧≋\ V\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ ⟦\ (renₖ\ ρ\ f\ ·\ v)\ ⟧≋\ (renKripke\ ρ\ F\ ·V\ V)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ SoundKripkeNE\ \{Δ₁\ =\ Δ₁\}\ \{κ₁\ =\ κ₁\}\ \{κ₂\ =\ κ₂\}\ f\ F\ =\ \ \ \ \ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ ∀\ \{Δ₂\}\ (r\ :\ Renamingₖ\ Δ₁\ Δ₂)\ \{v\ V\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ ⟦\ v\ ⟧≋ne\ \ V\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ ⟦\ (renₖ\ r\ f\ ·\ v)\ ⟧≋\ (F\ r\ V)}\<%
+\end{code}
+
+\subsubsection{Properties}~
+\begin{code}%
+\>[0]\AgdaComment{--\ reflect-⟦⟧≋\ :\ ∀\ \{τ\ :\ Type\ Δ\ κ\}\ \{υ\ :\ \ NeutralType\ Δ\ κ\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ \ τ\ ≡t\ ⇑NE\ υ\ →\ ⟦\ τ\ ⟧≋\ (reflect\ υ)}\<%
+\\
+\>[0]\AgdaComment{--\ reify-⟦⟧≋\ :\ ∀\ \{τ\ :\ Type\ Δ\ κ\}\ \{V\ :\ \ SemType\ Δ\ κ\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ⟦\ τ\ ⟧≋\ V\ →\ τ\ ≡t\ ⇑\ (reify\ V)}\<%
+\\
+\>[0]\AgdaComment{--\ η-norm-≡t\ :\ ∀\ (τ\ :\ NeutralType\ Δ\ κ)\ →\ ⇑\ (η-norm\ τ)\ ≡t\ ⇑NE\ τ\ }\<%
+\\
+\>[0]\AgdaComment{--\ subst-⟦⟧≋\ :\ ∀\ \{τ₁\ τ₂\ :\ Type\ Δ\ κ\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ τ₁\ ≡t\ τ₂\ →\ \{V\ :\ SemType\ Δ\ κ\}\ →\ ⟦\ τ₁\ ⟧≋\ V\ →\ ⟦\ τ₂\ ⟧≋\ V\ }\<%
+\end{code}
+
+\subsubsection{Logical environments}~
+\begin{code}%
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋e\AgdaUnderscore{}\ :\ ∀\ \{Δ₁\ Δ₂\}\ →\ Substitutionₖ\ Δ₁\ Δ₂\ →\ Env\ Δ₁\ Δ₂\ →\ Set\ \ }\<%
+\\
+\>[0]\AgdaComment{--\ ⟦\AgdaUnderscore{}⟧≋e\AgdaUnderscore{}\ \{Δ₁\}\ σ\ η\ =\ ∀\ \{κ\}\ (α\ :\ TVar\ Δ₁\ κ)\ →\ ⟦\ (σ\ α)\ ⟧≋\ (η\ α)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ Identity\ relation}\<%
+\\
+\>[0]\AgdaComment{--\ idSR\ :\ ∀\ \{Δ₁\}\ →\ \ ⟦\ `\ ⟧≋e\ (idEnv\ \{Δ₁\})}\<%
+\\
+\>[0]\AgdaComment{--\ idSR\ α\ =\ reflect-⟦⟧≋\ eq-refl}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ reflect-⟦⟧≋\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ reify-⟦⟧≋\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ η-norm-≡t\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ subst-⟦⟧≋\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ \textbackslash{}end\{code\}}\<%
+\\
+\>[0]\AgdaComment{--\ \textbackslash{}subsection\{The\ fundamental\ theorem\ and\ soundness\}}\<%
+\\
+\>[0]\AgdaComment{--\ \textbackslash{}begin\{code\}}\<%
+\\
+\>[0]\AgdaComment{--\ fundS\ :\ ∀\ \{Δ₁\ Δ₂\ κ\}(τ\ :\ Type\ Δ₁\ κ)\{σ\ :\ Substitutionₖ\ Δ₁\ Δ₂\}\{η\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ ⟦\ σ\ ⟧≋e\ η\ \ →\ ⟦\ subₖ\ σ\ τ\ ⟧≋\ (eval\ τ\ η)}\<%
+\\
+\>[0]\AgdaComment{--\ fundSRow\ :\ ∀\ \{Δ₁\ Δ₂\ κ\}(xs\ :\ SimpleRow\ Type\ Δ₁\ R[\ κ\ ])\{σ\ :\ Substitutionₖ\ Δ₁\ Δ₂\}\{η\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ ⟦\ σ\ ⟧≋e\ η\ \ →\ ⟦\ subRowₖ\ σ\ xs\ ⟧r≋\ (evalRow\ xs\ η)}\<%
+\\
+\>[0]\AgdaComment{--\ fundSPred\ :\ ∀\ \{Δ₁\ κ\}(π\ :\ Pred\ Type\ Δ₁\ R[\ κ\ ])\{σ\ :\ Substitutionₖ\ Δ₁\ Δ₂\}\{η\ :\ Env\ Δ₁\ Δ₂\}\ →\ }\<%
+\\
+\>[0]\AgdaComment{--\ \ \ \ \ \ \ \ \ \ \ ⟦\ σ\ ⟧≋e\ η\ →\ (subPredₖ\ σ\ π)\ ≡p\ ⇑Pred\ (evalPred\ π\ η)\ }\<%
+\end{code}
+
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ fundS\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ fundSRow\ =\ bot\ \AgdaUnderscore{}}\<%
+\\
+\>[0]\AgdaComment{--\ fundSPred\ =\ bot\ \AgdaUnderscore{}}\<%
+\end{code}
+
+\begin{code}%
+\>[0]\AgdaComment{--------------------------------------------------------------------------------}\<%
+\\
+\>[0]\AgdaComment{--\ Fundamental\ theorem\ when\ substitution\ is\ the\ identity}\<%
+\\
+\>[0]\AgdaComment{--\ subₖ-id\ :\ ∀\ (τ\ :\ Type\ Δ\ κ)\ →\ subₖ\ `\ τ\ ≡\ τ\ }\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ ⊢⟦\AgdaUnderscore{}⟧≋\ :\ ∀\ (τ\ :\ Type\ Δ\ κ)\ →\ ⟦\ τ\ ⟧≋\ eval\ τ\ idEnv}\<%
+\\
+\>[0]\AgdaComment{--\ ⊢⟦\ τ\ ⟧≋\ =\ subst-⟦⟧≋\ (inst\ (subₖ-id\ τ))\ (fundS\ τ\ idSR)}\<%
+\end{code}
+\begin{code}[hide]%
+\>[0]\AgdaComment{--\ subₖ-id\ τ\ =\ bot\ \AgdaUnderscore{}}\<%
+\end{code}
+
+\begin{code}%
+\>[0]\AgdaComment{--------------------------------------------------------------------------------}\<%
+\\
+\>[0]\AgdaComment{--\ Soundness\ claim\ \ }\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ soundness\ :\ \ ∀\ \{Δ₁\ κ\}\ →\ (τ\ :\ Type\ Δ₁\ κ)\ →\ τ\ ≡t\ ⇑\ (⇓\ τ)\ }\<%
+\\
+\>[0]\AgdaComment{--\ soundness\ τ\ =\ reify-⟦⟧≋\ (⊢⟦\ τ\ ⟧≋)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[1]\AgdaComment{--------------------------------------------------------------------------------}\<%
+\\
+\>[0]\AgdaComment{--\ If\ τ₁\ normalizes\ to\ ⇓\ τ₂\ then\ the\ embedding\ of\ τ₁\ is\ equivalent\ to\ τ₂}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ embed-≡t\ :\ ∀\ \{τ₁\ :\ NormalType\ Δ\ κ\}\ \{τ₂\ :\ Type\ Δ\ κ\}\ \ →\ τ₁\ ≡\ (⇓\ τ₂)\ →\ ⇑\ τ₁\ ≡t\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ embed-≡t\ \{τ₁\ =\ τ₁\}\ \{τ₂\}\ refl\ =\ eq-sym\ (soundness\ τ₂)\ }\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--------------------------------------------------------------------------------}\<%
+\\
+\>[0]\AgdaComment{--\ Soundness\ implies\ the\ converse\ of\ completeness,\ as\ desired}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaComment{--\ Completeness⁻¹\ :\ ∀\ \{Δ\ κ\}\ →\ (τ₁\ τ₂\ :\ Type\ Δ\ κ)\ →\ ⇓\ τ₁\ ≡\ ⇓\ τ₂\ →\ τ₁\ ≡t\ τ₂}\<%
+\\
+\>[0]\AgdaComment{--\ Completeness⁻¹\ τ₁\ τ₂\ eq\ =\ eq-trans\ (soundness\ τ₁)\ (embed-≡t\ eq)}\<%
+\end{code}
+
+
+\bibliographystyle{plainnat}
+\bibliography{NBE}
+\end{document}
+%%% Local Variables: 
+%%% TeX-command-extra-options: "-shell-escape"
+%%% End:
+%  LocalWords:  denotational Agda Wadler dPoint sqrt subtyping coercions Intr
+%  LocalWords:  RowTypes Bool eval GHC reified HillerstromL Leijen LindleyM RO
+%  LocalWords:  ChapmanKNW Aydemir AbelAHPMSS AbelC AbelOV plfa HubersIMM STLC
+%  LocalWords:  MorrisM denotationally DenotationalSoundness RowTheories Suc de
+%  LocalWords:  ReifyingVariants RowTheory BerthomieuM CardelliMMS HarperP NatF
+%  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
+%  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman
+%  LocalWords:  AltenkirchK KaposiKK Gaster XieOBS BiXOS Chlipala objTypes Bahr
+%  LocalWords:  Garrigue KEnv PEnv

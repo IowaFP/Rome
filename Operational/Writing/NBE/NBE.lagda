@@ -150,7 +150,7 @@ For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates
 \end{figure}
 
 \subsection{Example types}
-
+% Add motivation for where this incurs type normalization. Elaborate all the non-F\omega reduction cases that happen when you do more than squint.
 Wand's problem and a record modifier:
 
 \begin{rosi}
@@ -686,7 +686,8 @@ We now describe the computational rules that incur type reduction. Rule \verb!eq
     eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
       (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
     eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
-      F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (map₂ (F ·_)) ρ ⦆ (fromWitness (map-map₂ ρ (F ·_) (toWitness oρ)))      
+               {oρ' : True (ordered? (map (map₂ (F ·_)) ρ))} → 
+      F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (map₂ (F ·_)) ρ ⦆ oρ'      
     eq-<$>-─ : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : Type Δ R[ κ₁ ]} → 
       F <$> (ρ₂ ─ ρ₁) ≡t (F <$> ρ₂) ─ (F <$> ρ₁)
 \end{code} 
