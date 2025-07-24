@@ -191,7 +191,7 @@
 
 \newcommand\TypeK[1][]{\star_{#1}}
 \newcommand\LabK{\mathsf{L}}
-\newcommand\RowK[1]{\mathsf{R}^{#1}}
+\newcommand\RowK[1]{\mathsf{R}[{#1}]}
 \newcommand\FunctorK{\RowK {\TypeK \to \TypeK}}
 
 %% Syntax - types
@@ -369,7 +369,34 @@
     {forall}{{{\TypeKeyword{$\forall$}}}}1
     {:=}{{$\triangleright$}}1
     {\ -\ }{{$\Compl$}}3
+    {COMPL}{{$\Compl$}}1
     {*}{$\star$}1
+    {Delta}{$\Delta$}1
+    {Delta_1}{${\Delta_{1}}\,$}1
+    {Delta_2}{${\Delta_{2}}\,$}1
+    {Delta_3}{${\Delta_{3}}\,$}1
+    {kappa}{$\kappa$}1
+    {kappa_1}{${\kappa_{1}}\,$}1
+    {kappa_2}{${\kappa_{2}}\,$}1
+    {kappa_3}{${\kappa_{3}}\,$}1
+    {rho}{$\rho$}1
+    {rho_1}{${\rho_{1}}$}1
+    {rho_2}{${\rho_{2}}$}1
+    {rho_3}{${\rho_{3}}$}1   
+    {tau}{$\tau$}1
+    {tau_1}{${\tau_{1}}$}1
+    {tau_2}{${\tau_{2}}$}1
+    {tau_3}{${\tau_{3}}$}1    
+    {phi}{$\phi$}1
+    {phi_1}{${\phi_{1}}$}1
+    {phi_2}{${\phi_{2}}$}1
+    {phi_3}{${\phi_{3}}$}1       
+    {times}{${\times}$}1 
+    {exists}{${\exists}$}1
+    {cdot}{${\cdot}$}1
+    {Down}{$\Downarrow$}1
+    {Up}{$\Uparrow$}1
+    {eta}{$\eta$}1
 }
 \newcommand*\lstfont{\ttfamily\small}  % For some reason, footnotesize *in particular* breaks the listings package. Good stuff.
 \lstnewenvironment{codef}{\lstset{basicstyle=\lstfont,xleftmargin=1.5em}}{}
@@ -500,6 +527,7 @@
   {\endgroup\ignorespacesafterend}
 \lstnewenvironment{haskell}{\lstset{basicstyle=\lstfont}}{}
 \lstnewenvironment{rosi}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt}}{}
+\lstnewenvironment{agda}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt}}{}
 
 % \newcommand\In{\ExC{in}}
 
@@ -511,6 +539,7 @@
 \newcommand\Embed{\Uparrow}
 \newcommand\Normal[1]{\hat{#1}}
 \newcommand\Types{{\mathcal T}}
+\newcommand\NeutralTypes{\mathcal N}
 \newcommand\Terms{{\mathcal E}}
 \newcommand\Evidence{{\mathcal Q}}
 \newcommand\NormalEvidence{\Normal \Evidence}
@@ -518,3 +547,6 @@
 \newcommand\NormalTypes{\Normal \Types}
 \newcommand\NormalTerms{\Normal \Terms}
 \newcommand\cf{\emph{cf.}}
+\newcommand\TJudges[2]{\Types_{#1}^{#2}}
+\newcommand\TJudgesNF[2]{\NormalTypes_{#1}^{#2}}
+\newcommand\TJudgesNE[2]{\NeutralTypes_{#1}^{#2}}

@@ -1,4 +1,4 @@
-\documentclass[authoryear, acmsmall, screen, review, nonacm]{acmart} % % use acmtog for two-column
+\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
 \overfullrule=1mm
 % \usepackage[margin=1.5in]{geometry}
 
@@ -114,140 +114,19 @@
 \newunicodechar{ξ}{$\xi$}
 
 \begin{document}
+\InlineOn{}
 
 \maketitle
 
 \section*{Abstract}
-We describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus with recursive types and a novel \emph{row complement} operator. Types are normalized to $\beta$-short, $\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome is a strict extension of System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
+\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. The authors fail to describe any metatheory of this relation, and so it is unclear if type-equivalence is decidable or if types have normal forms. This report answers in the affirmative: we describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus extending \RO with recursive types and a novel \emph{row complement} operator. Types are normalized to $\beta$-short, $\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome extends System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
 
-\section{The \Rome{} calculus}
-
-For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. We forego further description to the next section.
-
-\begin{figure}[H]
-\begin{gather*}
-\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
-\text{Type variables} & \alpha \in \mathcal A & \text{Labels} & \ell \in \mathcal L
-\end{array}
-\\[5px]
-\begin{doublesyntaxarray}
-  \mcl{\text{Kinds}} & \kappa & ::= & \TypeK \mid \LabK \mid \RowK \kappa \mid \kappa \to \kappa \\
-  \mcl{\text{Predicates}} & \pi, \psi & ::= & \LeqP \rho \rho \mid \PlusP \rho \rho \rho \\
-  \text{Types} & \mcr{\Types \ni \phi, \tau, \upsilon, \rho, \xi} & ::= & \alpha \mid \pi \then \tau \mid \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau \\
-               &                              &     & \mid    & \RowIx i 0 m {\LabTy {\xi_i} {\tau_i}} \mid \ell \mid \Sing{\tau} \mid \Mapp{\phi}{\rho} \mid \rho \Compl \rho \\ 
-               &                              &     & \mid & \tau \to \tau \mid \Pi \mid \Sigma \mid \mu \, \phi 
-\end{doublesyntaxarray}
-\end{gather*}
-\caption{Syntax}
-\label{fig:syntax-types}
-\end{figure}
-
-\InlineOn{}
-\subsection{Example types and the need for reduction}
-% Add motivation for where this incurs type normalization. Show "hidden" maps and hidden reductions. How does $(\Pi\, (\ell \triangleright f)) \, \tau$ reduce?
-We will write Rome types in the slightly-altered syntax of \emph{Rosi}, our experimental implementation of \Rome. Let us consider the role of type computation in a handful of \Rome types. 
-
-
-\subsubsection{Wand's problem} \Rome, \RO, \Rose, and thus Rosi stem from the desire to express Wand's problem (and its dual !dnaw!):
-
-\begin{rosi}
-wand : forall l x y z t. x + y ~ z, {l := t} < z => #l -> Pi x -> Pi y -> t
-dnaw : forall l x y z t. x + y ~ z, {l := t} < z => #l -> 
-      (Sigma x -> t) -> (Sigma y -> t) -> Sigma z -> t
-\end{rosi}
-
-\Ni The novelty here is that, in other languages with extensible records and variants (e.g., OCaml), one has to specify precisely in which of the inputs !l! occurs. Here, the predicates !x + y ~ z! and !{l := t} < z! are sufficient to express that the input row !z! has an !{l := t}! field without specifying if it is in !x! or !y!. This type demonstrates that \Rose is cool. However, \Rose is not higher-order, and so there is no type-level reduction to perform. Things become much less clear in the presence of type computation.
-
-
-\InlineOff{}
-\subsubsection{Deriving functorality} Our family of languages is quite expressive, and the types even look quite readable! To some extent, this magic relies on implicit type application, mapping, and type reduction. Let us demonstrate. \InlineOn{} Here we can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, I can give you a !Functor! instance for !Sigma z!. 
-
-\begin{rosi}
-type Functor : (* -> *) -> *
-type Functor = \f. forall a b. (a -> b) -> f a -> f b
-
-fmapS : forall z : R[* -> *]. Pi (Functor z) -> Functor (Sigma z)
-\end{rosi}
-
-\Ni Pay close attention: what is the type of !Functor z!? This is implicitly a map. Let us write it as such and also expand the !Functor! type synonym:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-      Pi ((\f. forall a b. (a -> b) -> f a -> f b) .map. z) -> 
-      (\f. forall a b. (a -> b) -> f a -> f b) (Sigma z)
-\end{rosi}
-
-\Ni which reduces further to:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-        Pi ((\f. forall a b. (a -> b) -> f a -> f b) .map. z) -> 
-        forall a b. (a -> b) -> (Sigma z) a -> (Sigma z) b
-\end{rosi}
-
-\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!. Let's make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
-
-\begin{rosi}
-  r ?? t = (\ f. f t) .map. r
-\end{rosi}
-
-\Ni Now the type of !fmapS! is:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-        Pi ((\f. forall a b. (a -> b) -> f a -> f b) .map. z) -> 
-        forall a b. (a -> b) -> Sigma (z ?? a) -> Sigma (z ?? b)
-\end{rosi}
-
-\Ni And we have something resembling a normal form. Of course, the type is more interesting when applied to a real value for !z!. Suppose !z! is !{'l := \x. x}!. Then a first pass yields:
-
-\begin{rosi}
-fmapS {'l := \x.x} : 
-        Pi ((\f. forall a b. (a -> b) -> f a -> f b) .map. {'l := \x.x}) -> 
-        forall a b. (a -> b) -> Sigma ({'l := \x.x} ?? a) -> Sigma ({'l := \x.x} ?? b)
-\end{rosi}
-
-How do we reduce from here? Regarding the first input, we suspect we would like a record with !'l! mapped to !\x.x! applied to the !Functor! type. We further intuit that the subterm !({'l := \x.x} ?? a)! really ought to mean "the row with !'l! mapped to !a!". At this point I will perform multiple steps of computation simultaneously so as to retain the reader's attention.
-
-\begin{rosi}
-fmapS {'l := \x.x} : 
-        Pi ({'l := forall a b. (a -> b) -> a -> b}) -> 
-        forall a b. (a -> b) -> Sigma ({'l := a}) -> Sigma ({'l := b})
-\end{rosi}
-
-The point we arrive at is that the elegance of some \RO and \Rome types are masked quite effectively by foregoing type reduction. Further, as intermediate  values are passed to type-operators, the shapes of the types can begin to vary drastically, given that the computational rules of type reduction in \Rome are often not obvious or trivial.
-
-
-\subsubsection{Desugaring Booleans}
-Lastly, we emphasize the rule of reduction in computing complements. Consider a desugaring of booleans to Church encodings:
-
-\begin{rosi}
-type BoolF = { 'T := const Unit , 'F := const Unit , 'If := \x. Triple x x x}
-type LamF  = { 'Lam := Id , 'App := \x. Pair x x , 'Var := const Nat }
-desugar : forall y. BoolF < y, LamF < y - BoolF =>
-          Pi (Functor (y - BoolF)) -> Mu (Sigma y) -> Mu (Sigma (y - BoolF))
-\end{rosi}
-
-We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let's try something like the following AST, using !++! as pseudonotation for row concatenation.
-
-\begin{rosi}
-type AST = BoolF ++ LamF ++ {'Lit := const Int , 'Add := \x. Pair x x }
-desugar AST : BoolF < AST, LamF < (AST - BoolF) =>
-              Pi (Functor (AST - BoolF)) -> Mu (Sigma y) -> Mu (Sigma (AST - BoolF))
-\end{rosi}
-
-\Ni When !desugar! is passed !AST! for !z!, the inherent computation in the complement operator is made more obvious. What should !AST - BoolF! reduce to? Intuitively, we suspect the following to hold: 
-
-\begin{rosi} 
-AST - BoolF = {'Lit := const Int , 'Add := \x. Pair x x, 
-               'Lam := Id , 'App := \x. Pair x x , 'Var := const Nat }
-\end{rosi}
-
-But this computation must be realized, just as (analogously) $\lambda$-redexes are realized by $\beta$-reduction.
+\section{Introduction}
+\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. Related work (drafted in manuscript) has further built upon \RO into a new language \Rome by adding recursive types. Despite active extension to the term language, the authors fail to describe any metatheory of their type equivalence relation, and so it is unclear if type-equivalence is decidable or if types have normal forms.
 
 \subsection{The need for type normalization}
 \label{sec:need-for-type-normalization}
-Metatheory is difficult, particularly in the presence of conversion rules, of which both \RO and \Rome have. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equvivalent:
+Metatheory is difficult, particularly in the presence of conversion rules, of which both \RO and \Rome have. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equivalent. (For now, let us split environments into kinding environments $\Delta$, evidence environments $\Phi$, and typing environments $\Gamma$.)
 
 \[ 
 \ib{\irule[\trule{conv}]
@@ -264,9 +143,177 @@ Conversion rules complicate metatheory. To list a few reasons:
   \item Inversion of the typing judgment $\TypeJ \Delta \Phi \Gamma  M \tau$---that is, induction over derivations---must consider the possibility that this derivation was constructed via conversion. But conversion from what type? Proofs by induction over derivations often thus get stuck. 
 \end{enumerate}
 
+\subsection{Type computation in \Rome}
+Let us demonstrate the significant role of type computation in \Rome types.
+
+\subsubsection{Reifying records} The \Rome family of languages is quite expressive, with succinct and readable types. To some extent, this magic relies on implicit type application, mapping, and type equivalence. Let us demonstrate with the types of two terms that witness the duality of records and variants. 
+
+\begin{rosi}
+reify : forall z : R[ * ], t : *. 
+        (Sigma z -> t) -> Pi (z -> t)
+reflect : forall z : R[ * ], t : *. 
+          Pi (z -> t) -> Sigma z -> t
+\end{rosi}
+
+The term !reify! transforms a variant eliminator into a record of individual eliminators; the term !reflect! transforms a record of individual eliminators into a variant eliminator. The syntax above is elegant, but arguably so because it hides some latent computation. In particular, what does !z -> t! mean? The variable !z! is at kind !R[ * ]! and !t! at kind !*!, so this is implicitly a map. Rewriting as such yields: 
+
+\begin{rosi}
+  reify : forall z : R[ * ], t : *. 
+          (Sigma z -> t) -> Pi ((\s. s -> t) .map. z)
+reflect : forall z : R[ * ], t : *. 
+          Pi ((\s. s -> t) .map. z) -> Sigma z -> t
+\end{rosi}
+
+\Ni The writing of the former rather than the latter is permitted because the corresponding types are equivalent modulo a type equivalence relation (\cref{fig:equivalence}).
+
+
+\subsubsection{Deriving functorality} We can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, I can give you a !Functor! instance for !Sigma z!. 
+
+\begin{rosi}
+type Functor : (* -> *) -> *
+type Functor = \f. forall a b. (a -> b) -> f a -> f b
+fmapS : forall z : R[* -> *]. 
+        Pi (Functor z) -> Functor (Sigma z)
+\end{rosi}
+
+\Ni Pay close attention: what is the type of !Functor z!? This is another implicit map. Let us write it as such and also expand the !Functor! type synonym:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+      Pi ((\f. forall a b. 
+        (a -> b) -> f a -> f b) .map. z) -> 
+      (\f. forall a b. (a -> b) -> f a -> f b) (Sigma z)
+\end{rosi}
+
+\Ni which reduces further to:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+        Pi ((\f. forall a b. 
+            (a -> b) -> f a -> f b) .map. z) -> 
+        forall a b. (a -> b) -> (Sigma z) a -> (Sigma z) b
+\end{rosi}
+
+\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!. Let's make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
+
+\begin{rosi}
+  r ?? t = (\ f. f t) .map. r
+\end{rosi}
+
+\Ni Now the type of !fmapS! is:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+        Pi ((\f. forall a b. 
+            (a -> b) -> f a -> f b) .map. z) -> 
+        forall a b. (a -> b) -> Sigma (z ?? a) -> Sigma (z ?? b)
+\end{rosi}
+
+\Ni And we have something resembling a normal form. Of course, the type is more interesting when applied to a real value for !z!. Suppose !z! is a functor for naturals, !{'Z := const Unit,! !'S := \x. x}!. Then a first pass yields:
+
+\begin{rosi}
+fmapS {'Z := const Unit, 'S := \x. x} : 
+        Pi ((\f. forall a b. (a -> b) -> f a -> f b) 
+          .map. {'Z := const Unit, 'S := \x. x}) -> 
+        forall a b. (a -> b) -> 
+        Sigma ({'Z := const Unit, 'S := \x. x} ?? a) -> 
+        Sigma ({'Z := const Unit, 'S := \x. x} ?? b)
+\end{rosi}
+
+How do we reduce from here? Regarding the first input, we suspect we would like a record of fmap instances for both the !'Z! and !'S! functors. We further intuit that the subterm !({'Z := const Unit,! !'S := \x. x}! !??! !a)! really ought to mean "the row with !'Z! mapped to !Unit! and !'S! mapped to !a!". At this point I will perform multiple steps of computation simultaneously so as to retain the reader's attention.
+
+\begin{rosi}
+fmapS {'Z := const Unit, 'S := \x. x} : 
+        Pi {'Z := forall a b. (a -> b) -> Unit -> Unit, 
+            'S := forall a b. (a -> b) -> a -> b} -> 
+        forall a b. (a -> b) -> 
+        Sigma {'Z := Unit , 'S := a} ->
+        Sigma {'Z := Unit , 'S := b}
+\end{rosi}
+
+The point we arrive at is that the elegance of some \RO and \Rome types are supplanted quite effectively by latent type equivalence. Further, as values are passed to type-operators, the shapes of the types incur forms of reduction beyond simple $\beta$-reduction. In our case, we must map type operators over rows; we next consider the reduction of row complements.
+
+
+\subsubsection{Desugaring Booleans} Consider a desugaring of booleans to Church encodings:
+
+\begin{rosi}
+type BoolF = { 'T := const Unit , 
+               'F := const Unit , 
+               'If := \x. Triple x x x}
+type LamF  = { 'Lam := Id , 
+               'App := \x. Pair x x , 
+               'Var := const Nat }
+desugar : forall y. BoolF < y, LamF < y - BoolF =>
+          Pi (Functor (y - BoolF)) -> 
+          Mu (Sigma y) -> 
+          Mu (Sigma (y - BoolF))
+\end{rosi}
+
+We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let's try something like the following AST, using !++! as pseudonotation for row concatenation.
+
+\begin{rosi}
+type AST = BoolF ++ LamF ++ 
+          {'Lit := const Int , 'Add := \x. Pair x x }
+desugar AST : BoolF < AST, LamF < (AST - BoolF) =>
+              Pi (Functor (AST - BoolF)) -> 
+              Mu (Sigma y) -> Mu (Sigma (AST - BoolF))
+\end{rosi}
+
+\Ni When !desugar! is passed !AST! for !z!, the inherent computation in the complement operator is made more obvious. What should !AST - BoolF! reduce to? Intuitively, we suspect the following to hold: 
+
+\begin{rosi} 
+AST - BoolF = {'Lit := const Int , 
+               'Add := \x. Pair x x, 
+               'Lam := Id , 
+               'App := \x. Pair x x , 
+               'Var := const Nat }
+\end{rosi}
+
+\Ni But this computation must be realized, just as (analogously) $\lambda$-redexes are realized by $\beta$-reduction.
+
+\subsection{Contributions}
+In summary, this report offers the following as contributions: 
+
+\begin{enumerate}
+  \item A normalization procedure for the directed \RO and \Rome type equivalence relation;
+  \item the semantics of a novel \emph{row complement} operator;
+  \item proofs of soundness and completeness of normalization with respect to type equivalence; and
+  \item a complete mechanization in Agda of \Rome and the claimed metatheoretic results.
+\end{enumerate}
+
+\section{The \Rome{} calculus}
+
+For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. 
+
+\begin{figure}
+\begin{gather*}
+\begin{array}{r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l@{\qquad}r@{\hspace{5px}}l}
+\text{Type variables} & \alpha \in \mathcal A & \text{Labels} & \ell \in \mathcal L
+\end{array}
+\\[5px]
+\begin{doublesyntaxarray}
+  \mcl{\text{Kinds}} & \kappa & ::= & \TypeK \mid \LabK \mid \RowK \kappa \mid \kappa \to \kappa \\
+  \mcl{\text{Predicates}} & \pi, \psi & ::= & \LeqP \rho \rho \mid \PlusP \rho \rho \rho \\
+  \text{Types} & \mcr{\Types \ni \phi, \tau, \rho, \xi} & ::= & \alpha \mid T \mid  \tau \to \tau \mid \pi \then \tau \\
+               &                              &     & \mid    & \forall \alpha\co\kappa. \tau \mid \lambda \alpha\co\kappa. \tau \mid \tau \, \tau\\
+               &                              &     & \mid    & \RowIx i 0 m {\LabTy {\xi_i} {\tau_i}} \mid \ell \mid \Sing{\tau} \\ 
+               &                              &     & \mid    & \Mapp{\phi}{\rho} \mid \rho \Compl \rho \\
+  \mcl{\text{Type constants}} & T & ::= & \KFam \Pi \kappa \mid \KFam \Sigma \kappa \mid \mu \\
+\end{doublesyntaxarray}
+\end{gather*}
+\caption{Syntax}
+\label{fig:syntax-types}
+\end{figure}
+
+Labels (i.e., record field and variant constructor names) live at the type level, and are classified by kind $\LabK$. Rows of kind $\kappa$ are classified by $\RowK \kappa$. When possible, we use $\phi$ for type functions, $\rho$ for row types, and $\xi$ for label types. Singleton types $\Sing \tau$ are used to cast label-kinded types to types at kind $\TypeK$.  $\Mapp\phi \rho$ maps the type operator $\phi$ across a row $\rho$. In practice, we often leave the map operator implicit, using kind information to infer the presence of maps. We define a families of  $\Pi$ and $\Sigma$ constructors, describing record and variants at various kinds; in practice, we can determine the kind annotation from context. $\mu$ builds isorecursive types. Row literals (or, synonymously, \emph{simple rows}) are sequences of labeled types $\LabTy {\xi_i} {\tau_i}$. We write $0 \dots m$ to denote the set of naturals up to (but not including) $m$. We will frequently use $\varepsilon$ to denote the empty row.
+
+The type $\pi \then \tau$ denotes a qualified type. In essence, the predicate $\pi$ restricts the instantiation of the type variables in $\tau$. Our predicates capture relationships among rows: $\LeqP {\rho_1} {\rho_2}$ means that $\rho_1$ is \emph{contained} in $\rho_2$, and $\PlusP {\rho_1} {\rho_2} {\rho_3}$ means that $\rho_1$ and $\rho_2$ can be \emph{combined} to give $\rho_3$.
+
+Finally, $\Rome$ introduces a novel \emph{row complement} operator $\rho_2 \Compl \rho_1$, analogous to a set complement for rows. The complement $\rho_2 \Compl \rho_1$ intuitively means the row obtained by removing any label-type associations in $rho_1$ from $\rho_2$. In practice, the type $\rho_2 \Compl \rho_1$ is meaningful only when we know that $\LeqP {\rho_1} {\rho_2}$, however constraining the formation of row complements to just this case introduces an unpleasant dependency between predicate evidence and types. In practice, it is easy enough to totally define the complement operator on all rows, even without the containment of one by the other. 
+
 \section{Type Equivalence \& Reduction}
 
-We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \varepsilon \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. Note that in some rules we will annotate $\Pi$ and $\Sigma$ with the kind of their contents, e.g., $\KFam \Sigma \TypeK$ has kind $\RowK \TypeK \to \TypeK$.
+We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. We omit conversion and closure rules.
 
 \newcommand\Subtract{\mathsf{subtract}}
 \InlineOff{}
@@ -278,7 +325,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \ib{\irule[\erule{$\beta$}]
           {\KindJ \Delta {(\lambda \alpha\co\kappa. \tau) \, \upsilon} {\kappa'}};
           {\TEqvJ \Delta {(\lambda \alpha\co\kappa. \tau)\,\upsilon} {\tau[\upsilon/\alpha]} {\kappa'}}}
-\rsp
+\\
 \begin{gathered}
 \ib{\irule[\errule{lift$_\Xi$}]
           {\KindJ \Delta \rho {\RowK {\kappa \to \kappa'}}}
@@ -293,7 +340,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
           {\KindJ \Delta {\rho_i} {\RowK \kappa}};
           % {\Delta \vdash \mathsf{subtract} \, \rho_1 \, \rho_2 \, \rho_3};
           {\TEqvJ \Delta {\rho_2 \Compl \rho_1} {\Subtract \, \rho_2 \, \rho_1} {\RowK \kappa}}}
-\rsp
+\\
 \ib{\irule[\errule{map}]
           {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
           {\KindJ \Delta {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}} {\RowK{\kappa_1}}};
@@ -302,7 +349,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \ib{\irule[\errule{map$_\mathsf{id}$}]
           {\KindJ \Delta \rho {\RowK\kappa}};
           {\TEqvJ \Delta {\Mapp {(\lambda \alpha. \alpha)} \rho} \rho {\RowK\kappa}}}
-\rsp
+\\
 \begin{gathered}
 \ib{\irule[\errule{map$_\circ$}]
           {\KindJ \Delta {\phi_1} {\kappa_2 \to \kappa_3}}
@@ -317,29 +364,38 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
           {\KindJ \Delta {\phi} {\kappa_1 \to \kappa_2}}
           {\KindJ \Delta {\rho_i} {\RowK {\kappa_1}}};
           {\TEqvJ \Delta {\Mapp {\phi} {(\rho_2 \setminus \rho_1)}} {\Mapp \phi {\rho_2} \setminus {\Mapp \phi {\rho_1}}} {\kappa_2} }}
-\rsp
+\\
 \ib{\irule[\errule{$\Xi$}]
           {\KindJ \Delta \rho {\RowK {\RowK {\kappa}}}};
           {\TEqvJ \Delta {\KFam \Xi {\RowK \kappa} \, \rho} {\Mapp {{\KFam \Xi \kappa}} \rho} {\RowK {\kappa}}}!
           {\Xi \in \{ \Pi , \Sigma \}}}
+\\ 
+\ib{\irule[\errule{$\eta$}]
+          {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}};
+          {\TEqvJ \Delta {\phi} {\lambda \alpha \co \kappa_1. \phi \, \alpha} {\kappa_1 \to \kappa_2}}
+}
 \\[5pt]
 \fbox{$\Subtract \, \rho \, \rho$}
 \\
+\begin{small}
 \begin{aligned}
-  \Subtract \, \EmptyRow \, \rho &= \EmptyRow \\
-  \Subtract \, \rho \, \EmptyRow &= \rho \\
-  \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \Row{\LabTy {\ell'} {\tau'}, {\rho'}} &=
-    \begin{cases}
+  \Subtract& \, \EmptyRow \, \rho = \EmptyRow \\
+  \Subtract& \, \rho \, \EmptyRow = \rho \\
+  \Subtract& \, \Row {\LabTy \ell \tau, \rho} \, \Row{\LabTy {\ell'} {\tau'}, {\rho'}} = \\
+    &\begin{cases}
       \Subtract \, \rho \, \rho' &\text{if $\ell = \ell'$ and $\tau = \tau'$} \\
       \Row {\LabTy \ell \tau, \Subtract \, \rho \, \Row {\LabTy {\ell'} {\tau'}, \rho'}} &\text{if $\ell < \ell'$} \\
       \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \rho' &\text{if $\ell > \ell'$}
     \end{cases}
 \end{aligned}
+\end{small}
 \end{gather*}
 \end{small}
 \caption{Type equivalence}
 \label{fig:equivalence}
 \end{figure}
+
+
 
 \subsection{Normal forms}
 
@@ -356,8 +412,10 @@ The syntax of normal types is given in \cref{fig:type-normalization}. We careful
   \mcl{\text{Kinds}}         & \kappa    & ::= & \gamma \mid \kappa \to \kappa \mid  \RowK \kappa \\
   \mcl{\text{Row Literals}}   & \NormalRows \ni \Normal \rho    & ::= & \RowIx i 0 m {\LabTy {\ell_i} {\Normal {\tau_i}}} \\
   \mcl{\text{Neutral Types}} & n    & ::= & \alpha \mid n \, {\Normal \tau}  \\
-  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \Mapp {\hat{\phi}} {n} \mid \Normal{\rho} \mid \Normal{\pi} \then \Normal{\tau} \mid \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau} \\
-                             &       &     & \mid & \LabTy n {\Normal \tau} \mid \ell \mid \Sing {\Normal \tau} \mid {\Normal \tau} \Compl {\Normal \tau} \mid \Pi \, {\Normal \tau} \mid \Sigma \, {\Normal \tau}  \\
+  \mcl{\text{Normal Types}}  & \NormalTypes \ni \Normal \tau, \Normal \phi & ::= & n \mid \Mapp {\hat{\phi}} {n} \mid \Normal{\rho} \mid \Normal{\pi} \then \Normal{\tau} \\
+                             &       &     & \mid &  \forall \alpha\co\kappa. \Normal{\tau} \mid \lambda \alpha\co\kappa. \Normal{\tau}  \\ 
+                             &       &     & \mid & \LabTy n {\Normal \tau} \mid \ell \mid \Sing {\Normal \tau} \mid {\Normal \tau} \Compl {\Normal \tau} \\
+                             &       &     & \mid & {\KFam \Pi \TypeK} {\Normal \tau} \mid {\KFam \Sigma \TypeK} {\Normal \tau}                         
 \end{doublesyntaxarray}
 \end{gather*}
 \begin{small}
@@ -373,7 +431,7 @@ The syntax of normal types is given in \cref{fig:type-normalization}. We careful
     {\KindJNF \Delta {\Normal {\tau_i}} {\RowK \kappa}}
     {\Normal{\tau_1} \notin \NormalRows \, \text{or}\, \Normal{\tau_2} \notin \NormalRows};
     {\KindJNF \Delta {\Normal{\tau_2} \Compl \Normal{\tau_1}} {\RowK \kappa}}}
-\isp
+\\
 \ib{
   \irule[\kruleNF{$\triangleright$}]
     {\KindJNE \Delta {n} {\LabK}}{\KindJNF \Delta {\Normal \tau} \kappa};
@@ -399,7 +457,7 @@ The normal type syntax is pleasantly partitioned by kind. Due to $\eta$-expansio
   \begin{itemize}
     \item If $\KindJNF \Delta {\Normal\tau} {(\kappa_{1} \to \kappa_{2})}$ then $\Normal\tau = {\lambda \alpha \co \kappa_{1}. \Normal\upsilon}$;
     \item if $\KindJNF \epsilon {\Normal\tau} {\RowK \kappa}$ then $\Normal\tau =  \RowIx i 0 m {\LabTy {\ell_i} {\Normal{\tau_i}}}$.
-    \item If $\KindJ \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
+    \item If $\KindJNF \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
   \end{itemize}
 \end{theorem}
 \subsubsection{Normalization}
@@ -434,24 +492,194 @@ For well-kinded $\tau \in \Types$ at kind $\kappa$, there exists a derivation th
 
 \subsubsection{Decidability of type conversion}
 
-Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable. This has a number of desirable consequences (see \cref{sec:need-for-type-normalization}).
+Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
 
 \begin{theorem}[Decidability]
   Given well-kinded $\tau, \upsilon \in \Types$ at kind $\kappa$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
 \end{theorem}
 
 \section{Normalization by Evaluation (NbE)}
-This section and those that follow give a closer examination into how the above metatheory was derived. In particular, we explain the \emph{normalization of types by evaluation} (NbE) involved in deriving a normalization algorithm. We describe the standard components of NbE and emphasize where our approach has differed. Emphasis is placed on the novelty of normalizing rows and row operators.
+This section and those that follow give a closer examination into how the above metatheory was derived. In particular, we explain the \emph{normalization of types by evaluation} (NbE) involved in deriving a normalization algorithm. We describe the standard components of NbE, but place emphasis on the novelty of normalizing rows and row operators.
 
-\subsection{The semantic domain}
+\InlineOn{}
+Normalization by evaluation comes in a handful of different flavors. In our case, we seek to build a normalization function $\Norm : \Types \to \NormalTypes$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of judgments of the form $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of judgments of the form $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds): 
+
+\begin{agda}
+data Type : Env -> Kind -> Set
+data NormalType : Env -> Kind -> Set
+data NeutralType : Env -> Kind -> Set 
+\end{agda}
+
+
+
+\subsection{Residualizing semantics}
+
+We define our semantic domain in Agda recursively over the syntax of !Kind!s. Care must be taken to not run afoul of Agda's termination and positivity checking.
+
+\begin{agda}
+SemType : Env -> Kind -> Set
+SemType Delta * = NormalType Delta *
+SemType Delta L = NormalType Delta L 
+SemType Delta_1 (kappa_1 -> kappa_2) = KripkeFunction Delta_1  kappa_1  kappa_2 
+SemType Delta R[ kappa ] = 
+  RowType Delta (\ Delta' -> SemType Delta' kappa) R[ kappa ]
+\end{agda}
+
+Types at ground kind !*! and !L! are simply interpreted as !NormalType!s. We interpret arrow-kinded types as \emph{Kripke function spaces}, which permit the application of interpreted function $\phi$ at any environment !Delta_2! provided a renaming from !Delta_1! into !Delta_2!. Note that we are defining !SemType! recursively (not inductively), and so the negative occurrence of !SemType! !Delta_2! !kappa_1! is not a problem.  
+
+\begin{agda}
+Renaming Delta_1  Delta_2 = TVar Delta_1 kappa -> TVar Delta_2 kappa
+KripkeFunction : Env -> Kind -> Kind -> Set
+KripkeFunction Delta_1  kappa_1  kappa_2 =  forall {Delta_2} -> 
+  Renaming Delta_1  Delta_2 -> SemType Delta_2  kappa_1 -> SemType Delta_2  kappa_2
+\end{agda}
+
+The first three equations thus far are standard for this style of Agda mechanization, borrowing from \citet{ChapmanKNW19}. Novel to our development is the interpretation of row-kinded types. First, we define the interpretation of row literals as finitely indexed maps to label-type pairs. (Here the type !Label! is a synonym for !String!, but could be any type with decidable equality and a strict total-order.)
+
+\begin{agda} 
+Row : Set -> Set
+Row A = exists[ n ](Fin n -> Label times A)
+\end{agda}
+
+\Ni Next, we define a !RowType! inductively as one of four cases: either a row literal constructed by !row!, a neutral-labeled row singleton constructed by !_:=_!, an inert map constructed by !_.map._!, or an inert row complement constructed by !_COMPL_!. 
+\begin{agda}
+data RowType (Delta : Env) 
+             (T : Env -> Set) : Kind -> Set where 
+  row      : (rho : Row (T Delta)) -> 
+              OrderedRow rho -> 
+              RowType Delta T R[ kappa ]
+  _:=_     : NeutralType Delta L -> 
+             T Delta -> 
+             RowType Delta T R[ kappa ]
+  _.map._  : (forall {Delta'} -> 
+                Renaming Delta Delta' -> 
+                NeutralType Delta' kappa_1 -> 
+                T Delta') -> 
+             NeutralType Delta R[ kappa_1 ] -> 
+             RowType Delta T R[ kappa_2 ]
+  _COMPL_  : (rho_2  rho_1 : RowType Delta T R[ kappa ]) -> 
+             {nor : NotRow rho_2  or  notRow rho_1} -> 
+             RowType Delta T R[ kappa ]
+\end{agda}
+
+Care must be taken to explain some nuances of each constructor. First, the !row! and !_COMPL_! constructors are each constrained by predicates. The !OrderedRow rho! predicate asserts that !rho! has its string labels totally and ascendingly ordered---guaranteeing that labels in the row are unique and that rows are definitionally equal modulo ordering. The !NotRow rho! predicate asserts simply that !rho! was \emph{not} constructed by !row!. In other words, it is not a simple row. This is important, as the complement of two row literals should reduce to a !Row!, so we must disallow the formation of complements in which at least one of the operands is a literal. 
+
+The next set of nuances come from dancing around Agda's positivity checker. It would have been preferable for us to have rather written the !row! and !_.map._! constructors as follows: 
+\begin{agda}
+  row      : (rho : Row (SemType Delta kappa)) -> 
+             OrderedRow rho -> 
+             RowType Delta T R[ kappa ]
+  _.map._  : (forall {Delta'} -> 
+                Renaming Delta Delta' -> 
+                SemType Delta' kappa_1 -> 
+                SemType Delta' kappa_2) -> 
+             NeutralType Delta R[ kappa_1 ] -> 
+             RowType Delta T R[ kappa_2 ]
+\end{agda}
+
+\Ni Such a definition would have necessarily made the types !RowType! and !SemType! mutually inductive-recursive. But this would run afoul of Agda's positivity checker for the following reasons:
+\begin{enumerate}
+  \item in the constructor !row!, the input !Row! !(SemType! !Delta! !kappa)! makes a recursive call to !SemType Delta kappa!, where it's not clear (to Agda) that this is a strictly smaller recursive call. To get around this, we parameterize the !RowType! type by !T : Env -> Set! so that we may enforce this recursive call to be structurally smaller---hence the definition of !SemType! at kind !R[ kappa ]! passes the argument !(\ Delta' ->! !SemType Delta' kappa)!, which varies in environment but is at a strictly smaller kind.
+  \item  The !_.map._! constructor takes a !KripkeFunction! as input, in which !SemType! !Delta' kappa_1! occurs negatively, which Agda must outright reject. Here we borrow some clever machinery from \citet{AllaisBM13} and instead make the !KripkeFunction! accept the input !NeutralType Delta' kappa_1!, which is already defined. The trick is that, as we will show in the next section, every !NeutralType! may be promoted to a !SemType!. In practice this is sufficient for our needs.
+\end{enumerate}
 
 \subsection{Reflection \& reification}
 
+We have now declared three domains: the syntax of types, the syntax of normal and neutral types, and the embedded domain of semantic types. Normalization by evaluation involves producing a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows thereafter that normalization is the reification of evaluation. Because we reason about types modulo $\eta$-expansion, reflection and reification are necessarily mutually recursive. (This is not the case however with e.g. \citet{ChapmanKNW19}.)
+
+We describe the reflection logic before reification. Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified; additionally, tau is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. The syntax $\cdot$ is used to construct an application of a !neutralType! to a !normalType!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\ r n -> reflect n)!, which is effectively the identity function. 
+
+\begin{agda}
+reflect : NeutralType Delta kappa -> SemType Delta kappa 
+reify : SemType Delta kappa -> NormalType Delta kappa
+
+reflect {kappa = *} tau = ne tau
+reflect {kappa = L} tau = ne tau
+reflect {kappa = kappa_1 -> kappa_2} = 
+  \ r v -> reflect ((rename r tau) cdot reify v)
+reflect {kappa = R[ kappa ]} rho = (\ r n -> reflect n) .map. rho
+\end{agda}
+
+The definition of reification is a little more involved. The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $eta$-expansion; note that we are using intrinsically-scoped De Bruijn variables, so !Z! constructs the zero'th variable and !S! induces a renaming in which each variable is incremented by one. (Recall that !phi! is a Kripke function space and so expects a renaming as argument.) The constructor !`! promotes a type variable to a !neutralType!. The equation of interest is in reifying rows. First note that we construct row literals at type !NormalType! likewise via the !row! constructor, which expects a proof that the row is well-ordered. Such a proof is given by the auxiliary lemma !reifyPreservesOrdering!, which proves what it says. Next, we use a helper function !reifyRow! to recursively build a list of !Label!-!NormalType! pairs (that is, the form of !NormalType! rows) from a semantic row. The empty case is trivial; the successor case must inspect the head of the list by inspecting !P fzero!, i.e., the label-type association of the zero'th finite index. From there we yield a semantic type !tau! which we reify and append to the rest of the list, built recursively.
+\begin{agda}
+reify {kappa = *} tau = tau
+reify {kappa = L} tau = tau
+reify {kappa = kappa_1 -> kappa_2} phi = `\ (reify (phi S (` Z)))
+reify {kappa = R[ kappa ]} (row rho q) = 
+  row (reifyRow rho) (reifyPreservesOrdering q)
+  where
+    reifyRow : Row (SemType Delta kappa) -> 
+               List (Label times NormalType Delta kappa)
+    reifyRow (0 , P) = [] 
+    reifyRow (suc n , P) with P fzero 
+    ... | (l , tau) = 
+      (l , reify tau) :: reifyRow (n , P . fsuc)
+\end{agda}
+
+Finally, we have asserted that types are reduced modulo $\beta$-reduction and $\eta$-expansion. It follows that a given !NeutralType! should, after reflection and reification, end up in an expanded form. This is precisely how we define the promotion of !NeutralType!s to !NormalType!s: 
+
+\begin{agda}
+eta-norm : NeutralType Delta kappa -> NormalType Delta kappa
+eta-norm = reify . reflect
+\end{agda}
+
+This function is necessary: the !NormalType! constructor !ne! stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence !eta!!-norm! is the only means by which we may promote neutral types at row or arrow kind.
+
+\subsection{Helping evaluation}
+We will build our evaluation function incrementally; we find it clearer to incrementally build helpers for sub-computation (e.g., mapping or the complement) on our way up to full evaluation. We describe these helpers next.
+
+\subsubsection{Semantic application.}
+
+We first define semantic application straightforwardly as Agda application under the identity renaming. 
+
+\begin{agda}
+_cdot'_ : SemType Delta (kappa_1 -> kappa_2) -> 
+          SemType Delta kappa_1 -> 
+          SemType Delta kappa_2
+phi cdot' v = phi id v
+\end{agda}
+
+\subsubsection{Semantic mapping}
+Mapping over rows is a form of computation novel to \Rome's equivalence relation. We define the mapping !phi .map. rho! over the four cases a semantic row may take. When !rho! is neutral-labeled, we simply apply !phi! to its contents. The case where !rho! is a row literal is interesting in that our choice of representation for row literals as Agda functions comes to pay off: we may express the mapping of !phi! across the row !(n , P)! by pre-composing !P! with !phi! (note that we must appropriately fmap !phi! over the pair's second component).
+
+\begin{agda}
+_.map.'_ : SemType Delta (kappa_1 -> kappa_2) -> 
+           SemType Delta R[ kappa_1 ] -> 
+           SemType Delta R[ kappa_2 ]
+phi .map.' (l := tau) = l := (phi cdot' tau)
+phi .map.' (row (n , P) q) = row (n , fmap (phi id) . P)
+\end{agda}
+
+
+
 \subsection{Evaluation}
+Evaluation warrants an environment that maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!, the constructor of !NeutralType!s from !TVar!s. 
+
+
+\begin{agda}
+SemEnv : Env -> Env -> Set
+SemEnv Delta_1  Delta_2 = TVar Delta_1 -> SemType Delta_2 kappa 
+idEnv : SemEnv Delta Delta
+idEnv = reflect . `
+\end{agda}
 
 \subsection{Normalization}
 
-\section{Metatheory again, or: logical relations}
+Normalization in the NbE approach is simply the composition of reification after evaluation. 
+
+\begin{agda} 
+Down : Type Delta kappa -> NormalType Delta kappa
+Down tau = reify (eval tau idEnv)
+\end{agda}
+
+
+It will be helpful in the coming metatheory to define an inverse embedding by induction over the !NormalType! structure. The definition is entirely expected and omitted. 
+
+\begin{agda}
+Up : NormalType Delta kappa -> Type Delta kappa
+\end{agda}
+
+\section{Mechanized metatheory}
 
 This section gives a deeper exposition on the metatheory summarized \cref{sec:metatheory-summary}. We forego syntactic tyding of claims and give a deeper explanation of the proof techniques involved.
 
@@ -480,6 +708,8 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \subsubsection{Logical environments}
 
 \subsubsection{The fundamental theorem and Soundness}
+
+\section{Most closely related work}
 
 \bibliographystyle{plainnat}
 \bibliography{NBE}
