@@ -122,11 +122,11 @@
 \citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. The authors fail to describe any metatheory of this relation, and so it is unclear if type-equivalence is decidable or if types have normal forms. This report answers in the affirmative: we describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus extending \RO with recursive types and a novel \emph{row complement} operator. Types are normalized to $\beta$-short, $\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome extends System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
 
 \section{Introduction}
-\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. Related work (drafted in manuscript) has further built upon \RO into a new language \Rome by adding recursive types. Despite active extension to the term language, the authors fail to describe any metatheory of their type equivalence relation, and so it is unclear if type-equivalence is decidable or if types have normal forms.
+\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. Despite this reliance, the authors only provide a proof of \emph{semantic soundness} that well-typed terms inhabit the denotations of well-kinded types. The authors do not characterize the shape of types in normal form, nor prove that the denoted types are sound and completed with respect to their equivalence relation. \citet{HubersIMM24} extends the \RO language to \Rome, which is \RO with recursive types, term-level recursion, and a novel \emph{row complement} operator. Despite this extension, the authors fail to describe any metatheory of the equivalence relation, and so it remains unsolved if type equivalence is decidable or if types have normal forms. We argue next that these results ought to be established.
 
 \subsection{The need for type normalization}
 \label{sec:need-for-type-normalization}
-Metatheory is difficult, particularly in the presence of conversion rules, of which both \RO and \Rome have. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equivalent. (For now, let us split environments into kinding environments $\Delta$, evidence environments $\Phi$, and typing environments $\Gamma$.)
+Metatheory is difficult, particularly in the presence of conversion rules, which \RO and \Rome have. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equivalent. (For now, let us split environments into kinding environments $\Delta$, evidence environments $\Phi$, and typing environments $\Gamma$.)
 
 \[ 
 \ib{\irule[\trule{conv}]
@@ -146,7 +146,7 @@ Conversion rules complicate metatheory. To list a few reasons:
 \subsection{Type computation in \Rome}
 Let us demonstrate the significant role of type computation in \Rome types.
 
-\subsubsection{Reifying records} The \Rome family of languages is quite expressive, with succinct and readable types. To some extent, this magic relies on implicit type application, mapping, and type equivalence. Let us demonstrate with the types of two terms that witness the duality of records and variants. 
+\subsubsection{Reifying variants, reflecting records} The \Rome family of languages is quite expressive, with succinct and readable types. To some extent, this magic relies on implicit type application, mapping, and type equivalence. Let us demonstrate with the types of two terms that witness the duality of records and variants. 
 
 \begin{rosi}
 reify : forall z : R[ * ], t : *. 
