@@ -401,6 +401,9 @@
     {Down}{$\Downarrow$}1
     {Up}{$\Uparrow$}1
     {eta}{$\eta$}1
+    {.=.}{$\equiv$}1
+    {Top}{$\top$}1
+    {Bot}{$\bot$}1
 }
 \newcommand*\lstfont{\ttfamily\small}  % For some reason, footnotesize *in particular* breaks the listings package. Good stuff.
 \lstnewenvironment{codef}{\lstset{basicstyle=\lstfont,xleftmargin=1.5em}}{}
@@ -554,3 +557,4 @@
 \newcommand\TJudges[2]{\Types_{#1}^{#2}}
 \newcommand\TJudgesNF[2]{\NormalTypes_{#1}^{#2}}
 \newcommand\TJudgesNE[2]{\NeutralTypes_{#1}^{#2}}
+\renewcommand\Flap{\ensuremath{??}}

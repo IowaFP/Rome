@@ -126,7 +126,7 @@
 
 \subsection{The need for type normalization}
 \label{sec:need-for-type-normalization}
-Metatheory is difficult, particularly in the presence of conversion rules, which \RO and \Rome have. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equivalent. (For now, let us split environments into kinding environments $\Delta$, evidence environments $\Phi$, and typing environments $\Gamma$.)
+\RO and \Rome each have a type conversion rule. The rule below states that the term $M$ can have its type converted from $\tau$ to $\upsilon$ provided a proof that $\tau$ and $\upsilon$ are equivalent. (For now, let us split environments into kinding environments $\Delta$, evidence environments $\Phi$, and typing environments $\Gamma$.)
 
 \[ 
 \ib{\irule[\trule{conv}]
@@ -137,9 +137,9 @@ Metatheory is difficult, particularly in the presence of conversion rules, which
 
 Conversion rules can complicate metatheory. In particular, \citet{HubersM23,HubersIMM24} do not provide a procedure to decide type equivalence, and so proofs of type conversion must be embedded into the term language. This has a number of consequences:
 \begin{enumerate}[nolistsep]
-  \item Relatedly, users of the surface language may be forced to write conversion rules by hand.  
+  \item Users of the surface language may be forced to write conversion rules by hand.  
   \item Decidability of type checking now rests upon the decidability of type conversion.
-  \item term-level conversions can block $\beta$-reduction if a conversion is in the head position of an application. 
+  \item Term-level conversions can block $\beta$-reduction if a conversion is in the head position of an application. 
   \item Term-level conversions can block proofs of progress. Let !M! have type !tau!, let !pf! be a proof that !tau = upsilon!, and consider the term !conv! !M! !pf!; ideally, one would expect this to reduce to !M! (we've changed nothing semantically about the term). But this breaks type preservation, as !conv! !M! !pf! (at type !upsilon!) has stepped to a term at type !tau!. 
   \item Inversion of the typing judgment $\TypeJ \Delta \Phi \Gamma  M \tau$---that is, induction over derivations---must consider the possibility that this derivation was constructed via conversion. But conversion from what type? Proofs by induction over derivations often thus get stuck. 
 \end{enumerate}
@@ -199,7 +199,7 @@ reflect : forall z : R[ * ], t : *.
           Pi (z -> t) -> Sigma z -> t
 \end{rosi}
 
-The term !reify! transforms a variant eliminator into a record of individual eliminators; the term !reflect! transforms a record of individual eliminators into a variant eliminator. The syntax above is elegant, but arguably so because it hides some latent computation. In particular, what does !z -> t! mean? The variable !z! is at kind !R[ * ]! and !t! at kind !*!, so this is implicitly a map. Rewriting as such yields: 
+The term !reify! transforms a variant eliminator into a record of individual eliminators; the term !reflect! transforms a record of individual eliminators into a variant eliminator. The syntax above is precise, but arguably so because it hides some latent computation. In particular, what does !z -> t! mean? The variable !z! is at kind !R[ * ]! and !t! at kind !*!, so this is an implicit map. Rewriting explicitly yields: 
 
 \begin{rosi}
   reify : forall z : R[ * ], t : *. 
@@ -208,10 +208,10 @@ reflect : forall z : R[ * ], t : *.
           Pi ((\s. s -> t) .map. z) -> Sigma z -> t
 \end{rosi}
 
-\Ni The writing of the former rather than the latter is permitted because the corresponding types are equivalent modulo a type equivalence relation (\cref{fig:equivalence}).
+\Ni The writing of the former rather than the latter is permitted because the corresponding types are convertible.
 
 
-\subsubsection{Deriving functorality} We can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, we can give you a !Functor! instance for !Sigma z!. 
+\subsubsection{Deriving functorality} We can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, we can give a !Functor! instance for !Sigma z!. 
 
 \begin{rosi}
 type Functor : (* -> *) -> *
@@ -238,7 +238,7 @@ fmapS : forall z : R[* -> *].
         forall a b. (a -> b) -> (Sigma z) a -> (Sigma z) b
 \end{rosi}
 
-\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!". Let's make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
+\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!". Let us make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
 
 \begin{rosi}
   r ?? t = (\ f. f t) .map. r
@@ -275,7 +275,7 @@ fmapS {'Z := const Unit, 'S := \x. x} :
         Sigma {'Z := Unit , 'S := b}
 \end{rosi}
 
-The point we arrive at is that the elegance of some \RO and \Rome types are supplanted quite effectively by type equivalence. Further, as values are passed to type-operators, the shapes of the types incur forms of reduction beyond simple $\beta$-reduction. In this case, we must map type operators over rows; we next consider the reduction of row complements.
+The point we arrive at is that the precision of some \RO and \Rome types are supplanted quite effectively by type equivalence. Further, as values are passed to type-operators, the shapes of the types incur forms of reduction beyond simple $\beta$-reduction. In this case, we must map type operators over rows; we next consider the reduction of row complements.
 
 
 \subsubsection{Desugaring Booleans} Consider a desugaring of Booleans to Church encodings:
@@ -293,7 +293,7 @@ desugar : forall y. BoolF < y, LamF < y - BoolF =>
           Mu (Sigma (y - BoolF))
 \end{rosi}
 
-We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let's try something like the following AST, using !++! as pseudonotation for row concatenation to save space.
+We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let us try something like the following AST, using !++! as pseudonotation for row concatenation to save space.
 
 \begin{rosi}
 type AST = BoolF ++ LamF ++ 
@@ -334,10 +334,10 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \ib{\irule[\errule{lift$_\Xi$}]
           {\KindJ \Delta \rho {\RowK {\kappa \to \kappa'}}}
           {\KindJ \Delta \tau \kappa};
-          {\TEqvJ \Delta {(\KFam \Xi {\kappa \to \kappa'} \rho) \, \tau} {\KFam \Xi {\kappa'} (\rho^\$ \, \tau)} {\kappa'}}!
+          {\TEqvJ \Delta {(\KFam \Xi {\kappa \to \kappa'} \rho) \, \tau} {\KFam \Xi {\kappa'} (\rho \, \Flap \, \tau)} {\kappa'}}!
           {\Xi \in \Set {\Pi, \Sigma}}}
 \\
-\text {where $\rho^\$ \, \tau = \Mapp {(\lambda f. f \, \tau)} \rho$}
+\text {where $\rho \, \Flap \, \tau = \Mapp {(\lambda f. f \, \tau)} \rho$}
 \end{gathered}
 \\
 \ib{\irule[\erule{$\setminus$}]
@@ -404,7 +404,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 
 \subsection{Normal forms}
 
-The syntax of normal types is given in \cref{fig:type-normalization}. We carefully define the normal type syntax so that no type $\Normal \tau \in \NormalTypes$ could reasonably reduce further to some other $\tau' \in \NormalTypes$. Hence we write $\tau \NRedT$ synonymously with $\tau \in \NormalTypes$ to indicate that $\tau$ is well-kinded and has no further reductions.
+The syntax of normal types is given in \cref{fig:type-normalization}. % We carefully define the normal type syntax so that no type $\Normal \tau \in \NormalTypes$ could reasonably reduce further to some other $\tau' \in \NormalTypes$. Hence we write $\tau \NRedT$ synonymously with $\tau \in \NormalTypes$ to indicate that $\tau$ is well-kinded and has no further reductions.
 
 \begin{figure}[H]
 \begin{gather*}
@@ -458,7 +458,7 @@ The syntax $\LabTy n \Normal \tau$ separates singleton rows with variable labels
 The normal type syntax is pleasantly partitioned by kind. Due to $\eta$-expansion of functional variables, arrow kinded types are canonically $\lambda$-bound. A normal type at kind $\RowK \kappa$ is either an inert map $\hat{\phi}^{\TypeK} \, n$, a variable-labeled row $(\LabTy n \Normal \tau)$, the complement of two rows $\Normal {\tau_{2}} \Compl \Normal {\tau_{1}}$, or a row literal $\Normal \rho$. The first three cases necessarily have neutral types (recall that at least one of the two rows in a complement is not a row literal). Hence rows in empty contexts are canonically literal. Likewise, the only types with label kind in empty contexts are label literals; recall that we disallowed the formation of $\Pi$ and $\Sigma$ at kind $\RowK \LabK \to \LabK$, thereby disallowing non-literal labels such as $\Delta \not\vdash \Pi \epsilon \co \LabK$ or $\Delta \not\vdash \Pi (\LabTy {\ell_{1}} {\ell_{2}}) \co \LabK$.
 
 \begin{theorem}[Canonicity]
-  Let $\Normal\tau \NRedT$.
+  Let $\Normal\tau \in \NormalTypes$.
   \begin{itemize}
     \item If $\KindJNF \Delta {\Normal\tau} {(\kappa_{1} \to \kappa_{2})}$ then $\Normal\tau = {\lambda \alpha \co \kappa_{1}. \Normal\upsilon}$;
     \item if $\KindJNF \epsilon {\Normal\tau} {\RowK \kappa}$ then $\Normal\tau =  \RowIx i 0 m {\LabTy {\ell_i} {\Normal{\tau_i}}}$.
@@ -507,7 +507,7 @@ Equivalence of normal types is syntactically decidable which, in conjunction wit
 This section and those that follow give a closer examination into how the above metatheory was derived. In particular, we explain the \emph{normalization of types by evaluation} (NbE) involved in deriving a normalization algorithm. We describe the standard components of NbE, but place emphasis on the novelty of normalizing rows and row operators.
 
 \InlineOn{}
-Normalization by evaluation comes in a handful of different flavors. In our case, we seek to build a normalization function $\Norm : \Types \to \NormalTypes$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of judgments of the form $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of judgments of the form $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds): 
+Normalization by evaluation comes in a handful of different flavors. In our case, we seek to build a normalization function $\Norm : \Types \to \NormalTypes$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds): 
 
 \begin{agda}
 data Type : Env -> Kind -> Set
@@ -519,8 +519,9 @@ data NeutralType : Env -> Kind -> Set
 
 \subsection{Residualizing semantics}
 
-We define our semantic domain in Agda recursively over the syntax of !Kind!s. Care must be taken to not run afoul of Agda's termination and positivity checking.
+We define our semantic domain in Agda recursively over the syntax of !Kind!s in \cref{fig:SemType}. Care must be taken to not run afoul of Agda's termination and positivity checking.
 
+\begin{figure}
 \begin{agda}
 SemType : Env -> Kind -> Set
 SemType Delta * = NormalType Delta *
@@ -529,8 +530,11 @@ SemType Delta_1 (kappa_1 -> kappa_2) = KripkeFunction Delta_1  kappa_1  kappa_2
 SemType Delta R[ kappa ] = 
   RowType Delta (\ Delta' -> SemType Delta' kappa) R[ kappa ]
 \end{agda}
+\caption{Semantic types}
+\label{fig:SemType}
+\end{figure}
 
-Types at ground kind !*! and !L! are simply interpreted as !NormalType!s. We interpret arrow-kinded types as \emph{Kripke function spaces}, which permit the application of interpreted function $\phi$ at any environment !Delta_2! provided a renaming from !Delta_1! into !Delta_2!. Note that we are defining !SemType! recursively (not inductively), and so the negative occurrence of !SemType! !Delta_2! !kappa_1! is not a problem.  
+Types at ground kind !*! and !L! are simply interpreted as !NormalType!s. We interpret arrow-kinded types as \emph{Kripke function spaces}, which permit the application of interpreted function $\phi$ at any environment !Delta_2! provided a renaming from !Delta_1! into !Delta_2!. % Note that we are defining !SemType! recursively (not inductively), and so the negative occurrence of !SemType! !Delta_2! !kappa_1! is not a problem.  
 
 \begin{agda}
 Renaming Delta_1  Delta_2 = TVar Delta_1 kappa -> TVar Delta_2 kappa
@@ -546,7 +550,8 @@ Row : Set -> Set
 Row A = exists[ n ](Fin n -> Label times A)
 \end{agda}
 
-\Ni Next, we define a !RowType! inductively as one of four cases: either a row literal constructed by !row!, a neutral-labeled row singleton constructed by !_:=_!, an inert map constructed by !_.map._!, or an inert row complement constructed by !_COMPL_!. 
+\Ni Next, we define a !RowType! inductively as one of four cases: either a row literal constructed by !row!, a neutral-labeled row singleton constructed by !_:=_!, an inert map constructed by !_.map._!, or an inert row complement constructed by !_COMPL_! (\cref{fig:semantic-rows}).
+\begin{figure}
 \begin{agda}
 data RowType (Delta : Env) 
              (T : Env -> Set) : Kind -> Set where 
@@ -566,10 +571,13 @@ data RowType (Delta : Env)
              {nor : NotRow rho_2  or  notRow rho_1} -> 
              RowType Delta T R[ kappa ]
 \end{agda}
+\caption{Semantic row type}
+\label{fig:semantic-rows}
+\end{figure}
 
-Care must be taken to explain some nuances of each constructor. First, the !row! and !_COMPL_! constructors are each constrained by predicates. The !OrderedRow rho! predicate asserts that !rho! has its string labels totally and ascendingly ordered---guaranteeing that labels in the row are unique and that rows are definitionally equal modulo ordering. The !NotRow rho! predicate asserts simply that !rho! was \emph{not} constructed by !row!. In other words, it is not a simple row. This is important, as the complement of two row literals should reduce to a !Row!, so we must disallow the formation of complements in which at least one of the operands is a literal. 
+Care must be taken to explain some nuances of each constructor. First, the !row! and !_COMPL_! constructors are each constrained by predicates. The !OrderedRow rho! predicate asserts that !rho! has its string labels totally and ascendingly ordered---guaranteeing that labels in the row are unique and that rows are definitionally equal modulo ordering. The !NotRow rho! predicate asserts simply that !rho! was \emph{not} constructed by !row!. In other words, it is not a row literal. This is important, as the complement of two row literals should reduce to a !Row!, so we must disallow the formation of complements in which at least one of the operands is a literal. 
 
-The next set of nuances come from dancing around Agda's positivity checker. It would have been preferable for us to have rather written the !row! and !_.map._! constructors as follows: 
+The next set of nuances come from dancing around Agda's positivity checker. It would have been preferable for us to have written the !row! and !_.map._! constructors as follows: 
 \begin{agda}
   row      : (rho : Row (SemType Delta kappa)) -> 
              OrderedRow rho -> 
@@ -592,8 +600,8 @@ The next set of nuances come from dancing around Agda's positivity checker. It w
 
 We have now declared three domains: the syntax of types, the syntax of normal and neutral types, and the embedded domain of semantic types. Normalization by evaluation involves producing a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows thereafter that normalization is the reification of evaluation. Because we reason about types modulo $\eta$-expansion, reflection and reification are necessarily mutually recursive. (This is not the case however with e.g. \citet{ChapmanKNW19}.)
 
-We describe the reflection logic before reification. Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified; additionally, tau is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. The syntax $\cdot$ is used to construct an application of a !neutralType! to a !normalType!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\ r n -> reflect n)!, which is effectively the identity function. 
-
+Reflection is defined in \cref{fig:reflection}. Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified; additionally, tau is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. The syntax $\cdot$ is used to construct an application of a !neutralType! to a !normalType!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\ r n -> reflect n)!, which is effectively the identity function. 
+\begin{figure}
 \begin{agda}
 reflect : NeutralType Delta kappa -> SemType Delta kappa 
 reify : SemType Delta kappa -> NormalType Delta kappa
@@ -604,8 +612,14 @@ reflect {kappa = kappa_1 -> kappa_2} =
   \ r v -> reflect ((rename r tau) cdot reify v)
 reflect {kappa = R[ kappa ]} rho = (\ r n -> reflect n) .map. rho
 \end{agda}
+\caption{reflection}
+\label{fig:reflection}
+\end{figure}
 
-The definition of reification is a little more involved. The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $eta$-expansion; note that we are using intrinsically-scoped De Bruijn variables, so !Z! constructs the zero'th variable and !S! induces a renaming in which each variable is incremented by one. (Recall that !phi! is a Kripke function space and so expects a renaming as argument.) The constructor !`! promotes a type variable to a !neutralType!. The equation of interest is in reifying rows. First note that we construct row literals at type !NormalType! likewise via the !row! constructor, which expects a proof that the row is well-ordered. Such a proof is given by the auxiliary lemma !reifyPreservesOrdering!, which proves what it says. Next, we use a helper function !reifyRow! to recursively build a list of !Label!-!NormalType! pairs (that is, the form of !NormalType! rows) from a semantic row. The empty case is trivial; the successor case must inspect the head of the list by inspecting !P fzero!, i.e., the label-type association of the zero'th finite index. From there we yield a semantic type !tau! which we reify and append to the rest of the list, built recursively.
+The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion; note that we are using intrinsically-scoped De Bruijn variables, so !Z! constructs the zero'th variable and !S! induces a renaming in which each variable is incremented by one. (Recall that !phi! is a Kripke function space and so expects a renaming as argument.) The constructor !`! promotes a type variable to a !neutralType!. 
+
+The equation of interest is in reifying rows. We pun the !row! constructor to construct row literals at type !NormalType!, which likewise expects a proof that the row is well-ordered. Such a proof is given by the auxiliary lemma !reify!\-!Preserves!\-!Ordering!, which proves what it says. Next, we use a helper function !reifyRow! to recursively build a list of !Label!\--!Normal!\-!Type! pairs (that is, the form of !NormalType! row literals) from a semantic row. The empty case is trivial; the successor case must inspect the head of the list by destructing !P! !fzero!, i.e., the label\--type association of the zero'th finite index. From there we yield a semantic type !tau! which we reify and append to the result of recursing.
+\begin{figure}
 \begin{agda}
 reify {kappa = *} tau = tau
 reify {kappa = L} tau = tau
@@ -620,6 +634,9 @@ reify {kappa = R[ kappa ]} (row rho q) =
     ... | (l , tau) = 
       (l , reify tau) :: reifyRow (n , P . fsuc)
 \end{agda}
+\caption{reification}
+\label{fig:reification}
+\end{figure}
 
 Finally, we have asserted that types are reduced modulo $\beta$-reduction and $\eta$-expansion. It follows that a given !NeutralType! should, after reflection and reification, end up in an expanded form. This is precisely how we define the promotion of !NeutralType!s to !NormalType!s: 
 
@@ -635,7 +652,7 @@ We will build our evaluation function incrementally; we find it clearer to incre
 
 \subsubsection{Semantic application.}
 
-We first define semantic application straightforwardly as Agda application under the identity renaming. 
+We define semantic application straightforwardly as Agda application under the identity renaming.
 
 \begin{agda}
 _cdot'_ : SemType Delta (kappa_1 -> kappa_2) -> 
@@ -643,19 +660,62 @@ _cdot'_ : SemType Delta (kappa_1 -> kappa_2) ->
           SemType Delta kappa_2
 phi cdot' v = phi id v
 \end{agda}
+% \caption{semantic application}
+% \label{fig:semantic-application}
+% \end{figure}
 
 \subsubsection{Semantic mapping}
-Mapping over rows is a form of computation novel to \Rome's equivalence relation. We define the mapping !phi .map. rho! over the four cases a semantic row may take. When !rho! is neutral-labeled, we simply apply !phi! to its contents. The case where !rho! is a row literal is interesting in that our choice of representation for row literals as Agda functions comes to pay off: we may express the mapping of !phi! across the row !(n , P)! by pre-composing !P! with !phi! (note that we must appropriately fmap !phi! over the pair's second component).
+Mapping over rows is a form of computation novel to \Rome's equivalence relation. We define the mapping !phi .map. rho! over the four cases a semantic row may take (\cref{fig:semantic-mapping}). When !rho! is neutral-labeled, we simply apply !phi! to its contents. The case where !rho! is a row literal is interesting in that our choice of representation for row literals as Agda functions comes to pay off: we may express the mapping of !phi! across the row !(n , P)! by pre-composing !P! with !phi! (note that we must appropriately fmap !phi! over the pair's second component). The mapping of !phi! over a complement is distributive, following rule \errule{map$_{\setminus}$}. Likewise, we follow rule \errule{map$_\circ$} in grouping the nested map !phi! !.map.! !(phi_2 .map. n)! into a composed map. 
 
+\begin{figure}
 \begin{agda}
 _.map.'_ : SemType Delta (kappa_1 -> kappa_2) -> 
            SemType Delta R[ kappa_1 ] -> 
            SemType Delta R[ kappa_2 ]
 phi .map.' (l := tau) = l := (phi cdot' tau)
 phi .map.' (row (n , P) q) = row (n , fmap (phi id) . P)
+phi .map.' (rho_2 - rho_1) = (phi .map. rho_2) - (phi .map. rho_1)
+phi_1 .map.' (phi_2 .map. n) = (\ r -> phi_1 r . phi_2 r) .map. n
+\end{agda}
+\caption{semantic mapping}
+\label{fig:semantic-mapping}
+\end{figure}
+
+\subsubsection{Semantic complement}~
+
+\subsubsection{Semantic flap}
+The rule \errule{lift$_\Xi$} describes how $\Pi$ and $\Sigma$ reassociate from e.g. !(Pi rho) a! to !Pi (rho ?? a)!. We define a semantic version of the flap (flipped map) operator as follows:
+
+\begin{agda}
+_??'_ : SemType Delta R[ kappa_1 -> kappa_2 ] -> 
+       SemType Delta kappa_1 -> SemType Delta R[ kappa_2 ]
+phi ??' a = (\ r f -> f cdot' (rename r a)) .map.' phi
 \end{agda}
 
+\subsubsection{$\Pi$ and $\Sigma$ as operators} The defining equations for the reduction of $\Pi$ is given in \cref{fig:semantic-pi}. (The logic for $\Sigma$ is identical and omitted.)
 
+\begin{figure}
+\begin{agda}
+Pi' : SemType Delta R[ kappa ] -> SemType Delta kappa
+Pi' {kappa = *} x = Pi (reify x)
+Pi' {kappa = kappa_1 -> kappa_1} phi = \ r v -> Pi' (rename r phi ??' v)
+Pi' {kappa = R[ kappa ]} x = (\ r v -> Pi' v) .map. x
+\end{agda}
+\caption{Semantic $\Pi$}
+\label{fig:semantic-pi}
+\end{figure}
+
+We proceed by case splitting on the kind of the input to $\Pi'$. Recall that we may only construct record types in normal form at kind !*!, and so for the case that !kappa = *! we simply reify the input and construct the record via the !Pi! constructor. We exclude the case that !kappa = L! because it is impossible: in the !Type! syntax, we restrict the formation of the !Pi! constructor by the following predicate:
+
+\begin{agda}
+NotLabel : Kind -> Set
+NotLabel * = Top
+NotLabel L = Bot
+NotLabel (kappa_1 -> kappa_2) = NotLabel kappa_2
+NotLabel R[ kappa ] = NotLabel kappa
+\end{agda}
+
+This is to say, one may not apply !Pi! to an input that is a label, a label-valued function, or a row of labels. Next, when applying !Pi'! to a function, we must expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{lift$_\Xi$} to explain how !Pi'! operates on a single operand. Finally, we implement rule \errule{$\Xi$} directly in the last equation: the application of !Pi'! to a row-kinded input !x! is simply the mapping of !Pi'!  over !x!.
 
 \subsection{Evaluation}
 Evaluation warrants an environment that maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!, the constructor of !NeutralType!s from !TVar!s. 
@@ -686,17 +746,41 @@ Up : NormalType Delta kappa -> Type Delta kappa
 
 \section{Mechanized metatheory}
 
-This section gives a deeper exposition on the metatheory summarized \cref{sec:metatheory-summary}. We forego syntactic tyding of claims and give a deeper explanation of the proof techniques involved.
+This section gives a deeper exposition on the metatheory summarized in \cref{sec:metatheory-summary}. We forego syntactic tyding of claims and give a deeper explanation of the proof techniques involved.
 
 \subsection{Stability}
 
-Stability follows by simple induction on typing derivations. 
+Stability follows by simple induction on the input derivation $\KindJNF \Delta \tau \kappa$. Here it is clearer that we are stating !Down! is left-inverse to !Up!.
 
-\begin{theorem}[stability]
-\end{theorem}
+\begin{agda}
+stability : forall (tau : NormalType Delta kappa) -> Down (Up tau) .=. tau
+\end{agda}
+Stability implies idempotency:
+\begin{agda}
+idempotency : forall (tau : Type Delta kappa) -> 
+              (Up . Down . Up . Down) tau .=. (Up . Down) tau
+idempotency tau rewrite (Down tau) = refl
+\end{agda}
+\Ni and surjectivity: 
 
-Stability implies surjectivity and idempotency.
+\begin{agda}
+surjectivity : forall (tau : NormalType Delta kappa) -> 
+               exists[ upsilon ] (Down upsilon .=. tau)
+surjectivity tau = ( Up tau , stability tau )
+\end{agda}
+
 Dual to surjectivity, stability also implies that embedding is injective.
+
+\begin{agda}
+Up-inj : forall (tau_1  tau_2 : NormalType Delta kappa) -> 
+         Up tau_1 .=. Up tau_2 -> tau_1 .=. tau_2
+Up-inj  tau_1  tau_2  eq = 
+  trans 
+    (sym (stability tau_1))          
+    (trans 
+      (cong Down eq)
+      (stability tau_2))
+\end{agda}
 
 \subsection{A logical relation for completeness}
 
