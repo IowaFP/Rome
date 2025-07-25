@@ -1,20 +1,20 @@
 # Fdb version 4
-["bibtex NBE"] 1753418109.1957 "NBE.aux" "NBE.bbl" "NBE" 1753418114.91516 0
+["bibtex NBE"] 1753423989.04019 "NBE.aux" "NBE.bbl" "NBE" 1753424484.16218 0
   "./NBE.bib" 1753385404 169696 54f71fc104a34a3e95463e1753af4860 ""
-  "NBE.aux" 1753418113 9946 bab3160a4f4adf8f593e75ef4274016c "pdflatex"
+  "NBE.aux" 1753424482 10245 29f28a52af0cbec8fe8d979b5f3140a7 "pdflatex"
   "c:/texlive/2025/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1751317395 26816 ffe5423d2019860bad9f54bc402fac15 ""
   (generated)
   "NBE.bbl"
   "NBE.blg"
   (rewritten before read)
-["pdflatex"] 1753418109.68199 "c:/Users/ahube/Rome/Operational/Writing/NBE-Edinburgh/NBE.tex" "NBE.pdf" "NBE" 1753418114.91614 0
-  "NBE.aux" 1753418113 9946 bab3160a4f4adf8f593e75ef4274016c "pdflatex"
-  "NBE.bbl" 1753418109 1797 cd457d5782021c82b0241fabc2656844 "bibtex NBE"
-  "NBE.out" 1753418113 3500 f580ddce35911a1f8f7d2e46378e2d88 "pdflatex"
+["pdflatex"] 1753424480.10152 "c:/Users/ahube/Rome/Operational/Writing/NBE-Edinburgh/NBE.tex" "NBE.pdf" "NBE" 1753424484.16288 0
+  "NBE.aux" 1753424482 10245 29f28a52af0cbec8fe8d979b5f3140a7 "pdflatex"
+  "NBE.bbl" 1753423989 1797 cd457d5782021c82b0241fabc2656844 "bibtex NBE"
+  "NBE.out" 1753424482 3500 a4d3e0e585d0ac98f957cf30d56cd93f "pdflatex"
   "NBE.sty" 1753418092 19919 d63053a18ee24835f4b51dc6cc15e284 ""
-  "NBE.tex" 1753418092 49270 733f052dd4eded8609e49a61a40c4b33 ""
+  "NBE.tex" 1753424479 50424 9c97cf6bf2c06bedbb3759d7cbdc8761 ""
   "agda.sty" 1753298598 26658 962eecaf1b6feab2fca51e02c57255ab ""
-  "c:/Users/ahube/Rome/Operational/Writing/NBE-Edinburgh/NBE.tex" 1753418092 49270 733f052dd4eded8609e49a61a40c4b33 ""
+  "c:/Users/ahube/Rome/Operational/Writing/NBE-Edinburgh/NBE.tex" 1753424479 50424 9c97cf6bf2c06bedbb3759d7cbdc8761 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1751314175 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-4.enc" 1751315930 7693 0f2dce6d313c82989ec3a67fc24df2a0 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc" 1751315930 9446 fe5580ca6042a44427f18d450942e7d0 ""
@@ -110,7 +110,6 @@
   "c:/texlive/2025/texmf-dist/fonts/vf/public/libertine/LinLibertineTI-tlf-t1.vf" 1751316508 1768 b3bfd8ed1fe2dce5fd19610abe4c3dbe ""
   "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/ntxexx.vf" 1751317455 1716 73c8d39d4c3ace9ec98a8f066bb3b494 ""
   "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/ntxsy.vf" 1751317455 1792 7cf99effbd74f7851ca7683a6d12b685 ""
-  "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/ntxsy5.vf" 1751317455 1856 05afd1fb7a543fb973348907ffdabf53 ""
   "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/ntxsy7.vf" 1751317455 1940 bf4bac1135a7513fb45cfd9280176019 ""
   "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/nxlmi.vf" 1751317455 2744 3e5ba39e1559219ae379b7645e2f9524 ""
   "c:/texlive/2025/texmf-dist/fonts/vf/public/newtx/nxlmi7.vf" 1751317455 2740 2574d1692bc06933fa73eb18c93daedb ""

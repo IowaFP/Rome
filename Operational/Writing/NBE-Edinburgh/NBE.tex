@@ -317,14 +317,14 @@ AST - BoolF = {'Lit := const Int ,
 
 \section{Type Equivalence \& Reduction}
 
-We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. We omit conversion and closure rules. We describe each rule when I get around to it.
+We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. We omit conversion and closure rules.
 
 \newcommand\Subtract{\mathsf{subtract}}
 \InlineOff{}
 \begin{figure}
 \begin{small}
 \begin{gather*}
-\fbox{$\TEqvJ \Delta \tau \tau \kappa$} \; \; \fbox{$\PEqvJ \Delta \pi \pi$}
+\fbox{$\TEqvJ \Delta \tau \tau \kappa$}
 \\
 \ib{\irule[\erule{$\beta$}]
           {\KindJ \Delta {(\lambda \alpha\co\kappa. \tau) \, \upsilon} {\kappa'}};
@@ -332,9 +332,9 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \\
 \begin{gathered}
 \ib{\irule[\errule{lift$_\Xi$}]
-          {\KindJ \Delta \rho {\RowK {\kappa \to \kappa'}}}
+          {\KindJ \Delta \rho {\RowK {\kappa_1 \to \kappa_2}}}
           {\KindJ \Delta \tau \kappa};
-          {\TEqvJ \Delta {(\KFam \Xi {\kappa \to \kappa'} \rho) \, \tau} {\KFam \Xi {\kappa'} (\rho \, \Flap \, \tau)} {\kappa'}}!
+          {\TEqvJ \Delta {(\KFam \Xi {\kappa_1 \to \kappa_2} \rho) \, \tau} {\KFam \Xi {\kappa_2} (\rho \, \Flap \, \tau)} {\kappa_2}}!
           {\Xi \in \Set {\Pi, \Sigma}}}
 \\
 \text {where $\rho \, \Flap \, \tau = \Mapp {(\lambda f. f \, \tau)} \rho$}
@@ -353,7 +353,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \\
 \ib{\irule[\errule{map$_\mathsf{id}$}]
           {\KindJ \Delta \rho {\RowK\kappa}};
-          {\TEqvJ \Delta {\Mapp {(\lambda \alpha. \alpha)} \rho} \rho {\RowK\kappa}}}
+          {\TEqvJ \Delta \rho {\Mapp {(\lambda \alpha. \alpha)} \rho} {\RowK\kappa}}}
 \\
 \begin{gathered}
 \ib{\irule[\errule{map$_\circ$}]
@@ -519,7 +519,7 @@ data NeutralType : Env -> Kind -> Set
 
 \subsection{Residualizing semantics}
 
-We define our semantic domain in Agda recursively over the syntax of !Kind!s in \cref{fig:SemType}. Care must be taken to not run afoul of Agda's termination and positivity checking.
+We define our semantic domain in Agda recursively over the syntax of !Kind!s in \cref{fig:SemType}.
 
 \begin{figure}
 \begin{agda}
@@ -590,7 +590,7 @@ The next set of nuances come from dancing around Agda's positivity checker. It w
              RowType Delta T R[ kappa_2 ]
 \end{agda}
 
-\Ni Such a definition would have necessarily made the types !RowType! and !SemType! mutually inductive-recursive. But this would run afoul of Agda's positivity checker for the following reasons:
+\Ni Such a definition would have necessarily made the types !RowType! and !SemType! mutually inductive-recursive. But this would run afoul of Agda's termination and positivity checkers for the following reasons:
 \begin{enumerate}
   \item in the constructor !row!, the input !Row! !(SemType! !Delta! !kappa)! makes a recursive call to !SemType Delta kappa!, where it's not clear (to Agda) that this is a strictly smaller recursive call. To get around this, we parameterize the !RowType! type by !T : Env -> Set! so that we may enforce this recursive call to be structurally smaller---hence the definition of !SemType! at kind !R[ kappa ]! passes the argument !(\ Delta' ->! !SemType Delta' kappa)!, which varies in environment but is at a strictly smaller kind.
   \item  The !_.map._! constructor takes a !KripkeFunction! as input, in which !SemType! !Delta' kappa_1! occurs negatively, which Agda must outright reject. Here we borrow some clever machinery from \citet{AllaisBM13} and instead make the !KripkeFunction! accept the input !NeutralType Delta' kappa_1!, which is already defined. The trick is that, as we will show in the next section, every !NeutralType! may be promoted to a !SemType!. In practice this is sufficient for our needs.
@@ -600,7 +600,7 @@ The next set of nuances come from dancing around Agda's positivity checker. It w
 
 We have now declared three domains: the syntax of types, the syntax of normal and neutral types, and the embedded domain of semantic types. Normalization by evaluation involves producing a \emph{reflection} from neutral types to semantic types, a \emph{reification} from semantic types to normal types, and an \emph{evaluation} from types to semantic types. It follows thereafter that normalization is the reification of evaluation. Because we reason about types modulo $\eta$-expansion, reflection and reification are necessarily mutually recursive. (This is not the case however with e.g. \citet{ChapmanKNW19}.)
 
-Reflection is defined in \cref{fig:reflection}. Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified; additionally, tau is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. The syntax $\cdot$ is used to construct an application of a !neutralType! to a !normalType!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\ r n -> reflect n)!, which is effectively the identity function. 
+Reflection is defined in \cref{fig:reflection}. Types at kind !*! and !L! can be promoted straightforwardly with the !ne! constructor. Neutral types at arrow kind must be expanded into Kripke functions. Note that the input \verb!v! has type \verb!SemType Δ κ₁! and must be reified; additionally, !tau! is kinded in environment !Delta_1! and so must be renamed to !Delta_2!, the environment of !v!. The syntax $\cdot$ is used to construct an application of a !neutralType! to a !normalType!. Finally, a neutral row (e.g., a row variable) must be expanded into an inert mapping by !(\ r n -> reflect n)!, which is effectively the identity function. 
 \begin{figure}
 \begin{agda}
 reflect : NeutralType Delta kappa -> SemType Delta kappa 
@@ -681,7 +681,23 @@ phi_1 .map.' (phi_2 .map. n) = (\ r -> phi_1 r . phi_2 r) .map. n
 \label{fig:semantic-mapping}
 \end{figure}
 
-\subsubsection{Semantic complement}~
+\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). Here our implementation differs slightly to the syntactic presentation present in \cref{fig:equivalence}. We proceed by induction on the length of the left-hand row: The resulting row is the empty row !0 , \ ()! when the left-hand row is empty. (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the current label !P fzero .fst! is in the right-hand row. If so, we omit it and proceed with recursion. If not, we retain it. 
+
+\begin{figure}
+\begin{agda}
+_In?_ : Label -> Row (SemType Delta kappa) -> Bool
+
+_COMPL'_ : Row (SemType Delta kappa) -> Row (SemType Delta kappa) -> 
+           Row (SemType Delta kappa)
+(zero , P) COMPL' (m , Q) = 0 , \ () 
+(suc n , P) COMPL' (m , Q) with P fzero .fst In? Q 
+... | true = (P . fsuc) COMPL' Q
+... | false = suc n , \ { fzero -> P fzero , 
+                          fsuc _ -> (P . fsuc) COMPL' Q }
+\end{agda}
+\caption{Semantic complement}
+\label{fig:semantic-complement}
+\end{figure}
 
 \subsubsection{Semantic flap}
 The rule \errule{lift$_\Xi$} describes how $\Pi$ and $\Sigma$ reassociate from e.g. !(Pi rho) a! to !Pi (rho ?? a)!. We define a semantic version of the flap (flipped map) operator as follows:
@@ -692,7 +708,7 @@ _??'_ : SemType Delta R[ kappa_1 -> kappa_2 ] ->
 phi ??' a = (\ r f -> f cdot' (rename r a)) .map.' phi
 \end{agda}
 
-\subsubsection{$\Pi$ and $\Sigma$ as operators} The defining equations for the reduction of $\Pi$ is given in \cref{fig:semantic-pi}. (The logic for $\Sigma$ is identical and omitted.)
+\subsubsection{Semantic $\Pi$ and $\Sigma$} The defining equations for the reduction of $\Pi$ is given in \cref{fig:semantic-pi}. (The logic for $\Sigma$ is identical and omitted.)
 
 \begin{figure}
 \begin{agda}
@@ -705,7 +721,7 @@ Pi' {kappa = R[ kappa ]} x = (\ r v -> Pi' v) .map. x
 \label{fig:semantic-pi}
 \end{figure}
 
-We proceed by case splitting on the kind of the input to $\Pi'$. Recall that we may only construct record types in normal form at kind !*!, and so for the case that !kappa = *! we simply reify the input and construct the record via the !Pi! constructor. We exclude the case that !kappa = L! because it is impossible: in the !Type! syntax, we restrict the formation of the !Pi! constructor by the following predicate:
+The input row to !Pi'! has kind !R[ kappa ]!; we proceed by destructing !kappa!. Recall that we may only construct record types in normal form at kind !*!, and so for the case that !kappa = *! we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that !kappa = L! because it is impossible: in the !Type! syntax, we restrict the formation of the !Pi! constructor by the following predicate:
 
 \begin{agda}
 NotLabel : Kind -> Set
@@ -715,7 +731,7 @@ NotLabel (kappa_1 -> kappa_2) = NotLabel kappa_2
 NotLabel R[ kappa ] = NotLabel kappa
 \end{agda}
 
-This is to say, one may not apply !Pi! to an input that is a label, a label-valued function, or a row of labels. Next, when applying !Pi'! to a function, we must expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{lift$_\Xi$} to explain how !Pi'! operates on a single operand. Finally, we implement rule \errule{$\Xi$} directly in the last equation: the application of !Pi'! to a row-kinded input !x! is simply the mapping of !Pi'!  over !x!.
+This is to say, one may not apply !Pi! to an input that is a row of labels, a label-valued function, or a nested row of labels. Next, when applying !Pi'! to a function, we must expand the semantic $\lambda$-binding outwards. Thereafter, we apply rule \errule{lift$_\Xi$} to explain how !Pi'! operates on a single operand. Finally, we implement rule \errule{$\Xi$} directly in the last equation: the application of !Pi'! to a row-kinded input !x! is simply the mapping of !Pi'!  over !x!.
 
 \subsection{Evaluation}
 Evaluation warrants an environment that maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!, the constructor of !NeutralType!s from !TVar!s. 
