@@ -119,10 +119,10 @@
 \maketitle
 
 \section*{Abstract}
-\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. The authors fail to describe any metatheory of this relation, and so it is unclear if type-equivalence is decidable or if types have normal forms. This report answers in the affirmative: we describe the normalization-by-evaluation (NbE) of types in \Rome, a row calculus extending \RO with recursive types and a novel \emph{row complement} operator. Types are normalized to $\beta$-short, $\eta$-long forms modulo a type equivalence relation. Because the type system of \Rome extends System \Fome, much of the type reduction is isomorphic to reduction of terms in the STLC. Novel to this report are the reductions of row, record, and variant types.
+\citet{HubersIMM24} introduce \Rome, a higher-order row calculus, but do not describe any metatheory of its type equivalence relation nor of type reduction. \Rome extends System \Fome with rows, records, variants, row mapping, and a novel \emph{row complement} operator. This paper shows not only that \Rome types enjoy normal forms, but formalizes the normaliz\-ation\--by\--evaluation (NbE) of types in the interactive proof assistant Agda. We prove that our normalization algorithm is stable, sound and complete with respect to the type equivalence relation. Consequently, type conversion in \Rome is decidable.
 
 \section{Introduction}
-\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies heavily on implicit type reductions according to a directed type equivalence relation. Despite this reliance, the authors only provide a proof of \emph{semantic soundness} that well-typed terms inhabit the denotations of well-kinded types. The authors do not characterize the shape of types in normal form, nor prove that the denoted types are sound and completed with respect to their equivalence relation. \citet{HubersIMM24} extends the \RO language to \Rome, which is \RO with recursive types, term-level recursion, and a novel \emph{row complement} operator. Despite this extension, the authors fail to describe any metatheory of the equivalence relation, and so it remains unsolved if type equivalence is decidable or if types have normal forms. We argue next that these results ought to be established.
+\citet{HubersM23} introduce an expressive higher-order row calculus called \RO, which relies on implicit type reductions according to a directed type equivalence relation. Despite this reliance, the authors only provide a proof of \emph{semantic soundness} that well-typed terms inhabit the denotations of well-kinded types. The authors do not characterize the shape of types in normal form, nor prove that the denoted types are sound and complete with respect to the equivalence relation. \citet{HubersIMM24} extends the \RO language to \Rome, which is \RO with recursive types, term-level recursion, and a novel \emph{row complement} operator. The authors similarly extend the proof of semantic soundness, and fail to describe any metatheory of the equivalence relation.
 
 \subsection{The need for type normalization}
 \label{sec:need-for-type-normalization}
@@ -135,144 +135,19 @@ Metatheory is difficult, particularly in the presence of conversion rules, which
           {\TypeJ \Delta \Phi \Gamma M \upsilon}}
 \] 
 
-Conversion rules complicate metatheory. To list a few reasons: 
+Conversion rules can complicate metatheory. In particular, \citet{HubersM23,HubersIMM24} do not provide a procedure to decide type equivalence, and so proofs of type conversion must be embedded into the term language. This has a number of consequences:
 \begin{enumerate}[nolistsep]
-  \item Decidability of type checking now rests upon the decidability of type conversion. 
-  \item Relatedly, users of the surface language may be forced to write conversion rules by hand if type equivalence is not shown to be decidable.
-  \item Conversion rules block proofs of progress. Let !M! have type !t!, let !pf! be a proof that !t = u!, and consider the term !conv M pf!; ideally, one would expect this to reduce to !M! (we've changed nothing semantically about the term). But this breaks type preservation, as !conv M pf! (at type !u!) has stepped to a term at type !t!. 
+  \item Relatedly, users of the surface language may be forced to write conversion rules by hand.  
+  \item Decidability of type checking now rests upon the decidability of type conversion.
+  \item term-level conversions can block $\beta$-reduction if a conversion is in the head position of an application. 
+  \item Term-level conversions can block proofs of progress. Let !M! have type !tau!, let !pf! be a proof that !tau = upsilon!, and consider the term !conv! !M! !pf!; ideally, one would expect this to reduce to !M! (we've changed nothing semantically about the term). But this breaks type preservation, as !conv! !M! !pf! (at type !upsilon!) has stepped to a term at type !tau!. 
   \item Inversion of the typing judgment $\TypeJ \Delta \Phi \Gamma  M \tau$---that is, induction over derivations---must consider the possibility that this derivation was constructed via conversion. But conversion from what type? Proofs by induction over derivations often thus get stuck. 
 \end{enumerate}
 
-\subsection{Type computation in \Rome}
-Let us demonstrate the significant role of type computation in \Rome types.
-
-\subsubsection{Reifying variants, reflecting records} The \Rome family of languages is quite expressive, with succinct and readable types. To some extent, this magic relies on implicit type application, mapping, and type equivalence. Let us demonstrate with the types of two terms that witness the duality of records and variants. 
-
-\begin{rosi}
-reify : forall z : R[ * ], t : *. 
-        (Sigma z -> t) -> Pi (z -> t)
-reflect : forall z : R[ * ], t : *. 
-          Pi (z -> t) -> Sigma z -> t
-\end{rosi}
-
-The term !reify! transforms a variant eliminator into a record of individual eliminators; the term !reflect! transforms a record of individual eliminators into a variant eliminator. The syntax above is elegant, but arguably so because it hides some latent computation. In particular, what does !z -> t! mean? The variable !z! is at kind !R[ * ]! and !t! at kind !*!, so this is implicitly a map. Rewriting as such yields: 
-
-\begin{rosi}
-  reify : forall z : R[ * ], t : *. 
-          (Sigma z -> t) -> Pi ((\s. s -> t) .map. z)
-reflect : forall z : R[ * ], t : *. 
-          Pi ((\s. s -> t) .map. z) -> Sigma z -> t
-\end{rosi}
-
-\Ni The writing of the former rather than the latter is permitted because the corresponding types are equivalent modulo a type equivalence relation (\cref{fig:equivalence}).
-
-
-\subsubsection{Deriving functorality} We can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, I can give you a !Functor! instance for !Sigma z!. 
-
-\begin{rosi}
-type Functor : (* -> *) -> *
-type Functor = \f. forall a b. (a -> b) -> f a -> f b
-fmapS : forall z : R[* -> *]. 
-        Pi (Functor z) -> Functor (Sigma z)
-\end{rosi}
-
-\Ni Pay close attention: what is the type of !Functor z!? This is another implicit map. Let us write it as such and also expand the !Functor! type synonym:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-      Pi ((\f. forall a b. 
-        (a -> b) -> f a -> f b) .map. z) -> 
-      (\f. forall a b. (a -> b) -> f a -> f b) (Sigma z)
-\end{rosi}
-
-\Ni which reduces further to:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-        Pi ((\f. forall a b. 
-            (a -> b) -> f a -> f b) .map. z) -> 
-        forall a b. (a -> b) -> (Sigma z) a -> (Sigma z) b
-\end{rosi}
-
-\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!. Let's make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
-
-\begin{rosi}
-  r ?? t = (\ f. f t) .map. r
-\end{rosi}
-
-\Ni Now the type of !fmapS! is:
-
-\begin{rosi}
-fmapS : forall z : R[* -> *]. 
-        Pi ((\f. forall a b. 
-            (a -> b) -> f a -> f b) .map. z) -> 
-        forall a b. (a -> b) -> Sigma (z ?? a) -> Sigma (z ?? b)
-\end{rosi}
-
-\Ni And we have something resembling a normal form. Of course, the type is more interesting when applied to a real value for !z!. Suppose !z! is a functor for naturals, !{'Z := const Unit,! !'S := \x. x}!. Then a first pass yields:
-
-\begin{rosi}
-fmapS {'Z := const Unit, 'S := \x. x} : 
-        Pi ((\f. forall a b. (a -> b) -> f a -> f b) 
-          .map. {'Z := const Unit, 'S := \x. x}) -> 
-        forall a b. (a -> b) -> 
-        Sigma ({'Z := const Unit, 'S := \x. x} ?? a) -> 
-        Sigma ({'Z := const Unit, 'S := \x. x} ?? b)
-\end{rosi}
-
-How do we reduce from here? Regarding the first input, we suspect we would like a record of fmap instances for both the !'Z! and !'S! functors. We further intuit that the subterm !({'Z := const Unit,! !'S := \x. x}! !??! !a)! really ought to mean "the row with !'Z! mapped to !Unit! and !'S! mapped to !a!". At this point I will perform multiple steps of computation simultaneously so as to retain the reader's attention.
-
-\begin{rosi}
-fmapS {'Z := const Unit, 'S := \x. x} : 
-        Pi {'Z := forall a b. (a -> b) -> Unit -> Unit, 
-            'S := forall a b. (a -> b) -> a -> b} -> 
-        forall a b. (a -> b) -> 
-        Sigma {'Z := Unit , 'S := a} ->
-        Sigma {'Z := Unit , 'S := b}
-\end{rosi}
-
-The point we arrive at is that the elegance of some \RO and \Rome types are supplanted quite effectively by latent type equivalence. Further, as values are passed to type-operators, the shapes of the types incur forms of reduction beyond simple $\beta$-reduction. In our case, we must map type operators over rows; we next consider the reduction of row complements.
-
-
-\subsubsection{Desugaring Booleans} Consider a desugaring of booleans to Church encodings:
-
-\begin{rosi}
-type BoolF = { 'T := const Unit , 
-               'F := const Unit , 
-               'If := \x. Triple x x x}
-type LamF  = { 'Lam := Id , 
-               'App := \x. Pair x x , 
-               'Var := const Nat }
-desugar : forall y. BoolF < y, LamF < y - BoolF =>
-          Pi (Functor (y - BoolF)) -> 
-          Mu (Sigma y) -> 
-          Mu (Sigma (y - BoolF))
-\end{rosi}
-
-We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let's try something like the following AST, using !++! as pseudonotation for row concatenation.
-
-\begin{rosi}
-type AST = BoolF ++ LamF ++ 
-          {'Lit := const Int , 'Add := \x. Pair x x }
-desugar AST : BoolF < AST, LamF < (AST - BoolF) =>
-              Pi (Functor (AST - BoolF)) -> 
-              Mu (Sigma y) -> Mu (Sigma (AST - BoolF))
-\end{rosi}
-
-\Ni When !desugar! is passed !AST! for !z!, the inherent computation in the complement operator is made more obvious. What should !AST - BoolF! reduce to? Intuitively, we suspect the following to hold: 
-
-\begin{rosi} 
-AST - BoolF = {'Lit := const Int , 
-               'Add := \x. Pair x x, 
-               'Lam := Id , 
-               'App := \x. Pair x x , 
-               'Var := const Nat }
-\end{rosi}
-
-\Ni But this computation must be realized, just as (analogously) $\lambda$-redexes are realized by $\beta$-reduction.
+All of these complications may be avoided provided a sound and complete normalization algorithm. In such a case, all types are reduced to normal forms, where syntactic comparison is enough to decide equivalence. In effect, the proofs of all conversions have collapsed to just the reflexive case, and so term-level conversions can safely be removed.
 
 \subsection{Contributions}
-In summary, this report offers the following as contributions: 
+This paper offers the following as contributions: 
 
 \begin{enumerate}
   \item A normalization procedure for the directed \RO and \Rome type equivalence relation;
@@ -282,8 +157,9 @@ In summary, this report offers the following as contributions:
 \end{enumerate}
 
 \section{The \Rome{} calculus}
+\label{sec:Rome-calculus}
 
-For reference, \cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. 
+\Cref{fig:syntax-types} describes the syntax of kinds, predicates, and types in \Rome. 
 
 \begin{figure}
 \begin{gather*}
@@ -309,11 +185,139 @@ Labels (i.e., record field and variant constructor names) live at the type level
 
 The type $\pi \then \tau$ denotes a qualified type. In essence, the predicate $\pi$ restricts the instantiation of the type variables in $\tau$. Our predicates capture relationships among rows: $\LeqP {\rho_1} {\rho_2}$ means that $\rho_1$ is \emph{contained} in $\rho_2$, and $\PlusP {\rho_1} {\rho_2} {\rho_3}$ means that $\rho_1$ and $\rho_2$ can be \emph{combined} to give $\rho_3$.
 
-Finally, $\Rome$ introduces a novel \emph{row complement} operator $\rho_2 \Compl \rho_1$, analogous to a set complement for rows. The complement $\rho_2 \Compl \rho_1$ intuitively means the row obtained by removing any label-type associations in $rho_1$ from $\rho_2$. In practice, the type $\rho_2 \Compl \rho_1$ is meaningful only when we know that $\LeqP {\rho_1} {\rho_2}$, however constraining the formation of row complements to just this case introduces an unpleasant dependency between predicate evidence and types. In practice, it is easy enough to totally define the complement operator on all rows, even without the containment of one by the other. 
+Finally, $\Rome$ introduces a novel \emph{row complement} operator $\rho_2 \Compl \rho_1$, analogous to a set complement for rows. The complement $\rho_2 \Compl \rho_1$ intuitively means the row obtained by removing any label-type associations in $\rho_1$ from $\rho_2$. In practice, the type $\rho_2 \Compl \rho_1$ is meaningful only when we know that $\LeqP {\rho_1} {\rho_2}$, however constraining the formation of row complements to just this case introduces an unpleasant dependency between predicate evidence and type well-formedness. In practice, it is easy enough to totally define the complement operator on all rows, even without the containment of one by the other. 
+
+\subsection{Type computation in \Rome}
+\RO and \Rome are quite expressive languages, with succinct and readable types. To some extent, this magic relies on implicit type application, implicit maps, and unresolved type reduction. Let us demonstrate with a few examples.
+
+\subsubsection{Reifying variants, reflecting records} The following \RO terms witness the duality of records and variants. 
+
+\begin{rosi}
+reify : forall z : R[ * ], t : *. 
+        (Sigma z -> t) -> Pi (z -> t)
+reflect : forall z : R[ * ], t : *. 
+          Pi (z -> t) -> Sigma z -> t
+\end{rosi}
+
+The term !reify! transforms a variant eliminator into a record of individual eliminators; the term !reflect! transforms a record of individual eliminators into a variant eliminator. The syntax above is elegant, but arguably so because it hides some latent computation. In particular, what does !z -> t! mean? The variable !z! is at kind !R[ * ]! and !t! at kind !*!, so this is implicitly a map. Rewriting as such yields: 
+
+\begin{rosi}
+  reify : forall z : R[ * ], t : *. 
+          (Sigma z -> t) -> Pi ((\s. s -> t) .map. z)
+reflect : forall z : R[ * ], t : *. 
+          Pi ((\s. s -> t) .map. z) -> Sigma z -> t
+\end{rosi}
+
+\Ni The writing of the former rather than the latter is permitted because the corresponding types are equivalent modulo a type equivalence relation (\cref{fig:equivalence}).
+
+
+\subsubsection{Deriving functorality} We can simulate the deriving of functor typeclass instances: given a record of !fmap! instances at type !Pi (Functor z)!, we can give you a !Functor! instance for !Sigma z!. 
+
+\begin{rosi}
+type Functor : (* -> *) -> *
+type Functor = \f. forall a b. (a -> b) -> f a -> f b
+fmapS : forall z : R[* -> *]. 
+        Pi (Functor z) -> Functor (Sigma z)
+\end{rosi}
+
+\Ni When we consider the kind of !Functor z! it becomes apparent that this is another implicit map. Let us write it explicitly and also expand the !Functor! type synonym:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+      Pi ((\f. forall a b. 
+        (a -> b) -> f a -> f b) .map. z) -> 
+      (\f. forall a b. (a -> b) -> f a -> f b) (Sigma z)
+\end{rosi}
+
+\Ni which reduces further to:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+        Pi ((\f. forall a b. 
+            (a -> b) -> f a -> f b) .map. z) -> 
+        forall a b. (a -> b) -> (Sigma z) a -> (Sigma z) b
+\end{rosi}
+
+\Ni Intuitively, we suspect that !(Sigma z) a! means "the variant of type constructors z applied to the type variable !a!". Let's make this intent obvious. First, define a "left-mapping" helper !_??_!  with kind !R[ * -> * ] -> * -> R[ * ]!  as so:
+
+\begin{rosi}
+  r ?? t = (\ f. f t) .map. r
+\end{rosi}
+
+\Ni Now the type of !fmapS! is:
+
+\begin{rosi}
+fmapS : forall z : R[* -> *]. 
+        Pi ((\f. forall a b. 
+            (a -> b) -> f a -> f b) .map. z) -> 
+        forall a b. (a -> b) -> Sigma (z ?? a) -> Sigma (z ?? b)
+\end{rosi}
+
+\Ni And we have what appears to be a normal form. Of course, the type is more interesting when applied to a real value for !z!. Suppose !z! is a functor for naturals, !{'Z := const Unit,! !'S := \x. x}!. Then a first pass yields:
+
+\begin{rosi}
+fmapS {'Z := const Unit, 'S := \x. x} : 
+        Pi ((\f. forall a b. (a -> b) -> f a -> f b) 
+          .map. {'Z := const Unit, 'S := \x. x}) -> 
+        forall a b. (a -> b) -> 
+        Sigma ({'Z := const Unit, 'S := \x. x} ?? a) -> 
+        Sigma ({'Z := const Unit, 'S := \x. x} ?? b)
+\end{rosi}
+
+How do we reduce from here? Regarding the first input, we suspect we would like a record of fmap instances for both the !'Z! and !'S! functors. We further intuit that the subterm !({'Z := const Unit,! !'S := \x. x}! !??! !a)! really ought to mean "the row with !'Z! mapped to !Unit! and !'S! mapped to !a!". Performing the remaining reductions yields:
+
+\begin{rosi}
+fmapS {'Z := const Unit, 'S := \x. x} : 
+        Pi {'Z := forall a b. (a -> b) -> Unit -> Unit, 
+            'S := forall a b. (a -> b) -> a -> b} -> 
+        forall a b. (a -> b) -> 
+        Sigma {'Z := Unit , 'S := a} ->
+        Sigma {'Z := Unit , 'S := b}
+\end{rosi}
+
+The point we arrive at is that the elegance of some \RO and \Rome types are supplanted quite effectively by type equivalence. Further, as values are passed to type-operators, the shapes of the types incur forms of reduction beyond simple $\beta$-reduction. In this case, we must map type operators over rows; we next consider the reduction of row complements.
+
+
+\subsubsection{Desugaring Booleans} Consider a desugaring of Booleans to Church encodings:
+
+\begin{rosi}
+type BoolF = { 'T := const Unit , 
+               'F := const Unit , 
+               'If := \x. Triple x x x}
+type LamF  = { 'Lam := Id , 
+               'App := \x. Pair x x , 
+               'Var := const Nat }
+desugar : forall y. BoolF < y, LamF < y - BoolF =>
+          Pi (Functor (y - BoolF)) -> 
+          Mu (Sigma y) -> 
+          Mu (Sigma (y - BoolF))
+\end{rosi}
+
+We will ignore the already stated complications that arise from subexpressions such as !Functor! !(y - BoolF)! and skip to the step in which we tell !desugar! what particular row !y! it operates over. Here we know it must have at least the !BoolF! and !LamF! constructors. Let's try something like the following AST, using !++! as pseudonotation for row concatenation to save space.
+
+\begin{rosi}
+type AST = BoolF ++ LamF ++ 
+          {'Lit := const Int , 'Add := \x. Pair x x }
+desugar AST : BoolF < AST, LamF < (AST - BoolF) =>
+              Pi (Functor (AST - BoolF)) -> 
+              Mu (Sigma y) -> Mu (Sigma (AST - BoolF))
+\end{rosi}
+
+\Ni When !desugar! is passed !AST! for !z!, the inherent computation in the complement operator is made more obvious. What should !AST - BoolF! reduce to? Intuitively, we suspect the following to hold: 
+
+\begin{rosi} 
+AST - BoolF = {'Lit := const Int , 
+               'Add := \x. Pair x x, 
+               'Lam := Id , 
+               'App := \x. Pair x x , 
+               'Var := const Nat }
+\end{rosi}
+
+\Ni But this computation must be realized, just as (analogously) $\lambda$-redexes are realized by $\beta$-reduction.
 
 \section{Type Equivalence \& Reduction}
 
-We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. We omit conversion and closure rules.
+We define reduction on types $\tau \RedT \tau'$ by directing the type equivalence judgment $\TEqvJ \Delta \tau {\tau'} \kappa$ from left to right, defined in \cref{fig:equivalence}. We omit conversion and closure rules. We describe each rule when I get around to it.
 
 \newcommand\Subtract{\mathsf{subtract}}
 \InlineOff{}
@@ -337,9 +341,10 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \end{gathered}
 \\
 \ib{\irule[\erule{$\setminus$}]
-          {\KindJ \Delta {\rho_i} {\RowK \kappa}};
+          {\KindJ \Delta {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}} {\RowK \kappa}}
+          {\KindJ \Delta {\RowIx j 0 m {\LabTy {\xi_j} {\tau_j}}} {\RowK \kappa}};
           % {\Delta \vdash \mathsf{subtract} \, \rho_1 \, \rho_2 \, \rho_3};
-          {\TEqvJ \Delta {\rho_2 \Compl \rho_1} {\Subtract \, \rho_2 \, \rho_1} {\RowK \kappa}}}
+          {\TEqvJ \Delta {{\Row {\LabTy {\xi_i} {\tau_i}}} \Compl {\Row {\LabTy {\xi_j} {\tau_j}}}} {\Subtract \, {\Row {\LabTy {\xi_i} {\tau_i}}} \, {\Row{\LabTy {\xi_j} {\tau_j}}}} {\RowK \kappa}}}
 \\
 \ib{\irule[\errule{map}]
           {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
@@ -399,7 +404,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 
 \subsection{Normal forms}
 
-The syntax of normal types is given in \cref{fig:type-normalization}. We carefully define the normal type syntax so that no type $\Normal \tau \in \NormalTypes$ could reasonably reduce further to some other $\tau' \in \NormalTypes$. Hence we write $\tau \NRedT$ synonymously with $\tau \in \NormalTypes$ to indicate that $\tau$ is well-kinded and has no further reductions. We define a normalization function in Agda to materialize this sentiment later.
+The syntax of normal types is given in \cref{fig:type-normalization}. We carefully define the normal type syntax so that no type $\Normal \tau \in \NormalTypes$ could reasonably reduce further to some other $\tau' \in \NormalTypes$. Hence we write $\tau \NRedT$ synonymously with $\tau \in \NormalTypes$ to indicate that $\tau$ is well-kinded and has no further reductions.
 
 \begin{figure}[H]
 \begin{gather*}
