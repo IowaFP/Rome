@@ -524,7 +524,7 @@ We define our semantic domain in Agda recursively over the syntax of !Kind!s in 
 SemType : Env -> Kind -> Set
 SemType Delta * = NormalType Delta *
 SemType Delta L = NormalType Delta L 
-SemType Delta_1 (kappa_1 -> kappa_2) = KripkeFunction Delta_1  kappa_1  kappa_2 
+SemType Delta_1 (kappa_1 '-> kappa_2) = KripkeFunction Delta_1  kappa_1  kappa_2 
 SemType Delta R[ kappa ] = 
   RowType Delta (\ Delta' -> SemType Delta' kappa) R[ kappa ]
 \end{agda}
@@ -606,11 +606,11 @@ reify : SemType Delta kappa -> NormalType Delta kappa
 
 reflect {kappa = *} tau = ne tau
 reflect {kappa = L} tau = ne tau
-reflect {kappa = kappa_1 -> kappa_2} = 
+reflect {kappa = kappa_1 '-> kappa_2} = 
   \ r v -> reflect ((rename r tau) cdot reify v)
 reflect {kappa = R[ kappa ]} rho = (\ r n -> reflect n) .map. rho
 \end{agda}
-\caption{reflection}
+\caption{Reflection}
 \label{fig:reflection}
 \end{figure}
 
@@ -621,7 +621,7 @@ The equation of interest is in reifying rows. We pun the !row! constructor to co
 \begin{agda}
 reify {kappa = *} tau = tau
 reify {kappa = L} tau = tau
-reify {kappa = kappa_1 -> kappa_2} phi = `\ (reify (phi S (` Z)))
+reify {kappa = kappa_1 '-> kappa_2} phi = `\ (reify (phi S (` Z)))
 reify {kappa = R[ kappa ]} (row rho q) = 
   row (reifyRow rho) (reifyPreservesOrdering q)
   where
@@ -632,7 +632,7 @@ reify {kappa = R[ kappa ]} (row rho q) =
     ... | (l , tau) = 
       (l , reify tau) :: reifyRow (n , P . fsuc)
 \end{agda}
-\caption{reification}
+\caption{Reification}
 \label{fig:reification}
 \end{figure}
 
@@ -646,6 +646,7 @@ eta-norm = reify . reflect
 This function is necessary: the !NormalType! constructor !ne! stipulates that we may only promote neutral derivations to normal derivations at \emph{ground kind} (rule \kruleNF{ne}). Hence !eta!!-norm! is the only means by which we may promote neutral types at row or arrow kind.
 
 \subsection{Helping evaluation}
+\label{sec:helping-evaluation}
 We will build our evaluation function incrementally; we find it clearer to incrementally build helpers for sub-computation (e.g., mapping or the complement) on our way up to full evaluation. We describe these helpers next.
 
 \subsubsection{Semantic application.}
@@ -653,7 +654,7 @@ We will build our evaluation function incrementally; we find it clearer to incre
 We define semantic application straightforwardly as Agda application under the identity renaming.
 
 \begin{agda}
-_cdot'_ : SemType Delta (kappa_1 -> kappa_2) -> 
+_cdot'_ : SemType Delta (kappa_1 '-> kappa_2) -> 
           SemType Delta kappa_1 -> 
           SemType Delta kappa_2
 phi cdot' v = phi id v
@@ -667,7 +668,7 @@ Mapping over rows is a form of computation novel to \Rome's equivalence relation
 
 \begin{figure}
 \begin{agda}
-_.map.'_ : SemType Delta (kappa_1 -> kappa_2) -> 
+_.map.'_ : SemType Delta (kappa_1 '-> kappa_2) -> 
            SemType Delta R[ kappa_1 ] -> 
            SemType Delta R[ kappa_2 ]
 phi .map.' (l := tau) = l := (phi cdot' tau)
@@ -675,11 +676,11 @@ phi .map.' (row (n , P) q) = row (n , fmap (phi id) . P)
 phi .map.' (rho_2 - rho_1) = (phi .map. rho_2) - (phi .map. rho_1)
 phi_1 .map.' (phi_2 .map. n) = (\ r -> phi_1 r . phi_2 r) .map. n
 \end{agda}
-\caption{semantic mapping}
+\caption{Semantic mapping}
 \label{fig:semantic-mapping}
 \end{figure}
 
-\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). Here our implementation differs slightly to the syntactic presentation present in \cref{fig:equivalence}. We proceed by induction on the length of the left-hand row: The resulting row is the empty row !0 , \ ()! when the left-hand row is empty. (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the current label !P fzero .fst! is in the right-hand row. If so, we omit it and proceed with recursion. If not, we retain it. 
+\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). Here our implementation differs slightly to the syntactic presentation in \cref{fig:equivalence}. We proceed by induction on the length of the left-hand row: The resulting row is the empty row !0 , \ ()! when the left-hand row is empty. (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the label of the head entry in !P!, !P fzero .fst!, is in the right-hand row. If so, we omit it and proceed with recursion. If not, we retain it. 
 
 \begin{figure}
 \begin{agda}
@@ -701,7 +702,7 @@ _COMPL'_ : Row (SemType Delta kappa) -> Row (SemType Delta kappa) ->
 The rule \errule{lift$_\Xi$} describes how $\Pi$ and $\Sigma$ reassociate from e.g. !(Pi rho) a! to !Pi (rho ?? a)!. We define a semantic version of the flap (flipped map) operator as follows:
 
 \begin{agda}
-_??'_ : SemType Delta R[ kappa_1 -> kappa_2 ] -> 
+_??'_ : SemType Delta R[ kappa_1 '-> kappa_2 ] -> 
        SemType Delta kappa_1 -> SemType Delta R[ kappa_2 ]
 phi ??' a = (\ r f -> f cdot' (rename r a)) .map.' phi
 \end{agda}
@@ -725,7 +726,7 @@ The input row to !Pi'! has kind !R[ kappa ]!; we proceed by destructing !kappa!.
 NotLabel : Kind -> Set
 NotLabel * = Top
 NotLabel L = Bot
-NotLabel (kappa_1 -> kappa_2) = NotLabel kappa_2
+NotLabel (kappa_1 '-> kappa_2) = NotLabel kappa_2
 NotLabel R[ kappa ] = NotLabel kappa
 \end{agda}
 
@@ -737,10 +738,46 @@ Evaluation warrants an environment that maps type variables to semantic types. T
 
 \begin{agda}
 SemEnv : Env -> Env -> Set
-SemEnv Delta_1  Delta_2 = TVar Delta_1 -> SemType Delta_2 kappa 
+SemEnv Delta_1  Delta_2 = TVar Delta_1 kappa -> SemType Delta_2 kappa 
 idEnv : SemEnv Delta Delta
 idEnv = reflect . `
 \end{agda}
+
+We describe only the interesting cases of evaluation (\cref{fig:evaluation}); the rest are purely compositional. 
+
+\begin{figure}
+\begin{agda}
+eval : Type Delta_1 -> SemEnv Delta_1  Delta_2 -> SemType Delta_2  kappa
+eval (` x) eta = eta x
+eval (tau_1  cdot  tau_2) eta = (eval tau_1  eta) cdot' (eval tau_2  eta)
+eval (rho_2 - rho_1) eta = eval rho_2 eta COMPL' eval rho_1  eta 
+eval (`\ tau) eta = \ r v -> 
+  eval tau (extend (rename r . eta) v)
+eval Pi eta = \ r v -> Pi' v
+eval Sigma eta = \ r v -> Sigma' v
+eval (phi .map. tau) eta = eval phi eta .map.' eval n tau
+eval (l := tau) eta with eval l eta 
+... | ne x = (x := eval tau eta)
+... | lab ell = row (1 , \ { fzero -> 
+                            (ell , eval tau eta )}) tt
+eval (row rho q) eta = row 
+  (evalRow rho eta) 
+  (evalPreservesOrdering q)
+where
+  evalRow : List (Label times (Type Delta_1 kappa)) -> 
+            SemEnv Delta_1  Delta_2 -> 
+            Row (SemType Delta_2 kappa)
+  evalRow [] eta = 0 , \ ()
+  evalRow ((l , tau) :: rho) eta = \ { fzero -> eval tau eta , 
+                          fsuc _ -> evalRow rho eta }
+\end{agda}
+\caption{Evaluation}
+\label{fig:evaluation}
+\end{figure}
+
+The first equation states that variables evaluate to their meaning in environment !eta!. The equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in \cref{sec:helping-evaluation}. The evaluation of a function \lstinline{`\ tau} is simply the evaluation of the body in the environment !eta! expanded with semantic object !v!, being careful to rename appropriately as this is a Kripke function. Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!; in the former case, we evaluate to an inert singleton using the !RowType! constructor !_:=_!; in the latter, we evaluate to a row literal in which !fzero! points to !(ell , eval tau eta)!. The term !tt : Unit! is the evidence that this row literal is trivially ordered. Finally, we evaluate row literals by recursion: the empty case evaluates to the empty !Row!, !0 , \ ()!; the cons case evaluates to a row in which !fzero! maps to the evaluation of !tau!, while !fsuc! otherwise proceeds recursively. Again, we have an obligation to prove that evaluationg preserves the ordering evidence !q!, which is performed by the auxiliary lemma !evalPreservesOrdering!.
+
+
 
 \subsection{Normalization}
 
@@ -762,6 +799,39 @@ Up : NormalType Delta kappa -> Type Delta kappa
 
 This section gives a deeper exposition on the metatheory summarized in \cref{sec:metatheory-summary}. We forego syntactic tyding of claims and give a deeper explanation of the proof techniques involved.
 
+\subsection{Canonicity of normal types}
+Normal forms are partitioned by kind, which can easily be shown by case splitting on !NormalType! inputs. We first demonstrate that neutrals cannot exist in an empty environment:
+
+\begin{agda} 
+noNeutrals : NeutralType [] kappa -> Bot
+noNeutrals (n cdot tau) = noNeutrals n
+\end{agda} 
+
+Now, in any context an arrow-kinded type is canonically $\lambda$-bound:
+\begin{agda}
+arrow-canonicity : (phi : NormalType Delta (kappa_1 '-> kappa_2)) -> 
+                    exists[ tau ](phi .=. `\ tau)
+arrow-canonicity (`\ tau) = tau , refl 
+\end{agda}
+
+\Ni A row in an empty context is necessarily a row literal (all omitted cases are eliminated by !Bot-elim!):
+
+\begin{agda}
+row-canonicity : (rho : NormalType [] R[ kappa]) -> 
+                 exists[ (xs , oxs) ]
+                 ( rho .=. row xs oxs)
+row-canonicity (row rho q) = rho , q , refl
+\end{agda}
+
+\Ni And a label-kinded type is necessarily a label literal (where !lab! constructs a label literal):
+
+\begin{agda}
+label-canonicity : (l : NormalType [] L) -> 
+                   exists[ ell ] (l .=. lab ell)
+label-canonicity (ne x) = Bot-elim (noNeutrals x)
+label-canonicity (lab s) = s , refl
+\end{agda}
+
 \subsection{Stability}
 
 Stability follows by simple induction on the input derivation $\KindJNF \Delta \tau \kappa$. Here it is clearer that we are stating !Down! is left-inverse to !Up!.
@@ -773,7 +843,7 @@ Stability implies idempotency:
 \begin{agda}
 idempotency : forall (tau : Type Delta kappa) -> 
               (Up . Down . Up . Down) tau .=. (Up . Down) tau
-idempotency tau rewrite (Down tau) = refl
+idempotency tau rewrite (stability (Down tau)) = refl
 \end{agda}
 \Ni and surjectivity: 
 
@@ -798,11 +868,98 @@ Up-inj  tau_1  tau_2  eq =
 
 \subsection{A logical relation for completeness}
 
+Completeness states that equivalent types reduce to the same normal forms. We define the equivalence relation of \cref{fig:equivalence} as an inductive, intrinsically typed relation in Agda.
+
+\begin{agda}
+data _.=.t_ : Type Delta kappa -> Type Delta kappa -> set 
+\end{agda}
+
+\Ni and hence completeness may be stated as follows:
+
+\begin{agda}
+completeness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
+\end{agda}
+
+We prove completeness via a logical relation !_~~_! on semantic types that specifies when two semantic objects are equivalent modulo uniformity (\citep{AllaisBM13,ChapmanKNW19}) and pointwise functional extensionality. We define !_~~_! recursively over the kinds of the inputs !tau_1! and !tau_2! (\cref{fig:completeness-relation}).
+
+\begin{figure}
+\begin{agda}
+_~~_ {kappa = *} tau_1 tau_2 = tau_1 .=. tau_2
+_~~_ {kappa = L} tau_1 tau_2 = tau_1 .=. tau_2
+_~~_ {kappa = kappa_1 `-> kappa_2} phi_1  phi_2 = 
+  Uniform phi_1 times Uniform phi_2 times PointEqual phi_1 phi_2
+_~~_ {kappa = R[ kappa ]} (ell_1 := tau_1) (ell_2 := tau_2) = ell_1 .=. ell_2 times tau_1 ~~ tau_2  
+_~~_ {kappa = R[ kappa_2 ]} (_.map._ {kappa_1} phi_1  n_1) (_.map._ {kappa_1'} phi_2  n_2) = 
+  exists[ pf : kappa_1 .=. kappa_1' ]
+    UniformNE phi_1 times
+    UniformNE phi_2 times
+    PointEqualNE (convKripkeNE pf phi_1) phi_2 times
+    convNE pf n_1 .=. n_2
+_~~_ {kappa = R[ kappa ]} (rho_2 - rho_1) (rho_4 - rho_3) = rho_2 ~~ rho_4 times rho_1 ~~ rho_3
+_~~_ {kappa = R[ kappa ]} (row rho_1 q) (row rho_2 g) = rho_1 ~~R rho_2
+  where
+    (ell_1 , tau_1) ~~2 (ell_2 , tau_2) = ell_1 .=. ell_2 times tau_1 ~~ tau_2
+    (n , P) ~~R (m , Q) = exists[ pf : n .=. m]
+                          (forall (i : fin m) -> 
+                          (subst-Row pf P) i ~~2 Q i)
+\end{agda}
+\caption{Completeness relation}
+\label{fig:completeness-relation}
+\end{figure}
+
+\begin{figure}
+\begin{agda}
+Uniform : KripkeFunction Delta kappa_1  kappa_2 -> Set 
+Uniform phi = ...
+PointEqual : ( phi_1  phi_2 : KripkeFunction Delta kappa_1  kappa_2) -> Set
+PointEqual phi_1  phi_2 = forall (r : Renaming Delta_1  Delta_2)
+                         {v_1 v_2 : SemType Delta_2 kappa_1} -> 
+                         v_1 ~~ v_2 -> 
+                         phi_1 r v_1 ~~ phi_2 r v_2
+\end{agda}
+\caption{Uniformity and point equality}
+\label{fig:uniformity-and-PE}
+\end{figure}
+Description here.
+
 \subsubsection{Properties}
+
+Propositionally equal neutral types reflect to equivalent semantic objects: 
+
+\begin{agda}
+reflect-~~ : forall {tau_1 tau_2 : NeutralType Delta kappa} -> 
+             tau_1 .=. tau_2 -> reflect tau_1 ~~ reflect tau_2
+\end{agda}
+
+\Ni Dually, equivalent semantic types reify to propositionally equal types. 
+
+\begin{agda}
+  reify-~~ : \forall {v_1 v_2 : SemType Delta kappa} -> 
+              v_1 ~~ v_2 -> 
+              reify v_1 .=. reify v_2
+\end{agda}
 
 \subsubsection{Logical environments}
 
+!SemEnv-~~! and !idext!.
+
 \subsubsection{The fundamental theorem and completeness}
+
+The fundamental lemma for the completeness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental theorem is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
+
+\begin{agda}
+  fundC : eta_1 ~~e eta_2 -> tau_1 .=.t tau_2 -> 
+          eval tau_1 eta_1 ~~ eval tau_2 eta_2
+\end{agda}
+
+Completeness follows from the fundamental lemma in the identity environment. 
+
+\begin{agda}
+idEnv-~~ : idEnv ~~e idEnv 
+idEnv-~~ x = reflect-~~ refl 
+
+completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
+\end{agda}
 
 \subsection{A logical relation for soundness}
 
@@ -811,8 +968,11 @@ Up-inj  tau_1  tau_2  eq =
 \subsubsection{Logical environments}
 
 \subsubsection{The fundamental theorem and Soundness}
+\subsection{Decidability of type conversion}
 
 \section{Most closely related work}
+
+Our technical development owes a huge debt to two papers in particular. We closely follow the formalization patterns and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct semantic image of rows (borrowing from their semantic image of lists). Our paper differs in a few key ways. Firstly, we introduce label and row kinds to the syntax, incurring an additional burden to reduce row maps, the row operators $\Pi$ and $\Sigma$, and row complements. We also reason about types modulo $\eta$-equivalence of functions and also expansion of rows to inert maps, which made many proof definitions harder to define. (For example, \citet{ChapmanKNW19} do not need a mutually recursive reify and reflect, which in turn made many auxiliary lemmas harder to define.)
 
 \bibliographystyle{plainnat}
 \bibliography{NBE}
