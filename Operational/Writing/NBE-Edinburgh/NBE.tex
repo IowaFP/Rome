@@ -515,8 +515,6 @@ data NormalType : Env -> Kind -> Set
 data NeutralType : Env -> Kind -> Set 
 \end{agda}
 
-
-
 \subsection{Residualizing semantics}
 
 We define our semantic domain in Agda recursively over the syntax of !Kind!s in \cref{fig:SemType}.
@@ -577,7 +575,7 @@ data RowType (Delta : Env)
 
 Care must be taken to explain some nuances of each constructor. First, the !row! and !_COMPL_! constructors are each constrained by predicates. The !OrderedRow rho! predicate asserts that !rho! has its string labels totally and ascendingly ordered---guaranteeing that labels in the row are unique and that rows are definitionally equal modulo ordering. The !NotRow rho! predicate asserts simply that !rho! was \emph{not} constructed by !row!. In other words, it is not a row literal. This is important, as the complement of two row literals should reduce to a !Row!, so we must disallow the formation of complements in which at least one of the operands is a literal. 
 
-The next set of nuances come from dancing around Agda's positivity checker. It would have been preferable for us to have written the !row! and !_.map._! constructors as follows: 
+The next set of nuances come from dancing around Agda's positivity and termination checking. It would have been preferable for us to have written the !row! and !_.map._! constructors as follows: 
 \begin{agda}
   row      : (rho : Row (SemType Delta kappa)) -> 
              OrderedRow rho -> 
@@ -715,12 +713,12 @@ phi ??' a = (\ r f -> f cdot' (rename r a)) .map.' phi
 Pi' : SemType Delta R[ kappa ] -> SemType Delta kappa
 Pi' {kappa = *} x = Pi (reify x)
 Pi' {kappa = kappa_1 -> kappa_1} phi = \ r v -> Pi' (rename r phi ??' v)
-Pi' {kappa = R[ kappa ]} x = (\ r v -> Pi' v) .map. x
+Pi' {kappa = R[ kappa ]} x = (\ r v -> Pi' v) .map.' x
 \end{agda}
 \caption{Semantic $\Pi$}
 \label{fig:semantic-pi}
 \end{figure}
-
+ 
 The input row to !Pi'! has kind !R[ kappa ]!; we proceed by destructing !kappa!. Recall that we may only construct record types in normal form at kind !*!, and so for the case that !kappa = *! we simply reify the input and construct the record via the !NormalType! constructor !Pi!. We exclude the case that !kappa = L! because it is impossible: in the !Type! syntax, we restrict the formation of the !Pi! constructor by the following predicate:
 
 \begin{agda}
