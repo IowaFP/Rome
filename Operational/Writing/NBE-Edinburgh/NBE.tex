@@ -614,14 +614,19 @@ reflect {kappa = R[ kappa ]} rho = (\ r n -> reflect n) .map. rho
 \label{fig:reflection}
 \end{figure}
 
-The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion; note that we are using intrinsically-scoped De Bruijn variables, so !Z! constructs the zero'th variable and !S! induces a renaming in which each variable is incremented by one. (Recall that !phi! is a Kripke function space and so expects a renaming as argument.) The constructor !`! promotes a type variable to a !neutralType!. 
+The definition of reification is a little more involved (\cref{fig:reification}). The first two equations are expected (!tau! is already in normal form). Functions are reified effectively by $\eta$\--expan\-sion; note that we are using intrinsically-scoped De Bruijn variables, so !Z! constructs the zero'th variable and !S! induces a renaming in which each variable is incremented by one. (Recall that !phi! is a Kripke function space and so expects a renaming as argument.) The constructor !`! promotes a type variable to a !neutralType!, which is reflected so that it may be passed to !phi S!. The remaining equations describe the reification of the four row cases. When the input is a neutral-labeled row singleton, we need only create a !NeutralType!-labeled singleton with the body !tau! reified. The case of an inert complement !rho_2 - rho_1! remains an inert complement at type !NormalType!. Finally, we reify the inert map !phi .map. tau! by reifying !phi! analogously to the !kappa_1 `-> kappa_2! case and mapping it over the reification of !tau!.
 
-The equation of interest is in reifying rows. We pun the !row! constructor to construct row literals at type !NormalType!, which likewise expects a proof that the row is well-ordered. Such a proof is given by the auxiliary lemma !reify!\-!Preserves!\-!Ordering!, which proves what it says. Next, we use a helper function !reifyRow! to recursively build a list of !Label!\--!Normal!\-!Type! pairs (that is, the form of !NormalType! row literals) from a semantic row. The empty case is trivial; the successor case must inspect the head of the list by destructing !P! !fzero!, i.e., the label\--type association of the zero'th finite index. From there we yield a semantic type !tau! which we reify and append to the result of recursing.
+The equation of interest is in reifying row literals. We pun the !row! constructor to construct row literals at type !NormalType!, which likewise expects a proof that the row is well-ordered. Such a proof is given by the auxiliary lemma !reify!\-!Preserves!\-!Ordering!. We use a helper function !reify!\-!Row! to recursively build a list of !Label!\--!Normal!\-!Type! pairs (that is, the form of !NormalType! row literals) from a semantic row. The empty case is trivial; the successor case must inspect the head of the list by destructing !P! !fzero!, i.e., the label\--type association of the zero'th finite index. From there we yield a semantic type !tau! which we reify and append to the result of recursing.
 \begin{figure}
 \begin{agda}
 reify {kappa = *} tau = tau
 reify {kappa = L} tau = tau
-reify {kappa = kappa_1 '-> kappa_2} phi = `\ (reify (phi S (` Z)))
+reify {kappa = kappa_1 '-> kappa_2} phi = 
+  `\ (reify (phi S (reflect (` Z))))
+reify {kappa = R[ kappa ]} (l := tau) = l := (reify tau)
+reify {kappa = R[ kappa ]} (rho_2 - rho_1) = reify rho_2 - reify rho_1
+reify {kappa = R[ kappa ]} (phi .map. tau) = 
+  `\ (reify (phi S (` Z))) .map. (reify tau)
 reify {kappa = R[ kappa ]} (row rho q) = 
   row (reifyRow rho) (reifyPreservesOrdering q)
   where
@@ -712,9 +717,9 @@ phi ??' a = (\ r f -> f cdot' (rename r a)) .map.' phi
 \begin{figure}
 \begin{agda}
 Pi' : SemType Delta R[ kappa ] -> SemType Delta kappa
-Pi' {kappa = *} x = Pi (reify x)
+Pi' {kappa = *} rho = Pi (reify rho)
 Pi' {kappa = kappa_1 -> kappa_1} phi = \ r v -> Pi' (rename r phi ??' v)
-Pi' {kappa = R[ kappa ]} x = (\ r v -> Pi' v) .map.' x
+Pi' {kappa = R[ kappa ]} rho = (\ r v -> Pi' v) .map.' rho
 \end{agda}
 \caption{Semantic $\Pi$}
 \label{fig:semantic-pi}
@@ -757,7 +762,7 @@ eval Pi eta = \ r v -> Pi' v
 eval Sigma eta = \ r v -> Sigma' v
 eval (phi .map. tau) eta = eval phi eta .map.' eval n tau
 eval (l := tau) eta with eval l eta 
-... | ne x = (x := eval tau eta)
+... | ne n = (n := eval tau eta)
 ... | lab ell = row (1 , \ { fzero -> 
                             (ell , eval tau eta )}) tt
 eval (row rho q) eta = row 
@@ -793,6 +798,7 @@ It will be helpful in the coming metatheory to define an inverse embedding by in
 
 \begin{agda}
 Up : NormalType Delta kappa -> Type Delta kappa
+UpNE : NeutralType Delta kappa -> Type Delta kappa
 \end{agda}
 
 \section{Mechanized metatheory}
@@ -910,7 +916,12 @@ _~~_ {kappa = R[ kappa ]} (row rho_1 q) (row rho_2 g) = rho_1 ~~R rho_2
 \begin{figure}
 \begin{agda}
 Uniform : KripkeFunction Delta kappa_1  kappa_2 -> Set 
-Uniform phi = ...
+Uniform phi = forall (r_1 : Renaming Delta_1  Delta_2) 
+              (r_2 : Renaming Delta_2  Delta_3) 
+              (v_1 v_2 : SemType Delta_2  kappa_1) -> 
+              v_1 ~~ v_2 -> 
+              rename r_2 (phi r_1 v_1) ~~ 
+              phi (r_2 . r_1) (rename r_2 v_2)
 PointEqual : ( phi_1  phi_2 : KripkeFunction Delta kappa_1  kappa_2) -> Set
 PointEqual phi_1  phi_2 = forall (r : Renaming Delta_1  Delta_2)
                          {v_1 v_2 : SemType Delta_2 kappa_1} -> 
@@ -920,7 +931,12 @@ PointEqual phi_1  phi_2 = forall (r : Renaming Delta_1  Delta_2)
 \caption{Uniformity and point equality}
 \label{fig:uniformity-and-PE}
 \end{figure}
-Description here.
+
+The completeness logical relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements. In the case that !kappa = kappa_1 `-> kappa_2!, we assert that the Kripke functions !phi_1! and !phi_2! are \emph{uniform} and \emph{extensionally equivalent} to one another (\cref{fig:uniformity-and-PE}). Uniformity and states effectively that passing a renaming !r_2! to a Kripke function applied to its argument is equivalent to renaming it algorithmically. The uniformity property is attributable to \citet{AllaisBM13} but simplified drastically by \citet{ChapmanKNW19}. The !PointEqual! predicate circumvents any need to postulate functional extensionality; rather, we assert that !phi_1! and !phi_2! map equivalent inputs to equivalent outputs (a property to be expected of a logical relation). 
+
+The predicates !UniformNE! and !PointEqualNE! are entirely analogous to !Uniform! and !PointEqual! except that they describe Kripke functions in which the domain is a !NeutralType! rather than !SemType!. In the case that we are equating two inert maps, we must additionally assert that the domains of !phi_1! and !phi_2! (that is, !kappa_1! and !kappa_1'!, resp.) are equivalent. The helpers !convKripkeNE! and !convNE! convert !phi_1! and !n_1! appropriately so to be indexed by kind !kappa_1'!.
+
+Finally, we equate row literals under the !~~R! relation, which states that (i) the two rows' lengths are equal, and (ii) the two rows have pointwise related contents.  Note that we must use an auxiliary helper !subst-Row! to convert the length !n! indexing !P! to be !m!.
 
 \subsubsection{Properties}
 
@@ -939,30 +955,129 @@ reflect-~~ : forall {tau_1 tau_2 : NeutralType Delta kappa} ->
               reify v_1 .=. reify v_2
 \end{agda}
 
-\subsubsection{Logical environments}
+\subsubsection{Logical environments} We lift the relation !_~~_! to a relation on semantic environments !eta_1! and !eta_2!  by asserting that the two are pointwise related.
 
-!SemEnv-~~! and !idext!.
+\begin{agda}
+_~~e_ : (eta_1  eta_2 : SemEnv Delta_1  Delta_2) -> Set
+eta_1 ~~e eta_2 = forall (alpha : TVar Delta_1 kappa) -> (eta_1 alpha) ~~ (eta_2 alpha)
+\end{agda}
+
+\Ni  The identity semantic environment relates to itself under the reflection of propositional equality, as witnessed by !idEnv-~~!. 
+
+\begin{agda}
+idEnv-~~ : idEnv ~~e idEnv 
+idEnv-~~ alpha = reflect-~~ refl 
+\end{agda}
 
 \subsubsection{The fundamental theorem and completeness}
 
-The fundamental lemma for the completeness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental theorem is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
+The fundamental theorem for the completeness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental theorem is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
 
 \begin{agda}
   fundC : eta_1 ~~e eta_2 -> tau_1 .=.t tau_2 -> 
           eval tau_1 eta_1 ~~ eval tau_2 eta_2
 \end{agda}
 
-Completeness follows from the fundamental lemma in the identity environment. 
+Completeness follows from the fundamental theorem in the identity semantic environment. 
 
 \begin{agda}
-idEnv-~~ : idEnv ~~e idEnv 
-idEnv-~~ x = reflect-~~ refl 
-
+completeness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
 completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
 \end{agda}
 
 \subsection{A logical relation for soundness}
 
+Soundness states the converse of completeness: if two types normalize to the same form, then they are equivalent. 
+
+\begin{agda}
+conv-completeness : (tau_1 tau_2 : Type Delta kappa) -> 
+                    Down tau_1 .=. Down tau_2 -> tau_1 .=.t tau_2
+\end{agda}
+
+\Ni In practice, it is easier to instead prove that each type is equivalent to its embedded normalization: 
+
+\begin{agda}
+soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
+\end{agda}
+
+\Ni And it is straightforward to show that the latter implies the former:
+
+\begin{agda}
+embed-.=.t : forall (tau_1 : NormalType Delta kappa) (tau_2 : Type Delta kappa) -> 
+             tau_1 .=. (Down tau_2) -> Up tau_1 .=.t tau_2 
+embed-.=.t refl = sym (soundness tau_2)
+
+conv-completeness tau_1 tau_2 eq = 
+  trans (soundness tau_1) (embed-.=.t eq)
+\end{agda}
+
+We define a logical relation for soundness by relating un-normalized types to semantic objects in \cref{fig:soundness-relation}. The first two cases state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions; the definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau! is equivalent to the !eta!-expansion of !n!. The definitions otherwise assert that related inputs map to related outputs.
+
+\begin{figure}
+\begin{agda}
+[[_]]~~_ : Type Delta kappa -> SemType Delta kappa -> Set
+[[_]]~~_ {kappa = *} tau  v = tau .=.t Up v
+[[_]]~~_ {kappa = L} tau  v = tau .=.t Up v
+[[_]]~~_ {kappa = kappa_1 `-> kappa_2} phi F = SoundKripke phi F
+[[_]]~~_ {kappa = R[ kappa ]} tau (row (n , P) q) =
+  exists[ xs ] 
+  exists[ oxs ]
+  (tau .=.t row xs oxs) times
+  [[ xs ]]R~~ (n , P)
+[[_]]~~_ {kappa = R[ kappa ]} tau (n := v) = 
+  exists[ upsilon ]
+  (tau .=.t (UpNE n := upsilon)) times
+  [[ upsilon ]]~~ v
+[[_]]~~_ {kappa = R[ kappa ]} tau (rho_2 - rho_1) = 
+  (tau .=.t Up (reify (rho_2 - rho_1))) times 
+  [[ Up (reify rho_2) ]]~~ rho_2 times 
+  [[ Up (reify rho_1) ]]~~ rho_1
+[[_]]~~_ {kappa = R[ kappa ]} tau (F .map. n) = 
+  exists[ phi ]
+  (tau .=.t (phi .map. UpNE n)) times
+  (SoundKripkeNE phi F)
+\end{agda}
+\caption{Soundness relation}
+\label{fig:soundness-relation}
+\end{figure}
+\begin{figure}
+\begin{agda}
+[[ [] ]]R~~_ (zero , P) = Top
+[[ [] ]]R~~_ (suc n , P) = Bot
+[[ x :: rho ]]R~~_ (zero , P) = Bot
+[[ x :: rho ]]R~~_ (suc n , P) = 
+  [[ x ]]~~2 (P fzero) times 
+  [[ rho ]]R~~ (n , P . fsuc)
+  where
+    [[ (ell_1 , tau) ]]~~2 (ell_2 , v) = 
+      (ell_1 .=. ell_2) times [[ tau ]]~~ v 
+\end{agda}
+\caption{Soundness relation (row literals)}
+\label{fig:soundness-relation-row-literals}
+\end{figure}
+
+\begin{figure}
+\begin{agda}
+SoundKripke : Type Delta_1 (kappa_1 `-> kappa_2) -> 
+              KripkeFunction Delta_1  kappa_1  kappa_2 -> Set 
+SoundKripke phi F = 
+  (r : Renaming Delta_1  Delta_2) 
+  {tau : Type Delta_2 kappa} {v : SemType Delta_2 kappa}
+  [[ tau ]]~~ v -> 
+  [[ rename r phi cdot tau ]]~~ F r v
+
+SoundKripkeNE : Type Delta_1 (kappa_1 `-> kappa_2) -> 
+                KripkeFunctionNE Delta_1  kappa_1  kappa_2 -> Set
+SoundKripkeNE phi F = 
+  (r : Renaming Delta_1 Delta_2) 
+  {tau : Type Delta_1 kappa} {n : NeutralType Delta_1 kappa}
+  tau .=.t Up (eta-norm n) -> 
+  [[ rename r phi cdot n ]]~~ F r n
+\end{agda}
+\caption{Soundness of Kripke functions}
+\label{fig:soundKripke}
+\end{figure}
+ 
 \subsubsection{Properties}
 
 \subsubsection{Logical environments}
