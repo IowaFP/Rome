@@ -450,70 +450,72 @@ The syntax of normal types is given in \cref{fig:type-normalization}. % We caref
 Normalization reduces applications and maps except when a variable blocks computation, which we represent as a \emph{neutral type}. A neutral type is either a variable or a spine of applications with a variable in head position. We distinguish ground kinds $\gamma$ from functional and row kinds, as neutral types may only be promoted to normal type at ground kind (rule \kruleNF{ne}): neutral types $n$ at functional kind must $\eta$-expand to have an outer-most $\lambda$-binding (e.g., to $\lambda x. \, n\, x$), and neutral types at row kind are expanded to an inert map by the identity function (e.g., to $\Mapp {(\lambda x. x)} {n}$). Likewise, repeated maps are necessarily composed according to rule \errule{map$_\circ$}: For example, $\Mapp {\phi_{1}} {(\Mapp {\phi_{2}} {n})}$ normalizes by letting $\phi_{1}$ and $\phi_{2}$ compose into $(\Mapp {(\phi_{1} \circ \phi_{2})} n$). By consequence of $\eta$-expansion, records and variants need only be formed at kind $\TypeK$. This means a type such as $\Pi (\LabTy {\ell} {\lambda x. x})$ must reduce to $\lambda x. \Pi (\LabTy {\ell} {x})$, $\eta$-expanding its binder over the $\Pi$. Nested applications of $\Pi$ and $\Sigma$ are also "pushed in" by rule \erule{$\Xi$}. For example, the type $\Pi \, \Sigma \, (\LabTy {\ell_1} {(\LabTy  {\ell_2} \tau)})$ has $\Sigma$ mapped over the outer row, reducing to $\Pi (\LabTy {\ell_1} {\Sigma (\LabTy {\ell_2} \tau)})$.
 
 The syntax $\LabTy n \Normal \tau$ separates singleton rows with variable labels from row literals $\Normal \rho$ with literal labels; rule \kruleNF{$\triangleright$} ensures that $n$ is a well-kinded neutral label.  A row is otherwise an inert map $\Mapp \phi n$ or the complement of two rows $\Normal{\tau_2} \Compl \Normal{\tau_1}$. Observe that the complement of two row literals should compute according to rule \erule{$\Compl$}; we thus require in the kinding of normal row complements \kruleNF{$\Compl$} that one (or both) rows are not literal so that the computation is indeed inert. The remaining normal type syntax does not differ meaningfully from the type syntax; the remaining kinding rules for the judgments $\KindJNF \Delta {\Normal \tau} \kappa$ and $\KindJNE \Delta n \kappa$ are as expected.
-\subsection{Metatheory}
-\label{sec:metatheory-summary}
+% \subsection{Metatheory}
+% \label{sec:metatheory-summary}
 
-\subsubsection{Canonicity of normal types}
+% \subsubsection{Canonicity of normal types}
 
-The normal type syntax is pleasantly partitioned by kind. Due to $\eta$-expansion of functional variables, arrow kinded types are canonically $\lambda$-bound. A normal type at kind $\RowK \kappa$ is either an inert map $\hat{\phi}^{\TypeK} \, n$, a variable-labeled row $(\LabTy n \Normal \tau)$, the complement of two rows $\Normal {\tau_{2}} \Compl \Normal {\tau_{1}}$, or a row literal $\Normal \rho$. The first three cases necessarily have neutral types (recall that at least one of the two rows in a complement is not a row literal). Hence rows in empty contexts are canonically literal. Likewise, the only types with label kind in empty contexts are label literals; recall that we disallowed the formation of $\Pi$ and $\Sigma$ at kind $\RowK \LabK \to \LabK$, thereby disallowing non-literal labels such as $\Delta \not\vdash \Pi \epsilon \co \LabK$ or $\Delta \not\vdash \Pi (\LabTy {\ell_{1}} {\ell_{2}}) \co \LabK$.
+% The normal type syntax is pleasantly partitioned by kind. Due to $\eta$-expansion of functional variables, arrow kinded types are canonically $\lambda$-bound. A normal type at kind $\RowK \kappa$ is either an inert map $\hat{\phi}^{\TypeK} \, n$, a variable-labeled row $(\LabTy n \Normal \tau)$, the complement of two rows $\Normal {\tau_{2}} \Compl \Normal {\tau_{1}}$, or a row literal $\Normal \rho$. The first three cases necessarily have neutral types (recall that at least one of the two rows in a complement is not a row literal). Hence rows in empty contexts are canonically literal. Likewise, the only types with label kind in empty contexts are label literals; recall that we disallowed the formation of $\Pi$ and $\Sigma$ at kind $\RowK \LabK \to \LabK$, thereby disallowing non-literal labels such as $\Delta \not\vdash \Pi \epsilon \co \LabK$ or $\Delta \not\vdash \Pi (\LabTy {\ell_{1}} {\ell_{2}}) \co \LabK$.
 
-\begin{theorem}[Canonicity]
-  Let $\Normal\tau \in \NormalTypes$.
-  \begin{itemize}
-    \item If $\KindJNF \Delta {\Normal\tau} {(\kappa_{1} \to \kappa_{2})}$ then $\Normal\tau = {\lambda \alpha \co \kappa_{1}. \Normal\upsilon}$;
-    \item if $\KindJNF \epsilon {\Normal\tau} {\RowK \kappa}$ then $\Normal\tau =  \RowIx i 0 m {\LabTy {\ell_i} {\Normal{\tau_i}}}$.
-    \item If $\KindJNF \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
-  \end{itemize}
-\end{theorem}
-\subsubsection{Normalization}
-\begin{theorem}[Normalization] ~
-  There exists a normalization function $\Norm\, : \Types \to \NormalTypes$ that maps well-kinded types to well-kinded normal forms.
-\end{theorem}
+% \begin{theorem}[Canonicity]
+%   Let $\Normal\tau \in \NormalTypes$.
+%   \begin{itemize}
+%     \item If $\KindJNF \Delta {\Normal\tau} {(\kappa_{1} \to \kappa_{2})}$ then $\Normal\tau = {\lambda \alpha \co \kappa_{1}. \Normal\upsilon}$;
+%     \item if $\KindJNF \epsilon {\Normal\tau} {\RowK \kappa}$ then $\Normal\tau =  \RowIx i 0 m {\LabTy {\ell_i} {\Normal{\tau_i}}}$.
+%     \item If $\KindJNF \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
+%   \end{itemize}
+% \end{theorem}
+% \subsubsection{Normalization}
+% \begin{theorem}[Normalization] ~
+%   There exists a normalization function $\Norm\, : \Types \to \NormalTypes$ that maps well-kinded types to well-kinded normal forms.
+% \end{theorem}
 
-$\Norm$ is realized in Agda intrinsically as a function from derivations of $\KindJ \Delta \tau \kappa$ to derivations of $\KindJNF \Delta {\Normal{\tau}} \kappa$.  Conversely, we witness the inclusion $\NormalTypes \subseteq \Types$ as an embedding $\Embed \,:\, \NormalTypes \to \Types$, which casts derivations of $\KindJNF \Delta {\Normal \tau} \kappa$  back to a derivation of $\KindJ \Delta \tau \kappa$; we omit this function and its use in the following claims, as it is effectively the identity function (modulo tags).
+% $\Norm$ is realized in Agda intrinsically as a function from derivations of $\KindJ \Delta \tau \kappa$ to derivations of $\KindJNF \Delta {\Normal{\tau}} \kappa$.  Conversely, we witness the inclusion $\NormalTypes \subseteq \Types$ as an embedding $\Embed \,:\, \NormalTypes \to \Types$, which casts derivations of $\KindJNF \Delta {\Normal \tau} \kappa$  back to a derivation of $\KindJ \Delta \tau \kappa$; we omit this function and its use in the following claims, as it is effectively the identity function (modulo tags).
 
-The following properties confirm that $\Norm$ behaves as a normalization function ought to. The first property, \emph{stability}, asserts that normal forms cannot be further normalized. Stability implies \emph{idempotency} and \emph{surjectivity}.
+% The following properties confirm that $\Norm$ behaves as a normalization function ought to. The first property, \emph{stability}, asserts that normal forms cannot be further normalized. Stability implies \emph{idempotency} and \emph{surjectivity}.
 
-\begin{theorem}[Properties of normalization] ~
-  \begin{itemize}
-  \item (Stability) for all $\Normal\tau \in \NormalTypes$, $\Norm \, \Normal\tau = \Normal\tau$.
-  \item (Idempotency) For all $\tau \in \Types$, $ \Norm (\Norm \, \tau) =\, \Norm \, \tau$.
-  \item (Surjectivity) For all $\Normal\tau \in \NormalTypes$, there exists $\upsilon \in \Types$ such that $\Normal\tau =\, \Norm \upsilon$.
-  \end{itemize}
-\end{theorem}
+% \begin{theorem}[Properties of normalization] ~
+%   \begin{itemize}
+%   \item (Stability) for all $\Normal\tau \in \NormalTypes$, $\Norm \, \Normal\tau = \Normal\tau$.
+%   \item (Idempotency) For all $\tau \in \Types$, $ \Norm (\Norm \, \tau) =\, \Norm \, \tau$.
+%   \item (Surjectivity) For all $\Normal\tau \in \NormalTypes$, there exists $\upsilon \in \Types$ such that $\Normal\tau =\, \Norm \upsilon$.
+%   \end{itemize}
+% \end{theorem}
 
-We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \tau \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
+% We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \tau \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
 
-\begin{theorem}[Completeness]
-For well-kinded $\tau , \upsilon \in \Types$ at kind $\kappa$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
-\end{theorem}
+% \begin{theorem}[Completeness]
+% For well-kinded $\tau , \upsilon \in \Types$ at kind $\kappa$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
+% \end{theorem}
 
-\Ni Soundness of normalization states that every type is equivalent to its normalization.
+% \Ni Soundness of normalization states that every type is equivalent to its normalization.
 
-\begin{theorem}[Soundness]
-For well-kinded $\tau \in \Types$ at kind $\kappa$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
-\end{theorem}
-\Ni Soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
+% \begin{theorem}[Soundness]
+% For well-kinded $\tau \in \Types$ at kind $\kappa$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
+% \end{theorem}
+% \Ni Soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
 
-\subsubsection{Decidability of type conversion}
+% \subsubsection{Decidability of type conversion}
 
-Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
+% Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
 
-\begin{theorem}[Decidability]
-  Given well-kinded $\tau, \upsilon \in \Types$ at kind $\kappa$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
-\end{theorem}
+% \begin{theorem}[Decidability]
+%   Given well-kinded $\tau, \upsilon \in \Types$ at kind $\kappa$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
+% \end{theorem}
 
 \section{Normalization by Evaluation (NbE)}
-This section describes our results' methodology, which is largely inspired by the \emph{normalization by evaluation} algorithm and metatheory of \citet{ChapmanKNW19}, although we have made significant extensions to their approach in order to capture the computation of rows. Our work also differs in some design choices (see \cref{sec:related-work}). Our full development is available as part of the anonymous supplementary materials. The code we present here is summarized and tidied for display in print and easier digestion, but otherwise remains faithful to the development in behavior and intent. The claims of this section are annotated with the corresponding points in our full artifact.
+This section describes our methodology, which is largely inspired by the \emph{normalization by evaluation} algorithm and metatheory of \citet{ChapmanKNW19}, although we have made significant extensions to their approach in order to capture the computation of rows. Our work also differs in some design choices (see \cref{sec:related-work}). Our full development is available as part of the anonymous supplementary materials. The code we present here is summarized and tidied for display in print and easier digestion, but otherwise remains faithful to the development in behavior and intent. The claims of this section are annotated with the corresponding points in our full artifact.
 
 \InlineOn{}
-Normalization by evaluation comes in a handful of different flavors. In our case, we seek to build a normalization function $\Norm : \Types \to \NormalTypes$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds): 
+Normalization by evaluation comes in a handful of different flavors. In our intrinsic case, we seek to build a normalization function $\Norm : \TJudges{\Delta}{\kappa} \to \TJudgesNF{\Delta}{\kappa}$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds). 
 
 \begin{agda}
 data Type : Env -> Kind -> Set
 data NormalType : Env -> Kind -> Set
 data NeutralType : Env -> Kind -> Set 
 \end{agda}
+
+\Ni We will interpret the !Type! and !NeutralType! types into Agda function spaces in order to leverage Agda's meta-level computation, then reify these semantic objects back to !Normal!\-!Type! syntax.
 
 \subsection{Residualizing semantics}
 
@@ -786,6 +788,10 @@ The first equation states that variables evaluate to their meaning in environmen
 
 \subsection{Normalization}
 
+\begin{theorem}[Normalization] ~
+  There exists a normalization function $\Norm\, : \TJudges{\Delta}{\kappa} \to \TJudgesNF{\Delta}{\kappa}$, that maps well-kinded types to well-kinded normal forms.
+\end{theorem}
+
 Normalization in the NbE approach is simply the composition of reification after evaluation. 
 
 \begin{agda} 
@@ -793,8 +799,7 @@ Down : Type Delta kappa -> NormalType Delta kappa
 Down tau = reify (eval tau idEnv)
 \end{agda}
 
-
-It will be helpful in the coming metatheory to define an inverse embedding by induction over the !NormalType! structure. The definition is entirely expected and omitted. 
+It will be necessary in the coming metatheory to define an inverse embedding by induction over the !NormalType! structure. The definitions are entirely expected and omitted. 
 
 \begin{agda}
 Up : NormalType Delta kappa -> Type Delta kappa
@@ -803,10 +808,20 @@ UpNE : NeutralType Delta kappa -> Type Delta kappa
 
 \section{Mechanized metatheory}
 
-This section describes the Agda formalization of the metatheory summarized in \cref{sec:metatheory-summary}, including proofs and proof outlines where space permits.
+This section describes the Agda formalization of our metatheory, including proofs and proof outlines where space permits.
 
 \subsection{Canonicity of normal types}
-Normal forms are partitioned by kind, which can easily be shown by case splitting on !NormalType! inputs. We first demonstrate that neutrals cannot exist in an empty environment:
+
+\begin{theorem}[Canonicity]
+  Let $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$.
+  \begin{itemize}
+    \item If $\KindJNF \Delta {\Normal\tau} {(\kappa_{1} \to \kappa_{2})}$ then $\Normal\tau = {\lambda \alpha \co \kappa_{1}. \Normal\upsilon}$;
+    \item if $\KindJNF \epsilon {\Normal\tau} {\RowK \kappa}$ then $\Normal\tau =  \RowIx i 0 m {\LabTy {\ell_i} {\Normal{\tau_i}}}$.
+    \item If $\KindJNF \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
+  \end{itemize}
+\end{theorem}
+
+Normal forms are partitioned by kind, which can easily be shown by case splitting on !Normal!\-!Type! inputs. We first demonstrate that neutrals cannot exist in an empty environment:
 
 \begin{agda} 
 noNeutrals : NeutralType [] kappa -> Bot
@@ -840,7 +855,17 @@ label-canonicity (lab s) = s , refl
 
 \subsection{Stability}
 
-Stability follows by simple induction on the input derivation $\KindJNF \Delta \tau \kappa$. Here it is clearer that we are stating !Down! is left-inverse to !Up!.
+The following properties confirm that $\Norm$ behaves as a normalization function ought to. The first property, \emph{stability}, asserts that normal forms cannot be further normalized. Stability implies \emph{idempotency} and \emph{surjectivity}.
+
+\begin{theorem}[Properties of normalization] ~
+  \begin{itemize}
+  \item (Stability) for all $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$, $\Norm \, \Normal\tau = \Normal\tau$.
+  \item (Idempotency) For all $\tau \in \TJudges{\Delta}{\kappa}$, $ \Norm (\Norm \, \tau) =\, \Norm \, \tau$.
+  \item (Surjectivity) For all $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$, there exists $\upsilon \in \Types$ such that $\Normal\tau =\, \Norm \upsilon$.
+  \end{itemize}
+\end{theorem}
+
+Stability follows by simple induction on the input derivation $\KindJNF \Delta \tau \kappa$. We are in essence just stating that normallization (!Down!) is left-inverse to embedding (!Up!).
 
 \begin{agda}
 stability : forall (tau : NormalType Delta kappa) -> Down (Up tau) .=. tau
@@ -874,7 +899,13 @@ Up-inj  tau_1  tau_2  eq =
 
 \subsection{A logical relation for completeness}
 
-Completeness states that equivalent types reduce to the same normal forms. We define the equivalence relation of \cref{fig:equivalence} as an inductive, intrinsically typed relation in Agda.
+We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \tau \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
+
+\begin{theorem}[Completeness]
+For well-kinded $\tau , \upsilon \in \TJudges{\Delta}{\kappa}$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
+\end{theorem}
+
+We define the equivalence relation of \cref{fig:equivalence} as an inductive, intrinsically typed relation in Agda.
 
 \begin{agda}
 data _.=.t_ : Type Delta kappa -> Type Delta kappa -> set 
@@ -987,34 +1018,41 @@ completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
 
 \subsection{A logical relation for soundness}
 
-Soundness states the converse of completeness: if two types normalize to the same form, then they are equivalent. 
+Soundness of normalization states that every type is equivalent to its normalization.
 
-\begin{agda}
-conv-completeness : (tau_1 tau_2 : Type Delta kappa) -> 
-                    Down tau_1 .=. Down tau_2 -> tau_1 .=.t tau_2
-\end{agda}
+\begin{theorem}[Soundness]
+For well-kinded $\tau \in \TJudges{\Delta}{\kappa}$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
+\end{theorem}
 
-\Ni In practice, it is easier to instead prove that each type is equivalent to its embedded normalization: 
+In Agda, soundness states specifically that each type is equivalent to its embedded normalization:
 
 \begin{agda}
 soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
 \end{agda}
 
-\Ni And it is straightforward to show that the latter implies the former:
+\Ni This is enough to imply the converse of completeness. We use an auxiliary transfer lemma, !embed-.=.t!, to state that if the type !tau_1! is equal to a normalization of !tau_2!, then the embedding of !tau_1! is equivalent to !tau_2!.
 
 \begin{agda}
 embed-.=.t : forall (tau_1 : NormalType Delta kappa) (tau_2 : Type Delta kappa) -> 
              tau_1 .=. (Down tau_2) -> Up tau_1 .=.t tau_2 
 embed-.=.t refl = sym (soundness tau_2)
 
+conv-completeness : (tau_1 tau_2 : Type Delta kappa) -> 
+                    Down tau_1 .=. Down tau_2 -> tau_1 .=.t tau_2
 conv-completeness tau_1 tau_2 eq = 
-  trans (soundness tau_1) (embed-.=.t eq)
+  trans (soundness tau_1) (embed-.=.t eq)                 
 \end{agda}
 
-We define a logical relation for soundness by relating un-normalized types to semantic objects in \cref{fig:soundness-relation}. The first two cases state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions; the definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau! is equivalent to the !eta!-expansion of !n!. The definitions otherwise assert that related inputs map to related outputs.
+\Ni Hence soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
+
+In \cref{fig:soundness-relation}, we define a logical relation for soundness by relating un-normalized types to semantic objects. The first two cases (lines 2-3) state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. On line 4, we relate arrow-kinded types; \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions. The definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau! is equivalent to the !eta!-expansion of !n!. The definitions otherwise assert that related inputs map to related outputs.
+
+The cases that follow relate syntactic rows with semantic rows. On line 5 we relate row literals \emph{existentially}:\footnote{In practice, we actually know precisely that \lstinline{tau} should be equivalent to the embedding of the reification of \lstinline{row (n , P) q}; either style will work.} we assert that there exists a syntactic row literal !xs! !: List! !(Label! !times! !Type! !Delta! !kappa)! and a well-orderedness predicate !oxs! such that !tau! is equivalent to !row xs oxs! and, further, !xs! is pointwise equivalent to !(n , P)!. The pointwise relation !.[[_]]R~~_! of syntactic and semantic row literals is defined in \cref{fig:soundness-relation-row-literals}, and is more or less to be expected: two row literals are related if they are of the same length and have related contents. 
+
+On lines 10-13 we relate row singletons in a straightforward fashion; lines 14-17 relate row complements compositionally. Finally, we relate inert row maps by asserting the existence of a !phi! that is sound with respect to the !KripkeFunctionNE! !F! (\cref{fig:soundKripke}).
 
 \begin{figure}
-\begin{agda}
+\begin{agdaf}
 [[_]]~~_ : Type Delta kappa -> SemType Delta kappa -> Set
 [[_]]~~_ {kappa = *} tau  v = tau .=.t Up v
 [[_]]~~_ {kappa = L} tau  v = tau .=.t Up v
@@ -1036,7 +1074,7 @@ We define a logical relation for soundness by relating un-normalized types to se
   exists[ phi ]
   (tau .=.t (phi .map. UpNE n)) times
   (SoundKripkeNE phi F)
-\end{agda}
+\end{agdaf}
 \caption{Soundness relation}
 \label{fig:soundness-relation}
 \end{figure}
@@ -1080,15 +1118,97 @@ SoundKripkeNE phi F =
  
 \subsubsection{Properties}
 
+Analogous to the completeness relation, equivalence of neutral types can be reflected into the soundness relation.
+
+\begin{agda}
+reflect-[[]]~~ : forall {tau : Type Delta kappa} 
+                 {n : NeutralType Delta kappa} -> 
+                 tau .=.t UpNE n  -> [[ tau ]]~~ (reflect n)
+\end{agda}
+
+\Ni And the relation of !Type! !tau! to semantic type !v! can be reified to type equivalence: 
+
+\begin{agda}
+reify-[[]]~~ : forall {tau : Type Delta kappa}
+               {v : SemType Delta kappa} -> 
+               [[ tau ]]~~ v -> 
+               tau .=.t Up (reify v)
+\end{agda}
+
+% We lastly find it necessary to confirm that each neutral type is indeed equivalent to its $\eta$-expansion: 
+
+% \begin{agda}
+% eta-norm-.=.t : forall (n : NeutralType Delta kappa) -> 
+%                 Up (eta-norm n) .=.t UpNE n
+% \end{agda}
+
 \subsubsection{Logical environments}
 
+A syntactic substitution is related to a semantic environment when the substitution relates at each point in the environment.
+
+\begin{agda}
+[[_]]e~~ : Substitution Delta_1  Delta_2 -> SemEnv Delta_1  Delta_2 -> Set 
+[[ sigma ]]e~~ eta = (alpha : TVar Delta_1 kappa) -> [[ sigma alpha ]]~~ (eta alpha)
+\end{agda}
+
+Here a syntactic substitution is a map from type variables to !Type!s: 
+
+\begin{agda}
+Substitution : Env -> Env -> Set
+Substitution Delta_1  Delta_2 = TVar Delta_1 kappa -> Type Delta_2 kappa
+\end{agda}
+
 \subsubsection{The fundamental theorem and Soundness}
+
+Finally, the fundamental theorem of soundness states that the syntactic substitution of a type !tau! by !sigma! is related to its semantic evaluation in !eta!, provided !sigma! and !eta! are related. The definition is by induction over !tau!.
+
+\begin{agda}
+fundS : (tau : Type Delta_1 kappa) -> 
+        [[ sigma ]]e~~ eta -> 
+        [[ sub sigma tau ]]~~ (eval tau eta)
+\end{agda}
+
+Soundness follows from a trivial case of the fundamental theorem where the environments related are the identity substitution !`! and the identity semantic environment !idEnv!:
+
+\begin{agda}
+vdash[[_]]~~ : (tau : Type Delta kappa)  -> [[ tau ]]~~ eval tau idEnv                
+soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
+soundness tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
+\end{agda}
+
 \subsection{Decidability of type conversion}
+
+Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
+
+\begin{theorem}[Decidability]
+  Given well-kinded $\tau, \upsilon \in \TJudges{\Delta}{\kappa}$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
+\end{theorem}
+
+It is easy enough (but tedious) to implement a syntactic decidability check on the shapes of normal forms; simply proceed by case analysis on both !tau_1! and !tau_2!.
+
+\begin{agda}
+_.=.?_ : forall (tau_1 tau_2 : NormalType Delta kappa) -> Dec (tau_1 .=. tau_2)
+\end{agda}
+
+Paired with soundness and completeness, we get an effective decision procedure to decide the relation !tau_1 .=.t tau_2! as follows: 
+
+\begin{agda}
+_.=.t?_ : forall (tau_1 tau_2 : Type Delta kappa) -> Dec (tau_1 .=.t tau_2)
+tau_1 .=.t? tau_2  with (Down tau_1) .=.? (Down tau_2)
+... | yes p = yes 
+    (trans 
+        (soundness tau_1) 
+        (embed-.=.t p))
+... | no  p = no (\ x -> p (completeness x))
+\end{agda}
+
 
 \section{Most closely related work}
 \label{sec:related-work}
 
-Our technical development owes a huge debt to two papers in particular. We closely follow the formalization patterns and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct semantic image of rows (borrowing from their semantic image of lists). Our paper differs in a few key ways. Firstly, we introduce label and row kinds to the syntax, incurring an additional burden to reduce row maps, the row operators $\Pi$ and $\Sigma$, and row complements. We also reason about types modulo $\eta$-equivalence of functions and also expansion of rows to inert maps, which made many proof definitions harder to define. (For example, \citet{ChapmanKNW19} do not need a mutually recursive reify and reflect, which in turn made many auxiliary lemmas harder to define.)
+We conclude with a discussion of closely related work. 
+
+\subsection{Intrinsic mechanization of System \Fome.} Our technical development owes a huge debt to two papers in particular. We closely follow the formalization patterns and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct semantic image of rows (borrowing from their semantic image of lists). Our paper differs in a few key ways. Firstly, we introduce label and row kinds to the syntax, incurring an additional burden to reduce row maps, the row operators $\Pi$ and $\Sigma$, and row complements. We also reason about types modulo $\eta$-equivalence of functions and also expansion of rows to inert maps, which made many proof definitions harder to define. (For example, \citet{ChapmanKNW19} do not need a mutually recursive reify and reflect, which in turn made many auxiliary lemmas harder to define.)
 
 \bibliographystyle{plainnat}
 \bibliography{NBE}

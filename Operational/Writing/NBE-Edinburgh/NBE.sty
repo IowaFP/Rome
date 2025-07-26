@@ -425,6 +425,8 @@
     {completeness^-1}{$\mathtt{completeness}^{-1}$}1
     {[[}{$\llbracket$}1
     {]]}{$\rrbracket$}1
+    {sigma}{$\sigma$}1
+    {vdash}{$\vdash$}1
 }
 \newcommand*\lstfont{\ttfamily\small}  % For some reason, footnotesize *in particular* breaks the listings package. Good stuff.
 \lstnewenvironment{codef}{\lstset{basicstyle=\lstfont,xleftmargin=1.5em}}{}
@@ -555,7 +557,8 @@
   {\endgroup\ignorespacesafterend}
 \lstnewenvironment{haskell}{\lstset{basicstyle=\lstfont}}{}
 \lstnewenvironment{rosi}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt}}{}
-\lstnewenvironment{agda}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt}}{}
+\lstnewenvironment{agda}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt, numbers=left}}{}
+\lstnewenvironment{agdaf}{\lstset{basicstyle=\lstfont,aboveskip=0pt,belowskip=0pt,xleftmargin=1.5em,numbers=left}}{}
 
 % \newcommand\In{\ExC{in}}
 
