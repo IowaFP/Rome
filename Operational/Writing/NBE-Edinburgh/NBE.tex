@@ -135,9 +135,9 @@
           {\TypeJ \Delta \Phi \Gamma M \upsilon}}
 \] 
 
-Conversion rules can complicate metatheory. In particular, \citet{HubersM23,HubersIMM24} do not provide a procedure to decide type equivalence, and so proofs of type conversion must be embedded into the term language. This has a number of consequences:
+Conversion rules can complicate metatheory in an intrinsic setting. \Citet{HubersM23,HubersIMM24} each provide an intrinsic semantics and do not provide a procedure to decide type checking or type equivalence. Proofs of type conversion are thus necessarily embedded into the term language. This has a number of consequences:
 \begin{enumerate}[nolistsep]
-  \item Users of the surface language may be forced to write conversion rules by hand.  
+  \item Users of the surface language are forced to write conversion rules by hand.  
   \item Decidability of type checking now rests upon the decidability of type conversion.
   \item Term-level conversions can block $\beta$-reduction if a conversion is in the head position of an application. 
   \item Term-level conversions can block proofs of progress. Let !M! have type !tau!, let !pf! be a proof that !tau = upsilon!, and consider the term !conv! !M! !pf!; ideally, one would expect this to reduce to !M! (we've changed nothing semantically about the term). But this breaks type preservation, as !conv! !M! !pf! (at type !upsilon!) has stepped to a term at type !tau!. 
@@ -150,8 +150,8 @@ All of these complications may be avoided provided a sound and complete normaliz
 This paper offers the following as contributions: 
 
 \begin{enumerate}
-  \item A normalization procedure for the directed \RO and \Rome type equivalence relation;
-  \item the semantics of a novel \emph{row complement} operator;
+  \item A normalization procedure for the directed \Rome type equivalence relation;
+  \item a semantics of the type-level \emph{row complement} operator;
   \item proofs of soundness and completeness of normalization with respect to type equivalence; and
   \item a complete mechanization in Agda of \Rome and the claimed metatheoretic results.
 \end{enumerate}
@@ -504,7 +504,7 @@ Equivalence of normal types is syntactically decidable which, in conjunction wit
 \end{theorem}
 
 \section{Normalization by Evaluation (NbE)}
-This section and those that follow give a closer examination into how the above metatheory was derived. In particular, we explain the \emph{normalization of types by evaluation} (NbE) involved in deriving a normalization algorithm. We describe the standard components of NbE, but place emphasis on the novelty of normalizing rows and row operators. The full development is available online as part of the anonymous supplementary materials. The code we present here is summarized and tidied for easier digestion, but otherwise remains faithful to the development in behavior and intent. The claims of this section are annotated with the corresponding points in our full artifact. 
+This section describes our results' methodology, which is largely inspired by the \emph{normalization by evaluation} algorithm and metatheory of \citet{ChapmanKNW19}, although we have made significant extensions to their approach in order to capture the computation of rows. Our work also differs in some design choices (see \cref{sec:related-work}). Our full development is available as part of the anonymous supplementary materials. The code we present here is summarized and tidied for display in print and easier digestion, but otherwise remains faithful to the development in behavior and intent. The claims of this section are annotated with the corresponding points in our full artifact.
 
 \InlineOn{}
 Normalization by evaluation comes in a handful of different flavors. In our case, we seek to build a normalization function $\Norm : \Types \to \NormalTypes$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. For example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, the syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds): 
@@ -775,7 +775,7 @@ where
 \label{fig:evaluation}
 \end{figure}
 
-The first equation states that variables evaluate to their meaning in environment !eta!. The equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in \cref{sec:helping-evaluation}. The evaluation of a function \lstinline{`\ tau} is simply the evaluation of the body in the environment !eta! expanded with semantic object !v!, being careful to rename appropriately as this is a Kripke function. Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!; in the former case, we evaluate to an inert singleton using the !RowType! constructor !_:=_!; in the latter, we evaluate to a row literal in which !fzero! points to !(ell , eval tau eta)!. The term !tt : Unit! is the evidence that this row literal is trivially ordered. Finally, we evaluate row literals by recursion: the empty case evaluates to the empty !Row!, !0 , \ ()!; the cons case evaluates to a row in which !fzero! maps to the evaluation of !tau!, while !fsuc! otherwise proceeds recursively. Again, we have an obligation to prove that evaluationg preserves the ordering evidence !q!, which is performed by the auxiliary lemma !evalPreservesOrdering!.
+The first equation states that variables evaluate to their meaning in environment !eta!. The equations for application !_cdot_!, row complement !_COMPL_!, record and variant operators !Pi! and !Sigma!, and mapping !_.map._! defer to the semantic helpers defined in \cref{sec:helping-evaluation}. The evaluation of a function \lstinline{`\ tau} is simply the evaluation of the body in the environment !eta! expanded with semantic object !v!, being careful to rename appropriately as this is a Kripke function. Evaluation of labeled singletons must check if the label is a neutral variable !n! or label literal !ell!; in the former case, we evaluate to an inert singleton using the !RowType! constructor !_:=_!; in the latter, we evaluate to a row literal in which !fzero! points to !(ell , eval tau eta)!. The term !tt : Unit! is the evidence that this row literal is trivially ordered. Finally, we evaluate row literals by recursion: the empty case evaluates to the empty !Row!, !0 , \ ()!; the cons case evaluates to a row in which !fzero! maps to the evaluation of !tau!, while !fsuc! otherwise proceeds recursively. Again, we have an obligation to prove that evaluation preserves the ordering evidence !q!, which is performed by the auxiliary lemma !evalPreservesOrdering!.
 
 
 
@@ -797,7 +797,7 @@ Up : NormalType Delta kappa -> Type Delta kappa
 
 \section{Mechanized metatheory}
 
-This section gives a deeper exposition on the metatheory summarized in \cref{sec:metatheory-summary}. We forego syntactic tyding of claims and give a deeper explanation of the proof techniques involved.
+This section describes the Agda formalization of the metatheory summarized in \cref{sec:metatheory-summary}, including proofs and proof outlines where space permits.
 
 \subsection{Canonicity of normal types}
 Normal forms are partitioned by kind, which can easily be shown by case splitting on !NormalType! inputs. We first demonstrate that neutrals cannot exist in an empty environment:
@@ -931,7 +931,7 @@ reflect-~~ : forall {tau_1 tau_2 : NeutralType Delta kappa} ->
              tau_1 .=. tau_2 -> reflect tau_1 ~~ reflect tau_2
 \end{agda}
 
-\Ni Dually, equivalent semantic types reify to propositionally equal types. 
+\Ni Dually, equivalent semantic objects reify to propositionally equal types. 
 
 \begin{agda}
   reify-~~ : \forall {v_1 v_2 : SemType Delta kappa} -> 
@@ -971,6 +971,7 @@ completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
 \subsection{Decidability of type conversion}
 
 \section{Most closely related work}
+\label{sec:related-work}
 
 Our technical development owes a huge debt to two papers in particular. We closely follow the formalization patterns and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct semantic image of rows (borrowing from their semantic image of lists). Our paper differs in a few key ways. Firstly, we introduce label and row kinds to the syntax, incurring an additional burden to reduce row maps, the row operators $\Pi$ and $\Sigma$, and row complements. We also reason about types modulo $\eta$-equivalence of functions and also expansion of rows to inert maps, which made many proof definitions harder to define. (For example, \citet{ChapmanKNW19} do not need a mutually recursive reify and reflect, which in turn made many auxiliary lemmas harder to define.)
 
