@@ -4,6 +4,7 @@
 \usepackage[normalem]{ulem}
 
 \newif\ifcomments\commentstrue
+\newif\ifthms\thmstrue
 
 \makeatletter
 \newcommand{\leqnomode}{\tagsleft@true\let\veqno\@@leqno}
@@ -60,7 +61,6 @@
 \usepackage{enumitem}
 \setlist[enumerate]{nosep,label={\arabic*.}}
 \setlist[itemize]{nosep}
-
 % \usepackage{prettyref}
 % \newcommand{\pref}[1]{\prettyref{#1}}
 % \newrefformat{assn}{Assumption~\ref{#1}}
@@ -83,7 +83,7 @@
 % \theoremstyle{remark}
 % \newtheorem*{remark}{Remark}
 
-
+\setlength{\topsep}{5pt plus2pt minus0.5pt}
 \AtEndPreamble{%
   \theoremstyle{acmplain}
   %\newtheorem{theorem}{Theorem}
@@ -341,7 +341,7 @@
   basewidth={0.5em,0.45em},
   aboveskip=\smallskipamount,
   belowskip=\smallskipamount,
-  morekeywords={instance, class, if, where, data, then, else, type, require, linear, primitive, Pi, Sigma, forall, \\, /\\, \#, prj, inj, in, out, fix, syn, ana},
+  morekeywords={instance, class, if, where, data, then, else, type, require, linear, primitive, Pi, Sigma, forall, \\, /\\, \#, prj, in, out, fix, syn, ana},
   keywordstyle={\color{\KeywordColor}\bfseries},
   morecomment=[l]{--},
   mathescape=true,

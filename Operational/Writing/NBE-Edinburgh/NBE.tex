@@ -331,7 +331,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 
 \newcommand\Subtract{\mathsf{subtract}}
 \InlineOff{}
-\begin{figure}
+\begin{figure*}
 \begin{small}
 \begin{gather*}
 \fbox{$\TEqvJ \Delta \tau \tau \kappa$}
@@ -339,7 +339,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \ib{\irule[\erule{$\beta$}]
           {\KindJ \Delta {(\lambda \alpha\co\kappa. \tau) \, \upsilon} {\kappa'}};
           {\TEqvJ \Delta {(\lambda \alpha\co\kappa. \tau)\,\upsilon} {\tau[\upsilon/\alpha]} {\kappa'}}}
-\\
+\isp
 \begin{gathered}
 \ib{\irule[\errule{lift$_\Xi$}]
           {\KindJ \Delta \rho {\RowK {\kappa_1 \to \kappa_2}}}
@@ -355,7 +355,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
           {\KindJ \Delta {\RowIx j 0 m {\LabTy {\xi_j} {\tau_j}}} {\RowK \kappa}};
           % {\Delta \vdash \mathsf{subtract} \, \rho_1 \, \rho_2 \, \rho_3};
           {\TEqvJ \Delta {{\Row {\LabTy {\xi_i} {\tau_i}}} \Compl {\Row {\LabTy {\xi_j} {\tau_j}}}} {\Subtract \, {\Row {\LabTy {\xi_i} {\tau_i}}} \, {\Row{\LabTy {\xi_j} {\tau_j}}}} {\RowK \kappa}}}
-\\
+\rsp
 \ib{\irule[\errule{map}]
           {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}}
           {\KindJ \Delta {\RowIx i 0 n {\LabTy {\xi_i} {\tau_i}}} {\RowK{\kappa_1}}};
@@ -364,7 +364,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \ib{\irule[\errule{map$_\mathsf{id}$}]
           {\KindJ \Delta \rho {\RowK\kappa}};
           {\TEqvJ \Delta \rho {\Mapp {(\lambda \alpha. \alpha)} \rho} {\RowK\kappa}}}
-\\
+\isp
 \begin{gathered}
 \ib{\irule[\errule{map$_\circ$}]
           {\KindJ \Delta {\phi_1} {\kappa_2 \to \kappa_3}}
@@ -379,12 +379,12 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
           {\KindJ \Delta {\phi} {\kappa_1 \to \kappa_2}}
           {\KindJ \Delta {\rho_i} {\RowK {\kappa_1}}};
           {\TEqvJ \Delta {\Mapp {\phi} {(\rho_2 \setminus \rho_1)}} {\Mapp \phi {\rho_2} \setminus {\Mapp \phi {\rho_1}}} {\kappa_2} }}
-\\
+\isp
 \ib{\irule[\errule{$\Xi$}]
           {\KindJ \Delta \rho {\RowK {\RowK {\kappa}}}};
           {\TEqvJ \Delta {\KFam \Xi {\RowK \kappa} \, \rho} {\Mapp {{\KFam \Xi \kappa}} \rho} {\RowK {\kappa}}}!
           {\Xi \in \{ \Pi , \Sigma \}}}
-\\ 
+\isp
 \ib{\irule[\errule{$\eta$}]
           {\KindJ \Delta \phi {\kappa_1 \to \kappa_2}};
           {\TEqvJ \Delta {\phi} {\lambda \alpha \co \kappa_1. \phi \, \alpha} {\kappa_1 \to \kappa_2}}
@@ -394,9 +394,9 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \\
 \begin{small}
 \begin{aligned}
-  \Subtract& \, \EmptyRow \, \rho = \EmptyRow \\
-  \Subtract& \, \rho \, \EmptyRow = \rho \\
-  \Subtract& \, \Row {\LabTy \ell \tau, \rho} \, \Row{\LabTy {\ell'} {\tau'}, {\rho'}} = \\
+  \Subtract \, \EmptyRow \, \rho &= \EmptyRow \\
+  \Subtract \, \rho \, \EmptyRow &= \rho \\
+  \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \Row{\LabTy {\ell'} {\tau'}, {\rho'}} &= 
     &\begin{cases}
       \Subtract \, \rho \, \rho' &\text{if $\ell = \ell'$ and $\tau = \tau'$} \\
       \Row {\LabTy \ell \tau, \Subtract \, \rho \, \Row {\LabTy {\ell'} {\tau'}, \rho'}} &\text{if $\ell < \ell'$} \\
@@ -408,7 +408,7 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \end{small}
 \caption{Type equivalence}
 \label{fig:equivalence}
-\end{figure}
+\end{figure*}
 
 
 
@@ -514,9 +514,7 @@ The syntax $\LabTy n \Normal \tau$ separates singleton rows with variable labels
 % \end{theorem}
 
 \section{Normalization by Evaluation (NbE)}
-This section describes our methodology, which is largely inspired by the \emph{normalization by evaluation} algorithm and metatheory of \citet{ChapmanKNW19}, although we have made significant extensions to their approach in order to capture the computation of rows. Our work also differs in some design choices (see \cref{sec:related-work}). Our particular style of intrinsic mechanization was popularized largely by \citet{plfa22} and can be further traced back to \citet{AltenkirchB99}.
-
-Our full development is available as part of the anonymous supplementary materials. The code we present here is summarized and tidied for display in print and easier digestion, but otherwise remains faithful to the development in behavior and intent. 
+This section describes our methodology, which is largely inspired by the \emph{normalization by evaluation} algorithm and metatheory of \citet{ChapmanKNW19}, although we have made significant extensions to their approach in order to capture the computation of rows. Our work also differs in some design choices (see \cref{sec:related-work}). Our particular style of intrinsic mechanization was popularized largely by \citet{plfa22} and can be further traced back to \citet{AltenkirchB99}. Our full development is available as part of the anonymous supplementary materials. The code we present here is summarized and tidied for display in print and easier digestion, but otherwise remains faithful to the development in behavior and intent. 
 
 \InlineOn{}
 Normalization by evaluation comes in a handful of different flavors (\cf{} \citet{Lindley05, Abel13}). In our intrinsic case, we seek to build a normalization function $\Norm : \TJudges{\Delta}{\kappa} \to \TJudgesNF{\Delta}{\kappa}$ by interpreting derivations in $\TJudges{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJ \Delta \tau \kappa$) into a semantic domain capable of performing reductions semantically. We then \emph{reify} objects in the semantic domain back to judgments in $\TJudgesNF{\Delta}{\kappa}$ (the set of derivations of the judgment $\KindJNF \Delta \tau \kappa$). The mapping of syntax to a semantic domain is typically written as $\Sem{\cdot}$ and called the \emph{residualizing semantics}. As a simple example, a judgment of the form $\KindJ \Delta \phi {\TypeK \to \TypeK}$ could be interpreted into a set-theoretic function, allowing applications to be interpreted into set-theoretic applications by that function. In our case, our residualizing semantics is not set-theoretic but in Agda. The syntax of the judgments $\KindJ \Delta \tau \kappa$, $\KindJNF \Delta \tau \kappa$, and $\KindJNE \Delta \tau \kappa$ are represented as Agda data types (where !Env! is a list of De Bruijn indexed type variables and !Kind! is the type of kinds). 
@@ -529,7 +527,7 @@ data NeutralType : Env -> Kind -> Set
 
 \Ni We will interpret the !Type! and !NeutralType! types into Agda terms and functions in order to leverage Agda's meta-level computation, then reify these semantic objects back to normal type syntax.
 
-\subsection{Residualizing semantics}
+\subsection{Residualizing semantic domain}
 
 We define our semantic domain in Agda recursively over the syntax of !Kind!s in \cref{fig:SemType}.
 
@@ -751,7 +749,7 @@ NotLabel R[ kappa ] = NotLabel kappa
 
 This is to say, one may not apply !Pi! to an input that is a row of labels, a label-valued function, or a nested row of labels. Next, when applying !Pi'! to a function, we must expand the semantic $\lambda$-binding outwards (line 3). Thereafter, we apply rule \errule{lift$_\Xi$} to explain how !Pi'! operates on a single operand. Finally, we implement rule \errule{$\Xi$} directly in the last equation (line 4): the application of !Pi'! to a row-kinded input !x! is simply the mapping of !Pi'!  over !x!.
 
-\subsection{Evaluation}
+\subsection{Evaluation (residualizing semantics)}
 Evaluation warrants an environment that maps type variables to semantic types. The identity environment, which fixes the meaning of variables, is given as the composition of reflection and !`!, the constructor of !NeutralType!s from !TVar!s. 
 
 
@@ -800,9 +798,10 @@ The first equation states that variables evaluate to their meaning in environmen
 
 \subsection{Normalization}
 
+\ifthms
 \begin{theorem}[Normalization] ~
   There exists a normalization function $\Norm\, : \TJudges{\Delta}{\kappa} \to \TJudgesNF{\Delta}{\kappa}$, that maps well-kinded types to well-kinded normal forms.
-\end{theorem}
+\end{theorem}\fi
 
 Normalization in the NbE approach is simply the composition of reification after evaluation. 
 
@@ -823,7 +822,7 @@ UpNE : NeutralType Delta kappa -> Type Delta kappa
 This section describes the Agda formalization of our metatheory, including proofs and proof outlines where space permits.
 
 \subsection{Canonicity of normal types}
-
+\ifthms
 \begin{theorem}[Canonicity]
   Let $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$.
   \begin{itemize}
@@ -832,6 +831,7 @@ This section describes the Agda formalization of our metatheory, including proof
     \item If $\KindJNF \epsilon {\Normal\tau} \LabK$, then $\Normal\tau = \ell$.
   \end{itemize}
 \end{theorem}
+\fi
 
 Normal forms are partitioned by kind, which can easily be shown by case splitting on !Normal!\-!Type! inputs. We first demonstrate that neutrals cannot exist in an empty environment:
 
@@ -869,13 +869,14 @@ label-canonicity (lab s) = s , refl
 
 The following properties confirm that $\Norm$ behaves as a normalization function ought to. The first property, \emph{stability}, asserts that normal forms cannot be further normalized. Stability implies \emph{idempotency} and \emph{surjectivity}.
 
+\ifthms
 \begin{theorem}[Properties of normalization] ~
   \begin{itemize}
   \item (Stability) for all $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$, $\Norm \, \Normal\tau = \Normal\tau$.
   \item (Idempotency) For all $\tau \in \TJudges{\Delta}{\kappa}$, $ \Norm (\Norm \, \tau) =\, \Norm \, \tau$.
   \item (Surjectivity) For all $\Normal\tau \in \TJudgesNF{\Delta}{\kappa}$, there exists $\upsilon \in \Types$ such that $\Normal\tau =\, \Norm \upsilon$.
   \end{itemize}
-\end{theorem}
+\end{theorem}\fi
 
 Stability follows by simple induction on the input derivation $\KindJNF \Delta \tau \kappa$. We are in essence just stating that normallization (!Down!) is left-inverse to embedding (!Up!).
 
@@ -913,17 +914,19 @@ Up-inj  tau_1  tau_2  eq =
 
 We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \upsilon \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
 
+\ifthms
 \begin{theorem}[Completeness]
 For well-kinded $\tau , \upsilon \in \TJudges{\Delta}{\kappa}$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
 \end{theorem}
+\fi
 
-We define the equivalence relation of \cref{fig:equivalence} as an inductive, intrinsically-typed relation in Agda.
+We define the equivalence relation of \cref{fig:equivalence} as an inductive, intrinsically-typed relation in Agda. We force that !_.=.t_! be an equivalence relation with the rules !eq-refl!, !eq-sym!, and !eq-trans!, which will appear again in later proofs. 
 
 \begin{agda}
-data _.=.t_ : Type Delta kappa -> Type Delta kappa -> set 
+data _.=.t_ : Type Delta kappa -> Type Delta kappa -> set
 \end{agda}
 
-\Ni and hence completeness may be stated as follows:
+\Ni Completeness may be stated as follows:
 
 \begin{agda}
 completeness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
@@ -975,7 +978,7 @@ PointEqual phi_1  phi_2 = forall (r : Renaming Delta_1  Delta_2)
 \label{fig:uniformity-and-PE}
 \end{figure}
 
-The completeness logical relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements (lines 1, 2, 5, and 12, resp.). In the case that !kappa = kappa_1 `-> kappa_2! (lines 3-4), we assert that the Kripke functions !phi_1! and !phi_2! are \emph{uniform} and \emph{extensionally equivalent} to one another (see \cref{fig:uniformity-and-PE}). Uniformity states that passing a renaming !r_2! to a Kripke function is equivalent to renaming it algorithmically---that is, the function !rename! commutes with Kripke renaming (lines 2-7, \cref{fig:uniformity-and-PE}). The uniformity property is attributable to \citet{AllaisBM13} but simplified drastically by \citet{ChapmanKNW19}. The !PointEqual! predicate (lines 8-12, \cref{fig:uniformity-and-PE}) circumvents any need to postulate functional extensionality; rather, we assert that !phi_1! and !phi_2! map equivalent inputs to equivalent outputs (a property to be expected of a logical relation). 
+The completeness logical relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements (lines 1, 2, 5, and 12, resp.). In the case that !kappa = kappa_1 `-> kappa_2! (lines 3-4), we assert that the Kripke functions !phi_1! and !phi_2! are \emph{uniform} and \emph{extensionally equivalent} to one another (see \cref{fig:uniformity-and-PE}). Uniformity states that passing a renaming !r_2! to a Kripke function is equivalent to renaming it algorithmically---that is, the function !rename! commutes with Kripke renaming (lines 2-7, \cref{fig:uniformity-and-PE}). The uniformity property is attributable to \citet{AllaisBM13} but simplified drastically by \citet{ChapmanKNW19}. The !PointEqual! predicate (lines 8-12, \cref{fig:uniformity-and-PE}) circumvents any need to postulate functional extensionality; rather, we assert that !phi_1! and !phi_2! map equivalent inputs to equivalent outputs.
 
 The predicates !UniformNE! and !PointEqualNE! are entirely analogous to !Uniform! and !PointEqual! except that they describe Kripke functions in which the domain is a !NeutralType! rather than !SemType!. In the case that we are equating two inert maps (lines 6-11, \cref{fig:completeness-relation}), we must additionally assert that the domains of !phi_1! and !phi_2! (that is, !kappa_1! and !kappa_1'!, resp.) are equivalent. The helpers !convKripkeNE! and !convNE! convert !phi_1! and !n_1! appropriately so as to be indexed by kind !kappa_1'!.
 
@@ -1032,9 +1035,10 @@ completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
 
 Soundness of normalization states that every type is equivalent to its normalization.
 
+\ifthms
 \begin{theorem}[Soundness]
 For well-kinded $\tau \in \TJudges{\Delta}{\kappa}$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
-\end{theorem}
+\end{theorem}\fi
 
 In Agda, soundness states specifically that each type is equivalent to its embedded normalization:
 
@@ -1047,12 +1051,12 @@ soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
 \begin{agda}
 embed-.=.t : forall (tau_1 : NormalType Delta kappa) (tau_2 : Type Delta kappa) -> 
              tau_1 .=. (Down tau_2) -> Up tau_1 .=.t tau_2 
-embed-.=.t refl = sym (soundness tau_2)
+embed-.=.t refl = eq-sym (soundness tau_2)
 
 conv-completeness : (tau_1 tau_2 : Type Delta kappa) -> 
                     Down tau_1 .=. Down tau_2 -> tau_1 .=.t tau_2
 conv-completeness tau_1 tau_2 eq = 
-  trans (soundness tau_1) (embed-.=.t eq)                 
+  eq-trans (soundness tau_1) (embed-.=.t eq)                 
 \end{agda}
 
 \Ni Hence soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
@@ -1170,6 +1174,13 @@ Substitution : Env -> Env -> Set
 Substitution Delta_1  Delta_2 = TVar Delta_1 kappa -> Type Delta_2 kappa
 \end{agda}
 
+We show that the identity syntactic substitution !`! and the identity semantic environment are point-wise related. 
+
+\begin{agda}
+idEnv-[[]]~~ : [[ ` ]]e~~ idEnv 
+idEnv-[[]]~~ = reflect-[[]]~~ eq-refl
+\end{agda}
+
 \subsubsection{The fundamental theorem and Soundness}
 
 Finally, the fundamental theorem of soundness states that the syntactic substitution of a type !tau! by !sigma! is related to its semantic evaluation in !eta!, provided !sigma! and !eta! are related. The definition is by induction over !tau!.
@@ -1183,7 +1194,14 @@ fundS : (tau : Type Delta_1 kappa) ->
 Soundness follows from a trivial case of the fundamental theorem where the environments related are the identity substitution !`! and the identity semantic environment !idEnv!:
 
 \begin{agda}
-vdash[[_]]~~ : (tau : Type Delta kappa)  -> [[ tau ]]~~ eval tau idEnv                
+vdash[[_]]~~ : (tau : Type Delta kappa)  -> [[ tau ]]~~ eval tau idEnv  
+vdash[[ tau ]]~~ = 
+  subst-[[]]~~ (inst (sub-id tau)) (fundS tau idEnv-[[]]~~)
+  where
+    subst-[[]]~~ : tau_1 .=.t tau_2 -> [[ tau_1 ]]~~ v -> [[ tau_2 ]]~~ v
+    inst : tau_1 .=. tau_2 -> tau_1 .=.t tau_2
+    sub-id : forall (tau : Type Delta kappa) -> sub ` tau .=. tau
+
 soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
 soundness tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
 \end{agda}
@@ -1192,9 +1210,10 @@ soundness tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
 
 Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
 
+\ifthms
 \begin{theorem}[Decidability]
   Given well-kinded $\tau, \upsilon \in \TJudges{\Delta}{\kappa}$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
-\end{theorem}
+\end{theorem}\fi
 
 It is easy enough (but tedious) to implement a syntactic decidability check on the shapes of normal forms; simply proceed by case analysis on both !tau_1! and !tau_2!.
 
@@ -1208,7 +1227,7 @@ Paired with soundness and completeness, we get an effective decision procedure t
 _.=.t?_ : forall (tau_1 tau_2 : Type Delta kappa) -> Dec (tau_1 .=.t tau_2)
 tau_1 .=.t? tau_2  with (Down tau_1) .=.? (Down tau_2)
 ... | yes p = yes 
-    (trans 
+    (eq-trans 
         (soundness tau_1) 
         (embed-.=.t p))
 ... | no  p = no (\ x -> p (completeness x))
@@ -1216,13 +1235,13 @@ tau_1 .=.t? tau_2  with (Down tau_1) .=.? (Down tau_2)
 
 
 \section{Most closely related work}
-\label{sec:related-work}
+\label{sec:related-work} 
 
 We conclude with a discussion of closely related work. 
 
-\subsection{Intrinsic mechanization of System \Fome and others.} Our technical development owes a huge debt to two papers in particular. We closely follow the formalization patterns and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct normal form of inert row maps (borrowing from their formalization of lists). This paper differs from \citet{ChapmanKNW19}, but not \citet{AllaisBM13}, in that \Rome introduces additional definitional equality rules. In contrast to \citet{ChapmanKNW19}, we also reason about types modulo $\eta$-equivalence of functions and also expansion of rows to inert maps, which made many proof definitions harder to define.
+\subsection{Intrinsic mechanization of $F\omega\mu$ and other languages.} Our technical development owes a great debt to two papers in particular. We closely follow the formalization and proof techniques of \citet{ChapmanKNW19}; indeed, this paper is in some sense an extension of their work from System \Fome to system \Rome. In turn, \citet{ChapmanKNW19} themselves follow closely \citet{AllaisBM13}, from whom we looked to in finding the correct normal form of inert row maps (borrowing from their formalization of lists). This paper differs from \citet{ChapmanKNW19}, but not \citet{AllaisBM13}, in that \Rome introduces additional definitional equality rules. In contrast to \citet{ChapmanKNW19}, we also reason about types modulo $\eta$-equivalence of functions and expansion of rows to inert maps, which made many proof definitions harder to define.
 
-\subsection{Mechanized Ur/Web.} A comparison must be made between \Rome and Featherweight Ur \citep{Chlipala10}, each of which have type-level rows and mapping operators. However, Ur focuses mainly on type-level records and does not witness the duality between $\Pi$ and $\Sigma$ types. Further, \citet{Chlipala10} give an elaborative semantics, translating Featherweight Ur to the Calculus of Inductive Constructions, in order to prove metatheory. It is unclear if a procedure has been mechanized to normalize Featherweight Ur programs according to its own definitional equality rules: the authors conjecture that "refactoring the definitional equality rules of [Featherweight Ur] so that, when applied only left-to-right, [will form] a rewrite [that is] terminating and confluent." To their credit, Featherweight Ur is more concerned with practical higher-order unification and inference implementation details, of which \Rome can stake no parallel claim.
+\subsection{Featherweight Ur.} A comparison must be made between \Rome and Featherweight Ur \citep{Chlipala10}, each of which have type-level rows and mapping operators. However, Ur focuses on type-level records and does not witness the duality between $\Pi$ and $\Sigma$ types. Further, \citet{Chlipala10} give an elaborative semantics, translating Featherweight Ur to the Calculus of Inductive Constructions, in order to inherit metatheory. It is unclear if a procedure has been mechanized to normalize Featherweight Ur types according to its own definitional equality rules. The authors write that "most of Ur constructor unification could be implemented by normalizing constructors and then comparing normal forms ... We can refactor the definitional equality rules of [Featherweight Ur] so that, when applied only left-to-right, they form a rewrite system that we conjecture is terminating and confluent." So it may be possible that results alike ours could be replicated in Featherweight Ur, but we are unaware of any extant attempts. To their credit, Featherweight Ur is more concerned with practical higher-order unification and inference implementation details, of which \Rome can stake no parallel claim.
 
 \bibliographystyle{plainnat}
 \bibliography{NBE}
