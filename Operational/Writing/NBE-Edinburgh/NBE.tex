@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+\documentclass[sigplan,10pt,anonymous,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
 \overfullrule=1mm
 % \usepackage[margin=1.5in]{geometry}
 
@@ -150,20 +150,20 @@ All of these complications may be avoided provided a sound and complete normaliz
 This paper offers the following as contributions: 
 
 \begin{enumerate}
-  \item A normalization procedure for the directed \Rome type equivalence relation, which in turn yields a decision procedure for deciding type equivalence;
+  \item A normalization procedure for the directed \Rome type equivalence relation, which in turn yields a decision procedure for type equivalence;
   \item a semantics of the type-level \emph{row complement} operator;
   \item proofs of soundness and completeness of normalization with respect to type equivalence; and
-  \item a complete mechanization in Agda of \Rome and the claimed metatheoretic results.
+  \item a complete mechanization in Agda of \Rome and the claimed metatheory.
 \end{enumerate}
 
+In summary, we offer the first mechanized, sound and complete normalization algorithm for higher-order row types, which we hope future adopters may use as a framework for additional row-based type  computation.
+
 \section{Background}
-We briefly review the literature on row typing. Row types, as introduced by \citet{wand87}, describe a type-level association of labels to types. Rows can be used dually to type \emph{records} (i.e, classes and objects) and \emph{variants} (i.e., algebraic data types). Row types were first introduced by \citet{wand87,Wand91,Remy89} to give a \emph{structural} account of object inheritance, in which records and variants are seen as equal when their structures agree. For example, the two-dimensional point record !p! !=! !{x := 1,! !y := 2}! might be assigned the record type !Pi! !{x := Int,! !y := int}! in a row-type system. Then, any function expecting a record input with the fields !{x := Int , y := int}! will be happy to accept !p!. In contrast, standard subtyping relations could be said to be \emph{nominal} in that they rely upon declared relationships between entities to convey inheritance and polymorphism. For example, two Java objects with identical fields are not immediately equatable.
+We briefly review the literature on row typing. Row types, as introduced by \citet{wand87}, describe a type-level association of labels to types. Rows can be used dually to type \emph{records} (i.e, classes and objects) and \emph{variants} (i.e., algebraic data types). Row types were first introduced by \citet{wand87,Wand91,Remy89} to give a \emph{structural} account of object inheritance, in which records and variants are seen as equal when their structures agree. For example, the two-dimensional point record !p! !=! !{x := 1,! !y := 2}! might be assigned the record type !Pi! !{x := Int,! !y := int}! in a row-type system. Extensibility in row type systems arises from \emph{row polymorphism}. A function that expects a record with \emph{at least} the the fields !{x := Int , y := int}! will be happy to accept !p!; one could type such a function as accepting the row !{x := Int,! !y := Int! !|! !rho}!, where !rho! is a row variable denoting "zero or more additional fields".
 
-Extensibility in row type systems arises from \emph{row polymorphism}, which has seen great use in e.g. the OCaml language \citep{OCaml:objTypes}. In contrast to many row type systems, \RO and \Rome use \emph{qualified types} \citep{Jones92} to constrain the instantiation of row variables in types. One immediate effect of this design choice is that \RO and \Rome are able to express rows via \emph{concatenation} rather than just by extension. The shape of predicates in \Rome are described in the next section.
+Over the years, many novel applications of rows to other domains have been proposed, including first-class mixins \citep{MakholmW05}, session types \citep{LindleyM17}, and most notably effect typing \citep{Leijen05,Leijen14,LindleyC12,HillerstromL16}. The algebraic effects literature, which handles label overlaps via \emph{shadowing}, has indeed popularized the use of rows in type systems for purposes beyond just extensibility. Correspondingly, The \Rose language \citep{MorrisM19}, from which \RO and \Rome extend, first sought to reconcile varying accounts of label overlap resolutions into \emph{row theories}. 
 
-Finally, Many novel applications of rows to other domains have been proposed, including first-class mixins \citep{MakholmW05}, effect typing \citep{Leijen05,Leijen14,LindleyC12,HillerstromL16} and session types \citep{LindleyM17}. Recent works have explored capabilities of \emph{scoped rows}, in which the extension of a row by another with a label overlap \emph{shadows} the overlapped label: \citet{PaszkeX23} describe the interplay of scoped rows and first-class labels, while \citet{XieCIL22} describe a system with first-class names for effect handlers. The algebraic effects literature has indeed popularized the use of rows in typing effects; The \Rose language \citep{MorrisM19}, from which \RO and \Rome extend, first sought to reconcile varying accounts of label overlap resolutions into \emph{row theories}. 
-
-We view \Rome as a highly-expressive candidate core calculus for many applications of row types.
+We view \Rome as a highly-expressive candidate core calculus for many row theories and applications.
 
 
 \section{The \Rome{} calculus}
@@ -395,12 +395,10 @@ We define reduction on types $\tau \RedT \tau'$ by directing the type equivalenc
 \begin{small}
 \begin{aligned}
   \Subtract \, \EmptyRow \, \rho &= \EmptyRow \\
-  \Subtract \, \rho \, \EmptyRow &= \rho \\
-  \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \Row{\LabTy {\ell'} {\tau'}, {\rho'}} &= 
+  \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \rho' &= 
     &\begin{cases}
-      \Subtract \, \rho \, \rho' &\text{if $\ell = \ell'$ and $\tau = \tau'$} \\
-      \Row {\LabTy \ell \tau, \Subtract \, \rho \, \Row {\LabTy {\ell'} {\tau'}, \rho'}} &\text{if $\ell < \ell'$} \\
-      \Subtract \, \Row {\LabTy \ell \tau, \rho} \, \rho' &\text{if $\ell > \ell'$}
+      \Subtract \, \rho \, \rho' &\text{if $\ell \in \rho'$} \\
+      \Row {\LabTy \ell \tau, \Subtract \, \rho \, \rho'} &\text{otherwise}
     \end{cases}
 \end{aligned}
 \end{small}
@@ -697,7 +695,7 @@ phi_1 .map.' (phi_2 .map. n) = (\ r -> phi_1 r . phi_2 r) .map. n
 \label{fig:semantic-mapping}
 \end{figure}
 
-\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). Here our implementation differs slightly to the syntactic presentation in \cref{fig:equivalence}. We proceed by induction on the length of the left-hand row: when the left-hand row is empty, the resulting row is the empty row !0 , \ ()! (line 5). (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the label of the head entry in !P!, !P fzero .fst!, is in the right-hand row (line 6). If so, we omit it and proceed with recursion (line 7). If not, we retain it (lines 8-9).
+\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). We proceed by induction on the length of the left-hand row: when the left-hand row is empty, the resulting row is the empty row !0 , \ ()! (line 5). (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the label of the head entry in !P!, !P fzero .fst!, is in the right-hand row (line 6). If so, we omit it and proceed with recursion (line 7). If not, we retain it (lines 8-9).
 
 \begin{figure}
 \begin{agda}
@@ -1061,7 +1059,7 @@ conv-completeness tau_1 tau_2 eq =
 
 \Ni Hence soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
 
-In \cref{fig:soundness-relation}, we define a logical relation for soundness by relating un-normalized types to semantic objects. The first two cases (lines 2-3) state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. On line 4, we relate arrow-kinded types; \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions. The definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau! is equivalent to the !eta!-expansion of !n!. The definitions otherwise assert that related inputs map to related outputs.
+In \cref{fig:soundness-relation}, we define a logical relation for soundness by relating un-normalized types to semantic objects. The first two cases (lines 2-3) state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. On line 4, we relate arrow-kinded types; \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions. The definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau .=.t Up (eta-norm n)! for neutral !n!. Each definition otherwise asserts that related inputs map to related outputs.
 
 The cases that follow relate syntactic rows with semantic rows. On line 5 we relate row literals \emph{existentially}:\footnote{In practice, we actually know precisely that \lstinline{tau} should be equivalent to the embedding of the reification of \lstinline{row (n , P) q}, but asserting as such complicates presentation; either style works.} we assert that there exists a syntactic row literal !xs! !: List! !(Label! !times! !Type! !Delta! !kappa)! and a well-orderedness predicate !oxs! such that !tau! is equivalent to !row xs oxs! and, further, !xs! is pointwise equivalent to !(n , P)!. The pointwise relation ![[_]]R~~_! of syntactic and semantic row literals is defined in \cref{fig:soundness-relation-row-literals}, and is more or less to be expected: two row literals are related if they are of the same length and have related contents. 
 
@@ -1178,7 +1176,7 @@ We show that the identity syntactic substitution !`! and the identity semantic e
 
 \begin{agda}
 idEnv-[[]]~~ : [[ ` ]]e~~ idEnv 
-idEnv-[[]]~~ = reflect-[[]]~~ eq-refl
+idEnv-[[]]~~ alpha = reflect-[[]]~~ eq-refl
 \end{agda}
 
 \subsubsection{The fundamental theorem and Soundness}
@@ -1196,11 +1194,10 @@ Soundness follows from a trivial case of the fundamental theorem where the envir
 \begin{agda}
 vdash[[_]]~~ : (tau : Type Delta kappa)  -> [[ tau ]]~~ eval tau idEnv  
 vdash[[ tau ]]~~ = 
-  subst-[[]]~~ (inst (sub-id tau)) (fundS tau idEnv-[[]]~~)
+  subst-[[]]~~ (sub-id tau) (fundS tau idEnv-[[]]~~)
   where
     subst-[[]]~~ : tau_1 .=.t tau_2 -> [[ tau_1 ]]~~ v -> [[ tau_2 ]]~~ v
-    inst : tau_1 .=. tau_2 -> tau_1 .=.t tau_2
-    sub-id : forall (tau : Type Delta kappa) -> sub ` tau .=. tau
+    sub-id : forall (tau : Type Delta kappa) -> sub ` tau .=.t tau
 
 soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
 soundness tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
