@@ -773,8 +773,8 @@ eval Sigma eta = \ r v -> Sigma' v
 eval (phi .map. tau) eta = eval phi eta .map.' eval n tau
 eval (l := tau) eta with eval l eta 
 ... | ne n = (n := eval tau eta)
-... | lab ell = row (1 , \ { fzero -> 
-                            (ell , eval tau eta )}) tt
+... | lab ell = row (1 , \ { 
+        fzero -> (ell , eval tau eta )}) tt
 eval (row rho q) eta = row 
   (evalRow rho eta) 
   (evalPreservesOrdering q)
@@ -783,8 +783,9 @@ where
             SemEnv Delta_1  Delta_2 -> 
             Row (SemType Delta_2 kappa)
   evalRow [] eta = 0 , \ ()
-  evalRow ((l , tau) :: rho) eta = \ { fzero -> eval tau eta , 
-                          fsuc _ -> evalRow rho eta }
+  evalRow ((ell , tau) :: rho) eta = \ { 
+    fzero  -> (ell , eval tau eta) ;
+    fsuc i -> evalRow rho eta .snd i }
 \end{agda}
 \caption{Evaluation}
 \label{fig:evaluation}
@@ -1121,8 +1122,8 @@ SoundKripke phi F =
 SoundKripkeNE : Type Delta_1 (kappa_1 `-> kappa_2) -> 
                 KripkeFunctionNE Delta_1  kappa_1  kappa_2 -> Set
 SoundKripkeNE phi F = 
-  (r : Renaming Delta_1 Delta_2) 
-  {tau : Type Delta_1 kappa} {n : NeutralType Delta_1 kappa}
+  (r : Renaming Delta_1  Delta_2) 
+  {tau : Type Delta_2 kappa} {n : NeutralType Delta_2 kappa}
   tau .=.t Up (eta-norm n) -> 
   [[ rename r phi cdot n ]]~~ F r n
 \end{agda}
