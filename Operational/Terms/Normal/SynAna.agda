@@ -55,11 +55,11 @@ soundness-under-subₖ σ τ₂ =
 --------------------------------------------------------------------------------
 -- Lifting η-normalization result over substitution by (⇑ ∘ σ)
 
-η-norm-under-subₖ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (x : KVar Δ₁ κ) → 
+η-norm-under-subₖ : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (x : TVar Δ₁ κ) → 
               subₖ (⇑ ∘ σ) ((⇑ ∘ η-norm ∘ `) x) ≡t ⇑ (σ x)
 η-norm-under-subₖ σ x = (subₖ-≡t⇑ {σ = σ} {τ₁ = (⇑ ∘ η-norm ∘ `) x} {τ₂ = ` x} (η-norm-≡t (` x)))
 
-η-norm-under-subₖ-liftsₖ : ∀ (σ₁ : SubstitutionₖNF Δ₁ Δ₂) (σ₂ : SubstitutionₖNF (Δ₂ ,, κ₁) Δ₃) (x : KVar (Δ₁ ,, κ₁) κ) → 
+η-norm-under-subₖ-liftsₖ : ∀ (σ₁ : SubstitutionₖNF Δ₁ Δ₂) (σ₂ : SubstitutionₖNF (Δ₂ ,, κ₁) Δ₃) (x : TVar (Δ₁ ,, κ₁) κ) → 
                       subₖ (⇑ ∘ σ₂) (subₖ (liftsₖ (⇑ ∘ σ₁)) ((⇑ ∘ η-norm ∘ `) x)) ≡t subₖ (⇑ ∘ σ₂) (liftsₖ (⇑ ∘ σ₁) x)
 η-norm-under-subₖ-liftsₖ σ₁ σ₂ x = 
   eq-trans (inst (sym (subₖ-comp ((⇑ ∘ η-norm ∘ `) x)))) 

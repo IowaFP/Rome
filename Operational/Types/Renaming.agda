@@ -10,11 +10,11 @@ open import Rome.Operational.Kinds.GVars
 -- Type Renaming
 
 Renamingₖ : KEnv → KEnv → Set
-Renamingₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → KVar Δ₂ κ
+Renamingₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → TVar Δ₂ κ
 
 -- (extensional) equivalence of renamings
 _≈_ : ∀ {Δ₁} (ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂) → Set
-_≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : KVar Δ₁ κ) → ρ₁ x ≡ ρ₂ x
+_≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : TVar Δ₁ κ) → ρ₁ x ≡ ρ₂ x
 
 
 -- lifting over binders.

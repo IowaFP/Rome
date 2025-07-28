@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Kinds.GVars where
+module Rome.Both.Kinds.GVars where
 
-open import Rome.Operational.Kinds.Syntax
+open import Rome.Both.Kinds.Syntax
 open import Rome.Preludes.Level
 
 -- variable

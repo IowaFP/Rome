@@ -88,7 +88,7 @@ data Pred Ty Δ where
 data Type Δ where
 
   ` : 
-      (α : KVar Δ κ) →
+      (α : TVar Δ κ) →
       --------
       Type Δ κ
 
@@ -307,11 +307,11 @@ canonical-forms? (⦅ (lab l₁ , τ₁) ∷ (l · l₂ , τ₂) ∷ xs ⦆ ())
 
 -- A renaming maps type variables in environment Δ₁ to Δ₂
 Renamingₖ : KEnv → KEnv → Set
-Renamingₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → KVar Δ₂ κ
+Renamingₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → TVar Δ₂ κ
 
 -- We define a convenient helper for (extensional) equivalence of renamings
 _≈_ : ∀ {Δ₁} (ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂) → Set
-_≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : KVar Δ₁ κ) → ρ₁ x ≡ ρ₂ x
+_≈_ {Δ₁ = Δ₁} ρ₁ ρ₂ = ∀ {κ} (x : TVar Δ₁ κ) → ρ₁ x ≡ ρ₂ x
 
 
 -- Lifting---sort of like weakeking for a renaming. 

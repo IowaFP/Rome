@@ -1,17 +1,17 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Equivalence.Properties where
+module Rome.Both.Types.Equivalence.Properties where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Substitution
-open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
+open import Rome.Both.Types.Substitution
+open import Rome.Both.Types.Equivalence.Relation
 
-open import Rome.Operational.Types.Properties.Renaming
-open import Rome.Operational.Types.Properties.Substitution
+open import Rome.Both.Types.Properties.Renaming
+open import Rome.Both.Types.Properties.Substitution
 
 
 --------------------------------------------------------------------------------
@@ -81,8 +81,8 @@ renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (renₖ-≡t ρ eq�
 -- Lifting of substitutions respects type equivalence
 
 liftsₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂} → 
-                (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
-                 ∀ {κ'} (x : KVar (Δ₁ ,, κ') κ) → liftsₖ σ₁ x ≡t liftsₖ σ₂ x
+                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                 ∀ {κ'} (x : TVar (Δ₁ ,, κ') κ) → liftsₖ σ₁ x ≡t liftsₖ σ₂ x
 liftsₖ-cong-≡t c Z = eq-refl
 liftsₖ-cong-≡t c (S x) = renₖ-≡t S (c x)                 
 
@@ -90,10 +90,10 @@ liftsₖ-cong-≡t c (S x) = renₖ-≡t S (c x)
 -- Equivalent substitutions are congruent over types w.r.t. type equivalence
 
 subₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
-                (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
                  (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡t subₖ σ₂ τ
 subRowₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
-                (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
                  (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡r subRowₖ σ₂ ρ
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (` α) = c α
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`λ τ) = eq-λ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)

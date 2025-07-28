@@ -1,18 +1,18 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Semantic.Examples where
+module Rome.Both.Types.Semantic.Examples where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Semantic.Syntax
-open import Rome.Operational.Types.Semantic.Renaming
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
+open import Rome.Both.Types.Semantic.Syntax
+open import Rome.Both.Types.Semantic.Renaming
+open import Rome.Both.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
 -- Testing.

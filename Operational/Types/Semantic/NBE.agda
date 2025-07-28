@@ -97,7 +97,7 @@ reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
 -- -- Semantic environments
 
 Env : KEnv → KEnv → Set
-Env Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → SemType Δ₂ κ
+Env Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → SemType Δ₂ κ
 
 idEnv : Env Δ Δ
 idEnv = reflect ∘ `

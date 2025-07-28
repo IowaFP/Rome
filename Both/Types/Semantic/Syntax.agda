@@ -1,16 +1,16 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Semantic.Syntax where
+module Rome.Both.Types.Semantic.Syntax where
 
 open import Data.Product using (_×_ ; _,_)
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming using (liftₖ ; Renamingₖ)
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
 
 
 

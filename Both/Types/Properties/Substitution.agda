@@ -1,15 +1,15 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Properties.Substitution where
+module Rome.Both.Types.Properties.Substitution where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Substitution
-open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
+open import Rome.Both.Types.Substitution
+open import Rome.Both.Types.Equivalence.Relation
 
-open import Rome.Operational.Types.Properties.Renaming
+open import Rome.Both.Types.Properties.Renaming
 
 
 --------------------------------------------------------------------------------
@@ -38,23 +38,23 @@ subRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (subRowₖ-∈L r l ev)
 -- Functor laws for lifting
 
 liftsₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
-              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
-              (x : KVar (Δ₁ ,, κ₁) κ₂) → liftsₖ σ₁ x ≡ liftsₖ σ₂ x
+              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (x : TVar (Δ₁ ,, κ₁) κ₂) → liftsₖ σ₁ x ≡ liftsₖ σ₂ x
 liftsₖ-cong e Z = refl
 liftsₖ-cong e (S x) = cong (renₖ S) (e x)              
 
-liftsₖ-id    : ∀ (x : KVar (Δ ,, κ₁) κ₂) → liftsₖ ` x ≡ ` x 
+liftsₖ-id    : ∀ (x : TVar (Δ ,, κ₁) κ₂) → liftsₖ ` x ≡ ` x 
 liftsₖ-id Z = refl
 liftsₖ-id (S x) = refl
 
 -- Fusion for liftsₖ and lift
 liftsₖ-liftₖ      : ∀ {ρ : Renamingₖ Δ₁ Δ₂}{σ : Substitutionₖ Δ₂ Δ₃} 
-                    (x : KVar (Δ₁ ,, κ₁) κ₂) → 
+                    (x : TVar (Δ₁ ,, κ₁) κ₂) → 
                     liftsₖ (σ ∘ ρ) x ≡ liftsₖ σ (liftₖ ρ x)
 liftsₖ-liftₖ Z = refl
 liftsₖ-liftₖ (S x) = refl
 
-renₖ-liftₖ-liftsₖ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(x : KVar (Δ₁ ,, κ₁) κ₂) → 
+renₖ-liftₖ-liftsₖ : ∀ {σ : Substitutionₖ Δ₁ Δ₂}{ρ : Renamingₖ Δ₂ Δ₃}(x : TVar (Δ₁ ,, κ₁) κ₂) → 
                     liftsₖ (renₖ ρ ∘ σ) x ≡ renₖ (liftₖ ρ) (liftsₖ σ x)
 renₖ-liftₖ-liftsₖ Z = refl
 renₖ-liftₖ-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ x))) (renₖ-comp S (liftₖ ρ) (σ x))                    
@@ -63,10 +63,10 @@ renₖ-liftₖ-liftsₖ {σ = σ} {ρ} (S x) = trans (sym (renₖ-comp ρ S (σ 
 -- Substitution respects congruence
 
 subₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
-              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡ subₖ σ₂ τ
 subRowₖ-cong : ∀ {σ₁ : Substitutionₖ Δ₁ Δ₂}{σ₂ : Substitutionₖ Δ₁ Δ₂} →
-              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡ subRowₖ σ₂ ρ
 
 subₖ-cong e (` α) = e α
@@ -194,7 +194,7 @@ subₖ-weaken τ v = trans (sym (↻-subₖ-renₖ {r = S} {σ = extendₖ ` v} 
 -- Arrow functor law for liftsₖ & subₖ (needs commutativity of subₖ and renₖ)
 
 liftsₖ-comp : ∀ (σ₁ : Substitutionₖ Δ₁ Δ₂)(σ₂ : Substitutionₖ Δ₂ Δ₃)
-                (x : KVar (Δ₁ ,, κ₁) κ₂) → liftsₖ (subₖ σ₂ ∘ σ₁) x ≡ subₖ (liftsₖ σ₂) (liftsₖ σ₁ x)
+                (x : TVar (Δ₁ ,, κ₁) κ₂) → liftsₖ (subₖ σ₂ ∘ σ₁) x ≡ subₖ (liftsₖ σ₂) (liftsₖ σ₁ x)
 liftsₖ-comp σ₁ σ₂ Z = refl
 liftsₖ-comp σ₁ σ₂ (S x) = trans (sym (↻-renₖ-subₖ (σ₁ x))) (↻-subₖ-renₖ (σ₁ x)) 
 

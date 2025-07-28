@@ -1,26 +1,26 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Normal.Substitution where
+module Rome.Both.Types.Normal.Substitution where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.SynAna
-open import Rome.Operational.Types.Substitution
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.SynAna
+open import Rome.Both.Types.Substitution
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
+open import Rome.Both.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Both.Types.Theorems.Completeness
+open import Rome.Both.Types.Equivalence.Relation
 
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution
 
 SubstitutionₖNF : KEnv → KEnv → Set
-SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
+SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → NormalType Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)

@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Containment where
+module Rome.Both.Containment where
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 
 private
     variable

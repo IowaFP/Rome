@@ -1,10 +1,10 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Kinds.Decidability where
+module Rome.Both.Kinds.Decidability where
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
 
 --------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ R[ κ₁ ] ≡k? R[ κ₂ ] = map′ (cong R[_]) (λ { refl → refl }) (κ₁ �
 --------------------------------------------------------------------------------
 -- Decidability of variable equality
 
-_≡var?_ : ∀ (x y : KVar Δ κ) → Dec (x ≡ y)
+_≡var?_ : ∀ (x y : TVar Δ κ) → Dec (x ≡ y)
 Z ≡var? Z = yes refl
 Z ≡var? S y = no (λ ())
 S x ≡var? Z = no (λ ()) 

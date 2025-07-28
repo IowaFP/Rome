@@ -111,7 +111,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
 --------------------------------------------------------------------------------
 -- Substitution over a variable substitutes the variable
 
-subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) → 
+subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : TVar Δ₁ κ) → 
               subₖNF σ (idSubst x) ≡ σ x
 subₖNF-var {κ = κ} σ x = trans
   (reify-≋ (fundC {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
@@ -120,7 +120,7 @@ subₖNF-var {κ = κ} σ x = trans
       eq-refl)))
   (stability (σ x))
 
-subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
+subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : TVar Δ₁ κ) {g : True (ground? κ)} → 
                       subₖNF σ (ne (` x) {g}) ≡ σ x
 subₖNF-var-ground σ x {g} = stability (σ x)                      
 
@@ -128,7 +128,7 @@ subₖNF-var-ground σ x {g} = stability (σ x)
 -- Congruence of normality preserving substitution
 
 subₖNF-cong : {σ₁ : SubstitutionₖNF Δ₁ Δ₂}{σ₂ : SubstitutionₖNF Δ₁ Δ₂} →
-              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : NormalType Δ₁ κ) → subₖNF σ₁ τ ≡ subₖNF σ₂ τ
 subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ = 
   cong ⇓ (subₖ-cong (cong ⇑ ∘ peq) (⇑ τ))      
@@ -261,7 +261,7 @@ weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} | c = c
 -- Liftsₖ and liftsₖNF fusion under ≡t
 
 liftsₖ-liftsₖNF≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
-                   ∀ (x : KVar (Δ₁ ,, κ₁) κ) →
+                   ∀ (x : TVar (Δ₁ ,, κ₁) κ) →
                     liftsₖ (⇑ ∘ σ) x ≡t (⇑ ∘ liftsₖNF σ) x
 liftsₖ-liftsₖNF≡t Z = eq-sym ((η-norm-≡t (` Z)))
 liftsₖ-liftsₖNF≡t {σ = σ} (S x) = inst (sym (↻-ren-⇑ S (σ x)))

@@ -82,7 +82,7 @@ UniformNE {Δ₁} {κ₁} {κ₂} F =
 -- Pointwise PER for environments
 
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+Env-≋ η₁ η₂ = ∀ {κ} (x : TVar _ κ) → (η₁ x) ≋ (η₂ x)
 
 -- extension
 extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 

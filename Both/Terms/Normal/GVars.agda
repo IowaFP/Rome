@@ -1,10 +1,10 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Terms.Normal.GVars where
+module Rome.Both.Terms.Normal.GVars where
 
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Terms.Normal.Syntax
-open import Rome.Operational.Types.Normal.Syntax
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
+open import Rome.Both.Terms.Normal.Syntax
+open import Rome.Both.Types.Normal.Syntax
 
 variable
   Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ

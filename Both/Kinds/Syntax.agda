@@ -1,7 +1,7 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Kinds.Syntax where
+module Rome.Both.Kinds.Syntax where
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 open import Rome.Preludes.Level
 
 private
@@ -65,6 +65,6 @@ private
     Δ Δ₁ Δ₂ Δ₃ : KEnv ι
     κ κ₁ κ₂ : Kind ι
 
-data KVar : KEnv ι₁ → Kind ι₂ → Set where
-  Z : KVar (Δ ,, κ) κ
-  S : KVar Δ κ₁ → KVar (Δ ,, κ₂) κ₁
+data TVar : KEnv ι₁ → Kind ι₂ → Set where
+  Z : TVar (Δ ,, κ) κ
+  S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁

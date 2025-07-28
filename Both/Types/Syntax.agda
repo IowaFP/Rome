@@ -1,9 +1,9 @@
 -- {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Syntax where
+module Rome.Both.Types.Syntax where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
 open import Data.String using (_<_; _<?_)
 
@@ -40,7 +40,7 @@ data Pred Ty where
 data Type Δ where
 
   ` : 
-      (α : KVar Δ κ) →
+      (α : TVar Δ κ) →
       --------
       Type Δ κ
 
@@ -70,11 +70,11 @@ data Type Δ where
          -------------
          Type Δ (★ {ι ⊔ (lsuc ικ)})
 
-  μ     :
+  -- μ     :
       
-         (φ : Type Δ ((★ {ι}) `→ (★ {ι}))) → 
-         -------------
-         Type Δ (★ {ι})
+  --        (φ : Type Δ ((★ {ι}) `→ (★ {ι}))) → 
+  --        -------------
+  --        Type Δ (★ {ι})
 
   ------------------------------------------------------------------
   -- Qualified types
@@ -259,62 +259,4 @@ f ?? a = flap · f · a
 -- Empty = Σ · ε 
 
 
---------------------------------------------------------------------------------
--- Denotation
 
-open import Rome.IndexCalculus using (Row)
-open import Data.Unit.Polymorphic renaming (⊤ to ⊤') 
- 
-⟦_⟧k : Kind ι → Set (lsuc ι)
-⟦ ★ {ι} ⟧k = Set ι
-⟦ κ₁ `→ κ₂ ⟧k = ⟦ κ₁ ⟧k → ⟦ κ₂ ⟧k
-⟦ L {ι} ⟧k = ⊤' {lsuc ι}
-⟦ R[ k ] ⟧k = Row ⟦ k ⟧k
-
-⟦_⟧ke : KEnv ι → Set (lsuc ι)
-⟦ (∅ {ι = ι}) ⟧ke = ⊤' {lsuc ι}
-⟦ Δ ,, κ ⟧ke =  ⟦ Δ ⟧ke × ⟦ κ ⟧k
-
-
-⟦_⟧tv : KVar Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k
-⟦ Z ⟧tv (_ , t) = t
-⟦ S v ⟧tv (H , _) = ⟦ v ⟧tv H
-
-⟦_⟧t : Type Δ κ → ⟦ Δ ⟧ke → ⟦ κ ⟧k 
-⟦ ` α ⟧t η = ⟦ α ⟧tv η
-⟦ `λ {κ₁ = κ₁} τ ⟧t η = λ (x : ⟦ κ₁ ⟧k ) → ⟦ τ ⟧t (η , x)
-⟦ τ₁ · τ₂ ⟧t η = {! (⟦ τ₁ ⟧t η) (⟦ τ₂ ⟧t η)  !}
-⟦ τ₁ `→ τ₂ ⟧t η = ⟦ τ₁ ⟧t η  → ⟦ τ₂ ⟧t η
-⟦ `∀ τ ⟧t η = {!   !}
-⟦ μ τ ⟧t η = {!   !}
-⟦ π ⇒ τ ⟧t η = {!   !}
-⟦ ⦅ xs ⦆ ordered ⟧t η = {!   !}
-⟦ lab l ⟧t η = {!   !}
-⟦ ⌊ τ ⌋ ⟧t η = {!   !}
-⟦ τ ▹ τ₁ ⟧t η = {!   !}
-⟦ τ <$> τ₁ ⟧t η = {!   !}
-⟦ Π ⟧t η = {!   !}
-⟦ Σ ⟧t η = {!   !}
-⟦ τ₂ ─ τ₁ ⟧t η = {!   !} 
-
--- wts that 
---  - ⟦ τ ⟧t ≡ ⟦ ⇓ τ ⟧NF (would need functional extensionality)
---  - if Δ ⊢ τ ≡t υ : κ then ⟦ τ ⟧t ≡ ⟦ υ ⟧t 
--- I'm not sure if I want to let define ⟦_⟧t as the first line. Then 
--- the second line follows from completeness. Is this a cop out?
--- A counter---I only define term reduction on normal types. So 
--- my goal is:
---   soundness : ∀ {τ : NormalType ∅ ★} {M N : NormalTerm ∅ τ} → 
---               M —→ N → ⟦ M ⟧ ≡ ⟦ N ⟧
--- Where ⟦_⟧, the meaning of terms, is typed by
---              ⟦_⟧ : NormalTerm Γ τ → ⟦ Γ ⟧ →  ⟦ τ ⟧. 
--- so in this case we do not need a meaning of `Type`, just of `NormalType`.
--- Pros of independnent definitions of ⟦_⟧ : Type and ⟦_⟧ : NormalType:
---   - Shows that ⟦_⟧ on `Type`s obeys definitional equality
---   - cooler?
--- Pros of defining as ⟦ τ ⟧t ≡ ⟦ ⇓ τ ⟧NF:
---   - metatheory for free
---   - No need to relate two differing implementations
---   - Don't actually need the meaning of non-normal types
---   - I said I would deliver the soundness claim above, 
---     who is going to quibble? Just get the Ph.D.

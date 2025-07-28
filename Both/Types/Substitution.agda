@@ -1,17 +1,17 @@
-{-# OPTIONS --safe #-}
-module Rome.Operational.Types.Substitution where
+-- {-# OPTIONS --safe #-}
+module Rome.Both.Types.Substitution where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
 
 --------------------------------------------------------------------------------
 -- Type-in-Type Substitution
 
 Substitutionₖ : KEnv → KEnv → Set
-Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
+Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
@@ -32,7 +32,7 @@ subₖ σ (τ₁ · τ₂) = (subₖ σ τ₁) · (subₖ σ τ₂)
 subₖ σ (τ₁ `→ τ₂) = (subₖ σ τ₁) `→ (subₖ σ τ₂)
 subₖ σ (π ⇒ τ) = subPredₖ σ π ⇒ subₖ σ τ 
 subₖ σ (`∀ τ) = `∀ (subₖ (liftsₖ σ) τ)
-subₖ σ (μ F) = μ (subₖ σ F)
+-- subₖ σ (μ F) = μ (subₖ σ F)
 subₖ σ (Π {notLabel = nl}) = Π {notLabel = nl}
 subₖ σ (Σ {notLabel = nl}) = Σ {notLabel = nl}
 subₖ σ (lab x) = lab x

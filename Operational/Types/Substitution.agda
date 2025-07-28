@@ -11,7 +11,7 @@ open import Rome.Operational.Types.Renaming
 -- Type-in-Type Substitution
 
 Substitutionₖ : KEnv → KEnv → Set
-Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → Type Δ₂ κ
+Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)

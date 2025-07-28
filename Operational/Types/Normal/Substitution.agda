@@ -20,7 +20,7 @@ open import Rome.Operational.Types.Equivalence.Relation
 -- Normality preserving Type Substitution
 
 SubstitutionₖNF : KEnv → KEnv → Set
-SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → KVar Δ₁ κ → NormalType Δ₂ κ
+SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → NormalType Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)

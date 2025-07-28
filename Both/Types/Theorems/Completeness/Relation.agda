@@ -1,22 +1,22 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Theorems.Completeness.Relation where
+module Rome.Both.Types.Theorems.Completeness.Relation where
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Properties.Renaming
-open import Rome.Operational.Types.Properties.Substitution
-open import Rome.Operational.Types.Renaming
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Properties.Renaming
+open import Rome.Both.Types.Properties.Substitution
+open import Rome.Both.Types.Renaming
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Properties.Renaming as NTypeProps
-open import Rome.Operational.Types.Semantic.Syntax
-open import Rome.Operational.Types.Semantic.Renaming
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
+open import Rome.Both.Types.Normal.Properties.Renaming as NTypeProps
+open import Rome.Both.Types.Semantic.Syntax
+open import Rome.Both.Types.Semantic.Renaming
+open import Rome.Both.Types.Semantic.NBE
 
 --------------------------------------------------------------------------------
 -- Completeness of type normalization
@@ -82,7 +82,7 @@ UniformNE {Δ₁} {κ₁} {κ₂} F =
 -- Pointwise PER for environments
 
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+Env-≋ η₁ η₂ = ∀ {κ} (x : TVar _ κ) → (η₁ x) ≋ (η₂ x)
 
 -- extension
 extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 

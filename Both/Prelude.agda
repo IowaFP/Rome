@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Prelude where
+module Rome.Both.Prelude where
 
 open import Agda.Primitive public
 
@@ -37,8 +37,13 @@ open import Data.List.Relation.Unary.Any.Properties hiding (map-id ; map-cong ; 
 open import Data.List.Membership.Propositional using (_∈_ ; _∉_ ) public
 import Data.Vec as Vec using (Vec; tabulate)
 open Vec public
+import Data.Unit.Polymorphic as PUnit renaming (⊤ to ⊤' ; tt to tt') 
+open PUnit using (⊤' ; tt') public
 
 Label = String
+
+data Label' {ι} : Set ι where 
+  # : Label → Label'
 
 open import Function using (_∘_) public
 open import Relation.Binary.PropositionalEquality as Eq 

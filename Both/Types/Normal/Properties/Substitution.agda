@@ -1,34 +1,34 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Normal.Properties.Substitution where
+module Rome.Both.Types.Normal.Properties.Substitution where
 
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Substitution
-open import Rome.Operational.Types.Properties.Substitution
-open import Rome.Operational.Types.Properties.Renaming
-open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Substitution
+open import Rome.Both.Types.Properties.Substitution
+open import Rome.Both.Types.Properties.Renaming
+open import Rome.Both.Types.Renaming
+open import Rome.Both.Types.Equivalence.Relation
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Normal.Substitution
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
+open import Rome.Both.Types.Normal.Substitution
 
-open import Rome.Operational.Types.Normal.Properties.Renaming
-open import Rome.Operational.Types.Equivalence.Properties
+open import Rome.Both.Types.Normal.Properties.Renaming
+open import Rome.Both.Types.Equivalence.Properties
 
-open import Rome.Operational.Types.Semantic.Syntax
-open import Rome.Operational.Types.Semantic.NBE
-open import Rome.Operational.Types.Semantic.Renaming
+open import Rome.Both.Types.Semantic.Syntax
+open import Rome.Both.Types.Semantic.NBE
+open import Rome.Both.Types.Semantic.Renaming
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Both.Types.Theorems.Completeness
+open import Rome.Both.Types.Theorems.Soundness
 
-open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Both.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- Membership is preserved by substitution
@@ -111,7 +111,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
 --------------------------------------------------------------------------------
 -- Substitution over a variable substitutes the variable
 
-subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) → 
+subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : TVar Δ₁ κ) → 
               subₖNF σ (idSubst x) ≡ σ x
 subₖNF-var {κ = κ} σ x = trans
   (reify-≋ (fundC {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
@@ -120,7 +120,7 @@ subₖNF-var {κ = κ} σ x = trans
       eq-refl)))
   (stability (σ x))
 
-subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : KVar Δ₁ κ) {g : True (ground? κ)} → 
+subₖNF-var-ground   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : TVar Δ₁ κ) {g : True (ground? κ)} → 
                       subₖNF σ (ne (` x) {g}) ≡ σ x
 subₖNF-var-ground σ x {g} = stability (σ x)                      
 
@@ -128,7 +128,7 @@ subₖNF-var-ground σ x {g} = stability (σ x)
 -- Congruence of normality preserving substitution
 
 subₖNF-cong : {σ₁ : SubstitutionₖNF Δ₁ Δ₂}{σ₂ : SubstitutionₖNF Δ₁ Δ₂} →
-              (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : NormalType Δ₁ κ) → subₖNF σ₁ τ ≡ subₖNF σ₂ τ
 subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ = 
   cong ⇓ (subₖ-cong (cong ⇑ ∘ peq) (⇑ τ))      
@@ -261,7 +261,7 @@ weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} | c = c
 -- Liftsₖ and liftsₖNF fusion under ≡t
 
 liftsₖ-liftsₖNF≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} → 
-                   ∀ (x : KVar (Δ₁ ,, κ₁) κ) →
+                   ∀ (x : TVar (Δ₁ ,, κ₁) κ) →
                     liftsₖ (⇑ ∘ σ) x ≡t (⇑ ∘ liftsₖNF σ) x
 liftsₖ-liftsₖNF≡t Z = eq-sym ((η-norm-≡t (` Z)))
 liftsₖ-liftsₖNF≡t {σ = σ} (S x) = inst (sym (↻-ren-⇑ S (σ x)))

@@ -1,31 +1,31 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Theorems.Soundness.Relation where
+module Rome.Both.Types.Theorems.Soundness.Relation where
 
-open import Rome.Operational.Prelude
+open import Rome.Both.Prelude
 
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Substitution
-open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Properties.Renaming
-open import Rome.Operational.Types.Properties.Substitution
-open import Rome.Operational.Types.Equivalence.Properties
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Substitution
+open import Rome.Both.Types.Renaming
+open import Rome.Both.Types.Properties.Renaming
+open import Rome.Both.Types.Properties.Substitution
+open import Rome.Both.Types.Equivalence.Properties
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming 
-open import Rome.Operational.Types.Normal.Properties.Renaming
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming 
+open import Rome.Both.Types.Normal.Properties.Renaming
 
-open import Rome.Operational.Types.Semantic.Syntax
-open import Rome.Operational.Types.Semantic.Renaming
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Both.Types.Semantic.Syntax
+open import Rome.Both.Types.Semantic.Renaming
+open import Rome.Both.Types.Semantic.NBE
 
 
-open import Rome.Operational.Types.Equivalence.Relation
-open import Rome.Operational.Types.Equivalence.Properties
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Both.Types.Equivalence.Relation
+open import Rome.Both.Types.Equivalence.Properties
+open import Rome.Both.Types.Theorems.Completeness
+open import Rome.Both.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------
 -- Soundness of type normalization: 
@@ -291,7 +291,7 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁)
 -- Relating syntactic substitutions to semantic environments
  
 ⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
-⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 -- Identity relation
 idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
@@ -321,7 +321,7 @@ weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)
 --  Substituting syntactic substitutions in related environments
 
 substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
-             (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
+             (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x

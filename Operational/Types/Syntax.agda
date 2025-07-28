@@ -43,7 +43,7 @@ data Pred Ty Δ where
 data Type Δ where
 
   ` : 
-      (α : KVar Δ κ) →
+      (α : TVar Δ κ) →
       --------
       Type Δ κ
 

@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Normal.Syntax where
+module Rome.Both.Types.Normal.Syntax where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming using (liftₖ ; Renamingₖ)
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming using (liftₖ ; Renamingₖ)
 
 
 
@@ -30,7 +30,7 @@ notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow
 
 data NeutralType Δ : Kind → Set where
   ` : 
-      (α : KVar Δ κ) → 
+      (α : TVar Δ κ) → 
       ---------------------------
       NeutralType Δ κ
 
@@ -299,7 +299,7 @@ mapPred-id (ρ₁ ≲ ρ₂) = refl
 --------------------------------------------------------------------------------
 -- Injectivity lemmas for all the NormalType syntax
 
-inj-` : ∀ {α β : KVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
+inj-` : ∀ {α β : TVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
 inj-` refl = refl
 
 inj-· : ∀ {f₁ f₂ : NeutralType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : NormalType Δ κ₁} → 

@@ -1,12 +1,12 @@
-{-# OPTIONS --safe #-}
-module Rome.Operational.Types.Properties.Renaming where
+-- {-# OPTIONS --safe #-}
+module Rome.Both.Types.Properties.Renaming where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Renaming
-open import Rome.Operational.Types.Substitution
+open import Rome.Both.Prelude
+open import Rome.Both.Kinds.Syntax
+open import Rome.Both.Kinds.GVars
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
+open import Rome.Both.Types.Substitution
 
 --------------------------------------------------------------------------------
 -- Renaming commutes over complement
@@ -34,17 +34,17 @@ renRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (renRowₖ-∈L r l ev)
 -- lifting respects congruence, identities, and composition.
 --
 
-liftₖ-id : ∀ (x : KVar (Δ ,, κ₂) κ₁) → liftₖ id x ≡ x
+liftₖ-id : ∀ (x : TVar (Δ ,, κ₂) κ₁) → liftₖ id x ≡ x
 liftₖ-id Z = refl
 liftₖ-id (S x) = refl
 
 liftₖ-comp : ∀ (r₁ : Renamingₖ Δ₁ Δ₂) (r₂ : Renamingₖ Δ₂ Δ₃) → 
-            ∀ (x : KVar (Δ₁ ,, κ₂) κ₁) → liftₖ (r₂ ∘ r₁) x ≡ liftₖ r₂ (liftₖ r₁ x)
+            ∀ (x : TVar (Δ₁ ,, κ₂) κ₁) → liftₖ (r₂ ∘ r₁) x ≡ liftₖ r₂ (liftₖ r₁ x)
 liftₖ-comp r₁ r₂ Z = refl
 liftₖ-comp r₁ r₂ (S x) = refl
 
 liftₖ-cong : ∀ {r₁ r₂ : Renamingₖ Δ₁ Δ₂} → (r₁ ≈ r₂) → 
-              (x : KVar (Δ₁ ,, κ₂) κ) → liftₖ r₁ x ≡ liftₖ r₂ x
+              (x : TVar (Δ₁ ,, κ₂) κ) → liftₖ r₁ x ≡ liftₖ r₂ x
 liftₖ-cong eq Z = refl
 liftₖ-cong eq (S x) = cong S (eq x)
 
