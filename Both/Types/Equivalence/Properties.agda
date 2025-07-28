@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Equivalence.Properties where
 
 open import Rome.Both.Prelude
@@ -19,9 +19,9 @@ open import Rome.Both.Types.Properties.Substitution
 
 renₖ-≡t : ∀ {τ υ : Type Δ₁ κ} (ρ : Renamingₖ Δ₁ Δ₂) → 
                 τ ≡t υ → renₖ ρ τ ≡t renₖ ρ υ 
-renₖ-≡p : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} (ρ : Renamingₖ Δ₁ Δ₂) → 
+renₖ-≡p : ∀ {π₁ π₂ : Pred (Type Δ₁ R[ κ ])} (ρ : Renamingₖ Δ₁ Δ₂) → 
                 π₁ ≡p π₂ → renPredₖ ρ π₁ ≡p renPredₖ ρ π₂
-renₖ-≡r : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} (r : Renamingₖ Δ₁ Δ₂) → 
+renₖ-≡r : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ₁ κ)} (r : Renamingₖ Δ₁ Δ₂) → 
                 ρ₁ ≡r ρ₂ → renRowₖ r ρ₁ ≡r renRowₖ r ρ₂
 
 renₖ-≡t {τ = τ} {υ} ρ eq-refl = eq-refl
@@ -29,7 +29,7 @@ renₖ-≡t {τ = τ} {υ} ρ (eq-sym e) = eq-sym (renₖ-≡t ρ e)
 renₖ-≡t {τ = τ} {υ} ρ (eq-trans e e₁) = eq-trans (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
 renₖ-≡t {τ = τ} {υ} ρ (eq-→ e e₁) = eq-→ (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
 renₖ-≡t {τ = τ} {υ} ρ (eq-∀ e) = eq-∀ (renₖ-≡t (liftₖ ρ) e)
-renₖ-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (renₖ-≡t ρ e)
+-- renₖ-≡t {τ = τ} {υ} ρ (eq-μ e) = eq-μ (renₖ-≡t ρ e)
 renₖ-≡t {τ = τ} {υ} ρ (eq-λ e) = eq-λ (renₖ-≡t (liftₖ ρ) e)
 renₖ-≡t {τ = τ} {υ} ρ (eq-· e e₁) = eq-· (renₖ-≡t ρ e) (renₖ-≡t ρ e₁)
 renₖ-≡t {τ = τ} {υ} ρ (eq-⌊⌋ e) = eq-⌊⌋ (renₖ-≡t ρ e)
@@ -81,8 +81,8 @@ renₖ-≡p {π₁} {π₂} ρ (eq₁ eq-· eq₂ ~ eq₃) = (renₖ-≡t ρ eq�
 -- Lifting of substitutions respects type equivalence
 
 liftsₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂} → 
-                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
-                 ∀ {κ'} (x : TVar (Δ₁ ,, κ') κ) → liftsₖ σ₁ x ≡t liftsₖ σ₂ x
+                (∀ {ι}{κ : Kind ι} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                 ∀ {ι}{κ' : Kind ι} (x : TVar (Δ₁ ,, κ') κ) → liftsₖ σ₁ x ≡t liftsₖ σ₂ x
 liftsₖ-cong-≡t c Z = eq-refl
 liftsₖ-cong-≡t c (S x) = renₖ-≡t S (c x)                 
 
@@ -90,17 +90,17 @@ liftsₖ-cong-≡t c (S x) = renₖ-≡t S (c x)
 -- Equivalent substitutions are congruent over types w.r.t. type equivalence
 
 subₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
-                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                (∀ {ι} {κ : Kind ι} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
                  (τ : Type Δ₁ κ) → subₖ σ₁ τ ≡t subₖ σ₂ τ
 subRowₖ-cong-≡t : ∀ {σ₁  σ₂ : Substitutionₖ Δ₁ Δ₂}  → 
-                (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
-                 (ρ : SimpleRow Type Δ₁ R[ κ ]) → subRowₖ σ₁ ρ ≡r subRowₖ σ₂ ρ
+                (∀ {ι} {κ : Kind ι} (x : TVar Δ₁ κ) → σ₁ x ≡t σ₂ x) → 
+                 (ρ : SimpleRow (Type Δ₁ κ)) → subRowₖ σ₁ ρ ≡r subRowₖ σ₂ ρ
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (` α) = c α
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`λ τ) = eq-λ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ · τ₁) = eq-· (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (τ `→ τ₁) = eq-→ (subₖ-cong-≡t c τ) (subₖ-cong-≡t c τ₁)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (`∀ τ)  = eq-∀ (subₖ-cong-≡t (liftsₖ-cong-≡t c) τ)
-subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (μ τ)  = eq-μ (subₖ-cong-≡t c τ)
+-- subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c (μ τ)  = eq-μ (subₖ-cong-≡t c τ)
 subₖ-cong-≡t {σ₁ = σ₁} {σ₂} c ((ρ₁ · ρ₂ ~ ρ₃) ⇒ τ) = 
     eq-⇒ 
         ((subₖ-cong-≡t c ρ₁) eq-· (subₖ-cong-≡t c ρ₂) ~ (subₖ-cong-≡t c ρ₃))
@@ -127,7 +127,7 @@ subRowₖ-cong-≡t c ((l , τ) ∷ ρ) = eq-cons refl (subₖ-cong-≡t c τ) (
 
 subₖ-≡t :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {τ₁ τ₂ : Type Δ₁ κ} → 
                   τ₁ ≡t τ₂ → subₖ σ τ₁ ≡t subₖ σ τ₂
-subₖ-≡r :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} →
+subₖ-≡r :  ∀ {σ : Substitutionₖ Δ₁ Δ₂} {ρ₁ ρ₂ : SimpleRow (Type Δ₁ κ)} →
                   ρ₁ ≡r ρ₂ → subRowₖ σ ρ₁ ≡r subRowₖ σ ρ₂
 
 
@@ -136,7 +136,7 @@ subₖ-≡t {σ} (eq-sym eq) = eq-sym (subₖ-≡t eq)
 subₖ-≡t {σ} (eq-trans eq eq₁) = eq-trans (subₖ-≡t eq) (subₖ-≡t eq₁)
 subₖ-≡t {σ} (eq-→ eq eq₁) = eq-→ (subₖ-≡t eq) (subₖ-≡t eq₁)
 subₖ-≡t {σ} (eq-∀ eq) = eq-∀ (subₖ-≡t eq)
-subₖ-≡t {σ} (eq-μ eq) = eq-μ (subₖ-≡t eq)
+-- subₖ-≡t {σ} (eq-μ eq) = eq-μ (subₖ-≡t eq)
 subₖ-≡t {σ} (eq-λ eq) = eq-λ (subₖ-≡t eq)
 subₖ-≡t {σ} (eq-· eq eq₁) = eq-· (subₖ-≡t eq) (subₖ-≡t eq₁)
 subₖ-≡t {σ} (eq-<$> eq eq₁) = eq-<$> (subₖ-≡t eq) (subₖ-≡t eq₁)
@@ -196,14 +196,14 @@ subₖ-≡r {ρ₁ = ρ₁} {ρ₂} (eq-cons l x eq) = eq-cons l (subₖ-≡t x)
 -- --------------------------------------------------------------------------------
 -- -- Properties of row equivalence
 
-eq-reflᵣ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → xs ≡r xs 
+eq-reflᵣ : ∀ (xs : SimpleRow (Type Δ κ)) → xs ≡r xs 
 eq-reflᵣ [] = eq-[]
 eq-reflᵣ (x ∷ xs) = eq-cons refl eq-refl (eq-reflᵣ xs) 
 
-eq-symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs 
+eq-symᵣ : ∀ {xs ys : SimpleRow (Type Δ κ)} → xs ≡r ys → ys ≡r xs 
 eq-symᵣ eq-[] = eq-[]
 eq-symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (eq-symᵣ eq) 
 
-eq-transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
+eq-transᵣ : ∀ {xs ys zs : SimpleRow (Type Δ κ)} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 eq-transᵣ eq-[] eq-[] = eq-[]
 eq-transᵣ (eq-cons eq-l₁ eq-hd₁ eq-tl₁) (eq-cons eq-l₂ eq-hd₂ eq-tl₂) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-hd₁ eq-hd₂) (eq-transᵣ eq-tl₁ eq-tl₂)

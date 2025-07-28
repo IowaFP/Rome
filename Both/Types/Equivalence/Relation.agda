@@ -17,7 +17,7 @@ open import Rome.Both.Types.Semantic.NBE
 
 infix 0 _≡t_
 infix 0 _≡p_
-data _≡p_ : Pred Type Δ R[ κ ] → Pred Type Δ R[ κ ] → Set
+data _≡p_ : Pred (Type Δ R[ κ ]) → Pred (Type Δ R[ κ ]) → Set
 data _≡t_ : Type Δ κ → Type Δ κ → Set 
 
 private
@@ -25,16 +25,16 @@ private
         ℓ ℓ₁ ℓ₂ ℓ₃ : Label
         l l₁ l₂ l₃ : Type Δ L
         ρ₁ ρ₂ ρ₃   : Type Δ R[ κ ]
-        π₁ π₂    : Pred Type Δ R[ κ ]
+        π₁ π₂    : Pred (Type Δ R[ κ ])
         τ τ₁ τ₂ τ₃ υ υ₁ υ₂ υ₃ : Type Δ κ 
 
-data _≡r_ : SimpleRow Type Δ R[ κ ] → SimpleRow Type Δ R[ κ ] → Set where 
+data _≡r_ : SimpleRow (Type Δ κ) → SimpleRow (Type Δ κ) → Set where 
 
   eq-[] : 
     
     _≡r_  {Δ = Δ} {κ = κ} [] []
     
-  eq-cons : {xs ys : SimpleRow Type Δ R[ κ ]} → 
+  eq-cons : {xs ys : SimpleRow (Type Δ κ)} → 
 
             ℓ₁ ≡ ℓ₂ → τ₁ ≡t τ₂ → xs ≡r ys → 
             -----------------------
@@ -91,11 +91,11 @@ data _≡t_ where
         ----------------
         `∀ τ ≡t `∀ υ
 
-    eq-μ : 
+    -- eq-μ : 
 
-        τ ≡t υ →
-        ----------------
-        μ τ ≡t μ υ
+    --     τ ≡t υ →
+    --     ----------------
+    --     μ τ ≡t μ υ
 
     eq-λ : ∀ {τ υ : Type (Δ ,, κ₁) κ₂} → 
 
@@ -127,21 +127,21 @@ data _≡t_ where
         ------------------------
         (π₁ ⇒ τ₁) ≡t (π₂ ⇒ τ₂)
 
-    eq-lab : 
+    eq-lab : ∀ {ι} → 
            
            ℓ₁ ≡ ℓ₂ →
            -------------
-           lab {Δ = Δ} ℓ₁ ≡t lab ℓ₂
+           lab {Δ = Δ} {ι = ι} ℓ₁ ≡t lab ℓ₂
     
     eq-row : 
-        ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} {oρ₁ : True (ordered? ρ₁)} 
+        ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} {oρ₁ : True (ordered? ρ₁)} 
           {oρ₂ : True (ordered? ρ₂)} → 
   
         ρ₁ ≡r ρ₂ → 
         -------------------------------------------
         ⦅ ρ₁ ⦆ oρ₁ ≡t ⦅ ρ₂ ⦆ oρ₂
 
-    eq-▹ : ∀ {l₁ l₂ : Type Δ L} {τ₁ τ₂ : Type Δ κ} → 
+    eq-▹ : ∀ {l₁ l₂ : Type Δ (L {ι})} {τ₁ τ₂ : Type Δ κ} → 
          
            l₁ ≡t l₂   →    τ₁ ≡t τ₂ → 
            ------------------------------------
@@ -177,7 +177,7 @@ data _≡t_ where
         -------------------------------------------
         (l ▹ τ) ≡t ⦅ [ (ℓ  , τ) ] ⦆ tt
 
-    eq-▹$ : ∀ {l} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
+    eq-▹$ : ∀ {κ₁ : Kind ι} {l : Type Δ (L {ι₁})} {τ : Type Δ κ₁} {F : Type Δ (κ₁ `→ κ₂)} → 
 
         ---------------------------------
         (F <$> (l ▹ τ)) ≡t (l ▹ (F · τ))
@@ -188,17 +188,17 @@ data _≡t_ where
       ------------------------------------------
       F <$> (ρ₂ ─ ρ₁) ≡t (F <$> ρ₂) ─ (F <$> ρ₁)
 
-    eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow Type Δ R[ κ₁ ]} {oρ : True (ordered? ρ)} → 
+    eq-map : ∀ {F : Type Δ (κ₁ `→ κ₂)} {ρ : SimpleRow (Type Δ κ₁)} {oρ : True (ordered? ρ)} → 
 
          -------------------------------
          F <$> (⦅ ρ ⦆ oρ) ≡t ⦅ map (map₂ (F ·_)) ρ ⦆ (fromWitness (map-map₂ ρ (F ·_) (toWitness oρ)))
 
-    eq-map-id : ∀ {κ} {τ : Type Δ R[ κ ]} → 
+    eq-map-id : ∀ {κ : Kind ι} {τ : Type Δ R[ κ ]} → 
 
         ---------------------------------------- 
         (`λ {κ₁ = κ} (` Z)) <$> τ ≡t τ
 
-    eq-map-∘ : ∀ {κ₃} {f : Type Δ (κ₂ `→ κ₃)} {g : Type Δ (κ₁ `→ κ₂)} {τ : Type Δ R[ κ₁ ]} → 
+    eq-map-∘ : ∀ {f : Type Δ (κ₂ `→ κ₃)} {g : Type Δ (κ₁ `→ κ₂)} {τ : Type Δ R[ κ₁ ]} → 
 
         ---------------------------------------- 
         (f <$> (g <$> τ))  ≡t (`λ (weakenₖ f · (weakenₖ g · (` Z)))) <$> τ 
@@ -223,7 +223,7 @@ data _≡t_ where
         ----------------------------
         (Σ {notLabel = nl} · ρ) · τ ≡t Σ {notLabel = nl} · (ρ ?? τ)
 
-    eq-compl : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} 
+    eq-compl : ∀ {xs ys : SimpleRow (Type Δ κ)} 
                  {oxs : True (ordered? xs)} {oys : True (ordered? ys)} {ozs : True (ordered? (xs ─s ys))} → 
 
                  --------------------------------------------
@@ -235,30 +235,30 @@ data _≡t_ where
 inst : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡ τ₂ → τ₁ ≡t τ₂ 
 inst refl = eq-refl
 
-instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
+instᵣ :  ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} → ρ₁ ≡ ρ₂ → ρ₁ ≡r ρ₂
 instᵣ {ρ₁ = []} refl = eq-[]
 instᵣ {ρ₁ = x ∷ ρ₁} refl = eq-cons refl eq-refl (instᵣ refl)
 
 -- -------------------------------------------------------------------------------
 -- -- ≡r forms an equivalence relation
 
-reflᵣ : ∀ {xs : SimpleRow Type Δ R[ κ ]} → xs ≡r xs
+reflᵣ : ∀ {xs : SimpleRow (Type Δ κ)} → xs ≡r xs
 reflᵣ {xs = []} = eq-[]
 reflᵣ {xs = x ∷ xs} = eq-cons refl eq-refl reflᵣ
 
-symᵣ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r xs
+symᵣ : ∀ {xs ys : SimpleRow (Type Δ κ)} → xs ≡r ys → ys ≡r xs
 symᵣ eq-[] = eq-[]
 symᵣ (eq-cons l x eq) = eq-cons (sym l) (eq-sym x) (symᵣ eq)
 
-transᵣ : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} → xs ≡r ys → ys ≡r zs → xs ≡r zs
+transᵣ : ∀ {xs ys zs : SimpleRow (Type Δ κ)} → xs ≡r ys → ys ≡r zs → xs ≡r zs
 transᵣ eq-[] eq-[] = eq-[]
 transᵣ (eq-cons eq-l₁ eq-τ₁ eq-xs) (eq-cons eq-l₂ eq-τ₂ eq-ys) = eq-cons (trans eq-l₁ eq-l₂) (eq-trans eq-τ₁ eq-τ₂) (transᵣ eq-xs eq-ys)
 
-∈L-≡r : ∀ {ℓ} {xs ys : SimpleRow Type Δ R[ κ ]} → ℓ ∈L xs → xs ≡r ys → ℓ ∈L ys 
+∈L-≡r : ∀ {ℓ} {xs ys : SimpleRow (Type Δ κ)} → ℓ ∈L xs → xs ≡r ys → ℓ ∈L ys 
 ∈L-≡r Here (eq-cons refl x₂ eq) = Here
 ∈L-≡r (There l∈xs) (eq-cons refl x₂ eq) = There (∈L-≡r l∈xs eq)
 
-cong-─s : ∀ {xs₂ xs₁ ys₂ ys₁ : SimpleRow Type Δ R[ κ ]} → xs₂ ≡r ys₂ → xs₁ ≡r ys₁ → (xs₂ ─s xs₁) ≡r (ys₂ ─s ys₁)
+cong-─s : ∀ {xs₂ xs₁ ys₂ ys₁ : SimpleRow (Type Δ κ)} → xs₂ ≡r ys₂ → xs₁ ≡r ys₁ → (xs₂ ─s xs₁) ≡r (ys₂ ─s ys₁)
 cong-─s eq-[] eq₁ = eq-[]
 cong-─s {xs₁ = xs₁} {ys₁ = ys₁} (eq-cons {ℓ₁ = ℓ₁} refl eq-τ eq-xs) eq₁ with ℓ₁ ∈L? xs₁ | ℓ₁ ∈L? ys₁ 
 ... | yes p | yes q = cong-─s eq-xs eq₁

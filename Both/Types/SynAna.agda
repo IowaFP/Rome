@@ -22,11 +22,11 @@ open import Rome.Both.Containment
 --------------------------------------------------------------------------------
 -- The types of the bodies of syn and ana
 
-SynT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★
-SynT {κ = κ} ρ φ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
+SynT : {κ : Kind ι₁} → Type Δ R[ κ ] → Type Δ (κ `→ (★ {ι₂})) → Type Δ ★
+SynT {ι₁ = ι₁} {ι₂ = ι₂} {κ = κ} ρ φ = `∀ {κ = (L {ι₂})}  (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z))))
 
-AnaT : Type Δ R[ κ ] → Type Δ (κ `→ ★) → Type Δ ★ → Type Δ ★
-AnaT {κ = κ} ρ φ τ = `∀ (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
+AnaT : {κ : Kind ι₁} → Type Δ R[ κ ] → Type Δ (κ `→ (★ {ι₂})) → Type Δ (★ {ι₃}) → Type Δ ★
+AnaT {ι₂ = ι₂} {κ = κ} ρ φ τ = `∀ {κ = (L {ι₂})} (`∀ {κ = κ} (((` (S Z) ▹ ` Z) ≲ (weakenₖ (weakenₖ ρ))) ⇒ (⌊ ` (S Z) ⌋ `→ (weakenₖ (weakenₖ φ) · ` Z) `→ weakenₖ (weakenₖ τ))))
 
 --------------------------------------------------------------------------------
 -- SynT and AnaT respects type equality
