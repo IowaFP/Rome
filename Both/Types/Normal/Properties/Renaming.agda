@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Normal.Properties.Renaming where
 
 open import Rome.Both.Prelude
@@ -17,7 +17,7 @@ open import Rome.Both.Types.Normal.Renaming
 --------------------------------------------------------------------------------
 -- Membership is preserved by renaming
 
-∈-renₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow NormalType Δ₁ R[ κ ]} → 
+∈-renₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow (NormalType Δ₁ κ)} → 
              (r : Renamingₖ Δ₁ Δ₂) → 
              (l , τ) ∈ xs → (l , renₖNF r τ) ∈ renRowₖNF r xs
 ∈-renₖNF r (here refl) = here refl
@@ -32,7 +32,7 @@ renₖNE-cong :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ�
 renₖNF-cong    :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
                 (τ : NormalType Δ₁ κ) → renₖNF ρ₁ τ ≡ renₖNF ρ₂ τ
 renₖNF-cong-row    :  ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
-                (ρ : SimpleRow NormalType Δ₁ R[ κ ]) → renRowₖNF ρ₁ ρ ≡ renRowₖNF ρ₂ ρ
+                (ρ : SimpleRow (NormalType Δ₁ κ)) → renRowₖNF ρ₁ ρ ≡ renRowₖNF ρ₂ ρ
 renₖNF-cong-pred : ∀ {ρ₁ ρ₂ : Renamingₖ Δ₁ Δ₂} →  ρ₁ ≈ ρ₂ → 
                 (r : NormalPred Δ₁ R[ κ ]) → renPredₖNF ρ₁ r ≡ renPredₖNF ρ₂ r
 
@@ -55,7 +55,7 @@ renₖNF-cong eq (π ⇒ τ) rewrite
   | renₖNF-cong eq τ = refl  
 renₖNF-cong eq (`∀ τ) rewrite 
   renₖNF-cong (liftₖ-cong eq) τ = refl 
-renₖNF-cong eq (μ τ) rewrite renₖNF-cong eq τ = refl
+-- renₖNF-cong eq (μ τ) rewrite renₖNF-cong eq τ = refl
 renₖNF-cong eq (lab x) = refl
 renₖNF-cong eq ⌊ τ ⌋ rewrite renₖNF-cong eq τ = refl
 renₖNF-cong eq (Π x) rewrite renₖNF-cong eq x = refl
@@ -78,7 +78,7 @@ renₖNF-cong-row eq ((l , τ) ∷ ρ) rewrite
 -- Renamingₖ preserves identities (functor law #1)
 renₖNF-id    : ∀ (τ : NormalType Δ κ) → renₖNF id τ ≡ τ
 renₖNE-id : ∀ (τ : NeutralType Δ κ) → renₖNE id τ ≡ τ
-renₖNF-id-row : ∀ (r : SimpleRow NormalType Δ R[ κ ]) → renRowₖNF id r ≡ r
+renₖNF-id-row : ∀ (r : SimpleRow (NormalType Δ κ)) → renRowₖNF id r ≡ r
 renₖNF-id-pred : ∀ (τ : NormalPred Δ R[ κ ]) → renPredₖNF id τ ≡ τ
 
 -- renₖNF-id-row (l ▹ τ) rewrite renₖNF-id l | renₖNF-id τ  = refl
@@ -101,7 +101,7 @@ renₖNF-id (π ⇒ τ) rewrite
 renₖNF-id (`∀ τ) rewrite 
     renₖNF-cong liftₖ-id τ 
   | renₖNF-id τ = refl
-renₖNF-id (μ τ) rewrite renₖNF-id τ = refl
+-- renₖNF-id (μ τ) rewrite renₖNF-id τ = refl
 -- renₖNF-id ε = refl
 renₖNF-id (lab x) = refl
 renₖNF-id ⌊ τ ⌋ rewrite renₖNF-id τ = refl
@@ -128,7 +128,7 @@ renₖNF-comp     : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ �
 renₖNE-comp  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
                 (τ : NeutralType Δ₁ κ) → renₖNE (ρ₂ ∘ ρ₁) τ ≡ renₖNE ρ₂ (renₖNE ρ₁ τ)
 renₖNF-comp-row :  ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
-                  (r : SimpleRow NormalType Δ₁ R[ κ ]) → renRowₖNF (ρ₂ ∘ ρ₁) r ≡ renRowₖNF ρ₂ (renRowₖNF ρ₁ r)
+                  (r : SimpleRow (NormalType Δ₁ κ)) → renRowₖNF (ρ₂ ∘ ρ₁) r ≡ renRowₖNF ρ₂ (renRowₖNF ρ₁ r)
 renₖNF-comp-pred :  ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) → 
                   (π : NormalPred Δ₁ R[ κ ]) → renPredₖNF (ρ₂ ∘ ρ₁) π ≡ renPredₖNF ρ₂ (renPredₖNF ρ₁ π)
 
@@ -148,7 +148,7 @@ renₖNF-comp ρ₁ ρ₂ (π ⇒ τ) rewrite
   | renₖNF-comp ρ₁ ρ₂ τ = refl  
 renₖNF-comp ρ₁ ρ₂ (`∀ τ) rewrite
   (trans (renₖNF-cong (liftₖ-comp ρ₁ ρ₂) τ) (renₖNF-comp (liftₖ ρ₁) (liftₖ ρ₂) τ)) = refl
-renₖNF-comp ρ₁ ρ₂ (μ τ) rewrite renₖNF-comp ρ₁ ρ₂ τ = refl
+-- renₖNF-comp ρ₁ ρ₂ (μ τ) rewrite renₖNF-comp ρ₁ ρ₂ τ = refl
 -- renₖNF-comp ρ₁ ρ₂ ε = refl
 renₖNF-comp ρ₁ ρ₂ (lab x) = refl 
 renₖNF-comp ρ₁ ρ₂ ⌊ τ ⌋ rewrite renₖNF-comp ρ₁ ρ₂ τ = refl 
@@ -171,14 +171,14 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ
 --------------------------------------------------------------------------------
 -- Weakening commutes with renaming
 
-↻-weakenₖNF-renₖNF  : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
+↻-weakenₖNF-renₖNF  : ∀ {κ' : Kind ι} (ρ : Renamingₖ Δ₁ Δ₂) (τ : NormalType Δ₁ κ) → 
                 renₖNF (liftₖ {κ = κ'} ρ) (renₖNF S τ) ≡ renₖNF S (renₖNF ρ τ)
 ↻-weakenₖNF-renₖNF  {κ' = κ'} ρ τ 
   rewrite 
     sym (renₖNF-comp (S {κ₂ = κ'}) (liftₖ ρ) τ) 
   | renₖNF-comp ρ (S {κ₂ = κ'}) τ = refl
 
-↻-weakenPredₖNF-renPredₖNF  : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) (π : NormalPred Δ₁ R[ κ ]) → 
+↻-weakenPredₖNF-renPredₖNF  : ∀ {κ' : Kind ι} (ρ : Renamingₖ Δ₁ Δ₂) (π : NormalPred Δ₁ R[ κ ]) → 
                 renPredₖNF (liftₖ {κ = κ'} ρ) (renPredₖNF S π) ≡ renPredₖNF S (renPredₖNF ρ π)
 ↻-weakenPredₖNF-renPredₖNF {κ' = κ'} ρ (ρ₁ · ρ₂ ~ ρ₃) 
   rewrite 
@@ -196,7 +196,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ
 -- postulate 
 ↻-ren-⇑ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ κ) → 
           ⇑ (renₖNF ρ τ) ≡ renₖ ρ (⇑ τ)
-↻-ren-⇑Row : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : SimpleRow NormalType Δ₁ R[ κ ]) → 
+↻-ren-⇑Row : ∀ (r : Renamingₖ Δ₁ Δ₂) → (ρ : SimpleRow (NormalType Δ₁ κ)) → 
           ⇑Row (renRowₖNF r ρ) ≡ renRowₖ r (⇑Row ρ)
 ↻-ren-⇑NE : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NeutralType Δ₁ κ) → 
           ⇑NE (renₖNE ρ τ) ≡ renₖ ρ (⇑NE τ)
@@ -208,7 +208,7 @@ renₖNF-comp-row r₁ r₂ ((l , τ) ∷ ρ) rewrite renₖNF-comp r₁ r₂ τ
 ↻-ren-⇑ ρ (`λ τ) = cong `λ (↻-ren-⇑ (liftₖ ρ) τ)
 ↻-ren-⇑ ρ (τ₁ `→ τ₂) = cong₂ _`→_ (↻-ren-⇑ ρ τ₁) (↻-ren-⇑ ρ τ₂) 
 ↻-ren-⇑ ρ (`∀ τ) = cong (`∀) (↻-ren-⇑ (liftₖ ρ) τ)
-↻-ren-⇑ ρ (μ τ) = cong μ (↻-ren-⇑ ρ τ)
+-- ↻-ren-⇑ ρ (μ τ) = cong μ (↻-ren-⇑ ρ τ)
 ↻-ren-⇑ ρ (π ⇒ τ) = cong₂ _⇒_ (↻-ren-⇑Pred ρ π) (↻-ren-⇑ ρ τ)
 ↻-ren-⇑ ρ (lab l) = refl
 ↻-ren-⇑ ρ ⌊ τ ⌋ = cong ⌊_⌋ (↻-ren-⇑ ρ τ)

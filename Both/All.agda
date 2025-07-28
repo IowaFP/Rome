@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Rome.Both.All where 
 
 --------------------------------------------------------------------------------
@@ -11,7 +10,6 @@ open import Rome.Both.Prelude
 -- Kinds 
 
 open import Rome.Both.Kinds.Syntax
-open import Rome.Both.Kinds.Decidability
 open import Rome.Both.Kinds.GVars 
 
 --------------------------------------------------------------------------------
@@ -36,7 +34,6 @@ open import Rome.Both.Types.Normal.Renaming
 open import Rome.Both.Types.Normal.Substitution
 open import Rome.Both.Types.Normal.Syntax
 
-open import Rome.Both.Types.Normal.Properties.Decidability
 open import Rome.Both.Types.Normal.Properties.Renaming
 open import Rome.Both.Types.Normal.Properties.Substitution
 

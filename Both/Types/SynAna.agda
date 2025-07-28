@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Rome.Both.Types.SynAna where
 
 open import Rome.Both.Prelude

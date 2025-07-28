@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Rome.Both.Types.Normal.Renaming where
 
 open import Rome.Both.Prelude
@@ -15,10 +14,10 @@ open import Rome.Both.Types.Normal.Syntax
 
 renₖNE   : Renamingₖ Δ₁ Δ₂ → NeutralType Δ₁ κ → NeutralType Δ₂ κ
 renₖNF     : Renamingₖ Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
-renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
+renRowₖNF : Renamingₖ Δ₁ Δ₂ → SimpleRow (NormalType Δ₁ κ) → SimpleRow (NormalType Δ₂ κ)
 renPredₖNF : Renamingₖ Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
 
-orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow NormalType Δ₁ R[ κ ]) → NormalOrdered xs → 
+orderedRenRowₖNF : (r : Renamingₖ Δ₁ Δ₂) → (xs : SimpleRow (NormalType Δ₁ κ)) → NormalOrdered xs → 
                  NormalOrdered (renRowₖNF r xs)
 
 nsrRenₖNF : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ₁ ρ₂ : NormalType Δ₁ R[ κ ]) → NotSimpleRow ρ₂ or NotSimpleRow ρ₁ → 
@@ -34,7 +33,7 @@ renₖNF ρ (`λ τ) = `λ (renₖNF (liftₖ ρ) τ)
 renₖNF ρ (τ₁ `→ τ₂) = (renₖNF ρ τ₁) `→ (renₖNF ρ τ₂)
 renₖNF ρ (π ⇒ τ) = renPredₖNF ρ π ⇒ renₖNF ρ τ
 renₖNF ρ (`∀ τ) = `∀ (renₖNF (liftₖ ρ) τ)
-renₖNF ρ (μ τ) = μ (renₖNF ρ τ)
+-- renₖNF ρ (μ τ) = μ (renₖNF ρ τ)
 renₖNF ρ (lab x) = lab x
 renₖNF ρ ⌊ ℓ ⌋ = ⌊ (renₖNF ρ ℓ) ⌋
 renₖNF ρ (Π τ) = Π (renₖNF ρ τ)
@@ -62,7 +61,7 @@ orderedRenRowₖNF r [] oxs = tt
 orderedRenRowₖNF r ((l , τ) ∷ []) oxs = tt
 orderedRenRowₖNF r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedRenRowₖNF r ((l₂ , υ) ∷ xs) oxs
 
-renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow NormalType Δ₁ R[ κ ]) → 
+renRowₖNF-isMap : ∀ (r : Renamingₖ Δ₁ Δ₂) (xs : SimpleRow (NormalType Δ₁ κ)) → 
                   renRowₖNF r xs ≡ map (map₂ (renₖNF r)) xs 
 renRowₖNF-isMap r [] = refl
 renRowₖNF-isMap r (x ∷ xs) = cong₂ _∷_ refl (renRowₖNF-isMap r xs)

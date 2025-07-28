@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Rome.Both.Types.Equivalence.Relation where
 
 open import Rome.Both.Prelude

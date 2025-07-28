@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Rome.Both.Types.Semantic.Syntax where
 
 open import Data.Product using (_×_ ; _,_)
@@ -34,16 +33,16 @@ OrderedRow (n , P) = OrderedRow' n P
 --------------------------------------------------------------------------------
 -- Defining SemType Δ R[ κ ]
 
-data RowType (Δ : KEnv) (𝒯 : KEnv → Set) : Kind → Set 
-NotRow : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → RowType Δ 𝒯 R[ κ ] → Set 
-notRows? : ∀ {Δ : KEnv} {𝒯 : KEnv → Set} → (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → Dec (NotRow ρ₂ or NotRow ρ₁)
+data RowType (Δ : KEnv ι₁) (𝒯 : ∀ {ι} → KEnv ι → Set) : Kind ι₂ → Set 
+NotRow : ∀ {Δ : KEnv ι₁} {𝒯 : ∀ {ι} → KEnv ι → Set} → RowType Δ 𝒯 R[ κ ] → Set 
+notRows? : ∀ {Δ : KEnv ι₁} {𝒯 : ∀ {ι} → KEnv ι → Set} → (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → Dec (NotRow ρ₂ or NotRow ρ₁)
 
 data RowType Δ 𝒯 where
-  _<$>_ : (φ : ∀ {Δ'} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
+  _<$>_ : (φ : ∀ {ι} {Δ' : KEnv ι} → Renamingₖ Δ Δ' → NeutralType Δ' κ₁ → 𝒯 Δ') → 
           NeutralType Δ R[ κ₁ ] → 
           RowType Δ 𝒯 R[ κ₂ ]
 
-  _▹_ : NeutralType Δ L → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
+  _▹_ : NeutralType Δ (L {ι}) → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
@@ -66,19 +65,19 @@ notRows? (row ρ x) (φ <$> τ) = yes (right tt)
 --------------------------------------------------------------------------------
 -- Defining Semantic types
 
-SemType : KEnv → Kind → Set
-SemType Δ ★ = NormalType Δ ★
-SemType Δ L = NormalType Δ L
-SemType Δ₁ (κ₁ `→ κ₂) = (∀ {Δ₂} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
+SemType : KEnv ι₁ → Kind ι₂ → Set
+SemType Δ κ@(★ {ι}) = NormalType Δ κ
+SemType Δ κ@(L) = NormalType Δ κ
+SemType Δ₁ (κ₁ `→ κ₂) = (∀ {ι}{Δ₂ : KEnv ι} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
 
 --------------------------------------------------------------------------------
 -- aliases
 
-KripkeFunction : KEnv → Kind → Kind → Set
-KripkeFunctionNE : KEnv → Kind → Kind → Set
-KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
-KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {Δ₂} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunction : KEnv ι₁ → Kind ι₂ → Kind ι₃ → Set
+KripkeFunctionNE : KEnv ι₁ → Kind ι₂ → Kind ι₃ → Set
+KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {ι}{Δ₂ : KEnv ι} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
+KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {ι}{Δ₂ : KEnv ι} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
 --------------------------------------------------------------------------------
 -- Truncating a row preserves ordering

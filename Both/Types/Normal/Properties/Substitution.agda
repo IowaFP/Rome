@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Normal.Properties.Substitution where
 
 
