@@ -10,8 +10,8 @@ open import Rome.Both.Types.Renaming
 --------------------------------------------------------------------------------
 -- Type-in-Type Substitution
 
-Substitutionₖ : KEnv → KEnv → Set
-Substitutionₖ Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → Type Δ₂ κ
+Substitutionₖ : KEnv ι₁ → KEnv ι₂ → Set
+Substitutionₖ Δ₁ Δ₂ = ∀ {ι}{κ : Kind ι} → TVar Δ₁ κ → Type Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ(Δ₁ ,, κ) (Δ₂ ,, κ)
@@ -21,9 +21,9 @@ liftsₖ σ (S x) = weakenₖ (σ x)
 -- This is simultaneous substitution: Given subst σ and type τ, we replace *all*
 -- variables in τ with the types mapped to by σ.
 subₖ : Substitutionₖ Δ₁ Δ₂ → Type Δ₁ κ → Type Δ₂ κ
-subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred Type Δ₁ κ → Pred Type Δ₂ κ
-subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow Type Δ₁ R[ κ ] → SimpleRow Type Δ₂ R[ κ ]
-orderedSubRowₖ : (σ : Substitutionₖ Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ]) → Ordered xs → 
+subPredₖ : Substitutionₖ Δ₁ Δ₂ → Pred (Type Δ₁ κ) → Pred (Type Δ₂ κ)
+subRowₖ : Substitutionₖ Δ₁ Δ₂ → SimpleRow (Type Δ₁ κ) → SimpleRow (Type Δ₂ κ)
+orderedSubRowₖ : (σ : Substitutionₖ Δ₁ Δ₂) → (xs : SimpleRow (Type Δ₁ κ)) → Ordered xs → 
                  Ordered (subRowₖ σ xs)
 -- subₖ σ ε = ε
 subₖ σ (` x) = σ x
@@ -48,7 +48,7 @@ orderedSubRowₖ r [] oxs = tt
 orderedSubRowₖ r ((l , τ) ∷ []) oxs = tt
 orderedSubRowₖ r ((l₁ , τ) ∷ (l₂ , υ) ∷ xs) (l₁<l₂ , oxs) = l₁<l₂ , orderedSubRowₖ r ((l₂ , υ) ∷ xs) oxs
 
-subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow Type Δ₁ R[ κ ]) → 
+subRowₖ-isMap : ∀ (σ : Substitutionₖ Δ₁ Δ₂) (xs : SimpleRow (Type Δ₁ κ)) → 
                   subRowₖ σ xs ≡ map (map₂ (subₖ σ)) xs
 
 subRowₖ-isMap σ [] = refl
