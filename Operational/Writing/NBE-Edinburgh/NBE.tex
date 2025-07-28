@@ -551,11 +551,17 @@ KripkeFunction Delta_1  kappa_1  kappa_2 =  forall {Delta_2} ->
   Renaming Delta_1  Delta_2 -> SemType Delta_2  kappa_1 -> SemType Delta_2  kappa_2
 \end{agda}
 
-The first three equations of \cref{fig:SemType} can be attributed to \citet{ChapmanKNW19}, with the mild deviation that we do not permit type-functions to appear as neutral types. (This is unnecessary in a system, such as ours, with $\eta$-expansion.) Novel to our development is the interpretation of row-kinded types (lines 5-6). First, we define the interpretation of row literals as finitely indexed maps to label-type pairs. (Here the type !Label! is a synonym for !String!, but could be any type with decidable equality and a strict total-order.)
+The first three equations of \cref{fig:SemType} can be attributed to \citet{ChapmanKNW19}, with the mild deviation that we do not permit type-functions to appear as neutral types. (This is unnecessary in a system, such as ours, with $\eta$-expansion.) Novel to our development is the interpretation of row-kinded types (lines 5-6). First, we define the interpretation of row literals as finitely indexed maps to label-type pairs. (Here the type !Label! is a synonym for !String!, but could be any type with decidable equality and a strict total-order.) We define smart constructors for the empty row !emptyRow! and cons cases. 
 
 \begin{agda} 
 Row : Set -> Set
 Row A = exists[ n ](Fin n -> Label times A)
+
+emptyRow : Row A
+emptyRow = 0 , \ ()
+_;;_ : A -> Row A -> Row A 
+a ;; (n , P) = suc n , \ { fzero -> a
+                         ; fsuc i -> P i }
 \end{agda}
 
 \Ni Next, we define a !RowType! inductively as one of four cases in \cref{fig:semantic-rows}. A semantic row is either: a row literal constructed by !row!, a neutral-labeled row singleton constructed by !_:=_!, an inert map constructed by !_.map._!, or an inert row complement constructed by !_COMPL_!.
@@ -695,7 +701,7 @@ phi_1 .map.' (phi_2 .map. n) = (\ r -> phi_1 r . phi_2 r) .map. n
 \label{fig:semantic-mapping}
 \end{figure}
 
-\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). We proceed by induction on the length of the left-hand row: when the left-hand row is empty, the resulting row is the empty row !0 , \ ()! (line 5). (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the label of the head entry in !P!, !P fzero .fst!, is in the right-hand row (line 6). If so, we omit it and proceed with recursion (line 7). If not, we retain it (lines 8-9).
+\subsubsection{Semantic complement} The complement of two row-kinded semantic types is always inert when one (or both) are not row literals, and thus constructed simply by the !_COMPL_! constructor. The interesting case is when we must reduce two row literals to another row literal (\cref{fig:semantic-complement}). We proceed by induction on the length of the left-hand row: when the left-hand row is empty, the resulting row is the empty row !0 , \ ()! (line 5). (That is to say, an empty row minus any other row is empty.) Otherwise, we check if the label of the head entry in !P!, !P fzero .fst!, is in the right-hand row (line 6). If so, we omit it and proceed with recursion (line 7). If not, we retain it (line 8).
 
 \begin{figure}
 \begin{agda}
@@ -703,11 +709,10 @@ _In?_ : Label -> Row (SemType Delta kappa) -> Bool
 
 _COMPL'_ : Row (SemType Delta kappa) -> Row (SemType Delta kappa) -> 
            Row (SemType Delta kappa)
-(zero , P) COMPL' (m , Q) = 0 , \ () 
+(zero , P) COMPL' (m , Q) = emptyRow
 (suc n , P) COMPL' (m , Q) with P fzero .fst In? Q 
 ... | true = (P . fsuc) COMPL' Q
-... | false = suc n , \ { fzero -> P fzero , 
-                          fsuc _ -> (P . fsuc) COMPL' Q }
+... | false = P fzero ;; ((P . fsuc) COMPL' Q) 
 \end{agda}
 \caption{Semantic complement}
 \label{fig:semantic-complement}
@@ -782,10 +787,9 @@ where
   evalRow : List (Label times (Type Delta_1 kappa)) -> 
             SemEnv Delta_1  Delta_2 -> 
             Row (SemType Delta_2 kappa)
-  evalRow [] eta = 0 , \ ()
-  evalRow ((ell , tau) :: rho) eta = \ { 
-    fzero  -> (ell , eval tau eta) ;
-    fsuc i -> evalRow rho eta .snd i }
+  evalRow [] eta = emptyRow
+  evalRow ((ell , tau) :: rho) eta = 
+    (ell , eval tau eta) ;; evalRow rho eta
 \end{agda}
 \caption{Evaluation}
 \label{fig:evaluation}
