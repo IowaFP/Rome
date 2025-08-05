@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Rome.Both.Types.Theorems.Completeness.Commutativity where
+module Rome.Both.Types.Theorems.Soundness.Commutativity where
 
 open import Rome.Both.Prelude
 
@@ -18,8 +18,8 @@ open import Rome.Both.Types.Normal.Properties.Renaming
 open import Rome.Both.Types.Semantic.Syntax
 open import Rome.Both.Types.Semantic.Renaming
 open import Rome.Both.Types.Semantic.NBE
-open import Rome.Both.Types.Theorems.Completeness.Relation
-open import Rome.Both.Types.Theorems.Completeness.Congruence
+open import Rome.Both.Types.Theorems.Soundness.Relation
+open import Rome.Both.Types.Theorems.Soundness.Congruence
 
 -- --------------------------------------------------------------------------------
 -- -- Renaming commutes with application.

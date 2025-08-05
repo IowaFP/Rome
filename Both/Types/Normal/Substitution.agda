@@ -12,7 +12,7 @@ open import Rome.Both.Types.Normal.Syntax
 open import Rome.Both.Types.Normal.Renaming
 open import Rome.Both.Types.Semantic.NBE
 
-open import Rome.Both.Types.Theorems.Completeness
+open import Rome.Both.Types.Theorems.Soundness
 open import Rome.Both.Types.Equivalence.Relation
 
 --------------------------------------------------------------------------------

@@ -37,10 +37,10 @@ open import Rome.Both.Types.Syntax
 --  - ⟦ τ ⟧t ≡ ⟦ ⇓ τ ⟧NF (would need functional extensionality)
 --  - if Δ ⊢ τ ≡t υ : κ then ⟦ τ ⟧t ≡ ⟦ υ ⟧t 
 -- I'm not sure if I want to let define ⟦_⟧t as the first line. Then 
--- the second line follows from completeness. Is this a cop out?
+-- the second line follows from soundness. Is this a cop out?
 -- A counter---I only define term reduction on normal types. So 
 -- my goal is:
---   soundness : ∀ {τ : NormalType ∅ ★} {M N : NormalTerm ∅ τ} → 
+--   consistency : ∀ {τ : NormalType ∅ ★} {M N : NormalTerm ∅ τ} → 
 --               M —→ N → ⟦ M ⟧ ≡ ⟦ N ⟧
 -- Where ⟦_⟧, the meaning of terms, is typed by
 --              ⟦_⟧ : NormalTerm Γ τ → ⟦ Γ ⟧ →  ⟦ τ ⟧. 
@@ -52,5 +52,5 @@ open import Rome.Both.Types.Syntax
 --   - metatheory for free
 --   - No need to relate two differing implementations
 --   - Don't actually need the meaning of non-normal types
---   - I said I would deliver the soundness claim above, 
+--   - I said I would deliver the consistency claim above, 
 --     who is going to quibble? Just get the Ph.D.

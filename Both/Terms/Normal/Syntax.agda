@@ -17,8 +17,8 @@ open import Rome.Both.Types.Normal.Substitution
 open import Rome.Both.Types.Normal.Properties.Substitution
 open import Rome.Both.Types.Semantic.NBE
 
+open import Rome.Both.Types.Theorems.Consistency
 open import Rome.Both.Types.Theorems.Soundness
-open import Rome.Both.Types.Theorems.Completeness
 open import Rome.Both.Types.Theorems.Stability
 
 
@@ -505,7 +505,7 @@ convVar : ∀ {Γ} {τ₁ τ₂ : NormalType Δ ★} → τ₁ ≡ τ₂ → Nor
 convVar refl v = v
 
 convVar-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → NormalVar Γ (⇓ τ₁) → NormalVar Γ (⇓ τ₂)
-convVar-≡t eq x = convVar (completeness eq) x 
+convVar-≡t eq x = convVar (soundness eq) x 
 
 convPVar : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalPVar Γ π₁ → NormalPVar Γ π₂
 convPVar refl v = v
@@ -517,7 +517,7 @@ convEnt : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ →
 convEnt refl e = e
 
 conv-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡t τ₂ → NormalTerm Γ (⇓ τ₁) → NormalTerm Γ (⇓ τ₂)
-conv-≡t eq = conv (completeness eq)
+conv-≡t eq = conv (soundness eq)
 
 --------------------------------------------------------------------------------
 -- Admissable constants
