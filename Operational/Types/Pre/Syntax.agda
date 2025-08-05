@@ -13,7 +13,7 @@ data Pred Δ where
     _≲_ : (ρ₁ ρ₂ : Type Δ) → Pred Δ
 
 data Type Δ where
-    ` :  KVar Δ κ  → Type Δ 
+    ` :  TVar Δ κ  → Type Δ 
     `λ : ∀ (τ : Type (Δ ,, κ₁)) → Type Δ
     _·_ : (τ₁ : Type Δ) → (τ₂ : Type Δ) → Type Δ
     _`→_ : (τ₁ : Type Δ) →(τ₂ : Type Δ) → Type Δ

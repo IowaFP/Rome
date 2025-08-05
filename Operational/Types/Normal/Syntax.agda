@@ -30,7 +30,7 @@ notSimpleRows? : ∀ (τ₁ τ₂ : NormalType Δ R[ κ ]) → Dec (NotSimpleRow
 
 data NeutralType Δ : Kind → Set where
   ` : 
-      (α : KVar Δ κ) → 
+      (α : TVar Δ κ) → 
       ---------------------------
       NeutralType Δ κ
 
@@ -299,7 +299,7 @@ mapPred-id (ρ₁ ≲ ρ₂) = refl
 --------------------------------------------------------------------------------
 -- Injectivity lemmas for all the NormalType syntax
 
-inj-` : ∀ {α β : KVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
+inj-` : ∀ {α β : TVar Δ κ} → _≡_ {A = NeutralType Δ κ} (` α) (` β) → α ≡ β 
 inj-` refl = refl
 
 inj-· : ∀ {f₁ f₂ : NeutralType Δ (κ₁ `→ κ₂)} {τ₁ τ₂ : NormalType Δ κ₁} → 

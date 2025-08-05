@@ -291,7 +291,7 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁)
 -- Relating syntactic substitutions to semantic environments
  
 ⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
-⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : KVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 -- Identity relation
 idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
@@ -321,7 +321,7 @@ weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)
 --  Substituting syntactic substitutions in related environments
 
 substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
-             (∀ {κ} (x : KVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
+             (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x

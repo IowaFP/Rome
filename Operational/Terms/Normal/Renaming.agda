@@ -76,8 +76,8 @@ liftNormalPVar (r , p) =
   λ { Z → Z
     ; (S x) → S (p x) }
 
-liftKVar : Renaming Γ₁ Γ₂ ρ → Renaming (Γ₁ ,, κ) (Γ₂ ,, κ) (liftₖ ρ)
-liftKVar {ρ = ρ} (r , p)  = 
+liftTVar : Renaming Γ₁ Γ₂ ρ → Renaming (Γ₁ ,, κ) (Γ₂ ,, κ) (liftₖ ρ)
+liftTVar {ρ = ρ} (r , p)  = 
   (λ { (K {τ = τ} x) → convVar (sym (↻-weakenₖNF-renₖNF ρ τ)) (K (r x)) }) , 
   (λ { (K {π = π} x) → convPVar (sym (↻-weakenPredₖNF-renPredₖNF ρ π)) (K (p x)) })
 
@@ -129,7 +129,7 @@ renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
 ren (r , p) (` x) = ` (r x)
 ren R (`λ M) = `λ (ren (lift R) M)
 ren R (M · N) = (ren R M) · (ren R N)
-ren R (Λ M) = Λ (ren (liftKVar R) M)
+ren R (Λ M) = Λ (ren (liftTVar R) M)
 ren {ρ = ρ} R (_·[_] {τ₂ = τ₂} M τ) = 
   conv 
     (sym (↻-renₖNF-β ρ τ₂ τ)) 

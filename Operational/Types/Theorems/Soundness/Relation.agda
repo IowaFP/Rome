@@ -7,6 +7,7 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
+open import Rome.Operational.Types.Substitution
 open import Rome.Operational.Types.Properties.Renaming
 open import Rome.Operational.Types.Properties.Substitution
 open import Rome.Operational.Types.Renaming
@@ -82,7 +83,7 @@ UniformNE {Δ₁} {κ₁} {κ₂} F =
 -- Pointwise PER for environments
 
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ η₁ η₂ = ∀ {κ} (x : KVar _ κ) → (η₁ x) ≋ (η₂ x)
+Env-≋ η₁ η₂ = ∀ {κ} (x : TVar _ κ) → (η₁ x) ≋ (η₂ x)
 
 -- extension
 extend-≋ : ∀ {η₁ η₂ : Env Δ₁ Δ₂} → Env-≋ η₁ η₂ → 
@@ -226,12 +227,6 @@ reifyRow-≋' : ∀ {n m} (P : Fin n → Label × SemType Δ κ) (Q : Fin m → 
                (∀ (i : Fin n) → P i ≋₂ subst-Row pf Q i) → 
                reifyRow (n , P) ≡ reifyRow (m , Q)
 reifyRow-≋' P Q refl i = reifyRow-≋ P Q i
-
-
---------------------------------------------------------------------------------
--- 
--- Renamingₖ commutes with reification.
-
             
 --                renSem ρ 
 -- SemType Δ₁ κ -------------> SemType Δ₂ Κ

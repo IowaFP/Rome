@@ -60,6 +60,6 @@ private
     Δ Δ₁ Δ₂ Δ₃ : KEnv
     κ κ₁ κ₂ : Kind
 
-data KVar : KEnv → Kind → Set where
-  Z : KVar (Δ ,, κ) κ
-  S : KVar Δ κ₁ → KVar (Δ ,, κ₂) κ₁
+data TVar : KEnv → Kind → Set where
+  Z : TVar (Δ ,, κ) κ
+  S : TVar Δ κ₁ → TVar (Δ ,, κ₂) κ₁
