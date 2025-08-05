@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Soundness.Relation where
 
 open import Rome.Both.Prelude
@@ -29,10 +29,10 @@ _≋₂_ : ∀ {A} → (x y : A × SemType Δ κ) → Set
 _≋R_ : (ρ₁ ρ₂ : Row (SemType Δ κ)) → Set 
 (n , P) ≋R (m , Q) = Σ[ pf ∈ (n ≡ m) ] (∀ (i : Fin m) →  (subst-Row pf P) i ≋₂ Q i)
 
-PointEqual-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
-PointEqualNE-≋ : ∀ {Δ₁} {κ₁} {κ₂} (F G : KripkeFunctionNE Δ₁ κ₁ κ₂) → Set
-Uniform :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunction Δ κ₁ κ₂ → Set
-UniformNE :  ∀ {Δ} {κ₁} {κ₂} → KripkeFunctionNE Δ κ₁ κ₂ → Set
+PointEqual-≋ : ∀ {Δ₁ : KEnv ι₁} {κ₁ : Kind ι₂} {κ₂ : Kind ι₃} (F G : KripkeFunction Δ₁ κ₁ κ₂) → Set
+PointEqualNE-≋ : ∀ {Δ₁ : KEnv ι₁} {κ₁ : Kind ι₂} {κ₂ : Kind ι₃}  (F G : KripkeFunctionNE Δ₁ κ₁ κ₂) → Set
+Uniform :  ∀ {Δ : KEnv ι₁} {κ₁ : Kind ι₂} {κ₂ : Kind ι₃} → KripkeFunction Δ κ₁ κ₂ → Set
+UniformNE :  ∀ {Δ : KEnv ι₁} {κ₁ : Kind ι₂} {κ₂ : Kind ι₃} → KripkeFunctionNE Δ κ₁ κ₂ → Set
 
 convNE : κ₁ ≡ κ₂ → NeutralType Δ R[ κ₁ ] → NeutralType Δ R[ κ₂ ]
 convNE refl n = n 
@@ -44,13 +44,13 @@ _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
-_≋_ {Δ₁} {R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = 
+_≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = 
   Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
     UniformNE φ₁
   × UniformNE φ₂
   × (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂
   × convNE pf n₁ ≡ n₂)
-_≋_ {Δ₁} {R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
+_≋_ {Δ₁} {κ = R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
 _≋_ {Δ₁} {R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
 _≋_ {Δ₁} {R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
 _≋_ {Δ₁} {R[ κ ]} (x₁ ▹ x₂) (row ρ x₃) = ⊥
