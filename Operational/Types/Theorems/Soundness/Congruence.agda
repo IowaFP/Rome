@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Theorems.Completeness.Congruence where
+module Rome.Operational.Types.Theorems.Soundness.Congruence where
 
 open import Rome.Operational.Prelude
 
@@ -18,7 +18,7 @@ open import Rome.Operational.Types.Normal.Properties.Renaming
 open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
-open import Rome.Operational.Types.Theorems.Completeness.Relation
+open import Rome.Operational.Types.Theorems.Soundness.Relation
 
 --------------------------------------------------------------------------------
 -- - Uniformity is preserved under renaming (ren-Uniform)

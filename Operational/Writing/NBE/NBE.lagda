@@ -1636,13 +1636,13 @@ Dual to surjectivity, stability also implies that embedding is injective.
 ⇑-inj τ₁ τ₂ eq = trans (sym (stability τ₁)) (trans (cong ⇓ eq) (stability τ₂))
 \end{code}
 
-\subsection{A logical relation for completeness}
+\subsection{A logical relation for soundness}
 
 \begin{code}
 subst-Row : ∀ {A : Set} {n m : ℕ} → (n ≡ m) → (f : Fin n → A) → Fin m → A 
 subst-Row refl f = f
 
--- Completeness relation on semantic types
+-- Soundness relation on semantic types
 _≋_ : SemType Δ κ → SemType Δ κ → Set
 _≋₂_ : ∀ {A} → (x y : A × SemType Δ κ) → Set
 (l₁ , τ₁) ≋₂ (l₂ , τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
@@ -1777,7 +1777,7 @@ reify-≋    = bot _
 reifyRow-≋ = bot _ 
 \end{code}
 
-\subsection{The fundamental theorem and completeness}
+\subsection{The fundamental theorem and soundness}
 
 \begin{code}
 fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
@@ -1797,16 +1797,16 @@ fundC-Row = bot _
 idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
 
-completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-completeness eq = reify-≋ (fundC idEnv-≋ eq)  
+soundness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
+soundness eq = reify-≋ (fundC idEnv-≋ eq)  
 
-completeness-row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
+soundness-row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
 \end{code}
 \begin{code}[hide]
-completeness-row = bot _
+soundness-row = bot _
 \end{code}
 
-\subsection{A logical relation for soundness}
+\subsection{A logical relation for consistency}
 \begin{code}
 infix 0 ⟦_⟧≋_
 ⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
@@ -1876,7 +1876,7 @@ reify-⟦⟧≋ = bot _
 η-norm-≡t = bot _
 subst-⟦⟧≋ = bot _
 \end{code}
-\subsection{The fundamental theorem and soundness}
+\subsection{The fundamental theorem and consistency}
 \begin{code}
 fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
@@ -1906,22 +1906,22 @@ subₖ-id τ = bot _
 
 \begin{code}
 --------------------------------------------------------------------------------
--- Soundness claim  
+-- Consistency claim  
 
-soundness :  ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
-soundness τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
+consistency :  ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
+consistency τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
 
  --------------------------------------------------------------------------------
 -- If τ₁ normalizes to ⇓ τ₂ then the embedding of τ₁ is equivalent to τ₂
 
 embed-≡t : ∀ {τ₁ : NormalType Δ κ} {τ₂ : Type Δ κ}  → τ₁ ≡ (⇓ τ₂) → ⇑ τ₁ ≡t τ₂
-embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (soundness τ₂) 
+embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (consistency τ₂) 
 
 --------------------------------------------------------------------------------
--- Soundness implies the converse of completeness, as desired
+-- Consistency implies the converse of soundness, as desired
 
-Completeness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
-Completeness⁻¹ τ₁ τ₂ eq = eq-trans (soundness τ₁) (embed-≡t eq)
+Soundness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+Soundness⁻¹ τ₁ τ₂ eq = eq-trans (consistency τ₁) (embed-≡t eq)
 \end{code}
 
 \section{The rest of the picture}
@@ -1942,7 +1942,7 @@ In the remainder of the development, we intrinsically represent terms as typing 
 %  LocalWords:  denotational Agda Wadler dPoint sqrt subtyping coercions Intr
 %  LocalWords:  RowTypes Bool eval GHC reified HillerstromL Leijen LindleyM RO
 %  LocalWords:  ChapmanKNW Aydemir AbelAHPMSS AbelC AbelOV plfa HubersIMM STLC
-%  LocalWords:  MorrisM denotationally DenotationalSoundness RowTheories Suc de
+%  LocalWords:  MorrisM denotationally DenotationalConsistency RowTheories Suc de
 %  LocalWords:  ReifyingVariants RowTheory BerthomieuM CardelliMMS HarperP NatF
 %  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
 %  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman

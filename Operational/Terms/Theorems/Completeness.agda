@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Theorems.Completeness where 
+module Rome.Operational.Terms.Theorems.Soundness where 
 
 open import Rome.Operational.Prelude 
 
@@ -17,8 +17,8 @@ open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Soundness
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Types.Equivalence.Relation
@@ -31,12 +31,12 @@ open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Terms.Normal.Syntax
 open import Rome.Operational.Terms.Syntax
 
-open import Rome.Operational.Terms.Theorems.Soundness
+open import Rome.Operational.Terms.Theorems.Consistency
 
 open import Rome.Operational.Containment
 
 --------------------------------------------------------------------------------
--- Completeness of type checking
+-- Soundness of type checking
 
 ⇓Ctx : Context Δ → NormalContext Δ 
 ⇓Ctx ∅ = ∅
@@ -50,15 +50,15 @@ open import Rome.Operational.Containment
 ↻-·-⇓ : ∀ (F : Type Δ (κ₁ `→ κ₂)) (τ : Type Δ κ₁) → 
           ⇓ (F · τ) ≡ ⇓ F ·' ⇓ τ 
 ↻-·-⇓ F τ = trans 
-  (completeness 
-    (eq-· (soundness F) (soundness τ))) 
+  (soundness 
+    (eq-· (consistency F) (consistency τ))) 
   (sym (stability-·' (⇓ F) (⇓ τ)))
 
 ↻-<$>-⇓ : ∀ (F : Type Δ (κ₁ `→ κ₂)) (ρ : Type Δ R[ κ₁ ]) → 
           ⇓ (F <$> ρ) ≡ ⇓ F <$>' ⇓ ρ 
 ↻-<$>-⇓ F ρ = trans 
-  (completeness 
-    (eq-<$> (soundness F) (soundness ρ))) 
+  (soundness 
+    (eq-<$> (consistency F) (consistency ρ))) 
   (sym (stability-<$> (⇓ F) (⇓ ρ)))
 
 --------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ open import Rome.Operational.Containment
     (K (⇓PVar x))
 
 --------------------------------------------------------------------------------
--- Completeness of terms and entailments
+-- Soundness of terms and entailments
 
 ⇓Term : ∀ {Γ : Context Δ} {τ : Type Δ ★} → Term Γ τ → NormalTerm (⇓Ctx Γ) (⇓ τ)
 ⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → NormalEnt (⇓Ctx Γ) (⇓Pred π)
@@ -132,8 +132,8 @@ open import Rome.Operational.Containment
     (sym (↻-β-⇓ τ' τ)) 
     (_·[_] {τ₂ = ⇓ τ'} 
       (conv (trans 
-        (completeness 
-          (eq-∀ (soundness τ'))) 
+        (soundness 
+          (eq-∀ (consistency τ'))) 
         (stability  (`∀ (⇓ τ')))) 
       (⇓Term M)) (⇓ τ))
 ⇓Term (In F M) = In (⇓ F) (conv (↻-·-⇓ F (μ F)) (⇓Term M))
@@ -149,22 +149,22 @@ open import Rome.Operational.Containment
 ⇓Term (M Σ/ N) = ⇓Term M Σ/ ⇓Term N
 ⇓Term (inj M n) = inj (⇓Term M) (⇓Ent n)
 ⇓Term ((M ▿ N) n) = (⇓Term M ▿ ⇓Term N) (⇓Ent n)
-⇓Term (convert eq M) = conv (completeness eq) (⇓Term M)
+⇓Term (convert eq M) = conv (soundness eq) (⇓Term M)
 ⇓Term (fix M) = fix (⇓Term M)
 ⇓Term (syn ρ φ M) = 
   conv 
-    (completeness {τ₁ = Π · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))} {τ₂ = Π · (φ <$> ρ)}
-       (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ))))) 
+    (soundness {τ₁ = Π · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))} {τ₂ = Π · (φ <$> ρ)}
+       (eq-· eq-refl (eq-<$> (eq-sym (consistency φ)) (eq-sym (consistency ρ))))) 
   (syn (⇓ ρ) (⇓ φ) (conv 
-    (completeness     
-      (SynT-cong-≡t (soundness ρ) (soundness φ))) 
+    (soundness     
+      (SynT-cong-≡t (consistency ρ) (consistency φ))) 
   (⇓Term M)))
 ⇓Term (ana ρ φ τ M) = 
   conv 
-    (completeness {τ₁ = (Σ · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))) `→ τ} {τ₂ = (Σ · (φ <$> ρ)) `→ τ} 
-    (eq-→ (eq-· eq-refl (eq-<$> (eq-sym (soundness φ)) (eq-sym (soundness ρ)))) eq-refl)) 
+    (soundness {τ₁ = (Σ · (⇑ (⇓ φ) <$> ⇑ (⇓ ρ))) `→ τ} {τ₂ = (Σ · (φ <$> ρ)) `→ τ} 
+    (eq-→ (eq-· eq-refl (eq-<$> (eq-sym (consistency φ)) (eq-sym (consistency ρ)))) eq-refl)) 
   (ana (⇓ ρ) (⇓ φ) (⇓ τ) (conv 
-    (completeness (AnaT-cong-≡t (soundness ρ) (soundness φ) (soundness τ))) (⇓Term M)))
+    (soundness (AnaT-cong-≡t (consistency ρ) (consistency φ) (consistency τ))) (⇓Term M)))
 ⇓Term (comp M n) = comp (⇓Term M) (⇓Ent n)
 
 --------------------------------------------------------------------------------

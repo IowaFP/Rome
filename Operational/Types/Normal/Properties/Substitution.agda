@@ -25,8 +25,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Renaming
 
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 
 open import Rome.Operational.Types.Theorems.Stability
 
@@ -49,7 +49,7 @@ open import Rome.Operational.Types.Theorems.Stability
     (reify-≋ (↻-subₖ-eval τ idEnv-≋ (⇑ ∘ σ))) 
     (sym (trans 
       (reify-≋ (↻-subₖ-eval (⇑ (⇓ τ)) idEnv-≋ (⇑ ∘ σ))) 
-      (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (soundness τ))))))
+      (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (consistency τ))))))
 
 ↻-⇓-subRow : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
              (ρ : SimpleRow Type Δ₁ R[ κ ]) →
@@ -86,7 +86,7 @@ subₖNF-comp σ₁ σ₂ τ =
           (↻-subₖ-eval (⇑ τ) idEnv-≋ (⇑ ∘ ⇓ ∘ subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))
         (trans 
           (reify-≋ 
-            (idext (λ x → fundC idEnv-≋ (eq-sym (soundness (subₖ (⇑ ∘ σ₂) (⇑ (σ₁ x)))))) (⇑ τ)))
+            (idext (λ x → fundC idEnv-≋ (eq-sym (consistency (subₖ (⇑ ∘ σ₂) (⇑ (σ₁ x)))))) (⇑ τ)))
           (sym (reify-≋ (↻-subₖ-eval (⇑ τ) idEnv-≋ (subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))))) 
       (cong ⇓ (subₖ-comp (⇑ τ)))) 
     (↻-⇓-sub σ₂ (subₖ (⇑ ∘ σ₁) (⇑ τ)))
@@ -304,7 +304,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
     (↻-subₖNF-β' σ τ₁ τ₂) 
     (cong (λ x → x βₖNF[ subₖNF σ τ₂ ]) 
       (trans         
-        (completeness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))
+        (soundness (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ₁))))
         (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)))))
 
 --------------------------------------------------------------------------------
@@ -360,8 +360,8 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
     {τ₂ = subₖ (λ x → ⇑ (extendₖNF idSubst (⇓ τ₂) x)) (⇑ (eval τ₁ idEnv))}
     idEnv-≋ 
       (eq-trans 
-        (subₖ-cong-≡t (λ { Z → soundness τ₂ ; (S x) → eq-sym (η-norm-≡t (` x)) }) τ₁) 
-        (subₖ-≡t (soundness τ₁))))
+        (subₖ-cong-≡t (λ { Z → consistency τ₂ ; (S x) → eq-sym (η-norm-≡t (` x)) }) τ₁) 
+        (subₖ-≡t (consistency τ₁))))
 
 --------------------------------------------------------------------------------
 -- _·'_ commutes with embedding
@@ -381,7 +381,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 stability-·' : (f : NormalType Δ (κ₁ `→ κ₂)) → (N : NormalType Δ κ₁) → f ·' N ≡ ⇓ (⇑ f · ⇑ N)
 stability-·' f N = trans 
     (sym (stability (f ·' N))) 
-    (completeness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
+    (soundness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
 
 stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
                 map (map₂ (_·'_ f)) xs ≡ reifyRow 

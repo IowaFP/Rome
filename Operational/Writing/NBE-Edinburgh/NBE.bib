@@ -1714,7 +1714,7 @@ ebib-main-file: /home/alex/Dropbox/HubersPhD/bibliography/ann-bib.bib
 
 @InProceedings{Machkasova08,
 	author = {Elena Machkasova},
-	title = {Computational Soundness of a Call by Name Calculus of
+	title = {Computational Consistency of a Call by Name Calculus of
                   Recursively-scoped Records},
 	year = 2007,
 	booktitle = {Proceedings of the 7th International Workshop on Reduction
@@ -4236,7 +4236,7 @@ ebib-main-file: /home/alex/Dropbox/HubersPhD/bibliography/ann-bib.bib
 	issn = {1860-5974},
 	url = {https://lmcs.episciences.org/5567},
 	doi = {10.46298/lmcs-20(3:13)2024},
-	abstract = {Session types are formal specifications of communication protocols, allowing protocol implementations to be verified by typechecking. Up to now, session type disciplines have assumed that the communication medium is reliable, with no loss of messages. However, unreliable broadcast communication is common in a wide class of distributed systems such as ad-hoc and wireless sensor networks. Often such systems have structured communication patterns that should be amenable to analysis by means of session types, but the necessary theory has not previously been developed. We introduce the Unreliable Broadcast Session Calculus, a process calculus with unreliable broadcast communication, and equip it with a session type system that we show is sound. We capture two common operations, broadcast and gather, inhabiting dual session types. Message loss may lead to non-synchronised session endpoints. To further account for unreliability we provide with an autonomous recovery mechanism that does not require acknowledgements from session participants. Our type system ensures soundness, safety, and progress between the synchronised endpoints within a session. We demonstrate the expressiveness of our framework by implementing Paxos, the textbook protocol for reaching consensus in an unreliable, asynchronous network.},
+	abstract = {Session types are formal specifications of communication protocols, allowing protocol implementations to be verified by typechecking. Up to now, session type disciplines have assumed that the communication medium is reliable, with no loss of messages. However, unreliable broadcast communication is common in a wide class of distributed systems such as ad-hoc and wireless sensor networks. Often such systems have structured communication patterns that should be amenable to analysis by means of session types, but the necessary theory has not previously been developed. We introduce the Unreliable Broadcast Session Calculus, a process calculus with unreliable broadcast communication, and equip it with a session type system that we show is sound. We capture two common operations, broadcast and gather, inhabiting dual session types. Message loss may lead to non-synchronised session endpoints. To further account for unreliability we provide with an autonomous recovery mechanism that does not require acknowledgements from session participants. Our type system ensures consistency, safety, and progress between the synchronised endpoints within a session. We demonstrate the expressiveness of our framework by implementing Paxos, the textbook protocol for reaching consensus in an unreliable, asynchronous network.},
 	language = {en},
 	urldate = {2024-09-12},
 	journal = {Logical Methods in Computer Science},
@@ -4253,7 +4253,7 @@ ebib-main-file: /home/alex/Dropbox/HubersPhD/bibliography/ann-bib.bib
 	isbn = {9798400711039},
 	url = {https://dl.acm.org/doi/10.1145/3678000.3678201},
 	doi = {10.1145/3678000.3678201},
-	abstract = {Intrinsically typed syntax is an important and popular method for mechanized reasoning about programming languages. We explore the limits of this method in the setting of finitelystratified System F using the Agda proof assistant. This system supports elegant definitions of denotational semantics as well as big-step operational semantics based on intrinsically typed syntax. While its syntactic metatheory (i.e., type soundness) works well, we demonstrate that its semantic metatheory poses technical challenges, by defining a logical relation and proving its fundamental lemma. Our logical relation connects a denotational semantics with an operational one, which exposes issues with transfer lemmas as well as minor issues with universe polymorphism.},
+	abstract = {Intrinsically typed syntax is an important and popular method for mechanized reasoning about programming languages. We explore the limits of this method in the setting of finitelystratified System F using the Agda proof assistant. This system supports elegant definitions of denotational semantics as well as big-step operational semantics based on intrinsically typed syntax. While its syntactic metatheory (i.e., type consistency) works well, we demonstrate that its semantic metatheory poses technical challenges, by defining a logical relation and proving its fundamental lemma. Our logical relation connects a denotational semantics with an operational one, which exposes issues with transfer lemmas as well as minor issues with universe polymorphism.},
 	language = {en},
 	urldate = {2024-10-24},
 	booktitle = {Proceedings of the 9th {ACM} {SIGPLAN} {International} {Workshop} on {Type}-{Driven} {Development}},

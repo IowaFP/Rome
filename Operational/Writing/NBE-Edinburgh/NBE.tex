@@ -122,7 +122,7 @@
 \citet{HubersIMM24} introduce \Rome, a higher-order row calculus with first-class labels, iso-recursive types, and label-generic operators, but do not describe any metatheory of its type equivalence relation nor of type reduction. This paper shows not only that \Rome types enjoy normal forms, but formalizes the normaliz\-ation\--by\--evaluation (NbE) of types in the interactive proof assistant Agda. We prove that our normalization algorithm is stable, sound and complete with respect to the type equivalence relation. Consequently, type conversion in \Rome is decidable.
 
 \section{Introduction}
-\citet{HubersM23} introduce an expressive higher-order row calculus called \RO for \emph{generic programming} with rows. \RO is a row calculus with first-class labels, higher-order type computation, and label-generic combinators. System \RO is rooted in System \FO, but incurs additional type-level computation from maps over rows. In practice, expressing types in \RO relies on implicit type reductions according to a type equivalence relation. Despite this reliance, the authors only provide a proof of \emph{semantic soundness} that well-typed terms inhabit the denotations of well-kinded types. The authors show that their denotation is \emph{sound} with respect to type equivalence---that is, that equivalent types incur the same denotation. However, the authors do not characterize the shape of types in normal form, nor prove that the denoted types are complete with respect to type equivalence. \citet{HubersIMM24} extends the \RO language to \Rome, which is \RO with recursive types, term-level recursion, and a novel \emph{row complement} operator. The authors similarly extend the proof of semantic soundness, but fail to describe any metatheory of the equivalence relation. We argue that an explicit treatment of type normalization is necessary for practical use of the \RO and \Rome languages.
+\citet{HubersM23} introduce an expressive higher-order row calculus called \RO for \emph{generic programming} with rows. \RO is a row calculus with first-class labels, higher-order type computation, and label-generic combinators. System \RO is rooted in System \FO, but incurs additional type-level computation from maps over rows. In practice, expressing types in \RO relies on implicit type reductions according to a type equivalence relation. Despite this reliance, the authors only provide a proof of \emph{semantic consistency} that well-typed terms inhabit the denotations of well-kinded types. The authors show that their denotation is \emph{sound} with respect to type equivalence---that is, that equivalent types incur the same denotation. However, the authors do not characterize the shape of types in normal form, nor prove that the denoted types are complete with respect to type equivalence. \citet{HubersIMM24} extends the \RO language to \Rome, which is \RO with recursive types, term-level recursion, and a novel \emph{row complement} operator. The authors similarly extend the proof of semantic consistency, but fail to describe any metatheory of the equivalence relation. We argue that an explicit treatment of type normalization is necessary for practical use of the \RO and \Rome languages.
 
 \subsection{The need for type normalization}
 \label{sec:need-for-type-normalization}
@@ -152,7 +152,7 @@ This paper offers the following as contributions:
 \begin{enumerate}
   \item A normalization procedure for the directed \Rome type equivalence relation, which in turn yields a decision procedure for type equivalence;
   \item a semantics of the type-level \emph{row complement} operator;
-  \item proofs of soundness and completeness of normalization with respect to type equivalence; and
+  \item proofs of consistency and soundness of normalization with respect to type equivalence; and
   \item a complete mechanization in Agda of \Rome and the claimed metatheory.
 \end{enumerate}
 
@@ -490,22 +490,22 @@ The syntax $\LabTy n \Normal \tau$ separates singleton rows with variable labels
 %   \end{itemize}
 % \end{theorem}
 
-% We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \tau \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
+% We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \tau \kappa$. Soundness of normalization states that equivalent types normalize to the same form.
 
-% \begin{theorem}[Completeness]
+% \begin{theorem}[Soundness]
 % For well-kinded $\tau , \upsilon \in \Types$ at kind $\kappa$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
 % \end{theorem}
 
-% \Ni Soundness of normalization states that every type is equivalent to its normalization.
+% \Ni Consistency of normalization states that every type is equivalent to its normalization.
 
-% \begin{theorem}[Soundness]
+% \begin{theorem}[Consistency]
 % For well-kinded $\tau \in \Types$ at kind $\kappa$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
 % \end{theorem}
-% \Ni Soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
+% \Ni Consistency and soundness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
 
 % \subsubsection{Decidability of type conversion}
 
-% Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
+% Equivalence of normal types is syntactically decidable which, in conjunction with consistency and soundness, is sufficient to show that \Rome's equivalence relation is decidable.
 
 % \begin{theorem}[Decidability]
 %   Given well-kinded $\tau, \upsilon \in \Types$ at kind $\kappa$, the judgment $\TEqvJ \Delta \tau \upsilon \kappa$ either (i) has a derivation or (ii) has no derivation.
@@ -913,12 +913,12 @@ Up-inj  tau_1  tau_2  eq =
       (stability tau_2))
 \end{agda}
 
-\subsection{A logical relation for completeness}
+\subsection{A logical relation for soundness}
 
-We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \upsilon \kappa$. Completeness of normalization states that equivalent types normalize to the same form.
+We now show that $\Norm$ indeed reduces faithfully according to the equivalence relation $\TEqvJ \Delta \tau \upsilon \kappa$. Soundness of normalization states that equivalent types normalize to the same form.
 
 \ifthms
-\begin{theorem}[Completeness]
+\begin{theorem}[Soundness]
 For well-kinded $\tau , \upsilon \in \TJudges{\Delta}{\kappa}$, If $\TEqvJ \Delta \tau \upsilon \kappa$ then $\Norm\, \tau = \, \Norm \, \upsilon$.
 \end{theorem}
 \fi
@@ -929,13 +929,13 @@ We define the equivalence relation of \cref{fig:equivalence} as an inductive, in
 data _.=.t_ : Type Delta kappa -> Type Delta kappa -> set
 \end{agda}
 
-\Ni Completeness may be stated as follows:
+\Ni Soundness may be stated as follows:
 
 \begin{agda}
-completeness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
+soundness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
 \end{agda}
 
-We prove completeness via a logical relation !_~~_! on semantic types that specifies when two semantic objects are equivalent modulo uniformity (\citep{AllaisBM13,ChapmanKNW19}) and pointwise functional extensionality. We define !_~~_! recursively over the kinds of the inputs !tau_1! and !tau_2! (\cref{fig:completeness-relation}).
+We prove soundness via a logical relation !_~~_! on semantic types that specifies when two semantic objects are equivalent modulo uniformity (\citep{AllaisBM13,ChapmanKNW19}) and pointwise functional extensionality. We define !_~~_! recursively over the kinds of the inputs !tau_1! and !tau_2! (\cref{fig:soundness-relation}).
 
 \begin{figure}
 \begin{agda}
@@ -958,8 +958,8 @@ _~~_ {kappa = R[ kappa ]} (row rho_1 q) (row rho_2 g) = rho_1 ~~R rho_2
                           (forall (i : fin m) -> 
                           (subst-Row pf P) i ~~2 Q i)
 \end{agda}
-\caption{Completeness relation}
-\label{fig:completeness-relation}
+\caption{Soundness relation}
+\label{fig:soundness-relation}
 \end{figure}
 
 \begin{figure}
@@ -981,9 +981,9 @@ PointEqual phi_1  phi_2 = forall (r : Renaming Delta_1  Delta_2)
 \label{fig:uniformity-and-PE}
 \end{figure}
 
-The completeness logical relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements (lines 1, 2, 5, and 12, resp.). In the case that !kappa = kappa_1 `-> kappa_2! (lines 3-4), we assert that the Kripke functions !phi_1! and !phi_2! are \emph{uniform} and \emph{extensionally equivalent} to one another (see \cref{fig:uniformity-and-PE}). Uniformity states that passing a renaming !r_2! to a Kripke function is equivalent to renaming it algorithmically---that is, the function !rename! commutes with Kripke renaming (lines 2-7, \cref{fig:uniformity-and-PE}). The uniformity property is attributable to \citet{AllaisBM13} but simplified drastically by \citet{ChapmanKNW19}. The !PointEqual! predicate (lines 8-12, \cref{fig:uniformity-and-PE}) circumvents any need to postulate functional extensionality; rather, we assert that !phi_1! and !phi_2! map equivalent inputs to equivalent outputs.
+The soundness logical relation is defined compositionally in the cases where !kappa = *!, !kappa = L!, or !kappa = R[ kappa ]! and the equated rows are neutral-labeled or inert complements (lines 1, 2, 5, and 12, resp.). In the case that !kappa = kappa_1 `-> kappa_2! (lines 3-4), we assert that the Kripke functions !phi_1! and !phi_2! are \emph{uniform} and \emph{extensionally equivalent} to one another (see \cref{fig:uniformity-and-PE}). Uniformity states that passing a renaming !r_2! to a Kripke function is equivalent to renaming it algorithmically---that is, the function !rename! commutes with Kripke renaming (lines 2-7, \cref{fig:uniformity-and-PE}). The uniformity property is attributable to \citet{AllaisBM13} but simplified drastically by \citet{ChapmanKNW19}. The !PointEqual! predicate (lines 8-12, \cref{fig:uniformity-and-PE}) circumvents any need to postulate functional extensionality; rather, we assert that !phi_1! and !phi_2! map equivalent inputs to equivalent outputs.
 
-The predicates !UniformNE! and !PointEqualNE! are entirely analogous to !Uniform! and !PointEqual! except that they describe Kripke functions in which the domain is a !NeutralType! rather than !SemType!. In the case that we are equating two inert maps (lines 6-11, \cref{fig:completeness-relation}), we must additionally assert that the domains of !phi_1! and !phi_2! (that is, !kappa_1! and !kappa_1'!, resp.) are equivalent. The helpers !convKripkeNE! and !convNE! convert !phi_1! and !n_1! appropriately so as to be indexed by kind !kappa_1'!.
+The predicates !UniformNE! and !PointEqualNE! are entirely analogous to !Uniform! and !PointEqual! except that they describe Kripke functions in which the domain is a !NeutralType! rather than !SemType!. In the case that we are equating two inert maps (lines 6-11, \cref{fig:soundness-relation}), we must additionally assert that the domains of !phi_1! and !phi_2! (that is, !kappa_1! and !kappa_1'!, resp.) are equivalent. The helpers !convKripkeNE! and !convNE! convert !phi_1! and !n_1! appropriately so as to be indexed by kind !kappa_1'!.
 
 Finally, we equate row literals under the !~~R! relation (lines 16-18), which states that (i) the two rows' lengths are equal, and (ii) the two rows have pointwise related contents.  Note that we must use an auxiliary helper !subst-Row! to convert the length !n! indexing !P! to be !m!.
 
@@ -1018,55 +1018,55 @@ idEnv-~~ : idEnv ~~e idEnv
 idEnv-~~ alpha = reflect-~~ refl 
 \end{agda}
 
-\subsubsection{The fundamental theorem and completeness}
+\subsubsection{The fundamental theorem and soundness}
 
-The fundamental theorem for the completeness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental theorem is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
+The fundamental theorem for the soundness relation states that equivalent types evaluate to related semantic objects. The proof of the fundamental theorem is by induction over the type equivalence witness !tau_1 .=.t tau_2!.
 
 \begin{agda}
   fundC : eta_1 ~~e eta_2 -> tau_1 .=.t tau_2 -> 
           eval tau_1 eta_1 ~~ eval tau_2 eta_2
 \end{agda}
 
-Completeness follows from the fundamental theorem in the identity semantic environment. 
+Soundness follows from the fundamental theorem in the identity semantic environment. 
 
 \begin{agda}
-completeness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
-completeness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
+soundness : forall tau_1 tau_2. tau_1 .=.t tau_2 -> Down tau_1 .=. Down tau_2
+soundness tau_1 tau_2 eq = reify-~~ (fundC idEnv-~~ eq)
 \end{agda}
 
-\subsection{A logical relation for soundness}
+\subsection{A logical relation for consistency}
 
-Soundness of normalization states that every type is equivalent to its normalization.
+Consistency of normalization states that every type is equivalent to its normalization.
 
 \ifthms
-\begin{theorem}[Soundness]
+\begin{theorem}[Consistency]
 For well-kinded $\tau \in \TJudges{\Delta}{\kappa}$, there exists a derivation that $\TEqvJ \Delta \tau {\,\Norm \tau} {\kappa}$. Equivalently, if $\Norm\, \tau =\, \Norm\, \upsilon$, then $\TEqvJ \Delta \tau \upsilon {\kappa}$.
 \end{theorem}\fi
 
-In Agda, soundness states specifically that each type is equivalent to its embedded normalization:
+In Agda, consistency states specifically that each type is equivalent to its embedded normalization:
 
 \begin{agda}
-soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
+consistency : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
 \end{agda}
 
-\Ni This is enough to imply the converse of completeness. We use an auxiliary transfer lemma, !embed-.=.t!, to state that if the type !tau_1! is equal to a normalization of !tau_2!, then the embedding of !tau_1! is equivalent to !tau_2!.
+\Ni This is enough to imply the converse of soundness. We use an auxiliary transfer lemma, !embed-.=.t!, to state that if the type !tau_1! is equal to a normalization of !tau_2!, then the embedding of !tau_1! is equivalent to !tau_2!.
 
 \begin{agda}
 embed-.=.t : forall (tau_1 : NormalType Delta kappa) (tau_2 : Type Delta kappa) -> 
              tau_1 .=. (Down tau_2) -> Up tau_1 .=.t tau_2 
-embed-.=.t refl = eq-sym (soundness tau_2)
+embed-.=.t refl = eq-sym (consistency tau_2)
 
-conv-completeness : (tau_1 tau_2 : Type Delta kappa) -> 
+conv-soundness : (tau_1 tau_2 : Type Delta kappa) -> 
                     Down tau_1 .=. Down tau_2 -> tau_1 .=.t tau_2
-conv-completeness tau_1 tau_2 eq = 
-  eq-trans (soundness tau_1) (embed-.=.t eq)                 
+conv-soundness tau_1 tau_2 eq = 
+  eq-trans (consistency tau_1) (embed-.=.t eq)                 
 \end{agda}
 
-\Ni Hence soundness and completeness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
+\Ni Hence consistency and soundness together imply, as desired, that $\tau \RedT \tau'$ iff $\Norm\, \tau =\, \Norm \tau'$.
 
-In \cref{fig:soundness-relation}, we define a logical relation for soundness by relating un-normalized types to semantic objects. The first two cases (lines 2-3) state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. On line 4, we relate arrow-kinded types; \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions. The definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau .=.t Up (eta-norm n)! for neutral !n!. Each definition otherwise asserts that related inputs map to related outputs.
+In \cref{fig:consistency-relation}, we define a logical relation for consistency by relating un-normalized types to semantic objects. The first two cases (lines 2-3) state that !tau! relates to !v! at ground kind when !tau! is equivalent to the embedding of !v!. On line 4, we relate arrow-kinded types; \Cref{fig:soundKripke} describes when syntactic type operators relate to Kripke functions. The definitions are largely the same for semantic and neutral Kripke functions except that, in the neutral case, we require instead that !tau .=.t Up (eta-norm n)! for neutral !n!. Each definition otherwise asserts that related inputs map to related outputs.
 
-The cases that follow relate syntactic rows with semantic rows. On line 5 we relate row literals \emph{existentially}:\footnote{In practice, we actually know precisely that \lstinline{tau} should be equivalent to the embedding of the reification of \lstinline{row (n , P) q}, but asserting as such complicates presentation; either style works.} we assert that there exists a syntactic row literal !xs! !: List! !(Label! !times! !Type! !Delta! !kappa)! and a well-orderedness predicate !oxs! such that !tau! is equivalent to !row xs oxs! and, further, !xs! is pointwise equivalent to !(n , P)!. The pointwise relation ![[_]]R~~_! of syntactic and semantic row literals is defined in \cref{fig:soundness-relation-row-literals}, and is more or less to be expected: two row literals are related if they are of the same length and have related contents. 
+The cases that follow relate syntactic rows with semantic rows. On line 5 we relate row literals \emph{existentially}:\footnote{In practice, we actually know precisely that \lstinline{tau} should be equivalent to the embedding of the reification of \lstinline{row (n , P) q}, but asserting as such complicates presentation; either style works.} we assert that there exists a syntactic row literal !xs! !: List! !(Label! !times! !Type! !Delta! !kappa)! and a well-orderedness predicate !oxs! such that !tau! is equivalent to !row xs oxs! and, further, !xs! is pointwise equivalent to !(n , P)!. The pointwise relation ![[_]]R~~_! of syntactic and semantic row literals is defined in \cref{fig:consistency-relation-row-literals}, and is more or less to be expected: two row literals are related if they are of the same length and have related contents. 
 
 On lines 10-13 we relate row singletons in a straightforward fashion; lines 14-17 relate row complements compositionally. Finally, we relate inert row maps by asserting the existence of a !phi! that is sound with respect to the neutral Kripke function !F! (\cref{fig:soundKripke}).
 
@@ -1094,8 +1094,8 @@ On lines 10-13 we relate row singletons in a straightforward fashion; lines 14-1
   (tau .=.t (phi .map. UpNE n)) times
   (SoundKripkeNE phi F)
 \end{agdaf}
-\caption{Soundness relation}
-\label{fig:soundness-relation}
+\caption{Consistency relation}
+\label{fig:consistency-relation}
 \end{figure}
 \begin{figure}
 \begin{agda}
@@ -1109,8 +1109,8 @@ On lines 10-13 we relate row singletons in a straightforward fashion; lines 14-1
     [[ (ell_1 , tau) ]]~~2 (ell_2 , v) = 
       (ell_1 .=. ell_2) times [[ tau ]]~~ v 
 \end{agda}
-\caption{Soundness relation (row literals)}
-\label{fig:soundness-relation-row-literals}
+\caption{Consistency relation (row literals)}
+\label{fig:consistency-relation-row-literals}
 \end{figure}
 
 \begin{figure}
@@ -1131,13 +1131,13 @@ SoundKripkeNE phi F =
   tau .=.t Up (eta-norm n) -> 
   [[ rename r phi cdot n ]]~~ F r n
 \end{agda}
-\caption{Soundness of Kripke functions}
+\caption{Consistency of Kripke functions}
 \label{fig:soundKripke}
 \end{figure}
  
 \subsubsection{Properties}
 
-Analogous to the completeness relation, equivalence of neutral types can be reflected into the soundness relation.
+Analogous to the soundness relation, equivalence of neutral types can be reflected into the consistency relation.
 
 \begin{agda}
 reflect-[[]]~~ : forall {tau : Type Delta kappa} 
@@ -1184,9 +1184,9 @@ idEnv-[[]]~~ : [[ ` ]]e~~ idEnv
 idEnv-[[]]~~ alpha = reflect-[[]]~~ eq-refl
 \end{agda}
 
-\subsubsection{The fundamental theorem and Soundness}
+\subsubsection{The fundamental theorem and Consistency}
 
-Finally, the fundamental theorem of soundness states that the syntactic substitution of a type !tau! by !sigma! is related to its semantic evaluation in !eta!, provided !sigma! and !eta! are related. The definition is by induction over !tau!.
+Finally, the fundamental theorem of consistency states that the syntactic substitution of a type !tau! by !sigma! is related to its semantic evaluation in !eta!, provided !sigma! and !eta! are related. The definition is by induction over !tau!.
 
 \begin{agda}
 fundS : (tau : Type Delta_1 kappa) -> 
@@ -1194,7 +1194,7 @@ fundS : (tau : Type Delta_1 kappa) ->
         [[ sub sigma tau ]]~~ (eval tau eta)
 \end{agda}
 
-Soundness follows from a trivial case of the fundamental theorem where the environments related are the identity substitution !`! and the identity semantic environment !idEnv!:
+Consistency follows from a trivial case of the fundamental theorem where the environments related are the identity substitution !`! and the identity semantic environment !idEnv!:
 
 \begin{agda}
 vdash[[_]]~~ : (tau : Type Delta kappa)  -> [[ tau ]]~~ eval tau idEnv  
@@ -1204,13 +1204,13 @@ vdash[[ tau ]]~~ =
     subst-[[]]~~ : tau_1 .=.t tau_2 -> [[ tau_1 ]]~~ v -> [[ tau_2 ]]~~ v
     sub-id : forall (tau : Type Delta kappa) -> sub ` tau .=.t tau
 
-soundness : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
-soundness tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
+consistency : forall (tau : Type Delta kappa) -> tau .=.t Up (Down tau)
+consistency tau =  reify-[[]]~~ (vdash[[ tau ]]~~)
 \end{agda}
 
 \subsection{Decidability of type conversion}
 
-Equivalence of normal types is syntactically decidable which, in conjunction with soundness and completeness, is sufficient to show that \Rome's equivalence relation is decidable.
+Equivalence of normal types is syntactically decidable which, in conjunction with consistency and soundness, is sufficient to show that \Rome's equivalence relation is decidable.
 
 \ifthms
 \begin{theorem}[Decidability]
@@ -1223,16 +1223,16 @@ It is easy enough to implement a syntactic decidability check on the shapes of n
 _.=.?_ : forall (tau_1 tau_2 : NormalType Delta kappa) -> Dec (tau_1 .=. tau_2)
 \end{agda}
 
-Paired with soundness and completeness, we get an effective decision procedure to decide the relation !tau_1 .=.t tau_2! as follows: 
+Paired with consistency and soundness, we get an effective decision procedure to decide the relation !tau_1 .=.t tau_2! as follows: 
 
 \begin{agda}
 _.=.t?_ : forall (tau_1 tau_2 : Type Delta kappa) -> Dec (tau_1 .=.t tau_2)
 tau_1 .=.t? tau_2  with (Down tau_1) .=.? (Down tau_2)
 ... | yes p = yes 
     (eq-trans 
-        (soundness tau_1) 
+        (consistency tau_1) 
         (embed-.=.t p))
-... | no  p = no (\ x -> p (completeness x))
+... | no  p = no (\ x -> p (soundness x))
 \end{agda}
 
 
@@ -1254,7 +1254,7 @@ We conclude with a discussion of closely related work.
 %  LocalWords:  denotational Agda Wadler dPoint sqrt subtyping coercions Intr
 %  LocalWords:  RowTypes Bool eval GHC reified HillerstromL Leijen LindleyM RO
 %  LocalWords:  ChapmanKNW Aydemir AbelAHPMSS AbelC AbelOV plfa HubersIMM STLC
-%  LocalWords:  MorrisM denotationally DenotationalSoundness RowTheories Suc de
+%  LocalWords:  MorrisM denotationally DenotationalConsistency RowTheories Suc de
 %  LocalWords:  ReifyingVariants RowTheory BerthomieuM CardelliMMS HarperP NatF
 %  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
 %  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman

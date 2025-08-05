@@ -26,8 +26,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE 
 open import Rome.Operational.Types.Semantic.Renaming
 
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Terms.Normal.Syntax
@@ -140,7 +140,7 @@ sub σ s (syn ρ φ M) =
         (trans 
           (sym (↻-⇓-sub σ (SynT (⇑ ρ) (⇑ φ))) ) 
           (cong ⇓ (sym (↻-sub-syn (⇑ ∘ σ) (⇑ ρ) (⇑ φ))))) 
-        (completeness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
+        (soundness (eq-sym (SynT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ))))) 
       (sub σ s M)))
 sub σ s (ana ρ φ τ refl refl M) = 
   conv 
@@ -151,7 +151,7 @@ sub σ s (ana ρ φ τ refl refl M) =
         (trans 
           (sym (↻-⇓-sub σ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ) 
           (cong ⇓ (sym (↻-sub-ana (⇑ ∘ σ) (⇑ ρ) (⇑ φ) (⇑ τ))))) 
-        (completeness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
+        (soundness (eq-sym (AnaT-cong-≡t (↻-sub-⇑ σ ρ) (↻-sub-⇑ σ φ) (↻-sub-⇑ σ τ)))))) 
       (sub σ s M)))
 sub σ s ⟨ V ⟩ = ⟨ subRecord σ s V ⟩ 
 sub σ s (⟨_▹_⟩via_ {τ} {xs = xs} {oxs} l M i) = ⟨ l ▹ sub σ s M ⟩via (∈-subₖNF σ i)
@@ -292,7 +292,7 @@ subEnt σ s (n-complR {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
               ((↻-⇓-subRow σ (⇑Row xs) {fromWitness (Ordered⇑ xs (toWitness oxs))}))) 
             (trans 
               (trans 
-                (completeness-row
+                (soundness-row
                 (cong-─s  
                    (↻-sub-⇑Row σ ys) (↻-sub-⇑Row σ xs)))
                 (sym (cong ⇓Row (↻-subRowₖ-─s (⇑ ∘ σ) {⇑Row ys} {⇑Row xs})))) 
@@ -328,7 +328,7 @@ subEnt σ s (n-complL {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
               ((↻-⇓-subRow σ (⇑Row xs) {fromWitness (Ordered⇑ xs (toWitness oxs))}))) 
             (trans 
               (trans 
-                (completeness-row
+                (soundness-row
                 (cong-─s  
                    (↻-sub-⇑Row σ ys) (↻-sub-⇑Row σ xs)))
                 (sym (cong ⇓Row (↻-subRowₖ-─s (⇑ ∘ σ) {⇑Row ys} {⇑Row xs})))) 

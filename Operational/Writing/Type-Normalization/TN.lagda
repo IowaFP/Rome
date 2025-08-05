@@ -1131,38 +1131,38 @@ surjectivity τ = ( ⇑ τ , stability τ )
 It next falls upon us to verify that this normalization algorithm indeed respects our syntactic account of type equivalence. How we do so is fairly routine to other normalization-by-evaluation efforts. We show that the algorithm is complete with respect to syntactic type equivalence:
 
 \begin{code}
-completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-\end{code}
-\begin{code}[hide]
-completeness = bot _
-\end{code}
-
-\Ni Completeness here states that equivalent types normalize to the same types. Soundness states that every type is equivalent to its normalization.
-
-\begin{code}
-soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
+soundness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
 \end{code}
 \begin{code}[hide]
 soundness = bot _
 \end{code}
 
-Soundness implies the converse of \verb!completeness!, hence we may conclude that \verb!τ₁ ≡t τ₂! iff \verb!⇓ τ₁ ≡ ⇓ τ₂!.
+\Ni Soundness here states that equivalent types normalize to the same types. Consistency states that every type is equivalent to its normalization.
 
 \begin{code}
-completeness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
-completeness⁻¹ τ₁ τ₂ eq = 
+consistency : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
+\end{code}
+\begin{code}[hide]
+consistency = bot _
+\end{code}
+
+Consistency implies the converse of \verb!soundness!, hence we may conclude that \verb!τ₁ ≡t τ₂! iff \verb!⇓ τ₁ ≡ ⇓ τ₂!.
+
+\begin{code}
+soundness⁻¹ : ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+soundness⁻¹ τ₁ τ₂ eq = 
   eq-trans 
-    (soundness τ₁) 
+    (consistency τ₁) 
   (eq-trans 
     (inst (cong ⇑ eq)) 
-  (eq-sym (soundness τ₂)))
+  (eq-sym (consistency τ₂)))
   where
     inst : ∀ {υ₁ υ₂ : Type Δ κ} → υ₁ ≡ υ₂ → υ₁ ≡t υ₂
     inst refl = eq-refl
 \end{code}
 
-\subsection{A logical relation for completeness}
-We will prove completeness using a logical relation on semantic types. We would like to be able to equate semantic types, but they prove to be "too large": in particular, our definition of Kripke functions permit functions which may not respect composition of renaming. The solution is to reason about semantic types modulo a partial equivalence relation (PER) that both respects renamings (which we call \emph{uniformity}) and also equates functions extensionally. We write \verb!τ₁ ≋ τ₂! to denote that the semantic types \verb!τ₁! and \verb!τ₂! are equivalent modulo this relation. For clarity, we give names to the two properties (\emph{uniformity} and \emph{point equality}) we desire related types to hold, and define them mutually recursively.
+\subsection{A logical relation for soundness}
+We will prove soundness using a logical relation on semantic types. We would like to be able to equate semantic types, but they prove to be "too large": in particular, our definition of Kripke functions permit functions which may not respect composition of renaming. The solution is to reason about semantic types modulo a partial equivalence relation (PER) that both respects renamings (which we call \emph{uniformity}) and also equates functions extensionally. We write \verb!τ₁ ≋ τ₂! to denote that the semantic types \verb!τ₁! and \verb!τ₂! are equivalent modulo this relation. For clarity, we give names to the two properties (\emph{uniformity} and \emph{point equality}) we desire related types to hold, and define them mutually recursively.
 
 \begin{code}
 _≋_ : SemType Δ κ → SemType Δ κ → Set
@@ -1200,9 +1200,9 @@ _≋_ {κ = R[ κ ]} nothing (just _)                                  = ⊥
 \end{code}
 
 
-\subsubsection{Properties of the completeness relation}
+\subsubsection{Properties of the soundness relation}
 
-The completeness relation forms a \emph{partial equivalence relation} (PER). As uniformity is a unary property, it follows quickly that \verb!_≋_! cannot be reflexive, but a limited form of reflexivity does hold: provided that \verb!V! is related to \emph{some} other \verb!V'!, it relates to itself. The other properties (symmetry and transitivity) are simple enough to show. We introduce two helpers, \verb!refl-≋ₗ! and \verb!refl-≋ᵣ! to describe left and right reflexive projections.
+The soundness relation forms a \emph{partial equivalence relation} (PER). As uniformity is a unary property, it follows quickly that \verb!_≋_! cannot be reflexive, but a limited form of reflexivity does hold: provided that \verb!V! is related to \emph{some} other \verb!V'!, it relates to itself. The other properties (symmetry and transitivity) are simple enough to show. We introduce two helpers, \verb!refl-≋ₗ! and \verb!refl-≋ᵣ! to describe left and right reflexive projections.
 
 \begin{code}
 refl-≋ₗ : ∀ {V₁ V₂ : SemType Δ κ}     → V₁ ≋ V₂ → V₁ ≋ V₁
@@ -1248,9 +1248,9 @@ reify-≋ = bot _
 \end{code}
 
 
-\subsection{The fundamental theorem \& completeness}
+\subsection{The fundamental theorem \& soundness}
 
-We would like to show that all well-kinded equivalent types have semantically equivalent evaluations. Completeness follows shortly thereafter. The fundamental theorem for completeness (\verb!fundC!) states that equivalent types evaluate to related types under related environments. Towards this goal, we first define a point-wise equivalence on semantic environments.
+We would like to show that all well-kinded equivalent types have semantically equivalent evaluations. Soundness follows shortly thereafter. The fundamental theorem for soundness (\verb!fundC!) states that equivalent types evaluate to related types under related environments. Towards this goal, we first define a point-wise equivalence on semantic environments.
 
 \begin{code}
 Env-≋ : (η₁ η₂ : Env Δ₁ Δ₂) → Set
@@ -1275,7 +1275,7 @@ idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
 \end{code}
 
-We may now state the fundamental theorem for completeness. Again, as we have no semantic image of predicates, the fundamental theorem for predicates simply asserts that the evaluation of equivalent predicates are propositional equal.
+We may now state the fundamental theorem for soundness. Again, as we have no semantic image of predicates, the fundamental theorem for predicates simply asserts that the evaluation of equivalent predicates are propositional equal.
 
 \begin{code}
 fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
@@ -1288,21 +1288,21 @@ fundC = bot _
 fundC-pred = bot _
 \end{code}
 
-Completeness follows immediatelly as a special case of the fundamental theorem.
+Soundness follows immediatelly as a special case of the fundamental theorem.
 
 \begin{code}
-Completeness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
-Completeness eq = reify-≋ (fundC idEnv-≋ eq)  
+Soundness : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⇓ τ₁ ≡ ⇓ τ₂
+Soundness eq = reify-≋ (fundC idEnv-≋ eq)  
 \end{code}
 
 
-\subsection{Soundness}
+\subsection{Consistency}
 
-Soundness states that every type is equivalent to its normalization. Intuitively, completeness tells us that all "computation" inherent in the equivalence relation is captured by normalization; coversely, soundness tells us that all computation inherent in the normalization algorithm is declared in the equivalence relation.
+Consistency states that every type is equivalent to its normalization. Intuitively, soundness tells us that all "computation" inherent in the equivalence relation is captured by normalization; coversely, consistency tells us that all computation inherent in the normalization algorithm is declared in the equivalence relation.
 
 \subsubsection{A logical relation}
 
-We prove soundness by a separate logical relation that relates (unnormalized) types to semantic types. We write \verb!⟦ τ ⟧≋ V! to denote that the type $\tau$ is related to the semantic type $V$. This syntax is inspired by the result we wish to show: that evaluating $\tau$ yields a semantic type $V$. We give the type synonym \verb!SoundKripke! for the functional case.
+We prove consistency by a separate logical relation that relates (unnormalized) types to semantic types. We write \verb!⟦ τ ⟧≋ V! to denote that the type $\tau$ is related to the semantic type $V$. This syntax is inspired by the result we wish to show: that evaluating $\tau$ yields a semantic type $V$. We give the type synonym \verb!SoundKripke! for the functional case.
 
 \begin{code}
 infix 0 ⟦_⟧≋_
@@ -1333,7 +1333,7 @@ SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =
       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V))
 \end{code}
 
-\subsection{Properties of the soundness relation}
+\subsection{Properties of the consistency relation}
 
 We reflect type equivalence to the relation and reify the relation to type equivalence as so.
 
@@ -1348,7 +1348,7 @@ reflect-⟦⟧≋ = bot _
 reify-⟦⟧≋ = bot _
 \end{code}
 
-\subsubsection{The fundamental theorem \& soundness}
+\subsubsection{The fundamental theorem \& consistency}
 
 Towards defining the fundamental theorem, we first define a relation between syntactic environments (substitutions) and semantic environments. Intuitively, the substitution $\sigma$ is related to the environment $\eta$ if each type mapped to by $\sigma$ point-wise relates to the semantic type mapped to by $\eta$.
 
@@ -1357,7 +1357,7 @@ Towards defining the fundamental theorem, we first define a relation between syn
 ⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 \end{code}
 
-The fundamental theorem for soundness states that the substitution of $\tau$ by $\sigma$ is related to the evaluation of $\tau$ by $\eta$. Intuitively, substitution may be thought of as a syntactic notion of evaluation, and hence we are stating that syntactic and semantic evaluations relate.
+The fundamental theorem for consistency states that the substitution of $\tau$ by $\sigma$ is related to the evaluation of $\tau$ by $\eta$. Intuitively, substitution may be thought of as a syntactic notion of evaluation, and hence we are stating that syntactic and semantic evaluations relate.
 
 \begin{code}
 fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
@@ -1381,11 +1381,11 @@ idSR α = reflect-⟦⟧≋ eq-refl
 subₖ-id : ∀ (τ : Type Δ κ) → subₖ ` τ ≡ τ
 \end{code}
 
-Soundness follows as a special case of the fundamental theorem.
+Consistency follows as a special case of the fundamental theorem.
 
 \begin{code}
-Soundness : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
-Soundness τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundS τ idSR)))   
+Consistency : ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ)   
+Consistency τ = subst (_≡t ⇑ (⇓ τ)) (subₖ-id τ) ((reify-⟦⟧≋ (fundS τ idSR)))   
 \end{code}
 \begin{code}[hide]
 subₖ-id = bot _
@@ -1407,7 +1407,7 @@ Our mechanization has closely resembled that of \citet{ChapmanKNW19}. Our defini
 %  LocalWords:  denotational Agda Wadler dPoint sqrt subtyping coercions Intr
 %  LocalWords:  RowTypes Bool eval GHC reified HillerstromL Leijen LindleyM RO
 %  LocalWords:  ChapmanKNW Aydemir AbelAHPMSS AbelC AbelOV plfa HubersIMM STLC
-%  LocalWords:  MorrisM denotationally DenotationalSoundness RowTheories Suc de
+%  LocalWords:  MorrisM denotationally DenotationalConsistency RowTheories Suc de
 %  LocalWords:  ReifyingVariants RowTheory BerthomieuM CardelliMMS HarperP NatF
 %  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
 %  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman

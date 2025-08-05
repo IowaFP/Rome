@@ -1,4 +1,4 @@
-module Rome.Operational.Terms.Theorems.Soundness where
+module Rome.Operational.Terms.Theorems.Consistency where
 
 open import Rome.Operational.Prelude
 
@@ -17,8 +17,8 @@ open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Normal.Properties.Renaming
 
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Soundness
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Types.Semantic.NBE
@@ -40,7 +40,7 @@ open import Rome.Operational.Containment
 ⇑Ctx (Γ ,,, π) = ⇑Ctx Γ ,,, ⇑Pred π
 
 --------------------------------------------------------------------------------
--- Soundness of typing: Given a well-typed NormalTerm, we can produce a well-typed Term...
+-- Consistency of typing: Given a well-typed NormalTerm, we can produce a well-typed Term...
 -- or: if Γ ⊢nf M : τ then Γ ⊢ M : ⇑ τ.
 
 
@@ -78,7 +78,7 @@ open import Rome.Operational.Containment
   --    (cong₂ _≲_
   --      (cong ⇑ (sym (stability-<$> F ρ₁)))
   --      (cong ⇑ (sym (stability-<$> F ρ₂))))
-  -- (convert ((soundness (⇑ F <$> ⇑ ρ₁)) eq-≲ (soundness (⇑ F <$> ⇑ ρ₂))) (n-map≲ (⇑Ent e)))
+  -- (convert ((consistency (⇑ F <$> ⇑ ρ₁)) eq-≲ (consistency (⇑ F <$> ⇑ ρ₂))) (n-map≲ (⇑Ent e)))
 ⇑Ent (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e refl refl refl) = {!!}
   -- convEnt'
   --   (cong₃ _·_~_
@@ -86,7 +86,7 @@ open import Rome.Operational.Containment
   --     (cong ⇑ (sym (stability-<$> F ρ₂)))
   --     (cong ⇑ (sym (stability-<$> F ρ₃))))
   -- (convert
-  --   ((soundness (⇑ F <$> ⇑ ρ₁)) eq-· (soundness (⇑ F <$> ⇑ ρ₂)) ~ (soundness (⇑ F <$> ⇑ ρ₃)))
+  --   ((consistency (⇑ F <$> ⇑ ρ₁)) eq-· (consistency (⇑ F <$> ⇑ ρ₂)) ~ (consistency (⇑ F <$> ⇑ ρ₃)))
   --   (n-map· (⇑Ent e)))
 ⇑Ent (n-complR-inert n) = n-complR (⇑Ent n)
 ⇑Ent (n-complR {xs = xs} {ys} n) = convert (eq-refl eq-· {! !} ~ eq-refl) (n-complR (⇑Ent n))
@@ -118,9 +118,9 @@ open import Rome.Operational.Containment
     (eq-·
       eq-refl
       (eq-trans
-        (soundness  (⇑ φ <$> ⇑ ρ))
+        (consistency  (⇑ φ <$> ⇑ ρ))
         eq-refl))
-  (syn (⇑ ρ) (⇑ φ) (convert (eq-sym (soundness (SynT (⇑ ρ) (⇑ φ)))) (⇑Term M)))
+  (syn (⇑ ρ) (⇑ φ) (convert (eq-sym (consistency (SynT (⇑ ρ) (⇑ φ)))) (⇑Term M)))
 ⇑Term (τ Π▹ne τ₁) = {!!}
 ⇑Term (τ Π/ne τ₁) = {!!}
 ⇑Term (ana ρ φ τ eq₁ eq₂ τ₁) = {!!}
@@ -133,7 +133,7 @@ open import Rome.Operational.Containment
 --     (eq-→
 --       (eq-·
 --         eq-refl
---         (eq-trans (soundness (⇑ φ <$> ⇑ ρ)) eq-refl))
+--         (eq-trans (consistency (⇑ φ <$> ⇑ ρ)) eq-refl))
 --       eq-refl)
 --   (ana (⇑ ρ) (⇑ φ) (⇑ τ)
---     (convert (eq-sym (soundness (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) (⇑Term M)))
+--     (convert (eq-sym (consistency (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) (⇑Term M)))

@@ -17,8 +17,8 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.NBE
 open import Rome.Operational.Types.Semantic.Renaming
 
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Types.Equivalence.Relation
@@ -38,57 +38,57 @@ postulate
 ⟦ τ ⟧t = ⟦ ⇓ τ ⟧nf 
 
 all-denotations-respected : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⟦ τ₁ ⟧t ≡ ⟦ τ₂ ⟧t
-all-denotations-respected eq = cong ⟦_⟧nf (completeness eq)  
+all-denotations-respected eq = cong ⟦_⟧nf (soundness eq)  
 
 normalization-respected : ∀ {τ : Type Δ κ} {υ : NormalType Δ κ } → ⇓ τ ≡ υ → ⟦ τ ⟧t ≡ ⟦ υ ⟧nf 
 normalization-respected refl = refl
 
 more? : ∀ {τ : NormalType Δ κ} {υ : Type Δ κ } → ⇑ τ ≡t υ → ⟦ τ ⟧nf ≡ ⟦ υ ⟧t
-more? eq rewrite (sym (completeness eq)) = cong ⟦_⟧nf (sym (stability _)) 
+more? eq rewrite (sym (soundness eq)) = cong ⟦_⟧nf (sym (stability _)) 
 
-⟦Soundness⟧ : ∀ {τ : NormalType ∅ ★} (M N : NormalTerm ∅ τ) → M —→ N → ⟦ M ⟧ ≡ ⟦ N ⟧
-⟦Soundness⟧ M N (ξ-·1 step) = {! ⟦Soundness⟧ _ _ step  !}
-⟦Soundness⟧ M N (ξ-·2 step) = {!   !}
-⟦Soundness⟧ M N (ξ-·[] step) = {!   !}
-⟦Soundness⟧ M N (ξ-·⟨⟩ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Out step) = {!   !}
-⟦Soundness⟧ M N (ξ-In step) = {!   !}
-⟦Soundness⟧ M N (ξ-Π▹₁ M₁ ℓ₁ ℓ₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Σ M₁ M₂ i step) = {!   !}
-⟦Soundness⟧ M N (ξ-Π/₁ M₁ M₂ ℓ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Π/₂ M₁ ℓ₁ ℓ₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Σ▹₁ M₁ ℓ₁ ℓ₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Σ/₁ M₁ M₂ ℓ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Σ/₂ M₁ ℓ₁ ℓ₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-prj M₁ M₂ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-prj⇒ M₁ e₁ e₂ x) = {!   !}
-⟦Soundness⟧ M N (ξ-inj M₁ M₂ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-inj⇒ M₁ e₁ e₂ x) = {!   !}
-⟦Soundness⟧ M N (ξ-⊹₁ M₁ M₂ N₁ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-⊹₂ M₁ N₁ N₂ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-⊹₃ M₁ N₁ e₁ e₂ x) = {!   !}
-⟦Soundness⟧ M N (ξ-▿₁ M₁ M₂ N₁ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-▿₂ M₁ N₁ N₂ e step) = {!   !}
-⟦Soundness⟧ M N (ξ-▿₃ M₁ N₁ e₁ e₂ x) = {!   !}
-⟦Soundness⟧ M N (ξ-Syn ρ φ M₁ M₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-Ana ρ φ τ eq₁ eq₂ M₁ M₂ step) = {!   !}
-⟦Soundness⟧ M N (ξ-⟨⟩ x) = {!   !}
-⟦Soundness⟧ M N β-λ = {!   !}
-⟦Soundness⟧ M N β-Λ = {!   !}
-⟦Soundness⟧ M N β-ƛ = {!   !}
-⟦Soundness⟧ M N δ-In = {!   !}
-⟦Soundness⟧ M N (δ-fix M₁) = {!   !}
-⟦Soundness⟧ M N (δ-Π▹ M₁) = {!   !}
-⟦Soundness⟧ M N (δ-Σ▹ M₁) = {!   !}
-⟦Soundness⟧ M N (δ-Π/ .N ℓ) = {!   !}
-⟦Soundness⟧ M N (δ-Σ/ .N ℓ) = {!   !}
-⟦Soundness⟧ M N (δ-prj rys i) = {!   !}
-⟦Soundness⟧ M N (δ-inj l M₁ i h) = {!   !}
-⟦Soundness⟧ M N (δ-⊹ r₁ r₂ i₁ i₂ i₃) = {!   !}
-⟦Soundness⟧ M N (δ-▿₁ F G e M₁ i₁ i₂) = {!   !}
-⟦Soundness⟧ M N (δ-▿₂ F G e M₁ i₁ i₂) = {!   !}
-⟦Soundness⟧ M N (δ-ana φ _ φυ eq₂ M₁ l N₁ V i) = {!   !}
-⟦Soundness⟧ M N (δ-syn φ eq M₁) = {!   !} 
+⟦Consistency⟧ : ∀ {τ : NormalType ∅ ★} (M N : NormalTerm ∅ τ) → M —→ N → ⟦ M ⟧ ≡ ⟦ N ⟧
+⟦Consistency⟧ M N (ξ-·1 step) = {! ⟦Consistency⟧ _ _ step  !}
+⟦Consistency⟧ M N (ξ-·2 step) = {!   !}
+⟦Consistency⟧ M N (ξ-·[] step) = {!   !}
+⟦Consistency⟧ M N (ξ-·⟨⟩ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Out step) = {!   !}
+⟦Consistency⟧ M N (ξ-In step) = {!   !}
+⟦Consistency⟧ M N (ξ-Π▹₁ M₁ ℓ₁ ℓ₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Σ M₁ M₂ i step) = {!   !}
+⟦Consistency⟧ M N (ξ-Π/₁ M₁ M₂ ℓ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Π/₂ M₁ ℓ₁ ℓ₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Σ▹₁ M₁ ℓ₁ ℓ₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Σ/₁ M₁ M₂ ℓ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Σ/₂ M₁ ℓ₁ ℓ₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-prj M₁ M₂ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-prj⇒ M₁ e₁ e₂ x) = {!   !}
+⟦Consistency⟧ M N (ξ-inj M₁ M₂ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-inj⇒ M₁ e₁ e₂ x) = {!   !}
+⟦Consistency⟧ M N (ξ-⊹₁ M₁ M₂ N₁ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-⊹₂ M₁ N₁ N₂ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-⊹₃ M₁ N₁ e₁ e₂ x) = {!   !}
+⟦Consistency⟧ M N (ξ-▿₁ M₁ M₂ N₁ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-▿₂ M₁ N₁ N₂ e step) = {!   !}
+⟦Consistency⟧ M N (ξ-▿₃ M₁ N₁ e₁ e₂ x) = {!   !}
+⟦Consistency⟧ M N (ξ-Syn ρ φ M₁ M₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-Ana ρ φ τ eq₁ eq₂ M₁ M₂ step) = {!   !}
+⟦Consistency⟧ M N (ξ-⟨⟩ x) = {!   !}
+⟦Consistency⟧ M N β-λ = {!   !}
+⟦Consistency⟧ M N β-Λ = {!   !}
+⟦Consistency⟧ M N β-ƛ = {!   !}
+⟦Consistency⟧ M N δ-In = {!   !}
+⟦Consistency⟧ M N (δ-fix M₁) = {!   !}
+⟦Consistency⟧ M N (δ-Π▹ M₁) = {!   !}
+⟦Consistency⟧ M N (δ-Σ▹ M₁) = {!   !}
+⟦Consistency⟧ M N (δ-Π/ .N ℓ) = {!   !}
+⟦Consistency⟧ M N (δ-Σ/ .N ℓ) = {!   !}
+⟦Consistency⟧ M N (δ-prj rys i) = {!   !}
+⟦Consistency⟧ M N (δ-inj l M₁ i h) = {!   !}
+⟦Consistency⟧ M N (δ-⊹ r₁ r₂ i₁ i₂ i₃) = {!   !}
+⟦Consistency⟧ M N (δ-▿₁ F G e M₁ i₁ i₂) = {!   !}
+⟦Consistency⟧ M N (δ-▿₂ F G e M₁ i₁ i₂) = {!   !}
+⟦Consistency⟧ M N (δ-ana φ _ φυ eq₂ M₁ l N₁ V i) = {!   !}
+⟦Consistency⟧ M N (δ-syn φ eq M₁) = {!   !} 
 
 
 --------------------------------------------------------------------------------

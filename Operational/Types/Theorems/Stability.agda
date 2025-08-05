@@ -19,7 +19,7 @@ open import Rome.Operational.Types.Semantic.Syntax
 open import Rome.Operational.Types.Semantic.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 
 --------------------------------------------------------------------------------
 -- - stability : ⇑ is right-inverse to ⇓ 

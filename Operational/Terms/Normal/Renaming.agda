@@ -33,8 +33,8 @@ open import Rome.Operational.Terms.Syntax
 
 open import Rome.Operational.Terms.Normal.Syntax
 
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Stability
 
 open import Rome.Operational.Containment

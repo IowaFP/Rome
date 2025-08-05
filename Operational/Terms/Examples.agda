@@ -15,8 +15,8 @@ open import Rome.Operational.Types.Equivalence.Relation
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Terms.Syntax
--- open import Rome.Operational.Terms.Theorems.Soundness
-open import Rome.Operational.Terms.Theorems.Completeness
+-- open import Rome.Operational.Terms.Theorems.Consistency
+open import Rome.Operational.Terms.Theorems.Soundness
 
 open import Rome.Operational.Terms.Normal.Syntax
 

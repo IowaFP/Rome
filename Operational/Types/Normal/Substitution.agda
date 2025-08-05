@@ -13,7 +13,7 @@ open import Rome.Operational.Types.Normal.Syntax
 open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Completeness
+open import Rome.Operational.Types.Theorems.Soundness
 open import Rome.Operational.Types.Equivalence.Relation
 
 --------------------------------------------------------------------------------

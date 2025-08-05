@@ -25,9 +25,9 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Equivalence.Relation
 open import Rome.Operational.Types.Equivalence.Properties
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Consistency
 
 
 open import Rome.Operational.Terms.Normal.Syntax
@@ -40,14 +40,14 @@ open import Rome.Operational.Terms.Normal.Renaming
 open import Rome.Operational.Terms.Normal.Entailment.Properties
 
 --------------------------------------------------------------------------------
--- Lifting soundness result over substitution by (⇑ ∘ σ)
+-- Lifting consistency result over substitution by (⇑ ∘ σ)
 
-soundness-under-subₖ : ∀ (σ : SubstitutionₖNF (Δ₁ ,, κ) Δ₂)  (τ₂ : Type (Δ₁ ,, κ) κ₂) → 
+consistency-under-subₖ : ∀ (σ : SubstitutionₖNF (Δ₁ ,, κ) Δ₂)  (τ₂ : Type (Δ₁ ,, κ) κ₂) → 
                   subₖ (⇑ ∘ σ)
                   (⇑ (reify (eval τ₂ (lifte idEnv)))) ≡t subₖ (⇑ ∘ σ) τ₂
-soundness-under-subₖ σ τ₂ = 
+consistency-under-subₖ σ τ₂ = 
   eq-trans (subₖ-≡t⇑ {σ = σ}
-              {τ₁ = ⇑ (reify (eval τ₂ (lifte idEnv)))} (eq-sym (soundness-liftsₖ τ₂))) 
+              {τ₁ = ⇑ (reify (eval τ₂ (lifte idEnv)))} (eq-sym (consistency-liftsₖ τ₂))) 
   (eq-trans 
     (inst (sym (subₖ-comp τ₂))) (subₖ-cong-≡t {σ₁ = subₖ (⇑ ∘ σ) ∘ liftsₖ `}
                                    {σ₂ = ⇑ ∘ σ} (λ { Z → eq-refl ; (S x₁) → eq-refl }) τ₂))
@@ -78,7 +78,7 @@ lem₁ : ∀ (l : NormalType Δ κ₁) (τ : NormalType Δ κ₂) →
          (lifte idEnv))))
       ≡t ⇑ τ 
 lem₁ {κ₂ = κ} l τ = eq-trans
-                      (soundness-under-subₖ (extendₖNF idSubst τ)
+                      (consistency-under-subₖ (extendₖNF idSubst τ)
                         (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst l))
                           (⇑ (reify (reflect (` Z))))))
                     (η-norm-under-subₖ-liftsₖ (extendₖNF idSubst l) (extendₖNF idSubst τ) Z)
@@ -97,7 +97,7 @@ lem₂ :  ∀ (l₁ : NormalType ∅ κ₁) (l₂ : NormalType ∅ κ₂) (τ : 
 
 lem₂ {κ = κ} l₁ l₂ τ = 
   eq-trans 
-    (soundness-under-subₖ (extendₖNF idSubst l₁) 
+    (consistency-under-subₖ (extendₖNF idSubst l₁) 
       (subₖ (liftsₖ (⇑ ∘ extendₖNF idSubst l₂))
       (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv))))))) 
   (eq-trans 
@@ -129,7 +129,7 @@ lem₃ : ∀ (φ : NormalType ∅ (κ `→ ★)) (τ : NormalType ∅ κ) (l : N
       ≡ 
       φ ·' τ 
 lem₃ φ τ l = 
-  trans (completeness
+  trans (soundness
            {τ₁ =
             subₖ (λ x₁ → ⇑ (extendₖNF idSubst τ x₁))
             (⇑
@@ -149,7 +149,7 @@ lem₃ φ τ l =
                             (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
                              (lifte (lifte idEnv) Z))))
                           (lifte idEnv))}
-  (eq-trans (eq-sym (soundness-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst l x₁)))
+  (eq-trans (eq-sym (consistency-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst l x₁)))
         (⇑
          (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
           (lifte (lifte idEnv) Z)))))) 
@@ -207,7 +207,7 @@ lem₄ : ∀ (xs : SimpleRow NormalType ∅ R[ κ ]) (υ₁ : NormalType ∅ κ)
                (lifte idEnv)))))
                idEnv)   
 lem₄ [] υ₁ υ₂ = refl
-lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (sym (stability τ)) (sym (completeness (lem₂ υ₁ υ₂ τ))) )) (lem₄ xs υ₁ υ₂)
+lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (sym (stability τ)) (sym (soundness (lem₂ υ₁ υ₂ τ))) )) (lem₄ xs υ₁ υ₂)
 
 
 
@@ -262,9 +262,9 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
               ≡
               t
          lem₅ t = trans 
-                (completeness
+                (soundness
                   (eq-trans 
-                    (subₖ-≡t (eq-sym (soundness-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
+                    (subₖ-≡t (eq-sym (consistency-liftsₖ (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                        (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) t))))))) 
                   (eq-trans (inst (sym (subₖ-comp (subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                       (⇑ (renₖNF (liftₖ (liftₖ S)) (renₖNF (liftₖ (liftₖ S)) t))))) )) 
@@ -315,10 +315,10 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
                 (λ x₁ → reflect (` x₁)))
                ≡ reify (reflect (` Z))
          #2 = trans 
-                (completeness
+                (soundness
                      (subₖ-≡t⇑ {σ = extendₖNF idSubst u}
                       (eq-trans 
-                        (eq-sym (soundness-liftsₖ ((subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
+                        (eq-sym (consistency-liftsₖ ((subₖ (liftsₖ (λ x₁ → ⇑ (extendₖNF idSubst ℓℓ x₁)))
                                                   (⇑ (renₖNF (liftₖ (liftₖ S))
                                                   (renₖNF (liftₖ (liftₖ S)) (reify (idEnv Z)))))))) ) 
                       (eq-trans (inst (sym (subₖ-comp (⇑
@@ -414,7 +414,7 @@ synRecord φ ((l , τ) ∷ zs) ozs M =
               ·⟨ n-incl (λ { (l' , τ') 
                  (here refl) → 
                    here (cong₂ _,_ refl 
-                     (completeness 
+                     (soundness 
                        (eq-trans (lem₁ (lab l) τ) 
                        (eq-sym (lem₂ τ (lab l) τ)) ))) }) ⟩ 
              · # (lab l))  ⨾ 
@@ -445,10 +445,10 @@ anaVariant : ∀ (φ : NormalType ∅ (κ `→ ★))
               NormalTerm ∅ τ
 anaVariant φ zs τ ozs ozs' M v (V-Σ l {M'} V i) with getApplicand {φ = φ} i 
 ... | υ , i' , refl = (conv 
-  (trans (completeness (lem₂ υ (lab l) τ)) (stability τ)) 
+  (trans (soundness (lem₂ υ (lab l) τ)) (stability τ)) 
         (M ·[ lab l ] 
            ·[ υ ] 
            ·⟨ n-incl (λ { (.l , τ') (here refl) → 
-                     subst (λ X → (l , τ') ∈ X) (lem₄ zs υ (lab l)) (subst (λ X → (l , X) ∈ _) (trans (sym (stability υ)) (sym (completeness (lem₁ (lab l) υ)))) i') }) ⟩ 
+                     subst (λ X → (l , τ') ∈ X) (lem₄ zs υ (lab l)) (subst (λ X → (l , X) ∈ _) (trans (sym (stability υ)) (sym (soundness (lem₁ (lab l) υ)))) i') }) ⟩ 
            · # (lab l) 
            · conv (sym (lem₃ φ υ (lab l))) M'))

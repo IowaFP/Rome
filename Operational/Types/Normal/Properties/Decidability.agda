@@ -16,8 +16,8 @@ open import Rome.Operational.Types.Normal.Renaming
 open import Rome.Operational.Types.Semantic.NBE
 
 open import Rome.Operational.Types.Theorems.Stability
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 
 open import Data.String.Properties using (_≟_)
 
@@ -192,9 +192,6 @@ _<$>_ {κ₁} f x ≡? (l ▹ₙ τ) = no (λ ())
 
 _≡t?_ : ∀ (τ₁ τ₂ : Type Δ κ) → Dec (τ₁ ≡t τ₂)
 τ₁ ≡t? τ₂  with (⇓ τ₁) ≡? (⇓ τ₂)
-... | yes p = yes 
-    (eq-trans 
-        (soundness τ₁) 
-        (embed-≡t p))
-... | no  p = no (λ x → p (completeness x))
+... | yes p = yes (completeness τ₁ τ₂ p)
+... | no  p = no (p ∘ soundness)
  

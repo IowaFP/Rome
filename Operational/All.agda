@@ -56,8 +56,8 @@ open import Rome.Operational.Types.Semantic.NBE
 --------------------------------------------------------------------------------
 -- Types.Theorems
 
-open import Rome.Operational.Types.Theorems.Completeness
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Consistency
 open import Rome.Operational.Types.Theorems.Stability
 
 --------------------------------------------------------------------------------

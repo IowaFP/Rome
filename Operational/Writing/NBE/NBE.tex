@@ -10883,7 +10883,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{τ₂}\AgdaSymbol{))}\<%
 \end{code}
 
-\subsection{A logical relation for completeness}
+\subsection{A logical relation for soundness}
 
 \begin{code}%
 \>[0]\AgdaFunction{subst-Row}\AgdaSpace{}%
@@ -10921,7 +10921,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaComment{--\ Completeness\ relation\ on\ semantic\ types}\<%
+\>[0]\AgdaComment{--\ Soundness\ relation\ on\ semantic\ types}\<%
 \\
 \>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}≋\AgdaUnderscore{}}}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -12492,7 +12492,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaSymbol{\AgdaUnderscore{}}\<%
 \end{code}
 
-\subsection{The fundamental theorem and completeness}
+\subsection{The fundamental theorem and soundness}
 
 \begin{code}%
 \>[0]\AgdaFunction{fundC}%
@@ -12640,7 +12640,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{completeness}\AgdaSpace{}%
+\>[0]\AgdaFunction{soundness}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{τ₁}\AgdaSpace{}%
@@ -12660,7 +12660,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaFunction{⇓}\AgdaSpace{}%
 \AgdaBound{τ₂}\<%
 \\
-\>[0]\AgdaFunction{completeness}\AgdaSpace{}%
+\>[0]\AgdaFunction{soundness}\AgdaSpace{}%
 \AgdaBound{eq}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{reify-≋}\AgdaSpace{}%
@@ -12670,7 +12670,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{completeness-row}\AgdaSpace{}%
+\>[0]\AgdaFunction{soundness-row}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{ρ₁}\AgdaSpace{}%
@@ -12694,13 +12694,13 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaBound{ρ₂}\<%
 \end{code}
 \begin{code}[hide]%
-\>[0]\AgdaFunction{completeness-row}\AgdaSpace{}%
+\>[0]\AgdaFunction{soundness-row}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaPostulate{bot}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{}}\<%
 \end{code}
 
-\subsection{A logical relation for soundness}
+\subsection{A logical relation for consistency}
 \begin{code}%
 \>[0]\AgdaKeyword{infix}\AgdaSpace{}%
 \AgdaNumber{0}\AgdaSpace{}%
@@ -13363,7 +13363,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaPostulate{bot}\AgdaSpace{}%
 \AgdaSymbol{\AgdaUnderscore{}}\<%
 \end{code}
-\subsection{The fundamental theorem and soundness}
+\subsection{The fundamental theorem and consistency}
 \begin{code}%
 \>[0]\AgdaFunction{fundS}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
@@ -13554,11 +13554,11 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \begin{code}%
 \>[0]\AgdaComment{--------------------------------------------------------------------------------}\<%
 \\
-\>[0]\AgdaComment{--\ Soundness\ claim\ \ }\<%
+\>[0]\AgdaComment{--\ Consistency\ claim\ \ }\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{soundness}\AgdaSpace{}%
+\>[0]\AgdaFunction{consistency}\AgdaSpace{}%
 \AgdaSymbol{:}%
 \>[13]\AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ₁}\AgdaSpace{}%
@@ -13576,7 +13576,7 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaSymbol{(}\AgdaFunction{⇓}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSymbol{)}\<%
 \\
-\>[0]\AgdaFunction{soundness}\AgdaSpace{}%
+\>[0]\AgdaFunction{consistency}\AgdaSpace{}%
 \AgdaBound{τ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaFunction{reify-⟦⟧≋}\AgdaSpace{}%
@@ -13625,18 +13625,18 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaInductiveConstructor{refl}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{eq-sym}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{soundness}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{consistency}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSymbol{)}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaComment{--------------------------------------------------------------------------------}\<%
 \\
-\>[0]\AgdaComment{--\ Soundness\ implies\ the\ converse\ of\ completeness,\ as\ desired}\<%
+\>[0]\AgdaComment{--\ Consistency\ implies\ the\ converse\ of\ soundness,\ as\ desired}\<%
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaFunction{Completeness⁻¹}\AgdaSpace{}%
+\>[0]\AgdaFunction{Soundness⁻¹}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaSymbol{∀}\AgdaSpace{}%
 \AgdaSymbol{\{}\AgdaBound{Δ}\AgdaSpace{}%
@@ -13659,13 +13659,13 @@ Dual to surjectivity, stability also implies that embedding is injective.
 \AgdaOperator{\AgdaDatatype{≡t}}\AgdaSpace{}%
 \AgdaBound{τ₂}\<%
 \\
-\>[0]\AgdaFunction{Completeness⁻¹}\AgdaSpace{}%
+\>[0]\AgdaFunction{Soundness⁻¹}\AgdaSpace{}%
 \AgdaBound{τ₁}\AgdaSpace{}%
 \AgdaBound{τ₂}\AgdaSpace{}%
 \AgdaBound{eq}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaInductiveConstructor{eq-trans}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaFunction{soundness}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{consistency}\AgdaSpace{}%
 \AgdaBound{τ₁}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{embed-≡t}\AgdaSpace{}%
 \AgdaBound{eq}\AgdaSymbol{)}\<%
@@ -13689,7 +13689,7 @@ In the remainder of the development, we intrinsically represent terms as typing 
 %  LocalWords:  denotational Agda Wadler dPoint sqrt subtyping coercions Intr
 %  LocalWords:  RowTypes Bool eval GHC reified HillerstromL Leijen LindleyM RO
 %  LocalWords:  ChapmanKNW Aydemir AbelAHPMSS AbelC AbelOV plfa HubersIMM STLC
-%  LocalWords:  MorrisM denotationally DenotationalSoundness RowTheories Suc de
+%  LocalWords:  MorrisM denotationally DenotationalConsistency RowTheories Suc de
 %  LocalWords:  ReifyingVariants RowTheory BerthomieuM CardelliMMS HarperP NatF
 %  LocalWords:  XueOX GasterJ Sipser SaffrichTM Env Expr Agda's Leivant ChanW
 %  LocalWords:  ThiemannW ImpredicativeSet ImpredicativeSetSucks AbelP chapman

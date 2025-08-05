@@ -25,9 +25,9 @@ open import Rome.Operational.Types.Normal.Properties.Substitution
 open import Rome.Operational.Types.Equivalence.Relation
 open import Rome.Operational.Types.Equivalence.Properties
 
-open import Rome.Operational.Types.Theorems.Completeness
-open import Rome.Operational.Types.Theorems.Stability
 open import Rome.Operational.Types.Theorems.Soundness
+open import Rome.Operational.Types.Theorems.Stability
+open import Rome.Operational.Types.Theorems.Consistency
 
 
 open import Rome.Operational.Terms.Normal.Syntax

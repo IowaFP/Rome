@@ -1,4 +1,4 @@
-- Restore Terms.Theorems.{Soundness,Completeness}
+- Restore Terms.Theorems.{Consistency,Soundness}
 - Index kinds by ℓeveℓ 
 - Better denotation of Rωμ
 - Writeup on type normalization, for Edinburgh (Aug. 4?) *highest priority*
