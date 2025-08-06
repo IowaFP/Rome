@@ -10,19 +10,43 @@ open import Rome.RelatingSemantics.Types.Renaming
 -- η-normalization of neutral types
 
 η-expand : NeutralType Δ κ → NormalType Δ κ 
-η-expand {κ = ★} (` α) = ne (` α)
-η-expand {κ = L} (` α) = ne (` α)
-η-expand {κ = κ₁ `→ κ₂} (` α) = {!!}
-η-expand {κ = R[ κ ]} (` α) = {!!}
-η-expand (n · τ) = {!!}
+η-expand {κ = ★} n = ne n
+η-expand {κ = L} n = ne n
+η-expand {κ = κ₁ `→ κ₂} n = `λ (η-expand ((weakenₖNE n) · (η-expand (` Z))))
+η-expand {κ = R[ κ ]} n = (`λ (η-expand (` Z))) <$> n
 
 --------------------------------------------------------------------------------
 -- Normality preserving type substitution
 
-Substitutionₖ : KEnv ι₁ → KEnv ι₂ → Set
-Substitutionₖ Δ₁ Δ₂ = ∀ {ι}{κ : Kind ι} → TVar Δ₁ κ → NormalType Δ₂ κ
+SubstitutionₖNF : KEnv ι₁ → KEnv ι₂ → Set
+SubstitutionₖNF Δ₁ Δ₂ = ∀ {ι}{κ : Kind ι} → TVar Δ₁ κ → NormalType Δ₂ κ
 
 -- lifting a substitution over binders.
-liftsₖ :  Substitutionₖ Δ₁ Δ₂ → Substitutionₖ (Δ₁ ,, κ) (Δ₂ ,, κ)
-liftsₖ σ Z = η-expand (` Z)
-liftsₖ σ (S x) = weakenₖNF (σ x)
+liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)
+liftsₖNF σ Z = η-expand (` Z)
+liftsₖNF σ (S x) = weakenₖNF (σ x)
+
+
+-- Identity substitution (s.t. substₖNF idSubst x = (idSubst x))
+idSubst : SubstitutionₖNF Δ Δ
+idSubst = η-expand ∘ `
+
+
+subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
+subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
+
+subₖNF σ (ne (` α)) = σ α
+subₖNF σ (ne (x · τ)) = ne {!x · ?!}
+subₖNF σ (τ <$> x) = {!!}
+subₖNF σ (`λ τ) = {!!}
+subₖNF σ (τ `→ τ₁) = {!!}
+subₖNF σ (`∀ τ) = {!!}
+subₖNF σ (π ⇒ τ) = {!!}
+subₖNF σ (⦅ ρ ⦆ oρ) = {!!}
+subₖNF σ (lab l) = {!!}
+subₖNF σ ⌊ τ ⌋ = {!!}
+subₖNF σ (Π τ) = {!!}
+subₖNF σ (Σ τ) = {!!}
+subₖNF σ (τ ─ τ₁) = {!!}
+subₖNF σ (l ▹ₙ τ) = {!!}
+
