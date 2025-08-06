@@ -37,30 +37,34 @@ UniformNE :  ∀ {Δ : KEnv ι₁} {κ₁ : Kind ι₂} {κ₂ : Kind ι₃} →
 convNE : κ₁ ≡ κ₂ → NeutralType Δ R[ κ₁ ] → NeutralType Δ R[ κ₂ ]
 convNE refl n = n 
 
-convKripkeNE₁ : ∀ {κ₁'} → κ₁ ≡ κ₁' → KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₁' κ₂
+convKripkeNE₁ : ∀ {κ₁ : Kind ι} {κ₁' : Kind ι} → κ₁ ≡ κ₁' → 
+                KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₁' κ₂
 convKripkeNE₁ refl f = f
+
+_≋kf_ : KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₁ κ₂ → Set 
+F ≋kf G = ? 
 
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
-_≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = 
-  Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
-    UniformNE φ₁
-  × UniformNE φ₂
-  × (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂
-  × convNE pf n₁ ≡ n₂)
+_≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = ?
+  -- Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
+  --   UniformNE φ₁
+  -- × UniformNE φ₂
+  -- × (PointEqualNE-≋ (convKripkeNE₁ pf φ₁) φ₂
+  -- × convNE pf n₁ ≡ n₂)
 _≋_ {Δ₁} {κ = R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
-_≋_ {Δ₁} {R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
-_≋_ {Δ₁} {R[ κ ]} (x₁ ▹ x₂) (row ρ x₃) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (x₁ ▹ x₂) (ρ₂ ─ ρ₃) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (row ρ x₁) (x₂ ▹ x₃) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (row (n , P) x₁) (row (m , Q) x₂) = (n , P) ≋R (m , Q)
-_≋_ {Δ₁} {R[ κ ]} (row ρ x₁) (ρ₂ ─ ρ₃) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (x₁ ▹ x₂) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (row ρ x₁) = ⊥
-_≋_ {Δ₁} {R[ κ ]} (ρ₁ ─ ρ₂) (ρ₃ ─ ρ₄) = ρ₁ ≋ ρ₃ × ρ₂ ≋ ρ₄
+_≋_ {Δ₁} {κ = R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {Δ₁} {κ = R[ κ ]} (x₁ ▹ x₂) (row ρ x₃) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (x₁ ▹ x₂) (ρ₂ ─ ρ₃) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (row ρ x₁) (x₂ ▹ x₃) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (row (n , P) x₁) (row (m , Q) x₂) = (n , P) ≋R (m , Q)
+_≋_ {Δ₁} {κ = R[ κ ]} (row ρ x₁) (ρ₂ ─ ρ₃) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (x₁ ▹ x₂) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (row ρ x₁) = ⊥
+_≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (ρ₃ ─ ρ₄) = ρ₁ ≋ ρ₃ × ρ₂ ≋ ρ₄
 
 PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
