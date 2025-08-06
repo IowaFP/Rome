@@ -603,45 +603,45 @@ map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {n
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundC : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for rows
 
-fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundCRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
-fundSRow [] e = tt
-fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
+fundCRow [] e = tt
+fundCRow ((l , τ) ∷ xs) e = (refl , fundC τ e ) , fundCRow xs e
 
 --------------------------------------------------------------------------------
 -- mapping an application over a row is application of the semantic row.
 
-fundS-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
+fundC-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                 {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
                 ⟦ σ ⟧≋e η → 
                 ⟦ map (map₂ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
-fundS-map-app zero P _ _ _ = tt
-fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
-  (refl , (subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundS τ₁ e id (rel-fzero .snd)))) ,
-  fundS-map-app n (P ∘ fsuc) τ₁ rel-fsuc e
+fundC-map-app zero P _ _ _ = tt
+fundC-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
+  (refl , (subst-⟦⟧≋ (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) (fundC τ₁ e id (rel-fzero .snd)))) ,
+  fundC-map-app n (P ∘ fsuc) τ₁ rel-fsuc e
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for predicates
           
-fundSPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundCPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
-fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
-fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
+fundCPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundC ρ₁ e)) eq-· (reify-⟦⟧≋ (fundC ρ₂ e)) ~ (reify-⟦⟧≋ (fundC ρ₃ e))
+fundCPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundC ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundC ρ₂ e))
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma definition 
 
-fundS (` α) {σ} {η} e = e α
-fundS (`λ τ) {σ} {η} e ρ {v} {V} q = 
+fundC (` α) {σ} {η} e = e α
+fundC (`λ τ) {σ} {η} e ρ {v} {V} q = 
   subst-⟦⟧≋ 
     (eq-sym eq-β) 
     (subst-⟦⟧≋ 
@@ -650,23 +650,23 @@ fundS (`λ τ) {σ} {η} e ρ {v} {V} q =
           (inst (subₖ-cong (λ { Z → refl ; (S x) → trans (renₖ-subₖ-id ρ (σ x)) (↻-subₖ-renₖ (σ x)) }) τ)) 
           (inst (subₖ-comp τ))) 
         (inst (↻-subₖ-renₖ (subₖ (liftsₖ σ) τ)))) 
-      (fundS τ (extend-⟦⟧≋ (ren-⟦⟧≋ ρ ∘ e) q)))
-fundS (τ₁ · τ₂) {σ} {η} e  = 
+      (fundC τ (extend-⟦⟧≋ (ren-⟦⟧≋ ρ ∘ e) q)))
+fundC (τ₁ · τ₂) {σ} {η} e  = 
   subst-⟦⟧≋ 
     (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) 
-    (fundS τ₁ e id (fundS τ₂ e))
-fundS (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fundS τ₁ e) (fundS τ₂ e)
-fundS (`∀ τ) {σ} {η} e = eq-∀ (fundS τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
-fundS (μ τ) {σ} {η} e = eq-μ
+    (fundC τ₁ e id (fundC τ₂ e))
+fundC (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fundC τ₁ e) (fundC τ₂ e)
+fundC (`∀ τ) {σ} {η} e = eq-∀ (fundC τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
+fundC (μ τ) {σ} {η} e = eq-μ
     (eq-trans 
         (eq-η {f = subₖ σ τ}) 
-        (eq-λ (fundS τ e S eq-refl)))
-fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
-fundS (lab l) {σ} {η} e = eq-refl
-fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
-fundS (Π {notLabel = nl}) {σ} {η} e = sound-Π {nl = nl}
-fundS Σ {σ} {η} e = sound-Σ
-fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fundS τ₂ e 
+        (eq-λ (fundC τ e S eq-refl)))
+fundC (π ⇒ τ) {σ} {η} e = eq-⇒ (fundCPred π e) (fundC τ e)
+fundC (lab l) {σ} {η} e = eq-refl
+fundC ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundC τ e)
+fundC (Π {notLabel = nl}) {σ} {η} e = sound-Π {nl = nl}
+fundC Σ {σ} {η} e = sound-Σ
+fundC (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval x η) τ₂ | fundC τ₂ e 
 ... | row (n , P) _ | [[ eq ]] | eqₜ , rel = 
     (eq-trans 
       (eq-<$> 
@@ -674,8 +674,8 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
         eqₜ) 
     (eq-trans 
       eq-map 
-      (eq-row (reify-⟦⟧r≋ (fundS-map-app n P τ₁ rel e) )))) , 
-    refl-⟦⟧r≋ (fundS-map-app n P τ₁ rel e)  
+      (eq-row (reify-⟦⟧r≋ (fundC-map-app n P τ₁ rel e) )))) , 
+    refl-⟦⟧r≋ (fundC-map-app n P τ₁ rel e)  
 ... | l ▹ τ | [[ eq ]] | eqₜ , rel = 
   (eq-trans 
     (eq-<$> eq-refl eqₜ) 
@@ -687,21 +687,21 @@ fundS (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | inspect (λ x → eval 
           (eq-· 
             (inst (sym (renₖ-id (subₖ σ τ₁)))) 
             eq-refl) 
-          (reify-⟦⟧≋ (fundS τ₁ e id rel)))))) , 
-  refl-⟦⟧≋ (fundS τ₁ e id rel)
-fundS  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ} {η} e | (ρ₂ ─ ρ₁) {nr} | [[ eq ]] | t-eq , rel₂ , rel₁ = 
+          (reify-⟦⟧≋ (fundC τ₁ e id rel)))))) , 
+  refl-⟦⟧≋ (fundC τ₁ e id rel)
+fundC  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ} {η} e | (ρ₂ ─ ρ₁) {nr} | [[ eq ]] | t-eq , rel₂ , rel₁ = 
   (eq-trans 
     (eq-<$> eq-refl t-eq) 
-    (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify (ρ₂ ─ ρ₁))) (ρ₂ ─ ρ₁) (fundS τ₁ e) (eq-refl , rel₂ , rel₁) .fst)) , 
-    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₂)) ρ₂ (fundS τ₁ e) rel₂) , 
-    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₁)) ρ₁ (fundS τ₁ e) rel₁)
-fundS (τ₁ <$> τ₂) {σ} {η} e | φ <$> n | [[ eq ]] | (f , eq-f , rel-f) with eval τ₁ η | fundS τ₁ e
+    (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify (ρ₂ ─ ρ₁))) (ρ₂ ─ ρ₁) (fundC τ₁ e) (eq-refl , rel₂ , rel₁) .fst)) , 
+    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₂)) ρ₂ (fundC τ₁ e) rel₂) , 
+    refl-⟦⟧≋ (cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) (⇑ (reify ρ₁)) ρ₁ (fundC τ₁ e) rel₁)
+fundC (τ₁ <$> τ₂) {σ} {η} e | φ <$> n | [[ eq ]] | (f , eq-f , rel-f) with eval τ₁ η | fundC τ₁ e
 ... | F | rel-F = cong-<$>⟦⟧≋ (subₖ σ τ₁) F (subₖ σ τ₂) (φ <$> n) rel-F (f , eq-f , rel-f)
-fundS (⦅ xs ⦆ oxs) {σ} {η} e with fundSRow xs e
-fundS (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
-fundS (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundS τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)
-fundS (ρ₂ ─ ρ₁) {σ} {η} e with eval ρ₂ η | fundS ρ₂ e 
-fundS (ρ₂ ─ ρ₁) {σ} {η} e | φ <$> n | (f , eq-f , rel-f) with eval ρ₁ η | fundS ρ₁ e 
+fundC (⦅ xs ⦆ oxs) {σ} {η} e with fundCRow xs e
+fundC (⦅ [] ⦆ tt) {σ} {η} e | tt = eq-refl , tt
+fundC (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = eq-row (eq-cons refl (reify-⟦⟧≋ (fundC τ e)) (reify-⟦⟧r≋ ih-xs)) , ((refl , refl-⟦⟧≋ ih-τ) , refl-⟦⟧r≋ ih-xs)
+fundC (ρ₂ ─ ρ₁) {σ} {η} e with eval ρ₂ η | fundC ρ₂ e 
+fundC (ρ₂ ─ ρ₁) {σ} {η} e | φ <$> n | (f , eq-f , rel-f) with eval ρ₁ η | fundC ρ₁ e 
 ... | φ₂ <$> n₂   | (g , eq-g , rel-g) = (eq-─ (reifySoundKripkeNE-≡t eq-f rel-f) (reifySoundKripkeNE-≡t eq-g rel-g)) , 
   (f , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-f) , rel-f) , 
   (g , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-g) , rel-g)
@@ -712,14 +712,14 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | φ <$> n | (f , eq-f , rel-f) with eval ρ
 ... | c ─ c₁   | ih' = 
     (eq-─ (reifySoundKripkeNE-≡t eq-f rel-f) (ih' .fst)) , 
     ((f , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-f) , rel-f) , (eq-refl , (ih' .snd .fst) , (ih' .snd .snd)))
-fundS (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁ η | fundS ρ₁ e 
+fundC (ρ₂ ─ ρ₁) {σ} {η} e | x₁ ▹ x₂ | (eq , rel) with eval ρ₁ η | fundC ρ₁ e 
 ... | φ <$> n    | (f , eq-f , rel-f) = 
    eq-─ eq (reifySoundKripkeNE-≡t eq-f rel-f) , 
     (eq-refl , rel) , (f , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-f) , rel-f)
 ... | x₂ ▹ x₃  | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
 ... | row ρ x₂ | ih' = eq-─ eq (eq-trans (ih' .fst) (eq-row reflᵣ)) , (eq-refl , rel) , (eq-row reflᵣ , (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
-fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundS ρ₁ e 
+fundC (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundC ρ₁ e 
 ... | φ <$> n    | (f , eq-f , rel-f) = 
   eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (reifySoundKripkeNE-≡t eq-f rel-f) , 
   ((eq-row reflᵣ , (ih .snd)) , f , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-f) , rel-f)
@@ -733,24 +733,24 @@ fundS (ρ₂ ─ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | f
       (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
   refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
 ... | c ─ c₁   | ih' = eq-─ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
-fundS (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundS ρ₁ e 
+fundC (ρ₂ ─ ρ₁) {σ} {η} e | c ─ c₁ | ih with eval ρ₁ η | fundC ρ₁ e 
 ... | φ <$> n    | (f , eq-f , rel-f) = 
   eq-─ (ih .fst) (reifySoundKripkeNE-≡t eq-f rel-f) , 
   ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (f , eq-sym (reifySoundKripkeNE-≡t eq-refl rel-f) , rel-f))
 ... | x₂ ▹ x₃  | ih' = eq-─ (ih .fst) (ih' .fst) , ((eq-refl , (ih .snd)) , (eq-refl , (ih' .snd)))
 ... | row ρ x₂ | ih' = eq-trans (eq-─ (ih .fst) (ih' .fst)) (eq-─ eq-refl (eq-row reflᵣ)) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-row reflᵣ , (ih' .snd)))
 ... | c ─ c₁   | ih' = eq-─ (ih .fst) (ih' .fst) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
-fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
-... | ne x₁ | ih = (eq-▹ ih (reify-⟦⟧≋ (fundS τ e))) , refl-⟦⟧≋ (fundS τ e)
-... | lab l' | ih = eq-trans (eq-▹ eq-refl (reify-⟦⟧≋ (fundS τ e))) (eq-labTy ih) , 
-                    (refl , (refl-⟦⟧≋ (fundS τ e))) , 
+fundC (l ▹ τ) {σ} {η} e with eval l η | fundC l e
+... | ne x₁ | ih = (eq-▹ ih (reify-⟦⟧≋ (fundC τ e))) , refl-⟦⟧≋ (fundC τ e)
+... | lab l' | ih = eq-trans (eq-▹ eq-refl (reify-⟦⟧≋ (fundC τ e))) (eq-labTy ih) , 
+                    (refl , (refl-⟦⟧≋ (fundC τ e))) , 
                     tt
 
 --------------------------------------------------------------------------------
 -- Fundamental theorem when substitution is the identity
 
 ⊢⟦_⟧≋ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≋ eval τ idEnv
-⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundS τ idSR)
+⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundC τ idSR)
 
 --------------------------------------------------------------------------------
 -- Consistency claim  
@@ -795,4 +795,4 @@ consistency₂ = Completeness→Consistency completeness
 
 consistency-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
 consistency-liftsₖ τ = 
-  reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))
+  reify-⟦⟧≋ (fundC τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))

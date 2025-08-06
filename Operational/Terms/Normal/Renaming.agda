@@ -115,7 +115,7 @@ renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
         (sym (↻-ren-reify ρ 
           {V₁ = (↑ F <$>V ↑ ρ₁)} 
           {V₂ = (↑ F <$>V ↑ ρ₁)} 
-          (fundC 
+          (fundS 
             {τ₁ = ⇑ F <$> ⇑ ρ₁} 
             {τ₂ = ⇑ F <$> ⇑ ρ₁} 
             idEnv-≋ 

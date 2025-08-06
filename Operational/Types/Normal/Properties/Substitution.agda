@@ -49,7 +49,7 @@ open import Rome.Operational.Types.Theorems.Stability
     (reify-≋ (↻-subₖ-eval τ idEnv-≋ (⇑ ∘ σ))) 
     (sym (trans 
       (reify-≋ (↻-subₖ-eval (⇑ (⇓ τ)) idEnv-≋ (⇑ ∘ σ))) 
-      (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (consistency τ))))))
+      (reify-≋ (fundS ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (consistency τ))))))
 
 ↻-⇓-subRow : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
              (ρ : SimpleRow Type Δ₁ R[ κ ]) →
@@ -67,7 +67,7 @@ subₖNF-id τ =
   (trans 
     (reify-≋ 
       (idext {η₁ = λ x → eval (⇑ (idSubst x)) idEnv} {η₂ = idEnv} 
-        (λ { x → fundC {τ₁ = ⇑ (η-norm (` x))} {τ₂ = ` x} idEnv-≋ (η-norm-≡t (` x)) }) (⇑ τ)))
+        (λ { x → fundS {τ₁ = ⇑ (η-norm (` x))} {τ₂ = ` x} idEnv-≋ (η-norm-≡t (` x)) }) (⇑ τ)))
     (stability τ))
 
 subPredₖNF-id : ∀ (π : NormalPred Δ R[ κ ]) → subPredₖNF idSubst π ≡ π
@@ -86,7 +86,7 @@ subₖNF-comp σ₁ σ₂ τ =
           (↻-subₖ-eval (⇑ τ) idEnv-≋ (⇑ ∘ ⇓ ∘ subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))
         (trans 
           (reify-≋ 
-            (idext (λ x → fundC idEnv-≋ (eq-sym (consistency (subₖ (⇑ ∘ σ₂) (⇑ (σ₁ x)))))) (⇑ τ)))
+            (idext (λ x → fundS idEnv-≋ (eq-sym (consistency (subₖ (⇑ ∘ σ₂) (⇑ (σ₁ x)))))) (⇑ τ)))
           (sym (reify-≋ (↻-subₖ-eval (⇑ τ) idEnv-≋ (subₖ (⇑ ∘ σ₂) ∘ ⇑ ∘ σ₁)))))) 
       (cong ⇓ (subₖ-comp (⇑ τ)))) 
     (↻-⇓-sub σ₂ (subₖ (⇑ ∘ σ₁) (⇑ τ)))
@@ -103,7 +103,7 @@ subₖNF-cong-≡t : ∀ {σ : SubstitutionₖNF Δ₁ Δ₂} {τ₁ τ₂ : Nor
                 ⇑ τ₁ ≡t ⇑ τ₂ → subₖNF σ τ₁ ≡ subₖNF σ τ₂
 subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq = 
   reify-≋ 
-    (fundC 
+    (fundS 
       {τ₁ = subₖ (⇑ ∘ σ) (⇑ τ₁)} 
       {τ₂ = subₖ (⇑ ∘ σ) (⇑ τ₂)} 
       idEnv-≋ (subₖ-≡t⇑ {σ = σ} eq))
@@ -114,7 +114,7 @@ subₖNF-cong-≡t {σ = σ} {τ₁} {τ₂} eq =
 subₖNF-var   : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂)(x : TVar Δ₁ κ) → 
               subₖNF σ (idSubst x) ≡ σ x
 subₖNF-var {κ = κ} σ x = trans
-  (reify-≋ (fundC {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
+  (reify-≋ (fundS {τ₁ = subₖ (⇑ ∘ σ) (⇑ (idSubst x))} {τ₂ = ⇑ (σ x)} idEnv-≋ 
     (eq-trans 
       (subₖ-≡t⇑ {σ = σ}  (η-norm-≡t (` x)))
       eq-refl)))
@@ -245,7 +245,7 @@ weakenₖNF-β-id τ {τ₂} =
       (sym (stability τ))
       (reify-≋ (evalCRSubst idEnv-≋ (sym (subₖ-id (⇑ τ))))))
     (trans 
-      (reify-≋ (fundC 
+      (reify-≋ (fundS 
         {τ₁ = subₖ ` (⇑ τ)} 
         {τ₂ = subₖ (⇑ ∘ η-norm ∘ `) (⇑ τ)} 
         idEnv-≋ 
@@ -288,7 +288,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)) (lifte idEnv)
 ↻-lifted-subₖNF-eval  σ τ = 
   trans 
-    (fundC idEnv-≋ (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ))))
+    (fundS idEnv-≋ (eq-sym (subₖ-liftsₖ-≡t σ (⇑ τ))))
     (weaken-⇓ (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)))
 
 --------------------------------------------------------------------------------
@@ -340,7 +340,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 ↻-β-⇑ τ₁ τ₂ = 
   embed-≡t {τ₁ = τ₁ βₖNF[ τ₂ ]} {⇑ τ₁ βₖ[ ⇑ τ₂ ]} 
   (reify-≋ 
-  (fundC {τ₁ = subₖ (λ x → ⇑ (extendₖNF idSubst τ₂ x)) (⇑ τ₁)}
+  (fundS {τ₁ = subₖ (λ x → ⇑ (extendₖNF idSubst τ₂ x)) (⇑ τ₁)}
          {⇑ τ₁ βₖ[ ⇑ τ₂ ]} 
          idEnv-≋ 
          (subₖ-cong-≡t 
@@ -355,7 +355,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
         ⇓ (τ₁ βₖ[ τ₂ ]) ≡ (⇓ τ₁) βₖNF[ ⇓ τ₂ ]
 ↻-β-⇓ τ₁ τ₂ = 
   reify-≋ 
-  (fundC 
+  (fundS 
     {τ₁ = subₖ (extendₖ ` τ₂) τ₁}
     {τ₂ = subₖ (λ x → ⇑ (extendₖNF idSubst (⇓ τ₂) x)) (⇑ (eval τ₁ idEnv))}
     idEnv-≋ 
@@ -404,8 +404,8 @@ stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (
      {V₁ = (↑ (subₖNF σ F)) <$>V ((↑ (subₖNF σ ρ)))} 
      {V₂ = (eval (subₖ (⇑ ∘ σ) (⇑ F)) idEnv) <$>V (eval (subₖ (⇑ ∘ σ) (⇑ ρ)) idEnv)}  
      (cong-<$> 
-      (fundC idEnv-≋ (↻-sub-⇑ σ F)) 
-      ((fundC idEnv-≋ (↻-sub-⇑ σ ρ)))))
+      (fundS idEnv-≋ (↻-sub-⇑ σ F)) 
+      ((fundS idEnv-≋ (↻-sub-⇑ σ ρ)))))
   (↻-⇓-sub σ (⇑ F <$> ⇑ ρ))
 
 --------------------------------------------------------------------------------
