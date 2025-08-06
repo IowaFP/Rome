@@ -270,3 +270,18 @@ label-canonicity (lab l) = tt
 label-canonicity-∅ : ∀ (l : NormalType (∅ {ι₁}) (L {ι₂})) → ∃[ s ] (l ≡ lab s)
 label-canonicity-∅ (ne x) = ⊥-elim (noNeutrals x)
 label-canonicity-∅ (lab s) = s , refl
+
+
+--------------------------------------------------------------------------------
+-- row "constructors"
+
+εNF : NormalType Δ R[ κ ]
+εNF = ⦅ [] ⦆ tt
+_▹'_ : Label → NormalType Δ κ → NormalType Δ R[ κ ] 
+x ▹' τ = ⦅ [ (x , τ) ] ⦆ tt
+
+--------------------------------------------------------------------------------
+-- Admissable constants
+
+UnitNF : NormalType Δ (★ {ι})
+UnitNF = Π (⦅ [] ⦆ tt)
