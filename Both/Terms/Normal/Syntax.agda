@@ -17,12 +17,12 @@ open import Rome.Both.Types.Normal.Substitution
 open import Rome.Both.Types.Normal.Properties.Substitution
 open import Rome.Both.Types.Semantic.NBE
 
-open import Rome.Both.Types.Theorems.Consistency
-open import Rome.Both.Types.Theorems.Soundness
-open import Rome.Both.Types.Theorems.Stability
+-- open import Rome.Both.Types.Theorems.Consistency
+-- open import Rome.Both.Types.Theorems.Soundness
+-- open import Rome.Both.Types.Theorems.Stability
 
 
-open import Rome.Both.Containment
+-- open import Rome.Both.Containment
 
 --------------------------------------------------------------------------------
 -- First define contexts mapping variables to predicates, types, and kinds

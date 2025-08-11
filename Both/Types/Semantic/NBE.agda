@@ -194,12 +194,7 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 NotRow<$> : ∀ {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
-relevel : NeutralType Δ (L {ι₁}) → NeutralType Δ (L {ι₂})
-relevel (` Z) = {!` Z!}
-relevel (` (S α)) = {!!}
-relevel (n · τ) = {!!}
-
-F <$>V (l ▹ τ) = relevel l ▹ (F ·V τ) -- l ▹ (F ·V τ)
+_<$>V_ {κ₁ = κ₁} {κ₂ = κ₂} F (l ▹ τ) = l ▹ (F ·V τ) -- l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
