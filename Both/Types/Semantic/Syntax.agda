@@ -67,7 +67,7 @@ notRows? (row ρ x) (φ <$> τ) = yes (right tt)
 
 SemType : KEnv ι₁ → Kind ι₂ → Set
 SemType Δ κ@(★ {ι}) = NormalType Δ κ
-SemType Δ κ@(L) = NormalType Δ κ
+SemType Δ κ@(L)     = NormalType Δ κ
 SemType Δ₁ (κ₁ `→ κ₂) = (∀ {ι}{Δ₂ : KEnv ι} → (r : Renamingₖ Δ₁ Δ₂) (v : SemType Δ₂ κ₁) → SemType Δ₂ κ₂)
 SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]  
 

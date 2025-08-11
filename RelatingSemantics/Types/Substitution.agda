@@ -39,9 +39,15 @@ idSubst = η-expand ∘ `
 subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType Δ₂ κ
 subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
 
-subₖNF σ (ne (` α)) = σ α
-subₖNF σ (ne (x · τ)) with subₖNE σ x 
-... | `λ c = subₖNF {!!} c  
+subₖNE σ (` α) = σ α 
+subₖNE σ (n · τ) with subₖNE σ n 
+... | `λ m = subₖNF (extendₖNF idSubst (subₖNF σ τ)) m
+-- subₖNE σ x β subₖNF σ τ
+--   where
+--     _β_ : NormalType Δ₂ (κ₁ `→ κ₂) → NormalType Δ₂ κ₁ → NormalType Δ₂ κ₂ 
+--     `λ φ β τ = subₖNF (extendₖNF idSubst τ) φ
+
+subₖNF σ (ne n) = subₖNE σ n
 subₖNF σ (τ <$> x) = {!!}
 subₖNF σ (`λ τ) = {!!}
 subₖNF σ (τ `→ τ₁) = {!!}
@@ -54,4 +60,3 @@ subₖNF σ (Π τ) = {!!}
 subₖNF σ (Σ τ) = {!!}
 subₖNF σ (τ ─ τ₁) = {!!}
 subₖNF σ (l ▹ₙ τ) = {!!}
-
