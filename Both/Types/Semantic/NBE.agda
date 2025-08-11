@@ -25,8 +25,9 @@ reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
-reifyKripke   : KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
-reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
+reifyKripke   : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
+                KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
+reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
                 KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reifyKripkeNE F = `λ (reify (F S (` Z)))
@@ -57,10 +58,10 @@ reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = κ₁ `→ κ₂} F = reifyKripke F
+reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
+reify {κ = R[ κ ]} ((φ <$> τ)) =  (`λ (reify (φ S (` Z))) <$> τ)
 reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
@@ -193,7 +194,12 @@ _<$>V_ : SemType Δ (κ₁ `→ κ₂) → SemType Δ R[ κ₁ ] → SemType Δ 
 NotRow<$> : ∀ {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {F : SemType Δ (κ₁ `→ κ₂)} {ρ₂ ρ₁ : RowType Δ (λ Δ' → SemType Δ' κ₁) R[ κ₁ ]} → 
               NotRow ρ₂ or NotRow ρ₁ → NotRow (F <$>V ρ₂) or NotRow (F <$>V ρ₁)
 
-F <$>V (l ▹ τ) = l ▹ (F ·V τ)
+relevel : NeutralType Δ (L {ι₁}) → NeutralType Δ (L {ι₂})
+relevel (` Z) = {!` Z!}
+relevel (` (S α)) = {!!}
+relevel (n · τ) = {!!}
+
+F <$>V (l ▹ τ) = relevel l ▹ (F ·V τ) -- l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
 F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n

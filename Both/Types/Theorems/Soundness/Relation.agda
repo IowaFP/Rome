@@ -42,13 +42,13 @@ convKripkeNE₁ : ∀ {κ₁ : Kind ι} {κ₁' : Kind ι} → κ₁ ≡ κ₁' 
 convKripkeNE₁ refl f = f
 
 _≋kf_ : KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₁ κ₂ → Set 
-F ≋kf G = ? 
+F ≋kf G = {!!} 
 
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 
   Uniform F × Uniform G × PointEqual-≋ {Δ₁} F G 
-_≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = ?
+_≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂ n₂) = {!!}
   -- Σ[ pf ∈ (κ₁ ≡ κ₁') ]  
   --   UniformNE φ₁
   -- × UniformNE φ₂
@@ -56,7 +56,7 @@ _≋_ {Δ₁} {κ = R[ κ₂ ]} (_<$>_ {κ₁} φ₁ n₁) (_<$>_ {κ₁'} φ₂
   -- × convNE pf n₁ ≡ n₂)
 _≋_ {Δ₁} {κ = R[ κ₂ ]} (φ₁ <$> n₁) _ = ⊥
 _≋_ {Δ₁} {κ = R[ κ₂ ]} _ (φ₁ <$> n₁) = ⊥
-_≋_ {Δ₁} {κ = R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = l₁ ≡ l₂ × τ₁ ≋ τ₂
+_≋_ {Δ₁} {κ = R[ κ ]} (l₁ ▹ τ₁) (l₂ ▹ τ₂) = {!l₁ ≋ l₂!} × τ₁ ≋ τ₂ -- l₁ ≡ l₂ × τ₁ ≋ τ₂
 _≋_ {Δ₁} {κ = R[ κ ]} (x₁ ▹ x₂) (row ρ x₃) = ⊥
 _≋_ {Δ₁} {κ = R[ κ ]} (x₁ ▹ x₂) (ρ₂ ─ ρ₃) = ⊥
 _≋_ {Δ₁} {κ = R[ κ ]} (row ρ x₁) (x₂ ▹ x₃) = ⊥
@@ -66,19 +66,19 @@ _≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (x₁ ▹ x₂) = ⊥
 _≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (row ρ x₁) = ⊥
 _≋_ {Δ₁} {κ = R[ κ ]} (ρ₁ ─ ρ₂) (ρ₃ ─ ρ₄) = ρ₁ ≋ ρ₃ × ρ₂ ≋ ρ₄
 
-PointEqual-≋ {Δ₁} {κ₁} {κ₂} F G = 
+PointEqual-≋ {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₂ κ₁} → 
   V₁ ≋ V₂ → F ρ V₁ ≋ G ρ V₂
 
-PointEqualNE-≋ {Δ₁} {κ₁} {κ₂} F G = 
+PointEqualNE-≋ {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂} F G = 
   ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) (V : NeutralType Δ₂ κ₁) → 
   F ρ V ≋ G ρ V
 
-Uniform {Δ₁} {κ₁} {κ₂} F = 
+Uniform {Δ = Δ₁} {κ₁ = κ₁} {κ₂} F = 
   ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V₁ V₂ : SemType Δ₂ κ₁) →
   V₁ ≋ V₂ → (renSem ρ₂ (F ρ₁ V₁)) ≋ (renKripke ρ₁ F ρ₂ (renSem ρ₂ V₂))
 
-UniformNE {Δ₁} {κ₁} {κ₂} F = 
+UniformNE {Δ = Δ₁} {κ₁ = κ₁} {κ₂} F = 
   ∀ {Δ₂ Δ₃} (ρ₁ : Renamingₖ Δ₁ Δ₂) (ρ₂ : Renamingₖ Δ₂ Δ₃) (V : NeutralType Δ₂ κ₁) →
   (renSem ρ₂ (F ρ₁ V)) ≋ F (ρ₂ ∘ ρ₁) (renₖNE ρ₂ V)
 

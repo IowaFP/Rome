@@ -26,6 +26,10 @@ liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) 
 liftsₖNF σ Z = η-expand (` Z)
 liftsₖNF σ (S x) = weakenₖNF (σ x)
 
+extendₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₂ κ → SubstitutionₖNF (Δ₁ ,, κ) Δ₂
+extendₖNF σ τ Z = τ
+extendₖNF σ τ (S x) = σ x
+
 
 -- Identity substitution (s.t. substₖNF idSubst x = (idSubst x))
 idSubst : SubstitutionₖNF Δ Δ
@@ -36,7 +40,8 @@ subₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalType Δ₁ κ → NormalType 
 subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
 
 subₖNF σ (ne (` α)) = σ α
-subₖNF σ (ne (x · τ)) = ne {!x · ?!}
+subₖNF σ (ne (x · τ)) with subₖNE σ x 
+... | `λ c = subₖNF {!!} c  
 subₖNF σ (τ <$> x) = {!!}
 subₖNF σ (`λ τ) = {!!}
 subₖNF σ (τ `→ τ₁) = {!!}

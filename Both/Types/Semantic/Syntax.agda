@@ -42,7 +42,7 @@ data RowType Δ 𝒯 where
           NeutralType Δ R[ κ₁ ] → 
           RowType Δ 𝒯 R[ κ₂ ]
 
-  _▹_ : NeutralType Δ (L {ι}) → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
+  _▹_ : ∀ {κ : Kind ι} → NeutralType Δ (L {ι}) → 𝒯 Δ → RowType Δ 𝒯 R[ κ ]
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
@@ -74,8 +74,8 @@ SemType Δ R[ κ ] =  RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]
 --------------------------------------------------------------------------------
 -- aliases
 
-KripkeFunction : KEnv ι₁ → Kind ι₂ → Kind ι₃ → Set
-KripkeFunctionNE : KEnv ι₁ → Kind ι₂ → Kind ι₃ → Set
+KripkeFunction : KEnv ι₁ → Kind ι₂ → Kind ι₂ → Set
+KripkeFunctionNE : KEnv ι₁ → Kind ι₂ → Kind ι₂ → Set
 KripkeFunction Δ₁ κ₁ κ₂ =  (∀ {ι}{Δ₂ : KEnv ι} → Renamingₖ Δ₁ Δ₂ → SemType Δ₂ κ₁ → SemType Δ₂ κ₂)
 KripkeFunctionNE Δ₁ κ₁ κ₂ =  (∀ {ι}{Δ₂ : KEnv ι} → Renamingₖ Δ₁ Δ₂ → NeutralType Δ₂ κ₁ → SemType Δ₂ κ₂)
 
