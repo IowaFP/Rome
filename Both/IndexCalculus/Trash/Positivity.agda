@@ -1,10 +1,10 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.IndexCalculus.Positivity where
+module Rome.Both.IndexCalculus.Positivity where
 
 open import Rome.Preludes.Level
 open import Rome.Preludes.Data
-open import Rome.IndexCalculus.Rows
-open import Rome.IndexCalculus.Variants
+open import Rome.Both.IndexCalculus.Rows
+open import Rome.Both.IndexCalculus.Variants
 
 --------------------------------------------------------------------------------
 -- Denoting recursive types.

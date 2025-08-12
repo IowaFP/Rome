@@ -1,11 +1,11 @@
 {-# OPTIONS --allow-unsolved-metas  --sized-types #-}
-module Rome.IndexCalculus.SizedBullshit where
+module Rome.Both.IndexCalculus.SizedBullshit where
 
 open import Agda.Builtin.Size
 open import Rome.Preludes.Level
 open import Rome.Preludes.Data
-open import Rome.IndexCalculus.Rows
-open import Rome.IndexCalculus.Variants
+open import Rome.Both.IndexCalculus.Rows
+open import Rome.Both.IndexCalculus.Variants
 -- open import Rome.Preludes.Partiality
 
 --------------------------------------------------------------------------------

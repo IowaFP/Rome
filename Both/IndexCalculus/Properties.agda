@@ -1,4 +1,4 @@
-module Rome.IndexCalculus.Properties where
+module Rome.Both.IndexCalculus.Properties where
 
-open import Rome.IndexCalculus.Rows.Properties public
-open import Rome.IndexCalculus.Variants.Properties public
+open import Rome.Both.IndexCalculus.Rows.Properties public
+open import Rome.Both.IndexCalculus.Variants.Properties public

@@ -9,9 +9,9 @@ open import Rome.Both.Kinds.GVars
 open import Rome.Both.Types.Normal.Syntax
 open import Rome.Both.Types.Syntax
 
-open import Rome.IndexCalculus.Rows as Ix
-open import Rome.IndexCalculus.Records renaming (Π to Pi)
-open import Rome.IndexCalculus.Variants renaming (Σ  to Sigma)
+open import Rome.Both.IndexCalculus.Rows as Ix
+open import Rome.Both.IndexCalculus.Records renaming (Π to Pi)
+open import Rome.Both.IndexCalculus.Variants renaming (Σ  to Sigma)
 
 
 --------------------------------------------------------------------------------
@@ -45,9 +45,9 @@ open import Rome.IndexCalculus.Variants renaming (Σ  to Sigma)
 ⟦ ⦅ ρ ⦆ oρ ⟧nf η = ⟦ ρ ⟧row η
 ⟦ lab l ⟧nf η = # l
 ⟦ ⌊ τ ⌋ ⟧nf η = ⊤'
-⟦ Π ρ ⟧nf η = Pi {! ⟦ ρ ⟧nf η  !}
-⟦ Σ ρ ⟧nf η = {!   !}
-⟦ ρ₂ ─ ρ₁ ⟧nf η = {!   !}
+⟦ Π ρ ⟧nf η = Pi (⟦ ρ ⟧nf η)
+⟦ Σ ρ ⟧nf η = Sigma (⟦ ρ ⟧nf η)
+⟦ ρ₂ ─ ρ₁ ⟧nf η = (⟦ ρ₂ ⟧nf η) ∖ (⟦ ρ₁ ⟧nf η)
 ⟦ l ▹ₙ τ ⟧nf η = sing (unlabel (⟦ l ⟧ne η) , ⟦ τ ⟧nf η)
 
 ⟦ [] ⟧row η = Ix.ε

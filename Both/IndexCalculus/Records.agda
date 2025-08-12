@@ -1,4 +1,4 @@
-module Rome.IndexCalculus.Records where
+module Rome.Both.IndexCalculus.Records where
 
 open import Agda.Primitive
 
@@ -16,8 +16,8 @@ open import Data.Product
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
   hiding (fold)  
 
-open import Rome.IndexCalculus.Rows
-open import Rome.IndexCalculus.Properties
+open import Rome.Both.IndexCalculus.Rows
+open import Rome.Both.IndexCalculus.Properties
 
 --------------------------------------------------------------------------------
 -- Records say: "If you give me an index in range, I can give you a type".
@@ -25,7 +25,7 @@ open import Rome.IndexCalculus.Properties
 open import Data.Maybe
 
 Π : ∀ {ℓ} → Row (Set ℓ) → Set ℓ
-Π (n , P) = ∀ (i : Fin n) → Maybe (P i)
+Π (n , P) = ∀ (i : Fin n) → P i .snd
 
 --------------------------------------------------------------------------------
 -- Projection.
@@ -51,13 +51,13 @@ _⊹_Using_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} (Πx : Π x) (Πy : �
 --------------------------------------------------------------------------------
 -- Folding.
 
-fold : ∀ {ℓ ℓ'} {υ : Set ℓ'}
-          (ρ : Row {lsuc ℓ} (Set ℓ))
-          (f : ∀ (τ : Set ℓ) (y : Row {lsuc ℓ} (Set ℓ)) →
-            (sing {lsuc ℓ} τ) · y ~ ρ → Maybe τ  → Maybe υ) 
-         (_++_ : Maybe υ → Maybe υ → Maybe υ) →
-         (e : Maybe υ) →
-         (r  : Π ρ) →
-         Maybe υ
-fold ρ@(n , P) f _++_ e r = foldr _++_ e (Data.List.map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
+-- fold : ∀ {ℓ ℓ'} {υ : Set ℓ'}
+--           (ρ : Row {lsuc ℓ} (Set ℓ))
+--           (f : ∀ (τ : Set ℓ) (y : Row {lsuc ℓ} (Set ℓ)) →
+--             (sing {lsuc ℓ} τ) · y ~ ρ → Maybe τ  → Maybe υ) 
+--          (_++_ : Maybe υ → Maybe υ → Maybe υ) →
+--          (e : Maybe υ) →
+--          (r  : Π ρ) →
+--          Maybe υ
+-- fold ρ@(n , P) f _++_ e r = foldr _++_ e (Data.List.map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
     

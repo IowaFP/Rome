@@ -1,6 +1,8 @@
 module Rome.Both.IndexCalculus.Rows where
 
-open import Agda.Primitive
+open import Rome.Preludes.Data
+open import Rome.Preludes.Relation
+open import Rome.Preludes.Level
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)
@@ -14,11 +16,10 @@ open import Data.Product
   using (_×_; ∃; ∃-syntax; Σ-syntax; _,_)
   renaming (proj₁ to fst; proj₂ to snd)
 import Data.Fin as Fin
-open Fin  renaming (zero to fzero; suc to fsuc)
-  hiding (fold)
+-- open Fin  renaming (zero to fzero; suc to fsuc)
+--   hiding (fold)
 
-open import Data.String renaming (String to Label)
-
+open import Function using (_∘_)
 --------------------------------------------------------------------------------
 -- Syntax
 
@@ -28,7 +29,7 @@ infix  5 _·_~_
 --------------------------------------------------------------------------------
 -- Rows are maps from indices to types.
 Row : ∀ {ℓ : Level} (A : Set ℓ) → Set ℓ
-Row A = Σ[ n ∈ ℕ ] (Fin n → Label × A)
+Row {ℓ} A = Σ[ n ∈ ℕ ] (Fin n → String × A)
 
 -- An index in a Row.
 Ix : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Set
@@ -42,7 +43,7 @@ ixs (suc n) = fromℕ n ∷ Data.List.map inject₁ (ixs n)
 --------------------------------------------------------------------------------
 -- Naive row extension.
 
-_⨾⨾_  : ∀ {ℓ} {A : Set ℓ} → Label × A → Row {ℓ} A → Row {ℓ} A
+_⨾⨾_  : ∀ {ℓ} {A : Set ℓ} → String × A → Row {ℓ} A → Row {ℓ} A
 a ⨾⨾ (m , Q) = ℕ.suc m , λ { fzero → a ; (fsuc x) → Q x }
 
 --------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ a ⨾⨾ (m , Q) = ℕ.suc m , λ { fzero → a ; (fsuc x) → Q x }
 -- Singletons.
 
 sing : ∀ {ℓ} {A : Set ℓ} →
-       Label × A → Row {ℓ} A
+       String × A → Row {ℓ} A
 sing a = 1 , λ { fzero → a }
 
 --------------------------------------------------------------------------------
@@ -107,7 +108,7 @@ _·_~_ {ℓ} (l , P) (m , Q) (n , R) =
   × ((m , Q) ≲ (n , R)))
 
 --------------------------------------------------------------------------------
--- Row Complement.
+-- Row Complement (bad)
 
 -- Extremely dumb try.
 complement : ∀ {ℓ} {A : Set ℓ}{ρ₁ ρ₃ : Row A} →
@@ -124,9 +125,6 @@ _pick_ {ℓ} {A} ρ i = sing (snd ρ i)
 
 _delete_ : ∀ {ℓ} {A : Set ℓ} → (ρ : Row {ℓ} A) → Ix {ℓ} ρ → Row {ℓ} A
 _delete_ {ℓ} {A} (suc n , f) i = n , (λ j → f (punchIn i j))
-
---------------------------------------------------------------------------------
--- Lifting functions (and arguments) to rows.
 
 --------------------------------------------------------------------------------
 -- Lifting functions (and arguments) to rows.
@@ -160,11 +158,12 @@ compl : ∀ {ℓ}{n m} {A : Set ℓ}  →
         (P : Fin n → String × A) 
         (Q : Fin m → String × A) → 
         Row A
-compl {n = zero} {m} P Q = ϵ
+compl {n = zero} {m} P Q = ε
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row Q 
 ... | yes _ = compl (P ∘ fsuc) Q 
-... | no _ = (P fzero) ፦ (compl (P ∘ fsuc) Q)
+... | no _ = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
 
 
 _∖_ : ∀ {ℓ} {A : Set ℓ} → Row {ℓ} A → Row {ℓ} A → Row {ℓ} A
 (n , P) ∖ (m , Q) = compl P Q
+

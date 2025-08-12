@@ -1,5 +1,5 @@
 {-# OPTIONS --allow-unsolved-metas #-}
-module Rome.IndexCalculus.Normal where
+module Rome.Both.IndexCalculus.Normal where
 
 open import Rome.Preludes.Data
 open import Rome.Preludes.Level

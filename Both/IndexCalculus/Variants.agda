@@ -1,6 +1,7 @@
-module Rome.IndexCalculus.Variants where
+module Rome.Both.IndexCalculus.Variants where
 
 open import Agda.Primitive
+open import Rome.Preludes.Data
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)
@@ -13,12 +14,12 @@ open import Data.Product
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
 
-open import Rome.IndexCalculus.Rows
+open import Rome.Both.IndexCalculus.Rows
 
 --------------------------------------------------------------------------------
 -- Variants say: "Of the types in this row, I can give you exactly one."
 Σ : ∀ {ℓ} → Row (Set ℓ) → (Set ℓ)
-Σ (n , P) =  Σ[ i ∈ Fin n ] (P i)
+Σ (n , P) =  Σ[ i ∈ Fin n ] (P i .snd)
 
 
 --------------------------------------------------------------------------------

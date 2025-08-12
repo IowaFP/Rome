@@ -14,7 +14,7 @@ open import Rome.Denotational.Types.Syntax
 open import Rome.Denotational.Types.Admissible
 open import Rome.Denotational.Types.Substitution
 
-import Rome.IndexCalculus as Ix
+import Rome.Both.IndexCalculus as Ix
 
 open import Data.Empty.Polymorphic
 open import Data.Product renaming (Σ to ∃) hiding (∃)

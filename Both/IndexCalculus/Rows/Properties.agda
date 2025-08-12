@@ -1,10 +1,10 @@
-module Rome.IndexCalculus.Rows.Properties where
+module Rome.Both.IndexCalculus.Rows.Properties where
 
 open import Rome.Prelude
 open import Rome.Preludes.Level hiding (suc ; zero)
 
-open import Rome.IndexCalculus.Rows
-open import Rome.IndexCalculus.GVars
+open import Rome.Both.IndexCalculus.Rows
+open import Rome.Both.IndexCalculus.GVars
 
 --------------------------------------------------------------------------------
 -- Building evidence that ρ pick i · ρ delete i ~ ρ.
