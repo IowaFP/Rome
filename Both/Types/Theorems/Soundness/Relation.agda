@@ -56,10 +56,8 @@ _≋NE_ {_} {_} {ικ₁} {κ₁ = κ₁} {ικ₂} {κ₂ = κ₂} n₁ n₂ =
 
 _≋kf_ : ∀ {κ₃ : Kind ι₃} {κ₄ : Kind ι₄} → 
         KripkeFunctionNE Δ κ₁ κ₂ → KripkeFunctionNE Δ κ₃ κ₄ → Set 
-_≋kf_ {Δ = Δ} F G =
-  Σ[ pf₁ ∈ κ₁ ≡ κ₃ ]
-  Σ[ pf₂ ∈ κ₂ ≡ κ₄ ]
-  UniformNE F × UniformNE G × PointEqualNE-≋ (convKripkeNE₁ pf₁ F) (convKripkeNE₁ pf₁ G)
+_≋kf_ {Δ = Δ} F G = {!   !} 
+
 _≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {κ = L} τ₁ τ₂ = τ₁ ≡ τ₂
 _≋_ {Δ₁} {κ = κ₁ `→ κ₂} F G = 

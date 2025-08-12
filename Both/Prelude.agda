@@ -45,6 +45,9 @@ Label = String
 data Label' {ι} : Set ι where 
   # : Label → Label'
 
+unlabel : ∀ {ι} → Label' {ι} → Label 
+unlabel (# l) = l
+
 open import Function using (_∘_) public
 open import Relation.Binary.PropositionalEquality as Eq 
   renaming ([_] to [[_]]) public 

@@ -4,7 +4,7 @@ open import Rome.Both.Prelude
 open import Rome.Preludes.Level
 open import Rome.Both.Kinds.Syntax 
 open import Rome.Both.Kinds.GVars
-open import Rome.IndexCalculus using (Row ; sing ; ε ; _⨾⨾_)
+open import Rome.IndexCalculus.Rows using (Row ; sing ; ε ; _⨾⨾_)
 --------------------------------------------------------------------------------
 -- Denotation
 
