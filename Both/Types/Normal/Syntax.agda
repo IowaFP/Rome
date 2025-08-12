@@ -81,11 +81,11 @@ data NormalType Δ where
   ------------------------------------------------------------------
   -- Qualified types
 
-  _⇒_ : 
+  _⇒_ : ∀ {κ : Kind ι₁} → 
 
-         (π : NormalPred Δ R[ κ₁ ]) → (τ : NormalType Δ (★ {ι})) → 
+         (π : Pred (NormalType Δ R[ κ ])) → (τ : NormalType Δ (★ {ι₂})) → 
          ---------------------
-         NormalType Δ (★ {ι})  
+         NormalType Δ (★ {lsuc ι₁ ⊔ ι₂})     
 
   ------------------------------------------------------------------
   -- Rω business

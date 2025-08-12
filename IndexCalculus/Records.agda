@@ -15,6 +15,7 @@ open import Data.Product
   renaming (proj₁ to fst; proj₂ to snd)
 open import Data.Fin  renaming (zero to fzero; suc to fsuc)
   hiding (fold)  
+open import Rome.Both.Prelude
 
 open import Rome.IndexCalculus.Rows
 open import Rome.IndexCalculus.Properties
@@ -25,39 +26,39 @@ open import Rome.IndexCalculus.Properties
 open import Data.Maybe
 
 Π : ∀ {ℓ} → Row (Set ℓ) → Set ℓ
-Π (n , P) = ∀ (i : Fin n) → Maybe (P i)
+Π (n , P) = ∀ (i : Fin n) → P i .snd
 
---------------------------------------------------------------------------------
--- Projection.
+-- --------------------------------------------------------------------------------
+-- -- Projection.
 
 prj : ∀ {ℓ} (z y : Row {lsuc ℓ} (Set ℓ)) (w : z ≲ y) (p : Π y) → Π z
 prj {ℓ} z y w p i with w i
 ... | (n , P) rewrite P = p n
 
---------------------------------------------------------------------------------
--- Concatenation.
+-- --------------------------------------------------------------------------------
+-- -- Concatenation.
 
-infixl 5 _⊹_
-infix  5 _⊹_Using_
+-- infixl 5 _⊹_
+-- infix  5 _⊹_Using_
 
-_⊹_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} {x·y~z : x · y ~ z} (Πx : Π x) (Πy : Π y) → Π z
-_⊹_ {ℓ} {x} {y} {z} {x·y~z} Πx Πy i with fst x·y~z i
-... | left (j , x[j]=z[i]) rewrite (sym x[j]=z[i]) = Πx j
-... | right (j , y[j]=z[i]) rewrite (sym y[j]=z[i]) = Πy j
+-- _⊹_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} {x·y~z : x · y ~ z} (Πx : Π x) (Πy : Π y) → Π z
+-- _⊹_ {ℓ} {x} {y} {z} {x·y~z} Πx Πy i with fst x·y~z i
+-- ... | left (j , x[j]=z[i]) rewrite (sym x[j]=z[i]) = Πx j
+-- ... | right (j , y[j]=z[i]) rewrite (sym y[j]=z[i]) = Πy j
 
-_⊹_Using_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} (Πx : Π x) (Πy : Π y) (x·y~z : x · y ~ z) → Π z
-Πx ⊹ Πy Using pf = _⊹_ {x·y~z = pf} Πx Πy
+-- _⊹_Using_ : ∀ {ℓ} {x y z : Row {lsuc ℓ} (Set ℓ)} (Πx : Π x) (Πy : Π y) (x·y~z : x · y ~ z) → Π z
+-- Πx ⊹ Πy Using pf = _⊹_ {x·y~z = pf} Πx Πy
 
 --------------------------------------------------------------------------------
 -- Folding.
 
-fold : ∀ {ℓ ℓ'} {υ : Set ℓ'}
-          (ρ : Row {lsuc ℓ} (Set ℓ))
-          (f : ∀ (τ : Set ℓ) (y : Row {lsuc ℓ} (Set ℓ)) →
-            (sing {lsuc ℓ} τ) · y ~ ρ → Maybe τ  → Maybe υ) 
-         (_++_ : Maybe υ → Maybe υ → Maybe υ) →
-         (e : Maybe υ) →
-         (r  : Π ρ) →
-         Maybe υ
-fold ρ@(n , P) f _++_ e r = foldr _++_ e (Data.List.map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
+-- fold : ∀ {ℓ ℓ'} {υ : Set ℓ'}
+--           (ρ : Row {lsuc ℓ} (Set ℓ))
+--           (f : ∀ (τ : Set ℓ) (y : Row {lsuc ℓ} (Set ℓ)) →
+--             (sing {lsuc ℓ} τ) · y ~ ρ → Maybe τ  → Maybe υ) 
+--          (_++_ : Maybe υ → Maybe υ → Maybe υ) →
+--          (e : Maybe υ) →
+--          (r  : Π ρ) →
+--          Maybe υ
+-- fold ρ@(n , P) f _++_ e r = foldr _++_ e (Data.List.map (λ i → f (P i) (ρ delete i) (recombine ρ i) (r i)) (ixs n))
     
