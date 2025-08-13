@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Soundness.Congruence where
 
 open import Rome.Both.Prelude
@@ -24,13 +24,14 @@ open import Rome.Both.Types.Theorems.Soundness.Relation
 -- - Uniformity is preserved under renaming (ren-Uniform)
 --   (This is actually just what uniformity means.)
 
-ren-Uniform : ∀ {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renamingₖ Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
+ren-Uniform : ∀ {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {F : KripkeFunction Δ₁ κ₁ κ₂} → (ρ : Renamingₖ Δ₁ Δ₂) → Uniform F → Uniform (renKripke ρ F) 
 ren-Uniform ρ Unif-F ρ₁ ρ₂ V₁ V₂ q = Unif-F (ρ₁ ∘ ρ) ρ₂ V₁ V₂ q
 
 --------------------------------------------------------------------------------
 -- renaming respects ≋
 
-ren-≋ : ∀ {V₁ V₂ : SemType Δ₁ κ} 
+ren-≋ : ∀ {Δ₁ : KEnv ι₁} {κ : Kind ι₂} 
+        {V₁ V₂ : SemType Δ₁ κ} 
         (ρ : Renamingₖ Δ₁ Δ₂) → 
         V₁ ≋ V₂ → 
         (renSem ρ V₁) ≋ (renSem ρ V₂)
@@ -40,20 +41,22 @@ ren-≋ {κ = κ₁ `→ κ₂} {V₁ = F} {G} ρ₁ (unif-F , unif-G , Ext) =
   (λ ρ₂ ρ₃ V₁  → unif-F (ρ₂ ∘ ρ₁) ρ₃ V₁) , 
   (λ ρ₂ ρ₃ V₁  → unif-G (ρ₂ ∘ ρ₁) ρ₃ V₁) ,  
   λ ρ₃ q → Ext (ρ₃ ∘ ρ₁) q
-ren-≋ {κ = R[ κ ]} {V₁ = (l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ρ (refl , rel) = refl , (ren-≋ ρ rel)
+ren-≋ {κ = R[ κ ]} {V₁ = (l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ρ ((refl , refl , refl) , rel) = 
+  (refl , refl , refl) , (ren-≋ ρ rel)
 ren-≋ {κ = R[ κ ]} {V₁ = row _ _ } {row _ _} ρ (refl , eq) = 
   refl , λ { i → eq i .fst , ren-≋ ρ (eq i .snd) }
 ren-≋ {κ = R[ κ ]} {V₁ = ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} r (rel₁ , rel₂) = (ren-≋ r rel₁) , (ren-≋ r rel₂)
-ren-≋ {κ = R[ κ ]} {V₁ = φ₁ <$> n₁} {φ₂ <$> n₂} r (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = 
-  refl , 
+ren-≋ {κ = R[ κ ]} {V₁ = φ₁ <$> n₁} {φ₂ <$> n₂} r ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext ) , (refl , refl , refl)) = 
+  (refl , refl ,
   (λ r₁ r₂ v → Unif-φ₁ (r₁ ∘ r) r₂ v) , 
   (λ r₁ r₂ v → Unif-φ₂ (r₁ ∘ r) r₂ v) , 
-  (λ r' v → Ext (r' ∘ r) v) , 
-  refl
+  (λ r' v → Ext (r' ∘ r) v)) , 
+  (refl , refl , refl)
+
 --------------------------------------------------------------------------------
 -- Application respects ≋
 
-cong-App : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
+cong-App : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} → 
            _≋_ {κ = κ₁ `→ κ₂} V₁ V₂ → 
            {W₁ W₂ : SemType Δ κ₁} → 
            W₁ ≋ W₂ → 
@@ -68,10 +71,11 @@ cong-<$> : ∀ {V₁ V₂ : SemType Δ (κ₁ `→ κ₂)} →
            {W₁ W₂ : SemType Δ R[ κ₁ ]} → 
            _≋_ {κ = R[ κ₁ ]} W₁ W₂ → 
            _≋_ {κ = R[ κ₂ ]} (V₁ <$>V W₁)  (V₂ <$>V W₂)
-cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = refl , (cong-App v rel)
+cong-<$> v {l₁ ▹ τ₁} {l₂ ▹ τ₂} ((refl , refl , refl) , rel) = (refl , refl , refl) , (cong-App v rel)
 cong-<$> v {row (n , P) _} {row (m , Q) _} (refl , eq) =  refl , λ { i → eq i .fst , cong-App v (eq i .snd) }
 cong-<$> v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (cong-<$> v rel₁) , (cong-<$> v rel₂)
-cong-<$> {V₁ = F} {G} (Unif-F , Unif-G , Ext-FG) {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl) = 
+cong-<$> {V₁ = F} {G} (Unif-F , Unif-G , Ext-FG) {φ₁ <$> n₁} {φ₂ <$> n₂} ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
+  (refl , 
   refl , 
   (λ r₁ r₂ V → trans-≋ 
     (Unif-F r₁ r₂ (φ₁ r₁ V) (φ₁ r₁ V) (trans-≋ (Ext-φ r₁ V) (sym-≋ (Ext-φ r₁ V)))) 
@@ -79,22 +83,22 @@ cong-<$> {V₁ = F} {G} (Unif-F , Unif-G , Ext-FG) {φ₁ <$> n₁} {φ₂ <$> n
   (λ r₁ r₂ V → trans-≋ 
     (Unif-G r₁ r₂ (φ₂ r₁ V) (φ₂ r₁ V) (trans-≋ (sym-≋ (Ext-φ r₁ V)) (Ext-φ r₁ V))) 
     (refl-Extᵣ Ext-FG (r₂ ∘ r₁) (Unif-φ₂ r₁ r₂ V))) , 
-  (λ r V → Ext-FG r (Ext-φ r V)) , 
-  refl
+  (λ r V → Ext-FG r (Ext-φ r V))) , 
+  refl , refl , refl
 
 --------------------------------------------------------------------------------
 -- Given a : κ₁, The semantic image of (λ f : κ₁ `→ κ₂. f a) is uniform.
 -- (This goal appears with the use of the flapping operator (??).)
 
-Unif-apply : ∀ {V₁ V₂ : SemType Δ κ₁} → 
+Unif-apply : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {V₁ V₂ : SemType Δ κ₁} → 
                V₁ ≋ V₂ → 
-               Uniform {Δ} {κ₁ `→ κ₂} {κ₂} (apply V₂)
+               Uniform {Δ = Δ} {κ₁ `→ κ₂} {κ₂} (apply V₂)
 Unif-apply {V₁ = V₁} {V₂} v ρ₁ ρ₂ V₃ V₄ x = 
   trans-≋
     (fst x id ρ₂ (renSem ρ₁ V₂) (renSem ρ₁ V₂) (ren-≋ ρ₁ (refl-≋ᵣ v)))
     (third x ρ₂ (sym-≋ (renSem-comp-≋ ρ₁ ρ₂ (refl-≋ᵣ v)))) 
 
-cong-apply : ∀ {V₁ V₂ : SemType Δ κ₁} → 
+cong-apply : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {V₁ V₂ : SemType Δ κ₁} → 
                V₁ ≋ V₂ → 
                _≋_ {κ = (κ₁ `→ κ₂) `→ κ₂} (apply V₁)  (apply V₂)
 cong-apply v = 
@@ -102,10 +106,10 @@ cong-apply v =
   Unif-apply v , 
   λ ρ v' → third v' id (ren-≋ ρ v)  
 
--- -- --------------------------------------------------------------------------------
--- -- -- Flapping respects ≋
+--------------------------------------------------------------------------------
+-- Flapping respects ≋
 
-cong-<?> : ∀ {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} → 
+cong-<?> : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {V₁ V₂ : SemType Δ R[ κ₁ `→ κ₂ ]} → 
            _≋_ {κ = R[ κ₁ `→ κ₂ ]} V₁ V₂ → 
            {W₁ W₂ : SemType Δ κ₁} → 
            _≋_ {κ = κ₁} W₁ W₂ → 
@@ -159,7 +163,7 @@ cong-─V {V₁ = V₁ ─ V₂} {x₁ ▹ x₂} {W₁ ─ W₂} {x₃ ▹ x₄}
 cong-─V {V₁ = V₁ ─ V₂} {row ρ x₁} {W₁ ─ W₂} {row ρ₁ x₂} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {V₃ ─ V₄} {W₁ ─ W₂} {W₃ ─ W₄} rel₁ rel₂ = rel₁ , rel₂
 cong-─V {V₁ = V₁ ─ V₂} {_ <$> _} {W₁ ─ W₂} {_ <$> _} rel₁ rel₂ = rel₁ , rel₂
-cong-─V {V₁ = φ₁ <$> n₁} {ψ₁ <$> x₁} {φ₂ <$> n₂} {ψ₂ <$> x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
-cong-─V {V₁ = φ₁ <$> n₁} {x₁ ▹ x₂} {φ₂ <$> n₂} {x₃ ▹ x₄} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
-cong-─V {V₁ = φ₁ <$> n₁} {row ρ x₁} {φ₂ <$> n₂} {row ρ₁ x₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
-cong-─V {V₁ = φ₁ <$> n₁} {x₁ ─ x₂} {φ₂ <$> n₂} {y₁ ─ y₂} rel₁ rel₂@(refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {ψ₁ <$> x₁} {φ₂ <$> n₂} {ψ₂ <$> x₂} rel₁ rel₂@((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {x₁ ▹ x₂} {φ₂ <$> n₂} {x₃ ▹ x₄} rel₁ rel₂@((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {row ρ x₁} {φ₂ <$> n₂} {row ρ₁ x₂} rel₁ rel₂@((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = rel₁ , rel₂
+cong-─V {V₁ = φ₁ <$> n₁} {x₁ ─ x₂} {φ₂ <$> n₂} {y₁ ─ y₂} rel₁ rel₂@((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = rel₁ , rel₂
