@@ -121,7 +121,7 @@ cong-<?> v {W₁} {W₂} w =
 -- --------------------------------------------------------------------------------
 -- -- Congruence over complements
 
-cong-compl : {n m : ℕ} 
+cong-compl : {Δ : KEnv ιΔ} {κ : Kind ι} {n m : ℕ} 
              (A B : Fin n → Label × SemType Δ κ)
              (C D : Fin m → Label × SemType Δ κ) → 
              ((i : Fin n) → A i ≋₂ B i) → 
@@ -140,7 +140,7 @@ cong-compl {n = suc n} A B C D i₁ i₂ with i₁ fzero | A fzero .fst ∈Row? 
   refl , (λ { fzero    → i₁ fzero ; 
               (fsuc i) → P≋Q i })
 
-cong-─v : ∀ {V₁ V₂ W₁ W₂ : Row (SemType Δ κ)} → 
+cong-─v : ∀ {Δ : KEnv ιΔ} {κ : Kind ι} {V₁ V₂ W₁ W₂ : Row (SemType Δ κ)} → 
            V₂ ≋R W₂ → 
            V₁ ≋R W₁ → 
            (V₂ ─v V₁) ≋R (W₂ ─v W₁)
