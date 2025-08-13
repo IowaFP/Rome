@@ -332,33 +332,41 @@ reifyRow-≋ {n = suc n} P Q eq =
 --------------------------------------------------------------------------------
 -- Functorial actions
 
--- renSem-id-≋    : ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂
--- renSem-id-≋ {κ = ★} refl = renₖNF-id _
--- renSem-id-≋ {κ = L} refl = renₖNF-id _
--- renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
--- renSem-id-≋ {κ = R[ κ ]} {(l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} (refl , rel) = renₖNE-id l₁ , renSem-id-≋ rel
--- renSem-id-≋ {κ = R[ κ ]} {row (n , P) _} {row (n , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
--- renSem-id-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-id-≋ rel₁) , (renSem-id-≋ rel₂)
--- renSem-id-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Ext , Unif-φ₁ , Unif-φ₂ , refl) = refl , Ext , Unif-φ₁ , Unif-φ₂ , renₖNE-id n₁
+renSem-id-≋    : ∀ {ι₁ ι₂} {Δ₁ : KEnv ι₁} {κ : Kind ι₂} → 
+                   ∀ {V₁ V₂ : SemType Δ₁ κ} → V₁ ≋ V₂  → (renSem id V₁) ≋ V₂
+renSem-id-≋ {κ = ★} refl = renₖNF-id _
+renSem-id-≋ {κ = L} refl = renₖNF-id _
+renSem-id-≋ {κ = κ `→ κ₁} {F} {G} e = e
+renSem-id-≋ {κ = R[ κ ]} {(l₁ ▹ τ₁)} {(l₂ ▹ τ₂)} ((refl , refl , refl) , rel) = (refl , refl , renₖNE-id l₁) , renSem-id-≋ rel
+renSem-id-≋ {κ = R[ κ ]} {row (n , P) _} {row (n , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-id-≋ (eq i .snd) } -- renSem-id-≋ ∘ eq
+renSem-id-≋ {κ = R[ κ ]} {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-id-≋ rel₁) , (renSem-id-≋ rel₂)
+renSem-id-≋ {κ = R[ κ ]} {φ₁ <$> n₁} {φ₂ <$> n₂} ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = 
+  (refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , renₖNE-id n₁) -- refl , Ext , Unif-φ₁ , Unif-φ₂ , renₖNE-id n₁
 
--- renSem-comp-≋  : ∀ (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
---                  V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
--- renSem-comp-≋ {κ = ★} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
--- renSem-comp-≋ {κ = L} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
--- renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) = 
---   (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
---   (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
---   (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
--- renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {l₁ ▹ τ₁} {l₂ ▹ τ₂} (refl , rel) = (renₖNE-comp ρ₁ ρ₂ l₁) , (renSem-comp-≋ ρ₁ ρ₂ rel)
--- renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
--- renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {φ₁ <$> n₁} {φ₂ <$> n₂} (refl , Unif-φ₁ , Unif-φ₂ , Ext , refl) = 
---   refl , (λ ρ₁ ρ₂ V → Unif-φ₁ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , (λ ρ₁ ρ₂ V → Unif-φ₂ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , (λ r₃ V → Ext (r₃ ∘ r₂ ∘ r₁) V) , renₖNE-comp r₁ r₂ n₁ 
--- renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-comp-≋ r₁ r₂ rel₁) , (renSem-comp-≋ r₁ r₂ rel₂)
+renSem-comp-≋  : ∀ {ι₁ ι₂ ι₃} {Δ₁ : KEnv ι₁} {Δ₂ : KEnv ι₂} {κ : Kind ι₃} → 
+                 (ρ₁ : Renamingₖ Δ₁ Δ₂)(ρ₂ : Renamingₖ Δ₂ Δ₃){V₁ V₂ : SemType Δ₁ κ} → 
+                 V₁ ≋ V₂ → (renSem (ρ₂ ∘ ρ₁) V₁) ≋ (renSem ρ₂ (renSem ρ₁ V₂))
+renSem-comp-≋ {κ = ★} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
+renSem-comp-≋ {κ = L} ρ₁ ρ₂ refl = renₖNF-comp _ _ _
+renSem-comp-≋ {κ = κ `→ κ₁} ρ₁ ρ₂ {F} {G} (Unif-F , Unif-G , Ext) = 
+  (λ ρ₃ → Unif-F (ρ₃ ∘ ρ₂ ∘ ρ₁)) ,
+  (λ ρ₃ → Unif-G (ρ₃ ∘ ρ₂ ∘ ρ₁)) , 
+  (λ ρ₃ → Ext (ρ₃ ∘ ρ₂ ∘ ρ₁))
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {l₁ ▹ τ₁} {l₂ ▹ τ₂} ((refl , refl , refl) , rel) = (refl , refl , (renₖNE-comp ρ₁ ρ₂ l₁)) , (renSem-comp-≋ ρ₁ ρ₂ rel)
+renSem-comp-≋ {κ = R[ κ ]} ρ₁ ρ₂ {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ { i → eq i .fst , renSem-comp-≋  ρ₁ ρ₂ (eq i .snd) }
+renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {φ₁ <$> n₁} {φ₂ <$> n₂} ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext) , (refl , refl , refl)) = 
+  (refl , refl , 
+    (λ ρ₁ ρ₂ V → Unif-φ₁ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , 
+    (λ ρ₁ ρ₂ V → Unif-φ₂ (ρ₁ ∘ r₂ ∘ r₁) ρ₂ V) , 
+    (λ r₃ V → Ext (r₃ ∘ r₂ ∘ r₁) V)) , 
+  (refl , refl , renₖNE-comp r₁ r₂ n₁) 
+renSem-comp-≋ {κ = R[ κ ]} r₁ r₂ {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (renSem-comp-≋ r₁ r₂ rel₁) , (renSem-comp-≋ r₁ r₂ rel₂)
 
--- ↻-lift-weaken-≋ₖ : ∀ {κ'} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
---                  V₁ ≋ V₂ → 
---                 renSem (liftₖ {κ = κ'} ρ) (renSem S V₁) ≋ renSem S (renSem ρ V₂)
--- ↻-lift-weaken-≋ₖ {κ' = κ'} ρ {V₁} {V₂} v = 
---   trans-≋ 
---     (sym-≋ (renSem-comp-≋ (S {κ₂ = κ'}) (liftₖ ρ) (sym-≋ v))) 
---     (renSem-comp-≋ ρ S (refl-≋ᵣ v))
+↻-lift-weaken-≋ₖ : ∀ {ι₁ ι₂ ι₃ ι₄} {Δ₁ : KEnv ι₁} {Δ₂ : KEnv ι₂} {κ : Kind ι₃}
+                     {κ' : Kind ι₄} (ρ : Renamingₖ Δ₁ Δ₂) {V₁ V₂ : SemType Δ₁ κ} → 
+                 V₁ ≋ V₂ → 
+                renSem (liftₖ {κ = κ'} ρ) (renSem S V₁) ≋ renSem S (renSem ρ V₂)
+↻-lift-weaken-≋ₖ {κ' = κ'} ρ {V₁} {V₂} v = 
+  trans-≋ 
+    (sym-≋ (renSem-comp-≋ (S {κ₂ = κ'}) (liftₖ ρ) (sym-≋ v))) 
+    (renSem-comp-≋ ρ S (refl-≋ᵣ v))
