@@ -28,19 +28,19 @@ open import Rome.Both.Types.Equivalence.Relation
 -- Any denotation of normal types can be lifted to types in a manner that
 -- respects type equivalence.
 -- 
--- (N.b. need also a meaning of environments, but could instead define this over
--- closed types.)
 
-module anyDenotation (⟦_⟧nf : NormalType Δ κ → ⟦ κ ⟧k) where 
+module anyDenotation {ι} (⟦_⟧nf : NormalType (∅ {ι}) κ → ⟦ κ ⟧k) where 
 
-  ⟦_⟧t : Type Δ κ → ⟦ κ ⟧k
+  ∅' = ∅ {ι}
+
+  ⟦_⟧t : Type ∅' κ → ⟦ κ ⟧k
   ⟦ τ ⟧t = ⟦_⟧nf (⇓ τ)
 
-  all-denotations-respected : ∀ {τ₁ τ₂ : Type Δ κ} → τ₁ ≡t τ₂ → ⟦ τ₁ ⟧t ≡ ⟦ τ₂ ⟧t
+  all-denotations-respected : ∀ {τ₁ τ₂ : Type ∅' κ} → τ₁ ≡t τ₂ → ⟦ τ₁ ⟧t ≡ ⟦ τ₂ ⟧t
   all-denotations-respected eq = cong ⟦_⟧nf (soundness eq)  
 
-  normalization-respected : ∀ {τ : Type Δ κ} {υ : NormalType Δ κ } → ⇓ τ ≡ υ → ⟦ τ ⟧t ≡ ⟦ υ ⟧nf 
+  normalization-respected : ∀ {τ : Type ∅' κ} {υ : NormalType ∅' κ } → ⇓ τ ≡ υ → ⟦ τ ⟧t ≡ ⟦ υ ⟧nf 
   normalization-respected refl = refl
 
-  more? : ∀ {τ : NormalType Δ κ} {υ : Type Δ κ } → ⇑ τ ≡t υ → ⟦ τ ⟧nf ≡ ⟦ υ ⟧t
+  more? : ∀ {τ : NormalType ∅' κ} {υ : Type ∅' κ } → ⇑ τ ≡t υ → ⟦ τ ⟧nf ≡ ⟦ υ ⟧t
   more? eq rewrite (sym (soundness eq)) = cong ⟦_⟧nf (sym (stability _)) 
