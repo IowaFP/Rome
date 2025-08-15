@@ -533,7 +533,7 @@ data _—→_ where
             {oxs : True (normalOrdered? xs)}
             (φ : NormalType ∅ (κ `→ ★))
             {oxs' : True (normalOrdered? (map (map₂ (φ ·'_)) xs))}
-            (τ φυ : NormalType ∅ (★ {ι})) 
+            (τ : NormalType ∅ (★ {ι₁})) (φυ : NormalType ∅ (★ {ι₂}))
             (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))) ≡ Σ (⦅ map (map₂ (φ ·'_)) xs ⦆ oxs'))
             (M : NormalTerm ∅ (AnaT' (⦅ xs ⦆ oxs) φ τ)) 
             (l : Label) 
@@ -544,7 +544,7 @@ data _—→_ where
 
   δ-syn : ∀ {xs : SimpleRow (NormalType (∅ {ι∅}) κ)} 
             {oxs : True (normalOrdered? xs)}
-            (φ : NormalType ∅ (κ `→ ★))
+            (φ : NormalType ∅ (κ `→ (★ {ι})))
             {oxs' : True (normalOrdered? (map (map₂ (φ ·'_)) xs))}
             (eq : Π (⦅ map (map₂ (φ ·'_)) xs ⦆ oxs') ≡ (⇓ (Π · (⇑ φ <$> ⇑ (⦅ xs ⦆ oxs)))))
             (M : NormalTerm ∅ (SynT' (⦅ xs ⦆ oxs) φ)) →

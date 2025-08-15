@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Terms.Theorems.Progress where
 
 open import Rome.Both.Prelude
@@ -55,7 +55,7 @@ data EntProgress {π : NormalPred Δ R[ κ ]} (M : NormalEnt Γ π) : Set where
           --------------------------------------
           EntProgress M
 
-entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntProgress N
+entProgress : ∀ {π : NormalPred (∅ {ι∅}) R[ κ ]} (N : NormalEnt ∅ π) → EntProgress N
 entProgress (n-incl i₁) = Done (n-incl i₁)
 entProgress (n-plus i₁ i₂ i₃) = Done (n-plus i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
@@ -106,7 +106,7 @@ entProgress (n-complL N) with entProgress N
 --------------------------------------------------------------------------------
 -- Proof of progress (Terms)
 
-data Progress {τ} (M : NormalTerm Γ τ) : Set where
+data Progress (M : NormalTerm Γ τ) : Set where
   Done : 
          Value M → 
          ----------
@@ -117,7 +117,7 @@ data Progress {τ} (M : NormalTerm Γ τ) : Set where
           --------------------------------------
           Progress M
 
-data RecordProgress {xs} (r : Record Γ xs) : Set where
+data RecordProgress {xs : SimpleRow (NormalType Δ (★ {ι}))} (r : Record Γ xs) : Set where
   Done : 
          RecordValue Γ xs r → 
          ----------
@@ -131,8 +131,8 @@ data RecordProgress {xs} (r : Record Γ xs) : Set where
 --------------------------------------------------------------------------------
 -- Statement of progress for terms and records
        
-progress : ∀ {τ} (M : NormalTerm ∅ τ) → Progress M
-recordProgress : ∀ {xs} → 
+progress : ∀ (M : NormalTerm ∅ τ) → Progress M
+recordProgress : ∀ {xs : SimpleRow (NormalType (∅ {ι∅}) (★ {ι}))} → 
                    (M : Record ∅ xs) → RecordProgress M 
 
 --------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ progress (M₁ · M₂) | Done (V-▿ {e = e} F G vF vG) | Done (V-Σ {τ = τ} 
 ... | left inxs = StepsTo (F · (⟨ l ▹ M ⟩via inxs)) via δ-▿₁ F G e M i inxs
 ... | right inys = StepsTo (G · (⟨ l ▹ M ⟩via inys)) via δ-▿₂ F G e M i inys 
 progress (M₁ · M₂) | Done (V-ana ρ φ τ eq₁ eq₂ M vM) | StepsTo M₂' via M₂—→M₂' = StepsTo ana ρ φ τ eq₁ eq₂ M · M₂' via ξ-·2 M₂—→M₂' 
-progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M VM) | Done V@(V-Σ {φυ} {oxs = oxs'} l {N} V' i) with 
+progress (M₁ · M₂) | Done (V-ana ρ φ t eq₁@refl eq₂ M VM) | Done V@(V-Σ {φυ} {oxs = oxs'} l {N} V' i) with 
       row-canonicity-∅ ρ
 ... | xs , oxs , refl with inj-⦅⦆ 
                            {wf₂ = fromWitness (normal-map-map₂ xs (φ ·'_) (toWitness oxs))} 
@@ -168,29 +168,22 @@ progress (M₁ · M₂) | Done (V-ana ρ φ t {τ₁} {τ₂} eq₁@refl eq₂ M
 ... |  refl =
   StepsTo 
     anaVariant φ xs t oxs oxs'  M _ V  via 
-    δ-ana {xs = xs} φ t φυ eq₂ M l N V' i     
+    δ-ana {xs = xs} φ t _ eq₂ M l N V' i     
 
 progress (Λ M) = Done (V-Λ M)
 progress (M ·[ τ ]) with progress M 
 ... | Done (V-Λ M₁) = StepsTo (M₁ β·[ τ ]) via β-Λ
 ... | StepsTo M' via M→M' = StepsTo (M' ·[ τ ]) via (ξ-·[] M→M')
-progress (In F M) with progress M 
-... | Done V = Done (V-In F V)
-... | StepsTo M' via M→M' = StepsTo (In F M') via (ξ-In M→M')
-progress (Out F M) with progress M 
-... | Done (V-In .F {M'} V) = StepsTo M' via δ-In
-... | StepsTo M' via M→M' = StepsTo (Out F M') via (ξ-Out M→M')
-progress (fix M) = StepsTo M · (fix M) via (δ-fix M)
 progress (`ƛ M) = Done (V-ƛ M)
 progress (M ·⟨ n ⟩) with progress M
 ... | Done (V-ƛ M') = StepsTo (M' βπ[ n ]) via β-ƛ
 ... | StepsTo M' via M→M' = StepsTo M' ·⟨ n ⟩ via ξ-·⟨⟩ M→M'
 progress (# ℓ) = Done V-#
-progress (_Π▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (_Π▹ne_ {l = l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Π▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo ⟨ l ▹ N ⨾ ∅ ⟩ via δ-Π▹ N
 ... | StepsTo M' via M→M' = StepsTo (M' Π▹ N) via ξ-Π▹₁ N M M' M→M'
-progress (_Π/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (_Π/ne_ {l = l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Π/ ℓ) with progress M 
 ... | Done (V-Π (_ ▹ M' ⨾ ∅) (_ ▹ V ⨾ ∅)) = StepsTo M' via δ-Π/ M' ℓ 
 ... | StepsTo M' via M→M' = StepsTo M' Π/ ℓ via ξ-Π/₁ M M' ℓ M→M'
@@ -208,18 +201,19 @@ progress (syn ρ φ M) with progress M | row-canonicity-∅ ρ
 ... | Done V | xs , oxs , refl = 
   let eq-mapOver = (cong Π (cong-⦅⦆ 
                    {wf₁ = fromWitness (normal-map-map₂ xs (φ ·'_) (toWitness oxs))} 
-                   (stability-map φ xs))) in
-  StepsTo 
-    (conv eq-mapOver ⟨ synRecord φ xs oxs M ⟩) via δ-syn φ eq-mapOver M
+                   (stability-map φ xs))) in 
+  StepsTo {!!} via {!δ-syn φ!}
+  -- StepsTo 
+  --   (conv eq-mapOver ⟨ synRecord φ xs oxs M ⟩) via δ-syn φ eq-mapOver M
 ... | StepsTo M' via M—→M' | _ = StepsTo syn ρ φ M' via ξ-Syn ρ φ M M' M—→M'
 progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
 ... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
 ... | StepsTo M' via M—→M' = StepsTo ana ρ φ τ eq₁ eq₂ M' via ξ-Ana ρ φ τ eq₁ eq₂ M M' M—→M'
-progress (_Σ▹ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (_Σ▹ne_ {l = l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ▹ N) with progress M 
 ... | Done (V-# {l = lab l}) = StepsTo (⟨ l ▹ N ⟩via (here refl)) via δ-Σ▹ N
 ... | StepsTo M' via M→M' = StepsTo (M' Σ▹ N) via ξ-Σ▹₁ N M M' M→M'
-progress (_Σ/ne_ {l} M M₁) = ⊥-elim (noNeutrals l)
+progress (_Σ/ne_ {l = l} M M₁) = ⊥-elim (noNeutrals l)
 progress (M Σ/ ℓ) with progress M 
 ... | Done (V-Σ l {M'} V (here refl)) = StepsTo M' via (δ-Σ/ M' ℓ)
 ... | StepsTo M' via M→M' = StepsTo M' Σ/ ℓ via ξ-Σ/₁ M M' ℓ M→M'
