@@ -217,7 +217,7 @@ lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (
 -- and builds a body M' that synthesizes a term at type Π ρ. This is necessary
 -- for us to recursively synthesize records.
 
-cutSyn :  ∀ (φ : NormalType (∅ {ι∅}) (κ `→ ★)) (z : Label × NormalType ∅ κ) (zs : SimpleRow (NormalType ∅ κ)) →
+cutSyn :  ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) (z : Label × NormalType ∅ κ) (zs : SimpleRow (NormalType ∅ κ)) →
             {ozs : True (normalOrdered? (z ∷ zs))} {ozs' : True (normalOrdered? zs)} → 
             NormalTerm ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs') φ)
 cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ 
@@ -248,7 +248,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
          σ Z     = u
          σ (S Z) = ℓℓ
 
-         lem₅ : ∀ {κ} (t : NormalType _ κ) → 
+         lem₅ : ∀ {ι'} {κ : Kind ι'} (t : NormalType _ κ) → 
               reify (eval {κ = κ}
               (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
                (⇑
@@ -403,7 +403,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
 --------------------------------------------------------------------------------
 -- Synthesizing records
 
-synRecord : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ ★)) 
+synRecord : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) 
               (zs : SimpleRow (NormalType ∅ κ))
               (ozs : True (normalOrdered? zs)) → 
               NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (map₂ (φ ·'_)) zs)

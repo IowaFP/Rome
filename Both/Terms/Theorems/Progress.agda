@@ -202,9 +202,8 @@ progress (syn ρ φ M) with progress M | row-canonicity-∅ ρ
   let eq-mapOver = (cong Π (cong-⦅⦆ 
                    {wf₁ = fromWitness (normal-map-map₂ xs (φ ·'_) (toWitness oxs))} 
                    (stability-map φ xs))) in 
-  StepsTo {!!} via {!δ-syn φ!}
-  -- StepsTo 
-  --   (conv eq-mapOver ⟨ synRecord φ xs oxs M ⟩) via δ-syn φ eq-mapOver M
+  StepsTo 
+    (conv eq-mapOver ⟨ synRecord φ xs oxs M ⟩) via δ-syn φ eq-mapOver M
 ... | StepsTo M' via M—→M' | _ = StepsTo syn ρ φ M' via ξ-Syn ρ φ M M' M—→M'
 progress (ana ρ φ τ eq₁ eq₂ M) with progress M 
 ... | Done V = Done (V-ana ρ φ τ eq₁ eq₂ M V)
