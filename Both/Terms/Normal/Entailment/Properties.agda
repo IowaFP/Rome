@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Terms.Normal.Entailment.Properties where
 
 open import Rome.Both.Prelude
@@ -27,7 +27,7 @@ open import Rome.Both.Containment
 -- --------------------------------------------------------------------------------
 -- Constructive reflexivity of row inclusion
 
-≲-refl : ∀ {ρ₁ : SimpleRow NormalType ∅ R[ κ ]} →            
+≲-refl : ∀ {ρ₁ : SimpleRow (NormalType (∅ {ι∅}) κ)} →            
            {oρ₁ : True (normalOrdered? ρ₁)}  → 
          NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₁ ⦆ oρ₁))
 ≲-refl = n-incl (λ x x∈xs → x∈xs) 
@@ -69,7 +69,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 -- --------------------------------------------------------------------------------
 -- Inversion of inclusion for simple rows
 
-≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow NormalType ∅ R[ κ ]} → 
+≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow (NormalType (∅ {ι∅}) κ)} → 
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} → 
          NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
@@ -78,7 +78,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 -- Inversion of combination
 
 
-·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow NormalType ∅ R[ κ ]}
+·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow (NormalType (∅ {ι∅}) κ)}
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} 
           {oρ₃ : True (normalOrdered? ρ₃)} → 
@@ -90,19 +90,19 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 --------------------------------------------------------------------------------
 -- Lemmas about inclusion (needed to prove inversion for n-·compl rules)
 
-⇓Row-mono : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+⇓Row-mono : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} → 
               ρ₁ ⊆ ρ₂ → 
               ⇓Row ρ₁ ⊆ ⇓Row ρ₂ 
 ⇓Row-mono {ρ₁ = ρ₁} {ρ₂} = ⊆-cong _ ⇓Row (⇓Row-isMap idEnv)
 
-─s-mono : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+─s-mono : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} → 
                (ρ₂ ─s ρ₁) ⊆ ρ₂ 
 ─s-mono {ρ₁ = ρ₁} {ρ₂ = []} = λ { i () }
 ─s-mono {ρ₁ = ρ₁} {ρ₂ = (l , τ) ∷ ρ₂} with l ∈L? ρ₁ 
 ... | yes p = λ { x i → there (─s-mono {ρ₁ = ρ₁} {ρ₂} x i)} 
 ... | no  q = λ { (.l , .τ) (here refl) → here refl ; x (there i) → there (─s-mono {ρ₁ = ρ₁} {ρ₂} x i) }
 
-⇓Row-⇑Row-─s-mono : ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → 
+⇓Row-⇑Row-─s-mono : ∀ (ρ₁ ρ₂ : SimpleRow (NormalType Δ κ)) → 
        ⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁) ⊆ ρ₂
 ⇓Row-⇑Row-─s-mono ρ₁ ρ₂ = 
   subst 
@@ -112,7 +112,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 
 open IsStrictPartialOrder (SPO) using (asym)
 
-labelsIdentifyTypes : ∀ {ρ : SimpleRow Type Δ R[ κ ]} → 
+labelsIdentifyTypes : ∀ {ρ : SimpleRow (Type Δ κ)} → 
                  {oρ : Ordered ρ} → 
                  {l : Label} {τ τ' : Type Δ κ} → 
                  (l , τ) ∈ ρ → (l , τ') ∈ ρ → 
@@ -126,12 +126,12 @@ labelsIdentifyTypes {ρ = ((l , τ') ∷ (l'' , τ'') ∷ xs)} {oρ} {l} {τ} {�
   sym (labelsIdentifyTypes {oρ = ordered-swap (oρ .fst) (oρ .snd)} (here refl) (there τ∈ρ))  
 labelsIdentifyTypes {ρ = (l₁ , τ₁) ∷ xs} {oρ} {l} {τ} {τ'} (there τ∈ρ) (there τ'∈ρ) = labelsIdentifyTypes {oρ = ordered-cons (l₁ , τ₁) xs oρ} τ∈ρ τ'∈ρ
 
-∈L⇒∈ : ∀ {l : Label} {ρ : SimpleRow Type Δ R[ κ ]} →  
+∈L⇒∈ : ∀ {l : Label} {ρ : SimpleRow (Type Δ κ)} →  
         l ∈L ρ → Σ[ τ ∈ Type Δ κ ]((l , τ) ∈ ρ)
 ∈L⇒∈ (Here {τ = τ}) = τ , (here refl)
 ∈L⇒∈ (There Inn) = ∈L⇒∈ Inn .fst , there (∈L⇒∈ Inn .snd)
 
-InComplement : ∀ {l : Label} {τ : Type Δ κ} {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} →  
+InComplement : ∀ {l : Label} {τ : Type Δ κ} {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} →  
            ¬ (l ∈L ρ₁) → (l , τ) ∈ ρ₂ → (l , τ) ∈ (ρ₂ ─s ρ₁)
 InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (here refl) with l ∈L? ρ₁
 ... | yes p = ⊥-elim (¬∈ρ₁ p)
@@ -140,7 +140,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | yes p = InComplement ¬∈ρ₁ ∈ρ₂
 ... | no  q = there (InComplement ¬∈ρ₁ ∈ρ₂)
 
-─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]}
+─s-mono-orᵣ : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)}
                {oρ₂ : Ordered ρ₂} → 
                ρ₁ ⊆ ρ₂ → 
                ρ₂ ⊆[ ρ₁ ⊹ (ρ₂ ─s ρ₁) ]
@@ -159,7 +159,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | τ' , τ'∈ with labelsIdentifyTypes {oρ = oρ₂} (there w) (i (l , τ') τ'∈) 
 ... | refl = left τ'∈
 
-─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → 
+─s-mono-orₗ : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} → 
                 {oρ₂ : Ordered ρ₂} → 
                ρ₁ ⊆ ρ₂ → 
                ρ₂ ⊆[ (ρ₂ ─s ρ₁) ⊹ ρ₁ ]
@@ -178,7 +178,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
 ... | refl = right τ'∈
 
 ⇓Row-⇑Row-─s-mono-orᵣ : 
-  ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) → 
+  ∀ (ρ₁ ρ₂ : SimpleRow (NormalType Δ κ)) → 
     {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ ρ₁ ⊹ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ]
@@ -193,7 +193,7 @@ InComplement {l = l} {τ} {ρ₁} {ρ₂} ¬∈ρ₁ (there {(l' , τ')} {xs} �
         (─s-mono-orᵣ {ρ₁ = (⇑Row ρ₁)} {(⇑Row ρ₂)} {oρ₂ = Ordered⇑ ρ₂ oρ₂} (⊆-cong _ ⇑Row ⇑Row-isMap i))))
 
 ⇓Row-⇑Row-─s-mono-orₗ : 
-  ∀ (ρ₁ ρ₂ : SimpleRow NormalType Δ R[ κ ]) →
+  ∀ (ρ₁ ρ₂ : SimpleRow (NormalType Δ κ)) →
     {oρ₂ : NormalOrdered ρ₂} → 
     ρ₁ ⊆ ρ₂ → 
     ρ₂ ⊆[ (⇓Row (⇑Row ρ₂ ─s ⇑Row ρ₁)) ⊹ ρ₁ ]

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Terms.Normal.GVars where
 
 open import Rome.Both.Kinds.Syntax

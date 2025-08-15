@@ -10,7 +10,7 @@ open import Rome.Preludes.Level
 --   κ κ₁ κ₂ κ₃ : Kind ι
 
 variable
-  ι ι₁ ι₂ ι₃ ι₄ ι₅ : Level
+  ι ι₁ ι₂ ι₃ ι₄ ι₅ ι∅ : Level
   ιΔ ιΔ₁ ιΔ₂ ιΔ₃ ιΔ₄ ιL ιΓ ιΦ ικ ικ' ικ₁ ικ₂ ικ₃ ικ₄ ικ₅ : Level
   κ κ' : Kind ικ
   κ₁ : Kind ικ₁
