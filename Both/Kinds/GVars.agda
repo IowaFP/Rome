@@ -11,7 +11,7 @@ open import Rome.Preludes.Level
 
 variable
   ι ι₁ ι₂ ι₃ ι₄ ι₅ : Level
-  ιΔ ιL ιΓ ιΦ ικ ικ₁ ικ₂ ικ₃ ικ₄ ικ₅ : Level
+  ιΔ ιΔ₁ ιΔ₂ ιΔ₃ ιΔ₄ ιL ιΓ ιΦ ικ ικ' ικ₁ ικ₂ ικ₃ ικ₄ ικ₅ : Level
   κ κ' : Kind ικ
   κ₁ : Kind ικ₁
   κ₂ : Kind ικ₂

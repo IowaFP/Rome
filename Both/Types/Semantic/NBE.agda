@@ -25,9 +25,9 @@ reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
-reifyKripke   : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
+reifyKripke   : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
                 KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
-reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
+reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
                 KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reifyKripkeNE F = `λ (reify (F S (` Z)))
@@ -58,10 +58,10 @@ reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
+reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} ((φ <$> τ)) =  (`λ (reify (φ S (` Z))) <$> τ)
+reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
 reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
