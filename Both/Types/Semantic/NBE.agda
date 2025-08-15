@@ -236,11 +236,11 @@ f <?>V a = apply a <$>V f
 
 record Xi : Set where 
   field
-    Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
-    ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+    Ξ★ : ∀ {Δ : KEnv ιΔ} → NormalType Δ R[ (★ {ι}) ] → NormalType Δ (★ {ι})
+    ren-★ : ∀ {Δ₁ : KEnv ιΔ} (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ (★ {ι}) ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
 
 open Xi
-ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ : ∀ {Δ : KEnv ιΔ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
 ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
 ξ {κ = L} Ξ x = lab "impossible"
 ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
@@ -253,7 +253,7 @@ open Xi
   record
   { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
 
-ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
+ΠV ΣV : ∀ {Δ : KEnv ιΔ} → SemType Δ R[ κ ] → SemType Δ κ
 ΠV = ξ Π-rec
 ΣV = ξ Σ-rec
 
@@ -268,15 +268,15 @@ open Xi
 -- Type evaluation.
 
 eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
+evalPred : Pred (Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 
-evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row (SemType Δ₂ κ)
-evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
+evalRow        : (ρ : SimpleRow (Type Δ₁ κ)) → Env Δ₁ Δ₂ → Row (SemType Δ₂ κ)
+evalRowOrdered : (ρ : SimpleRow (Type Δ₁ κ)) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
 evalRow [] η = εV 
-evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
+evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ (evalRow ρ η) 
 
-⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
+⇓Row-isMap : ∀ {Δ₂ : KEnv ιΔ} {κ : Kind ι} (η : Env Δ₁ Δ₂) → (xs : SimpleRow (Type Δ₁ κ))  → 
                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
 ⇓Row-isMap η [] = refl
 ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
@@ -294,7 +294,7 @@ eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
 eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
 eval {κ = L} (lab l) η = lab l
-eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {ι}{κ} v' → renSem {κ = κ} ρ (η v')) v)
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
 eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
 eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
@@ -314,19 +314,19 @@ evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) w
 -- Type normalization
 
 -- Normalization algorithm
-⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
+⇓ : ∀ {Δ : KEnv ιΔ} → Type Δ κ → NormalType Δ κ
 ⇓ τ = reify (eval τ idEnv)
 
-⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
+⇓Pred : ∀ {Δ : KEnv ιΔ} → Pred (Type Δ R[ κ ]) → Pred (NormalType Δ R[ κ ]) 
 ⇓Pred π = evalPred π idEnv
 
-⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
+⇓Row : ∀ {Δ : KEnv ιΔ} → SimpleRow (Type Δ κ) → SimpleRow (NormalType Δ κ) 
 ⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
-⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE : ∀ {Δ : KEnv ιΔ} → NeutralType Δ κ → NormalType Δ κ
 ⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
 -- reabstraction
-↑ : ∀ {Δ} → NormalType Δ κ → SemType Δ κ 
+↑ : ∀ {Δ : KEnv ιΔ} → NormalType Δ κ → SemType Δ κ 
 ↑ τ = eval (⇑ τ) idEnv
 
