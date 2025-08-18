@@ -21,7 +21,7 @@ open import Rome.Both.Types.Normal.Properties.Renaming
 open import Rome.Both.Types.Normal.Properties.Substitution
 
 open import Rome.Both.Types.Semantic.Syntax
-open import Rome.Both.Types.Semantic.NBE
+open import Rome.Both.Types.Semantic.NBE hiding (Env)
 open import Rome.Both.Types.Semantic.Renaming
 
 open import Rome.Both.Types.Equivalence.Relation
