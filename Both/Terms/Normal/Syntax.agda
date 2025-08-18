@@ -27,28 +27,28 @@ open import Rome.Both.Containment
 --------------------------------------------------------------------------------
 -- First define contexts mapping variables to predicates, types, and kinds
 
-data NormalContext : KEnv ιΔ → Set where
-  ∅ : NormalContext (∅ {ιΔ})
-  _,_  : NormalContext Δ → NormalType Δ (★ {ι}) → NormalContext Δ
-  _,,_ : NormalContext Δ → (κ : Kind ικ) → NormalContext (Δ ,, κ)
-  _,,,_ : NormalContext Δ → NormalPred Δ R[ κ ] → NormalContext Δ
+data NormalContext : KEnv ιΔ → Level → Set where
+  ∅ : NormalContext (∅ {ιΔ}) lzero
+  _,_  : NormalContext Δ ιΓ → NormalType Δ (★ {ι}) → NormalContext Δ (ιΓ ⊔ ι)
+  _,,_ : NormalContext Δ ιΓ → (κ : Kind ικ) → NormalContext (Δ ,, κ) (ιΓ ⊔ lsuc ικ)
+  _,,,_ : ∀ {κ : Kind ικ} → NormalContext Δ ιΓ → NormalPred Δ R[ κ ] → NormalContext Δ (ιΓ ⊔ lsuc ικ)
 
 private
   variable
-    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ
+    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ ιΓ
     τ υ τ₁ τ₂  : NormalType Δ ★
     l l₁ l₂    : NeutralType Δ L
     ρ ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]
     π π₁ π₂ π₃ : NormalPred Δ R[ κ ]
     
 
-data NormalPVar : NormalContext Δ → NormalPred Δ κ → Set where
+data NormalPVar : NormalContext Δ ιΓ → NormalPred Δ κ → Set where
   Z : NormalPVar (Γ ,,, π) π
   S : NormalPVar Γ π₁  → NormalPVar (Γ ,,, π₂) π₁
   T : NormalPVar Γ π → NormalPVar (Γ , τ) π
   K : NormalPVar Γ π → NormalPVar (Γ ,, κ₂) (weakenPredₖNF π)
 
-data NormalVar : NormalContext Δ → NormalType Δ (★ {ι}) → Set where
+data NormalVar : NormalContext Δ ιΓ → NormalType Δ (★ {ι}) → Set where
   Z : NormalVar (Γ , τ) τ
   S : NormalVar Γ τ₁  → NormalVar (Γ , τ₂) τ₁
   K : NormalVar Γ τ → NormalVar (Γ ,, κ) (weakenₖNF τ)
@@ -58,14 +58,14 @@ data NormalVar : NormalContext Δ → NormalType Δ (★ {ι}) → Set where
 -- No variable restriction on contexts
 
 -- Does the context Γ have any term or entailment variables?
-NoVar : NormalContext Δ → Set
+NoVar : NormalContext Δ ιΓ → Set
 NoVar ∅ = ⊤
 NoVar (Γ ,,, _) = ⊥
 NoVar (Γ ,, _) = NoVar Γ
 NoVar (Γ , _) = ⊥
 
 -- NormalContexts s.t. NoVar Γ is true indeed have no term variables,
-noVar : ∀ {Δ : KEnv ιΔ} {τ : NormalType Δ (★ {ι})}{Γ : NormalContext Δ} → 
+noVar : ∀ {Δ : KEnv ιΔ} {τ : NormalType Δ (★ {ι})}{Γ : NormalContext Δ ιΓ} → 
         NoVar Γ → (x : NormalVar Γ τ) → ⊥
 noVar p (K x) = noVar p x
 
@@ -76,7 +76,7 @@ noPVar p (K x) = noPVar p x
 --------------------------------------------------------------------------------
 -- Entailment relation on predicates 
       
-data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where 
+data NormalEnt (Γ : NormalContext Δ ιΓ) : NormalPred Δ R[ κ ] → Set where 
   n-var : 
         NormalPVar Γ π → 
         -----------
@@ -181,7 +181,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ----------------------
              NormalEnt Γ (⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
 
-data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
+data EntValue (Γ : NormalContext Δ ιΓ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
 
   n-incl :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
            {oxs : True (normalOrdered? xs)} 
@@ -207,14 +207,14 @@ data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalE
 --------------------------------------------------------------------------------
 -- Terms with normal types
 
-data NormalTerm {Δ : KEnv ιΔ} (Γ : NormalContext Δ) : NormalType Δ (★ {ι}) → Set
-data Value {Δ : KEnv ιΔ} {Γ : NormalContext Δ} : ∀ {τ : NormalType Δ (★ {ι})} → NormalTerm Γ τ → Set
-data Record {Δ : KEnv ιΔ} (Γ : NormalContext Δ) : SimpleRow (NormalType Δ (★ {ι})) → Set where
+data NormalTerm {Δ : KEnv ιΔ} (Γ : NormalContext Δ ιΓ) : NormalType Δ (★ {ι}) → Set
+data Value {Δ : KEnv ιΔ} {Γ : NormalContext Δ ιΓ} : ∀ {τ : NormalType Δ (★ {ι})} → NormalTerm Γ τ → Set
+data Record {Δ : KEnv ιΔ} (Γ : NormalContext Δ ιΓ) : SimpleRow (NormalType Δ (★ {ι})) → Set where
   ∅   : Record Γ {ι = ι} []
   _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} → (l : Label)  → NormalTerm Γ τ → 
             Record Γ xs → Record Γ ((l , τ) ∷ xs)
 
-data RecordValue {Δ : KEnv ιΔ} (Γ : NormalContext Δ) : (xs : SimpleRow (NormalType Δ (★ {ι}))) → Record Γ xs → Set where
+data RecordValue {Δ : KEnv ιΔ} (Γ : NormalContext Δ ιΓ) : (xs : SimpleRow (NormalType Δ (★ {ι}))) → Record Γ xs → Set where
   ∅   : RecordValue Γ {ι = ι} [] ∅
   _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} {r : Record Γ xs} → 
           (l : Label)  → {M : NormalTerm Γ τ} → Value M → 
@@ -440,22 +440,22 @@ data Value {Δ = Δ} {Γ} where
 --------------------------------------------------------------------------------
 -- Conversion helpers.
 
-convVar : ∀ {Γ} {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalVar Γ τ₁ → NormalVar Γ τ₂
+convVar : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalVar Γ τ₁ → NormalVar Γ τ₂
 convVar refl v = v
 
-convVar-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalVar Γ (⇓ τ₁) → NormalVar Γ (⇓ τ₂)
+convVar-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalVar Γ (⇓ τ₁) → NormalVar Γ (⇓ τ₂)
 convVar-≡t eq x = convVar (soundness eq) x 
 
-convPVar : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalPVar Γ π₁ → NormalPVar Γ π₂
+convPVar : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalPVar Γ π₁ → NormalPVar Γ π₂
 convPVar refl v = v
 
-conv : ∀ {Γ} {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalTerm Γ τ₁ → NormalTerm Γ τ₂
+conv : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalTerm Γ τ₁ → NormalTerm Γ τ₂
 conv refl M = M
 
-convEnt : ∀ {Γ} {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalEnt Γ π₁ → NormalEnt Γ π₂
+convEnt : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalEnt Γ π₁ → NormalEnt Γ π₂
 convEnt refl e = e
 
-conv-≡t : ∀ {Γ} {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalTerm Γ (⇓ τ₁) → NormalTerm Γ (⇓ τ₂)
+conv-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalTerm Γ (⇓ τ₁) → NormalTerm Γ (⇓ τ₂)
 conv-≡t eq = conv (soundness eq)
 
 --------------------------------------------------------------------------------

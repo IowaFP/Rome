@@ -39,7 +39,7 @@ open import Rome.Both.Containment
 
 private
   variable
-    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ
+    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ ιΓ
     ρ : Renamingₖ Δ₁ Δ₂
     τ τ₁ τ₂ : NormalType Δ κ
 
@@ -47,17 +47,19 @@ private
 -- Renamings are functions from term variables to term variables
 -- and from evidence variables to evidence variables
 
-Renaming : ∀ Γ₁ Γ₂ → Renamingₖ Δ₁ Δ₂ → Set
-Renaming Γ₁ Γ₂ ρ = 
-  (∀ {ι}{τ : NormalType _ (★ {ι})} → NormalVar Γ₁ τ → NormalVar Γ₂ (renₖNF ρ τ))
+Renaming : ∀ {ιΓ₁} {ιΓ₂} {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} 
+             (Γ₁ : NormalContext Δ₁ ιΓ₁) (Γ₂ : NormalContext Δ₂ ιΓ₂) → 
+             Renamingₖ Δ₁ Δ₂ → Set
+Renaming Γ₁ Γ₂ r = 
+  (∀ {ι}{τ : NormalType _ (★ {ι})} → NormalVar Γ₁ τ → NormalVar Γ₂ (renₖNF r τ))
   ×
-  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalPVar Γ₂ (renPredₖNF ρ π))
+  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalPVar Γ₂ (renPredₖNF r π))
 
-renType : ∀ {Γ₁ Γ₂} {ρ : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ ρ → NormalType Δ₁ κ → NormalType Δ₂ κ
-renType {ρ = ρ} R = renₖNF ρ
+renType : ∀ {r : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ r → NormalType Δ₁ κ → NormalType Δ₂ κ
+renType {r = r} R = renₖNF r
 
-renPred : ∀ {Γ₁ Γ₂} {ρ : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ ρ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
-renPred {ρ = ρ} R = renPredₖNF ρ
+renPred : ∀ {r : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ r → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
+renPred {r = r} R = renPredₖNF r
 
 --------------------------------------------------------------------------------
 -- Lifting of renamings

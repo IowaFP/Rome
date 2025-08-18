@@ -43,7 +43,9 @@ open Reasoning
 --------------------------------------------------------------------------------
 -- Term and entailment substitutions
 
-Substitution : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
+Substitution : ∀ {ιΓ₁} {ιΓ₂} {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} 
+               (Γ₁ : NormalContext Δ₁ ιΓ₁) (Γ₂ : NormalContext Δ₂ ιΓ₂) → 
+               SubstitutionₖNF Δ₁ Δ₂ → Set
 Substitution Γ₁ Γ₂ σ = 
   (∀ {ι} {τ : NormalType _ (★ {ι})} → NormalVar Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
   × 
