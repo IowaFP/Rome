@@ -1,5 +1,5 @@
 -- {-# OPTIONS --safe #-}
-module Rome.Both.Terms.Normal.Reduction where
+module Rome.Both.Terms.Reduction where
 
 open import Rome.Both.Prelude
 open import Rome.Both.Containment
@@ -14,15 +14,15 @@ open import Rome.Both.Types.Normal.Substitution
 open import Rome.Both.Types.Normal.Properties.Renaming
 open import Rome.Both.Types.Normal.Properties.Substitution
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Entailment.Properties
-open import Rome.Both.Terms.Normal.Substitution
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Entailment.Properties
+open import Rome.Both.Terms.Substitution
 
 open import Rome.Both.Types.Semantic.NBE
 
 open import Rome.Both.Kinds.GVars
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.SynAna
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.SynAna
 
 --------------------------------------------------------------------------------
 -- Defining projection

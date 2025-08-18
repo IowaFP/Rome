@@ -30,16 +30,16 @@ open import Rome.Both.Types.Theorems.Stability
 open import Rome.Both.Types.Theorems.Consistency
 
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Substitution
-open import Rome.Both.Terms.Normal.Reduction
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Substitution
+open import Rome.Both.Terms.Reduction
 
 open import Rome.Both.Kinds.GVars
 
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.Renaming
-open import Rome.Both.Terms.Normal.Entailment.Properties
-open import Rome.Both.Terms.Normal.SynAna
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.Renaming
+open import Rome.Both.Terms.Entailment.Properties
+open import Rome.Both.Terms.SynAna
 
 --------------------------------------------------------------------------------
 -- Proof of progress (Entailments)

@@ -1,7 +1,7 @@
 -- {-# OPTIONS --safe #-}
 -- {-# OPTIONS --safe #-}
 
-module Rome.Both.Terms.Normal.Substitution where
+module Rome.Both.Terms.Substitution where
 
 open import Rome.Both.Prelude
 
@@ -30,10 +30,10 @@ open import Rome.Both.Types.Theorems.Soundness
 open import Rome.Both.Types.Theorems.Consistency
 open import Rome.Both.Types.Theorems.Stability
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Entailment.Properties
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.Renaming
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Entailment.Properties
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.Renaming
 
 open import Rome.Both.Containment
 
@@ -44,12 +44,12 @@ open Reasoning
 -- Term and entailment substitutions
 
 Substitution : ∀ {ιΓ₁} {ιΓ₂} {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} 
-               (Γ₁ : NormalContext Δ₁ ιΓ₁) (Γ₂ : NormalContext Δ₂ ιΓ₂) → 
+               (Γ₁ : Env Δ₁ ιΓ₁) (Γ₂ : Env Δ₂ ιΓ₂) → 
                SubstitutionₖNF Δ₁ Δ₂ → Set
 Substitution Γ₁ Γ₂ σ = 
-  (∀ {ι} {τ : NormalType _ (★ {ι})} → NormalVar Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
+  (∀ {ι} {τ : NormalType _ (★ {ι})} → Var Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
   × 
-  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π))
+  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π))
 
 --------------------------------------------------------------------------------
 -- Lifting substitutions over times, predicates, and more!

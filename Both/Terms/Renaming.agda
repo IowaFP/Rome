@@ -1,7 +1,7 @@
 -- {-# OPTIONS --safe #-}
 -- {-# OPTIONS --safe #-}
 
-module Rome.Both.Terms.Normal.Renaming where
+module Rome.Both.Terms.Renaming where
 
 open import Rome.Both.Prelude
 
@@ -29,7 +29,7 @@ open import Rome.Both.Types.Equivalence.Properties
 
 open import Rome.Both.Types.Renaming
 
-open import Rome.Both.Terms.Normal.Syntax
+open import Rome.Both.Terms.Syntax
 
 open import Rome.Both.Types.Theorems.Soundness
 open import Rome.Both.Types.Theorems.Consistency
@@ -39,7 +39,7 @@ open import Rome.Both.Containment
 
 private
   variable
-    Γ Γ₁ Γ₂ Γ₃ : NormalContext Δ ιΓ
+    Γ Γ₁ Γ₂ Γ₃ : Env Δ ιΓ
     ρ : Renamingₖ Δ₁ Δ₂
     τ τ₁ τ₂ : NormalType Δ κ
 
@@ -48,12 +48,12 @@ private
 -- and from evidence variables to evidence variables
 
 Renaming : ∀ {ιΓ₁} {ιΓ₂} {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} 
-             (Γ₁ : NormalContext Δ₁ ιΓ₁) (Γ₂ : NormalContext Δ₂ ιΓ₂) → 
+             (Γ₁ : Env Δ₁ ιΓ₁) (Γ₂ : Env Δ₂ ιΓ₂) → 
              Renamingₖ Δ₁ Δ₂ → Set
 Renaming Γ₁ Γ₂ r = 
-  (∀ {ι}{τ : NormalType _ (★ {ι})} → NormalVar Γ₁ τ → NormalVar Γ₂ (renₖNF r τ))
+  (∀ {ι}{τ : NormalType _ (★ {ι})} → Var Γ₁ τ → Var Γ₂ (renₖNF r τ))
   ×
-  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalPVar Γ₂ (renPredₖNF r π))
+  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → PVar Γ₂ (renPredₖNF r π))
 
 renType : ∀ {r : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ r → NormalType Δ₁ κ → NormalType Δ₂ κ
 renType {r = r} R = renₖNF r
@@ -70,8 +70,8 @@ lift (r , p) =
      ; (S x) → S (r x) }) , 
    λ { (T x) → T (p x) }
 
-liftNormalPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
-liftNormalPVar (r , p) = 
+liftPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
+liftPVar (r , p) = 
   (λ { (P x) → P (r x) }) , 
   λ { Z → Z
     ; (S x) → S (p x) }
@@ -143,7 +143,7 @@ ren R (l Σ▹ne M) = (ren R l) Σ▹ne (ren R M)
 ren R (l Σ▹ M) = (ren R l) Σ▹ (ren R M)
 ren R (M Σ/ne l) = ren R M Σ/ne ren R l
 ren R (M Σ/ l) = ren R M Σ/ ren R l
-ren R (`ƛ τ) = `ƛ (ren (liftNormalPVar R) τ)
+ren R (`ƛ τ) = `ƛ (ren (liftPVar R) τ)
 ren R (τ ·⟨ e ⟩) = ren R τ ·⟨ renEnt R e ⟩
 ren {ρ = ρ} R (prj m e) = prj (ren R m) (renEnt R e)
 ren {ρ = ρ} R (inj m e) = inj (ren R m) (renEnt R e)

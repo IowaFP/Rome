@@ -1,5 +1,5 @@
 -- {-# OPTIONS --safe #-}
-module Rome.Both.Terms.Normal.SynAna where
+module Rome.Both.Terms.SynAna where
 
 open import Rome.Both.Prelude
 open import Rome.Both.Containment
@@ -30,14 +30,14 @@ open import Rome.Both.Types.Theorems.Stability
 open import Rome.Both.Types.Theorems.Consistency
 
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Substitution
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Substitution
 
 open import Rome.Both.Kinds.GVars
 
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.Renaming
-open import Rome.Both.Terms.Normal.Entailment.Properties
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.Renaming
+open import Rome.Both.Terms.Entailment.Properties
 
 --------------------------------------------------------------------------------
 -- Lifting consistency result over substitution by (⇑ ∘ σ)
