@@ -1,19 +1,19 @@
 {-# OPTIONS --safe #-}
-module Rome.Operational.Types.Normal.Substitution where
+module Rome.Types.Normal.Substitution where
 
-open import Rome.Operational.Prelude
-open import Rome.Operational.Kinds.Syntax
-open import Rome.Operational.Kinds.GVars
+open import Rome.Prelude
+open import Rome.Kinds.Syntax
+open import Rome.Kinds.GVars
 
-open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.Substitution
+open import Rome.Types.Syntax
+open import Rome.Types.Substitution
 
-open import Rome.Operational.Types.Normal.Syntax
-open import Rome.Operational.Types.Normal.Renaming
-open import Rome.Operational.Types.Semantic.NBE
+open import Rome.Types.Normal.Syntax
+open import Rome.Types.Normal.Renaming
+open import Rome.Types.Semantic.NBE
 
-open import Rome.Operational.Types.Theorems.Soundness
-open import Rome.Operational.Types.Equivalence.Relation
+open import Rome.Types.Theorems.Soundness
+open import Rome.Types.Equivalence.Relation
 
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution

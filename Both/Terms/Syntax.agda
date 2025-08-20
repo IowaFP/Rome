@@ -15,7 +15,7 @@ open import Rome.Both.Types.Normal.Syntax
 open import Rome.Both.Types.Normal.Renaming
 open import Rome.Both.Types.Normal.Substitution
 open import Rome.Both.Types.Normal.Properties.Substitution
-open import Rome.Both.Types.Semantic.NBE hiding (Env)
+open import Rome.Both.Types.Semantic.NBE
 
 open import Rome.Both.Types.Theorems.Consistency
 open import Rome.Both.Types.Theorems.Soundness
@@ -445,44 +445,3 @@ convEnt refl e = e
 
 conv-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalTerm Δ Φ Γ (⇓ τ₁) → NormalTerm Δ Φ Γ (⇓ τ₂)
 conv-≡t eq = conv (soundness eq)
-
---------------------------------------------------------------------------------
--- Admissable constants
-
-
--- ll : NormalType Δ L 
--- ll = ΠL εNF
-
--- -- Unit term
--- uu : NormalTerm Δ Φ Γ UnitNF
--- uu = prj (# ll Π▹ (# ll)) (n-incl λ { x () }) -- (♯l Π▹ ♯l) (n-incl λ { x () })
-
--- -- shit : NormalTerm Δ Φ Γ UnitNF 
--- -- shit = (♯l Π▹ uu) Π/ ♯l
-
--- -- shit₂ : NormalTerm Δ Φ Γ ((Π ⦅ [ UnitNF ] ⦆) `→ UnitNF) 
--- -- shit₂ = `λ ((` Z) Π/ ♯l)
-
--- -- withLabelVar : NormalTerm Δ Φ Γ 
--- --   (`∀ {κ = L} 
--- --     (`∀ {κ = ★} 
--- --       (`∀ {κ = R[ ★ ]} ((⦅ [ (ne (` (S Z))) ] ⦆ ≲ ne (` Z)) ⇒ (⌊ (ne (` (S (S Z)))) ⌋ `→ (Π (ne (` Z))) `→ (ne (` (S Z)))))))) 
--- -- withLabelVar = Λ (Λ (Λ (`ƛ (`λ (`λ ((prj (` Z) (n-var (T (T Z)))) Π/ ♯l)))))) 
-
--- -- hmm : NormalTerm Δ Φ Γ 
--- --   (`∀  
--- --     (`∀  
--- --       (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ne (` Z)) ⇒ 
--- --         (((ne (` Z)) · ((lab "c" ▹ UnitNF)) ~ (ne (` (S Z)))) ⇒ 
--- --         Π (ne (` (S Z)))))))
--- -- hmm = Λ (Λ (`ƛ (`ƛ (((((# (lab "a") Π▹ uu) ⊹ (# (lab "b") Π▹ uu)) (n-var (S Z))) ⊹ (# (lab "c") Π▹ uu)) (n-var Z)))))
-
--- -- -- The small problem here is that there do not exist any types to give...
--- -- -- I can't actually express Π ("a" ▹ ⊤ , "b" ▹ ⊤ , "c" ▹ ⊤).
--- -- -- I am in a bit of trouble if I need to extend to the simple row theory.
--- -- hmm₂ : NormalTerm Δ Φ Γ (Π {!   !})
--- -- hmm₂ = ((((hmm ·[ {! ε !} ]) ·[ {!   !} ]) ·⟨ {!   !} ⟩) ·⟨ {!   !} ⟩)
-
-
--- -- shit : NormalTerm ∅ (((lab "a" ▹ UnitNF) · (lab "b" ▹ UnitNF) ~ ρ₃) ⇒ Π ρ₃) 
--- -- shit = `ƛ ((((# (lab "a")) Π▹ uu) ⊹ ((# (lab "b")) Π▹ uu)) (n-var Z))

@@ -204,6 +204,16 @@ data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalE
           
 
 --------------------------------------------------------------------------------
+-- Normal forms of the bodies of Syn & Ana
+
+SynT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★
+SynT' {κ = κ} ρ φ = ⇓ (SynT (⇑ ρ) (⇑ φ))
+
+
+AnaT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★ → NormalType Δ ★
+AnaT' {κ = κ} ρ φ τ = ⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))
+
+--------------------------------------------------------------------------------
 -- Terms with normal types
 
 data NormalTerm {Δ} Γ : NormalType Δ ★ → Set
