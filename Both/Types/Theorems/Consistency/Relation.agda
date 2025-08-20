@@ -293,7 +293,7 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁)
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
-⟦_⟧≋e_ : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
+⟦_⟧≋e_ : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} → Substitutionₖ Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
 ⟦_⟧≋e_ {Δ₁ = Δ₁} σ η = ∀ {ικ} {κ : Kind ικ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 -- Identity relation
@@ -303,7 +303,7 @@ idSR α = reflect-⟦⟧≋ eq-refl
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments
 
-extend-⟦⟧≋ : ∀ {κ : Kind ιΔ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+extend-⟦⟧≋ : ∀ {κ : Kind ιΔ} {σ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
              ⟦ σ ⟧≋e η →
              ∀ {τ : Type Δ₂ κ} {V : SemType Δ₂ κ} → 
              ⟦ τ ⟧≋ V → 
@@ -314,7 +314,7 @@ extend-⟦⟧≋ p q (S x) = p x
 --------------------------------------------------------------------------------
 -- Weakened substitutions relate to weakened environments
  
-weaken-⟦⟧≋ : ∀ {κ : Kind ικ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+weaken-⟦⟧≋ : ∀ {κ : Kind ικ} {σ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
            ⟦ σ ⟧≋e η → 
            ⟦ liftsₖ {κ = κ} σ ⟧≋e (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
 weaken-⟦⟧≋ e Z = reflect-⟦⟧≋ eq-refl
@@ -323,7 +323,7 @@ weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)
 --------------------------------------------------------------------------------
 --  Substituting syntactic substitutions in related environments
 
-substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
              (∀ {ικ} {κ : Kind ικ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
@@ -335,7 +335,7 @@ substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
 map₂-⟦⟧≋ : ∀ {n : ℕ} {Δ₂ : KEnv ιΔ₂} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂}
              {P : Fin n → Label × SemType Δ₂ κ₁} 
              {σ : Substitutionₖ Δ₁ Δ₂}
-             {η : Env Δ₁ Δ₂}
+             {η : SemEnv Δ₁ Δ₂}
              (f : Type Δ₁ (κ₁ `→ κ₂)) → 
              ⟦ subₖ σ f ⟧≋ (eval f η) → 
              ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 

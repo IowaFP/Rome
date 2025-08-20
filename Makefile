@@ -1,5 +1,4 @@
 all: clean build html
-	
 
 clean:
 	@find . -type f -name '*.agdai' -delete
@@ -28,9 +27,5 @@ supp: clean
 	rm -rf ./Rome-supp-materials/Rome/Terms/Examples.agda 
 	rm -rf ./Rome-supp-materials/Rome/Terms/Theorems/Completeness.agda
 	rm -rf ./Rome-supp-materials/Rome/Terms/Theorems/Soundness.agda
-
-	cd Rome-supp-materials/Rome/
-	agda --html ./All.agda 
-	cd -
 
 	rm Rome-supp-POPL26.zip & zip -r Rome-supp-POPL26.zip ./Rome-supp-materials/;

@@ -42,7 +42,7 @@ stability-β : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂
 stability-β {Δ = Δ} τ = 
     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
-        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η : SemEnv-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
         η Z = reflect-≋ refl
         η (S x) = ↻-ren-reflect S (` x)
   

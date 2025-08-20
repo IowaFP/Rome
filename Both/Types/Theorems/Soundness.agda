@@ -28,12 +28,12 @@ open import Rome.Both.Types.Equivalence.Relation
 -- Equivalence of membership in syntactic and semantic spaces
 
 ∈L→∈Row : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
-            {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈L ys → l ∈Row (evalRow ys η₁ .snd)
+            {l : Label} {η₁ : SemEnv Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈L ys → l ∈Row (evalRow ys η₁ .snd)
 ∈L→∈Row {ys = ys} Here = fzero , refl
 ∈L→∈Row {ys = (l' , τ) ∷ ys} (There ev) = (fsuc (∈L→∈Row ev .fst)) , (∈L→∈Row ev .snd)
 
 ∈Row→∈L : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
-            {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈Row (evalRow ys η₁ .snd) → l ∈L ys
+            {l : Label} {η₁ : SemEnv Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈Row (evalRow ys η₁ .snd) → l ∈L ys
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fzero , refl) = Here
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fsuc i , refl) = There (∈Row→∈L (i , refl))
 
@@ -41,8 +41,8 @@ open import Rome.Both.Types.Equivalence.Relation
 -- Commutativity of syntactic and semantic complement
 
 ↻-syn/sem-compl : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
-                    {η₁ η₂ : Env Δ₁ Δ₂} (xs ys : SimpleRow (Type Δ₁ κ)) → 
-                  Env-≋ η₁ η₂ → 
+                    {η₁ η₂ : SemEnv Δ₁ Δ₂} (xs ys : SimpleRow (Type Δ₁ κ)) → 
+                  SemEnv-≋ η₁ η₂ → 
                   (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
 ↻-syn/sem-compl [] ys e = refl , (λ ())
 ↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
@@ -79,13 +79,13 @@ open import Rome.Both.Types.Equivalence.Relation
 -------------------------------------------------------------------------------
 -- Fundamental theorem (soundness)
 
-fundC : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
-       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
-fundC-pred : ∀ {π₁ π₂ : Pred (Type Δ₁ R[ κ ])} {η₁ η₂ : Env Δ₁ Δ₂} → 
-            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+fundC : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+       SemEnv-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fundC-pred : ∀ {π₁ π₂ : Pred (Type Δ₁ R[ κ ])} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+            SemEnv-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
 fundC-Row : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
-              {ρ₁ ρ₂ : SimpleRow (Type Δ₁ κ)} {η₁ η₂ : Env Δ₁ Δ₂} → 
-            Env-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
+              {ρ₁ ρ₂ : SimpleRow (Type Δ₁ κ)} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+            SemEnv-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
 
 fundC-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundC e τ₁)) (reify-≋ (fundC e τ₂))
 fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -225,7 +225,7 @@ fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with
   evalRow xs η₁ | fundC-Row e eq-r 
 ... | n , P | refl , eq = refl , (λ { fzero → eq-l , (fundC e eq-τ) ; (fsuc i) → eq i })
 
-idEnv-≋ : ∀ {Δ : KEnv ιΔ} → Env-≋ (idEnv {ιΔ} {Δ}) (idEnv {ιΔ} {Δ})
+idEnv-≋ : ∀ {Δ : KEnv ιΔ} → SemEnv-≋ (idEnv {ιΔ} {Δ}) (idEnv {ιΔ} {Δ})
 idEnv-≋ x = reflect-≋ refl
 
 -------------------------------------------------------------------------------
@@ -276,8 +276,8 @@ soundness-row {ρ₁ = ρ₁} {ρ₂} eq with
 -------------------------------------------------------------------------------
 -- Helper to substitute under an eval
  
-evalCRSubst : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ₁} {η₁ η₂ : Env Δ₁ Δ₂}
-    → Env-≋ η₁ η₂
+evalCRSubst : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ₁} {η₁ η₂ : SemEnv Δ₁ Δ₂}
+    → SemEnv-≋ η₁ η₂
     → {τ₁ τ₂ : Type Δ₁ κ}
     → τ₁ ≡ τ₂
     → (eval τ₁ η₁) ≋ (eval τ₂ η₂)

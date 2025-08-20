@@ -92,17 +92,17 @@ UniformNE {Δ = Δ₁} {κ₁ = κ₁} {κ₂} F =
 --------------------------------------------------------------------------------
 -- Pointwise PER for environments
 
-Env-≋ : {Δ₁ : KEnv ι₁} (η₁ η₂ : Env Δ₁ Δ₂) → Set
-Env-≋ {Δ₁ = Δ₁} η₁ η₂ = ∀ {ι₂} {κ : Kind ι₂} (x : TVar Δ₁ κ) → (η₁ x) ≋ (η₂ x)
+SemEnv-≋ : {Δ₁ : KEnv ι₁} (η₁ η₂ : SemEnv Δ₁ Δ₂) → Set
+SemEnv-≋ {Δ₁ = Δ₁} η₁ η₂ = ∀ {ι₂} {κ : Kind ι₂} (x : TVar Δ₁ κ) → (η₁ x) ≋ (η₂ x)
 
 -- extension
 extend-≋ : ∀ {Δ₁ : KEnv ι₁} {Δ₂ : KEnv ι₂}
-             {η₁ η₂ : Env Δ₁ Δ₂} → 
-             Env-≋ η₁ η₂ → 
+             {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+             SemEnv-≋ η₁ η₂ → 
              {κ : Kind ι₃} → 
              {V₁ V₂ : SemType Δ₂ κ} → 
              V₁ ≋ V₂ → 
-             Env-≋ (extende η₁ V₁) (extende η₂ V₂)
+             SemEnv-≋ (extende η₁ V₁) (extende η₂ V₂)
 extend-≋ p q Z = q
 extend-≋ p q (S v) = p v
 

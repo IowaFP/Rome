@@ -604,13 +604,13 @@ map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {n
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-fundS : ∀ (τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundS : ∀ (τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for rows
 
-fundSRow : ∀ (xs : SimpleRow (Type Δ₁ κ)){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSRow : ∀ (xs : SimpleRow (Type Δ₁ κ)){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
 fundSRow [] e = tt
 fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
@@ -621,7 +621,7 @@ fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
 fundS-map-app : ∀ {Δ₂ : KEnv ιΔ₂} {κ₁ : Kind ικ₁} (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-                {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
+                {σ : Substitutionₖ Δ₁ Δ₂} → {η : SemEnv Δ₁ Δ₂} → 
                 ⟦ σ ⟧≋e η → 
                 ⟦ map (map₂ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
@@ -633,7 +633,7 @@ fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
 --------------------------------------------------------------------------------
 -- Fundamental lemma for predicates
           
-fundSPred : ∀ (π : Pred (Type Δ₁ R[ κ ])){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSPred : ∀ (π : Pred (Type Δ₁ R[ κ ])){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
 fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
