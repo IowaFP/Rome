@@ -68,6 +68,10 @@ PredRenaming Φ₁ Φ₂ r = (∀ {ικ} {κ : Kind ικ} {π : NormalPred _ R[ 
 -- --------------------------------------------------------------------------------
 -- -- Lifting of renamings
 
+stupid : ∀ {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) ∅ r → Renaming Γ₂ ∅ r 
+stupid R Z = {!!} 
+stupid R (S {Γ = Γ , τ'} v) = {!!}
+
 lift : Renaming Γ₁ Γ₂ r → {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) (Γ₂ , renₖNF r τ) r
 lift {r = r} ρ Z = Z
 lift {r = r} ρ (S v) = S (ρ v)
@@ -77,10 +81,9 @@ liftP {r = r} ρ Z = Z
 liftP {r = r} ρ (S v) = S (ρ v)
 
 liftTVar : Renaming Γ₁ Γ₂ r → {κ : Kind ικ} → Renaming (weakΓ {κ = κ} Γ₁) (weakΓ Γ₂) (liftₖ r)
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R Z = convVar (sym (↻-weakenₖNF-renₖNF r _)) {!R Z!}
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R (S v) = {!!}
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R Z = {!R Z!}
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R (S v) = {!!}
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R v = {!!}
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R v = {!!}
+
 
 -- --------------------------------------------------------------------------------
 -- -- Renaming terms
@@ -132,16 +135,19 @@ ren R P (` x) = ` (R x)
 ren R P (`λ M) = `λ (ren (lift R) P M)
 ren R P (M · N) = ren R P M · ren R P N
 ren R P (Λ M) = Λ (ren {!R!} {!!} M)
-ren R P (M ·[ τ ]) = {!!}
+ren {r = r} R P (_·[_] {τ₂ = τ₂} M τ) =
+  conv 
+    (sym (↻-renₖNF-β r τ₂ τ)) 
+    ((ren R P M) ·[ renₖNF r τ ])
 ren R P (`ƛ M) = `ƛ (ren R (liftP P) M)
-ren R P (M ·⟨ e ⟩) = {!!}
-ren R P (# ℓ) = {!!}
-ren R P (M Π▹ne N) = {!!}
-ren R P (M Π▹ N) = {!!}
-ren R P (M Π/ne N) = {!!}
-ren R P (M Π/ N) = {!!}
-ren R P (prj M e) = {!!}
-ren R P ((M ⊹ N) e) = {!!}
+ren {r = r} R P (M ·⟨ e ⟩) = ren R P M ·⟨ renEnt P e ⟩
+ren {r = r} R P (# ℓ) = # (renₖNF r ℓ)
+ren R P (M Π▹ne N) = (ren R P M) Π▹ne (ren R P N)
+ren R P (M Π▹ N) = (ren R P M) Π▹ (ren R P N)
+ren R P (M Π/ne N) = (ren R P M) Π/ne (ren R P N)
+ren R P (M Π/ N) = (ren R P M) Π/ (ren R P N)
+ren R P (prj M e) = prj (ren R P M) (renEnt P e)
+ren R P ((M ⊹ N) e) = ((ren R P M) ⊹ (ren R P N)) (renEnt P e)
 ren R P (syn ρ₁ φ M) = {!!}
 ren R P (ana ρ₁ φ τ eq₁ eq₂ M) = {!!}
 ren R P (M Σ▹ne M₁) = {!!}
