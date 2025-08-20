@@ -68,21 +68,30 @@ PredRenaming Φ₁ Φ₂ r = (∀ {ικ} {κ : Kind ικ} {π : NormalPred _ R[ 
 -- --------------------------------------------------------------------------------
 -- -- Lifting of renamings
 
-stupid : ∀ {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) ∅ r → Renaming Γ₂ ∅ r 
-stupid R Z = {!!} 
-stupid R (S {Γ = Γ , τ'} v) = {!!}
+stupid : ∀ {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) ∅ r → Renaming Γ₁ ∅ r 
+stupid R Z with R Z
+... | ()
+stupid R (S {Γ = Γ} v) = {!!}
+  -- where
+    -- stupider : ∀ {τ₁ τ₂ : NormalType Δ₁ (★ {ι})} → Renaming ((Γ₁ , τ₁) , τ₂) ∅ r → Renaming (Γ , τ₁) ∅ r 
+    -- stupider R₂ Z with R₂ Z 
+    -- ... | ()
+    -- stupider R₂ (S v) = ?
 
 lift : Renaming Γ₁ Γ₂ r → {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) (Γ₂ , renₖNF r τ) r
-lift {r = r} ρ Z = Z
-lift {r = r} ρ (S v) = S (ρ v)
+lift {r = r} R Z = Z
+lift {r = r} R (S v) = S (R v)
 
 liftP : PredRenaming Φ₁ Φ₂ r → {π : NormalPred Δ R[ κ ]} → PredRenaming (Φ₁ , π) (Φ₂ , renPredₖNF r π) r
-liftP {r = r} ρ Z = Z
-liftP {r = r} ρ (S v) = S (ρ v)
+liftP {r = r} P Z = Z
+liftP {r = r} P (S v) = S (P v)
 
 liftTVar : Renaming Γ₁ Γ₂ r → {κ : Kind ικ} → Renaming (weakΓ {κ = κ} Γ₁) (weakΓ Γ₂) (liftₖ r)
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R v = {!!}
-liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R v = {!!}
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R Z with R Z 
+... | () 
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = ∅} {r = r} R (S v) = liftTVar (stupid R) v
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R Z = {!R Z!}
+liftTVar {Γ₁ = Γ₁ , x} {Γ₂ = Γ₂ , x₁} {r = r} R (S v) = {!!}
 
 
 -- --------------------------------------------------------------------------------
