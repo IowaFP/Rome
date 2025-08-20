@@ -684,7 +684,7 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
 -- A function f are is pointwise equivalent to its η-expansion
 
 weaken-η-≋ : ∀ {κ'} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : Env Δ₁ Δ₂} → 
-               (Env-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+               (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
                {V₁ V₂ : SemType Δ₃ κ₁} → 
                V₁ ≋ V₂ → 
                (W : SemType Δ₃ κ') → 
@@ -700,7 +700,7 @@ weaken-η-≋ f {η₁} {η₂} e r {V₁} {V₂} v W w =  sym-≋
         ((↻-eval-Kripke f r (refl-≋ₗ v) (sym-≋ ∘ e))))
 
 weaken-η-≋' : ∀ {κ'} {Δ₄} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : Env Δ₁ Δ₂} → 
-               (Env-≋ η₁ η₂) →  (r₁ : Renamingₖ Δ₂ Δ₃) (r₂ : Renamingₖ Δ₃ Δ₄) → 
+               (SemEnv-≋ η₁ η₂) →  (r₁ : Renamingₖ Δ₂ Δ₃) (r₂ : Renamingₖ Δ₃ Δ₄) → 
                {V₁ V₂ : SemType Δ₃ κ₁} → 
                V₁ ≋ V₂ → 
                (W : SemType Δ₃ κ') → 
@@ -729,7 +729,7 @@ map-id-≋ {ρ₁ = ρ₂ ─ ρ₁} {ρ₂ = _ ─ _} (rel₂ , rel₁) = map-i
 
 map-∘-≋ :  ∀ {κ₃} (f : Type Δ₁ (κ₂ `→ κ₃)) (g : Type Δ₁ (κ₁ `→ κ₂)) 
              {η₁ η₂ : Env Δ₁ Δ₂} → 
-             (Env-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+             (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
              {ρ₁ ρ₂ : SemType Δ₂ R[ κ₁ ]} → 
              ρ₁ ≋ ρ₂ →
              (eval f η₁ <$>V (eval g η₁ <$>V ρ₁)) ≋
