@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Consistency where
 
 open import Rome.Both.Prelude
@@ -57,7 +57,7 @@ open import Rome.Both.Types.Theorems.Consistency.Relation public
 --------------------------------------------------------------------------------
 -- syntactic mapping relates to semantic precomposition
 
-map-over-⇑Row : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
+map-over-⇑Row : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
                 (n : ℕ) (P : Fin n → Label × SemType Δ κ₁) → 
                 ⟦ f ⟧≋ F → 
                 ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
@@ -122,18 +122,18 @@ cong-<$>⟦⟧≋ f F v ((V₂ ─ V₁) {nr}) rel-f (eq , rel₂ , rel₁) =
 --------------------------------------------------------------------------------
 -- Congruence over complement
 
-∈Row→∈L≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+∈Row→∈L≋ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
               l ∈Row P → l ∈L (⇑Row (reifyRow' n P))
 ∈Row→∈L≋ {n = n} (fzero , refl) = Here
 ∈Row→∈L≋ {n = n} (fsuc i , eq) = There (∈Row→∈L≋ (i , eq))
 
-∈L→∈Row≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+∈L→∈Row≋ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
               l ∈L (⇑Row (reifyRow' n P)) → l ∈Row P
 ∈L→∈Row≋ {n = suc n} Here = fzero , refl
 ∈L→∈Row≋ {n = suc n} (There ev) with ∈L→∈Row≋ ev 
 ... | i , eq = (fsuc i) , eq
 
-cong-compl⟦⟧≋ : ∀ {n m : ℕ} 
+cong-compl⟦⟧≋ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} {n m : ℕ} 
                 {P : Fin n → Label × SemType Δ κ}
                 {Q : Fin m → Label × SemType Δ κ} →
                 ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P) → 
@@ -149,7 +149,7 @@ cong-compl⟦⟧≋ {n = suc n} {m} {P = P} {Q} P≋ Q≋ with P fzero .fst ∈R
 --------------------------------------------------------------------------------
 -- Apply is sound
 
-sound-apply : ∀ {κ₂} (v : Type Δ κ₁) (V : SemType Δ κ₁) → 
+sound-apply : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} (v : Type Δ κ₁) (V : SemType Δ κ₁) → 
                ⟦ v ⟧≋ V → 
                SoundKripke {κ₂ = κ₂} (`λ (` Z · renₖ S v)) (apply V)
 sound-apply v V rel-v r {g} {G} rel-G = 
@@ -174,7 +174,8 @@ sound-Σ : ∀ {nl : True (notLabel? κ₁)} →
         SoundKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Σ {notLabel = nl}) Σ-Kripke
 
 -- Mapping _apply_ over a row is semantic application
-map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
+map-apply : ∀ {Δ₂ : KEnv ιΔ₂} {κ₁ : Kind ικ₁}{κ₂ : Kind ικ₂}
+              (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
                (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
@@ -257,7 +258,7 @@ sound-Π {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) r {v'} 
       (eq-trans 
         (inst (subₖ-weaken (renₖ r (⇑NE n)) v')) 
         (eq-sym (inst (↻-ren-⇑NE r n)))))))) , 
-    (λ {Δ} → sound {Δ})))))
+    (λ {ι} {Δ} → sound {ι} {Δ})))))
     where 
       sound : SoundKripkeNE 
               (`λ (renₖ S (renₖ r f) · ` Z · renₖ S v'))
@@ -445,7 +446,7 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} ρ {v} {φ <$> n} (f , eq , sound-f) r {v'} 
       (eq-trans 
         (inst (subₖ-weaken (renₖ r (⇑NE n)) v')) 
         (eq-sym (inst (↻-ren-⇑NE r n)))))))) , 
-    (λ {Δ} → sound {Δ})))))
+    (λ {ιΔ} {Δ} → sound {ιΔ} {Δ})))))
     where 
       sound : SoundKripkeNE 
               (`λ (renₖ S (renₖ r f) · ` Z · renₖ S v'))
@@ -603,13 +604,13 @@ map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {n
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-fundS : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundS : ∀ (τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for rows
 
-fundSRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSRow : ∀ (xs : SimpleRow (Type Δ₁ κ)){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
 fundSRow [] e = tt
 fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
@@ -617,10 +618,10 @@ fundSRow ((l , τ) ∷ xs) e = (refl , fundS τ e ) , fundSRow xs e
 --------------------------------------------------------------------------------
 -- mapping an application over a row is application of the semantic row.
 
-fundS-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
+fundS-map-app : ∀ {Δ₂ : KEnv ιΔ₂} {κ₁ : Kind ικ₁} (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-                {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
+                {σ : Substitutionₖ Δ₁ Δ₂} → {η : SemEnv Δ₁ Δ₂} → 
                 ⟦ σ ⟧≋e η → 
                 ⟦ map (map₂ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
@@ -632,7 +633,7 @@ fundS-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
 --------------------------------------------------------------------------------
 -- Fundamental lemma for predicates
           
-fundSPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundSPred : ∀ (π : Pred (Type Δ₁ R[ κ ])){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
 fundSPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-· (reify-⟦⟧≋ (fundS ρ₂ e)) ~ (reify-⟦⟧≋ (fundS ρ₃ e))
 fundSPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundS ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundS ρ₂ e))
@@ -657,10 +658,10 @@ fundS (τ₁ · τ₂) {σ} {η} e  =
     (fundS τ₁ e id (fundS τ₂ e))
 fundS (τ₁ `→ τ₂) {σ} {η} e = eq-→ (fundS τ₁ e) (fundS τ₂ e)
 fundS (`∀ τ) {σ} {η} e = eq-∀ (fundS τ {liftsₖ σ} {lifte η} (weaken-⟦⟧≋ e))
-fundS (μ τ) {σ} {η} e = eq-μ
-    (eq-trans 
-        (eq-η {f = subₖ σ τ}) 
-        (eq-λ (fundS τ e S eq-refl)))
+-- fundS (μ τ) {σ} {η} e = eq-μ
+--     (eq-trans 
+--         (eq-η {f = subₖ σ τ}) 
+--         (eq-λ (fundS τ e S eq-refl)))
 fundS (π ⇒ τ) {σ} {η} e = eq-⇒ (fundSPred π e) (fundS τ e)
 fundS (lab l) {σ} {η} e = eq-refl
 fundS ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundS τ e)
@@ -756,7 +757,7 @@ fundS (l ▹ τ) {σ} {η} e with eval l η | fundS l e
 -- Consistency claim  
 
 Consistency : Set 
-Consistency = ∀ {Δ₁ κ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
+Consistency = ∀ {ιΔ₁} {ικ} {Δ₁ : KEnv ιΔ₁} {κ : Kind ικ} → (τ : Type Δ₁ κ) → τ ≡t ⇑ (⇓ τ) 
 
 consistency : Consistency
 consistency τ = reify-⟦⟧≋ (⊢⟦ τ ⟧≋)
@@ -771,7 +772,7 @@ embed-≡t {τ₁ = τ₁} {τ₂} refl = eq-sym (consistency τ₂)
 -- Our definition of Consistency is equivalent to the converse of soundness
 
 Completeness : Set 
-Completeness = ∀ {Δ κ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
+Completeness = ∀ {ιΔ₁} {ικ} {Δ : KEnv ιΔ₁} {κ : Kind ικ} → (τ₁ τ₂ : Type Δ κ) → ⇓ τ₁ ≡ ⇓ τ₂ → τ₁ ≡t τ₂
 
 -- Consistency implies soundness-converse
 Consistency→Completeness : Consistency → Completeness 
@@ -793,6 +794,6 @@ consistency₂ = Completeness→Consistency completeness
 --------------------------------------------------------------------------------
 -- consistency in lifted environments
 
-consistency-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
+consistency-liftsₖ : ∀ {Δ₁ : KEnv ιΔ₁} {κ₁ : Kind ικ₁} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
 consistency-liftsₖ τ = 
   reify-⟦⟧≋ (fundS τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))

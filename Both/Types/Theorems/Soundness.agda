@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Soundness where
 
 open import Rome.Both.Prelude
@@ -27,19 +27,22 @@ open import Rome.Both.Types.Equivalence.Relation
 --------------------------------------------------------------------------------
 -- Equivalence of membership in syntactic and semantic spaces
 
-∈L→∈Row : ∀ {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow Type Δ₁ R[ κ ]} → l ∈L ys → l ∈Row (evalRow ys η₁ .snd)
+∈L→∈Row : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
+            {l : Label} {η₁ : SemEnv Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈L ys → l ∈Row (evalRow ys η₁ .snd)
 ∈L→∈Row {ys = ys} Here = fzero , refl
 ∈L→∈Row {ys = (l' , τ) ∷ ys} (There ev) = (fsuc (∈L→∈Row ev .fst)) , (∈L→∈Row ev .snd)
 
-∈Row→∈L : ∀ {l : Label} {η₁ : Env Δ₁ Δ₂} {ys : SimpleRow Type Δ₁ R[ κ ]} → l ∈Row (evalRow ys η₁ .snd) → l ∈L ys
+∈Row→∈L : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
+            {l : Label} {η₁ : SemEnv Δ₁ Δ₂} {ys : SimpleRow (Type Δ₁ κ)} → l ∈Row (evalRow ys η₁ .snd) → l ∈L ys
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fzero , refl) = Here
 ∈Row→∈L {ys = (l , τ) ∷ ys} (fsuc i , refl) = There (∈Row→∈L (i , refl))
 
 --------------------------------------------------------------------------------
 -- Commutativity of syntactic and semantic complement
 
-↻-syn/sem-compl : ∀ {η₁ η₂ : Env Δ₁ Δ₂} (xs ys : SimpleRow Type Δ₁ R[ κ ]) → 
-                  Env-≋ η₁ η₂ → 
+↻-syn/sem-compl : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
+                    {η₁ η₂ : SemEnv Δ₁ Δ₂} (xs ys : SimpleRow (Type Δ₁ κ)) → 
+                  SemEnv-≋ η₁ η₂ → 
                   (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
 ↻-syn/sem-compl [] ys e = refl , (λ ())
 ↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
@@ -52,7 +55,7 @@ open import Rome.Both.Types.Equivalence.Relation
 --------------------------------------------------------------------------------
 -- Commutativity of syntactic/semantic complement as a strict equality
 
-↻-─s-─v : ∀ {n m} 
+↻-─s-─v : ∀ {κ : Kind ικ} {n m}
           (P : Fin n → Label × SemType Δ κ) → 
           (Q : Fin m → Label × SemType Δ κ) → 
           (⇑Row (reifyRow' n P) ─s ⇑Row (reifyRow' m Q)) ≡
@@ -62,12 +65,12 @@ open import Rome.Both.Types.Equivalence.Relation
 ... | yes p | yes q = ↻-─s-─v (P ∘ fsuc) Q
 ... | yes p | no  q = ⊥-elim (q (In p))
   where
-    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈L ⇑Row (reifyRow' m Q) → l ∈Row Q
+    In : ∀ {l} {m} {κ : Kind ικ}  {Q : Fin m → Label × SemType Δ κ} → l ∈L ⇑Row (reifyRow' m Q) → l ∈Row Q
     In {l} {m = suc m} Here = fzero , refl
     In {m = suc m} (There ev) = fsuc (In ev .fst) ,  In ev .snd
 ... | no  p | yes q = ⊥-elim (p (In q))
   where
-    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈Row Q → l ∈L ⇑Row (reifyRow' m Q)
+    In : ∀ {l} {m} {κ : Kind ικ} {Q : Fin m → Label × SemType Δ κ} → l ∈Row Q → l ∈L ⇑Row (reifyRow' m Q)
     In {l} {m = suc m} (fzero , refl) = Here
     In {l} {m = suc m} (fsuc i , eq) = There (In (i , eq))
     
@@ -76,12 +79,13 @@ open import Rome.Both.Types.Equivalence.Relation
 -------------------------------------------------------------------------------
 -- Fundamental theorem (soundness)
 
-fundC : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : Env Δ₁ Δ₂} → 
-       Env-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
-fundC-pred : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
-            Env-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
-fundC-Row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} {η₁ η₂ : Env Δ₁ Δ₂} → 
-            Env-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
+fundC : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+       SemEnv-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+fundC-pred : ∀ {π₁ π₂ : Pred (Type Δ₁ R[ κ ])} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+            SemEnv-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+fundC-Row : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
+              {ρ₁ ρ₂ : SimpleRow (Type Δ₁ κ)} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+            SemEnv-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
 
 fundC-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundC e τ₁)) (reify-≋ (fundC e τ₂))
 fundC-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -95,10 +99,10 @@ fundC e (eq-trans eq₁ eq₂) = trans-≋ (fundC (refl-≋ₗ ∘ e) eq₁) (fu
 fundC e (eq-→ eq-τ eq-υ) = cong₂ _`→_ (fundC e eq-τ) (fundC e eq-υ)
 fundC {κ = κ} e (eq-· eq₁ eq₂) = cong-App (fundC e eq₁) (fundC e eq₂)
 fundC e (eq-∀ eq) = cong `∀ (fundC (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl)) eq)
-fundC {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) 
-  with eval τ η₁ | eval υ η₂ | fundC e eq
-... |  y         | y₁        | Unif-F , Unif-G , Ext = 
-  cong μ (cong `λ (Ext S refl))
+-- fundC {η₁ = η₁} {η₂} e (eq-μ {τ = τ} {υ} eq) 
+--   with eval τ η₁ | eval υ η₂ | fundC e eq
+-- ... |  y         | y₁        | Unif-F , Unif-G , Ext = 
+  -- cong μ (cong `λ (Ext S refl))
 fundC e (eq-⌊⌋ eq) rewrite fundC e eq = refl
 fundC e (eq-λ {τ = τ} {υ = υ} eq) = 
     (λ ρ₁ ρ₂ V₁ V₂ q → trans-≋ 
@@ -127,7 +131,7 @@ fundC {η₁ = η₁} {η₂ = η₂} e (eq-β {τ₁ = τ₁} {τ₂}) =
                 (idext (λ { Z → idext (refl-≋ₗ ∘ e) τ₂
                           ; (S x) → (refl-≋ₗ ∘ e) x }) τ₁)))
 fundC {η₁ = η₁} {η₂} e (eq-▹ {l₁ = l₁} {l₂} eq-l eq-τ) with eval l₁ η₁ | eval l₂ η₂ | fundC e eq-l 
-... | ne x | ne x | refl = refl , fundC e eq-τ
+... | ne x | ne x | refl = (refl , refl , refl) , fundC e eq-τ
 ... | lab l | lab l | refl = refl , (λ { fzero → refl , fundC e eq-τ } )
 fundC e (eq-⇒ eq-π eq-τ) = cong₂ _⇒_ (fundC-pred e eq-π) (fundC e eq-τ)
 fundC e (eq-Π-assoc {ρ = ρ} {τ}) = 
@@ -145,7 +149,7 @@ fundC e (eq-Σ {ρ = ρ} {nl}) = cong-<$> (idext e (Σ {notLabel = nl})) (idext 
 fundC e (eq-<$> t u) = cong-<$> (fundC e t) (fundC e u)
 fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁} {κ₂} {F = F} {ρ = ρ} {oρ}) = go ρ
   where
-    go : (ρ : SimpleRow Type Δ₁ R[ κ₁ ]) → (evalRow ρ η₁ .fst ,
+    go : (ρ : SimpleRow (Type Δ₁ κ₁)) → (evalRow ρ η₁ .fst ,
        (λ x₁ → map₂ (eval F η₁ id) (evalRow ρ η₁ .snd x₁)))
       ≋R
       (evalRow (map (map₂ (_·_ F)) ρ) η₂ .fst ,
@@ -156,7 +160,7 @@ fundC {Δ₁ = Δ₁} {κ = κ} {η₁ = η₁} {η₂} e (eq-map {κ₁ = κ₁
 fundC e (eq-row eq) = fundC-Row e eq
 fundC e (eq-lab refl) = refl
 fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with eval l η₁ | eval l η₂ | idext e l
-... | ne x | ne x | refl = refl , cong-App (idext e F) (idext e τ)
+... | ne x | ne x | refl = (refl , refl , refl) , cong-App (idext e F) (idext e τ)
 ... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
 fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = cong-─V (fundC e eq₂) (fundC e eq₁)
 fundC {η₁ = η₁} {η₂} e (eq-labTy {l = l} {τ = τ} eq) with eval l η₁ | fundC e eq 
@@ -167,8 +171,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ▹ 
   (fst₁ , idext e F .snd .snd id snd₁) , (cong-<$> (idext e F) (idext e ρ₁))
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ─ x₂ | y₁ ─ y₂ | fst₁ , snd₁ = 
   ((cong-<$> (idext e F) fst₁) , (cong-<$> (idext e F) snd₁)) , (cong-<$> (idext e F) (idext e ρ₁))
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl = 
-  (refl , 
+fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$> n₁ | φ₂ <$> n₂ | ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
+  ((refl , refl ,
   (λ r₁ r₂ n → trans-≋ 
       (idext e F .fst r₁ r₂ (φ₁ r₁ n) (φ₂ r₁ n) (Ext-φ r₁ n)) 
       (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋ 
@@ -180,8 +184,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$>
     (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋
       (Unif-φ₁ r₁ r₂ n) 
       (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n))))) , 
-  (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
-  refl) ,
+  (λ r v → idext e F .snd .snd  r (Ext-φ r v))) , 
+  (refl , refl , refl)) ,
   (cong-<$> (idext e F) (idext e ρ₁))
 fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , P) oρ₂-1 | row (.n , P') oρ₂-2 | refl , I
   with eval ρ₁ η₁ | eval ρ₁ η₂ | idext e ρ₁ 
@@ -195,9 +199,9 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 
     (idext e F) (refl , I) (refl , J)
-... | φ₁ <$> n₁ | φ₂ <$> n₂ | refl , Unif-φ₁ , Unif-φ₂ , Ext-φ , refl = 
+... | φ₁ <$> n₁ | φ₂ <$> n₂ | ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , 
-  refl , 
+  ((refl , refl ,
   (λ r₁ r₂ n → trans-≋ 
       (idext e F .fst r₁ r₂ (φ₁ r₁ n) (φ₂ r₁ n) (Ext-φ r₁ n)) 
       (refl-Extₗ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋ 
@@ -209,8 +213,8 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , 
     (refl-Extᵣ (idext e F .snd .snd) (r₂ ∘ r₁) (trans-≋
       (Unif-φ₁ r₁ r₂ n) 
       (Ext-φ (r₂ ∘ r₁) (renₖNE r₂ n))))) , 
-  (λ r v → idext e F .snd .snd  r (Ext-φ r v)) , 
-  refl
+  (λ r v → idext e F .snd .snd  r (Ext-φ r v))) , 
+  (refl , refl , refl))
 fundC {Δ₁ = Δ₁} {η₁ = η₁} {η₂} e (eq-compl {xs = xs} {ys}) = ↻-syn/sem-compl xs ys e
 fundC {η₁ = η₁} {η₂} e (eq-map-id {τ = τ}) = map-id-≋ (idext e τ) 
 fundC {η₁ = η₁} {η₂} e (eq-map-∘ {f = f} {g = g} {τ = τ}) = map-∘-≋ f g e id (idext e τ)
@@ -221,7 +225,7 @@ fundC-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with
   evalRow xs η₁ | fundC-Row e eq-r 
 ... | n , P | refl , eq = refl , (λ { fzero → eq-l , (fundC e eq-τ) ; (fsuc i) → eq i })
 
-idEnv-≋ : ∀ {Δ} → Env-≋ (idEnv {Δ}) (idEnv {Δ})
+idEnv-≋ : ∀ {Δ : KEnv ιΔ} → SemEnv-≋ (idEnv {ιΔ} {Δ}) (idEnv {ιΔ} {Δ})
 idEnv-≋ x = reflect-≋ refl
 
 -------------------------------------------------------------------------------
@@ -233,7 +237,7 @@ soundness eq = reify-≋ (fundC idEnv-≋ eq)
 -------------------------------------------------------------------------------
 -- Soundness for rows
 
-soundness-row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ R[ κ ]} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
+soundness-row : ∀ {ρ₁ ρ₂ : SimpleRow (Type Δ κ)} → ρ₁ ≡r ρ₂ → ⇓Row ρ₁ ≡ ⇓Row ρ₂
 soundness-row {ρ₁ = ρ₁} {ρ₂} eq with 
     evalRow ρ₁ idEnv 
   | evalRow ρ₂ idEnv
@@ -246,17 +250,17 @@ soundness-row {ρ₁ = ρ₁} {ρ₂} eq with
 -- renaming commutes with ⇓ 
 
 ↻-ren-⇓ : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → renₖNF r (⇓ τ) ≡ ⇓ (renₖ r τ)
-↻-ren-⇓ r τ = 
+↻-ren-⇓ {Δ₁ = Δ₁} r τ = 
   trans 
-    (↻-ren-reify r {V₁ = eval τ idEnv} {V₂ = eval τ idEnv} (fundC {τ₁ = τ} idEnv-≋ eq-refl)) 
+    (↻-ren-reify {Δ₁ = Δ₁} r {V₁ = eval τ idEnv} {V₂ = eval τ idEnv} (fundC {τ₁ = τ} idEnv-≋ eq-refl)) 
     (reify-≋ 
       (trans-≋ 
         (↻-renSem-eval r τ idEnv-≋) 
         (trans-≋ (idext (λ { x → ↻-ren-reflect r (` x) }) τ) (sym-≋ (↻-renₖ-eval r τ idEnv-≋)))))
 
-↻-ren-⇓Row : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
+↻-ren-⇓Row : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : SimpleRow (Type Δ₁ κ)) → 
                renRowₖNF r (⇓Row ρ) ≡ ⇓Row (renRowₖ r ρ)
-↻-ren-⇓Row r ρ with 
+↻-ren-⇓Row {Δ₁ = Δ₁} r ρ with 
     evalRow ρ idEnv 
   |  evalRow ρ (idEnv ∘ r)
   |  evalRow (renRowₖ r ρ) idEnv
@@ -266,14 +270,14 @@ soundness-row {ρ₁ = ρ₁} {ρ₂} eq with
   | idext-row (λ { x → ↻-ren-reflect r (` x) }) ρ
 ... | n , P | m , Q | j , K | (refl , d) | (refl , rel₁) | (refl , rel₂) | (refl , rel₃) =
   trans 
-    (↻-ren-reifyRow P P r (λ { i → refl , d i .snd })   ) 
+    (↻-ren-reifyRow {Δ₁ = Δ₁} P P r (λ { i → refl , d i .snd })   ) 
     (reifyRow-≋ (λ i → map₂ (renSem r) (P i)) K (λ { i → (trans (rel₂ i .fst) (trans (rel₃ i .fst) (sym (rel₁ i .fst)))) , (trans-≋ (rel₂ i .snd) (trans-≋ (rel₃ i .snd) (sym-≋ (rel₁ i .snd)))) }))
  
 -------------------------------------------------------------------------------
 -- Helper to substitute under an eval
  
-evalCRSubst : ∀ {η₁ η₂ : Env Δ₁ Δ₂}
-    → Env-≋ η₁ η₂
+evalCRSubst : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ₁} {η₁ η₂ : SemEnv Δ₁ Δ₂}
+    → SemEnv-≋ η₁ η₂
     → {τ₁ τ₂ : Type Δ₁ κ}
     → τ₁ ≡ τ₂
     → (eval τ₁ η₁) ≋ (eval τ₂ η₂)

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Consistency.Relation where
 
 open import Rome.Both.Prelude
@@ -32,11 +32,11 @@ open import Rome.Both.Types.Theorems.Stability
 --   All types are equivalent (under ≡t) to their normal forms.
 
 infix 0 ⟦_⟧≋_
-⟦_⟧≋_ : ∀ {κ} → Type Δ κ → SemType Δ κ → Set
-⟦_⟧≋ne_ : ∀ {κ} → Type Δ κ → NeutralType Δ κ → Set
+⟦_⟧≋_ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} → Type Δ κ → SemType Δ κ → Set
+⟦_⟧≋ne_ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} → Type Δ κ → NeutralType Δ κ → Set
 
-⟦_⟧r≋_ : ∀ {κ} → SimpleRow Type Δ R[ κ ] → Row (SemType Δ κ) → Set
-⟦_⟧≋₂_ : ∀ {κ} → Label × Type Δ κ → Label × SemType Δ κ → Set
+⟦_⟧r≋_ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} → SimpleRow (Type Δ κ) → Row (SemType Δ κ) → Set
+⟦_⟧≋₂_ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} → Label × Type Δ κ → Label × SemType Δ κ → Set
 ⟦ (l₁ , τ) ⟧≋₂ (l₂ , V) = (l₁ ≡ l₂) × (⟦ τ ⟧≋ V)
 
 SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
@@ -63,12 +63,12 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
 ⟦ x ∷ ρ ⟧r≋ (suc n , P) =  (⟦ x ⟧≋₂ (P fzero)) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
 
 SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
-    ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
+    ∀ {ιΔ₂}{Δ₂ : KEnv ιΔ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V)
 
 SoundKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
-    ∀ {Δ₂} (r : Renamingₖ Δ₁ Δ₂) {v V} → 
+    ∀ {ιΔ₂}{Δ₂ : KEnv ιΔ₂} (r : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ne  V → 
       ⟦ (renₖ r f · v) ⟧≋ (F r V)
 
@@ -149,7 +149,7 @@ reify-⟦⟧≋ {κ = R[ κ ]} {τ} {φ <$> ρ} (f , eq , rel) =
         (eq-λ (reify-⟦⟧≋ (rel S (eq-sym (η-norm-≡t (` Z))))))) 
       eq-refl)
 
-reify-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {V :  Row (SemType Δ κ)} → 
+reify-⟦⟧r≋ : ∀ {xs : SimpleRow (Type Δ κ)} {V :  Row (SemType Δ κ)} → 
                ⟦ xs ⟧r≋ V → xs ≡r ⇑Row (reifyRow V)
 reify-⟦⟧r≋ {xs = []} {zero , P} rel = eq-[]
 reify-⟦⟧r≋ {xs = x ∷ xs} {suc n , P} (eq , I) = eq-cons (eq .fst) (reify-⟦⟧≋ (eq .snd)) (reify-⟦⟧r≋ I)
@@ -175,7 +175,7 @@ subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {V₂ ─ V₁} (eq , r
 --------------------------------------------------------------------------------
 -- Equivalent rows relate to the same semantic rows
 
-subst-⟦⟧r≋ : ∀ {xs ys : SimpleRow Type Δ R[ κ ]} → 
+subst-⟦⟧r≋ : ∀ {xs ys : SimpleRow (Type Δ κ)} → 
   xs ≡r ys → 
   {ρ : Row (SemType Δ κ)} → 
   ⟦ xs ⟧r≋ ρ → 
@@ -188,12 +188,12 @@ subst-⟦⟧r≋ (eq-cons refl eq-x eq-xs) {suc n , P} ((eq , rel-x) , rel-xs) =
 -- --------------------------------------------------------------------------------
 -- -- Stability rule for reification
 
-refl-⟦⟧≋ : ∀ {v : Type Δ κ} {V : SemType Δ κ} → 
+refl-⟦⟧≋ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} {v : Type Δ κ} {V : SemType Δ κ} → 
                 ⟦ v ⟧≋ V  →
                ⟦ ⇑ (reify V) ⟧≋ V 
 refl-⟦⟧≋ {κ = κ} rel-v = subst-⟦⟧≋ (reify-⟦⟧≋ rel-v) rel-v
 
-refl-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {ρ : Row (SemType Δ κ)} → 
+refl-⟦⟧r≋ : ∀ {Δ : KEnv ιΔ} {κ : Kind ικ} {xs : SimpleRow (Type Δ κ)} {ρ : Row (SemType Δ κ)} → 
                 ⟦ xs ⟧r≋ ρ  →
                ⟦ ⇑Row (reifyRow ρ) ⟧r≋ ρ
 refl-⟦⟧r≋ {κ = κ} rel = subst-⟦⟧r≋ (reify-⟦⟧r≋ rel) rel
@@ -202,19 +202,22 @@ refl-⟦⟧r≋ {κ = κ} rel = subst-⟦⟧r≋ (reify-⟦⟧r≋ rel) rel
 --------------------------------------------------------------------------------
 -- renaming respects consistency relation
 
-ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) 
+ren-⟦⟧≋ : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
+            (ρ : Renamingₖ Δ₁ Δ₂) 
            {v : Type Δ₁ κ} 
            {V : SemType Δ₁ κ} → 
            ⟦ v ⟧≋ V → 
            ⟦ renₖ ρ v ⟧≋ renSem ρ V
 
 -- We need to state the renaming lemma over both semantic and syntactic row renaming
-ren-⟦⟧r≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
+ren-⟦⟧r≋ : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ}
+             (ρ : Renamingₖ Δ₁ Δ₂) → 
              (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
            ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
            ⟦ ⇑Row (reifyRow (n , map₂ (renSem ρ) ∘ P)) ⟧r≋ (n , map₂ (renSem ρ) ∘ P)
 
-ren-⟦⟧r≋' : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
+ren-⟦⟧r≋' : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ}
+             (ρ : Renamingₖ Δ₁ Δ₂) → 
              (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
            ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
            ⟦ renRowₖ ρ (⇑Row (reifyRow (n , P))) ⟧r≋ renRow ρ (n , P)
@@ -290,17 +293,17 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁)
 --------------------------------------------------------------------------------
 -- Relating syntactic substitutions to semantic environments
  
-⟦_⟧≋e_ : ∀ {Δ₁ Δ₂} → Substitutionₖ Δ₁ Δ₂ → Env Δ₁ Δ₂ → Set  
-⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
+⟦_⟧≋e_ : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} → Substitutionₖ Δ₁ Δ₂ → SemEnv Δ₁ Δ₂ → Set  
+⟦_⟧≋e_ {Δ₁ = Δ₁} σ η = ∀ {ικ} {κ : Kind ικ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 -- Identity relation
-idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
+idSR : ∀ {Δ₁ : KEnv ιΔ₁} →  ⟦ ` ⟧≋e (idEnv {ιΔ₁} {Δ₁})
 idSR α = reflect-⟦⟧≋ eq-refl
 
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments
 
-extend-⟦⟧≋ : ∀ {κ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+extend-⟦⟧≋ : ∀ {κ : Kind ιΔ} {σ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
              ⟦ σ ⟧≋e η →
              ∀ {τ : Type Δ₂ κ} {V : SemType Δ₂ κ} → 
              ⟦ τ ⟧≋ V → 
@@ -311,7 +314,7 @@ extend-⟦⟧≋ p q (S x) = p x
 --------------------------------------------------------------------------------
 -- Weakened substitutions relate to weakened environments
  
-weaken-⟦⟧≋ : ∀ {κ} {σ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
+weaken-⟦⟧≋ : ∀ {κ : Kind ικ} {σ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
            ⟦ σ ⟧≋e η → 
            ⟦ liftsₖ {κ = κ} σ ⟧≋e (extende (λ {κ'} v → renSem S (η v)) (reflect (` Z)))
 weaken-⟦⟧≋ e Z = reflect-⟦⟧≋ eq-refl
@@ -320,8 +323,8 @@ weaken-⟦⟧≋ e (S α) = ren-⟦⟧≋ S (e α)
 --------------------------------------------------------------------------------
 --  Substituting syntactic substitutions in related environments
 
-substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : Env Δ₁ Δ₂} → 
-             (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
+substEnv-⟦⟧≋ : ∀ {σ₁ σ₂ : Substitutionₖ Δ₁ Δ₂} {η : SemEnv Δ₁ Δ₂} → 
+             (∀ {ικ} {κ : Kind ικ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) →
              ⟦ σ₁ ⟧≋e η →
              ⟦ σ₂ ⟧≋e η
 substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
@@ -329,10 +332,10 @@ substEnv-⟦⟧≋ eq rel x rewrite sym (eq x) = rel x
 --------------------------------------------------------------------------------
 -- A necessary lemma difficult to describe
 
-map₂-⟦⟧≋ : ∀ {n : ℕ} 
+map₂-⟦⟧≋ : ∀ {n : ℕ} {Δ₂ : KEnv ιΔ₂} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂}
              {P : Fin n → Label × SemType Δ₂ κ₁} 
              {σ : Substitutionₖ Δ₁ Δ₂}
-             {η : Env Δ₁ Δ₂}
+             {η : SemEnv Δ₁ Δ₂}
              (f : Type Δ₁ (κ₁ `→ κ₂)) → 
              ⟦ subₖ σ f ⟧≋ (eval f η) → 
              ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 

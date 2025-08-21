@@ -6,326 +6,441 @@ open import Rome.Both.Kinds.Syntax
 open import Rome.Both.Kinds.GVars
 
 open import Rome.Both.Types.Syntax
+
 open import Rome.Both.Types.SynAna
-open import Rome.Both.Types.Substitution
-open import Rome.Both.Types.Renaming
 
 open import Rome.Both.Types.Equivalence.Relation
-open import Rome.Both.Types.Equivalence.Properties
 
+open import Rome.Both.Types.Normal.Syntax
+open import Rome.Both.Types.Normal.Renaming
+open import Rome.Both.Types.Normal.Substitution
+open import Rome.Both.Types.Normal.Properties.Substitution
 open import Rome.Both.Types.Semantic.NBE
 
 -- open import Rome.Both.Types.Theorems.Soundness
 -- open import Rome.Both.Types.Theorems.Stability
 
+
 open import Rome.Both.Containment
 
 --------------------------------------------------------------------------------
--- First define contexts mapping variables to predicates, types, and kinds
+-- First define environments mapping variables to predicates and types
 
-data Context : KEnv → Set where
-  ∅ : Context ∅
-  _,_  : Context Δ → Type Δ ★ → Context Δ
-  _,,_ : Context Δ → (κ : Kind) → Context (Δ ,, κ)
-  _,,,_ : Context Δ → Pred Type Δ R[ κ ] → Context Δ
+data Env : KEnv ιΔ → Level → Set where
+  ∅ : Env Δ lzero
+  _,_  : Env Δ ιΓ → NormalType Δ (★ {ι}) → Env Δ (ιΓ ⊔ ι)
+
+data PEnv : KEnv ιΔ → Level → Set where
+  ∅ : PEnv Δ lzero
+  _,_ : ∀ {κ : Kind ικ} → PEnv Δ ιΓ → NormalPred Δ R[ κ ] → PEnv Δ (ιΓ ⊔ lsuc ικ)
+
+weakΦ : PEnv Δ ιΦ → PEnv (Δ ,, κ) ιΦ 
+weakΦ ∅ = ∅
+weakΦ (Φ , x) = (weakΦ Φ) , (weakenPredₖNF x)
+
+weakΓ : Env Δ ιΓ → Env (Δ ,, κ) ιΓ 
+weakΓ ∅ = ∅
+weakΓ (Γ , x) = weakΓ Γ , weakenₖNF x
 
 private
   variable
-    Γ Γ₁ Γ₂ Γ₃ : Context Δ
-    τ υ τ₁ τ₂  : Type Δ ★
-    l l₁ l₂    : Type Δ L
-    ρ ρ₁ ρ₂ ρ₃ : Type Δ R[ κ ]
-    π π₁ π₂ π₃ : Pred Type Δ R[ κ ]
+    Γ Γ₁ Γ₂ Γ₃ : Env Δ ιΓ
+    Φ Φ₁ Φ₂ Φ₃ : PEnv Δ ιΦ
+    τ υ τ₁ τ₂  : NormalType Δ ★
+    l l₁ l₂    : NeutralType Δ L
+    ρ ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ ]
+    π π₁ π₂ π₃ : NormalPred Δ R[ κ ]
+    
 
+data PVar : PEnv Δ ιΓ → NormalPred Δ κ → Set where
+  Z : PVar (Φ , π) π
+  S : PVar Φ π₁  → PVar (Φ , π₂) π₁
 
-data PVar : Context Δ → Pred Type Δ κ → Set where
-  Z : PVar (Γ ,,, π) π
-  S : PVar Γ π₁  → PVar (Γ ,,, π₂) π₁
-  T : PVar Γ π → PVar (Γ , τ) π
-  K : PVar Γ π → PVar (Γ ,, κ₂) (weakenPredₖ π)
-
-data Var : Context Δ → Type Δ ★ → Set where
+data Var : Env Δ ιΓ → NormalType Δ (★ {ι}) → Set where
   Z : Var (Γ , τ) τ
   S : Var Γ τ₁  → Var (Γ , τ₂) τ₁
-  K : Var Γ τ → Var (Γ ,, κ) (weakenₖ τ)
-  P : Var Γ τ → Var (Γ ,,, π) τ
 
 --------------------------------------------------------------------------------
--- No variable restriction on contexts
-
--- Does the context Γ have any term or entailment variables?
-NoVar : Context Δ → Set
-NoVar ∅ = ⊤
-NoVar (Γ ,,, _) = ⊥
-NoVar (Γ ,, _) = NoVar Γ
-NoVar (Γ , _) = ⊥
-
--- Contexts s.t. NoVar Γ is true indeed have no term variables,
-noVar : NoVar Γ → ∀ {τ}(x : Var Γ τ) → ⊥
-noVar p (K x) = noVar p x
-
--- nor ent variables.
-noPVar : NoVar Γ → ∀ {π : Pred Type Δ R[ κ ]}(x : PVar Γ π) → ⊥
-noPVar p (K x) = noPVar p x
-
---------------------------------------------------------------------------------
--- Entailment relation on predicates
-
--- private
---   variable
---       l l₁ l₂ l₃ : Type Δ L
---       τ τ₁ τ₂ τ₃ : Type Δ κ
---       υ υ₁ υ₂ υ₃ : Type Δ κ
-
-data Ent (Γ : Context Δ) : Pred Type Δ R[ κ ] → Set where
-  n-var :
-        PVar Γ π →
+-- Entailment relation on predicates 
+      
+data NormalEnt (Δ : KEnv ιΔ) (Φ : PEnv Δ ιΦ)  : NormalPred Δ R[ κ ] → Set where 
+  n-var : 
+        PVar Φ π → 
         -----------
-        Ent Γ π
+        NormalEnt Δ Φ π 
 
-  n-incl :  ∀ {xs ys : SimpleRow Type Δ R[ κ ]}
-           {oxs : True (ordered? xs)}
-           {oys : True (ordered? ys)} →
+  n-incl :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} → 
 
-          xs ⊆ ys →
+          xs ⊆ ys → 
           --------------------------------------------
-          Ent Γ (⦅ xs  ⦆ oxs ≲ ⦅ ys ⦆ oys)
+          NormalEnt Δ Φ ((⦅ xs  ⦆ oxs) ≲ (⦅ ys ⦆ oys))
 
-  n-plus : ∀ {xs ys zs : SimpleRow Type Δ R[ κ ]} →
-           {oxs : True (ordered? xs)}
-           {oys : True (ordered? ys)}
-           {ozs : True (ordered? zs)} →
-          xs ⊆ zs →
-          ys ⊆ zs →
-          zs ⊆[ xs ⊹ ys ]  →
+  n-plus : ∀ {xs ys zs : SimpleRow (NormalType Δ κ)} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} 
+           {ozs : True (normalOrdered? zs)} → 
+          xs ⊆ zs → 
+          ys ⊆ zs → 
+          zs ⊆[ xs ⊹ ys ]  → 
           --------------------------------------------
-          Ent Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs)
-  n-refl :
+          NormalEnt Δ Φ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs))
+  n-refl : 
           --------------
-          Ent Γ (ρ₁ ≲ ρ₁)
+          NormalEnt Δ Φ (ρ₁ ≲ ρ₁)
 
-  _n-⨾_ :
-          Ent Γ (ρ₁ ≲ ρ₂) → Ent Γ (ρ₂ ≲ ρ₃) →
+  _n-⨾_ : 
+          NormalEnt Δ Φ (ρ₁ ≲ ρ₂) → NormalEnt Δ Φ (ρ₂ ≲ ρ₃) →
           ---------------------------------------
-          Ent Γ (ρ₁ ≲ ρ₃)
+          NormalEnt Δ Φ (ρ₁ ≲ ρ₃)
 
-  n-plusL≲ :
-        Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+  n-plusL≲ : 
+        NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
-        Ent Γ (ρ₁ ≲ ρ₃)
+        NormalEnt Δ Φ (ρ₁ ≲ ρ₃)
 
-  n-plusR≲ :
-        Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+  n-plusR≲ : 
+        NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
         ---------------------
-        Ent Γ (ρ₂ ≲ ρ₃)
+        NormalEnt Δ Φ (ρ₂ ≲ ρ₃)
 
-  n-emptyR :
+  n-emptyR : 
+             
+        -------------------------
+        NormalEnt Δ Φ (ρ · εNF ~ ρ)
+
+  n-emptyL : 
 
         -------------------------
-        Ent Γ (ρ · ⦅ [] ⦆ tt ~ ρ)
+        NormalEnt Δ Φ (εNF · ρ ~ ρ)  
 
-  n-emptyL :
+  n-map≲ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
+               {F : NormalType Δ (κ₁ `→ κ₂)} →
 
-        -------------------------
-        Ent Γ (⦅ [] ⦆ tt · ρ ~ ρ)
-
-  n-map≲ : ∀ {ρ₁ ρ₂ : Type Δ R[ κ₁ ]}
-               {F : Type Δ (κ₁ `→ κ₂)} →
-
-             Ent Γ (ρ₁ ≲ ρ₂) →
+             NormalEnt Δ Φ (ρ₁ ≲ ρ₂) →
+             {x y : NormalType Δ R[ κ₂ ]} → 
+             x ≡ (F <$>' ρ₁) → 
+             y ≡ F <$>' ρ₂ → 
              ---------------------------------
-             Ent Γ (F <$> ρ₁ ≲ F <$> ρ₂)
+             NormalEnt Δ Φ (x ≲ y)
 
 
-  n-map· : ∀ {ρ₁ ρ₂ ρ₃ : Type Δ R[ κ₁ ]}
+  n-map· : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
+               
+               {F : NormalType Δ (κ₁ `→ κ₂)} →
 
-               {F : Type Δ (κ₁ `→ κ₂)} →
-
-             Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+             NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃) →
+             {x y z : NormalType Δ R[ κ₂ ]} → 
+             x ≡ (F <$>' ρ₁) → 
+             y ≡ F <$>' ρ₂ → 
+             z ≡ F <$>' ρ₃ → 
              ---------------------------------
-             Ent Γ ((F <$> ρ₁) · (F <$> ρ₂) ~ (F <$> ρ₃))
+             NormalEnt Δ Φ (x · y ~ z)
 
-  n-complR : 
+  n-complR-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     
-             Ent Γ (ρ₁ ≲ ρ₂) → 
+             NormalEnt Δ Φ (ρ₁ ≲ ρ₂) → 
              ----------------------
-             Ent Γ (ρ₁ · (ρ₂ ─ ρ₁) ~ ρ₂)
+             NormalEnt Δ Φ (ρ₁ · ((ρ₂ ─ ρ₁) {nsr}) ~ ρ₂)
 
-  n-complL : 
+  n-complR :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
+                  {oxs : True (normalOrdered? xs)} 
+                  {oys : True (normalOrdered? ys)} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
     
-             Ent Γ (ρ₁ ≲ ρ₂) → 
+             NormalEnt Δ Φ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
              ----------------------
-             Ent Γ ((ρ₂ ─ ρ₁) · ρ₁ ~ ρ₂)
+             NormalEnt Δ Φ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
 
-  convert : π₁ ≡p π₂ → Ent Γ π₁ →
-            -----------------------
-            Ent Γ π₂
+  n-complL-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
+    
+             NormalEnt Δ Φ (ρ₁ ≲ ρ₂) → 
+             ----------------------
+             NormalEnt Δ Φ (((ρ₂ ─ ρ₁) {nsr}) · ρ₁ ~ ρ₂)
+
+  n-complL :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
+                  {oxs : True (normalOrdered? xs)} 
+                  {oys : True (normalOrdered? ys)} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+    
+             NormalEnt Δ Φ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
+             ----------------------
+             NormalEnt Δ Φ (⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
+
+data EntValue  (Δ : KEnv ιΔ) (Φ : PEnv Δ ιΦ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Δ Φ π → Set where 
+
+  n-incl :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} → 
+
+          (i : xs ⊆ ys) → 
+          -----------------------
+          EntValue Δ Φ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-incl i)
+
+  n-plus : ∀ {xs ys zs : SimpleRow (NormalType Δ κ)} → 
+           {oxs : True (normalOrdered? xs)} 
+           {oys : True (normalOrdered? ys)} 
+           {ozs : True (normalOrdered? zs)} → 
+          (i₁ : xs ⊆ zs) → 
+          (i₂ : ys ⊆ zs) → 
+          (i₃ : zs ⊆[ xs ⊹ ys ])  → 
+          --------------------------------------------------------------------
+
+          EntValue Δ Φ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-plus i₁ i₂ i₃)
+          
+          
 
 --------------------------------------------------------------------------------
--- Terms indexed by Type
+-- Terms with normal types
 
-data Term {Δ} Γ : Type Δ ★ → Set where
-  ` : Var Γ τ →
+data NormalTerm (Δ : KEnv ιΔ) (Φ : PEnv Δ ιΦ) (Γ : Env Δ ιΓ) : NormalType Δ (★ {ι}) → Set
+data Value {Δ : KEnv ιΔ} {Φ : PEnv Δ ιΦ} {Γ : Env Δ ιΓ} : ∀ {τ : NormalType Δ (★ {ι})} → NormalTerm Δ Φ Γ τ → Set
+data Record {Δ : KEnv ιΔ} (Γ : Env Δ ιΓ) : SimpleRow (NormalType Δ (★ {ι})) → Set where
+  ∅   : Record Γ {ι = ι} []
+  _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} → (l : Label)  → NormalTerm Δ Φ Γ τ → 
+            Record Γ xs → Record Γ ((l , τ) ∷ xs)
+
+data RecordValue {Δ : KEnv ιΔ} (Γ : Env Δ ιΓ) : (xs : SimpleRow (NormalType Δ (★ {ι}))) → Record Γ xs → Set where
+  ∅   : RecordValue Γ {ι = ι} [] ∅
+  _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} {r : Record Γ xs} → 
+          (l : Label)  → {M : NormalTerm Δ Φ Γ τ} → Value M → 
+          RecordValue Γ xs r → RecordValue Γ ((l , τ) ∷ xs) (l ▹ M ⨾ r) 
+
+
+data NormalTerm Δ Φ Γ   where
+  ` : Var Γ τ → 
       --------
-      Term Γ τ
+      NormalTerm Δ Φ Γ τ
 
-  `λ : ∀ {τ₁ τ₂} →
+  `λ : 
 
-       Term (Γ , τ₁) τ₂ →
+       NormalTerm Δ Φ (Γ , τ₁) {ι = ι} τ₂ → 
        --------------
-       Term Γ (τ₁ `→ τ₂)
+       NormalTerm Δ Φ Γ (τ₁ `→ τ₂)
 
-  _·_ : ∀ {τ₁ τ₂} →
+  _·_ :
 
-       Term Γ (τ₁ `→ τ₂) →
-       Term Γ τ₁ →
+       NormalTerm Δ Φ Γ (τ₁ `→ τ₂) → 
+       NormalTerm Δ Φ Γ τ₁ → 
        ---------
-       Term Γ τ₂
-
+       NormalTerm Δ Φ Γ τ₂
+  
   --------------
   -- System Fω
 
-  Λ : ∀ {τ} →
+  Λ : 
 
-      Term (Γ ,, κ) τ →
+      NormalTerm (Δ ,, κ) (weakΦ Φ) (weakΓ Γ) τ →
       -----------
-      Term Γ (`∀ τ)
+      NormalTerm Δ Φ Γ (`∀ τ)
 
-  _·[_] : ∀ {τ₂} →
-
-          Term Γ (`∀ τ₂) →
-          (τ₁ : Type Δ κ) →
+  _·[_] : 
+  
+          NormalTerm Δ Φ Γ (`∀ τ₂) →
+          (τ₁ : NormalType Δ κ) → 
           ----------------
-          Term Γ (τ₂ βₖ[ τ₁ ])
-
-  ------------------
-  -- Recursive types
-
-  In :
-         ∀ (F : Type Δ (★ `→ ★)) →
-         Term Γ (F · (μ F)) →
-         -----------------
-         Term Γ (μ F)
-
-  Out :
-           ∀ F →
-           Term Γ (μ F) →
-           --------------
-           Term Γ (F · (μ F))
-
-  fix : Term Γ (τ `→ τ) →
-        ------------------
-        Term Γ τ
+          NormalTerm Δ Φ Γ (τ₂ βₖNF[ τ₁ ])
 
   ------------------
   -- Qualified types
 
-  `ƛ :
+  `ƛ : 
 
-       Term (Γ ,,, π) τ →
+       NormalTerm Δ (Φ , π) Γ τ → 
        --------------
-       Term Γ (π ⇒ τ)
+       NormalTerm Δ Φ Γ (π ⇒ τ)
 
-  _·⟨_⟩ : ∀ {π : Pred Type Δ R[ κ ]} {τ : Type Δ ★} →
-
-        Term Γ (π ⇒ τ) →
-        Ent Γ π →
+  _·⟨_⟩ : ∀ {π : NormalPred Δ R[ κ ]} {τ : NormalType Δ (★ {ι})} → 
+  
+        NormalTerm Δ Φ Γ (π ⇒ τ) →
+        NormalEnt Δ Φ π → 
         ----------------
-        Term Γ τ
+        NormalTerm Δ Φ Γ τ
 
   ------------
   -- Rω labels
 
   -- label constants
-  # :
+  # : 
 
-        (ℓ : Type Δ L) →
+        ∀ (ℓ : NormalType Δ (L {ι})) → 
         -------------------
-        Term Γ ⌊ ℓ ⌋
+        NormalTerm Δ Φ Γ ⌊ ℓ ⌋
 
   -------------
   -- Rω records
 
   -- Record singleton formation
-  _Π▹_ :
-          (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
+  _Π▹ne_ : 
+          (M₁ : NormalTerm Δ Φ Γ ⌊ ne l ⌋) (M₂ : NormalTerm Δ Φ Γ υ) →
           ----------------------------------------
-          Term Γ (Π · (l ▹ υ))
+          NormalTerm Δ Φ Γ (Π (l ▹ₙ υ))
+
+  _Π▹_ : ∀ {l : Label}
+          (M₁ : NormalTerm Δ Φ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : NormalTerm Δ Φ Γ υ) →
+          ----------------------------------------
+          NormalTerm Δ Φ Γ (Π (l ▹' υ))
 
   -- Record singleton elimination
-  _Π/_ :
-          (M₁ : Term Γ (Π · (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+  _Π/ne_ :
+          (M₁ : NormalTerm Δ Φ Γ (Π (l ▹ₙ υ))) (M₂ : NormalTerm Δ Φ Γ ⌊ ne l ⌋) →
           ----------------------------------------
-          Term Γ υ
+          NormalTerm Δ Φ Γ υ
 
-  prj :
+  _Π/_ : ∀ {l : Label} → 
+          (M₁ : NormalTerm Δ Φ Γ (Π (l ▹' υ))) (M₂ : NormalTerm Δ Φ Γ {ι = ι} ⌊ lab l ⌋) →
+          ----------------------------------------
+          NormalTerm Δ Φ Γ υ
 
-       (M : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ ≲ ρ₂) →
+  prj : 
+   
+       (M : NormalTerm Δ Φ Γ (Π ρ₂)) → NormalEnt Δ Φ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
-       Term Γ (Π · ρ₁)
+       NormalTerm Δ Φ Γ (Π ρ₁)
+  
+  _⊹_ : 
 
-  _⊹_ :
-
-       (M₁ : Term Γ (Π · ρ₁)) → (M₂ : Term Γ (Π · ρ₂)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+       (M₁ : NormalTerm Δ Φ Γ (Π ρ₁)) → (M₂ : NormalTerm Δ Φ Γ (Π ρ₂)) → NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
-       Term Γ (Π · ρ₃)
+       NormalTerm Δ Φ Γ (Π ρ₃)
 
-  syn :
-
-        (ρ : Type Δ R[ κ ]) → (φ : Type Δ (κ `→ ★)) → (M : Term Γ (SynT ρ φ)) →
+  syn : 
+    
+        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ (★ {ι}))) → (M : NormalTerm Δ Φ Γ (SynT' ρ φ)) → 
         ------------------------------------------------------------------
-        Term Γ (Π · (φ <$> ρ))
+        NormalTerm Δ Φ Γ (Π (φ <$>' ρ))
+
+  ana : 
+    
+        (ρ : NormalType Δ R[ κ ]) 
+        (φ : NormalType Δ (κ `→ ★)) 
+        (τ : NormalType Δ ★)
+
+        (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
+        (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
+        (M : NormalTerm Δ Φ Γ τ₁) → 
+        
+        ------------------------------------------------------------------
+        NormalTerm Δ Φ Γ (τ₂ `→ τ)
 
   --------------
   -- Rω variants
 
-  -- Record singleton formation
-  _Σ▹_ :
-          (M₁ : Term Γ ⌊ l ⌋) (M₂ : Term Γ υ) →
+  -- Variant singleton formation
+  _Σ▹ne_ : 
+          (M₁ : NormalTerm Δ Φ Γ ⌊ ne l ⌋) (M₂ : NormalTerm Δ Φ Γ υ) →
           ----------------------------------------
-          Term Γ (Σ · (l ▹ υ))
+          NormalTerm Δ Φ Γ (Σ (l ▹ₙ υ))
 
-  -- Record singleton elimination
-  _Σ/_ :
-          (M₁ : Term Γ (Σ · (l ▹ υ))) (M₂ : Term Γ ⌊ l ⌋) →
+  _Σ▹_ : ∀ {l : Label}
+          (M₁ : NormalTerm Δ Φ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : NormalTerm Δ Φ Γ υ) →
           ----------------------------------------
-          Term Γ υ
+          NormalTerm Δ Φ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))
 
-  inj :
+  -- Variant singleton elimination
+  _Σ/ne_ :
+          (M₁ : NormalTerm Δ Φ Γ (Σ (l ▹ₙ υ))) (M₂ : NormalTerm Δ Φ Γ ⌊ ne l ⌋) →
+          ----------------------------------------
+          NormalTerm Δ Φ Γ υ
 
-       (M : Term Γ (Σ · ρ₁)) → Ent Γ (ρ₁ ≲ ρ₂) →
+  _Σ/_ : ∀ {l : Label} → 
+          (M₁ : NormalTerm Δ Φ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : NormalTerm Δ Φ Γ {ι = ι} ⌊ lab l ⌋) →
+          ----------------------------------------
+          NormalTerm Δ Φ Γ υ
+
+  inj : 
+   
+       (M : NormalTerm Δ Φ Γ (Σ ρ₁)) → NormalEnt Δ Φ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
-       Term Γ (Σ · ρ₂)
+       NormalTerm Δ Φ Γ (Σ ρ₂)
+       
+  _▿_ : 
 
-  _▿_ :
-
-       (M₁ : Term Γ ((Σ · ρ₁) `→ τ)) → (M₂ : Term Γ ((Σ · ρ₂) `→ τ)) → Ent Γ (ρ₁ · ρ₂ ~ ρ₃) →
+       (M₁ : NormalTerm Δ Φ Γ (Σ ρ₁ `→ τ)) → (M₂ : NormalTerm Δ Φ Γ (Σ ρ₂ `→ τ)) → NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
-       Term Γ ((Σ · ρ₃) `→ τ)
-
-  ana :
-
-        (ρ : Type Δ R[ κ ]) (φ : Type Δ (κ `→ ★)) (τ : Type Δ ★) → (M : Term Γ (AnaT ρ φ τ)) →
-        ------------------------------------------------------------------
-        Term Γ ((Σ · (φ <$> ρ)) `→ τ)
+       NormalTerm Δ Φ Γ (Σ ρ₃ `→ τ)
 
   ----------------------------------------
-  -- Conversion
-  convert : τ₁ ≡t τ₂ → Term Γ τ₁ →
-            ------------------------
-            Term Γ τ₂
+  -- Values
+
+  ⟨_⟩ : ∀ {xs : SimpleRow (NormalType Δ (★ {ι}))} {oxs : True (normalOrdered? xs)} → 
+          Record Γ xs → 
+          ----------------------
+          NormalTerm Δ Φ Γ (Π (⦅ xs ⦆ oxs))
+
+  ⟨_▹_⟩via_ : ∀ {xs : SimpleRow (NormalType Δ ★)} {oxs : True (normalOrdered? xs)} → 
+        (l : Label) → (M : NormalTerm Δ Φ Γ τ) → (l , τ) ∈ xs → 
+        -------------------------------------------
+        NormalTerm Δ Φ Γ (Σ (⦅ xs ⦆ oxs)) 
 
 --------------------------------------------------------------------------------
--- Conversion lemmas
+-- Values
 
-convVar' : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡ τ₂ → Var Γ τ₁ → Var Γ τ₂
-convVar' refl v = v
+data Value {Δ = Δ} {Φ} {Γ} where
+  V-λ : 
+          (M : NormalTerm Δ Φ (Γ , τ₂) τ₁) → 
+          Value (`λ M)
 
-conv' : ∀ {Γ} {τ₁ τ₂ : Type Δ ★} → τ₁ ≡ τ₂ → Term Γ τ₁ → Term Γ τ₂
-conv' refl v = v
+  V-Λ :
+          (M : NormalTerm (Δ ,, κ) (weakΦ Φ) (weakΓ Γ) τ) → 
+        --   Value M → 
+          Value (Λ M)
 
-convPVar' : ∀ {Γ} {π₁ π₂ : Pred Type Δ R[ κ ]} → π₁ ≡ π₂ → PVar Γ π₁ → PVar Γ π₂
-convPVar' refl v = v
+  V-ƛ :
+          (M : NormalTerm Δ (Φ , π) Γ τ) → 
+          Value (`ƛ M)
 
-convEnt' : ∀ {Γ} {π₁ π₂ : Pred Type Δ R[ κ ]} → π₁ ≡ π₂ → Ent Γ π₁ → Ent Γ π₂
-convEnt' refl e = e
+  V-# :   ∀ {l : NormalType Δ (L {ι})} → 
+          Value (# l)
+
+  V-Π : {xs : SimpleRow (NormalType Δ (★ {ι}))} {oxs : True (normalOrdered? xs)} → 
+          (r : Record Γ xs) → 
+          RecordValue Γ xs r → 
+          Value (⟨_⟩ {xs = xs} {oxs} r)
+
+  V-Σ : ∀  {xs : SimpleRow (NormalType Δ ★)} {oxs : True (normalOrdered? xs)} → 
+        (l : Label) → {M : NormalTerm Δ Φ Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
+        -------------------------------------------
+        Value (⟨_▹_⟩via_ {oxs = oxs} l M i)       
+
+  V-ana : (ρ : NormalType Δ R[ κ ]) 
+          (φ : NormalType Δ (κ `→ ★)) 
+          (τ : NormalType Δ ★) 
+          (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
+          (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
+          (M : NormalTerm Δ Φ Γ τ₁) → 
+        
+          Value M → 
+          ------------------------------------
+          Value (ana ρ φ τ eq₁ eq₂ M)
+
+  V-▿  : 
+           {e : NormalEnt Δ Φ (ρ₁ · ρ₂ ~ ρ₃)} 
+           (M : NormalTerm Δ Φ Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Δ Φ Γ (Σ ρ₂ `→ τ)) → 
+
+            Value M → Value N → 
+            ---------------------
+            Value ((M ▿ N) e)
+
+
+--------------------------------------------------------------------------------
+-- Conversion helpers.
+
+convVar : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → Var Γ τ₁ → Var Γ τ₂
+convVar refl v = v
+
+convVar-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → Var Γ (⇓ τ₁) → Var Γ (⇓ τ₂)
+convVar-≡t eq x = convVar (soundness eq) x 
+
+convPVar : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → PVar Φ π₁ → PVar Φ π₂
+convPVar refl v = v
+
+conv : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalTerm Δ Φ Γ τ₁ → NormalTerm Δ Φ Γ τ₂
+conv refl M = M
+
+convEnt : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → NormalEnt Δ Φ π₁ → NormalEnt Δ Φ π₂
+convEnt refl e = e
+
+conv-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalTerm Δ Φ Γ (⇓ τ₁) → NormalTerm Δ Φ Γ (⇓ τ₂)
+conv-≡t eq = conv (soundness eq)

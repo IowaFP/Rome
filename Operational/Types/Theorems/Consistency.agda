@@ -607,13 +607,13 @@ map-Σ {nl = nl} (suc n) P ((refl , rel-fzero) , rel-fsuc) = (refl , sound-Σ {n
 --------------------------------------------------------------------------------
 -- Fundamental lemma  
 
-fundC : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundC : ∀ {Δ₁ Δ₂ κ}(τ : Type Δ₁ κ){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subₖ σ τ ⟧≋ (eval τ η)
 
 --------------------------------------------------------------------------------
 -- Fundamental lemma for rows
 
-fundCRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundCRow : ∀ {Δ₁ Δ₂ κ}(xs : SimpleRow Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η  → ⟦ subRowₖ σ xs ⟧r≋ (evalRow xs η)
 fundCRow [] e = tt
 fundCRow ((l , τ) ∷ xs) e = (refl , fundC τ e ) , fundCRow xs e
@@ -624,7 +624,7 @@ fundCRow ((l , τ) ∷ xs) e = (refl , fundC τ e ) , fundCRow xs e
 fundC-map-app : ∀ (n : ℕ) (P : Fin n → Label × SemType Δ₂ κ₁) →  
                 (τ₁ : Type Δ₁ (κ₁ `→ κ₂)) → 
                 (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
-                {σ : Substitutionₖ Δ₁ Δ₂} → {η : Env Δ₁ Δ₂} → 
+                {σ : Substitutionₖ Δ₁ Δ₂} → {η : SemEnv Δ₁ Δ₂} → 
                 ⟦ σ ⟧≋e η → 
                 ⟦ map (map₂ (_·_ (subₖ σ τ₁))) (⇑Row (reifyRow' n P)) ⟧r≋ (n , (λ x → P x .fst , eval τ₁ η id (P x .snd)))
 
@@ -636,7 +636,7 @@ fundC-map-app (suc n) P τ₁ (rel-fzero , rel-fsuc) {σ} e =
 --------------------------------------------------------------------------------
 -- Fundamental lemma for predicates
           
-fundCPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : Env Δ₁ Δ₂} → 
+fundCPred : ∀ {Δ₁ κ}(π : Pred Type Δ₁ R[ κ ]){σ : Substitutionₖ Δ₁ Δ₂}{η : SemEnv Δ₁ Δ₂} → 
           ⟦ σ ⟧≋e η → (subPredₖ σ π) ≡p ⇑Pred (evalPred π η)           
 fundCPred (ρ₁ · ρ₂ ~ ρ₃) e = (reify-⟦⟧≋ (fundC ρ₁ e)) eq-· (reify-⟦⟧≋ (fundC ρ₂ e)) ~ (reify-⟦⟧≋ (fundC ρ₃ e))
 fundCPred (ρ₁ ≲ ρ₂) e = (reify-⟦⟧≋ (fundC ρ₁ e)) eq-≲ (reify-⟦⟧≋ (fundC ρ₂ e))

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 module Rome.Both.Types.Theorems.Stability where
 
 open import Rome.Both.Prelude
@@ -28,32 +28,30 @@ open import Rome.Both.Types.Theorems.Soundness
 --   or, round trips from neutral semantic terms to semantic terms are preserved.
 
 stability   : ∀ (τ : NormalType Δ κ) → ⇓ (⇑ τ) ≡ τ
-stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {Δ}) ≡ reflect τ
+stabilityNE : ∀ (τ : NeutralType Δ κ) → eval (⇑NE τ) (idEnv {ιΔ} {Δ}) ≡ reflect τ
 
 stabilityPred : ∀ (π : NormalPred Δ R[ κ ]) → evalPred (⇑Pred π) idEnv ≡ π
-stabilityRow : ∀ (ρ : SimpleRow NormalType Δ R[ κ ]) → reifyRow (evalRow (⇑Row ρ) idEnv) ≡ ρ
+stabilityRow : ∀ (ρ : SimpleRow (NormalType Δ κ)) → reifyRow (evalRow (⇑Row ρ) idEnv) ≡ ρ
 
 stabilityNE {κ = κ} (` x) = refl
 stabilityNE {Δ} {κ} (τ₁ · τ₂) rewrite stabilityNE τ₁ | stability τ₂ = cong reflect (cong₂ _·_ (renₖNE-id τ₁) refl) 
 
-stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
-      (eval (⇑ τ)
-       (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))))
-      ≡ τ
+stability-β : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} 
+                (τ : NormalType (Δ ,, κ₁) κ₂) → 
+              reify (eval (⇑ τ) (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z)))) ≡ τ
 stability-β {Δ = Δ} τ = 
     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
-        η : Env-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η : SemEnv-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
         η Z = reflect-≋ refl
         η (S x) = ↻-ren-reflect S (` x)
   
 stability {κ = ★} (ne x) = stabilityNE x
 stability {κ = L} (ne x) = stabilityNE x
-stability {_} {κ `→ κ₁} (ne x {()})
+stability {κ = κ `→ κ₁} (ne x {()})
 stability {κ = R[ κ ]} (ne x {()})
 stability {κ   = κ₁ `→ κ₂} (`λ τ) = cong `λ (stability-β τ)
 stability (`∀ τ) = cong (`∀) (stability-β τ)
-stability (μ τ)  rewrite stability τ = refl
 stability ⌊ τ ⌋ rewrite stability τ           = refl
 stability (τ₁ `→ τ₂) 
     rewrite stability τ₁ | stability τ₂ = refl

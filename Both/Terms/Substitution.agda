@@ -1,7 +1,7 @@
 -- {-# OPTIONS --safe #-}
-{-# OPTIONS --safe #-}
+-- {-# OPTIONS --safe #-}
 
-module Rome.Both.Terms.Normal.Substitution where
+module Rome.Both.Terms.Substitution where
 
 open import Rome.Both.Prelude
 
@@ -30,10 +30,10 @@ open import Rome.Both.Types.Theorems.Soundness
 open import Rome.Both.Types.Theorems.Consistency
 open import Rome.Both.Types.Theorems.Stability
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Entailment.Properties
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.Renaming
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Entailment.Properties
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.Renaming
 
 open import Rome.Both.Containment
 
@@ -43,11 +43,13 @@ open Reasoning
 --------------------------------------------------------------------------------
 -- Term and entailment substitutions
 
-Substitution : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
+Substitution : ∀ {ιΓ₁} {ιΓ₂} {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} 
+               (Γ₁ : Env Δ₁ ιΓ₁) (Γ₂ : Env Δ₂ ιΓ₂) → 
+               SubstitutionₖNF Δ₁ Δ₂ → Set
 Substitution Γ₁ Γ₂ σ = 
-  (∀ {τ : NormalType _ ★} → NormalVar Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
+  (∀ {ι} {τ : NormalType _ (★ {ι})} → Var Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
   × 
-  (∀ {κ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π))
+  (∀ {ικ}{κ : Kind ικ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π))
 
 --------------------------------------------------------------------------------
 -- Lifting substitutions over times, predicates, and more!
@@ -59,7 +61,7 @@ lifts {σ = σ} (s , p) =
   λ { (K x) → convEnt (↻-weakenPredₖNF-subPredₖNF σ _) (weakenEntByKind (p x)) }
 
 liftsType : ∀ {σ : SubstitutionₖNF _ _} →
-        Substitution Γ₁ Γ₂ σ → {τ : NormalType _ ★} → Substitution (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
+        Substitution Γ₁ Γ₂ σ → {τ : NormalType _ (★ {ι})} → Substitution (Γ₁ , τ) (Γ₂ , subₖNF σ τ) σ
 liftsType (s , p) = 
   (λ { Z → ` Z
       ; (S x) →  weakenTermByType (s x)}) , 
@@ -83,55 +85,50 @@ lemPred σ s (ρ₁ ≲ ρ₂) = refl
 --------------------------------------------------------------------------------
 -- Substitution of evidence variables in entailments and term variables in terms.
 
-sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {τ} → 
+sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
       NormalTerm Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)
 subEnt : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {π : NormalPred Δ₁ R[ κ ]} → 
           NormalEnt Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π)
-subRecord : ∀ {xs : SimpleRow NormalType Δ₁ R[ ★ ]}
+subRecord : ∀ {xs : SimpleRow (NormalType Δ₁ (★ {ι}))}
             (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) → 
             Record Γ₁ xs →
             Record Γ₂ (subRowₖNF σ xs)
 
-sub σ (s , p) {τ} (` x) = s x
-sub σ s {.(_ `→ _)} (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
-sub σ s {τ} (M · N) = sub σ s M · sub σ s N
-sub σ s {.(`∀ _)} (Λ {τ = τ} M) = 
+sub {τ = τ} σ (s , p) (` x) = s x
+sub σ s  (`λ M) = `λ (sub σ (liftsType {σ = σ} s) M)
+sub σ s (M · N) = sub σ s M · sub σ s N
+sub σ s (Λ {τ = τ} M) = 
   Λ (conv (↻-lifted-subₖNF-eval σ τ) (sub (liftsₖNF σ) (lifts s) M))
-sub σ s {.(τ₁ βₖNF[ τ₂ ])} (_·[_] {τ₂ = τ₁} M τ₂) = 
+sub σ s (_·[_] {τ₂ = τ₁} M τ₂) = 
   conv 
     (sym (↻-subₖNF-β σ τ₁ τ₂)) (sub σ s M ·[ subₖNF σ τ₂ ])
-sub σ s {.(μ F)} (In F M) = 
-  In (subₖNF σ F) (conv (↻-subₖNF-·' σ F (μ F)) (sub σ s M))
-sub σ s {_} (Out F M) = 
-  conv (sym (↻-subₖNF-·' σ F (μ F))) (Out (subₖNF σ F) (sub σ s M))
-sub σ s {x} (# l) = # (subₖNF σ l)
-sub σ s {x} (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
-sub σ s {x} (τ Π/ l) = sub σ s τ Π/ sub σ s l
-sub σ s {x} (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
-sub σ s {x} (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
-sub σ s {x} (_Π▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
+sub σ s (# l) = # (subₖNF σ l)
+sub σ s (l Π▹ τ) = sub σ s l Π▹ sub σ s τ
+sub σ s (τ Π/ l) = sub σ s τ Π/ sub σ s l
+sub σ s (l Σ▹ τ) = sub σ s l Σ▹ sub σ s τ
+sub σ s (τ Σ/ l) = sub σ s τ Σ/ sub σ s l
+sub σ s (_Π▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
 ... | ne l'  | ℓ' = ℓ' Π▹ne sub σ s τ
 ... | lab l' | ℓ' = ℓ' Π▹ sub σ s τ
-sub σ s {x} (_Π/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
+sub σ s (_Π/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
 ... | ne l'  | τ' | ℓ' = τ'  Π/ne ℓ'
 ... | lab l' | τ' | ℓ' = τ' Π/ ℓ'
-sub σ s {x} (_Σ▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
+sub σ s (_Σ▹ne_ {l = l} ℓ τ) with subₖNE σ l | sub σ s ℓ
 ... | ne l'  | ℓ' = ℓ' Σ▹ne sub σ s τ
 ... | lab l' | ℓ' = ℓ' Σ▹ sub σ s τ
-sub σ s {x} (_Σ/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
+sub σ s (_Σ/ne_ {l = l} τ ℓ) with subₖNE σ l | (sub σ s τ) | (sub σ s ℓ)
 ... | ne l'  | τ' | ℓ' = τ'  Σ/ne ℓ'
 ... | lab l' | τ' | ℓ' = τ' Σ/ ℓ'
-sub {Γ₂ = Γ₂} σ s {x} (`ƛ {π = π} {τ = τ} M) = 
+sub {Γ₂ = Γ₂} σ s (`ƛ {π = π} {τ = τ} M) = 
   `ƛ (subst 
         (λ x → NormalTerm (Γ₂ ,,, x) (subₖNF σ τ)) 
         (lemPred σ s π) 
-        (sub σ (liftsPred {σ = σ} s) {τ} M))
-sub σ s {x} (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (lemPred σ s π) (subEnt σ s e) ⟩
+        (sub σ (liftsPred {σ = σ} s) M))
+sub σ s (_·⟨_⟩ {κ = κ} {π = π} τ e) = sub σ s τ ·⟨ convEnt (lemPred σ s π) (subEnt σ s e) ⟩
 sub σ s (prj M e) = prj (sub σ s M) (subEnt σ s e)
 sub σ s (inj M e) = inj (sub σ s M) (subEnt σ s e)
 sub σ s ((M ⊹ N) e) = (sub σ s M ⊹ sub σ s N) (subEnt σ s e)
 sub σ s ((M ▿ N) e) = (sub σ s M ▿ sub σ s N) (subEnt σ s e)
-sub σ s (fix M) = fix (sub σ s M)
 sub σ s (syn ρ φ M) =
   conv (cong Π (↻-sub-⇓-<$> σ φ ρ)) 
     (syn (subₖNF σ ρ) (subₖNF σ φ) 
@@ -182,7 +179,7 @@ subEnt σ s {π} (n-plusL≲ e) = (n-plusL≲ (subEnt σ s e))
 subEnt σ s {π} (n-plusR≲ e) = (n-plusR≲ (subEnt σ s e))
 subEnt σ s {π} n-emptyR = n-emptyR
 subEnt σ s {π} n-emptyL = n-emptyL
-subEnt σ s {π} (n-map≲ {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {x} {y} ρ₁-eq ρ₂-eq) 
+subEnt σ s {π} (n-map≲ {ρ₁ = ρ₁} {ρ₂ = ρ₂} {F = F} e {y} ρ₁-eq ρ₂-eq) 
   rewrite
     ρ₁-eq 
   | ρ₂-eq =
@@ -349,7 +346,7 @@ subEnt σ s (n-complL {xs = xs} {ys} {oxs = oxs} {oys} {ozs} e)
 -- Extending substitutions
 
 extendByNormalTerm : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
-         {τ : NormalType Δ₁ ★} → 
+         {τ : NormalType Δ₁ (★ {ι})} → 
          (M : NormalTerm Γ₂ (subₖNF σ τ)) → 
          Substitution (Γ₁ , τ) Γ₂ σ
 extendByNormalTerm σ (s , p) M = 
@@ -384,8 +381,8 @@ idSubstitution = (λ x → conv (sym (subₖNF-id _) ) (` x)) , λ x → convEnt
 --------------------------------------------------------------------------------
 -- β-reduction of a term by a term
 
-_β[_] : ∀ {τ₁ τ₂} → NormalTerm (Γ , τ₂) τ₁ → NormalTerm Γ τ₂ → NormalTerm Γ τ₁
-_β[_] {τ₁ = τ₁} {τ₂} M N = 
+_β[_] : NormalTerm (Γ , τ₂) τ₁ → NormalTerm Γ τ₂ → NormalTerm Γ τ₁
+_β[_] {τ₂ = τ₂} {τ₁ = τ₁} M N = 
   conv (subₖNF-id τ₁) 
   (sub idSubst 
     (extendByNormalTerm 
@@ -397,7 +394,7 @@ _β[_] {τ₁ = τ₁} {τ₂} M N =
 --------------------------------------------------------------------------------
 -- β-reduction of a term by an entailment
 
-_βπ[_] : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → NormalTerm (Γ ,,, π) τ → NormalEnt Γ π → NormalTerm Γ τ
+_βπ[_] : ∀ {τ : NormalType Δ (★ {ι})} {π : NormalPred Δ R[ κ ]} → NormalTerm (Γ ,,, π) τ → NormalEnt Γ π → NormalTerm Γ τ
 _βπ[_] {τ = τ} {π} M e = 
   conv (subₖNF-id τ) 
     (sub idSubst 
@@ -410,7 +407,7 @@ _βπ[_] {τ = τ} {π} M e =
 --------------------------------------------------------------------------------
 -- β-reduction of a term by a type
 
-_β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
+_β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) (★ {ι})} → 
          NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ βₖNF[ τ₂ ])
 M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem' M
    

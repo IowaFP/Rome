@@ -18,8 +18,8 @@ open import Rome.Both.Types.Equivalence.Relation
 --------------------------------------------------------------------------------
 -- Normality preserving Type Substitution
 
-SubstitutionₖNF : KEnv → KEnv → Set
-SubstitutionₖNF Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → NormalType Δ₂ κ
+SubstitutionₖNF : KEnv ιΔ₁ → KEnv ιΔ₂ → Set
+SubstitutionₖNF Δ₁ Δ₂ = ∀ {ικ} {κ : Kind ικ} → TVar Δ₁ κ → NormalType Δ₂ κ
 
 -- lifting a substitution over binders.
 liftsₖNF :  SubstitutionₖNF Δ₁ Δ₂ → SubstitutionₖNF (Δ₁ ,, κ) (Δ₂ ,, κ)
@@ -37,7 +37,7 @@ subₖNF σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑ n))
 subₖNE : SubstitutionₖNF Δ₁ Δ₂ → NeutralType Δ₁ κ → NormalType Δ₂ κ
 subₖNE σ n = ⇓ (subₖ (⇑ ∘ σ) (⇑NE n))
 
-subRowₖNF : SubstitutionₖNF Δ₁ Δ₂ → SimpleRow NormalType Δ₁ R[ κ ] → SimpleRow NormalType Δ₂ R[ κ ]
+subRowₖNF : SubstitutionₖNF Δ₁ Δ₂ → SimpleRow (NormalType Δ₁ κ) → SimpleRow (NormalType Δ₂ κ)
 subRowₖNF σ n = ⇓Row (subRowₖ (⇑ ∘ σ) (⇑Row n))
 
 subPredₖNF : SubstitutionₖNF Δ₁ Δ₂ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
@@ -58,7 +58,7 @@ _βₖNF[_] : NormalType (Δ ,, κ₁) κ₂ → NormalType Δ κ₁ → NormalT
 _·'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ κ₁ → NormalType Δ κ₂
 `λ f ·' v = f βₖNF[ v ]
 
-map-map₂-' : (ρ : SimpleRow NormalType Δ R[ κ₁ ]) (f : NormalType Δ (κ₁ `→ κ₂)) →
+map-map₂-' : (ρ : SimpleRow (NormalType Δ κ₁)) (f : NormalType Δ (κ₁ `→ κ₂)) →
                 NormalOrdered ρ → NormalOrdered ((map (map₂ (f ·'_)) ρ))
 map-map₂-' [] f oρ = tt
 map-map₂-' (x₁ ∷ []) f oρ = tt
@@ -73,9 +73,9 @@ f <$>' ρ = ⇓ (⇑ f <$> ⇑ ρ)
 --------------------------------------------------------------------------------
 -- Normal forms of the bodies of Syn & Ana
 
-SynT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★
+SynT' : ∀ {κ : Kind ικ} → NormalType Δ R[ κ ] → NormalType Δ (κ `→ (★ {ι})) → NormalType Δ ★
 SynT' {κ = κ} ρ φ = ⇓ (SynT (⇑ ρ) (⇑ φ))
 
 
-AnaT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★ → NormalType Δ ★
+AnaT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ (★ {ι})) → NormalType Δ (★ {ι₂}) → NormalType Δ ★
 AnaT' {κ = κ} ρ φ τ = ⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))

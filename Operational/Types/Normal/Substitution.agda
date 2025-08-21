@@ -6,7 +6,6 @@ open import Rome.Operational.Kinds.Syntax
 open import Rome.Operational.Kinds.GVars
 
 open import Rome.Operational.Types.Syntax
-open import Rome.Operational.Types.SynAna
 open import Rome.Operational.Types.Substitution
 
 open import Rome.Operational.Types.Normal.Syntax
@@ -70,13 +69,3 @@ map-map₂-' (x₁ ∷ x₂ ∷ ρ) f oρ = oρ .fst , map-map₂-' (x₂ ∷ ρ
 
 _<$>'_ : NormalType Δ (κ₁ `→ κ₂) → NormalType Δ R[ κ₁ ] → NormalType Δ R[ κ₂ ]
 f <$>' ρ = ⇓ (⇑ f <$> ⇑ ρ)
-
---------------------------------------------------------------------------------
--- Normal forms of the bodies of Syn & Ana
-
-SynT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★
-SynT' {κ = κ} ρ φ = ⇓ (SynT (⇑ ρ) (⇑ φ))
-
-
-AnaT' : NormalType Δ R[ κ ] → NormalType Δ (κ `→ ★) → NormalType Δ ★ → NormalType Δ ★
-AnaT' {κ = κ} ρ φ τ = ⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))

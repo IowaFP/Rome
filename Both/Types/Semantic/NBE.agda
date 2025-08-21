@@ -25,9 +25,9 @@ reflect {κ = L} τ            = ne τ
 reflect {κ = R[ κ ]} ρ       = (λ r n → reflect n) <$> ρ 
 reflect {κ = κ₁ `→ κ₂} τ = λ ρ v → reflect (renₖNE ρ τ · reify v)
 
-reifyKripke   : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
+reifyKripke   : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
                 KripkeFunction Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
-reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₁} → 
+reifyKripkeNE : {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} → 
                 KripkeFunctionNE Δ κ₁ κ₂ → NormalType Δ (κ₁ `→ κ₂)
 reifyKripke {κ₁ = κ₁} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
 reifyKripkeNE F = `λ (reify (F S (` Z)))
@@ -58,10 +58,10 @@ reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
-reify {κ = κ₁ `→ κ₂} F = `λ (reify (F S (reflect {κ = κ₁} ((` Z)))))
+reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
-reify {κ = R[ κ ]} ((φ <$> τ)) =  (`λ (reify (φ S (` Z))) <$> τ)
+reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
 reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
 reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
 reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
@@ -98,17 +98,17 @@ reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
 -- --------------------------------------------------------------------------------
 -- -- Semantic environments
 
-Env : KEnv ι₁ → KEnv ι₂ → Set
-Env Δ₁ Δ₂ = ∀ {ι}{κ : Kind ι} → TVar Δ₁ κ → SemType Δ₂ κ
+SemEnv : KEnv ι₁ → KEnv ι₂ → Set
+SemEnv Δ₁ Δ₂ = ∀ {ι}{κ : Kind ι} → TVar Δ₁ κ → SemType Δ₂ κ
 
-idEnv : Env Δ Δ
+idEnv : SemEnv Δ Δ
 idEnv = reflect ∘ `
 
-extende : (η : Env Δ₁ Δ₂) → (V : SemType Δ₂ κ) → Env (Δ₁ ,, κ) Δ₂
+extende : (η : SemEnv Δ₁ Δ₂) → (V : SemType Δ₂ κ) → SemEnv (Δ₁ ,, κ) Δ₂
 extende η V Z     = V
 extende η V (S x) = η x
 
-lifte : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifte : SemEnv Δ₁ Δ₂ → SemEnv (Δ₁ ,, κ) (Δ₂ ,, κ)
 lifte {Δ₁} {Δ₂} {κ} η  = extende (weakenSem ∘ η) (idEnv Z)
 
 --------------------------------------------------------------------------------
@@ -231,102 +231,102 @@ _<?>V_ : SemType Δ R[ κ₁ `→ κ₂ ] → SemType Δ κ₁ → SemType Δ R[
 f <?>V a = apply a <$>V f
 
 
--- --------------------------------------------------------------------------------
--- -- (Generic) Semantic combinators for Π/Σ
+--------------------------------------------------------------------------------
+-- (Generic) Semantic combinators for Π/Σ
 
--- record Xi : Set where 
---   field
---     Ξ★ : ∀ {Δ} → NormalType  Δ R[ ★ ] → NormalType Δ ★
---     ren-★ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ ★ ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
+record Xi : Set where 
+  field
+    Ξ★ : ∀ {Δ : KEnv ιΔ} → NormalType Δ R[ (★ {ι}) ] → NormalType Δ (★ {ι})
+    ren-★ : ∀ {Δ₁ : KEnv ιΔ} (ρ : Renamingₖ Δ₁ Δ₂) → (τ : NormalType Δ₁ R[ (★ {ι}) ]) → renₖNF ρ (Ξ★ τ) ≡  Ξ★ (renₖNF ρ τ)
 
--- open Xi
--- ξ : ∀ {Δ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
--- ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
--- ξ {κ = L} Ξ x = lab "impossible"
--- ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
--- ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
+open Xi
+ξ : ∀ {Δ : KEnv ιΔ} → Xi → SemType Δ R[ κ ] → SemType Δ κ 
+ξ {κ = ★} Ξ x = Ξ .Ξ★ (reify x)
+ξ {κ = L} Ξ x = lab "impossible"
+ξ {κ = κ₁ `→ κ₂} Ξ F = λ ρ v → ξ Ξ (renSem ρ F <?>V v)
+ξ {κ = R[ κ ]} Ξ x = (λ ρ v → ξ Ξ v) <$>V x
 
--- Π-rec Σ-rec : Xi 
--- Π-rec = record
---   {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
--- Σ-rec = 
---   record
---   { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
+Π-rec Σ-rec : Xi 
+Π-rec = record
+  {  Ξ★ = Π ; ren-★ = λ ρ τ → refl }
+Σ-rec = 
+  record
+  { Ξ★ = Σ ; ren-★ = λ ρ τ → refl  }
 
--- ΠV ΣV : ∀ {Δ} → SemType Δ R[ κ ] → SemType Δ κ
--- ΠV = ξ Π-rec
--- ΣV = ξ Σ-rec
+ΠV ΣV : ∀ {Δ : KEnv ιΔ} → SemType Δ R[ κ ] → SemType Δ κ
+ΠV = ξ Π-rec
+ΣV = ξ Σ-rec
 
--- ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
--- ξ-Kripke Ξ ρ v = ξ Ξ v
+ξ-Kripke : Xi → KripkeFunction Δ R[ κ ] κ
+ξ-Kripke Ξ ρ v = ξ Ξ v
 
--- Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
--- Π-Kripke = ξ-Kripke Π-rec
--- Σ-Kripke = ξ-Kripke Σ-rec
+Π-Kripke Σ-Kripke : KripkeFunction Δ R[ κ ] κ
+Π-Kripke = ξ-Kripke Π-rec
+Σ-Kripke = ξ-Kripke Σ-rec
 
--- --------------------------------------------------------------------------------
--- -- Type evaluation.
+--------------------------------------------------------------------------------
+-- Type evaluation.
 
--- eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
--- evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
+eval : Type Δ₁ κ → SemEnv Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred (Type Δ₁ R[ κ ]) → SemEnv Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 
--- evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row (SemType Δ₂ κ)
--- evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
+evalRow        : (ρ : SimpleRow (Type Δ₁ κ)) → SemEnv Δ₁ Δ₂ → Row (SemType Δ₂ κ)
+evalRowOrdered : (ρ : SimpleRow (Type Δ₁ κ)) → (η : SemEnv Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
--- evalRow [] η = εV 
--- evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
+evalRow [] η = εV 
+evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ (evalRow ρ η) 
 
--- ⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
---                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
--- ⇓Row-isMap η [] = refl
--- ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
+⇓Row-isMap : ∀ {Δ₂ : KEnv ιΔ} {κ : Kind ι} (η : SemEnv Δ₁ Δ₂) → (xs : SimpleRow (Type Δ₁ κ))  → 
+                      reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
+⇓Row-isMap η [] = refl
+⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)
 
--- evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
--- evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
+evalPred (ρ₁ · ρ₂ ~ ρ₃) η = reify (eval ρ₁ η) · reify (eval ρ₂ η) ~ reify (eval ρ₃ η)
+evalPred (ρ₁ ≲ ρ₂) η = reify (eval ρ₁ η) ≲ reify (eval ρ₂ η)
 
--- eval {κ = κ} (` x) η = η x
--- eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
--- eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
+eval {κ = κ} (` x) η = η x
+eval {κ = κ} (τ₁ · τ₂) η = (eval τ₁ η) ·V (eval τ₂ η)
+eval {κ = κ} (τ₁ `→ τ₂) η = (eval τ₁ η) `→ (eval τ₂ η)
 
--- eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
--- eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
--- -- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
--- eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
--- eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
--- eval {κ = L} (lab l) η = lab l
--- eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {κ} v' → renSem {κ = κ} ρ (η v')) v)
--- eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
--- eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
--- eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
--- eval (⦅ ρ ⦆ oρ) η = row (evalRow ρ η) (evalRowOrdered ρ η (toWitness oρ))
--- eval (l ▹ τ) η with eval l η 
--- ... | ne x = (x ▹ eval τ η)
--- ... | lab l₁ = row (⁅ (l₁ , eval τ η) ⁆) tt
--- evalRowOrdered [] η oρ = tt
--- evalRowOrdered (x₁ ∷ []) η oρ = tt
--- evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
---   evalRow ρ η | evalRowOrdered ((l₂ , τ₂) ∷ ρ) η oρ
--- ... | zero , P | ih = l₁<l₂ , tt
--- ... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
+eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
+eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
+-- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
+eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
+eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
+eval {κ = L} (lab l) η = lab l
+eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {ι}{κ} v' → renSem {κ = κ} ρ (η v')) v)
+eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke
+eval {κ = R[ κ ] `→ κ} Σ η = Σ-Kripke
+eval {κ = R[ κ ]} (f <$> a) η = (eval f η) <$>V (eval a η)
+eval (⦅ ρ ⦆ oρ) η = row (evalRow ρ η) (evalRowOrdered ρ η (toWitness oρ))
+eval (l ▹ τ) η with eval l η 
+... | ne x = (x ▹ eval τ η)
+... | lab l₁ = row (⁅ (l₁ , eval τ η) ⁆) tt
+evalRowOrdered [] η oρ = tt
+evalRowOrdered (x₁ ∷ []) η oρ = tt
+evalRowOrdered ((l₁ , τ₁) ∷ (l₂ , τ₂) ∷ ρ) η (l₁<l₂ , oρ) with 
+  evalRow ρ η | evalRowOrdered ((l₂ , τ₂) ∷ ρ) η oρ
+... | zero , P | ih = l₁<l₂ , tt
+... | suc n , P | ih₁ , ih₂ =  l₁<l₂ , ih₁ , ih₂
 
 
--- --------------------------------------------------------------------------------
--- -- Type normalization
+--------------------------------------------------------------------------------
+-- Type normalization
 
--- -- Normalization algorithm
--- ⇓ : ∀ {Δ} → Type Δ κ → NormalType Δ κ
--- ⇓ τ = reify (eval τ idEnv)
+-- Normalization algorithm
+⇓ : ∀ {Δ : KEnv ιΔ} → Type Δ κ → NormalType Δ κ
+⇓ τ = reify (eval τ idEnv)
 
--- ⇓Pred : ∀ {Δ} → Pred Type Δ R[ κ ] → Pred NormalType Δ R[ κ ] 
--- ⇓Pred π = evalPred π idEnv
+⇓Pred : ∀ {Δ : KEnv ιΔ} → Pred (Type Δ R[ κ ]) → Pred (NormalType Δ R[ κ ]) 
+⇓Pred π = evalPred π idEnv
 
--- ⇓Row : ∀ {Δ} → SimpleRow Type Δ R[ κ ] → SimpleRow NormalType Δ R[ κ ] 
--- ⇓Row ρ = reifyRow (evalRow ρ idEnv)
+⇓Row : ∀ {Δ : KEnv ιΔ} → SimpleRow (Type Δ κ) → SimpleRow (NormalType Δ κ) 
+⇓Row ρ = reifyRow (evalRow ρ idEnv)
 
--- ⇓NE : ∀ {Δ} → NeutralType Δ κ → NormalType Δ κ
--- ⇓NE τ = reify (eval (⇑NE τ) idEnv)
+⇓NE : ∀ {Δ : KEnv ιΔ} → NeutralType Δ κ → NormalType Δ κ
+⇓NE τ = reify (eval (⇑NE τ) idEnv)
 
--- -- reabstraction
--- ↑ : ∀ {Δ} → NormalType Δ κ → SemType Δ κ 
--- ↑ τ = eval (⇑ τ) idEnv
+-- reabstraction
+↑ : ∀ {Δ : KEnv ιΔ} → NormalType Δ κ → SemType Δ κ 
+↑ τ = eval (⇑ τ) idEnv
 

@@ -96,17 +96,17 @@ reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
 -- --------------------------------------------------------------------------------
 -- -- Semantic environments
 
-Env : KEnv → KEnv → Set
-Env Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → SemType Δ₂ κ
+SemEnv : KEnv → KEnv → Set
+SemEnv Δ₁ Δ₂ = ∀ {κ} → TVar Δ₁ κ → SemType Δ₂ κ
 
-idEnv : Env Δ Δ
+idEnv : SemEnv Δ Δ
 idEnv = reflect ∘ `
 
-extende : (η : Env Δ₁ Δ₂) → (V : SemType Δ₂ κ) → Env (Δ₁ ,, κ) Δ₂
+extende : (η : SemEnv Δ₁ Δ₂) → (V : SemType Δ₂ κ) → SemEnv (Δ₁ ,, κ) Δ₂
 extende η V Z     = V
 extende η V (S x) = η x
 
-lifte : Env Δ₁ Δ₂ → Env (Δ₁ ,, κ) (Δ₂ ,, κ)
+lifte : SemEnv Δ₁ Δ₂ → SemEnv (Δ₁ ,, κ) (Δ₂ ,, κ)
 lifte {Δ₁} {Δ₂} {κ} η  = extende (weakenSem ∘ η) (idEnv Z)
 
 --------------------------------------------------------------------------------
@@ -265,16 +265,16 @@ open Xi
 --------------------------------------------------------------------------------
 -- Type evaluation.
 
-eval : Type Δ₁ κ → Env Δ₁ Δ₂ → SemType Δ₂ κ
-evalPred : Pred Type Δ₁ R[ κ ] → Env Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
+eval : Type Δ₁ κ → SemEnv Δ₁ Δ₂ → SemType Δ₂ κ
+evalPred : Pred Type Δ₁ R[ κ ] → SemEnv Δ₁ Δ₂ → NormalPred Δ₂ R[ κ ]
 
-evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → Env Δ₁ Δ₂ → Row (SemType Δ₂ κ)
-evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : Env Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
+evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → SemEnv Δ₁ Δ₂ → Row (SemType Δ₂ κ)
+evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : SemEnv Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
 evalRow [] η = εV 
 evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
 
-⇓Row-isMap : ∀ (η : Env Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
+⇓Row-isMap : ∀ (η : SemEnv Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 
                       reifyRow (evalRow xs η) ≡ map (λ { (l , τ) → l , (reify (eval τ η)) }) xs
 ⇓Row-isMap η [] = refl
 ⇓Row-isMap η (x ∷ xs) = cong₂ _∷_ refl (⇓Row-isMap η xs)

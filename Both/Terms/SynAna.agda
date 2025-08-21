@@ -1,5 +1,5 @@
-{-# OPTIONS --safe #-}
-module Rome.Both.Terms.Normal.SynAna where
+-- {-# OPTIONS --safe #-}
+module Rome.Both.Terms.SynAna where
 
 open import Rome.Both.Prelude
 open import Rome.Both.Containment
@@ -30,14 +30,14 @@ open import Rome.Both.Types.Theorems.Stability
 open import Rome.Both.Types.Theorems.Consistency
 
 
-open import Rome.Both.Terms.Normal.Syntax
-open import Rome.Both.Terms.Normal.Substitution
+open import Rome.Both.Terms.Syntax
+open import Rome.Both.Terms.Substitution
 
 open import Rome.Both.Kinds.GVars
 
-open import Rome.Both.Terms.Normal.GVars
-open import Rome.Both.Terms.Normal.Renaming
-open import Rome.Both.Terms.Normal.Entailment.Properties
+open import Rome.Both.Terms.GVars
+open import Rome.Both.Terms.Renaming
+open import Rome.Both.Terms.Entailment.Properties
 
 --------------------------------------------------------------------------------
 -- Lifting consistency result over substitution by (⇑ ∘ σ)
@@ -68,7 +68,8 @@ consistency-under-subₖ σ τ₂ =
 --------------------------------------------------------------------------------
 -- Lemma 1 (for defining record synthesis & variant analysis)
               
-lem₁ : ∀ (l : NormalType Δ κ₁) (τ : NormalType Δ κ₂) → 
+lem₁ : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} → 
+       (l : NormalType Δ κ₁) (τ : NormalType Δ κ₂) → 
      subₖ (⇑ ∘ extendₖNF idSubst τ) 
       (⇑
        (reify
@@ -86,7 +87,8 @@ lem₁ {κ₂ = κ} l τ = eq-trans
 --------------------------------------------------------------------------------
 -- Lemma 2 (for defining record synthesis & variant analysis)
 
-lem₂ :  ∀ (l₁ : NormalType ∅ κ₁) (l₂ : NormalType ∅ κ₂) (τ : NormalType ∅ κ) → 
+lem₂ :  ∀ {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} {κ : Kind ικ} → 
+          (l₁ : NormalType (∅ {ι∅}) κ₁) (l₂ : NormalType ∅ κ₂) (τ : NormalType ∅ κ) → 
         subₖ (⇑ ∘ extendₖNF idSubst l₁)
         (⇑
         (reify
@@ -115,7 +117,7 @@ lem₂ {κ = κ} l₁ l₂ τ =
 --------------------------------------------------------------------------------
 -- Lemma 3 (for defining record synthesis & variant analysis)
 
-lem₃ : ∀ (φ : NormalType ∅ (κ `→ ★)) (τ : NormalType ∅ κ) (l : NormalType _ L) → 
+lem₃ : ∀ {κ : Kind ικ} (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι₁}))) (τ : NormalType ∅ κ) (l : NormalType _ (L {ι₂})) → 
        eval {κ = ★}
       (subₖ (λ x₁ → ⇑ (extendₖNF idSubst τ x₁))
        (⇑
@@ -166,8 +168,7 @@ lem₃ φ τ l =
   (eq-· 
     (eq-trans 
       (inst (sym ((subₖ-comp (subₖ
-        (λ {κ = κ₁} z →
-           liftsₖ (λ {κ = κ₂} z₁ → liftsₖ (λ {κ = κ₃} z₂ → ` z₂) z₁) z)
+        (liftsₖ (liftsₖ `))
         (weakenₖ (weakenₖ (⇑ φ))))))) ) 
     (eq-trans 
       ((inst ∘ sym) (subₖ-comp (weakenₖ (weakenₖ (⇑ φ))))) 
@@ -181,7 +182,7 @@ lem₃ φ τ l =
 --------------------------------------------------------------------------------
 -- lemma 4 (for defining record synthesis & variant analysis)
 
-lem₄ : ∀ (xs : SimpleRow NormalType ∅ R[ κ ]) (υ₁ : NormalType ∅ κ) (υ₂ : NormalType ∅ L) → xs ≡ reifyRow
+lem₄ : ∀ {κ : Kind ικ} (xs : SimpleRow (NormalType (∅ {ι∅}) κ)) (υ₁ : NormalType ∅ κ) (υ₂ : NormalType (∅ {ι∅}) (L {ι₂})) → xs ≡ reifyRow
           (evalRow
            (subRowₖ (λ x₁ → ⇑ (extendₖNF idSubst υ₁ x₁))
             (⇑Row
@@ -216,7 +217,7 @@ lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (
 -- and builds a body M' that synthesizes a term at type Π ρ. This is necessary
 -- for us to recursively synthesize records.
 
-cutSyn :  ∀ (φ : NormalType ∅ (κ `→ ★)) (z : Label × NormalType ∅ κ) (zs : SimpleRow NormalType ∅ R[ κ ]) →
+cutSyn :  ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) (z : Label × NormalType ∅ κ) (zs : SimpleRow (NormalType ∅ κ)) →
             {ozs : True (normalOrdered? (z ∷ zs))} {ozs' : True (normalOrdered? zs)} → 
             NormalTerm ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs') φ)
 cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ 
@@ -247,7 +248,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
          σ Z     = u
          σ (S Z) = ℓℓ
 
-         lem₅ : ∀ {κ} (t : NormalType _ κ) → 
+         lem₅ : ∀ {ι'} {κ : Kind ι'} (t : NormalType _ κ) → 
               reify (eval {κ = κ}
               (subₖ (λ x₁ → ⇑ (extendₖNF idSubst u x₁))
                (⇑
@@ -330,7 +331,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
                         (η-norm-≡t'ren (` Z) {liftₖ (liftₖ S) ∘ (liftₖ (liftₖ S))}))))))) 
                 (stability (η-norm (` Z)))
 
-         #3 : ∀ (zs : SimpleRow NormalType ∅ R[ κ ]) → reifyRow
+         #3 : ∀ (zs : SimpleRow (NormalType ∅ κ)) → reifyRow
                 (evalRow (renRowₖ S (renRowₖ S (⇑Row zs))) (lifte (lifte idEnv)))
                 ≡
                 reifyRow'
@@ -402,8 +403,8 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
 --------------------------------------------------------------------------------
 -- Synthesizing records
 
-synRecord : ∀ (φ : NormalType ∅ (κ `→ ★)) 
-              (zs : SimpleRow NormalType ∅ R[ κ ])
+synRecord : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) 
+              (zs : SimpleRow (NormalType ∅ κ))
               (ozs : True (normalOrdered? zs)) → 
               NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (map₂ (φ ·'_)) zs)
 synRecord φ [] ozs M = ∅
@@ -421,12 +422,12 @@ synRecord φ ((l , τ) ∷ zs) ozs M =
        (synRecord φ zs (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs))) 
          (cutSyn φ (l , τ) zs {ozs} {ozs' = (fromWitness (normalOrdered-tail (l , τ) zs (toWitness ozs)))} M))
 
---------------------------------------------------------------------------------
--- Analyzing variants
+-- --------------------------------------------------------------------------------
+-- -- Analyzing variants
 
 
 getApplicand : ∀ {l : Label} {φ : NormalType Δ (κ₁ `→ κ₂)} {φτ : NormalType Δ κ₂} 
-                 {xs : SimpleRow NormalType Δ R[ κ₁ ]} → 
+                 {xs : SimpleRow (NormalType Δ κ₁)} → 
                (l , φτ) ∈ (map (map₂ (φ ·'_)) xs) → 
                ∃[ τ ] ((l , τ) ∈ xs × φτ ≡ φ ·' τ)
 getApplicand {xs = []} ()
@@ -434,9 +435,9 @@ getApplicand {xs = ((l , τ) ∷ xs)} (here refl) = τ , ((here refl) , refl)
 getApplicand {l = l} {φ} {φτ} {xs = (_ ∷ xs)} (there i) with getApplicand {l = l} {φ} {φτ} {xs} i
 ... | τ , i' , eq = τ , ((there i') , eq)
 
-anaVariant : ∀ (φ : NormalType ∅ (κ `→ ★)) 
-              (zs : SimpleRow NormalType ∅ R[ κ ])
-              (τ : NormalType ∅ ★)
+anaVariant : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι₁}))) 
+              (zs : SimpleRow (NormalType ∅ κ))
+              (τ : NormalType (∅ {ι∅}) (★ {ι₂}))
               (ozs : True (normalOrdered? zs))
               (ozs' : True (normalOrdered? (map (map₂ (φ ·'_)) zs)))
               (M : NormalTerm ∅ (AnaT' (⦅ zs ⦆ ozs) φ τ))

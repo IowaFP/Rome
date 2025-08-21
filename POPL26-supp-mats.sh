@@ -20,7 +20,7 @@ rm -rf ./Rome-supp-materials/Rome/Terms/Theorems/Soundness.agda
 find ./Rome-supp-materials/ -name '*.agda' -exec sed -i -e 's/Rome\.Operational/Rome/g' {} \;
 
 cd ./Rome-supp-materials/
-agda --html ./Rome/All.agda 
+agda ./Rome/All.agda 
 find . -type f -name '*.agdai' -delete
 cd -
 

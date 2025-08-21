@@ -33,7 +33,7 @@ open import Rome.Both.Types.Theorems.Stability
 --------------------------------------------------------------------------------
 -- Membership is preserved by substitution
 
-∈-subₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow NormalType Δ₁ R[ κ ]} → 
+∈-subₖNF : ∀ {l : Label} {τ : NormalType Δ₁ κ} {xs : SimpleRow (NormalType Δ₁ κ)} → 
              (σ : SubstitutionₖNF Δ₁ Δ₂) → 
              (l , τ) ∈ xs → (l , subₖNF σ τ) ∈ subRowₖNF σ xs
 ∈-subₖNF σ (here refl) = here refl
@@ -52,7 +52,7 @@ open import Rome.Both.Types.Theorems.Stability
       (reify-≋ (fundC ((idext idEnv-≋) ∘ ⇑ ∘ σ) (eq-sym (consistency τ))))))
 
 ↻-⇓-subRow : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) → 
-             (ρ : SimpleRow Type Δ₁ R[ κ ]) →
+             (ρ : SimpleRow (Type Δ₁ κ)) →
              {oρ : True (ordered? ρ)} → 
              ⇓Row (subRowₖ (⇑ ∘ σ) ρ) ≡ subRowₖNF σ (⇓Row ρ)
 ↻-⇓-subRow σ ρ {oρ} = inj-⦅⦆ (↻-⇓-sub σ (⦅ ρ ⦆ oρ))
@@ -128,7 +128,7 @@ subₖNF-var-ground σ x {g} = stability (σ x)
 -- Congruence of normality preserving substitution
 
 subₖNF-cong : {σ₁ : SubstitutionₖNF Δ₁ Δ₂}{σ₂ : SubstitutionₖNF Δ₁ Δ₂} →
-              (∀ {κ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
+              (∀ {ικ} {κ : Kind ικ} (x : TVar Δ₁ κ) → σ₁ x ≡ σ₂ x) → 
               (τ : NormalType Δ₁ κ) → subₖNF σ₁ τ ≡ subₖNF σ₂ τ
 subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ = 
   cong ⇓ (subₖ-cong (cong ⇑ ∘ peq) (⇑ τ))      
@@ -138,7 +138,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 
 ↻-renₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (ρ : Renamingₖ Δ₂ Δ₃)
                     (τ : NormalType Δ₁ κ) → subₖNF (renₖNF ρ ∘ σ) τ ≡ renₖNF ρ (subₖNF σ τ)           
-↻-renₖNF-subₖNF σ ρ τ = 
+↻-renₖNF-subₖNF {Δ₁ = Δ₁} σ ρ τ = 
   trans 
     (reify-≋ 
       (trans-≋ 
@@ -157,7 +157,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
               (⇑ τ))
             ((sym-≋ (↻-subₖ-eval (⇑ τ) (ren-≋ ρ ∘ idEnv-≋) (⇑ ∘ σ)))))) 
         (sym-≋ (↻-renSem-eval ρ (subₖ (⇑ ∘ σ) (⇑ τ)) idEnv-≋))))
-    (sym (↻-ren-reify ρ (idext idEnv-≋ (subₖ (⇑ ∘ σ) (⇑ τ)))))                  
+    (sym (↻-ren-reify {Δ₁ = Δ₁} ρ (idext idEnv-≋ (subₖ (⇑ ∘ σ) (⇑ τ)))))                  
 
 ↻-subₖNF-renₖNF : ∀ (ρ : Renamingₖ Δ₁ Δ₂)(σ : SubstitutionₖNF Δ₂ Δ₃)
                 (τ : NormalType Δ₁ κ) → subₖNF (σ ∘ ρ) τ ≡ subₖNF σ (renₖNF ρ τ)           
@@ -177,13 +177,13 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- weakening commutes with substitution.
 
-↻-weakenₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ'} → 
+↻-weakenₖNF-subₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType Δ₁ κ) {κ' : Kind ικ'} → 
                   weakenₖNF {κ₁ = κ'} (subₖNF σ τ) ≡ subₖNF (liftsₖNF σ) (weakenₖNF τ)
 ↻-weakenₖNF-subₖNF σ τ {κ} = trans 
   (sym (↻-renₖNF-subₖNF σ S τ)) 
   ((↻-subₖNF-renₖNF S (liftsₖNF σ) τ))
 
-↻-weakenPredₖNF-subPredₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalPred Δ₁ R[ κ ]) {κ'} → 
+↻-weakenPredₖNF-subPredₖNF : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalPred Δ₁ R[ κ ]) {κ' : Kind ικ'} → 
                   weakenPredₖNF {κ₁ = κ'} (subPredₖNF σ τ) ≡ subPredₖNF (liftsₖNF σ) (weakenPredₖNF τ)
 ↻-weakenPredₖNF-subPredₖNF σ π {κ'} with mapPredHO  (weakenₖNF {κ₁ = κ'} ∘ subₖNF σ) (subₖNF (liftsₖNF σ) ∘ weakenₖNF) (λ τ → ↻-weakenₖNF-subₖNF σ τ {κ'}) π 
 ↻-weakenPredₖNF-subPredₖNF σ (ρ₁ · ρ₂ ~ ρ₃) {κ'} | c = c
@@ -192,7 +192,8 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Substituting commutes over β reduction (first statement)
 
-↻-subₖNF-β'      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
+↻-subₖNF-β'      : {Δ₁ : KEnv ιΔ₁} {κ : Kind ικ} (σ : SubstitutionₖNF Δ₁ Δ₂) 
+                   (τ₁ : NormalType (Δ₁ ,, κ) (★ {ι})) (τ₂ : NormalType Δ₁ κ) → 
                     subₖNF σ (τ₁ βₖNF[ τ₂ ])
                   ≡ 
                     (subₖNF (liftsₖNF σ) τ₁)
@@ -217,7 +218,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 
 ↻-renₖNF-β      : (ρ : Renamingₖ Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ₁) κ₂) (τ₂ : NormalType Δ₁ κ₁) → 
                 renₖNF ρ (τ₁ βₖNF[ τ₂ ]) ≡ (renₖNF (liftₖ ρ) τ₁) βₖNF[ (renₖNF ρ τ₂) ]
-↻-renₖNF-β ρ τ₁ τ₂ = 
+↻-renₖNF-β {Δ₁ = Δ₁} ρ τ₁ τ₂ = 
   trans 
     (sym (↻-renₖNF-subₖNF (extendₖNF idSubst τ₂) ρ τ₁)) 
     (trans 
@@ -226,7 +227,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
         {σ₂ = extendₖNF idSubst (renₖNF ρ τ₂) ∘ liftₖ ρ} 
         (λ { Z → refl
            ; (S x) → trans 
-                (↻-ren-reify 
+                (↻-ren-reify {Δ₁ = Δ₁}
                   ρ 
                   {reflect (` x)} 
                   {reflect (` x)} 
@@ -238,7 +239,7 @@ subₖNF-cong {σ₁ = σ₁} {σ₂} peq τ =
 --------------------------------------------------------------------------------
 -- Immediate application of a weakened type has no effect
 
-weakenₖNF-β-id   : ∀ {κ'} (τ : NormalType Δ κ) {τ₂ : NormalType Δ κ'} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
+weakenₖNF-β-id   : ∀ {κ' : Kind ικ'} (τ : NormalType Δ κ) {τ₂ : NormalType Δ κ'} → τ ≡ (weakenₖNF τ) βₖNF[ τ₂ ]
 weakenₖNF-β-id τ {τ₂} = 
   trans 
     (trans 
@@ -252,7 +253,7 @@ weakenₖNF-β-id τ {τ₂} =
         (subₖ-cong-≡t {σ₁ = `} {σ₂ = ⇑ ∘ η-norm ∘ `} (eq-sym ∘ η-norm-≡t ∘ `) (⇑ τ)))) 
       (↻-subₖNF-renₖNF S (extendₖNF idSubst τ₂) τ))
 
-weakenPredₖNF-Β-id : ∀ {κ'} (π : NormalPred Δ R[ κ ]) {τ₂ : NormalType Δ κ'} → π ≡ subPredₖNF (extendₖNF (λ x₁ → η-norm (` x₁)) τ₂) (weakenPredₖNF π)
+weakenPredₖNF-Β-id : ∀ {κ' : Kind ικ'} (π : NormalPred Δ R[ κ ]) {τ₂ : NormalType Δ κ'} → π ≡ subPredₖNF (extendₖNF (λ x₁ → η-norm (` x₁)) τ₂) (weakenPredₖNF π)
 weakenPredₖNF-Β-id π {τ₂} with mapPredHO id  (λ τ → (weakenₖNF τ) βₖNF[ τ₂ ]) (λ τ → weakenₖNF-β-id τ {τ₂}) π 
 weakenPredₖNF-Β-id (ρ₁ · ρ₂ ~ ρ₃) {τ₂} | c = c
 weakenPredₖNF-Β-id (ρ₁ ≲ ρ₂) {τ₂} | c = c
@@ -270,11 +271,11 @@ liftsₖ-liftsₖNF≡t {σ = σ} (S x) = inst (sym (↻-ren-⇑ S (σ x)))
 -- Substitution of a lifted substitution over τ is eqivalent under _≡t_ to 
 -- substitution of (⇑ ∘ liftsₖNF σ) over τ
 
-subₖ-liftsₖ-≡t : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) {κ κ'} (τ : Type (Δ₁ ,, κ') κ) →
+subₖ-liftsₖ-≡t : ∀ {Δ₁ : KEnv ιΔ₁} {κ' : Kind ικ'} {κ : Kind ικ} (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : Type (Δ₁ ,, κ') κ) →
                     subₖ (liftsₖ (⇑ ∘ σ)) τ ≡t subₖ (⇑ ∘ liftsₖNF σ) τ
 subₖ-liftsₖ-≡t σ τ = subₖ-cong-≡t liftsₖ-liftsₖNF≡t τ
 
-weaken-⇓ : ∀ {κ'}(τ : Type (Δ₁ ,, κ') κ) → 
+weaken-⇓ : ∀ {κ' : Kind ικ'}(τ : Type (Δ₁ ,, κ') κ) → 
                   ⇓ τ ≡ reify (eval τ (extende (renSem S ∘ idEnv) (reflect (` Z))))
 weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
                                       ; (S x) → sym-≋ (↻-ren-reflect S (` x)) }) τ)
@@ -282,7 +283,8 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 --------------------------------------------------------------------------------
 -- Substituting a lifted substitution is equivalent to evaluating a lifted environment
 
-↻-lifted-subₖNF-eval      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) ★) → 
+↻-lifted-subₖNF-eval      : ∀ {Δ₁ : KEnv ιΔ₁} {κ : Kind ικ} 
+                            (σ : SubstitutionₖNF Δ₁ Δ₂) (τ : NormalType (Δ₁ ,, κ) (★ {ι})) → 
                     subₖNF (liftsₖNF σ) τ 
                   ≡ 
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ)) (lifte idEnv)
@@ -294,7 +296,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 --------------------------------------------------------------------------------
 -- Substitution commutes with β reduction (again, but actually useful declaration).
 
-↻-subₖNF-β      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) ★) (τ₂ : NormalType Δ₁ κ) → 
+↻-subₖNF-β      : ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) (τ₁ : NormalType (Δ₁ ,, κ) (★ {ι})) (τ₂ : NormalType Δ₁ κ) → 
                     subₖNF σ (τ₁ βₖNF[ τ₂ ])
                   ≡ 
                     eval (subₖ (liftsₖ (⇑ ∘ σ)) (⇑ τ₁)) (lifte idEnv)
@@ -312,7 +314,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 
 ↻-subₖNF-·' :  
            ∀ (σ : SubstitutionₖNF Δ₁ Δ₂) 
-             (f : NormalType Δ₁ (κ₁ `→ ★))
+             (f : NormalType Δ₁ (κ₁ `→ (★ {ι})))
              (v : NormalType Δ₁ κ₁) → 
              subₖNF σ (f ·' v) ≡ subₖNF σ f ·' subₖNF σ v
 ↻-subₖNF-·' σ (`λ f) v = ↻-subₖNF-β σ f v
@@ -327,7 +329,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 --------------------------------------------------------------------------------
 -- Substitution commutes with embedding (over rows)
 
-↻-sub-⇑Row : ∀ {Δ₁ Δ₂} (σ : SubstitutionₖNF Δ₁ Δ₂) (ys : SimpleRow NormalType Δ₁ R[ κ ]) → 
+↻-sub-⇑Row : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} (σ : SubstitutionₖNF Δ₁ Δ₂) (ys : SimpleRow (NormalType Δ₁ κ)) → 
         ⇑Row (subRowₖNF σ (⇓Row (⇑Row ys))) ≡r subRowₖ (⇑ ∘ σ) (⇑Row ys)
 ↻-sub-⇑Row σ [] = eq-[]
 ↻-sub-⇑Row σ ((l , τ) ∷ ys) rewrite stability τ = eq-cons refl (↻-sub-⇑ σ τ) (↻-sub-⇑Row σ ys)
@@ -351,7 +353,7 @@ weaken-⇓ τ = reify-≋ (idext (λ { Z → reflect-≋ refl
 --------------------------------------------------------------------------------
 -- Normalization commutes with β-reduction
 
-↻-β-⇓ : ∀ (τ₁ : Type (Δ ,, κ) ★) (τ₂ : Type Δ κ) → 
+↻-β-⇓ : ∀ (τ₁ : Type (Δ ,, κ) (★ {ι})) (τ₂ : Type Δ κ) → 
         ⇓ (τ₁ βₖ[ τ₂ ]) ≡ (⇓ τ₁) βₖNF[ ⇓ τ₂ ]
 ↻-β-⇓ τ₁ τ₂ = 
   reify-≋ 
@@ -383,7 +385,7 @@ stability-·' f N = trans
     (sym (stability (f ·' N))) 
     (soundness {τ₁ = ⇑ (f ·' N)} {τ₂ =  ⇑ f · ⇑ N} (↻-·'-⇑ f N))
 
-stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow NormalType Δ R[ κ₁ ]) → 
+stability-map : ∀ (f : NormalType Δ (κ₁ `→ κ₂)) → (xs : SimpleRow (NormalType Δ κ₁)) → 
                 map (map₂ (_·'_ f)) xs ≡ reifyRow 
                   ((evalRow (⇑Row xs) idEnv .fst) ,
                   (λ i → 
@@ -411,7 +413,7 @@ stability-map f (x ∷ xs) = (cong₂ _∷_ (cong₂ _,_ refl (stability-·' f (
 --------------------------------------------------------------------------------
 -- Ordering is preserved by substitution and embedding
 
-ordered-subRowₖ-⇑ : ∀ {Δ₁ Δ₂} (σ : SubstitutionₖNF Δ₁ Δ₂) → {ys : SimpleRow NormalType Δ₁ R[ κ ]} → 
+ordered-subRowₖ-⇑ :  (σ : SubstitutionₖNF Δ₁ Δ₂) → {ys : SimpleRow (NormalType Δ₁ κ)} → 
                       NormalOrdered ys → 
                       Ordered (subRowₖ (⇑ ∘ σ) (⇑Row ys))
 ordered-subRowₖ-⇑ σ {[]} oys = tt
