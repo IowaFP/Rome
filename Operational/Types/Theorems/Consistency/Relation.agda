@@ -39,8 +39,8 @@ infix 0 ⟦_⟧≋_
 ⟦_⟧≋₂_ : ∀ {κ} → Label × Type Δ κ → Label × SemType Δ κ → Set
 ⟦ (l₁ , τ) ⟧≋₂ (l₂ , V) = (l₁ ≡ l₂) × (⟦ τ ⟧≋ V)
 
-SoundKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
-SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
+consistentKripke : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunction Δ₁ κ₁ κ₂ → Set
+consistentKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ κ₂ → Set
 
 -- τ is equivalent to neutral `n` if it's equivalent 
 -- to the η and map-id expansion of n
@@ -48,26 +48,32 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
 
 ⟦_⟧≋_ {κ = ★} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
 ⟦_⟧≋_ {κ = L} τ₁ τ₂ = τ₁ ≡t ⇑ τ₂
-⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = SoundKripke f F
+⟦_⟧≋_ {Δ₁} {κ = κ₁ `→ κ₂} f F = consistentKripke f F
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (row (n , P)  oρ) =
-    let xs = ⇑Row (reifyRow (n , P)) in 
-    (τ ≡t ⦅ xs ⦆ (fromWitness (Ordered⇑ (reifyRow (n , P)) (reifyRowOrdered' n P oρ)))) × 
-    (⟦ xs ⟧r≋ (n , P))
-⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = (τ ≡t (⇑NE l ▹ ⇑ (reify V))) × (⟦ ⇑ (reify V) ⟧≋ V)
-⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ─ ρ₁) {nr}) = (τ ≡t (⇑ (reify ((ρ₂ ─ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁)
+  ∃[ xs ] 
+  ∃[ oxs ] 
+  ((τ ≡t ⦅ xs ⦆ oxs) × ⟦ xs ⟧r≋ (n , P))
+    -- let xs = ⇑Row (reifyRow (n , P)) in 
+    -- (τ ≡t ⦅ xs ⦆ (fromWitness (Ordered⇑ (reifyRow (n , P)) (reifyRowOrdered' n P oρ)))) × 
+    -- (⟦ xs ⟧r≋ (n , P))
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = 
+  ∃[ υ ]
+  (τ ≡t (⇑NE l ▹ υ)) × (⟦ υ ⟧≋ V)
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ─ ρ₁) {nr}) = 
+  (τ ≡t (⇑ (reify ((ρ₂ ─ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁)
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (φ <$> n) = 
-  ∃[ f ] ((τ ≡t (f <$> ⇑NE n)) × (SoundKripkeNE f φ))
+  ∃[ f ] ((τ ≡t (f <$> ⇑NE n)) × (consistentKripkeNE f φ))
 ⟦ [] ⟧r≋ (zero , P) = ⊤
 ⟦ [] ⟧r≋ (suc n , P) = ⊥
 ⟦ x ∷ ρ ⟧r≋ (zero , P) = ⊥
 ⟦ x ∷ ρ ⟧r≋ (suc n , P) =  (⟦ x ⟧≋₂ (P fzero)) × ⟦ ρ ⟧r≋ (n , P ∘ fsuc)
 
-SoundKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+consistentKripke {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂} (ρ : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ V → 
       ⟦ (renₖ ρ f · v) ⟧≋ (renKripke ρ F ·V V)
 
-SoundKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
+consistentKripkeNE {Δ₁ = Δ₁} {κ₁ = κ₁} {κ₂ = κ₂} f F =     
     ∀ {Δ₂} (r : Renamingₖ Δ₁ Δ₂) {v V} → 
       ⟦ v ⟧≋ne  V → 
       ⟦ (renₖ r f · v) ⟧≋ (F r V)
@@ -107,6 +113,8 @@ reflect-⟦⟧≋ : ∀ {τ : Type Δ κ} {υ :  NeutralType Δ κ} →
              τ ≡t ⇑NE υ → ⟦ τ ⟧≋ (reflect υ)
 reify-⟦⟧≋ : ∀ {τ : Type Δ κ} {V :  SemType Δ κ} → 
                ⟦ τ ⟧≋ V → τ ≡t ⇑ (reify V)
+reify-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {V :  Row (SemType Δ κ)} → 
+               ⟦ xs ⟧r≋ V → xs ≡r ⇑Row (reifyRow V)
 
 reflect-⟦⟧≋ {κ = ★} e = e  
 reflect-⟦⟧≋ {κ = L} e = e 
@@ -136,9 +144,10 @@ reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
             (reify-⟦⟧≋ (e S (reflect-⟦⟧≋ eq-refl))) 
             eq-refl))
 
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (zero , P) _} (eq , I) = eq
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (suc n , P) _} (eq , I) = eq-trans eq (eq-row (eq-cons refl eq-refl (instᵣ refl)))
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {l ▹ V} eq = fst eq
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (zero , P) _} ([] , oxs , eq , rel) = eq
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (suc n , P) _} (x ∷ xs , oxs , eq , (rel-label , rel-contents) , rel-fsuc) = 
+  eq-trans eq (eq-row (eq-cons rel-label (reify-⟦⟧≋ rel-contents) (reify-⟦⟧r≋ rel-fsuc)))
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {l ▹ V} (υ , eq , rel) = eq-trans eq (eq-▹ eq-refl (reify-⟦⟧≋ rel))
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {V₂ ─ V₁} eq = eq .fst
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {φ <$> ρ} (f , eq , rel) = 
   eq-trans 
@@ -149,8 +158,7 @@ reify-⟦⟧≋ {κ = R[ κ ]} {τ} {φ <$> ρ} (f , eq , rel) =
         (eq-λ (reify-⟦⟧≋ (rel S (eq-sym (η-norm-≡t (` Z))))))) 
       eq-refl)
 
-reify-⟦⟧r≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {V :  Row (SemType Δ κ)} → 
-               ⟦ xs ⟧r≋ V → xs ≡r ⇑Row (reifyRow V)
+
 reify-⟦⟧r≋ {xs = []} {zero , P} rel = eq-[]
 reify-⟦⟧r≋ {xs = x ∷ xs} {suc n , P} (eq , I) = eq-cons (eq .fst) (reify-⟦⟧≋ (eq .snd)) (reify-⟦⟧r≋ I)
 
@@ -168,8 +176,8 @@ subst-⟦⟧≋ {κ = ★} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym 
 subst-⟦⟧≋ {κ = L} {τ₁ = τ₁} {τ₂} q {V} rel = eq-trans (eq-sym q) rel
 subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {v} {V} rel-v → subst-⟦⟧≋ (eq-· (renₖ-≡t ρ q) eq-refl) (rel ρ rel-v)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {φ <$> n} (f , eq , rel) = f , (eq-trans (eq-sym q) eq) , rel
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {row (n , P) _} (eq , I) = eq-trans (eq-sym q) eq , I
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {l ▹ τ} (eq , rel) = eq-trans (eq-sym q) eq , rel
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {row (n , P) _} (xs , oxs , eq , rel) = xs , (oxs , ((eq-trans (eq-sym q) eq) , rel))
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {l ▹ τ} (υ , eq , rel) = υ , ((eq-trans (eq-sym q) eq) , rel)
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {V₂ ─ V₁} (eq , rel₁ , rel₂) = eq-trans (eq-sym q) eq , rel₁ , rel₂
 
 --------------------------------------------------------------------------------
@@ -208,6 +216,16 @@ ren-⟦⟧≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂)
            ⟦ v ⟧≋ V → 
            ⟦ renₖ ρ v ⟧≋ renSem ρ V
 
+-- we need a handful of different ways of stating that renaming respects consistency of rows
+ren-⟦⟧r≋₁ : ∀ (r : Renamingₖ Δ₁ Δ₂) → 
+             (xs : SimpleRow Type Δ₁ R[ κ ]) (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
+           ⟦ xs ⟧r≋ (n , P) → 
+           ⟦ renRowₖ r xs ⟧r≋ (n , map₂ (renSem r) ∘ P)
+ren-⟦⟧r≋₁ r [] zero P rel = tt
+ren-⟦⟧r≋₁ r (x ∷ xs) (suc n) P (rel-fzero , rel-fsuc) = 
+  ((rel-fzero .fst) , (ren-⟦⟧≋ r (rel-fzero .snd))) , ren-⟦⟧r≋₁ r xs n (λ x₁ → P (fsuc x₁)) rel-fsuc            
+
+-- TODO remove these
 -- We need to state the renaming lemma over both semantic and syntactic row renaming
 ren-⟦⟧r≋ : ∀ (ρ : Renamingₖ Δ₁ Δ₂) → 
              (n : ℕ) (P : Fin n → Label × SemType Δ₁ κ) → 
@@ -243,11 +261,9 @@ ren-⟦⟧r≋' : ∀ (ρ : Renamingₖ Δ₁ Δ₂) →
           (eq-· (inst (sym (renₖ-comp r S f))) eq-refl)
           ((reify-⟦⟧≋ (rel₁ (S ∘ r) (eq-sym (η-norm-≡t (` Z))))))))) 
       (inst (sym (↻-ren-⇑NE r N)))))
-↻-ren-⇑-reify r (x₁ ▹ x₂) rel = 
-  eq-▹ 
-    (inst (sym (↻-ren-⇑NE r x₁))) 
-    (reify-⟦⟧≋ (ren-⟦⟧≋ r (rel .snd)))
-↻-ren-⇑-reify r (row (n , P) x₁) rel = eq-row (reify-⟦⟧r≋ (ren-⟦⟧r≋' r n P (rel .snd)))
+↻-ren-⇑-reify r (l ▹ τ) (υ ,  eq , rel) = 
+  eq-▹ (inst (sym (↻-ren-⇑NE r l))) (reify-⟦⟧≋ (ren-⟦⟧≋ r (refl-⟦⟧≋ rel))) 
+↻-ren-⇑-reify r (row (n , P) x₁) (xs , oxs , eq , rel) = eq-row (reify-⟦⟧r≋ (ren-⟦⟧r≋' r n P (refl-⟦⟧r≋ rel) ))
 ↻-ren-⇑-reify r ((V₂ ─ V₁) {nr}) (eq , rel₂ , rel₁) = ↻-ren-⇑-reify-─ r V₂ V₁ rel₂ rel₁ nr                 
 
 ↻-ren-⇑-reify-─ r (l ▹ τ) V₂ rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r (l ▹ τ) rel₂) (↻-ren-⇑-reify r V₂ rel₁)
@@ -271,17 +287,15 @@ ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , rel-v) =
   renₖ ρ f , 
   eq-trans (renₖ-≡t ρ eq) (eq-<$> eq-refl (inst (sym (↻-ren-⇑NE ρ n)))) , 
   (λ r v-eq → subst-⟦⟧≋ (eq-· (inst (renₖ-comp ρ r f)) eq-refl) (rel-v (r ∘ ρ) v-eq)) 
-ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {row (n , P) _} (eq , rel) = 
-  eq-trans 
-    (renₖ-≡t ρ eq) 
-    (eq-row ( reify-⟦⟧r≋ (ren-⟦⟧r≋' ρ n P rel))) , 
-  ren-⟦⟧r≋ ρ n P rel
-ren-⟦⟧≋ {κ = R[ κ ]} r {v} {l ▹ V} (eq , rel) = 
-  eq-trans 
-    (renₖ-≡t r eq) 
-    (eq-▹ 
-      (inst (sym (↻-ren-⇑NE r l))) 
-      (reify-⟦⟧≋ (ren-⟦⟧≋ r rel))) , refl-⟦⟧≋  (ren-⟦⟧≋ r rel)
+ren-⟦⟧≋ {κ = R[ κ ]} ρ {v} {row (n , P) _} (xs , oxs , eq , rel) = 
+  renRowₖ ρ xs , 
+  fromWitness (orderedRenRowₖ ρ xs (toWitness oxs)) , 
+  eq-trans (renₖ-≡t ρ eq) eq-refl , 
+  ren-⟦⟧r≋₁ ρ xs n P rel
+ren-⟦⟧≋ {κ = R[ κ ]} r {v} {l ▹ V} (υ , eq , rel) = 
+  renₖ r υ , 
+  eq-trans (renₖ-≡t r eq) (eq-▹ (inst (sym (↻-ren-⇑NE r l))) eq-refl) , 
+  ren-⟦⟧≋ r rel
 ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁) = 
   (eq-trans (renₖ-≡t r eq) (↻-ren-⇑-reify-─ r V₂ V₁ rel₂ rel₁ nr)) , 
   (refl-⟦⟧≋ (ren-⟦⟧≋ r rel₂)) , 
@@ -345,12 +359,12 @@ map₂-⟦⟧≋ {n = suc n} F rel-f ((refl , rel-fzero) , rel-fsuc) =
 -- To be clear, although we use an existential in defining ⟦ τ ⟧≋(φ <$> n), 
 -- we know more precisely that τ ≡t `λ (⇑ (reify (φ₂ S (` Z)))) <$> ⇑NE n.
 
-reifySoundKripkeNE-≡t : ∀ {τ : Type Δ R[ κ₂ ]} {f : Type Δ (κ₁ `→ κ₂)} {n : NeutralType Δ R[ κ₁ ]} 
+reifyconsistentKripkeNE-≡t : ∀ {τ : Type Δ R[ κ₂ ]} {f : Type Δ (κ₁ `→ κ₂)} {n : NeutralType Δ R[ κ₁ ]} 
         {φ : KripkeFunctionNE Δ κ₁ κ₂} → 
         τ ≡t f <$> ⇑NE n → 
-        SoundKripkeNE f φ → 
+        consistentKripkeNE f φ → 
         τ ≡t (`λ (⇑ (reify (φ S (` Z)))) <$> ⇑NE n)
-reifySoundKripkeNE-≡t eq rel-f = 
+reifyconsistentKripkeNE-≡t eq rel-f = 
   (eq-trans 
       eq
       (eq-<$> 

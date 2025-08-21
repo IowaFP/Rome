@@ -6,7 +6,6 @@ open import Rome.Both.Kinds.Syntax
 open import Rome.Both.Kinds.GVars
 
 open import Rome.Both.Types.Syntax
-
 open import Rome.Both.Types.SynAna
 
 open import Rome.Both.Types.Equivalence.Relation
