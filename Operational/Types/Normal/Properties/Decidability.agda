@@ -103,8 +103,8 @@ ne τ₁ ≡? ne τ₂ with τ₁ ≡NE? τ₂
 ⦅ ρ₁ ⦆ oρ₁ ≡? ⦅ ρ₂ ⦆ oρ₂ with ρ₁ ≡Row? ρ₂ 
 ... | yes refl rewrite NormalIrrelevantOrdered ρ₁ oρ₁ oρ₂  = yes refl
 ... | no  p  = no (λ { refl → p refl })
-(x₁ ─ x₂) ≡? (y₁ ─ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 
-... | yes refl | yes refl = yes (cong-─ refl refl)
+(x₁ ∖ x₂) ≡? (y₁ ∖ y₂) with x₁ ≡? y₁ | x₂ ≡? y₂ 
+... | yes refl | yes refl = yes (cong-∖ refl refl)
 ... | _     | no q = no (λ { refl → q refl })
 ... | no p  | _ = no (λ { refl → p refl })
 (l ▹ₙ x₁) ≡? (l₁ ▹ₙ y₁) with l ≡NE? l₁ | x₁ ≡? y₁ 
@@ -172,19 +172,19 @@ lab l ≡? ne x = no (λ ())
 Σ τ₁ ≡? (π ⇒ τ₂) = no (λ ())
 Σ τ₁ ≡? ⌊ τ₂ ⌋ = no (λ ())
 Σ τ₁ ≡? Π τ₂ = no (λ ())
-⦅ ρ ⦆ oρ ≡? (y₁ ─ y₂) = no (λ ())
+⦅ ρ ⦆ oρ ≡? (y₁ ∖ y₂) = no (λ ())
 ⦅ ρ ⦆ oρ ≡? (l ▹ₙ y₁) = no (λ ())
 ⦅ ρ ⦆ oρ ≡? (_ <$> _) = no (λ ())
-(x₁ ─ x₂) ≡? ne x₃ = no (λ ())
-(x₁ ─ x₂) ≡? ⦅ ρ ⦆ oρ = no (λ ())
-(x₁ ─ x₂) ≡? (l ▹ₙ y₁) = no (λ ())
-(x₁ ─ x₂) ≡? (_ <$> _) = no (λ ())
+(x₁ ∖ x₂) ≡? ne x₃ = no (λ ())
+(x₁ ∖ x₂) ≡? ⦅ ρ ⦆ oρ = no (λ ())
+(x₁ ∖ x₂) ≡? (l ▹ₙ y₁) = no (λ ())
+(x₁ ∖ x₂) ≡? (_ <$> _) = no (λ ())
 (l ▹ₙ x₁) ≡? ne x₂ = no (λ ())
 (l ▹ₙ x₁) ≡? ⦅ ρ ⦆ oρ = no (λ ())
-(l ▹ₙ x₁) ≡? (y₁ ─ y₂) = no (λ ())
+(l ▹ₙ x₁) ≡? (y₁ ∖ y₂) = no (λ ())
 (l ▹ₙ x₁) ≡? (_ <$> _) = no (λ ())
 _<$>_ {κ₁} f x ≡? ⦅ ρ ⦆ oρ = no (λ ())
-_<$>_ {κ₁} f x ≡? (τ ─ τ₁) = no (λ ())
+_<$>_ {κ₁} f x ≡? (τ ∖ τ₁) = no (λ ())
 _<$>_ {κ₁} f x ≡? (l ▹ₙ τ) = no (λ ())
 
 -- --------------------------------------------------------------------------------

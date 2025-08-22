@@ -216,10 +216,10 @@ renEnt {ρ = ρ} R (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ
 renEnt {ρ = ρ} R (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complR-inert (renEnt R e)
 renEnt {ρ = r} R (n-complR {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
-          (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
+          (cong ⇓Row (cong₂ _∖s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
-          (cong ⇓Row (sym (↻-renRowₖ-─s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
-          (sym (↻-ren-⇓Row r (⇑Row ys ─s ⇑Row xs)) ))) in
+          (cong ⇓Row (sym (↻-renRowₖ-∖s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
+          (sym (↻-ren-⇓Row r (⇑Row ys ∖s ⇑Row xs)) ))) in
   convEnt 
     (cong₃ _·_~_ 
       refl 
@@ -234,10 +234,10 @@ renEnt {ρ = r} R (n-complR {xs = xs} {ys} {ozs = ozs} e) =
 renEnt {ρ = ρ} R (n-complL-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complL-inert (renEnt R e)
 renEnt {ρ = r} R (n-complL {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
-          (cong ⇓Row (cong₂ _─s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
+          (cong ⇓Row (cong₂ _∖s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
-          (cong ⇓Row (sym (↻-renRowₖ-─s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
-          (sym (↻-ren-⇓Row r (⇑Row ys ─s ⇑Row xs)) ))) in
+          (cong ⇓Row (sym (↻-renRowₖ-∖s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
+          (sym (↻-ren-⇓Row r (⇑Row ys ∖s ⇑Row xs)) ))) in
   convEnt 
     (cong₃ _·_~_ 
        (cong-⦅⦆ 

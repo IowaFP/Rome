@@ -134,7 +134,7 @@ data Type Δ where
           ----------------
           Type Δ (R[ κ ] `→ κ)
 
-  _─_ : 
+  _∖_ : 
       
         Type Δ R[ κ ] → Type Δ R[ κ ] → 
         ---------------------------------
@@ -180,11 +180,11 @@ l ∈L? ((l' , _) ∷ xs) with l ≟ l'
 ...         | no  q = no λ { Here → p refl ; (There x) → q x }
 
 
-_─s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
-[] ─s ys = []
-((l , τ) ∷ xs) ─s ys with l ∈L? ys 
-... | yes _ = xs ─s ys
-... | no  _ = (l , τ) ∷ (xs ─s ys)
+_∖s_ : ∀ (xs ys : SimpleRow Type Δ R[ κ ]) → SimpleRow Type Δ R[ κ ]
+[] ∖s ys = []
+((l , τ) ∷ xs) ∖s ys with l ∈L? ys 
+... | yes _ = xs ∖s ys
+... | no  _ = (l , τ) ∷ (xs ∖s ys)
 
 --------------------------------------------------------------------------------
 -- Ordered lemmas 
@@ -218,22 +218,22 @@ map-map₂ [] f oρ = tt
 map-map₂ (x ∷ []) f oρ = tt
 map-map₂ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) f (l₁<l₂ , oρ) = l₁<l₂ , (map-map₂ ((l₂ , _) ∷ ρ) f oρ)
 
-ordered-─s-cons : Ordered ((l , τ) ∷ xs) → 
-        Ordered ((l , τ) ∷ (xs ─s ys))
-ordered-─s-cons {xs = []} oxs = tt
-ordered-─s-cons {l = l} {τ = τ} {xs = (l' , τ') ∷ xs} {ys = ys} (l<l' , oxs') with l' ∈L? ys 
-...| yes p = ordered-─s-cons (ordered-swap {l = l} {l'} {τ} {τ'} l<l' oxs')
-...| no  p = l<l' , ordered-─s-cons oxs'
+ordered-∖s-cons : Ordered ((l , τ) ∷ xs) → 
+        Ordered ((l , τ) ∷ (xs ∖s ys))
+ordered-∖s-cons {xs = []} oxs = tt
+ordered-∖s-cons {l = l} {τ = τ} {xs = (l' , τ') ∷ xs} {ys = ys} (l<l' , oxs') with l' ∈L? ys 
+...| yes p = ordered-∖s-cons (ordered-swap {l = l} {l'} {τ} {τ'} l<l' oxs')
+...| no  p = l<l' , ordered-∖s-cons oxs'
                    
-ordered-─s : Ordered xs →
-             Ordered (xs ─s ys)
-ordered-─s {xs = []} {ys} oxs = tt
-ordered-─s {xs = ((l , τ) ∷ xs)} {ys} oxs with l ∈L? ys
-... | yes _  = ordered-─s (ordered-cons (l , τ) xs oxs)
-ordered-─s  {xs = (l , τ) ∷ []} {ys} oxs | no p = tt
-ordered-─s {xs = (l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with l' ∈L? ys | ordered-─s {ys = ys} oxs
+ordered-∖s : Ordered xs →
+             Ordered (xs ∖s ys)
+ordered-∖s {xs = []} {ys} oxs = tt
+ordered-∖s {xs = ((l , τ) ∷ xs)} {ys} oxs with l ∈L? ys
+... | yes _  = ordered-∖s (ordered-cons (l , τ) xs oxs)
+ordered-∖s  {xs = (l , τ) ∷ []} {ys} oxs | no p = tt
+ordered-∖s {xs = (l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with l' ∈L? ys | ordered-∖s {ys = ys} oxs
 ... | no q | ih = l<l' , ih
-... | yes q | ih = ordered-─s-cons (ordered-swap l<l' oxs)
+... | yes q | ih = ordered-∖s-cons (ordered-swap l<l' oxs)
 
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row

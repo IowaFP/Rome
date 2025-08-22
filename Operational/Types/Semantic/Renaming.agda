@@ -43,13 +43,13 @@ renSem {κ = κ `→ κ₁} r F = renKripke r F
 renSem {κ = R[ κ ]} r (φ <$> x) = (λ r' → φ (r' ∘ r)) <$> (renₖNE r x)
 renSem {κ = R[ κ ]} r (l ▹ τ) = (renₖNE r l) ▹ renSem r τ
 renSem {κ = R[ κ ]} r (row (n , P) q) = row (n , ( map₂ (renSem r) ∘ P)) (orderedRenRow r q)
-renSem {κ = R[ κ ]} r ((ρ₂ ─ ρ₁) {nr}) = (renSem r ρ₂ ─ renSem r ρ₁) {nr = nrRenSem' r ρ₂ ρ₁ nr}
+renSem {κ = R[ κ ]} r ((ρ₂ ∖ ρ₁) {nr}) = (renSem r ρ₂ ∖ renSem r ρ₁) {nr = nrRenSem' r ρ₂ ρ₁ nr}
 
 nrRenSem' r ρ₂ ρ₁ (left x) = left (nrRenSem r ρ₂ x)
 nrRenSem' r ρ₂ ρ₁ (right y) = right (nrRenSem r ρ₁ y)
 
 nrRenSem r (x ▹ x₁) nr = tt
-nrRenSem r (ρ ─ ρ₁) nr = tt
+nrRenSem r (ρ ∖ ρ₁) nr = tt
 nrRenSem r (φ <$> ρ) nr = tt
 
 orderedRenRow {n = zero} {P} r o = tt

@@ -26,4 +26,4 @@ data Type Δ where
     _<$>_ : (φ : Type Δ) → (τ : Type Δ) → Type Δ
     Π     : Type Δ
     Σ     : Type Δ
-    _─_ : Type Δ → Type Δ → Type Δ 
+    _∖_ : Type Δ → Type Δ → Type Δ 

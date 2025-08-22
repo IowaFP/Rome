@@ -21,14 +21,14 @@ renRowₖ-∈L : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ : SimpleRow Type Δ�
 renRowₖ-∈L r {(l' , τ) ∷ ρ} l Here = Here
 renRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (renRowₖ-∈L r l ev)
 
-↻-renRowₖ-─s : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow Type Δ₁ R[ κ ]} → 
-       renRowₖ r (ρ₂ ─s ρ₁) ≡ renRowₖ r ρ₂ ─s renRowₖ r ρ₁
-↻-renRowₖ-─s r {[]} {ρ₁} = refl
-↻-renRowₖ-─s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? renRowₖ r ρ₁
-... | yes p | yes q = ↻-renRowₖ-─s r {ρ₂} {ρ₁}
+↻-renRowₖ-∖s : ∀ (r : Renamingₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow Type Δ₁ R[ κ ]} → 
+       renRowₖ r (ρ₂ ∖s ρ₁) ≡ renRowₖ r ρ₂ ∖s renRowₖ r ρ₁
+↻-renRowₖ-∖s r {[]} {ρ₁} = refl
+↻-renRowₖ-∖s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? renRowₖ r ρ₁
+... | yes p | yes q = ↻-renRowₖ-∖s r {ρ₂} {ρ₁}
 ... | yes  p | no q = ⊥-elim (q (∈L-renRowₖ r l p))
 ... | no  p | yes q = ⊥-elim (p (renRowₖ-∈L r l q))
-... | no  p | no q = cong ((l , renₖ r τ) ∷_) (↻-renRowₖ-─s r {ρ₂} {ρ₁})
+... | no  p | no q = cong ((l , renₖ r τ) ∷_) (↻-renRowₖ-∖s r {ρ₂} {ρ₁})
 
 --------------------------------------------------------------------------------
 -- lifting respects congruence, identities, and composition.
@@ -72,7 +72,7 @@ renₖ-cong eq (lab _) = refl
 renₖ-cong eq ⌊ τ ⌋ rewrite renₖ-cong eq τ = refl
 renₖ-cong eq (f <$> a) rewrite renₖ-cong eq f | renₖ-cong eq a = refl
 renₖ-cong {r₁ = r₁} {r₂} eq (⦅ ρ ⦆ oρ) = cong-SimpleRow (renRowₖ-cong eq ρ) 
-renₖ-cong eq (ρ₂ ─ ρ₁) rewrite renₖ-cong eq ρ₂ | renₖ-cong eq ρ₁ = refl
+renₖ-cong eq (ρ₂ ∖ ρ₁) rewrite renₖ-cong eq ρ₂ | renₖ-cong eq ρ₁ = refl
 renₖ-cong eq (l ▹ τ) = cong₂ _▹_ (renₖ-cong eq l) (renₖ-cong eq τ) 
 
 renPredₖ-cong eq (r₁ · r₂ ~ r₃) 
@@ -103,7 +103,7 @@ renₖ-id (lab _) = refl
 renₖ-id ⌊ τ ⌋ rewrite renₖ-id τ = refl
 renₖ-id (f <$> a) rewrite renₖ-id f | renₖ-id a = refl
 renₖ-id (⦅ ρ ⦆ oρ)  =  cong-SimpleRow (renRowₖ-id ρ)
-renₖ-id (ρ₂ ─ ρ₁) rewrite renₖ-id ρ₂ | renₖ-id ρ₁ = refl
+renₖ-id (ρ₂ ∖ ρ₁) rewrite renₖ-id ρ₂ | renₖ-id ρ₁ = refl
 renₖ-id (l ▹ τ) rewrite renₖ-id l | renₖ-id τ = refl
 
 renPredₖ-id (ρ₁ · ρ₂ ~ ρ₃) 
@@ -142,7 +142,7 @@ renₖ-comp r₁ r₂ (μ F) rewrite
 renₖ-comp r₁ r₂ (lab _) = refl
 renₖ-comp r₁ r₂ ⌊ τ ⌋ rewrite
     renₖ-comp r₁ r₂ τ = refl
-renₖ-comp r₁ r₂ (ρ₂ ─ ρ₁) rewrite renₖ-comp r₁ r₂ ρ₂ | renₖ-comp r₁ r₂ ρ₁ = refl
+renₖ-comp r₁ r₂ (ρ₂ ∖ ρ₁) rewrite renₖ-comp r₁ r₂ ρ₂ | renₖ-comp r₁ r₂ ρ₁ = refl
 renₖ-comp r₁ r₂ (f <$> a) rewrite renₖ-comp r₁ r₂ f | renₖ-comp r₁ r₂ a = refl
 renₖ-comp r₁ r₂ (π ⇒ τ) rewrite renPredₖ-comp r₁ r₂ π | renₖ-comp r₁ r₂ τ = refl
 renₖ-comp r₁ r₂ (⦅ ρ ⦆ oρ) = cong-SimpleRow (renRowₖ-comp r₁ r₂ ρ) 

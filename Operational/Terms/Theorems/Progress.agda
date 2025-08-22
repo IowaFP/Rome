@@ -93,14 +93,14 @@ entProgress (n-complR-inert N) with norm-≲ N
 entProgress (n-complR-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
 entProgress (n-complR N) with entProgress N 
 ... | Done (n-incl {xs = xs} {ys = ys} {oxs = oxs} {oys} i) = 
-  StepsTo n-plus i (⇓Row-⇑Row-─s-mono xs ys) (⇓Row-⇑Row-─s-mono-orᵣ xs ys {toWitness oys} i) 
+  StepsTo n-plus i (⇓Row-⇑Row-∖s-mono xs ys) (⇓Row-⇑Row-∖s-mono-orᵣ xs ys {toWitness oys} i) 
   via δ-complR i
 ... | StepsTo N' via N=⇒N' = StepsTo (n-complR N') via ξ-complR N N' N=⇒N'
 entProgress (n-complL-inert N) with norm-≲ N 
 entProgress (n-complL-inert {nsr = ()} N) | xs , _ , ys , _ , refl , refl
 entProgress (n-complL N) with entProgress N 
 ... | Done (n-incl {xs = xs} {ys = ys} {oxs = oxs} {oys} i) = 
-  StepsTo (n-plus (⇓Row-⇑Row-─s-mono xs ys) i (⇓Row-⇑Row-─s-mono-orₗ xs ys {toWitness oys} i)) via δ-complL i
+  StepsTo (n-plus (⇓Row-⇑Row-∖s-mono xs ys) i (⇓Row-⇑Row-∖s-mono-orₗ xs ys {toWitness oys} i)) via δ-complL i
 ... | StepsTo N' via N=⇒N' = StepsTo (n-complL N') via ξ-complL N N' N=⇒N'
 
 --------------------------------------------------------------------------------
