@@ -58,15 +58,17 @@ open import Rome.Operational.Types.Theorems.Consistency.Relation public
 -- syntactic mapping relates to semantic precomposition
 
 map-over-⇑Row : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
+                (xs : SimpleRow Type Δ R[ κ₁ ]) → 
                 (n : ℕ) (P : Fin n → Label × SemType Δ κ₁) → 
                 ⟦ f ⟧≋ F → 
-                ⟦ ⇑Row (reifyRow (n , P)) ⟧r≋ (n , P) → 
-                ⟦ map (map₂ (f ·_)) (⇑Row (reifyRow (n , P))) ⟧r≋ (n , map₂ (F id) ∘ P)
-map-over-⇑Row f F zero P rel-f rel-P = tt
-map-over-⇑Row f F (suc n) P rel-f rel-P = 
-  (refl , 
-  (subst-⟦⟧≋ (eq-· (inst (renₖ-id f)) eq-refl) (rel-f id (rel-P .fst .snd)))) , 
-  (map-over-⇑Row f F n (P ∘ fsuc) rel-f (rel-P .snd))              
+                ⟦ xs ⟧r≋ (n , P) → 
+                ⟦ map (map₂ (f ·_)) xs ⟧r≋ (n , map₂ (F id) ∘ P)
+map-over-⇑Row f F [] zero P rel-f rel-xs = tt
+map-over-⇑Row f F (x ∷ xs) (suc n) P rel-f (rel-x , rel-xs) = 
+  (rel-x .fst , 
+  subst-⟦⟧≋ (eq-· (inst (renₖ-id f)) eq-refl) (rel-f id (rel-x .snd))) , 
+  map-over-⇑Row f F xs n (P ∘ fsuc) rel-f rel-xs 
+
 
 --------------------------------------------------------------------------------
 -- Congruence over syntactic/semantic mapping
@@ -101,15 +103,11 @@ cong-<$>⟦⟧≋ f F v (l ▹ τ) rel-f (υ , eq , rel) =
             eq-refl)))) , 
   rel-f id rel
 cong-<$>⟦⟧≋ f F v (row (n , P) x₁) rel-f (xs , oxs , eq , rel) = 
-  map (map₂ (f ·_)) xs , 
-  {!   !} , 
+  map (map₂ (_·_ f)) xs , 
+  fromWitness (map-map₂ xs (_·_ f) (toWitness oxs)) , 
   eq-trans (eq-<$> eq-refl eq) (eq-trans eq-map eq-refl), 
-  {! map-over-⇑Row  !}
-  -- (eq-trans 
-  --   (eq-<$> eq-refl eq) 
-  -- (eq-trans eq-map 
-  -- (eq-row (reify-⟦⟧r≋ (map-over-⇑Row f F n P rel-f rel))))) , 
-  -- refl-⟦⟧r≋ (map-over-⇑Row f F n P rel-f rel)
+  map-over-⇑Row f F xs n P rel-f rel
+  
 cong-<$>⟦⟧≋ f F v ((V₂ ─ V₁) {nr}) rel-f (eq , rel₂ , rel₁) = 
   (eq-trans 
     (eq-<$> eq-refl (eq-trans eq (↻-⇑-reify-─ V₂ V₁ {nr}))) 
@@ -216,7 +214,7 @@ map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v =
 --
 -- Mapping Π over a row relates to pre-composition by semantic Π 
 --
--- N.b. we can't use map-over-⇑Row to define map-Π without violating termination
+-- N.b. we can't use map-over-⇑Row' to define map-Π without violating termination
 -- checking in sound-Π later.
 
 map-Π : ∀ {nl : True (notLabel? κ)} (n : ℕ) (P : Fin n → Label × SemType Δ R[ κ ]) → 
