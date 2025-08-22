@@ -370,3 +370,13 @@ reifyconsistentKripkeNE-≡t eq rel-f =
       (eq-<$> 
         (eq-trans eq-η (eq-λ (reify-⟦⟧≋ (rel-f S {` Z} (eq-sym (η-norm-≡t (` Z))))))) 
         eq-refl))
+
+ordered-⟦⟧r≋ : ∀ (xs : SimpleRow Type Δ R[ κ ]) → (ρ : Row (SemType Δ κ)) → 
+                ⟦ xs ⟧r≋ ρ → 
+                Ordered xs → 
+                OrderedRow ρ 
+ordered-⟦⟧r≋ [] (zero , P) rel oxs = tt
+ordered-⟦⟧r≋ ((l , τ) ∷ []) (suc zero , P) ((rel-l , rel-τ) , rel-xs) oxs = tt
+ordered-⟦⟧r≋ ((l , τ) ∷ (l' , τ') ∷ xs) (suc (suc n) , P) ((refl , rel-τ) , (refl , rel-τ') , rel-xs) (l< , oxs) = 
+  l< , ordered-⟦⟧r≋ ((P (fsuc fzero) .fst , τ') ∷ xs)
+       (suc n , (λ x → P (fsuc x))) ((refl , rel-τ') , rel-xs) oxs                

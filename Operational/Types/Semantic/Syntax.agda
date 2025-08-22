@@ -90,14 +90,22 @@ ordered-cut {n = suc n} oρ = oρ .snd
 
 
 --------------------------------------------------------------------------------
+-- if (n , P) is ordered then manipulating the contents of each entry preserves ordering
+
+orderPreservingChanges : ∀ {n} {P : Fin n → Label × SemType Δ₁ κ₁}
+                         (F : SemType Δ₁ κ₁ → SemType Δ₂ κ₂) → 
+                         OrderedRow (n , P) → OrderedRow (n , (λ x → P x .fst , F (P x .snd)))
+orderPreservingChanges {n = zero} F oρ = tt
+orderPreservingChanges {n = suc zero} F  oρ = tt
+orderPreservingChanges {n = suc (suc n)} F (l< , snd₁) = l< , orderPreservingChanges F snd₁  
+
+--------------------------------------------------------------------------------
 -- Ordering is preserved by mapping
 
 orderedMap₂ : ∀ {n} {P : Fin n → Label × SemType Δ κ₁} → 
                (f : SemType Δ κ₁ → SemType Δ κ₂) → 
                OrderedRow (n , P) → OrderedRow (n , map₂ f ∘ P)
-orderedMap₂ {n = zero} {P} f oρ = tt
-orderedMap₂ {n = suc zero} {P} f oρ = tt
-orderedMap₂ {n = suc (suc n)} {P} f oρ = (oρ .fst) , (orderedMap₂ f (oρ .snd))
+orderedMap₂ {n = n} {P} f oρ = orderPreservingChanges f oρ
 
 --------------------------------------------------------------------------------
 -- Semantic row operators

@@ -69,7 +69,6 @@ map-over-⇑Row f F (x ∷ xs) (suc n) P rel-f (rel-x , rel-xs) =
   subst-⟦⟧≋ (eq-· (inst (renₖ-id f)) eq-refl) (rel-f id (rel-x .snd))) , 
   map-over-⇑Row f F xs n (P ∘ fsuc) rel-f rel-xs 
 
-
 --------------------------------------------------------------------------------
 -- Congruence over syntactic/semantic mapping
 
@@ -176,39 +175,30 @@ sound-Σ : ∀ {nl : True (notLabel? κ₁)} →
         consistentKripke {Δ₁ = Δ₁} {κ₁ = R[ κ₁ ]} {κ₂ = κ₁} (Σ {notLabel = nl}) Σ-Kripke
 
 -- Mapping _apply_ over a row is semantic application
-map-apply : ∀ (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
+map-apply : ∀ (xs : SimpleRow Type Δ₁ R[ κ₁ `→ κ₂ ]) (n : ℕ) (P : Fin n → Label × KripkeFunction Δ₁ κ₁ κ₂) → 
                (φ : Renamingₖ Δ₁ Δ₂) → 
-               (rel : ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P)) → 
                (v : Type Δ₂ κ₁) (V : SemType Δ₂ κ₁) → 
                (rel-v : ⟦ v ⟧≋ V) → 
+               (rel-xs : ⟦ xs ⟧r≋ (n , P)) → 
              ⟦ map (map₂ (_·_ (`λ (` Z · weakenₖ v))))
                (subRowₖ (extendₖ ` v)
-                 (renRowₖ S (renRowₖ φ (⇑Row (reifyRow (n , P))))))
+                 (renRowₖ S (renRowₖ φ xs)))
              ⟧r≋ (n , λ x → (P x . fst) , apply V id (renKripke φ (P x .snd)))
-map-apply zero P φ rel v V rel-v = tt
-map-apply (suc n) P φ (rel-fzero , rel-fsuc) v V rel-v = 
-  (refl , 
+map-apply [] zero P r v V rel-v rel-xs = tt 
+map-apply ((l , τ) ∷ xs) (suc n) P r v V rel-v (rel-x , rel-xs) = 
+  (rel-x .fst , 
   subst-⟦⟧≋ 
     (eq-sym eq-β) 
   (subst-⟦⟧≋ 
-    (eq-sym eq-β) 
+    (eq-sym (eq-· ((inst (sym (↻-subₖ-renₖ (renₖ r τ))))) (inst (sym (↻-subₖ-renₖ v))))) 
   (subst-⟦⟧≋ 
-    (inst (subₖ-comp (renₖ (liftₖ S)
-            (renₖ (liftₖ φ) (⇑ (reify ((P fzero .snd) S (reflect (` Z))))))))) 
-  (subst-⟦⟧≋ 
-    (inst (↻-subₖ-renₖ (renₖ (liftₖ φ) (⇑ (reify ((P fzero .snd) S (reflect (` Z)))))))) 
-  (subst-⟦⟧≋ 
-    (inst (↻-subₖ-renₖ (⇑ (reify ((P fzero .snd) S (reflect (` Z))))) )) 
-  (subst-⟦⟧≋ 
-    (inst (subₖ-cong {σ₁ = extendₖ (` ∘ φ) v} (λ { Z → sym (subₖ-weaken v _) ; (S x) → refl })  (⇑ (reify ((P fzero .snd) S (reflect (` Z))))))) 
-  (subst-⟦⟧≋ 
-    (eq-trans 
-      eq-β 
-    (eq-trans 
-      (inst (sym (↻-subₖ-renₖ {r = liftₖ φ} {σ = extendₖ ` (renₖ id v)} (⇑ (reify ((P fzero .snd) S (reflect (` Z)))))))) 
-    (inst (subₖ-cong (λ { Z → renₖ-id v ; (S x) → refl }) (⇑ (reify ((P fzero .snd) S (reflect (` Z))))))))) 
-  ((rel-fzero .snd) φ (ren-⟦⟧≋ id rel-v))))))))) , 
-  (map-apply n (P ∘ fsuc) φ rel-fsuc v V rel-v)
+    (eq-· 
+      (eq-sym (inst (subₖ-id (renₖ r τ)))) 
+      (eq-sym (inst (subₖ-id v)))) 
+    (subst-⟦⟧≋ 
+      (eq-· eq-refl (inst (renₖ-id v))) 
+      (rel-x .snd r (ren-⟦⟧≋ id rel-v)))))) ,
+  map-apply xs n (P ∘ fsuc) r v V rel-v rel-xs
 
 --------------------------------------------------------------------------------
 --
@@ -291,24 +281,33 @@ sound-Π {κ₁ = R[ κ ]} ρ {v} {φ <$> n} (f , eq , sound-f) =
             (inst (subₖ-weaken-over-lift r f (⇑ (η-norm _)))) 
             m)
           (sound-f r m))))
-sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (eq , rel) ρ₂ {v} {V} rel-v = {!   !}
-  -- subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) (sound-Π ρ₂ {renₖ ρ₂ f ?? v} 
-  -- ((eq-trans 
-  --   (eq-· 
-  --     (eq-· 
-  --       eq-refl 
-  --       (renₖ-≡t ρ₂ eq)) 
-  --     eq-refl) 
-  -- (eq-trans 
-  --   (eq-· eq-β eq-refl) 
-  -- (eq-trans 
-  --   eq-β 
-  -- (eq-trans 
-  --   eq-map 
-  -- (eq-row 
-  --   (reify-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v))))))) , 
-  -- refl-⟦⟧r≋ (map-apply n P ρ₂ rel v V rel-v)))
-sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (eq , sound-F) r₂ {v} {V} rel-V = {!   !}
+sound-Π {κ₁ = κ₁ `→ κ₂} ρ₁ {f} {row (n , P) _} (xs , oxs , eq , rel) ρ₂ {v} {V} rel-v = 
+    subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) 
+    (sound-Π ρ₂ {renₖ ρ₂ f ?? v} 
+      (⇑Row
+        (reifyRow
+         (n , (λ x₁ → P x₁ .fst , apply V id (renKripke ρ₂ (P x₁ .snd))))) , 
+      (fromWitness 
+        (Ordered⇑ _ (reifyRowOrdered _  
+        (orderPreservingChanges (λ X → X {_} ρ₂ (renSem id V)) (ordered-⟦⟧r≋ xs (n , P) rel (toWitness oxs))))) , 
+      ((eq-trans 
+        (eq-· 
+          (eq-· 
+            eq-refl 
+            (renₖ-≡t ρ₂ eq)) 
+        eq-refl) 
+        (eq-trans 
+          (eq-· 
+            eq-β 
+            eq-refl) 
+        (eq-trans 
+          eq-β 
+        (eq-trans 
+          eq-map 
+        (eq-row 
+          (reify-⟦⟧r≋ (map-apply xs n P ρ₂ v V rel-v rel))))))) , 
+      refl-⟦⟧r≋ (map-apply xs n P ρ₂ v V rel-v rel)))))
+sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {l ▹ F} (υ , eq , rel) r₂ {v} {V} rel-V = {! eq  !}
   -- subst-⟦⟧≋ (eq-sym (eq-Π-assoc)) 
   --   (sound-Π r₂ 
   --     ((eq-trans 
