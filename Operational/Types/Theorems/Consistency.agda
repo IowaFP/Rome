@@ -48,12 +48,12 @@ map-over-⇑Row f F (x ∷ xs) (suc n) P rel-f (rel-x , rel-xs) =
 --------------------------------------------------------------------------------
 -- Congruence over syntactic/semantic mapping
 
-cong-<$>⟦⟧≋ : ∀ (f : Type Δ (κ₁ `→ κ₂)) (F : SemType Δ (κ₁ `→ κ₂)) 
-                (v : Type Δ R[ κ₁ ]) (V : SemType Δ R[ κ₁ ]) → 
+cong-<$>⟦⟧≋ : ∀ {f : Type Δ (κ₁ `→ κ₂)} {F : SemType Δ (κ₁ `→ κ₂)}
+                {v : Type Δ R[ κ₁ ]} {V : SemType Δ R[ κ₁ ]} → 
                 ⟦ f ⟧≋ F → 
                 ⟦ v ⟧≋ V → 
                 ⟦ f <$> v ⟧≋ F <$>V V 
-cong-<$>⟦⟧≋ f F v (φ <$> n) rel-f (g , g-eq , g-sound) = 
+cong-<$>⟦⟧≋ {f = f} {F} {v} {(φ <$> n)} rel-f (g , g-eq , g-sound) = 
   (`λ (weakenₖ f · (weakenₖ g · (` Z)))) , 
   (eq-trans (eq-<$> eq-refl g-eq) eq-map-∘) , 
   (λ r vee → 
@@ -65,7 +65,7 @@ cong-<$>⟦⟧≋ f F v (φ <$> n) rel-f (g , g-eq , g-sound) =
             (inst (subₖ-weaken-over-lift r g _)) 
             eq-refl)) (eq-sym eq-β)) 
       (rel-f r (g-sound r vee)))
-cong-<$>⟦⟧≋ f F v (l ▹ τ) rel-f (υ , eq , rel) = 
+cong-<$>⟦⟧≋ {f = f} {F} {v} {l ▹ τ} rel-f (υ , eq , rel) = 
   (renₖ id f · υ) , 
   (eq-trans 
     (eq-<$> eq-refl eq) 
@@ -77,68 +77,74 @@ cong-<$>⟦⟧≋ f F v (l ▹ τ) rel-f (υ , eq , rel) =
             (eq-sym (inst (renₖ-id f))) 
             eq-refl)))) , 
   rel-f id rel
-cong-<$>⟦⟧≋ f F v (row (n , P) x₁) rel-f (xs , oxs , eq , rel) = 
+cong-<$>⟦⟧≋ {f = f} {F} {v} {row (n , P) x₁} rel-f (xs , oxs , eq , rel) = 
   map (map₂ (_·_ f)) xs , 
   fromWitness (map-map₂ xs (_·_ f) (toWitness oxs)) , 
   eq-trans (eq-<$> eq-refl eq) (eq-trans eq-map eq-refl), 
   map-over-⇑Row f F xs n P rel-f rel
   
-cong-<$>⟦⟧≋ f F v ((V₂ ∖ V₁) {nr}) rel-f (υ₂ , υ₁ , eq , rel₂ , rel₁) = 
+cong-<$>⟦⟧≋ {f = f} {F} {v} {(V₂ ∖ V₁) {nr}} rel-f (υ₂ , υ₁ , eq , rel₂ , rel₁) = 
   (f <$> υ₂) ,
   (f <$> υ₁) , 
   eq-trans 
     (eq-<$> eq-refl eq) 
     eq-<$>-∖ , 
-  cong-<$>⟦⟧≋ f F υ₂ V₂ rel-f rel₂ , 
-  cong-<$>⟦⟧≋ f F υ₁ V₁ rel-f rel₁
+  cong-<$>⟦⟧≋ rel-f rel₂ , 
+  cong-<$>⟦⟧≋ rel-f rel₁
 
 --------------------------------------------------------------------------------
 -- Congruence over complement
 
-∈Row→∈L≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
-              l ∈Row P → l ∈L (⇑Row (reifyRow' n P))
-∈Row→∈L≋ {n = n} (fzero , refl) = Here
-∈Row→∈L≋ {n = n} (fsuc i , eq) = There (∈Row→∈L≋ (i , eq))
+∈Row→∈L≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+              ⟦ xs ⟧r≋ (n , P) → 
+              l ∈Row P → l ∈L xs
+∈Row→∈L≋ {xs = x ∷ xs} {n = suc n} ((refl , _) , _) (fzero , refl) = Here -- Here
+∈Row→∈L≋ {xs = x ∷ xs} {n = suc n} (_ , rel) (fsuc i , refl) = There (∈Row→∈L≋ rel (i , refl)) 
 
-∈L→∈Row≋ : ∀ {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
-              l ∈L (⇑Row (reifyRow' n P)) → l ∈Row P
-∈L→∈Row≋ {n = suc n} Here = fzero , refl
-∈L→∈Row≋ {n = suc n} (There ev) with ∈L→∈Row≋ ev 
+∈L→∈Row≋ : ∀ {xs : SimpleRow Type Δ R[ κ ]} {n : ℕ} {P : Fin n → Label × SemType Δ κ} {l : Label} → 
+              ⟦ xs ⟧r≋ (n , P) → 
+              l ∈L xs → l ∈Row P
+∈L→∈Row≋ {xs = (l , τ) ∷ xs} {n = suc n} ((refl , _) , _) Here = fzero , refl -- fzero , refl
+∈L→∈Row≋ {xs = x ∷ xs} {n = suc n} (_ , rel) (There ev) with ∈L→∈Row≋ rel ev 
 ... | i , eq = (fsuc i) , eq
+
+cong-compl⟦⟧≋ : ∀ {n m : ℕ} {xs ys : SimpleRow Type Δ R[ κ ]}
+                {P : Fin n → Label × SemType Δ κ}
+                {Q : Fin m → Label × SemType Δ κ} →
+                ⟦ xs ⟧r≋ (n , P) → 
+                ⟦ ys ⟧r≋ (m , Q) → 
+                ⟦ xs ∖s ys ⟧r≋ compl P Q
+cong-compl⟦⟧≋ {n = zero} {xs = []} {P = P} {Q} P≋ Q≋ = tt
+cong-compl⟦⟧≋ {n = suc n} {m} {xs = (l , τ) ∷ xs} {ys} {P = P} {Q} P≋@((refl , rel-fzero) , rel-fsuc) Q≋ with l ∈L? ys | P fzero .fst ∈Row? Q
+... | yes p | yes q = cong-compl⟦⟧≋ rel-fsuc Q≋
+... | yes p | no q = ⊥-elim (q (∈L→∈Row≋ Q≋ p)) 
+... | no p | yes q = ⊥-elim (p (∈Row→∈L≋ Q≋ q)) 
+... | no p | no q = (refl , rel-fzero) , (cong-compl⟦⟧≋ rel-fsuc Q≋)
 
 cong-∖⟦⟧≋ : ∀ {υ₂ υ₁ : Type Δ R[ κ ]} {ρ₂ ρ₁ : SemType Δ R[ κ ]} → 
               ⟦ υ₂ ⟧≋ ρ₂ → 
               ⟦ υ₁ ⟧≋ ρ₁ → 
               ⟦ υ₂ ∖ υ₁ ⟧≋ (ρ₂ ∖V ρ₁) 
-cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {φ₁ <$> x₁} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {x₁ ▹ x₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {row ρ x₁} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {ρ₁ ∖ ρ₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {φ <$> x₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {x₂ ▹ x₃} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {row ρ x₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {ρ₁ ∖ ρ₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = row ρ x} {φ <$> x₁} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = row ρ x} {x₁ ▹ x₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = row ρ x} {row ρ₁ x₁} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = row ρ x} {ρ₁ ∖ ρ₂} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {φ <$> x} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {x ▹ x₁} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {row ρ x} rel₂ rel₁ = {!   !}
-cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {ρ₁ ∖ ρ₄} rel₂ rel₁ = {!   !} 
+cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {φ₁ <$> x₁} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {x₁ ▹ x₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {row ρ x₁} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = φ <$> x} {ρ₁ ∖ ρ₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {φ <$> x₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {x₂ ▹ x₃} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {row ρ x₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = x ▹ x₁} {ρ₁ ∖ ρ₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = row ρ x} {φ <$> x₁} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = row ρ x} {x₁ ▹ x₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = row ρ x} {row ρ₁ x₁} (xs , oxs , eq-xs , rel-xs) (ys , oys , eq-ys , rel-ys) = 
+  (xs ∖s ys) , fromWitness (ordered-∖s (toWitness oxs)) , 
+  eq-trans (eq-∖ eq-xs eq-ys) eq-compl , 
+  cong-compl⟦⟧≋ rel-xs rel-ys 
+cong-∖⟦⟧≋ {ρ₂ = row ρ x} {ρ₁ ∖ ρ₂} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {φ <$> x} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {x ▹ x₁} rel₂ rel₁ = _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {row ρ x} rel₂ rel₁ =  _ , _ , eq-refl , rel₂ , rel₁
+cong-∖⟦⟧≋ {ρ₂ = ρ₂ ∖ ρ₃} {ρ₁ ∖ ρ₄} rel₂ rel₁ =  _ , _ , eq-refl , rel₂ , rel₁
 
-cong-compl⟦⟧≋ : ∀ {n m : ℕ} 
-                {P : Fin n → Label × SemType Δ κ}
-                {Q : Fin m → Label × SemType Δ κ} →
-                ⟦ ⇑Row (reifyRow' n P) ⟧r≋ (n , P) → 
-                ⟦ ⇑Row (reifyRow' m Q) ⟧r≋ (m , Q) → 
-                ⟦ ⇑Row (reifyRow' n P) ∖s ⇑Row (reifyRow' m Q) ⟧r≋ compl P Q
-cong-compl⟦⟧≋ {n = zero} {P = P} {Q} P≋ Q≋ = tt
-cong-compl⟦⟧≋ {n = suc n} {m} {P = P} {Q} P≋ Q≋ with P fzero .fst ∈Row? Q | P fzero .fst ∈L? ⇑Row (reifyRow' m Q) 
-... | yes p | yes q = cong-compl⟦⟧≋ (P≋ .snd) Q≋
-... | yes p | no q = ⊥-elim (q (∈Row→∈L≋ p))
-... | no p | yes q = ⊥-elim (p (∈L→∈Row≋ q))
-... | no p | no q = (refl , P≋ .fst .snd) , (cong-compl⟦⟧≋ (P≋ .snd) Q≋)
 
 --------------------------------------------------------------------------------
 -- Apply is sound
@@ -349,8 +355,8 @@ sound-Π {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ∖ V₁) {nr}} (υ₂ , υ�
         (eq-<$> eq-refl (inst (sym (subₖ-id (renₖ r₂ υ₁))))))) 
   (sound-Π r₂ 
     ((_ , _ , eq-refl , 
-      cong-<$>⟦⟧≋ _ (apply V) _ (renSem r₂ V₂) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₂) , 
-      cong-<$>⟦⟧≋ _ (apply V) _ (renSem r₂ V₁) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₁) )))))))))
+      cong-<$>⟦⟧≋ (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₂) , 
+      cong-<$>⟦⟧≋  (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₁) )))))))))
 sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (xs , oxs , eq , rel) = 
     map (map₂ (Π ·_)) xs , 
     fromWitness (map-map₂ xs (Π ·_) (toWitness oxs)) , 
@@ -523,8 +529,8 @@ sound-Σ {κ₁ = κ₁ `→ κ₂} r₁ {f} {(V₂ ∖ V₁) {nr}} (υ₂ , υ�
         (eq-<$> eq-refl (inst (sym (subₖ-id (renₖ r₂ υ₁))))))) 
   (sound-Σ r₂ 
     ((_ , _ , eq-refl , 
-      cong-<$>⟦⟧≋ _ (apply V) _ (renSem r₂ V₂) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₂) , 
-      cong-<$>⟦⟧≋ _ (apply V) _ (renSem r₂ V₁) (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₁) )))))))))
+      cong-<$>⟦⟧≋ (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₂) , 
+      cong-<$>⟦⟧≋ (sound-apply v V rel-V) (ren-⟦⟧≋ r₂ rel₁) )))))))))
 sound-Σ {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (xs , oxs , eq , rel) = 
     map (map₂ (Σ ·_)) xs , 
     fromWitness (map-map₂ xs (Σ ·_) (toWitness oxs)) , 
@@ -624,34 +630,7 @@ fundC (lab l) {σ} {η} e = eq-refl
 fundC ⌊ τ ⌋ {σ} {η} e = eq-⌊⌋ (fundC τ e)
 fundC (Π {notLabel = nl}) {σ} {η} e = sound-Π {nl = nl}
 fundC Σ {σ} {η} e = sound-Σ
-fundC (τ₁ <$> τ₂) {σ} {η} e with eval τ₂ η | fundC τ₂ e 
-... | row (n , P) oρ | xs , oxs , eq , rel = 
-  map (map₂ (_·_ (subₖ σ τ₁))) xs , 
-  fromWitness (map-map₂ xs (_·_ (subₖ σ τ₁)) (toWitness oxs)) , 
-  eq-trans 
-    (eq-<$> eq-refl eq) 
-  (eq-trans eq-map 
-  (eq-row reflᵣ)) , 
-  map-over-⇑Row (subₖ σ τ₁) (eval τ₁ η) xs n P (fundC τ₁ e) rel
-... | l ▹ τ | υ , eq , rel = 
-  subₖ σ τ₁ · υ , 
-  eq-trans 
-    (eq-<$> eq-refl eq) 
-  (eq-trans 
-    eq-▹$ 
-  eq-refl) , 
-  subst-⟦⟧≋ 
-    (eq-· (inst (renₖ-id (subₖ σ τ₁))) eq-refl) 
-    (fundC τ₁ e id rel)
-fundC  {Δ₂ = Δ₂} ( _<$>_ {κ₁ = κ₁} {κ₂ = κ₂} τ₁ τ₂) {σ} {η} e | (ρ₂ ∖ ρ₁) {nr} | υ₂ , υ₁ , eq , rel₂ , rel₁ = 
-  _ , _ , 
-  eq-trans 
-    (eq-<$> eq-refl eq) 
-  eq-<$>-∖ , 
-  cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) _ _ (fundC τ₁ e) rel₂ , 
-  cong-<$>⟦⟧≋ (subₖ σ τ₁) (eval τ₁ η) _ _ (fundC τ₁ e) rel₁
-fundC (τ₁ <$> τ₂) {σ} {η} e | φ <$> n | (f , eq-f , rel-f) with eval τ₁ η | fundC τ₁ e
-... | F | rel-F = cong-<$>⟦⟧≋ (subₖ σ τ₁) F (subₖ σ τ₂) (φ <$> n) rel-F (f , eq-f , rel-f)
+fundC (τ₁ <$> τ₂) {σ} {η} e = cong-<$>⟦⟧≋ (fundC τ₁ e) (fundC τ₂ e) 
 fundC (⦅ xs ⦆ oxs) {σ} {η} e with fundCRow xs e
 fundC (⦅ [] ⦆ tt) {σ} {η} e | tt = [] , tt , eq-refl , tt
 fundC (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) = 
@@ -660,52 +639,11 @@ fundC (⦅ (l , τ) ∷ xs ⦆ oxs) {σ} {η} e | ((refl , ih-τ) , ih-xs) =
   eq-refl , 
   (refl , ih-τ) , 
   ih-xs
-fundC (ρ₂ ∖ ρ₁) {σ} {η} e = {!   !} 
--- with eval ρ₂ η | fundC ρ₂ e 
--- fundC (ρ₂ ∖ ρ₁) {σ} {η} e | φ <$> n | ih₁@(f , eq-f , rel-f) with eval ρ₁ η | fundC ρ₁ e 
--- ... | φ₂ <$> n₂   | ih₂@(g , eq-g , rel-g) = 
---   _ , _ , eq-refl , ih₁ , ih₂
--- ... | l ▹ τ  | ih₂@(υ , eq , rel) = 
---   _ , _ , eq-refl , ih₁ , ih₂
--- ... | row ρ x₂ | ih₂ = 
---   _ , _ , eq-refl , ih₁ , ih₂
--- ... | c ∖ c₁   | ih' = {!   !}
--- fundC (ρ₂ ∖ ρ₁) {σ} {η} e | l ▹ τ | ih₁@(υ , eq , rel) with eval ρ₁ η | fundC ρ₁ e 
--- ... | φ <$> n    | ih₂@(f , eq-f , rel-f) = 
---   _ , _ , eq-refl , ih₁ , ih₂ 
---   --  eq-∖ eq (reifyconsistentKripkeNE-≡t eq-f rel-f) , 
---   --   (eq-refl , rel) , (f , eq-sym (reifyconsistentKripkeNE-≡t eq-refl rel-f) , rel-f)
--- ... | x₂ ▹ x₃  | ih' = {!   !} -- eq-∖ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
--- ... | row ρ x₂ | ih' = {!   !} -- eq-∖ eq (eq-trans (ih' .fst) (eq-row reflᵣ)) , (eq-refl , rel) , (eq-row reflᵣ , (ih' .snd))
--- ... | c ∖ c₁   | ih' = {!   !} -- eq-∖ eq (ih' .fst) , (eq-refl , rel) , (eq-refl , (ih' .snd))
--- fundC (ρ₂ ∖ ρ₁) {σ} {η} e | row (n , P) oP | ih with eval ρ₁ η | fundC ρ₁ e 
--- ... | φ <$> n    | (f , eq-f , rel-f) = {!   !}
---   -- eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (reifyconsistentKripkeNE-≡t eq-f rel-f) , 
---   -- ((eq-row reflᵣ , (ih .snd)) , f , eq-sym (reifyconsistentKripkeNE-≡t eq-refl rel-f) , rel-f)
--- ... | x₂ ▹ x₃  | ih' = {!   !} -- eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , (ih' .snd)))
--- ... | row (m , Q) oQ | ih' = {!   !}
---   -- eq-trans 
---   --   (eq-∖ (ih .fst) (ih' .fst)) 
---   --   (eq-trans 
---   --     (eq-compl {ozs = fromWitness (ordered-∖s {xs = ⇑Row (reifyRow (n , P))}
---   --               {ys = ⇑Row (reifyRow (m , Q))} (Ordered⇑ (reifyRow' n P) (reifyRowOrdered (n , P) oP)))}) 
---   --     (eq-row (reify-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))))) , 
---   -- refl-⟦⟧r≋ (cong-compl⟦⟧≋ (ih .snd) (ih' .snd))
--- ... | c ∖ c₁   | ih' = {!   !} -- eq-∖ (eq-trans (ih .fst) (eq-row reflᵣ)) (ih' .fst) , ((eq-row reflᵣ , (ih .snd)) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
--- fundC (ρ₂ ∖ ρ₁) {σ} {η} e | c ∖ c₁ | ih with eval ρ₁ η | fundC ρ₁ e 
--- ... | φ <$> n    | (f , eq-f , rel-f) = {!   !}
---   -- eq-∖ (ih .fst) (reifyconsistentKripkeNE-≡t eq-f rel-f) , 
---   -- ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (f , eq-sym (reifyconsistentKripkeNE-≡t eq-refl rel-f) , rel-f))
--- ... | x₂ ▹ x₃  | ih' = {!   !} -- eq-∖ (ih .fst) (ih' .fst) , ((eq-refl , (ih .snd)) , (eq-refl , (ih' .snd)))
--- ... | row ρ x₂ | ih' = {!   !} -- eq-trans (eq-∖ (ih .fst) (ih' .fst)) (eq-∖ eq-refl (eq-row reflᵣ)) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-row reflᵣ , (ih' .snd)))
--- ... | c ∖ c₁   | ih' = {!   !} -- eq-∖ (ih .fst) (ih' .fst) , ((eq-refl , ((ih .snd .fst) , (ih .snd .snd))) , (eq-refl , ((ih' .snd .fst) , (ih' .snd .snd))))
--- fundC (l ▹ τ) {σ} {η} e with eval l η | fundC l e
--- ... | ne x₁ | ih = {!   !} -- (eq-▹ ih (reify-⟦⟧≋ (fundC τ e))) , refl-⟦⟧≋ (fundC τ e)
--- ... | lab l' | ih = {!   !} 
-
--- eq-trans (eq-▹ eq-refl (reify-⟦⟧≋ (fundC τ e))) (eq-labTy ih) , 
---                     (refl , (refl-⟦⟧≋ (fundC τ e))) , 
---                     tt
+fundC (ρ₂ ∖ ρ₁) {σ} {η} e = cong-∖⟦⟧≋ (fundC ρ₂ e) (fundC ρ₁ e) 
+fundC (l ▹ τ) {σ} {η} e with eval l η | fundC l e
+... | ne n | ih = subₖ σ τ , eq-▹ ih eq-refl , fundC τ e 
+... | lab ℓ | ih = 
+  [ (ℓ , subₖ σ τ) ] , tt , eq-labTy ih , ((refl , fundC τ e) , tt) 
 
 --------------------------------------------------------------------------------
 -- Fundamental theorem when substitution is the identity
