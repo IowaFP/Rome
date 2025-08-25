@@ -365,15 +365,13 @@ sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {row (n , P) _} (xs , oxs , eq , rel
     (eq-trans eq-Π 
       eq-map) , 
     map-over-⇑Row Π (λ ρ v → ξ Π-rec v) xs n P sound-Π rel
-sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {v} {l ▹ τ} (υ , eq , rel) = 
-  Π · υ ,
+sound-Π {κ₁ = R[ κ ]} {nl = nl} ρ {τ} {n ▹ t} (υ , eq , rel) = 
+  Π · υ , 
   eq-trans 
     (eq-· eq-refl eq) 
   (eq-trans 
     eq-Π 
-  (eq-trans 
-    eq-▹$ 
-  eq-refl)) , 
+   eq-▹$) , 
   sound-Π id rel
 sound-Π {κ₁ = R[ κ ]} {nl = nl} r {v} {(ρ₂ ∖ ρ₁) {nr}} (υ₂ , υ₁ , eq , rel₂ , rel₁) = 
   (Π <$> υ₂) , 
@@ -649,7 +647,7 @@ fundC (l ▹ τ) {σ} {η} e with eval l η | fundC l e
 -- Fundamental theorem when substitution is the identity
 
 ⊢⟦_⟧≋ : ∀ (τ : Type Δ κ) → ⟦ τ ⟧≋ eval τ idEnv
-⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundC τ idSR)
+⊢⟦ τ ⟧≋ = subst-⟦⟧≋ (inst (subₖ-id τ)) (fundC τ idEnv-⟦⟧≋)
 
 --------------------------------------------------------------------------------
 -- Consistency claim  
@@ -694,4 +692,21 @@ consistency₂ = Completeness→Consistency completeness
 
 consistency-liftsₖ : ∀ {Δ₁ κ} → (τ : Type (Δ₁ ,, κ₁) κ) → subₖ (liftsₖ `) τ ≡t ⇑ (reify (eval τ (lifte idEnv)))
 consistency-liftsₖ τ = 
-  reify-⟦⟧≋ (fundC τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idSR))
+  reify-⟦⟧≋ (fundC τ (weaken-⟦⟧≋ {σ = `} {η = idEnv} idEnv-⟦⟧≋))
+
+--------------------------------------------------------------------------------
+-- Relating relations 
+
+-- This is a deadend because ⟦⟧≋ does not enforce uniformity.
+-- Would be cool to show, but not strictly necessary.
+-- ⟦⟧≋to≋ : ∀ {τ : Type Δ κ} {v₁ v₂ : SemType Δ κ} → 
+--       ⟦ τ ⟧≋ v₁ → v₁ ≋ v₂ → ⟦ τ ⟧≋ v₂ 
+-- ⟦⟧≋to≋ {κ = ★} {τ = τ} {v₁} {v₂} relC refl = relC
+-- ⟦⟧≋to≋ {κ = L} {τ = τ} {v₁} {v₂} relC refl = relC
+-- ⟦⟧≋to≋ {κ = κ₁ `→ κ₂} {τ = τ} {v₁} {v₂} relC relS r rel-v with reify-≋ {V₁ = λ {Δ} → v₁ {Δ}} {V₂ = λ {Δ} → v₂ {Δ}} relS
+-- ... | eq = ⟦⟧≋to≋ (relC r rel-v) {! relS .snd .snd r   !} 
+-- ⟦⟧≋to≋ {κ = R[ κ ]} {τ = τ} {φ <$> x} {φ₁ <$> x₁} relC relS = {!   !}
+-- ⟦⟧≋to≋ {κ = R[ κ ]} {τ = τ} {l₁ ▹ τ₁} {l₂ ▹ τ₂} relC relS = {!   !}
+-- ⟦⟧≋to≋ {κ = R[ κ ]} {τ = τ} {row ρ x} {row ρ₁ x₁} relC relS = {!   !}
+-- ⟦⟧≋to≋ {κ = R[ κ ]} {τ = τ} {v₁ ∖ v₂} {v₃ ∖ v₄} relC relS = {!   !}       
+

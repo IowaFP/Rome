@@ -103,7 +103,7 @@ lem₂ {κ = κ} l₁ l₂ τ =
   (eq-trans 
     (inst (sym (subₖ-comp (⇑ (reify (eval (weakenₖ (weakenₖ (⇑ τ))) (lifte (lifte idEnv)))))))) 
   (eq-trans 
-    ((subₖ-≡t (eq-sym (reify-⟦⟧≋ (fundC (weakenₖ (weakenₖ (⇑ τ))) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idSR))))))) 
+    ((subₖ-≡t (eq-sym (reify-⟦⟧≋ (fundC (weakenₖ (weakenₖ (⇑ τ))) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idEnv-⟦⟧≋))))))) 
   (eq-trans 
     ((inst ∘ sym) (subₖ-comp (weakenₖ (weakenₖ (⇑ τ))))) 
   (eq-trans 
@@ -162,7 +162,7 @@ lem₃ φ τ l =
                                           (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
                                            (lifte (lifte idEnv) Z))}
                                          ((eq-sym ((reify-⟦⟧≋ {V = (eval (weakenₖ (weakenₖ (⇑ φ))) (lifte (lifte idEnv)) id
-       (lifte (lifte idEnv) Z))} (fundC (weakenₖ (weakenₖ (⇑ φ)) · ` Z) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idSR))))))))))) 
+       (lifte (lifte idEnv) Z))} (fundC (weakenₖ (weakenₖ (⇑ φ)) · ` Z) (weaken-⟦⟧≋ (weaken-⟦⟧≋ idEnv-⟦⟧≋))))))))))) 
   (eq-· 
     (eq-trans 
       (inst (sym ((subₖ-comp (subₖ
