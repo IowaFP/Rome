@@ -726,6 +726,18 @@ map-id-≋ {ρ₁ = x₁ ▹ x₂} {ρ₂ = _ ▹ _} rel = rel
 map-id-≋ {ρ₁ = row ρ x₁} {ρ₂ = row _ _} rel = rel
 map-id-≋ {ρ₁ = ρ₂ ∖ ρ₁} {ρ₂ = _ ∖ _} (rel₂ , rel₁) = map-id-≋ rel₂ , map-id-≋ rel₁ 
 
+-- map-∘-≋' :  ∀ {κ₃} 
+--              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
+--              (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+--              {ρ₁ ρ₂ : SemType Δ₂ R[ κ₁ ]} → 
+--              {F₁ F₂ : KripkeFunctionNE Δ₂ κ₂ κ₃}
+--              {G₁ G₂ : KripkeFunctionNE Δ₂ κ₁ κ₂} → 
+--              ρ₁ ≋ ρ₂ →
+--              SoundKripkeNE F₁ F₂ → 
+--              SoundKripkeNE G₁ G₂ → 
+--              (F₁ <$> (G₁ <$>V ρ₁)) ≋ 
+--              ((λ r → F₂ r ∘ G₂ r) <$>V ρ₂) 
+-- map-∘-≋' = ? 
 
 map-∘-≋ :  ∀ {κ₃} (f : Type Δ₁ (κ₂ `→ κ₃)) (g : Type Δ₁ (κ₁ `→ κ₂)) 
              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
