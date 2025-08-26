@@ -219,7 +219,7 @@ lem₄ ((l' , τ) ∷ xs) υ₁ υ₂ = cong₂ _∷_ (cong₂ _,_ refl (trans (
 
 cutSyn :  ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) (z : Label × NormalType ∅ κ) (zs : SimpleRow (NormalType ∅ κ)) →
             {ozs : True (normalOrdered? (z ∷ zs))} {ozs' : True (normalOrdered? zs)} → 
-            NormalTerm ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs') φ)
+            Term ∅ (SynT' (⦅ z ∷ zs ⦆ ozs) φ) → Term ∅ (SynT' (⦅ zs ⦆ ozs') φ)
 cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ 
            (conv (lem₅ t) 
            (weakenTermByType (weakenTermByPred (weakenTermByKind (weakenTermByKind {κ = L} M))) 
@@ -406,7 +406,7 @@ cutSyn {κ = κ} φ (l , τ) zs {ozs' = ozs'} M = (Λ (Λ (`ƛ (`λ
 synRecord : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι}))) 
               (zs : SimpleRow (NormalType ∅ κ))
               (ozs : True (normalOrdered? zs)) → 
-              NormalTerm ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (map₂ (φ ·'_)) zs)
+              Term ∅ (SynT' (⦅ zs ⦆ ozs) φ) → Record ∅ (map (map₂ (φ ·'_)) zs)
 synRecord φ [] ozs M = ∅
 synRecord φ ((l , τ) ∷ zs) ozs M = 
   l ▹ conv (lem₃ φ τ (lab l)) 
@@ -440,10 +440,10 @@ anaVariant : ∀ (φ : NormalType (∅ {ι∅}) (κ `→ (★ {ι₁})))
               (τ : NormalType (∅ {ι∅}) (★ {ι₂}))
               (ozs : True (normalOrdered? zs))
               (ozs' : True (normalOrdered? (map (map₂ (φ ·'_)) zs)))
-              (M : NormalTerm ∅ (AnaT' (⦅ zs ⦆ ozs) φ τ))
-              (v : NormalTerm ∅ (Σ (⦅ map (map₂ (φ ·'_)) zs ⦆ ozs'))) →
+              (M : Term ∅ (AnaT' (⦅ zs ⦆ ozs) φ τ))
+              (v : Term ∅ (Σ (⦅ map (map₂ (φ ·'_)) zs ⦆ ozs'))) →
               Value v → 
-              NormalTerm ∅ τ
+              Term ∅ τ
 anaVariant φ zs τ ozs ozs' M v (V-Σ l {M'} V i) with getApplicand {φ = φ} i 
 ... | υ , i' , refl = (conv 
   (trans (soundness (lem₂ υ (lab l) τ)) (stability τ)) 

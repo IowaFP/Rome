@@ -187,69 +187,69 @@ data EntValue  (Δ : KEnv ιΔ) (Γ : Env Δ ιΓ) : (π : NormalPred Δ R[ κ ]
 --------------------------------------------------------------------------------
 -- Terms with normal types
 
-data NormalTerm (Δ : KEnv ιΔ) (Γ : Env Δ ιΓ) : NormalType Δ (★ {ι}) → Set
-data Value {Δ : KEnv ιΔ}  {Γ : Env Δ ιΓ} : ∀ {τ : NormalType Δ (★ {ι})} → NormalTerm Δ Γ τ → Set
+data Term (Δ : KEnv ιΔ) (Γ : Env Δ ιΓ) : NormalType Δ (★ {ι}) → Set
+data Value {Δ : KEnv ιΔ}  {Γ : Env Δ ιΓ} : ∀ {τ : NormalType Δ (★ {ι})} → Term Δ Γ τ → Set
 data Record {Δ : KEnv ιΔ} (Γ : Env Δ ιΓ) : SimpleRow (NormalType Δ (★ {ι})) → Set where
   ∅   : Record Γ {ι = ι} []
-  _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} → (l : Label)  → NormalTerm Δ Γ τ → 
+  _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} → (l : Label)  → Term Δ Γ τ → 
             Record Γ xs → Record Γ ((l , τ) ∷ xs)
 
 data RecordValue {Δ : KEnv ιΔ} (Γ : Env Δ ιΓ) : (xs : SimpleRow (NormalType Δ (★ {ι}))) → Record Γ xs → Set where
   ∅   : RecordValue Γ {ι = ι} [] ∅
   _▹_⨾_ : ∀ {xs : SimpleRow (NormalType Δ ★)} {r : Record Γ xs} → 
-          (l : Label)  → {M : NormalTerm Δ Γ τ} → Value M → 
+          (l : Label)  → {M : Term Δ Γ τ} → Value M → 
           RecordValue Γ xs r → RecordValue Γ ((l , τ) ∷ xs) (l ▹ M ⨾ r) 
 
 
-data NormalTerm Δ Γ   where
+data Term Δ Γ   where
   ` : Var Γ τ → 
       --------
-      NormalTerm Δ Γ τ
+      Term Δ Γ τ
 
   `λ : 
 
-       NormalTerm Δ (Γ , τ₁) {ι = ι} τ₂ → 
+       Term Δ (Γ , τ₁) {ι = ι} τ₂ → 
        --------------
-       NormalTerm Δ Γ (τ₁ `→ τ₂)
+       Term Δ Γ (τ₁ `→ τ₂)
 
   _·_ :
 
-       NormalTerm Δ Γ (τ₁ `→ τ₂) → 
-       NormalTerm Δ Γ τ₁ → 
+       Term Δ Γ (τ₁ `→ τ₂) → 
+       Term Δ Γ τ₁ → 
        ---------
-       NormalTerm Δ Γ τ₂
+       Term Δ Γ τ₂
   
   --------------
   -- System Fω
 
   Λ : 
 
-      NormalTerm (Δ ,, κ) (Γ ,, κ) τ →
+      Term (Δ ,, κ) (Γ ,, κ) τ →
       -----------
-      NormalTerm Δ Γ (`∀ τ)
+      Term Δ Γ (`∀ τ)
 
   _·[_] : 
   
-          NormalTerm Δ Γ (`∀ τ₂) →
+          Term Δ Γ (`∀ τ₂) →
           (τ₁ : NormalType Δ κ) → 
           ----------------
-          NormalTerm Δ Γ (τ₂ βₖNF[ τ₁ ])
+          Term Δ Γ (τ₂ βₖNF[ τ₁ ])
 
   ------------------
   -- Qualified types
 
   `ƛ : 
 
-       NormalTerm Δ (Γ ,,, π) τ → 
+       Term Δ (Γ ,,, π) τ → 
        --------------
-       NormalTerm Δ Γ (π ⇒ τ)
+       Term Δ Γ (π ⇒ τ)
 
   _·⟨_⟩ : ∀ {π : NormalPred Δ R[ κ ]} {τ : NormalType Δ (★ {ι})} → 
   
-        NormalTerm Δ Γ (π ⇒ τ) →
+        Term Δ Γ (π ⇒ τ) →
         Ent Δ Γ π → 
         ----------------
-        NormalTerm Δ Γ τ
+        Term Δ Γ τ
 
   ------------
   -- Rω labels
@@ -259,50 +259,50 @@ data NormalTerm Δ Γ   where
 
         ∀ (ℓ : NormalType Δ (L {ι})) → 
         -------------------
-        NormalTerm Δ Γ ⌊ ℓ ⌋
+        Term Δ Γ ⌊ ℓ ⌋
 
   -------------
   -- Rω records
 
   -- Record singleton formation
   _Π▹ne_ : 
-          (M₁ : NormalTerm Δ Γ ⌊ ne l ⌋) (M₂ : NormalTerm Δ Γ υ) →
+          (M₁ : Term Δ Γ ⌊ ne l ⌋) (M₂ : Term Δ Γ υ) →
           ----------------------------------------
-          NormalTerm Δ Γ (Π (l ▹ₙ υ))
+          Term Δ Γ (Π (l ▹ₙ υ))
 
   _Π▹_ : ∀ {l : Label}
-          (M₁ : NormalTerm Δ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : NormalTerm Δ Γ υ) →
+          (M₁ : Term Δ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : Term Δ Γ υ) →
           ----------------------------------------
-          NormalTerm Δ Γ (Π (l ▹' υ))
+          Term Δ Γ (Π (l ▹' υ))
 
   -- Record singleton elimination
   _Π/ne_ :
-          (M₁ : NormalTerm Δ Γ (Π (l ▹ₙ υ))) (M₂ : NormalTerm Δ Γ ⌊ ne l ⌋) →
+          (M₁ : Term Δ Γ (Π (l ▹ₙ υ))) (M₂ : Term Δ Γ ⌊ ne l ⌋) →
           ----------------------------------------
-          NormalTerm Δ Γ υ
+          Term Δ Γ υ
 
   _Π/_ : ∀ {l : Label} → 
-          (M₁ : NormalTerm Δ Γ (Π (l ▹' υ))) (M₂ : NormalTerm Δ Γ {ι = ι} ⌊ lab l ⌋) →
+          (M₁ : Term Δ Γ (Π (l ▹' υ))) (M₂ : Term Δ Γ {ι = ι} ⌊ lab l ⌋) →
           ----------------------------------------
-          NormalTerm Δ Γ υ
+          Term Δ Γ υ
 
   prj : 
    
-       (M : NormalTerm Δ Γ (Π ρ₂)) → Ent Δ Γ (ρ₁ ≲ ρ₂) → 
+       (M : Term Δ Γ (Π ρ₂)) → Ent Δ Γ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
-       NormalTerm Δ Γ (Π ρ₁)
+       Term Δ Γ (Π ρ₁)
   
   _⊹_ : 
 
-       (M₁ : NormalTerm Δ Γ (Π ρ₁)) → (M₂ : NormalTerm Δ Γ (Π ρ₂)) → Ent Δ Γ (ρ₁ · ρ₂ ~ ρ₃) → 
+       (M₁ : Term Δ Γ (Π ρ₁)) → (M₂ : Term Δ Γ (Π ρ₂)) → Ent Δ Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
-       NormalTerm Δ Γ (Π ρ₃)
+       Term Δ Γ (Π ρ₃)
 
   syn : 
     
-        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ (★ {ι}))) → (M : NormalTerm Δ Γ (SynT' ρ φ)) → 
+        (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ (★ {ι}))) → (M : Term Δ Γ (SynT' ρ φ)) → 
         ------------------------------------------------------------------
-        NormalTerm Δ Γ (Π (φ <$>' ρ))
+        Term Δ Γ (Π (φ <$>' ρ))
 
   ana : 
     
@@ -312,47 +312,47 @@ data NormalTerm Δ Γ   where
 
         (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
         (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
-        (M : NormalTerm Δ Γ τ₁) → 
+        (M : Term Δ Γ τ₁) → 
         
         ------------------------------------------------------------------
-        NormalTerm Δ Γ (τ₂ `→ τ)
+        Term Δ Γ (τ₂ `→ τ)
 
   --------------
   -- Rω variants
 
   -- Variant singleton formation
   _Σ▹ne_ : 
-          (M₁ : NormalTerm Δ Γ ⌊ ne l ⌋) (M₂ : NormalTerm Δ Γ υ) →
+          (M₁ : Term Δ Γ ⌊ ne l ⌋) (M₂ : Term Δ Γ υ) →
           ----------------------------------------
-          NormalTerm Δ Γ (Σ (l ▹ₙ υ))
+          Term Δ Γ (Σ (l ▹ₙ υ))
 
   _Σ▹_ : ∀ {l : Label}
-          (M₁ : NormalTerm Δ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : NormalTerm Δ Γ υ) →
+          (M₁ : Term Δ Γ {ι = ι} ⌊ lab l ⌋) (M₂ : Term Δ Γ υ) →
           ----------------------------------------
-          NormalTerm Δ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))
+          Term Δ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))
 
   -- Variant singleton elimination
   _Σ/ne_ :
-          (M₁ : NormalTerm Δ Γ (Σ (l ▹ₙ υ))) (M₂ : NormalTerm Δ Γ ⌊ ne l ⌋) →
+          (M₁ : Term Δ Γ (Σ (l ▹ₙ υ))) (M₂ : Term Δ Γ ⌊ ne l ⌋) →
           ----------------------------------------
-          NormalTerm Δ Γ υ
+          Term Δ Γ υ
 
   _Σ/_ : ∀ {l : Label} → 
-          (M₁ : NormalTerm Δ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : NormalTerm Δ Γ {ι = ι} ⌊ lab l ⌋) →
+          (M₁ : Term Δ Γ (Σ (⦅ [ (l , υ) ] ⦆ tt))) (M₂ : Term Δ Γ {ι = ι} ⌊ lab l ⌋) →
           ----------------------------------------
-          NormalTerm Δ Γ υ
+          Term Δ Γ υ
 
   inj : 
    
-       (M : NormalTerm Δ Γ (Σ ρ₁)) → Ent Δ Γ (ρ₁ ≲ ρ₂) → 
+       (M : Term Δ Γ (Σ ρ₁)) → Ent Δ Γ (ρ₁ ≲ ρ₂) → 
        -------------------------------------
-       NormalTerm Δ Γ (Σ ρ₂)
+       Term Δ Γ (Σ ρ₂)
        
   _▿_ : 
 
-       (M₁ : NormalTerm Δ Γ (Σ ρ₁ `→ τ)) → (M₂ : NormalTerm Δ Γ (Σ ρ₂ `→ τ)) → Ent Δ Γ (ρ₁ · ρ₂ ~ ρ₃) → 
+       (M₁ : Term Δ Γ (Σ ρ₁ `→ τ)) → (M₂ : Term Δ Γ (Σ ρ₂ `→ τ)) → Ent Δ Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
-       NormalTerm Δ Γ (Σ ρ₃ `→ τ)
+       Term Δ Γ (Σ ρ₃ `→ τ)
 
   ----------------------------------------
   -- Values
@@ -360,28 +360,28 @@ data NormalTerm Δ Γ   where
   ⟨_⟩ : ∀ {xs : SimpleRow (NormalType Δ (★ {ι}))} {oxs : True (normalOrdered? xs)} → 
           Record Γ xs → 
           ----------------------
-          NormalTerm Δ Γ (Π (⦅ xs ⦆ oxs))
+          Term Δ Γ (Π (⦅ xs ⦆ oxs))
 
   ⟨_▹_⟩via_ : ∀ {xs : SimpleRow (NormalType Δ ★)} {oxs : True (normalOrdered? xs)} → 
-        (l : Label) → (M : NormalTerm Δ Γ τ) → (l , τ) ∈ xs → 
+        (l : Label) → (M : Term Δ Γ τ) → (l , τ) ∈ xs → 
         -------------------------------------------
-        NormalTerm Δ Γ (Σ (⦅ xs ⦆ oxs)) 
+        Term Δ Γ (Σ (⦅ xs ⦆ oxs)) 
 
 --------------------------------------------------------------------------------
 -- Values
 
 data Value {Δ = Δ} {Γ} where
   V-λ : 
-          (M : NormalTerm Δ (Γ , τ₂) τ₁) → 
+          (M : Term Δ (Γ , τ₂) τ₁) → 
           Value (`λ M)
 
   V-Λ :
-          (M : NormalTerm (Δ ,, κ) (Γ ,, κ) τ) → 
+          (M : Term (Δ ,, κ) (Γ ,, κ) τ) → 
         --   Value M → 
           Value (Λ M)
 
   V-ƛ :
-          (M : NormalTerm Δ (Γ ,,, π) τ) → 
+          (M : Term Δ (Γ ,,, π) τ) → 
           Value (`ƛ M)
 
   V-# :   ∀ {l : NormalType Δ (L {ι})} → 
@@ -393,7 +393,7 @@ data Value {Δ = Δ} {Γ} where
           Value (⟨_⟩ {xs = xs} {oxs} r)
 
   V-Σ : ∀  {xs : SimpleRow (NormalType Δ ★)} {oxs : True (normalOrdered? xs)} → 
-        (l : Label) → {M : NormalTerm Δ Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
+        (l : Label) → {M : Term Δ Γ τ} → (V : Value M) → (i : (l , τ) ∈ xs) → 
         -------------------------------------------
         Value (⟨_▹_⟩via_ {oxs = oxs} l M i)       
 
@@ -402,7 +402,7 @@ data Value {Δ = Δ} {Γ} where
           (τ : NormalType Δ ★) 
           (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
           (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
-          (M : NormalTerm Δ Γ τ₁) → 
+          (M : Term Δ Γ τ₁) → 
         
           Value M → 
           ------------------------------------
@@ -410,7 +410,7 @@ data Value {Δ = Δ} {Γ} where
 
   V-▿  : 
            {e : Ent Δ Γ (ρ₁ · ρ₂ ~ ρ₃)} 
-           (M : NormalTerm Δ Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Δ Γ (Σ ρ₂ `→ τ)) → 
+           (M : Term Δ Γ (Σ ρ₁ `→ τ)) (N : Term Δ Γ (Σ ρ₂ `→ τ)) → 
 
             Value M → Value N → 
             ---------------------
@@ -429,11 +429,11 @@ convVar-≡t eq x = convVar (soundness eq) x
 convPVar : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → PVar Γ π₁ → PVar Γ π₂
 convPVar refl v = v
 
-conv : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → NormalTerm Δ Γ τ₁ → NormalTerm Δ Γ τ₂
+conv : ∀ {τ₁ τ₂ : NormalType Δ (★ {ι})} → τ₁ ≡ τ₂ → Term Δ Γ τ₁ → Term Δ Γ τ₂
 conv refl M = M
 
 convEnt : ∀ {π₁ π₂ : NormalPred Δ R[ κ ]} → π₁ ≡ π₂ → Ent Δ Γ π₁ → Ent Δ Γ π₂
 convEnt refl e = e
 
-conv-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → NormalTerm Δ Γ (⇓ τ₁) → NormalTerm Δ Γ (⇓ τ₂)
+conv-≡t : ∀ {τ₁ τ₂ : Type Δ (★ {ι})} → τ₁ ≡t τ₂ → Term Δ Γ (⇓ τ₁) → Term Δ Γ (⇓ τ₂)
 conv-≡t eq = conv (soundness eq)

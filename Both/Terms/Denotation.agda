@@ -43,7 +43,7 @@ weaken⟦⟧ {τ = Σ τ} {H} {κ} {k} ⟦τ⟧ = {!!}
 ⟦ P v ⟧v H (η , _) = ⟦ v ⟧v H η
 
 ⟦_⟧ : ∀ {Δ : KEnv ιΔ} {τ : NormalType Δ (★ {ι})} {Γ : Env Δ ιΓ} → 
-        NormalTerm Γ τ → 
+        Term Γ τ → 
         (H : ⟦ Δ ⟧ke) → (η : ⟦ Γ ⟧e H) → ⟦ τ ⟧nf H
 ⟦ ` x ⟧ H η = ⟦ x ⟧v H η
 ⟦ `λ M ⟧ H η = λ x → ⟦ M ⟧ H (η , x)

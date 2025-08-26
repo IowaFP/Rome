@@ -82,8 +82,8 @@ liftTVar {ρ = ρ} (r , p)  =
 -- Renaming terms
 
 ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
-      NormalTerm Γ₁ τ →
-      NormalTerm Γ₂ (renₖNF ρ τ)
+      Term Γ₁ τ →
+      Term Γ₂ (renₖNF ρ τ)
 
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       Ent Γ₁ π →
@@ -250,13 +250,13 @@ renEnt {ρ = r} R (n-complL {xs = xs} {ys} {ozs = ozs} e) =
 --------------------------------------------------------------------------------
 -- Weakening is a special case of renaming (but we must convert types)
 
-weakenTermByType : NormalTerm Γ τ₁ → NormalTerm (Γ , τ₂) τ₁
+weakenTermByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
 weakenTermByType {τ₁ = τ₁} M = conv (renₖNF-id τ₁) (ren ((convVar (sym (renₖNF-id _))) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
-weakenTermByKind : ∀ {τ : NormalType Δ ★} → NormalTerm Γ τ → NormalTerm (Γ ,, κ) (weakenₖNF τ)
+weakenTermByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
 weakenTermByKind = ren (K , K)
 
-weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → NormalTerm Γ τ → NormalTerm (Γ ,,, π) τ
+weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
 weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convVar (sym (renₖNF-id _))) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)
 
 --------------------------------------------------------------------------------

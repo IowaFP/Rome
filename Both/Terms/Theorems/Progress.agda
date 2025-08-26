@@ -106,14 +106,14 @@ entProgress (n-complL N) with entProgress N
 --------------------------------------------------------------------------------
 -- Proof of progress (Terms)
 
-data Progress (M : NormalTerm Γ τ) : Set where
+data Progress (M : Term Γ τ) : Set where
   Done : 
          Value M → 
          ----------
          Progress M
 
   StepsTo_via_ : 
-          (M' : NormalTerm Γ τ) → (M —→ M') → 
+          (M' : Term Γ τ) → (M —→ M') → 
           --------------------------------------
           Progress M
 
@@ -131,7 +131,7 @@ data RecordProgress {xs : SimpleRow (NormalType Δ (★ {ι}))} (r : Record Γ x
 --------------------------------------------------------------------------------
 -- Statement of progress for terms and records
        
-progress : ∀ (M : NormalTerm ∅ τ) → Progress M
+progress : ∀ (M : Term ∅ τ) → Progress M
 recordProgress : ∀ {xs : SimpleRow (NormalType (∅ {ι∅}) (★ {ι}))} → 
                    (M : Record ∅ xs) → RecordProgress M 
 
