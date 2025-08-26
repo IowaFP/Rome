@@ -29,7 +29,7 @@ open import Rome.Both.Containment
 data Env : KEnv ιΔ → Level → Set where
   ∅ : Env (∅ {lzero}) lzero
   _,_  : Env Δ ιΓ → NormalType Δ (★ {ι}) → Env Δ (ιΓ ⊔ ι)
-  _,,_ : Env Δ ιΓ → (κ : Kind ικ) → Env (Δ ,, κ) (ιΓ ⊔ ικ)
+  _,,_ : Env Δ ιΓ → (κ : Kind ικ) → Env (Δ ,, κ) (ιΓ ⊔ lsuc ικ)
   _,,,_ : ∀ {κ : Kind ικ} → Env Δ ιΓ → NormalPred Δ R[ κ ] → Env Δ (ιΓ ⊔ lsuc ικ)
 
 private
