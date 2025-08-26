@@ -29,18 +29,18 @@ open import Rome.Both.Containment
 
 ≲-refl : ∀ {ρ₁ : SimpleRow (NormalType (∅ {ι∅}) κ)} →            
            {oρ₁ : True (normalOrdered? ρ₁)}  → 
-         NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₁ ⦆ oρ₁))
+         Ent ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₁ ⦆ oρ₁))
 ≲-refl = n-incl (λ x x∈xs → x∈xs) 
 
 --------------------------------------------------------------------------------
 -- Entailments in empty contexts contain only simple rows.
 
-norm-≲ : NormalEnt ∅ (ρ₁ ≲ ρ₂) → 
+norm-≲ : Ent ∅ (ρ₁ ≲ ρ₂) → 
         ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
         ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
         (ρ₁ ≡ ⦅ xs ⦆ oxs × ρ₂ ≡ ⦅ ys ⦆ oys)
 
-norm-· : NormalEnt ∅ (ρ₁ · ρ₂ ~ ρ₃) → 
+norm-· : Ent ∅ (ρ₁ · ρ₂ ~ ρ₃) → 
         ∃[ xs ] Σ[ oxs ∈ True (normalOrdered? xs) ] 
         ∃[ ys ] Σ[ oys ∈ True (normalOrdered? ys) ] 
         ∃[ zs ] Σ[ ozs ∈ True (normalOrdered? zs) ] 
@@ -72,7 +72,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 ≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow (NormalType (∅ {ι∅}) κ)} → 
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} → 
-         NormalEnt ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
+         Ent ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
 
 --------------------------------------------------------------------------------
 -- Inversion of combination
@@ -82,7 +82,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} 
           {oρ₃ : True (normalOrdered? ρ₃)} → 
-         NormalEnt ∅ (⦅ ρ₁ ⦆ oρ₁ · ⦅ ρ₂ ⦆ oρ₂ ~ ⦅ ρ₃ ⦆ oρ₃) → 
+         Ent ∅ (⦅ ρ₁ ⦆ oρ₁ · ⦅ ρ₂ ⦆ oρ₂ ~ ⦅ ρ₃ ⦆ oρ₃) → 
          ρ₁ ⊆ ρ₃ × 
          ρ₂ ⊆ ρ₃ × 
          (∀ x → x ∈ ρ₃ → x ∈ ρ₁ or x ∈ ρ₂)

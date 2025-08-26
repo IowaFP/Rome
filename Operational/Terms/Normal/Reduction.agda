@@ -73,33 +73,33 @@ concatRec {zs = (l , τ) ∷ zs} rxs rys i₃ with i₃ (l , τ) (here refl)
 -- Reduction of entailments in an empty context
 
 infixr 0 _=⇒_
-data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt Γ π → Set where
+data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent Γ π → Set where
   
   ξ-⨾₁ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
-               {M M' : NormalEnt Γ (ρ₁ ≲ ρ₂)}
-               {N : NormalEnt Γ (ρ₂ ≲ ρ₃)} → 
+               {M M' : Ent Γ (ρ₁ ≲ ρ₂)}
+               {N : Ent Γ (ρ₂ ≲ ρ₃)} → 
 
              M =⇒ M' →
              ------------
               (_n-⨾_ M N) =⇒ (_n-⨾_ M' N)
 
   ξ-⨾₂ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
-               {M : NormalEnt Γ (ρ₁ ≲ ρ₂)}
-               {N N' : NormalEnt Γ (ρ₂ ≲ ρ₃)} → 
+               {M : Ent Γ (ρ₁ ≲ ρ₂)}
+               {N N' : Ent Γ (ρ₂ ≲ ρ₃)} → 
 
              N =⇒ N' →
              ------------
               (_n-⨾_ M N) =⇒ (_n-⨾_ M N')
 
   ξ-plusL≲ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
-            {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
+            {M M' : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
             -----------
             n-plusL≲ M =⇒ n-plusL≲ M'
 
   ξ-plusR≲ : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
-            {M M' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)} →
+            {M M' : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)} →
 
             M =⇒ M' →
             -----------
@@ -110,7 +110,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
   ξ-map≲ : ∀ {ρ₁ ρ₂ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
-             (N N' : NormalEnt Γ (ρ₁ ≲ ρ₂)) →
+             (N N' : Ent Γ (ρ₁ ≲ ρ₂)) →
              {x y : NormalType Δ R[ κ₂ ]} → 
              (eq₁ : x ≡ (F <$>' ρ₁)) → 
              (eq₂ : y ≡ F <$>' ρ₂) → 
@@ -123,7 +123,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
   ξ-map· : ∀ {ρ₁ ρ₂ ρ₃ : NormalType Δ R[ κ₁ ]}
                {F : NormalType Δ (κ₁ `→ κ₂)} →
 
-             (N N' : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) →
+             (N N' : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) →
              {x y  z : NormalType Δ R[ κ₂ ]} → 
              (eq₁ : x ≡ (F <$>' ρ₁)) → 
              (eq₂ : y ≡ F <$>' ρ₂) → 
@@ -138,7 +138,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
               {oxs : True (normalOrdered? xs)} 
               {oys : True (normalOrdered? ys)}
               {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
-             (N N' : NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
+             (N N' : Ent Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
 
             N =⇒ N' → 
             ------------------------------------------
@@ -148,7 +148,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt
               {oxs : True (normalOrdered? xs)} 
               {oys : True (normalOrdered? ys)}
               {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
-             (N N' : NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
+             (N N' : Ent Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
 
             N =⇒ N' → 
             ------------------------------------------
@@ -288,7 +288,7 @@ data _—→_ where
             ------------------------
             M₁ ·[ τ' ] —→ M₂ ·[ τ' ]
 
-  ξ-·⟨⟩ : ∀ {M₁ M₂ : NormalTerm Γ (π ⇒ τ)} {e : NormalEnt Γ π} →
+  ξ-·⟨⟩ : ∀ {M₁ M₂ : NormalTerm Γ (π ⇒ τ)} {e : Ent Γ π} →
             M₁ —→ M₂ →
             ------------------------
             M₁ ·⟨ e ⟩ —→ M₂ ·⟨ e ⟩
@@ -353,28 +353,28 @@ data _—→_ where
              (M Σ/ ℓ₁) —→ (M Σ/ ℓ₂)           
 
   ξ-prj : ∀ 
-            (M₁ M₂ : NormalTerm Γ (Π ρ₂)) (e : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+            (M₁ M₂ : NormalTerm Γ (Π ρ₂)) (e : Ent Γ (ρ₁ ≲ ρ₂)) → 
 
             M₁ —→ M₂ → 
             ------------ 
             prj M₁ e —→ prj M₂ e
 
   ξ-prj⇒ : ∀ 
-            (M : NormalTerm Γ (Π ρ₂)) (e₁ e₂ : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+            (M : NormalTerm Γ (Π ρ₂)) (e₁ e₂ : Ent Γ (ρ₁ ≲ ρ₂)) → 
 
             e₁ =⇒ e₂ → 
             ------------ 
             prj M e₁ —→ prj M e₂
 
   ξ-inj : ∀ 
-            (M₁ M₂ : NormalTerm Γ (Σ ρ₁)) (e : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+            (M₁ M₂ : NormalTerm Γ (Σ ρ₁)) (e : Ent Γ (ρ₁ ≲ ρ₂)) → 
 
             M₁ —→ M₂ → 
             ------------ 
             inj M₁ e —→ inj M₂ e
 
   ξ-inj⇒ : ∀ 
-            (M : NormalTerm Γ (Σ ρ₁)) (e₁ e₂ : NormalEnt Γ (ρ₁ ≲ ρ₂)) → 
+            (M : NormalTerm Γ (Σ ρ₁)) (e₁ e₂ : Ent Γ (ρ₁ ≲ ρ₂)) → 
 
             e₁ =⇒ e₂ → 
             ------------ 
@@ -382,42 +382,42 @@ data _—→_ where
 
   ξ-⊹₁ : ∀
          (M₁ M₂ : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) 
-         (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
          (M₁ —→ M₂) → 
          (M₁ ⊹ N) e —→ (M₂ ⊹ N) e
 
   ξ-⊹₂ : ∀
          (M : NormalTerm Γ (Π ρ₁)) (N₁ N₂ : NormalTerm Γ (Π ρ₂)) 
-         (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
        (N₁ —→ N₂) → 
        (M ⊹ N₁) e —→ (M ⊹ N₂) e
 
   ξ-⊹₃ : ∀
          (M : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) 
-         (e₁ e₂ : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e₁ e₂ : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
        (e₁ =⇒ e₂) → 
        (M ⊹ N) e₁ —→ (M ⊹ N) e₂
 
   ξ-▿₁ : ∀
          (M₁ M₂ : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) 
-         (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
        (M₁ —→ M₂) → 
        (M₁ ▿ N) e —→ (M₂ ▿ N) e
 
   ξ-▿₂ : ∀
          (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N₁ N₂ : NormalTerm Γ (Σ ρ₂ `→ τ)) 
-         (e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
        (N₁ —→ N₂) → 
        (M ▿ N₁) e —→ (M ▿ N₂) e
 
   ξ-▿₃ : ∀
          (M : NormalTerm Γ (Σ ρ₁ `→ τ)) (N : NormalTerm Γ (Σ ρ₂ `→ τ)) 
-         (e₁ e₂ : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
+         (e₁ e₂ : Ent Γ (ρ₁ · ρ₂ ~ ρ₃)) → 
     
          (e₁ =⇒ e₂) → 
          (M ▿ N) e₁ —→ (M ▿ N) e₂
@@ -458,7 +458,7 @@ data _—→_ where
           --------------------------
           Λ M ·[ τ₁ ] —→ M β·[ τ₁ ]
 
-  β-ƛ : ∀ {M : NormalTerm (Γ ,,, π) τ} {e : NormalEnt Γ π} →
+  β-ƛ : ∀ {M : NormalTerm (Γ ,,, π) τ} {e : Ent Γ π} →
           
           -----------------------
           (`ƛ M) ·⟨ e ⟩ —→ (M βπ[ e ])
@@ -526,7 +526,7 @@ data _—→_ where
             {ozs : True (normalOrdered? zs)}
             (F : NormalTerm Γ  (Σ (⦅ xs ⦆ oxs) `→ τ'))
             (G : NormalTerm Γ (Σ (⦅ ys ⦆ oys) `→ τ'))
-            (e : NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
+            (e : Ent Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
             {l : Label}
             (M : NormalTerm Γ τ) 
             (i₁ : (l , τ) ∈ zs) → 
@@ -541,7 +541,7 @@ data _—→_ where
             {ozs : True (normalOrdered? zs)}
             (F : NormalTerm Γ  (Σ (⦅ xs ⦆ oxs) `→ τ'))
             (G : NormalTerm Γ (Σ (⦅ ys ⦆ oys) `→ τ'))
-            (e : NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
+            (e : Ent Γ (⦅ xs ⦆ oxs · ⦅ ys ⦆ oys ~ ⦅ zs ⦆ ozs))
             {l : Label}
             (M : NormalTerm Γ τ) 
             (i₁ : (l , τ) ∈ zs) → 

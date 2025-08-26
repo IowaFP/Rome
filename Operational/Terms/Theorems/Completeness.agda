@@ -90,7 +90,7 @@ open import Rome.Operational.Containment
 -- Soundness of terms and entailments
 
 ⇓Term : ∀ {Γ : Context Δ} {τ : Type Δ ★} → Term Γ τ → NormalTerm (⇓Ctx Γ) (⇓ τ)
-⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → NormalEnt (⇓Ctx Γ) (⇓Pred π)
+⇓Ent : ∀ {Γ : Context Δ} {π : Pred Type Δ R[ κ ]} → Ent Γ π → Ent (⇓Ctx Γ) (⇓Pred π)
 
 ⇓Ent (n-var x) = n-var (⇓PVar x)
 ⇓Ent (n-incl i) = n-incl (⊆-cong ⇓ ⇓Row (⇓Row-isMap idEnv) i)

@@ -60,7 +60,7 @@ open import Rome.Operational.Containment
 -- ⇑Row-isBimapMap [] = refl
 -- ⇑Row-isBimapMap (x ∷ xs) rewrite ⇑Row-isBimapMap xs = refl
 
-⇑Ent : ∀ {Γ} {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → Ent (⇑Ctx Γ) (⇑Pred π)
+⇑Ent : ∀ {Γ} {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent (⇑Ctx Γ) (⇑Pred π)
 ⇑Ent (n-var x) = n-var (⇑PVar x)
 ⇑Ent (n-incl i) = n-incl (⊆-cong (λ (x , τ) → (x , ⇑ τ)) _ ⇑Row-isMap i) 
 ⇑Ent (n-plus i₁ i₂ i₃) = n-plus (⊆-cong _ _ ⇑Row-isMap i₁)
