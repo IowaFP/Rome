@@ -54,7 +54,7 @@ reifyPreservesNR : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ 
                      (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ρ₁) or NotSimpleRow (reify ρ₂)
 
 reifyPreservesNR' : ∀ (ρ₁ ρ₂ : RowType Δ (λ Δ' → SemType Δ' κ) R[ κ ]) → 
-                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ─ ρ₂) {nr}))
+                     (nr : NotRow ρ₁ or NotRow ρ₂) → NotSimpleRow (reify ((ρ₁ ∖ ρ₂) {nr}))
 
 reify {κ = ★} τ = τ
 reify {κ = L} τ = τ
@@ -62,32 +62,32 @@ reify {κ = κ₁ `→ κ₂} F = reifyKripke F
 reify {κ = R[ κ ]} (l ▹ τ) = (l ▹ₙ (reify τ))
 reify {κ = R[ κ ]} (row ρ q) = ⦅ reifyRow ρ ⦆ (fromWitness (reifyRowOrdered ρ q))
 reify {κ = R[ κ ]} ((φ <$> τ)) =  (reifyKripkeNE φ <$> τ)
-reify {κ = R[ κ ]} ((φ <$> τ) ─ ρ₂) = (reify (φ <$> τ) ─ reify ρ₂) {nsr = tt}
-reify {κ = R[ κ ]} ((l ▹ τ) ─ ρ) = (reify (l ▹ τ) ─ (reify ρ)) {nsr = tt}
-reify {κ = R[ κ ]} (row ρ x ─ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ─ reify ρ') {nsr = tt}
-reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {left ()})
-reify {κ = R[ κ ]} ((row ρ x ─ row ρ₁ x₁) {right ()})
-reify {κ = R[ κ ]} (row ρ x ─ (φ <$> τ)) = (reify (row ρ x) ─ reify (φ <$> τ)) {nsr = tt} 
-reify {κ = R[ κ ]} ((row ρ x ─ ρ'@((ρ₁ ─ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ─ (reify ((ρ₁ ─ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
-reify {κ = R[ κ ]} ((((ρ₂ ─ ρ₁) {nr'}) ─ ρ) {nr}) = ((reify ((ρ₂ ─ ρ₁) {nr'})) ─ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ─ ρ₁) {nr'}) ρ (left tt))}
+reify {κ = R[ κ ]} ((φ <$> τ) ∖ ρ₂) = (reify (φ <$> τ) ∖ reify ρ₂) {nsr = tt}
+reify {κ = R[ κ ]} ((l ▹ τ) ∖ ρ) = (reify (l ▹ τ) ∖ (reify ρ)) {nsr = tt}
+reify {κ = R[ κ ]} (row ρ x ∖ ρ'@(x₁ ▹ x₂)) = (reify (row ρ x) ∖ reify ρ') {nsr = tt}
+reify {κ = R[ κ ]} ((row ρ x ∖ row ρ₁ x₁) {left ()})
+reify {κ = R[ κ ]} ((row ρ x ∖ row ρ₁ x₁) {right ()})
+reify {κ = R[ κ ]} (row ρ x ∖ (φ <$> τ)) = (reify (row ρ x) ∖ reify (φ <$> τ)) {nsr = tt} 
+reify {κ = R[ κ ]} ((row ρ x ∖ ρ'@((ρ₁ ∖ ρ₂) {nr'})) {nr}) = ((reify (row ρ x)) ∖ (reify ((ρ₁ ∖ ρ₂) {nr'}))) {nsr = fromWitness (reifyPreservesNR (row ρ x) ρ' (right tt))}
+reify {κ = R[ κ ]} ((((ρ₂ ∖ ρ₁) {nr'}) ∖ ρ) {nr}) = ((reify ((ρ₂ ∖ ρ₁) {nr'})) ∖ reify ρ) {fromWitness (reifyPreservesNR ((ρ₂ ∖ ρ₁) {nr'}) ρ (left tt))}
 
 
 reifyPreservesNR (x₁ ▹ x₂) ρ₂ (left x) = left tt
-reifyPreservesNR ((ρ₁ ─ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
+reifyPreservesNR ((ρ₁ ∖ ρ₃) {nr}) ρ₂ (left x) = left (reifyPreservesNR' ρ₁ ρ₃ nr)
 reifyPreservesNR (φ <$> ρ) ρ₂ (left x) = left tt
 reifyPreservesNR ρ₁ (x ▹ x₁) (right y) = right tt
-reifyPreservesNR ρ₁ ((ρ₂ ─ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
+reifyPreservesNR ρ₁ ((ρ₂ ∖ ρ₃) {nr}) (right y) = right (reifyPreservesNR' ρ₂ ρ₃ nr)
 reifyPreservesNR ρ₁ ((φ <$> ρ₂)) (right y) = right tt
 
 reifyPreservesNR' (x₁ ▹ x₂) ρ₂ (left x) = tt
-reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (left x) = tt
+reifyPreservesNR' (ρ₁ ∖ ρ₃) ρ₂ (left x) = tt
 reifyPreservesNR' (φ <$> n) ρ₂ (left x) = tt
 reifyPreservesNR' (φ <$> n) ρ₂ (right y) = tt
 reifyPreservesNR' (x ▹ x₁) ρ₂ (right y) = tt
 reifyPreservesNR' (row ρ x) (x₁ ▹ x₂) (right y) = tt
-reifyPreservesNR' (row ρ x) (ρ₂ ─ ρ₃) (right y) = tt
+reifyPreservesNR' (row ρ x) (ρ₂ ∖ ρ₃) (right y) = tt
 reifyPreservesNR' (row ρ x) (φ <$> n) (right y) = tt
-reifyPreservesNR' (ρ₁ ─ ρ₃) ρ₂ (right y) = tt
+reifyPreservesNR' (ρ₁ ∖ ρ₃) ρ₂ (right y) = tt
 
 --------------------------------------------------------------------------------
 -- η normalization of neutral types
@@ -181,11 +181,11 @@ ordered-compl {n = suc n} P Q oρ₁ oρ₂ with P fzero .fst ∈Row? Q
 --------------------------------------------------------------------------------
 -- Semantic complement on Rows
                 
-_─v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
-(n , P) ─v (m , Q) = compl P Q
+_∖v_ : Row (SemType Δ κ) → Row (SemType Δ κ) → Row (SemType Δ κ)
+(n , P) ∖v (m , Q) = compl P Q
 
-ordered─v : ∀ {Δ : KEnv ι} {κ : Kind ι₁} (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ─v ρ₁)
-ordered─v (n , P) (m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
+ordered∖v : ∀ {Δ : KEnv ι} {κ : Kind ι₁} (ρ₂ ρ₁ : Row (SemType Δ κ)) → OrderedRow ρ₂ → OrderedRow ρ₁ → OrderedRow (ρ₂ ∖v ρ₁)
+ordered∖v (n , P) (m , Q) oρ₂ oρ₁ = ordered-compl P Q oρ₂ oρ₁
 
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Semantic lifting
@@ -196,29 +196,29 @@ NotRow<$> : ∀ {Δ : KEnv ι} {κ₁ : Kind ι₁} {κ₂ : Kind ι₂} {F : Se
 
 _<$>V_ {κ₁ = κ₁} {κ₂ = κ₂} F (l ▹ τ) = l ▹ (F ·V τ) -- l ▹ (F ·V τ)
 F <$>V row (n , P) q = row (n , map₂ (F id) ∘ P) (orderedMap₂ (F id) q)
-F <$>V ((ρ₂ ─ ρ₁) {nr}) = ((F <$>V ρ₂) ─ (F <$>V ρ₁)) {NotRow<$> nr}
+F <$>V ((ρ₂ ∖ ρ₁) {nr}) = ((F <$>V ρ₂) ∖ (F <$>V ρ₁)) {NotRow<$> nr}
 F <$>V (G <$> n) = (λ {Δ'} r → F r ∘ G r) <$> n
 
 NotRow<$> {F = F} {x₁ ▹ x₂} {ρ₁} (left x) = left tt
-NotRow<$> {F = F} {ρ₂ ─ ρ₃} {ρ₁} (left x) = left tt
+NotRow<$> {F = F} {ρ₂ ∖ ρ₃} {ρ₁} (left x) = left tt
 NotRow<$> {F = F} {φ <$> n} {ρ₁} (left x) = left tt
 
 NotRow<$> {F = F} {ρ₂} {x ▹ x₁} (right y) = right tt
-NotRow<$> {F = F} {ρ₂} {ρ₁ ─ ρ₃} (right y) = right tt
+NotRow<$> {F = F} {ρ₂} {ρ₁ ∖ ρ₃} (right y) = right tt
 NotRow<$> {F = F} {ρ₂} {φ <$> n} (right y) = right tt
 
 
 -- -- -- --------------------------------------------------------------------------------
 -- -- -- -- Semantic complement on SemTypes
 
-_─V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
-row ρ₂ oρ₂ ─V row ρ₁ oρ₁ = row (ρ₂ ─v ρ₁) (ordered─v ρ₂ ρ₁ oρ₂ oρ₁)
-ρ₂@(x ▹ x₁) ─V ρ₁ = (ρ₂ ─ ρ₁) {nr = left tt}
-ρ₂@(row ρ x) ─V ρ₁@(x₁ ▹ x₂) = (ρ₂ ─ ρ₁) {nr = right tt}
-ρ₂@(row ρ x) ─V ρ₁@(_ ─ _) = (ρ₂ ─ ρ₁) {nr = right tt}
-ρ₂@(row ρ x) ─V ρ₁@(_ <$> _) = (ρ₂ ─ ρ₁) {nr = right tt}
-ρ@(ρ₂ ─ ρ₃) ─V ρ' = (ρ ─ ρ') {nr = left tt}
-ρ@(φ <$> n) ─V ρ' = (ρ ─ ρ') {nr = left tt}
+_∖V_ : SemType Δ R[ κ ] → SemType Δ R[ κ ] → SemType Δ R[ κ ]
+row ρ₂ oρ₂ ∖V row ρ₁ oρ₁ = row (ρ₂ ∖v ρ₁) (ordered∖v ρ₂ ρ₁ oρ₂ oρ₁)
+ρ₂@(x ▹ x₁) ∖V ρ₁ = (ρ₂ ∖ ρ₁) {nr = left tt}
+ρ₂@(row ρ x) ∖V ρ₁@(x₁ ▹ x₂) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ∖V ρ₁@(_ ∖ _) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ₂@(row ρ x) ∖V ρ₁@(_ <$> _) = (ρ₂ ∖ ρ₁) {nr = right tt}
+ρ@(ρ₂ ∖ ρ₃) ∖V ρ' = (ρ ∖ ρ') {nr = left tt}
+ρ@(φ <$> n) ∖V ρ' = (ρ ∖ ρ') {nr = left tt}
 
 -- --------------------------------------------------------------------------------
 -- -- Semantic flap
@@ -292,7 +292,7 @@ eval {κ = ★} (π ⇒ τ) η = evalPred π η ⇒ eval τ η
 eval {Δ₁} {κ = ★} (`∀ τ) η = `∀ (eval τ (lifte η)) 
 -- eval {κ = ★} (μ τ) η = μ (reify (eval τ η))
 eval {κ = ★} ⌊ τ ⌋ η = ⌊ reify (eval τ η) ⌋
-eval (ρ₂ ─ ρ₁) η = eval ρ₂ η ─V eval ρ₁ η
+eval (ρ₂ ∖ ρ₁) η = eval ρ₂ η ∖V eval ρ₁ η
 eval {κ = L} (lab l) η = lab l
 eval {κ = κ₁ `→ κ₂} (`λ τ) η = λ ρ v → eval τ (extende (λ {ι}{κ} v' → renSem {κ = κ} ρ (η v')) v)
 eval {κ = R[ κ ] `→ κ} Π η = Π-Kripke

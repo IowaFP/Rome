@@ -135,31 +135,31 @@ data Ent (Δ : KEnv ιΔ) (Γ : Env Δ ιΓ)  : NormalPred Δ R[ κ ] → Set wh
     
              Ent Δ Γ (ρ₁ ≲ ρ₂) → 
              ----------------------
-             Ent Δ Γ (ρ₁ · ((ρ₂ ─ ρ₁) {nsr}) ~ ρ₂)
+             Ent Δ Γ (ρ₁ · ((ρ₂ ∖ ρ₁) {nsr}) ~ ρ₂)
 
   n-complR :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
-                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
     
              Ent Δ Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
              ----------------------
-             Ent Δ Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
+             Ent Δ Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ∖s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
 
   n-complL-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     
              Ent Δ Γ (ρ₁ ≲ ρ₂) → 
              ----------------------
-             Ent Δ Γ (((ρ₂ ─ ρ₁) {nsr}) · ρ₁ ~ ρ₂)
+             Ent Δ Γ (((ρ₂ ∖ ρ₁) {nsr}) · ρ₁ ~ ρ₂)
 
   n-complL :  ∀ {xs ys : SimpleRow (NormalType Δ κ)} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
-                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
     
              Ent Δ Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
              ----------------------
-             Ent Δ Γ (⦅ ⇓Row (⇑Row ys ─s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
+             Ent Δ Γ (⦅ ⇓Row (⇑Row ys ∖s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
 
 data EntValue  (Δ : KEnv ιΔ) (Γ : Env Δ ιΓ) : (π : NormalPred Δ R[ κ ]) → Ent Δ Γ π → Set where 
 

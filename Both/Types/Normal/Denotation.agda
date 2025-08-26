@@ -47,7 +47,7 @@ open import Rome.Both.IndexCalculus.Variants renaming (Σ  to Sigma)
 ⟦ ⌊ τ ⌋ ⟧nf η = ⊤'
 ⟦ Π ρ ⟧nf η = Pi (⟦ ρ ⟧nf η)
 ⟦ Σ ρ ⟧nf η = Sigma (⟦ ρ ⟧nf η)
-⟦ ρ₂ ─ ρ₁ ⟧nf η = (⟦ ρ₂ ⟧nf η) ∖ (⟦ ρ₁ ⟧nf η)
+⟦ ρ₂ ∖ ρ₁ ⟧nf η = (⟦ ρ₂ ⟧nf η) ∖ (⟦ ρ₁ ⟧nf η)
 ⟦ l ▹ₙ τ ⟧nf η = sing (unlabel (⟦ l ⟧ne η) , ⟦ τ ⟧nf η)
 
 ⟦ [] ⟧row η = Ix.ε

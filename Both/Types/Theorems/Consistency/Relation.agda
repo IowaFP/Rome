@@ -54,7 +54,7 @@ SoundKripkeNE : Type Δ₁ (κ₁ `→ κ₂) → KripkeFunctionNE Δ₁ κ₁ �
     (τ ≡t ⦅ xs ⦆ (fromWitness (Ordered⇑ (reifyRow (n , P)) (reifyRowOrdered' n P oρ)))) × 
     (⟦ xs ⟧r≋ (n , P))
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (l ▹ V) = (τ ≡t (⇑NE l ▹ ⇑ (reify V))) × (⟦ ⇑ (reify V) ⟧≋ V)
-⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ─ ρ₁) {nr}) = (τ ≡t (⇑ (reify ((ρ₂ ─ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁)
+⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ ((ρ₂ ∖ ρ₁) {nr}) = (τ ≡t (⇑ (reify ((ρ₂ ∖ ρ₁) {nr})))) × (⟦ ⇑ (reify ρ₂) ⟧≋ ρ₂) × (⟦ ⇑ (reify ρ₁) ⟧≋ ρ₁)
 ⟦_⟧≋_ {Δ} {κ = R[ κ ]} τ (φ <$> n) = 
   ∃[ f ] ((τ ≡t (f <$> ⇑NE n)) × (SoundKripkeNE f φ))
 ⟦ [] ⟧r≋ (zero , P) = ⊤
@@ -139,7 +139,7 @@ reify-⟦⟧≋ {κ = κ₁ `→ κ₂} {τ} {F} e =
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (zero , P) _} (eq , I) = eq
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {row (suc n , P) _} (eq , I) = eq-trans eq (eq-row (eq-cons refl eq-refl (instᵣ refl)))
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {l ▹ V} eq = fst eq
-reify-⟦⟧≋ {κ = R[ κ ]} {τ} {V₂ ─ V₁} eq = eq .fst
+reify-⟦⟧≋ {κ = R[ κ ]} {τ} {V₂ ∖ V₁} eq = eq .fst
 reify-⟦⟧≋ {κ = R[ κ ]} {τ} {φ <$> ρ} (f , eq , rel) = 
   eq-trans 
     eq 
@@ -170,7 +170,7 @@ subst-⟦⟧≋ {κ = κ `→ κ₁} {τ₁ = τ₁} {τ₂} q {F} rel = λ ρ {
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {φ <$> n} (f , eq , rel) = f , (eq-trans (eq-sym q) eq) , rel
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {row (n , P) _} (eq , I) = eq-trans (eq-sym q) eq , I
 subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {l ▹ τ} (eq , rel) = eq-trans (eq-sym q) eq , rel
-subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {V₂ ─ V₁} (eq , rel₁ , rel₂) = eq-trans (eq-sym q) eq , rel₁ , rel₂
+subst-⟦⟧≋ {κ = R[ κ ]} {τ₁ = τ₁} {τ₂} q {V₂ ∖ V₁} (eq , rel₁ , rel₂) = eq-trans (eq-sym q) eq , rel₁ , rel₂
 
 --------------------------------------------------------------------------------
 -- Equivalent rows relate to the same semantic rows
@@ -224,11 +224,11 @@ ren-⟦⟧r≋' : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind �
 
 
 -- and that renaming commutes over (⇑ ∘ reify)
-↻-ren-⇑-reify-─ : ∀ (r : Renamingₖ Δ₁ Δ₂) (V₂ V₁ : RowType Δ₁ (λ Δ → SemType Δ κ) R[ κ ]) →
+↻-ren-⇑-reify-∖ : ∀ (r : Renamingₖ Δ₁ Δ₂) (V₂ V₁ : RowType Δ₁ (λ Δ → SemType Δ κ) R[ κ ]) →
                 ⟦ ⇑ (reify V₂) ⟧≋ V₂ →
                 ⟦ ⇑ (reify V₁) ⟧≋ V₁ →  
                 (ev : NotRow V₂ or NotRow V₁) → 
-                renₖ r (⇑ (reify ((V₂ ─ V₁) {ev}))) ≡t ⇑ (reify ((renSem r V₂ ─ renSem r V₁) {nrRenSem' r V₂ V₁ ev}))
+                renₖ r (⇑ (reify ((V₂ ∖ V₁) {ev}))) ≡t ⇑ (reify ((renSem r V₂ ∖ renSem r V₁) {nrRenSem' r V₂ V₁ ev}))
 ↻-ren-⇑-reify :  ∀ (r : Renamingₖ Δ₁ Δ₂) (V : RowType Δ₁ (λ Δ → SemType Δ κ) R[ κ ]) →
                 ⟦ ⇑ (reify V) ⟧≋ V →
                 renₖ r (⇑ (reify V)) ≡t ⇑ (reify (renSem r V))
@@ -251,16 +251,16 @@ ren-⟦⟧r≋' : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind �
     (inst (sym (↻-ren-⇑NE r x₁))) 
     (reify-⟦⟧≋ (ren-⟦⟧≋ r (rel .snd)))
 ↻-ren-⇑-reify r (row (n , P) x₁) rel = eq-row (reify-⟦⟧r≋ (ren-⟦⟧r≋' r n P (rel .snd)))
-↻-ren-⇑-reify r ((V₂ ─ V₁) {nr}) (eq , rel₂ , rel₁) = ↻-ren-⇑-reify-─ r V₂ V₁ rel₂ rel₁ nr                 
+↻-ren-⇑-reify r ((V₂ ∖ V₁) {nr}) (eq , rel₂ , rel₁) = ↻-ren-⇑-reify-∖ r V₂ V₁ rel₂ rel₁ nr                 
 
-↻-ren-⇑-reify-─ r (l ▹ τ) V₂ rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r (l ▹ τ) rel₂) (↻-ren-⇑-reify r V₂ rel₁)
-↻-ren-⇑-reify-─ r ρ₂@(row ρ x₁) ρ₁@(φ <$> x₂) rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
-↻-ren-⇑-reify-─ r ρ₂@(row ρ x₁) ρ₁@(x₂ ▹ x₃) rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
-↻-ren-⇑-reify-─ r (row ρ x₁) (row ρ₁ x₂) rel₂ rel₁ (left ())
-↻-ren-⇑-reify-─ r (row ρ x₁) (row ρ₁ x₂) rel₂ rel₁ (right ())
-↻-ren-⇑-reify-─ r ρ₂@(row ρ x₁) ρ₁@(V₂ ─ V₃) rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
-↻-ren-⇑-reify-─ r ((ρ₂ ─ ρ₁) {nr}) V₂ rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify-─ r ρ₂ ρ₁ (rel₂ .snd .fst) (rel₂ .snd .snd) nr) (↻-ren-⇑-reify r V₂ rel₁)
-↻-ren-⇑-reify-─ r (φ <$> n) V₂ rel₂ rel₁ ev = eq-─ (↻-ren-⇑-reify r (φ <$> n) rel₂) (↻-ren-⇑-reify r V₂ rel₁)
+↻-ren-⇑-reify-∖ r (l ▹ τ) V₂ rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify r (l ▹ τ) rel₂) (↻-ren-⇑-reify r V₂ rel₁)
+↻-ren-⇑-reify-∖ r ρ₂@(row ρ x₁) ρ₁@(φ <$> x₂) rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
+↻-ren-⇑-reify-∖ r ρ₂@(row ρ x₁) ρ₁@(x₂ ▹ x₃) rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
+↻-ren-⇑-reify-∖ r (row ρ x₁) (row ρ₁ x₂) rel₂ rel₁ (left ())
+↻-ren-⇑-reify-∖ r (row ρ x₁) (row ρ₁ x₂) rel₂ rel₁ (right ())
+↻-ren-⇑-reify-∖ r ρ₂@(row ρ x₁) ρ₁@(V₂ ∖ V₃) rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify r ρ₂ rel₂) (↻-ren-⇑-reify r ρ₁ rel₁)
+↻-ren-⇑-reify-∖ r ((ρ₂ ∖ ρ₁) {nr}) V₂ rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify-∖ r ρ₂ ρ₁ (rel₂ .snd .fst) (rel₂ .snd .snd) nr) (↻-ren-⇑-reify r V₂ rel₁)
+↻-ren-⇑-reify-∖ r (φ <$> n) V₂ rel₂ rel₁ ev = eq-∖ (↻-ren-⇑-reify r (φ <$> n) rel₂) (↻-ren-⇑-reify r V₂ rel₁)
 
 ren-⟦⟧r≋' ρ zero P rel = tt
 ren-⟦⟧r≋' ρ (suc n) P (rel-fzero , rel-fsuc) = (refl , (ren-⟦⟧≋ ρ (rel-fzero .snd))) , ren-⟦⟧r≋' ρ n  (P ∘ fsuc) rel-fsuc 
@@ -285,8 +285,8 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {l ▹ V} (eq , rel) =
     (eq-▹ 
       (inst (sym (↻-ren-⇑NE r l))) 
       (reify-⟦⟧≋ (ren-⟦⟧≋ r rel))) , refl-⟦⟧≋  (ren-⟦⟧≋ r rel)
-ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ─ V₁) {nr}} (eq , rel₂ , rel₁) = 
-  (eq-trans (renₖ-≡t r eq) (↻-ren-⇑-reify-─ r V₂ V₁ rel₂ rel₁ nr)) , 
+ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ∖ V₁) {nr}} (eq , rel₂ , rel₁) = 
+  (eq-trans (renₖ-≡t r eq) (↻-ren-⇑-reify-∖ r V₂ V₁ rel₂ rel₁ nr)) , 
   (refl-⟦⟧≋ (ren-⟦⟧≋ r rel₂)) , 
   (refl-⟦⟧≋ (ren-⟦⟧≋ r rel₁))
 

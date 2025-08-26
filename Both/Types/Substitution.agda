@@ -38,7 +38,7 @@ subₖ σ (Σ {notLabel = nl}) = Σ {notLabel = nl}
 subₖ σ (lab x) = lab x
 subₖ σ ⌊ ℓ ⌋ = ⌊ (subₖ σ ℓ) ⌋
 subₖ σ (f <$> a) = subₖ σ f <$> subₖ σ a
-subₖ σ (ρ₂ ─ ρ₁) = subₖ σ ρ₂ ─ subₖ σ ρ₁
+subₖ σ (ρ₂ ∖ ρ₁) = subₖ σ ρ₂ ∖ subₖ σ ρ₁
 subₖ σ (⦅ xs ⦆ oxs) = ⦅ subRowₖ σ xs ⦆ (fromWitness (orderedSubRowₖ σ xs (toWitness oxs)))
 subₖ σ (l ▹ τ) = (subₖ σ l) ▹ (subₖ σ τ)
 subRowₖ σ [] = [] 

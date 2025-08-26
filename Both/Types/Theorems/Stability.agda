@@ -60,19 +60,19 @@ stability (Π x)  rewrite stability x = refl
 stability (Σ x)  rewrite stability x = refl
 stability (⦅ ρ ⦆ oρ)  = cong-⦅⦆ (stabilityRow ρ) 
 stability (lab l) = refl
-stability ((ρ₂ ─ ρ₁) {nsr}) with eval (⇑ ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stability ρ₂ | stability ρ₁
+stability ((ρ₂ ∖ ρ₁) {nsr}) with eval (⇑ ρ₂) idEnv | eval (⇑ ρ₁) idEnv | stability ρ₂ | stability ρ₁
 ... | φ₁ <$> n₁ | _ | refl | refl = refl 
 ... | x₁ ▹ x₂ | x₃ ▹ x₄ | refl | refl = refl
 ... | x₁ ▹ x₂ | row ρ x₃ | refl | refl = refl
-... | x₁ ▹ x₂ | d ─ d₁ | refl | refl = refl
+... | x₁ ▹ x₂ | d ∖ d₁ | refl | refl = refl
 ... | x₁ ▹ x₂ | φ <$> n | refl | refl = refl
 ... | row ρ x₁ | x₂ ▹ x₃ | refl | refl = refl
-... | row ρ x₁ | d ─ d₁ | refl | refl = cong-─ (cong-⦅⦆ refl) refl
+... | row ρ x₁ | d ∖ d₁ | refl | refl = cong-∖ (cong-⦅⦆ refl) refl
 ... | row ρ x₁ | φ <$> n | refl | refl = refl
-... | c ─ c₁ | x₁ ▹ x₂ | refl | refl = cong-─ refl refl
-... | c ─ c₁ | row ρ x₁ | refl | refl = cong-─ refl (cong-⦅⦆ refl)
-... | c ─ c₁ | d ─ d₁ | refl | refl = cong-─ refl refl
-... | c ─ c₁ | φ <$> n | refl | refl = cong-─ refl refl
+... | c ∖ c₁ | x₁ ▹ x₂ | refl | refl = cong-∖ refl refl
+... | c ∖ c₁ | row ρ x₁ | refl | refl = cong-∖ refl (cong-⦅⦆ refl)
+... | c ∖ c₁ | d ∖ d₁ | refl | refl = cong-∖ refl refl
+... | c ∖ c₁ | φ <$> n | refl | refl = cong-∖ refl refl
 stability (l ▹ₙ τ) with eval (⇑NE l) idEnv | isNeutral? (eval (⇑NE l) idEnv) | stabilityNE l
 ... | ne x₁ | yes p | refl = cong (l ▹ₙ_) (stability τ)
 ... | .(ne l) | no q | refl = ⊥-elim (q tt)

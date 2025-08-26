@@ -43,26 +43,26 @@ open import Rome.Both.Types.Equivalence.Relation
 ↻-syn/sem-compl : ∀ {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ} 
                     {η₁ η₂ : SemEnv Δ₁ Δ₂} (xs ys : SimpleRow (Type Δ₁ κ)) → 
                   SemEnv-≋ η₁ η₂ → 
-                  (evalRow xs η₁ ─v evalRow ys η₁) ≋R (evalRow (xs ─s ys) η₂)
+                  (evalRow xs η₁ ∖v evalRow ys η₁) ≋R (evalRow (xs ∖s ys) η₂)
 ↻-syn/sem-compl [] ys e = refl , (λ ())
 ↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
 ... | yes p | yes q = ↻-syn/sem-compl xs ys e
 ... | yes p | no q = ⊥-elim (q (∈Row→∈L p)) 
 ... | no q | yes p = ⊥-elim (q (∈L→∈Row p)) 
-... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ─s ys) η₂ | ↻-syn/sem-compl xs ys e
+... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ∖s ys) η₂ | ↻-syn/sem-compl xs ys e
 ↻-syn/sem-compl ((l , τ) ∷ xs) ys e | no p | no q | x | y | (refl , ih') = refl , λ { fzero → refl , idext e τ ; (fsuc i) → ih' i }
 
 --------------------------------------------------------------------------------
 -- Commutativity of syntactic/semantic complement as a strict equality
 
-↻-─s-─v : ∀ {κ : Kind ικ} {n m}
+↻-∖s-∖v : ∀ {κ : Kind ικ} {n m}
           (P : Fin n → Label × SemType Δ κ) → 
           (Q : Fin m → Label × SemType Δ κ) → 
-          (⇑Row (reifyRow' n P) ─s ⇑Row (reifyRow' m Q)) ≡
+          (⇑Row (reifyRow' n P) ∖s ⇑Row (reifyRow' m Q)) ≡
           ⇑Row (reifyRow (compl P Q))
-↻-─s-─v {n = zero} P Q = refl
-↻-─s-─v {n = suc n} {m} P Q with P fzero .fst ∈L? ⇑Row (reifyRow' m Q) | P fzero .fst ∈Row? Q 
-... | yes p | yes q = ↻-─s-─v (P ∘ fsuc) Q
+↻-∖s-∖v {n = zero} P Q = refl
+↻-∖s-∖v {n = suc n} {m} P Q with P fzero .fst ∈L? ⇑Row (reifyRow' m Q) | P fzero .fst ∈Row? Q 
+... | yes p | yes q = ↻-∖s-∖v (P ∘ fsuc) Q
 ... | yes p | no  q = ⊥-elim (q (In p))
   where
     In : ∀ {l} {m} {κ : Kind ικ}  {Q : Fin m → Label × SemType Δ κ} → l ∈L ⇑Row (reifyRow' m Q) → l ∈Row Q
@@ -74,7 +74,7 @@ open import Rome.Both.Types.Equivalence.Relation
     In {l} {m = suc m} (fzero , refl) = Here
     In {l} {m = suc m} (fsuc i , eq) = There (In (i , eq))
     
-... | no  p | no  q = cong₂ _∷_ refl (↻-─s-─v (P ∘ fsuc) Q) 
+... | no  p | no  q = cong₂ _∷_ refl (↻-∖s-∖v (P ∘ fsuc) Q) 
 
 -------------------------------------------------------------------------------
 -- Fundamental theorem (soundness)
@@ -162,16 +162,16 @@ fundC e (eq-lab refl) = refl
 fundC {η₁ = η₁} {η₂} e (eq-▹$ {l = l} {τ = τ} {F}) with eval l η₁ | eval l η₂ | idext e l
 ... | ne x | ne x | refl = (refl , refl , refl) , cong-App (idext e F) (idext e τ)
 ... | lab l | lab l | refl = refl , λ { fzero → refl , idext e (F · τ) }
-fundC {η₁ = η₁} {η₂} e (eq-─ eq₂ eq₁) = cong-─V (fundC e eq₂) (fundC e eq₁)
+fundC {η₁ = η₁} {η₂} e (eq-∖ eq₂ eq₁) = cong-∖V (fundC e eq₂) (fundC e eq₁)
 fundC {η₁ = η₁} {η₂} e (eq-labTy {l = l} {τ = τ} eq) with eval l η₁ | fundC e eq 
 ... | lab ℓ | refl = refl , (λ { fzero → refl , idext e τ })
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) 
+fundC {η₁ = η₁} {η₂} e (eq-<$>-∖ {F = F} {ρ₂} {ρ₁}) 
   with eval ρ₂ η₁ | eval ρ₂ η₂ | idext e ρ₂
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ▹ x₂ | x₃ ▹ x₄ | fst₁ , snd₁ = 
+fundC {η₁ = η₁} {η₂} e (eq-<$>-∖ {F = F} {ρ₂} {ρ₁}) | x₁ ▹ x₂ | x₃ ▹ x₄ | fst₁ , snd₁ = 
   (fst₁ , idext e F .snd .snd id snd₁) , (cong-<$> (idext e F) (idext e ρ₁))
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | x₁ ─ x₂ | y₁ ─ y₂ | fst₁ , snd₁ = 
+fundC {η₁ = η₁} {η₂} e (eq-<$>-∖ {F = F} {ρ₂} {ρ₁}) | x₁ ∖ x₂ | y₁ ∖ y₂ | fst₁ , snd₁ = 
   ((cong-<$> (idext e F) fst₁) , (cong-<$> (idext e F) snd₁)) , (cong-<$> (idext e F) (idext e ρ₁))
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$> n₁ | φ₂ <$> n₂ | ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
+fundC {η₁ = η₁} {η₂} e (eq-<$>-∖ {F = F} {ρ₂} {ρ₁}) | φ₁ <$> n₁ | φ₂ <$> n₂ | ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
   ((refl , refl ,
   (λ r₁ r₂ n → trans-≋ 
       (idext e F .fst r₁ r₂ (φ₁ r₁ n) (φ₂ r₁ n) (Ext-φ r₁ n)) 
@@ -187,14 +187,14 @@ fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | φ₁ <$>
   (λ r v → idext e F .snd .snd  r (Ext-φ r v))) , 
   (refl , refl , refl)) ,
   (cong-<$> (idext e F) (idext e ρ₁))
-fundC {η₁ = η₁} {η₂} e (eq-<$>-─ {F = F} {ρ₂} {ρ₁}) | row (n , P) oρ₂-1 | row (.n , P') oρ₂-2 | refl , I
+fundC {η₁ = η₁} {η₂} e (eq-<$>-∖ {F = F} {ρ₂} {ρ₁}) | row (n , P) oρ₂-1 | row (.n , P') oρ₂-2 | refl , I
   with eval ρ₁ η₁ | eval ρ₁ η₂ | idext e ρ₁ 
 ... | x₃ ▹ x₄ | x₅ ▹ x₆ | fst₂ , snd₂ = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , fst₂ , (idext e F .snd .snd id snd₂)
-... | c₂ ─ c₁ | d₂ ─ d₁ | fst₂ , snd₂ = 
+... | c₂ ∖ c₁ | d₂ ∖ d₁ | fst₂ , snd₂ = 
   (refl , (λ i → I i .fst , idext e F .snd .snd id (I i .snd))) , (cong-<$> (idext e F) fst₂) , (cong-<$> (idext e F) snd₂)
 ... | row (m , Q) oρ₁-1 | row (.m , Q') oρ₁-2 | refl , J = 
-  ↻-<$>V-─V 
+  ↻-<$>V-∖V 
     (eval F η₁) (eval F η₂) 
     n m P P' {oρ₂-1} {oρ₂-2} 
     Q Q' {oρ₁-1} {oρ₁-2} 

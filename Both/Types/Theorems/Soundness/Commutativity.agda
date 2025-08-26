@@ -41,7 +41,7 @@ open import Rome.Both.Types.Theorems.Soundness.Congruence
            _≋_ {κ = R[ κ₂ ]} (renSem {κ = R[ κ₂ ]} r (V₁ <$>V W₁)) (renSem {κ = κ₁ `→ κ₂} r V₂ <$>V renSem {κ = R[ κ₁ ]} r W₂)
 ↻-renSem-<$> r {V₁} {V₂} v {l₁ ▹ τ₁} {l₁ ▹ τ₂} ((refl , refl , refl) , rel) = (refl , refl , refl) , (↻-renSem-app r v rel)
 ↻-renSem-<$> r {V₁} {V₂} v {row (n , P) _} {row (_ , Q) _} (refl , eq) = refl , λ i → eq i .fst , (↻-renSem-app r v (eq i .snd))
-↻-renSem-<$> r {V₁} {V₂} v {ρ₂ ─ ρ₁} {ρ₄ ─ ρ₃} (rel₁ , rel₂) = (↻-renSem-<$> r v rel₁) , (↻-renSem-<$> r v rel₂)
+↻-renSem-<$> r {V₁} {V₂} v {ρ₂ ∖ ρ₁} {ρ₄ ∖ ρ₃} (rel₁ , rel₂) = (↻-renSem-<$> r v rel₁) , (↻-renSem-<$> r v rel₂)
 ↻-renSem-<$> r {F} {G} (Unif-F , Unif-G , Ext-FG) {φ₁ <$> n₁} {φ₂ <$> n₂} ((refl , refl , Unif-φ₁ , Unif-φ₂ , Ext-φ) , (refl , refl , refl)) = 
   (refl , refl , 
   (λ r₁ r₂ n → 
@@ -80,35 +80,35 @@ open import Rome.Both.Types.Theorems.Soundness.Congruence
     | (↻-renSem-compl r (A ∘ fsuc) (B ∘ fsuc) C D (i₁ ∘ fsuc) i₂) 
 ... | n₁ , P | n₂ , Q | refl , ih =  refl , λ { fzero → i₁ fzero .fst  , (ren-≋ r (i₁ fzero .snd)) ; (fsuc i) → ih i }
 
-↻-renSem-─v : {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ι} (r : Renamingₖ Δ₁ Δ₂) → 
+↻-renSem-∖v : {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ι} (r : Renamingₖ Δ₁ Δ₂) → 
               {V₁ V₂ W₁ W₂ : Row (SemType Δ₁ κ)} → 
               V₂ ≋R W₂ → 
               V₁ ≋R W₁ → 
-              renRow r (V₂ ─v V₁) ≋R (renRow r W₂ ─v renRow r W₁)
-↻-renSem-─v r {n , P} {m , Q} {_ , R} {_ , I} (refl , V₂≋) (refl , V₁≋) = ↻-renSem-compl r Q I P R V₂≋ V₁≋
+              renRow r (V₂ ∖v V₁) ≋R (renRow r W₂ ∖v renRow r W₁)
+↻-renSem-∖v r {n , P} {m , Q} {_ , R} {_ , I} (refl , V₂≋) (refl , V₁≋) = ↻-renSem-compl r Q I P R V₂≋ V₁≋
 
-↻-renSem-─V : {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ι} (r : Renamingₖ Δ₁ Δ₂) → 
+↻-renSem-∖V : {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ι} (r : Renamingₖ Δ₁ Δ₂) → 
               {V₁ V₂ W₁ W₂ : SemType Δ₁ R[ κ ]} → 
               V₂ ≋ W₂ → 
               V₁ ≋ W₁ → 
-              renSem r (V₂ ─V V₁) ≋ (renSem r W₂ ─V renSem r W₁)
+              renSem r (V₂ ∖V V₁) ≋ (renSem r W₂ ∖V renSem r W₁)
 
-↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{x₃ ▹ x₄} ρ₃@{x₅ ▹ x₆} ρ₄@{x₇ ▹ x₈} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{row _ x₃} ρ₃@{x₄ ▹ x₅} ρ₄@{row _ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{(V₂ ─ V₃) {nr₁}} ρ₃@{x₃ ▹ x₄} ρ₄@{(W₂ ─ W₃) {nr₂}} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{x₁ ▹ x₂} ρ₂@{_ <$> _} ρ₃@{x₃ ▹ x₄} ρ₄@{_ <$> _} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{x₂ ▹ x₃} ρ₃@{row _ x₄} ρ₄@{x₅ ▹ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = ↻-renSem-─v r rel₁ rel₂
-↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{V₂ ─ V₃} ρ₃@{row _ x₂} ρ₄@{W₂ ─ W₃} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{row _ x₁} ρ₂@{_ <$> _} ρ₃@{row _ x₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{x₁ ▹ x₂} ρ₃@{W₁ ─ W₂} ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{row _ x₁} ρ₃@{W₁ ─ W₂} ρ₄@{row _ x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{V₃ ─ V₄} ρ₃@{W₁ ─ W₂} ρ₄@{W₃ ─ W₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r ρ₁@{V₁ ─ V₂} ρ₂@{_ <$> _} ρ₃@{W₁ ─ W₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{φ <$> x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{φ₃ <$> x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{x₁ ▹ x₂} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{row ρ x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{row _ _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
-↻-renSem-─V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{_ ─ _} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{_ ─  _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{x₁ ▹ x₂} ρ₂@{x₃ ▹ x₄} ρ₃@{x₅ ▹ x₆} ρ₄@{x₇ ▹ x₈} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{x₁ ▹ x₂} ρ₂@{row _ x₃} ρ₃@{x₄ ▹ x₅} ρ₄@{row _ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{x₁ ▹ x₂} ρ₂@{(V₂ ∖ V₃) {nr₁}} ρ₃@{x₃ ▹ x₄} ρ₄@{(W₂ ∖ W₃) {nr₂}} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{x₁ ▹ x₂} ρ₂@{_ <$> _} ρ₃@{x₃ ▹ x₄} ρ₄@{_ <$> _} rel₁ rel₂ =  ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{row _ x₁} ρ₂@{x₂ ▹ x₃} ρ₃@{row _ x₄} ρ₄@{x₅ ▹ x₆} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r {row ρ x₁} {row ρ₁ x₂} {row ρ₂ x₃} {row ρ₃ x₄} rel₁ rel₂ = ↻-renSem-∖v r rel₁ rel₂
+↻-renSem-∖V r ρ₁@{row _ x₁} ρ₂@{V₂ ∖ V₃} ρ₃@{row _ x₂} ρ₄@{W₂ ∖ W₃} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{row _ x₁} ρ₂@{_ <$> _} ρ₃@{row _ x₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{V₁ ∖ V₂} ρ₂@{x₁ ▹ x₂} ρ₃@{W₁ ∖ W₂} ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{V₁ ∖ V₂} ρ₂@{row _ x₁} ρ₃@{W₁ ∖ W₂} ρ₄@{row _ x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{V₁ ∖ V₂} ρ₂@{V₃ ∖ V₄} ρ₃@{W₁ ∖ W₂} ρ₄@{W₃ ∖ W₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r ρ₁@{V₁ ∖ V₂} ρ₂@{_ <$> _} ρ₃@{W₁ ∖ W₂} ρ₄@{_ <$> _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂}   {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{φ <$> x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{φ₃ <$> x₂} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{x₁ ▹ x₂} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{x₃ ▹ x₄} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{row ρ x₁} {ρ₃@(φ₂ <$> n₂)} ρ₄@{row _ _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
+↻-renSem-∖V r {ρ₁@(φ₁ <$> n₁)} ρ₂@{_ ∖ _} {ρ₃@(φ₂ <$> n₂)}  ρ₄@{_ ∖  _} rel₁ rel₂ = ren-≋ {V₁ = ρ₂} {V₂ = ρ₄} r rel₁ , ren-≋ {V₁ = ρ₁} {V₂ = ρ₃} r rel₂
 
 --------------------------------------------------------------------------------
 -- Uniformity of <?>V
@@ -291,10 +291,10 @@ idext-row :  {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {κ : Kind ικ}
     (↻-renSem-<$> r (idext e τ₁) (idext e τ₂)) 
     (cong-<$> (↻-renSem-eval r τ₁ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r τ₂ (refl-≋ᵣ ∘ e)))
 ↻-renSem-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renSem-evalRow r ρ e
-↻-renSem-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e =
+↻-renSem-eval r (ρ₂ ∖ ρ₁) {η₁} {η₂} e =
   trans-≋ 
-    (↻-renSem-─V r (idext e ρ₂) (idext e ρ₁)) 
-    (cong-─V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
+    (↻-renSem-∖V r (idext e ρ₂) (idext e ρ₁)) 
+    (cong-∖V (↻-renSem-eval r ρ₂ (refl-≋ᵣ ∘ e)) (↻-renSem-eval r ρ₁ (refl-≋ᵣ ∘ e)))
 ↻-renSem-eval r (l ▹ τ) {η₁} e with eval l η₁ | ↻-renSem-eval r l e 
 ... | ne x | ih rewrite (sym ih)   = (refl , refl , refl) , (↻-renSem-eval r τ e) 
 ... | lab l' | ih rewrite (sym ih) = refl , (λ { fzero → refl , (↻-renSem-eval r τ e) })
@@ -356,7 +356,7 @@ idext {κ = κ} e Σ =
   Unif-Σ , 
   λ r x → cong-Σ x 
 idext {κ = κ} e (_<$>_ {κ₁} {κ₂} τ₁ τ₂) = cong-<$> (idext e τ₁) (idext e τ₂)
-idext e (ρ₂ ─ ρ₁) = cong-─V (idext e ρ₂) (idext e ρ₁)
+idext e (ρ₂ ∖ ρ₁) = cong-∖V (idext e ρ₂) (idext e ρ₁)
 idext e (⦅ xs ⦆ _) = idext-row e xs
 idext {η₁ = η₁} {η₂} e (l ▹ τ) with eval l η₁ | idext e l
 ... | ne x | ih rewrite (sym ih) = (refl , refl , refl) , (idext e τ)
@@ -440,7 +440,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-renₖ-eval r Σ {η₁} {η₂} e = Unif-Σ , Unif-Σ , λ r x → cong-Σ x
 ↻-renₖ-eval r (τ₁ <$> τ₂) {η₁} {η₂} e = cong-<$> (↻-renₖ-eval r τ₁ e) (↻-renₖ-eval r τ₂ e)
 ↻-renₖ-eval r (⦅ ρ ⦆ oρ) {η₁} {η₂} e = ↻-renₖ-evalRow r ρ e  
-↻-renₖ-eval r (ρ₂ ─ ρ₁) {η₁} {η₂} e = cong-─V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
+↻-renₖ-eval r (ρ₂ ∖ ρ₁) {η₁} {η₂} e = cong-∖V (↻-renₖ-eval r ρ₂ e) (↻-renₖ-eval r ρ₁ e)
 ↻-renₖ-eval r (l ▹ τ) {η₁} {η₂} e with eval (renₖ r l) η₁ | ↻-renₖ-eval r l e 
 ... | ne x  | ih rewrite (sym ih) = (refl , refl , refl) , (↻-renₖ-eval r τ e)
 ... | lab l | ih rewrite (sym ih) = refl , λ { fzero → refl , (↻-renₖ-eval r τ e) }
@@ -524,7 +524,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 ↻-subₖ-eval Σ e σ = Unif-Σ , Unif-Σ , λ r v → cong-Σ v
 ↻-subₖ-eval (τ₁ <$> τ₂) e σ = cong-<$> (↻-subₖ-eval τ₁ e σ) (↻-subₖ-eval τ₂ e σ)
 ↻-subₖ-eval (⦅ ρ ⦆ _) {η₁} e σ = ↻-subₖ-evalRow ρ e σ
-↻-subₖ-eval (ρ₂ ─ ρ₁) {η₁} e σ = cong-─V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
+↻-subₖ-eval (ρ₂ ∖ ρ₁) {η₁} e σ = cong-∖V (↻-subₖ-eval ρ₂ e σ) (↻-subₖ-eval ρ₁ e σ)
 ↻-subₖ-eval (l ▹ τ) {η₁} {η₂} e σ with eval (subₖ σ l) η₁ | ↻-subₖ-eval l e σ  
 ... | ne x₁ | ih rewrite (sym ih) = (refl , refl , refl) , ↻-subₖ-eval τ e σ
 ... | lab l₁ | ih rewrite (sym ih) = refl , (λ { fzero → refl , ((↻-subₖ-eval τ e σ)) })
@@ -659,7 +659,7 @@ lem F G (suc n) m P P' Q Q' PP QQ f pf i' with
 lem F G (suc n) m P P' Q Q' PP QQ f refl fzero | no _ | no _ | h , H | j , J | e = PP (fsuc fzero) .fst , f .snd .snd id (PP (fsuc fzero) .snd)
 lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J | e = e refl i'
 
-↻-<$>V-─V : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} 
+↻-<$>V-∖V : ∀ {Δ : KEnv ιΔ} {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} 
               (F G : SemType Δ (κ₁ `→ κ₂)) (n m : ℕ) 
               (P P' : Fin n → String × SemType Δ κ₁)
               {oP : OrderedRow (n , P)}
@@ -670,11 +670,11 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
               (λ {ιΔ} {Δ : KEnv ιΔ} → F {ιΔ} {Δ}) ≋ (λ {ιΔ} {Δ} → G {ιΔ} {Δ}) → 
               (n , P) ≋R (n , P') → 
               (m , Q) ≋R (m , Q') → 
-              (F <$>V (row (n , P) oP ─V row (m , Q) oQ)) ≋ 
-              ((G <$>V row (n , P') oP') ─V (G <$>V row (m , Q') oQ'))
+              (F <$>V (row (n , P) oP ∖V row (m , Q) oQ)) ≋ 
+              ((G <$>V row (n , P') oP') ∖V (G <$>V row (m , Q') oQ'))
              
-↻-<$>V-─V F G zero m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , (λ ())
-↻-<$>V-─V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G (refl , PP) (refl , QQ) with
+↻-<$>V-∖V F G zero m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G P≋P' Q≋Q' = refl , (λ ())
+↻-<$>V-∖V F G (suc n) m P P' {oP} {oP'} Q Q' {oQ} {oQ'} F≋G (refl , PP) (refl , QQ) with
       P fzero .fst ∈Row? Q | P' fzero .fst ∈Row? (map₂ (G id) ∘ Q') | PP fzero 
     | ↻-<$>V-compl₂ F G n m (P ∘ fsuc) (P' ∘ fsuc) Q Q' F≋G (refl , PP ∘ fsuc) (refl , QQ)
 ... | yes (i , eq) | yes (j , q) | e , d | fst-eq , snd-eq = 
@@ -733,7 +733,7 @@ map-id-≋ : ∀ {ρ₁ ρ₂ : SemType Δ R[ κ ]} → ρ₁ ≋ ρ₂ → ((λ
 map-id-≋ {ρ₁ = φ <$> x₁} {ρ₂ = _ <$> _} rel = rel
 map-id-≋ {ρ₁ = x₁ ▹ x₂} {ρ₂ = _ ▹ _} rel = rel
 map-id-≋ {ρ₁ = row ρ x₁} {ρ₂ = row _ _} rel = rel
-map-id-≋ {ρ₁ = ρ₂ ─ ρ₁} {ρ₂ = _ ─ _} (rel₂ , rel₁) = map-id-≋ rel₂ , map-id-≋ rel₁ 
+map-id-≋ {ρ₁ = ρ₂ ∖ ρ₁} {ρ₂ = _ ∖ _} (rel₂ , rel₁) = map-id-≋ rel₂ , map-id-≋ rel₁ 
 
 
 map-∘-≋ :  ∀ {κ₁ : Kind ικ₁} {κ₂ : Kind ικ₂} {κ₃ : Kind ικ₃} (f : Type Δ₁ (κ₂ `→ κ₃)) (g : Type Δ₁ (κ₁ `→ κ₂)) 
@@ -784,4 +784,4 @@ map-∘-≋ f g {η₁ = η₁} {η₂} e r {row (zero , P) x₁} {row (zero , Q
 map-∘-≋ f g {η₁ = η₁} {η₂} e r {row (suc n , P) x₁} {row (suc m , Q) x₂} (refl , rel) = 
       refl , λ { i → (rel i .fst) , 
                  (weaken-η-≋ f e id (weaken-η-≋ g e id (rel i .snd) _ (refl-≋ᵣ (rel i .snd))) _ (refl-≋ᵣ (rel i .snd))) }
-map-∘-≋ f g e r {ρ₁ ─ ρ₂} {ρ₃ ─ ρ₄} (rel₁ , rel₂) = map-∘-≋ f g e r rel₁ , map-∘-≋ f g e r rel₂
+map-∘-≋ f g e r {ρ₁ ∖ ρ₂} {ρ₃ ∖ ρ₄} (rel₁ , rel₂) = map-∘-≋ f g e r rel₁ , map-∘-≋ f g e r rel₂

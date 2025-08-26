@@ -46,20 +46,20 @@ data RowType Δ 𝒯 where
 
   row : (ρ : Row (𝒯 Δ)) → OrderedRow ρ → RowType Δ 𝒯 R[ κ ]
 
-  _─_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
+  _∖_ : (ρ₂ ρ₁ : RowType Δ 𝒯 R[ κ ]) → {nr : NotRow ρ₂ or NotRow ρ₁} →
         RowType Δ 𝒯 R[ κ ]
 
 NotRow (x ▹ x₁) = ⊤
 NotRow (row ρ x) = ⊥
-NotRow (ρ ─ ρ₁) = ⊤
+NotRow (ρ ∖ ρ₁) = ⊤
 NotRow (φ <$> ρ) = ⊤
 
 notRows? (x ▹ x₁) ρ₁ = yes (left tt)
-notRows? (ρ₂ ─ ρ₃) ρ₁ = yes (left tt)
+notRows? (ρ₂ ∖ ρ₃) ρ₁ = yes (left tt)
 notRows? (φ <$> ρ) ρ₁ = yes (left tt)
 notRows? (row ρ x) (x₁ ▹ x₂) = yes (right tt)
 notRows? (row ρ x) (row ρ₁ x₁) = no (λ { (left ()) ; (right ()) })
-notRows? (row ρ x) (ρ₁ ─ ρ₂) = yes (right tt)
+notRows? (row ρ x) (ρ₁ ∖ ρ₂) = yes (right tt)
 notRows? (row ρ x) (φ <$> τ) = yes (right tt)
 
 --------------------------------------------------------------------------------

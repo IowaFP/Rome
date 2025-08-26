@@ -137,7 +137,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent Γ π → S
   ξ-complR : ∀ {xs ys : SimpleRow (NormalType Δ κ)}
               {oxs : True (normalOrdered? xs)} 
               {oys : True (normalOrdered? ys)}
-              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
              (N N' : Ent Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
 
             N =⇒ N' → 
@@ -147,7 +147,7 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent Γ π → S
   ξ-complL : ∀ {xs ys : SimpleRow (NormalType Δ κ)}
               {oxs : True (normalOrdered? xs)} 
               {oys : True (normalOrdered? ys)}
-              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))} → 
+              {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
              (N N' : Ent Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys)) →
 
             N =⇒ N' → 
@@ -226,29 +226,29 @@ data _=⇒_ : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent Γ π → S
   δ-complR :  ∀ {xs ys : SimpleRow (NormalType Δ κ₁)}
             {oxs : True (normalOrdered? xs)} 
             {oys : True (normalOrdered? ys)}
-            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))}
+            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))}
             (i : xs ⊆ ys) → 
 
             -----------------------------------------------------------------------------------------
             n-complR {Γ = Γ} {ozs = ozs} (n-incl {oxs = oxs} {oys} i) =⇒ 
             n-plus 
               i 
-              (⇓Row-⇑Row-─s-mono xs ys) 
-              (⇓Row-⇑Row-─s-mono-orᵣ xs ys {toWitness oys} i)
+              (⇓Row-⇑Row-∖s-mono xs ys) 
+              (⇓Row-⇑Row-∖s-mono-orᵣ xs ys {toWitness oys} i)
     
 
   δ-complL :  ∀ {xs ys : SimpleRow (NormalType Δ κ₁)}
             {oxs : True (normalOrdered? xs)} 
             {oys : True (normalOrdered? ys)}
-            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ─s ⇑Row xs)))}
+            {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))}
             (i : xs ⊆ ys) → 
 
             -----------------------------------------------------------------------------------------
             n-complL {Γ = Γ} {ozs = ozs} (n-incl {oxs = oxs} {oys} i) =⇒ 
             n-plus 
-              (⇓Row-⇑Row-─s-mono xs ys) 
+              (⇓Row-⇑Row-∖s-mono xs ys) 
               i
-              (⇓Row-⇑Row-─s-mono-orₗ xs ys {toWitness oys} i)
+              (⇓Row-⇑Row-∖s-mono-orₗ xs ys {toWitness oys} i)
 
 --------------------------------------------------------------------------------
 -- Small step semantics.

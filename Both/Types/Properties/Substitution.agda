@@ -25,14 +25,14 @@ subRowₖ-∈L : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ : SimpleRow (Type
 subRowₖ-∈L r {(l' , τ) ∷ ρ} l Here = Here
 subRowₖ-∈L r {(l' , τ) ∷ ρ} l (There ev) = There (subRowₖ-∈L r l ev)
 
-↻-subRowₖ-─s : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow (Type Δ₁ κ)} → 
-       subRowₖ r (ρ₂ ─s ρ₁) ≡ subRowₖ r ρ₂ ─s subRowₖ r ρ₁
-↻-subRowₖ-─s r {[]} {ρ₁} = refl
-↻-subRowₖ-─s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? subRowₖ r ρ₁
-... | yes p | yes q = ↻-subRowₖ-─s r {ρ₂} {ρ₁}
+↻-subRowₖ-∖s : ∀ (r : Substitutionₖ Δ₁ Δ₂) → {ρ₂ ρ₁ : SimpleRow (Type Δ₁ κ)} → 
+       subRowₖ r (ρ₂ ∖s ρ₁) ≡ subRowₖ r ρ₂ ∖s subRowₖ r ρ₁
+↻-subRowₖ-∖s r {[]} {ρ₁} = refl
+↻-subRowₖ-∖s r {(l , τ) ∷ ρ₂} {ρ₁} with l ∈L? ρ₁ | l ∈L? subRowₖ r ρ₁
+... | yes p | yes q = ↻-subRowₖ-∖s r {ρ₂} {ρ₁}
 ... | yes  p | no q = ⊥-elim (q (∈L-subRowₖ r l p))
 ... | no  p | yes q = ⊥-elim (p (subRowₖ-∈L r l q))
-... | no  p | no q = cong ((l , subₖ r τ) ∷_) (↻-subRowₖ-─s r {ρ₂} {ρ₁})
+... | no  p | no q = cong ((l , subₖ r τ) ∷_) (↻-subRowₖ-∖s r {ρ₂} {ρ₁})
 
 -------------------------------------------------------------------------------
 -- Functor laws for lifting
@@ -84,7 +84,7 @@ subₖ-cong e ⌊ τ ⌋ = cong ⌊_⌋ (subₖ-cong e τ)
 subₖ-cong e Π = refl
 subₖ-cong e Σ = refl
 subₖ-cong e (τ <$> τ₁) = cong₂ _<$>_ (subₖ-cong e τ) (subₖ-cong e τ₁)
-subₖ-cong e (ρ₂ ─ ρ₁) = cong₂ _─_ (subₖ-cong e ρ₂) (subₖ-cong e ρ₁)
+subₖ-cong e (ρ₂ ∖ ρ₁) = cong₂ _∖_ (subₖ-cong e ρ₂) (subₖ-cong e ρ₁)
 subₖ-cong {σ₁ = σ₁} e (⦅ ρ ⦆ oρ) = cong-SimpleRow (subRowₖ-cong e ρ)
 subₖ-cong {σ₁ = σ₁} e (l ▹ τ) = cong₂ _▹_ (subₖ-cong e l) (subₖ-cong e τ)
 
@@ -113,7 +113,7 @@ subₖ-id Π = refl
 subₖ-id Σ = refl
 subₖ-id (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-id τ₁) (subₖ-id τ₂)
 subₖ-id (⦅ ρ ⦆ oρ) = cong-SimpleRow (subRowₖ-id ρ)
-subₖ-id (ρ₂ ─ ρ₁) = cong₂ _─_ (subₖ-id ρ₂) (subₖ-id ρ₁)
+subₖ-id (ρ₂ ∖ ρ₁) = cong₂ _∖_ (subₖ-id ρ₂) (subₖ-id ρ₁)
 subₖ-id (l ▹ τ) = cong₂ _▹_ (subₖ-id l) (subₖ-id τ)
 
 subRowₖ-id [] = refl
@@ -147,7 +147,7 @@ subRowₖ-id ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (subₖ-id τ))
 ↻-subₖ-renₖ {r = r} {σ} Π = refl
 ↻-subₖ-renₖ {r = r} {σ} Σ = refl
 ↻-subₖ-renₖ {r = r} {σ} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-subₖ-renₖ τ₁) (↻-subₖ-renₖ τ₂) 
-↻-subₖ-renₖ {r = r} {σ} (ρ₂ ─ ρ₁) = cong₂ _─_ (↻-subₖ-renₖ ρ₂) (↻-subₖ-renₖ ρ₁)
+↻-subₖ-renₖ {r = r} {σ} (ρ₂ ∖ ρ₁) = cong₂ _∖_ (↻-subₖ-renₖ ρ₂) (↻-subₖ-renₖ ρ₁)
 ↻-subₖ-renₖ {r = r} {σ} (⦅ ρ ⦆ oρ) = cong-SimpleRow (↻-subRowₖ-renRowₖ ρ)
 ↻-subₖ-renₖ {r = r} {σ} (l ▹ τ) = cong₂ _▹_ (↻-subₖ-renₖ l) (↻-subₖ-renₖ τ)
 
@@ -180,7 +180,7 @@ subRowₖ-id ((l , τ) ∷ ρ) = cong₂ _∷_ (cong₂ _,_ refl (subₖ-id τ))
 ↻-renₖ-subₖ {σ = σ} {r} Π = refl
 ↻-renₖ-subₖ {σ = σ} {r} Σ = refl
 ↻-renₖ-subₖ {σ = σ} {r} (τ₁ <$> τ₂) = cong₂ _<$>_ (↻-renₖ-subₖ τ₁) (↻-renₖ-subₖ τ₂)
-↻-renₖ-subₖ {σ = σ} {r} (ρ₂ ─ ρ₁) = cong₂ _─_ (↻-renₖ-subₖ ρ₂) (↻-renₖ-subₖ ρ₁)
+↻-renₖ-subₖ {σ = σ} {r} (ρ₂ ∖ ρ₁) = cong₂ _∖_ (↻-renₖ-subₖ ρ₂) (↻-renₖ-subₖ ρ₁)
 ↻-renₖ-subₖ {σ = σ} {r} (⦅ ρ ⦆ oρ) = cong-SimpleRow (↻-renRowₖ-subRowₖ {σ = σ} {r} ρ)
 
 ↻-renRowₖ-subRowₖ {σ = σ} {r} [] = refl
@@ -230,7 +230,7 @@ subₖ-comp Π = refl
 subₖ-comp Σ = refl
 subₖ-comp (τ₁ <$> τ₂) = cong₂ _<$>_ (subₖ-comp τ₁) (subₖ-comp τ₂)
 subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (⦅ ρ ⦆ oρ) = cong-SimpleRow (subRowₖ-comp {σ₁ = σ₁} {σ₂} ρ)
-subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (ρ₂ ─ ρ₁) = cong₂ _─_ (subₖ-comp ρ₂) (subₖ-comp ρ₁)
+subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (ρ₂ ∖ ρ₁) = cong₂ _∖_ (subₖ-comp ρ₂) (subₖ-comp ρ₁)
 subₖ-comp {σ₁ = σ₁} {σ₂ = σ₂} (l ▹ τ) = cong₂ _▹_ (subₖ-comp l) (subₖ-comp τ)
 
 subRowₖ-comp [] = refl
