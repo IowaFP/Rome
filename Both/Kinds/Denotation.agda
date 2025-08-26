@@ -1,7 +1,7 @@
 module Rome.Both.Kinds.Denotation where
 
 open import Rome.Both.Prelude
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Level
 open import Rome.Both.Kinds.Syntax 
 open import Rome.Both.Kinds.GVars
 open import Rome.Both.IndexCalculus.Rows using (Row ; sing ; ε ; _⨾⨾_)

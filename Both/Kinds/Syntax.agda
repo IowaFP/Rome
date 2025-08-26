@@ -2,7 +2,7 @@
 module Rome.Both.Kinds.Syntax where
 
 open import Rome.Both.Prelude
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Level
 
 private
   variable

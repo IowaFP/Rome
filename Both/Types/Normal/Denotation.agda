@@ -1,6 +1,6 @@
 module Rome.Both.Types.Normal.Denotation where 
 open import Rome.Both.Prelude
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Level
 
 open import Rome.Both.Kinds.Denotation
 open import Rome.Both.Kinds.Syntax

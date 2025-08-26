@@ -1,8 +1,8 @@
 module Rome.Both.IndexCalculus.Rows where
 
-open import Rome.Preludes.Data
-open import Rome.Preludes.Relation
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Data
+open import Rome.Both.Preludes.Relation
+open import Rome.Both.Preludes.Level
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)

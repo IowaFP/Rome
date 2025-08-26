@@ -1,9 +1,9 @@
 {-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Both.IndexCalculus.Normal where
 
-open import Rome.Preludes.Data
-open import Rome.Preludes.Level
-open import Rome.Preludes.Relation
+open import Rome.Both.Preludes.Data
+open import Rome.Both.Preludes.Level
+open import Rome.Both.Preludes.Relation
 
 open import Data.Product using (Σ)
 open import Data.List

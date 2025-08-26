@@ -1,7 +1,7 @@
 module Rome.Both.IndexCalculus.Variants where
 
 open import Agda.Primitive
-open import Rome.Preludes.Data
+open import Rome.Both.Preludes.Data
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans)

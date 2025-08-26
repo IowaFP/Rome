@@ -2,6 +2,7 @@
 module Rome.Both.Prelude where
 
 open import Agda.Primitive public
+open import Level hiding (suc ; zero) public
 
 open import Data.Fin 
   using (Fin ; fromℕ ; inject₁ ; cast) 

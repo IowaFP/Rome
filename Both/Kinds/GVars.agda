@@ -2,7 +2,7 @@
 module Rome.Both.Kinds.GVars where
 
 open import Rome.Both.Kinds.Syntax
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Level
 
 -- variable
 --   ι ι₁ ι₂ ι₃ : Level

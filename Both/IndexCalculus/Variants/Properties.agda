@@ -1,7 +1,7 @@
 module Rome.Both.IndexCalculus.Variants.Properties where
 
 open import Rome.Prelude
-open import Rome.Preludes.Level hiding (suc ; zero)
+open import Rome.Both.Preludes.Level hiding (suc ; zero)
 
 open import Rome.Both.IndexCalculus.Rows
 open import Rome.Both.IndexCalculus.Variants

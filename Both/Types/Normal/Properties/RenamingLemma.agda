@@ -1,7 +1,7 @@
 module Rome.Both.Types.Normal.Properties.RenamingLemma where 
 
 open import Rome.Both.Prelude
-open import Rome.Preludes.Level
+open import Rome.Both.Preludes.Level
 open import Rome.Both.FunExt
 
 open import Rome.Both.Kinds.Denotation

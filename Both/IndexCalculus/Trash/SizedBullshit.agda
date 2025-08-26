@@ -2,11 +2,11 @@
 module Rome.Both.IndexCalculus.SizedBullshit where
 
 open import Agda.Builtin.Size
-open import Rome.Preludes.Level
-open import Rome.Preludes.Data
+open import Rome.Both.Preludes.Level
+open import Rome.Both.Preludes.Data
 open import Rome.Both.IndexCalculus.Rows
 open import Rome.Both.IndexCalculus.Variants
--- open import Rome.Preludes.Partiality
+-- open import Rome.Both.Preludes.Partiality
 
 --------------------------------------------------------------------------------
 -- Denoting recursive types.

@@ -1,8 +1,8 @@
 {-# OPTIONS --allow-unsolved-metas #-}
 module Rome.Both.IndexCalculus.Positivity where
 
-open import Rome.Preludes.Level
-open import Rome.Preludes.Data
+open import Rome.Both.Preludes.Level
+open import Rome.Both.Preludes.Data
 open import Rome.Both.IndexCalculus.Rows
 open import Rome.Both.IndexCalculus.Variants
 
