@@ -69,7 +69,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 -- --------------------------------------------------------------------------------
 -- Inversion of inclusion for simple rows
 
-≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow (NormalType (∅ {ι∅}) κ)} → 
+≲-inv : ∀ {ρ₁ ρ₂ : SimpleRow (NormalType (∅) κ)} → 
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} → 
          Ent ∅ ((⦅ ρ₁ ⦆ oρ₁) ≲ (⦅ ρ₂ ⦆ oρ₂)) → ρ₁ ⊆ ρ₂
@@ -78,7 +78,7 @@ norm-· {ρ₁ = ⦅ xs ⦆ oxs} {ρ₂ = ⦅ ys ⦆ oys} {ρ₃ = ⦅ zs ⦆ oz
 -- Inversion of combination
 
 
-·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow (NormalType (∅ {ι∅}) κ)}
+·-inv :  ∀ {ρ₁ ρ₂ ρ₃ : SimpleRow (NormalType (∅) κ)}
           {oρ₁ : True (normalOrdered? ρ₁)}
           {oρ₂ : True (normalOrdered? ρ₂)} 
           {oρ₃ : True (normalOrdered? ρ₃)} → 

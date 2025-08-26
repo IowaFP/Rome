@@ -27,7 +27,7 @@ open import Rome.Both.Containment
 -- First define environments mapping variables to predicates and types
 
 data Env : KEnv ιΔ → Level → Set where
-  ∅ : Env Δ lzero
+  ∅ : Env (∅ {lzero}) lzero
   _,_  : Env Δ ιΓ → NormalType Δ (★ {ι}) → Env Δ (ιΓ ⊔ ι)
   _,,_ : Env Δ ιΓ → (κ : Kind ικ) → Env (Δ ,, κ) (ιΓ ⊔ ικ)
   _,,,_ : ∀ {κ : Kind ικ} → Env Δ ιΓ → NormalPred Δ R[ κ ] → Env Δ (ιΓ ⊔ lsuc ικ)
