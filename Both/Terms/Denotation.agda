@@ -6,16 +6,21 @@ open import Rome.Both.Kinds.Syntax
 open import Rome.Both.Kinds.GVars
 open import Rome.Both.Kinds.Denotation
 
+open import Rome.Both.Types.Syntax
+open import Rome.Both.Types.Renaming
+
+open import Rome.Both.Types.Semantic.NBE
+
 open import Rome.Both.Types.Normal.Syntax
 open import Rome.Both.Types.Normal.Denotation
 open import Rome.Both.Types.Normal.Renaming
 open import Rome.Both.Types.Normal.Substitution
+open import Rome.Both.Types.Normal.Properties.RenamingLemma
 
 open import Rome.Both.Terms.Syntax
 
-open import Rome.Both.IndexCalculus.Records renaming (Π to Pi)
-open import Rome.Both.IndexCalculus.Variants renaming (Σ to Sigma)
-open import Rome.Both.IndexCalculus.Rows
+import Rome.Both.IndexCalculus.Ix as Ix 
+open Ix renaming (Π to Pi ; Σ to Sigma)
 
 
 --------------------------------------------------------------------------------
@@ -27,21 +32,13 @@ open import Rome.Both.IndexCalculus.Rows
 ⟦ Γ ,,  κ ⟧e (H , ⟦κ⟧) = ⟦ Γ ⟧e H × ⟦ κ ⟧k
 ⟦ Γ ,,, π ⟧e H = ⟦ Γ ⟧e H × ⟦ π ⟧p H 
 
-weaken⟦⟧ : ∀ {τ : NormalType Δ (★ {ι})} {H : ⟦ Δ ⟧ke} {κ : Kind ικ} {k : ⟦ κ ⟧k} → 
-             ⟦ τ ⟧nf H → ⟦ weakenₖNF τ  ⟧nf (H , k)
-weaken⟦⟧ {τ = ne x} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = τ `→ τ₁} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = `∀ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = π ⇒ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = ⌊ τ ⌋} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = Π τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
-weaken⟦⟧ {τ = Σ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
 
 ⟦_⟧v : ∀ {Δ : KEnv ιΔ} {Γ : Env Δ ιΓ} {τ : NormalType Δ (★ {ι})} → 
          Var Γ τ → (H : ⟦ Δ ⟧ke) → ⟦ Γ ⟧e H → ⟦ τ ⟧nf H
 ⟦ Z ⟧v H (_ , ⟦τ⟧) = ⟦τ⟧
 ⟦ S v ⟧v H (η , _) = ⟦ v ⟧v H η
-⟦_⟧v {Δ = Δ} (K {τ = τ} v) (H , _) (η , k) = {!   !} -- weaken⟦⟧ {Δ = Δ} {H = H , _} {k = k} (⟦ v ⟧v H η)
+⟦_⟧v {Δ = Δ} (K {τ = τ} v) (H , k₁) (η , k₂) 
+  rewrite sym (weaken-preservation H τ) = ⟦ v ⟧v H η
 ⟦ P v ⟧v H (η , _) = ⟦ v ⟧v H η
 
 
@@ -73,6 +70,15 @@ weaken⟦⟧ {τ = Σ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
 ⟦_⟧ : ∀ {Δ : KEnv ιΔ} {τ : NormalType Δ (★ {ι})} {Γ : Env Δ ιΓ} → 
         Term Γ τ → 
         (H : ⟦ Δ ⟧ke) → (η : ⟦ Γ ⟧e H) → ⟦ τ ⟧nf H
+
+⟦_⟧r : ∀ {Δ : KEnv ιΔ}  {Γ : Env Δ ιΓ} {xs : SimpleRow (NormalType Δ (★ {ι}))} →
+        Record Γ xs → 
+        (H : ⟦ Δ ⟧ke) → (η : ⟦ Γ ⟧e H) → Pi (⟦ xs ⟧row H)
+⟦ ∅ ⟧r  H η = λ ()
+⟦ l ▹ M ⨾ xs ⟧r H η  = 
+  λ { fzero → ⟦ M ⟧ H η ; 
+      (fsuc i) → ⟦ xs ⟧r H η i }        
+
 ⟦ ` x ⟧ H η = ⟦ x ⟧v H η
 ⟦ `λ M ⟧ H η = λ x → ⟦ M ⟧ H (η , x)
 ⟦ M · N ⟧ H η = (⟦ M ⟧ H η) (⟦ N ⟧ H η)
@@ -84,11 +90,12 @@ weaken⟦⟧ {τ = Σ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
 ⟦ # ℓ ⟧ H η = tt'
 ⟦ l Π▹ne M ⟧ H η = λ { fzero → ⟦ M ⟧ H η }
 ⟦ l Π▹ M ⟧ H η = λ { fzero → ⟦ M ⟧ H η }
-⟦ M Π/ne l ⟧ H η = {!!}
+⟦ M Π/ne l ⟧ H η = ⟦ M ⟧ H η  fzero
 ⟦ M Π/ l ⟧ H η =  ⟦ M ⟧ H η fzero
-⟦ prj M e ⟧ H η = {!!}
-⟦ (M ⊹ N) x ⟧ H η = {!!}
-⟦ syn ρ φ M ⟧ H η = {!!}
+⟦ prj M e ⟧ H η = Ix.prj _ _ (⟦ e ⟧n H η) (⟦ M ⟧ H η)
+⟦ (M ⊹ N) e ⟧ H η = (⟦ M ⟧ H η) ⊹ (⟦ N ⟧ H η) Using ⟦ e ⟧n H η
+⟦ syn ρ φ M ⟧ H η with ⟦ ρ ⟧nf H
+... | r = {! r  !}
 ⟦ ana ρ φ τ eq₁ eq₂ M ⟧ H η = {!!}
 ⟦ l Σ▹ne M ⟧ H η = fzero , (⟦ M ⟧ H η)
 ⟦ l Σ▹ M ⟧ H η = fzero , (⟦ M ⟧ H η)
@@ -96,7 +103,7 @@ weaken⟦⟧ {τ = Σ τ} {H} {κ} {k} ⟦τ⟧ = {!   !}
 ... | fzero , m = m
 ⟦ M Σ/ l ⟧ H η with ⟦ M ⟧ H η  
 ... | fzero , m = m
-⟦ inj M e ⟧ H η = {!!}
-⟦ (M ▿ N) x ⟧ H η = {!!}
-⟦ ⟨ r ⟩ ⟧ H η = {!!}
+⟦ inj M e ⟧ H η = Ix.inj (⟦ e ⟧n H η) (⟦ M ⟧ H η)
+⟦ (M ▿ N) e ⟧ H η = (⟦ M ⟧ H η) Ix.▿ (⟦ N ⟧ H η) Using ⟦ e ⟧n H η
+⟦ ⟨ r ⟩ ⟧ H η = ⟦ r ⟧r H η         
 ⟦ ⟨ l ▹ M ⟩via i ⟧ H η = {!!}
