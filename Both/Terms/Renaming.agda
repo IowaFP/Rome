@@ -46,22 +46,24 @@ private
 -- Renamings are functions from term variables to term variables
 -- and from evidence variables to evidence variables
 
-Renaming : ∀ Γ₁ Γ₂ → Renamingₖ Δ₁ Δ₂ → Set
-Renaming Γ₁ Γ₂ ρ = 
-  (∀ {τ : NormalType _ ★} → Var Γ₁ τ → Var Γ₂ (renₖNF ρ τ))
+Renaming : ∀ {Δ₁ : KEnv ιΔ₁} {Δ₂ : KEnv ιΔ₂} {ιΓ₁} {ιΓ₂} 
+             (Γ₁ : Env Δ₁ ιΓ₁) (Γ₂ : Env Δ₂ ιΓ₂) → 
+              Renamingₖ Δ₁ Δ₂ → Set
+Renaming Γ₁ Γ₂ r = 
+  (∀ {ι} {τ : NormalType _ (★ {ι})} → Var Γ₁ τ → Var Γ₂ (renₖNF r τ))
   ×
-  (∀ {κ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → PVar Γ₂ (renPredₖNF ρ π))
+  (∀ {ικ} {κ : Kind ικ} {π : NormalPred _ R[ κ ]} → PVar Γ₁ π → PVar Γ₂ (renPredₖNF r π))
 
-renType : ∀ {Γ₁ Γ₂} {ρ : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ ρ → NormalType Δ₁ κ → NormalType Δ₂ κ
-renType {ρ = ρ} R = renₖNF ρ
+renType : ∀  {r : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ r → NormalType Δ₁ κ → NormalType Δ₂ κ
+renType {r = r} R = renₖNF r
 
-renPred : ∀ {Γ₁ Γ₂} {ρ : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ ρ → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
-renPred {ρ = ρ} R = renPredₖNF ρ
+renPred : ∀ {r : Renamingₖ Δ₁ Δ₂} → Renaming Γ₁ Γ₂ r → NormalPred Δ₁ R[ κ ] → NormalPred Δ₂ R[ κ ]
+renPred {r = r} R = renPredₖNF r
 
 --------------------------------------------------------------------------------
 -- Lifting of renamings
 
-lift : Renaming Γ₁ Γ₂ ρ → {τ : NormalType Δ₁ ★} → Renaming (Γ₁ , τ) (Γ₂ , renₖNF ρ τ) ρ
+lift : Renaming Γ₁ Γ₂ ρ → {τ : NormalType Δ₁ (★ {ι})} → Renaming (Γ₁ , τ) (Γ₂ , renₖNF ρ τ) ρ
 lift (r , p) = 
   (λ { Z → Z
      ; (S x) → S (r x) }) , 
@@ -81,14 +83,14 @@ liftTVar {ρ = ρ} (r , p)  =
 --------------------------------------------------------------------------------
 -- Renaming terms
 
-ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
+ren : ∀ {τ : NormalType Δ₁ (★ {ι})} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       Term Γ₁ τ →
       Term Γ₂ (renₖNF ρ τ)
 
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
       Ent Γ₁ π →
       Ent Γ₂ (renPredₖNF ρ π)
-renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
+renRecord : ∀ {xs : SimpleRow (NormalType Δ (★ {ι}))}
             (Ρ : Renaming Γ₁ Γ₂ ρ) → 
             Record Γ₁ xs →
             Record Γ₂ (renRowₖNF ρ xs)
@@ -100,7 +102,7 @@ renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
           (F : NormalType Δ₁ (κ₁ `→ κ₂))
           (ρ₁ : NormalType Δ₁ R[ κ₁ ]) → 
           ⇓ (⇑ (renₖNF ρ F) <$> ⇑ (renₖNF ρ ρ₁)) ≡  renₖNF ρ (⇓ (⇑ F <$> ⇑ ρ₁))
-↻-ren-⇓-<$> ρ F ρ₁ rewrite 
+↻-ren-⇓-<$> {Δ₁ = Δ₁} ρ F ρ₁ rewrite 
     (↻-ren-⇑ ρ ρ₁) 
   | (↻-ren-⇑ ρ F) = 
       (trans 
@@ -109,10 +111,10 @@ renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
           (trans-≋ 
             (idext (sym-≋ ∘ ↻-ren-reflect ρ ∘ `) (⇑ F <$> ⇑ ρ₁)) 
             (sym-≋ (↻-renSem-eval ρ (⇑ F <$> ⇑ ρ₁) idEnv-≋))))) 
-        (sym (↻-ren-reify ρ 
+        (sym (↻-ren-reify {Δ₁ = Δ₁} ρ 
           {V₁ = (↑ F <$>V ↑ ρ₁)} 
           {V₂ = (↑ F <$>V ↑ ρ₁)} 
-          (fundS 
+          (fundC 
             {τ₁ = ⇑ F <$> ⇑ ρ₁} 
             {τ₂ = ⇑ F <$> ⇑ ρ₁} 
             idEnv-≋ 
@@ -213,7 +215,7 @@ renEnt {ρ = ρ} R (n-map· {ρ₁ = ρ₁} {ρ₂} {ρ₃} {F} e eq-ρ₁ eq-ρ
 renEnt {ρ = ρ} R (n-complR-inert {ρ₂ = ρ₂} {ρ₁} {nsr} e) = n-complR-inert (renEnt R e)
 renEnt {ρ = r} R (n-complR {xs = xs} {ys} {ozs = ozs} e) = 
   let pf = (trans 
-          (cong ⇓Row (cong₂ _∖_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
+          (cong ⇓Row (cong₂ _∖s_ (↻-ren-⇑Row r ys) (↻-ren-⇑Row r xs))) 
         (trans 
           (cong ⇓Row (sym (↻-renRowₖ-∖s r {ρ₂ = ⇑Row ys} {⇑Row xs}))) 
           (sym (↻-ren-⇓Row r (⇑Row ys ∖s ⇑Row xs)) ))) in
@@ -253,10 +255,10 @@ renEnt {ρ = r} R (n-complL {xs = xs} {ys} {ozs = ozs} e) =
 weakenTermByType : Term Γ τ₁ → Term (Γ , τ₂) τ₁
 weakenTermByType {τ₁ = τ₁} M = conv (renₖNF-id τ₁) (ren ((convVar (sym (renₖNF-id _))) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
-weakenTermByKind : ∀ {τ : NormalType Δ ★} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
+weakenTermByKind : ∀ {τ : NormalType Δ (★ {ι})} → Term Γ τ → Term (Γ ,, κ) (weakenₖNF τ)
 weakenTermByKind = ren (K , K)
 
-weakenTermByPred : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
+weakenTermByPred : ∀ {τ : NormalType Δ (★ {ι})} {π : NormalPred Δ R[ κ ]} → Term Γ τ → Term (Γ ,,, π) τ
 weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convVar (sym (renₖNF-id _))) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)
 
 --------------------------------------------------------------------------------
