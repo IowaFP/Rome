@@ -238,8 +238,8 @@ ordered-∖s {xs = (l , τ) ∷ (l' , τ') ∷ xs} {ys} (l<l' , oxs) | no p with
 --------------------------------------------------------------------------------
 -- The empty row is the empty simple row
 
-ε : Type Δ R[ κ ]
-ε = ⦅ [] ⦆ tt
+ε' : Type Δ R[ κ ]
+ε' = ⦅ [] ⦆ tt
 
 --------------------------------------------------------------------------------
 -- Admissable constants
@@ -256,10 +256,10 @@ _??_ : Type Δ (R[ κ₁ `→ κ₂ ]) → Type Δ κ₁ → Type Δ R[ κ₂ ]
 f ?? a = flap · f · a
 
 Unit : Type Δ ★
-Unit = Π · ε
+Unit = Π · ε'
 
 Empty : Type Δ ★ 
-Empty = Σ · ε 
+Empty = Σ · ε' 
 
 -- Example simple row
 sr : Type Δ R[ ★ ] 

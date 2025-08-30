@@ -289,8 +289,8 @@ ren-⟦⟧≋ {κ = R[ κ ]} r {v} {(V₂ ∖ V₁) {nr}} (υ₂ , υ₁ , eq , 
 ⟦_⟧≋e_ {Δ₁} σ η = ∀ {κ} (α : TVar Δ₁ κ) → ⟦ (σ α) ⟧≋ (η α)
 
 -- Identity relation
-idSR : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
-idSR α = reflect-⟦⟧≋ eq-refl
+idEnv-⟦⟧≋ : ∀ {Δ₁} →  ⟦ ` ⟧≋e (idEnv {Δ₁})
+idEnv-⟦⟧≋ α = reflect-⟦⟧≋ eq-refl
 
 --------------------------------------------------------------------------------
 -- Extended substitutions relate to extended environments

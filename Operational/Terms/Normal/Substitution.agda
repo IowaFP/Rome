@@ -47,7 +47,7 @@ Substitution : ∀ Γ₁ Γ₂ → SubstitutionₖNF Δ₁ Δ₂ → Set
 Substitution Γ₁ Γ₂ σ = 
   (∀ {τ : NormalType _ ★} → NormalVar Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)) 
   × 
-  (∀ {κ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → Ent Γ₂ (subPredₖNF σ π))
+  (∀ {κ} {π : NormalPred _ R[ κ ]} → NormalPVar Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π))
 
 --------------------------------------------------------------------------------
 -- Lifting substitutions over times, predicates, and more!
@@ -86,7 +86,7 @@ lemPred σ s (ρ₁ ≲ ρ₂) = refl
 sub : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {τ} → 
       NormalTerm Γ₁ τ → NormalTerm Γ₂ (subₖNF σ τ)
 subEnt : (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → ∀ {π : NormalPred Δ₁ R[ κ ]} → 
-          Ent Γ₁ π → Ent Γ₂ (subPredₖNF σ π)
+          NormalEnt Γ₁ π → NormalEnt Γ₂ (subPredₖNF σ π)
 subRecord : ∀ {xs : SimpleRow NormalType Δ₁ R[ ★ ]}
             (σ : SubstitutionₖNF Δ₁ Δ₂) (s : Substitution Γ₁ Γ₂ σ) → 
             Record Γ₁ xs →
@@ -360,7 +360,7 @@ extendByNormalTerm σ (s , p) M =
 extendByEnt : 
          (σ : SubstitutionₖNF Δ₁ Δ₂) → Substitution Γ₁ Γ₂ σ → 
          {π : NormalPred Δ₁ R[ κ ]} → 
-         (e : Ent Γ₂ (subPredₖNF σ π)) → 
+         (e : NormalEnt Γ₂ (subPredₖNF σ π)) → 
          Substitution (Γ₁ ,,, π) Γ₂ σ
 extendByEnt σ (s , p) e = (λ { (P x) → s x }) , λ { Z → e
                                                   ; (S x) → p x }         
@@ -397,7 +397,7 @@ _β[_] {τ₁ = τ₁} {τ₂} M N =
 --------------------------------------------------------------------------------
 -- β-reduction of a term by an entailment
 
-_βπ[_] : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → NormalTerm (Γ ,,, π) τ → Ent Γ π → NormalTerm Γ τ
+_βπ[_] : ∀ {τ : NormalType Δ ★} {π : NormalPred Δ R[ κ ]} → NormalTerm (Γ ,,, π) τ → NormalEnt Γ π → NormalTerm Γ τ
 _βπ[_] {τ = τ} {π} M e = 
   conv (subₖNF-id τ) 
     (sub idSubst 

@@ -89,8 +89,8 @@ ren : ∀ {τ} (Ρ : Renaming Γ₁ Γ₂ ρ) →
       NormalTerm Γ₂ (renₖNF ρ τ)
 
 renEnt : ∀ {π : NormalPred Δ R[ κ ]} (Ρ : Renaming Γ₁ Γ₂ ρ) → 
-      Ent Γ₁ π →
-      Ent Γ₂ (renPredₖNF ρ π)
+      NormalEnt Γ₁ π →
+      NormalEnt Γ₂ (renPredₖNF ρ π)
 renRecord : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]}
             (Ρ : Renaming Γ₁ Γ₂ ρ) → 
             Record Γ₁ xs →
@@ -265,11 +265,11 @@ weakenTermByPred {Γ = Γ} {τ = τ} {π} M = conv (renₖNF-id τ) (ren ((convV
 --------------------------------------------------------------------------------
 -- Weakening of an entailment
 
-weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → Ent Γ π → Ent (Γ , τ) π 
+weakenEntByType : ∀ {π : NormalPred Δ R[ κ ]} → NormalEnt Γ π → NormalEnt (Γ , τ) π 
 weakenEntByType {π = π} M = convEnt (renₖNF-id-pred π) (renEnt (convVar (sym (renₖNF-id _)) ∘ S , convPVar (sym (renₖNF-id-pred _)) ∘ T) M)
 
-weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → Ent Γ π → Ent (Γ ,, κ₂) (weakenPredₖNF π)
+weakenEntByKind : ∀ {π : NormalPred Δ R[ κ₁ ]} → NormalEnt Γ π → NormalEnt (Γ ,, κ₂) (weakenPredₖNF π)
 weakenEntByKind = renEnt (K , K)
 
-weakenEntByPred : ∀ {π₁ : NormalPred Δ R[ κ₁ ]} {π₂ : NormalPred Δ R[ κ₂ ]} → Ent Γ π₁ → Ent (Γ ,,, π₂) π₁
+weakenEntByPred : ∀ {π₁ : NormalPred Δ R[ κ₁ ]} {π₂ : NormalPred Δ R[ κ₂ ]} → NormalEnt Γ π₁ → NormalEnt (Γ ,,, π₂) π₁
 weakenEntByPred M = convEnt (renₖNF-id-pred _) (renEnt (convVar (sym (renₖNF-id _)) ∘ P , convPVar (sym (renₖNF-id-pred _)) ∘ S) M)

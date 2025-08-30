@@ -115,8 +115,8 @@ _⨾⨾_ :  Label × SemType Δ κ → Row (SemType Δ κ) → Row (SemType Δ �
 τ ⨾⨾ (n , P) =  suc n , λ { fzero    → τ 
                           ; (fsuc x) → P x }
 -- the empty row                                  
-εV : Row (SemType Δ κ)
-εV = 0 , λ ()
+ε : Row (SemType Δ κ)
+ε = 0 , λ ()
 
 -- Singleton rows
 ⁅_⁆ : Label × SemType Δ κ → Row (SemType Δ κ)

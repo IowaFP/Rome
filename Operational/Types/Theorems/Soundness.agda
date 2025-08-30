@@ -49,6 +49,34 @@ open import Rome.Operational.Types.Equivalence.Relation
 ... | no p | no q  with compl (evalRow xs η₁ .snd) (evalRow ys η₁ .snd) | evalRow (xs ∖s ys) η₂ | ↻-syn/sem-compl xs ys e
 ↻-syn/sem-compl ((l , τ) ∷ xs) ys e | no p | no q | x | y | (refl , ih') = refl , λ { fzero → refl , idext e τ ; (fsuc i) → ih' i }
 
+
+
+
+
+--------------------------------------------------------------------------------
+-- Commutativity of syntactic/semantic complement as a strict equality
+
+↻-∖s-∖v : ∀ {n m} 
+          (P : Fin n → Label × SemType Δ κ) → 
+          (Q : Fin m → Label × SemType Δ κ) → 
+          (⇑Row (reifyRow' n P) ∖s ⇑Row (reifyRow' m Q)) ≡
+          ⇑Row (reifyRow (compl P Q))
+
+↻-∖s-∖v {n = zero} P Q = refl
+↻-∖s-∖v {n = suc n} {m} P Q with P fzero .fst ∈L? ⇑Row (reifyRow' m Q) | P fzero .fst ∈Row? Q 
+... | yes p | yes q = ↻-∖s-∖v (P ∘ fsuc) Q
+... | yes p | no  q = ⊥-elim (q (In p))
+  where
+    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈L ⇑Row (reifyRow' m Q) → l ∈Row Q
+    In {l} {m = suc m} Here = fzero , refl
+    In {m = suc m} (There ev) = fsuc (In ev .fst) ,  In ev .snd
+... | no  p | yes q = ⊥-elim (p (In q))
+  where
+    In : ∀ {l} {m} {Q : Fin m → Label × SemType Δ κ} → l ∈Row Q → l ∈L ⇑Row (reifyRow' m Q)
+    In {l} {m = suc m} (fzero , refl) = Here
+    In {l} {m = suc m} (fsuc i , eq) = There (In (i , eq))
+... | no  p | no  q = cong₂ _∷_ refl (↻-∖s-∖v (P ∘ fsuc) Q) 
+
 -------------------------------------------------------------------------------
 -- Fundamental theorem (soundness)
 

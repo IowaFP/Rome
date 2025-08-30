@@ -137,7 +137,7 @@ compl : ∀ {n m} →
         (P : Fin n → Label × SemType Δ κ) 
         (Q : Fin m → Label × SemType Δ κ) → 
         Row (SemType Δ κ)
-compl {n = zero} {m} P Q = εV
+compl {n = zero} {m} P Q = ε
 compl {n = suc n} {m} P Q with P fzero .fst ∈Row? Q 
 ... | yes _ = compl (P ∘ fsuc) Q 
 ... | no _ = (P fzero) ⨾⨾ (compl (P ∘ fsuc) Q)
@@ -271,7 +271,7 @@ evalPred : Pred Type Δ₁ R[ κ ] → SemEnv Δ₁ Δ₂ → NormalPred Δ₂ R
 evalRow        : (ρ : SimpleRow Type Δ₁ R[ κ ]) → SemEnv Δ₁ Δ₂ → Row (SemType Δ₂ κ)
 evalRowOrdered : (ρ : SimpleRow Type Δ₁ R[ κ ]) → (η : SemEnv Δ₁ Δ₂) → Ordered ρ → OrderedRow (evalRow ρ η)
 
-evalRow [] η = εV 
+evalRow [] η = ε 
 evalRow ((l , τ) ∷ ρ) η = (l , (eval τ η)) ⨾⨾ evalRow ρ η 
 
 ⇓Row-isMap : ∀ (η : SemEnv Δ₁ Δ₂) → (xs : SimpleRow Type Δ₁ R[ κ ])  → 

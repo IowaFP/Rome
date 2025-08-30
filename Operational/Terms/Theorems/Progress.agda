@@ -44,18 +44,18 @@ open import Rome.Operational.Terms.Normal.SynAna
 --------------------------------------------------------------------------------
 -- Proof of progress (Entailments)
 
-data EntProgress {π : NormalPred Δ R[ κ ]} (M : Ent Γ π) : Set where
+data EntProgress {π : NormalPred Δ R[ κ ]} (M : NormalEnt Γ π) : Set where
   Done : 
          EntValue Γ π M → 
          ----------
          EntProgress M
 
   StepsTo_via_ : 
-          (M' : Ent Γ π) → (M =⇒ M') → 
+          (M' : NormalEnt Γ π) → (M =⇒ M') → 
           --------------------------------------
           EntProgress M
 
-entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : Ent ∅ π) → EntProgress N
+entProgress : ∀ {π : NormalPred ∅ R[ κ ]} (N : NormalEnt ∅ π) → EntProgress N
 entProgress (n-incl i₁) = Done (n-incl i₁)
 entProgress (n-plus i₁ i₂ i₃) = Done (n-plus i₁ i₂ i₃)
 entProgress n@n-refl with norm-≲ n 
