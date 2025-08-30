@@ -39,7 +39,7 @@ open import Rome.Operational.Types.Equivalence.Relation
 -- Commutativity of syntactic and semantic complement
 
 ↻-syn/sem-compl : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂} (xs ys : SimpleRow Type Δ₁ R[ κ ]) → 
-                  SemEnv-≋ η₁ η₂ → 
+                  η₁ ≋e η₂ → 
                   (evalRow xs η₁ ∖v evalRow ys η₁) ≋R (evalRow (xs ∖s ys) η₂)
 ↻-syn/sem-compl [] ys e = refl , (λ ())
 ↻-syn/sem-compl {η₁ = η₁} {η₂} ((l , τ) ∷ xs) ys e with l ∈Row? (evalRow ys η₁ .snd) | l ∈L? ys
@@ -53,11 +53,11 @@ open import Rome.Operational.Types.Equivalence.Relation
 -- Fundamental theorem (soundness)
 
 fundS : ∀ {τ₁ τ₂ : Type Δ₁ κ} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-       SemEnv-≋ η₁ η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
+       η₁ ≋e η₂ → τ₁ ≡t τ₂ → eval τ₁ η₁ ≋ eval τ₂ η₂
 fundS-pred : ∀ {π₁ π₂ : Pred Type Δ₁ R[ κ ]} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-            SemEnv-≋ η₁ η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
+            η₁ ≋e η₂ → π₁ ≡p π₂ → evalPred π₁ η₁ ≡ evalPred π₂ η₂
 fundS-Row : ∀ {ρ₁ ρ₂ : SimpleRow Type Δ₁ R[ κ ]} {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-            SemEnv-≋ η₁ η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
+            η₁ ≋e η₂ → ρ₁ ≡r ρ₂ → evalRow ρ₁ η₁ ≋R evalRow ρ₂ η₂
 
 fundS-pred e (τ₁ eq-≲ τ₂) = cong₂ _≲_ (reify-≋ (fundS e τ₁)) (reify-≋ (fundS e τ₂))
 fundS-pred e (τ₁ eq-· τ₂ ~ τ₃) rewrite
@@ -197,7 +197,7 @@ fundS-Row {η₁ = η₁} e (eq-cons {xs = xs} eq-l eq-τ eq-r) with
   evalRow xs η₁ | fundS-Row e eq-r 
 ... | n , P | refl , eq = refl , (λ { fzero → eq-l , (fundS e eq-τ) ; (fsuc i) → eq i })
 
-idEnv-≋ : ∀ {Δ} → SemEnv-≋ (idEnv {Δ}) (idEnv {Δ})
+idEnv-≋ : ∀ {Δ} → (idEnv {Δ}) ≋e (idEnv {Δ})
 idEnv-≋ x = reflect-≋ refl
 
 -------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ soundness-row {ρ₁ = ρ₁} {ρ₂} eq with
 -- Helper to substitute under an eval
  
 evalCRSubst : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂}
-    → SemEnv-≋ η₁ η₂
+    → η₁ ≋e η₂
     → {τ₁ τ₂ : Type Δ₁ κ}
     → τ₁ ≡ τ₂
     → (eval τ₁ η₁) ≋ (eval τ₂ η₂)

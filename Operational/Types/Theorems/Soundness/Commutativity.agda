@@ -220,18 +220,18 @@ Unif-Σ ρ₁ = ↻-renSem-Σ
 
 
 ↻-renSem-eval : ∀ (r : Renamingₖ Δ₂ Δ₃) (τ : Type Δ₁ κ) → {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-                  (Ρ : SemEnv-≋ η₁ η₂) → (renSem r (eval τ η₁)) ≋ eval τ (renSem r ∘ η₂)
+                  (Ρ : η₁ ≋e η₂) → (renSem r (eval τ η₁)) ≋ eval τ (renSem r ∘ η₂)
 ↻-renSem-eval-pred : ∀ (r : Renamingₖ Δ₂ Δ₃) (π : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-                  (Ρ : SemEnv-≋ η₁ η₂) → (renPredₖNF r (evalPred π η₁)) ≡ evalPred π (renSem r ∘ η₂)
+                  (Ρ : η₁ ≋e η₂) → (renPredₖNF r (evalPred π η₁)) ≡ evalPred π (renSem r ∘ η₂)
 ↻-renSem-evalRow : ∀ (r : Renamingₖ Δ₂ Δ₃) (ρ : SimpleRow Type Δ₁ R[ κ ]) → {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-                     (Ρ : SemEnv-≋ η₁ η₂) → renRow r (evalRow ρ η₁) ≋R evalRow ρ (renSem r ∘ η₂)  
+                     (Ρ : η₁ ≋e η₂) → renRow r (evalRow ρ η₁) ≋R evalRow ρ (renSem r ∘ η₂)  
 
-idext : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ → (τ : Type Δ₁ κ) →
+idext : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ → (τ : Type Δ₁ κ) →
           eval τ η₁ ≋ eval τ η₂
-idext-pred : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ → (π : Pred Type Δ₁ R[ κ ]) →
+idext-pred : ∀ {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ → (π : Pred Type Δ₁ R[ κ ]) →
                evalPred π η₁ ≡ evalPred π η₂
 
-idext-row :  {η₁ η₂ : SemEnv Δ₁ Δ₂} → (e : SemEnv-≋ η₁ η₂) → 
+idext-row :  {η₁ η₂ : SemEnv Δ₁ Δ₂} → (e : η₁ ≋e η₂) → 
              (ρ : SimpleRow Type Δ₁ R[ κ ]) → 
              (evalRow ρ η₁) ≋R evalRow ρ η₂
 
@@ -268,7 +268,7 @@ idext-row :  {η₁ η₂ : SemEnv Δ₁ Δ₂} → (e : SemEnv-≋ η₁ η₂)
       (extend-≋ (ren-≋ S ∘ e) (reflect-≋ refl))) 
     (idext E τ))
   where
-    E : SemEnv-≋ (renSem (liftₖ r) ∘ lifte {κ = κ} η₂) (lifte (renSem r ∘ η₂))
+    E : (renSem (liftₖ r) ∘ lifte {κ = κ} η₂) ≋e (lifte (renSem r ∘ η₂))
     E Z = ↻-ren-reflect (liftₖ r) (` Z)
     E (S x) = 
       trans-≋ 
@@ -377,11 +377,11 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 --           eval in η₁ 
 
 ↻-renₖ-eval : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Type Δ₁ κ) → {η₁ η₂ : SemEnv Δ₂ Δ₃} → 
-                  (e : SemEnv-≋ η₁ η₂) → eval (renₖ r τ) η₁ ≋ eval τ (η₂ ∘ r)
+                  (e : η₁ ≋e η₂) → eval (renₖ r τ) η₁ ≋ eval τ (η₂ ∘ r)
 ↻-renₖ-eval-pred : ∀ (r : Renamingₖ Δ₁ Δ₂) (τ : Pred Type Δ₁ R[ κ ]) → {η₁ η₂ : SemEnv Δ₂ Δ₃} → 
-                  (e : SemEnv-≋ η₁ η₂) → evalPred (renPredₖ r τ) η₁ ≡ evalPred τ (η₂ ∘ r)
+                  (e : η₁ ≋e η₂) → evalPred (renPredₖ r τ) η₁ ≡ evalPred τ (η₂ ∘ r)
 ↻-renₖ-evalRow : ∀ (r : Renamingₖ Δ₁ Δ₂) (ρ : SimpleRow Type Δ₁ R[ κ ]) → {η₁ η₂ : SemEnv Δ₂ Δ₃} → 
-                  (e : SemEnv-≋ η₁ η₂) → evalRow (renRowₖ r ρ) η₁ ≋R evalRow ρ (η₂ ∘ r)
+                  (e : η₁ ≋e η₂) → evalRow (renRowₖ r ρ) η₁ ≋R evalRow ρ (η₂ ∘ r)
 
 
 ↻-renₖ-eval-pred r (ρ₁ · ρ₂ ~ ρ₃) {η₁} {η₂} e rewrite
@@ -450,13 +450,13 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 -- Substitution lemma
 --   Evaluation commutes with syntactic substitution
 
-↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ →
+↻-subₖ-eval : ∀ (τ : Type Δ κ) {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
                     eval (subₖ σ τ) η₁ ≋ eval τ (λ x → eval (σ x) η₂)
-↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ →
+↻-subₖ-eval-pred : ∀ (π : Pred Type Δ R[ κ ]) {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ →
                         (σ : Substitutionₖ Δ Δ₁) → 
                     evalPred (subPredₖ σ π) η₁ ≡ evalPred π (λ x → eval (σ x) η₂)
-↻-subₖ-evalRow : ∀ (ρ : SimpleRow Type Δ R[ κ ]) {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ →
+↻-subₖ-evalRow : ∀ (ρ : SimpleRow Type Δ R[ κ ]) {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ →
                    (σ : Substitutionₖ Δ Δ₁) → 
                    evalRow (subRowₖ σ ρ) η₁ ≋R evalRow ρ (λ x → eval (σ x) η₂)
 
@@ -531,7 +531,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 
 ↻-eval-Kripke : ∀ (f : Type Δ₁ (κ₁ `→ κ₂)) → (r : Renamingₖ Δ₂ Δ₃) 
                 {V₁ V₂ : SemType Δ₃ κ₁} → (V₁ ≋ V₂) → 
-                {η₁ η₂ : SemEnv Δ₁ Δ₂} → SemEnv-≋ η₁ η₂ →  
+                {η₁ η₂ : SemEnv Δ₁ Δ₂} → η₁ ≋e η₂ →  
                 eval f (renSem r ∘ η₁) id V₁ ≋ eval f η₂ r V₂
 ↻-eval-Kripke (` α) r v e = snd (snd (e α)) r v
 ↻-eval-Kripke (`λ f) r v {η₁} {η₂} e = 
@@ -557,7 +557,7 @@ idext-row {η₁ = η₁} e (x ∷ ρ)  with evalRow ρ η₁ | idext-row e ρ
 
 weaken-extend : ∀ (τ : Type Δ₁ κ₁) → 
                   {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-                  SemEnv-≋ η₁ η₂ → 
+                  η₁ ≋e η₂ → 
                   {V : SemType Δ₂ κ₂}  → 
                   V ≋ V →
                   eval (weakenₖ τ) (extende η₁ V) ≋ eval τ η₂
@@ -684,7 +684,7 @@ lem F G (suc n) m P P' Q Q' PP QQ f refl (fsuc i') | no _ | no _ | h , H | j , J
 -- A function f are is pointwise equivalent to its η-expansion
 
 weaken-η-≋ : ∀ {κ'} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-               (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+               (η₁ ≋e η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
                {V₁ V₂ : SemType Δ₃ κ₁} → 
                V₁ ≋ V₂ → 
                (W : SemType Δ₃ κ') → 
@@ -700,7 +700,7 @@ weaken-η-≋ f {η₁} {η₂} e r {V₁} {V₂} v W w =  sym-≋
         ((↻-eval-Kripke f r (refl-≋ₗ v) (sym-≋ ∘ e))))
 
 weaken-η-≋' : ∀ {κ'} {Δ₄} (f : Type Δ₁ (κ₁ `→ κ₂)) {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-               (SemEnv-≋ η₁ η₂) →  (r₁ : Renamingₖ Δ₂ Δ₃) (r₂ : Renamingₖ Δ₃ Δ₄) → 
+               (η₁ ≋e η₂) →  (r₁ : Renamingₖ Δ₂ Δ₃) (r₂ : Renamingₖ Δ₃ Δ₄) → 
                {V₁ V₂ : SemType Δ₃ κ₁} → 
                V₁ ≋ V₂ → 
                (W : SemType Δ₃ κ') → 
@@ -728,7 +728,7 @@ map-id-≋ {ρ₁ = ρ₂ ∖ ρ₁} {ρ₂ = _ ∖ _} (rel₂ , rel₁) = map-i
 
 -- map-∘-≋' :  ∀ {κ₃} 
 --              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
---              (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+--              (η₁ ≋e η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
 --              {ρ₁ ρ₂ : SemType Δ₂ R[ κ₁ ]} → 
 --              {F₁ F₂ : KripkeFunctionNE Δ₂ κ₂ κ₃}
 --              {G₁ G₂ : KripkeFunctionNE Δ₂ κ₁ κ₂} → 
@@ -741,7 +741,7 @@ map-id-≋ {ρ₁ = ρ₂ ∖ ρ₁} {ρ₂ = _ ∖ _} (rel₂ , rel₁) = map-i
 
 map-∘-≋ :  ∀ {κ₃} (f : Type Δ₁ (κ₂ `→ κ₃)) (g : Type Δ₁ (κ₁ `→ κ₂)) 
              {η₁ η₂ : SemEnv Δ₁ Δ₂} → 
-             (SemEnv-≋ η₁ η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
+             (η₁ ≋e η₂) →  (r : Renamingₖ Δ₂ Δ₃) → 
              {ρ₁ ρ₂ : SemType Δ₂ R[ κ₁ ]} → 
              ρ₁ ≋ ρ₂ →
              (eval f η₁ <$>V (eval g η₁ <$>V ρ₁)) ≋

@@ -43,7 +43,7 @@ stability-β : ∀ (τ : NormalType (Δ ,, κ₁) κ₂) → reify
 stability-β {Δ = Δ} τ = 
     trans (reify-≋ (idext η (⇑ τ))) (stability τ)
     where
-        η : SemEnv-≋ (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) idEnv
+        η : (extende (λ {κ} v' → renSem S (idEnv v')) (reflect (` Z))) ≋e idEnv
         η Z = reflect-≋ refl
         η (S x) = ↻-ren-reflect S (` x)
   
