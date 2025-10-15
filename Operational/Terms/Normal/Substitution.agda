@@ -413,4 +413,4 @@ _βπ[_] {τ = τ} {π} M e =
 _β·[_] : ∀ {τ₁ : NormalType (Δ ,, κ) ★} → 
          NormalTerm (Γ ,, κ) τ₁ → (τ₂ : NormalType Δ κ) → NormalTerm Γ (τ₁ βₖNF[ τ₂ ])
 M β·[ τ₂ ] =  sub (extendₖNF idSubst τ₂) lem' M
-   
+  

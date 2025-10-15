@@ -64,13 +64,15 @@ renPred {ρ = ρ} R = renPredₖNF ρ
 --------------------------------------------------------------------------------
 -- Lifting of renamings
 
-lift : Renaming Γ₁ Γ₂ ρ → {τ : NormalType Δ₁ ★} → Renaming (Γ₁ , τ) (Γ₂ , renₖNF ρ τ) ρ
+lift : Renaming Γ₁ Γ₂ ρ → {τ : NormalType Δ₁ ★} → 
+       Renaming (Γ₁ , τ) (Γ₂ , renₖNF ρ τ) ρ
 lift (r , p) = 
   (λ { Z → Z
      ; (S x) → S (r x) }) , 
    λ { (T x) → T (p x) }
 
-liftNormalPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
+liftNormalPVar : Renaming Γ₁ Γ₂ ρ → {π : NormalPred Δ R[ κ ]} → 
+                 Renaming (Γ₁ ,,, π) (Γ₂ ,,, renPredₖNF ρ π) ρ
 liftNormalPVar (r , p) = 
   (λ { (P x) → P (r x) }) , 
   λ { Z → Z
