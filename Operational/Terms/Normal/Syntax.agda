@@ -73,6 +73,14 @@ noPVar : NoVar Γ → ∀ {π : NormalPred Δ R[ κ ]}(x : NormalPVar Γ π) →
 noPVar p (K x) = noPVar p x
 
 --------------------------------------------------------------------------------
+-- Computing complements through embedding then renormalization 
+
+_∖s'_ : SimpleRow NormalType Δ R[ κ ] → 
+        SimpleRow NormalType Δ R[ κ ] → 
+        SimpleRow NormalType Δ R[ κ ]
+xs ∖s' ys = ⇓Row (⇑Row xs ∖s ⇑Row ys)
+
+--------------------------------------------------------------------------------
 -- Entailment relation on predicates 
       
 data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where 
@@ -159,11 +167,11 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
   n-complR :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
                   {oxs : True (normalOrdered? xs)} 
                   {oys : True (normalOrdered? ys)} → 
-                  {ozs : True (normalOrdered? (⇓Row (⇑Row ys ∖s ⇑Row xs)))} → 
+                  {ozs : True (normalOrdered? (ys ∖s' xs))} → 
     
              NormalEnt Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) → 
              ----------------------
-             NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ ⇓Row (⇑Row ys ∖s ⇑Row xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
+             NormalEnt Γ (⦅ xs ⦆ oxs · ⦅ (ys ∖s' xs) ⦆ ozs ~ ⦅ ys ⦆ oys)
 
   n-complL-inert : ∀ {nsr : True (notSimpleRows? ρ₂ ρ₁)} → 
     

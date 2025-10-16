@@ -251,6 +251,7 @@ cong-∖ : {τ₂ υ₂ : NormalType Δ R[ κ ]}
                 _≡_ {A = NormalType Δ R[ κ ]} ((τ₂ ∖ τ₁) {nsr₁}) ((υ₂ ∖ υ₁) {nsr₂})
 cong-∖ {τ₂ = τ₂} {τ₁ = τ₁} {nsr₁ = x} {x₁} refl refl rewrite Dec→Irrelevant _ (notSimpleRows? τ₂ τ₁) x x₁ = refl
 
+
 --------------------------------------------------------------------------------
 -- There are no neutral types in empty contexts
 
@@ -434,7 +435,6 @@ Ordered⇑ ((l₁ , _) ∷ (l₂ , _) ∷ ρ) (l₁<l₂ , oρ) = l₁<l₂ , Or
 
 ⇑Pred (ρ₁ · ρ₂ ~ ρ₃) = (⇑ ρ₁) · (⇑ ρ₂) ~ (⇑ ρ₃)
 ⇑Pred (ρ₁ ≲ ρ₂) = (⇑ ρ₁) ≲ (⇑ ρ₂)
-
 
 --------------------------------------------------------------------------------
 -- row "constructors"
