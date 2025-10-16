@@ -18,6 +18,7 @@ open import Data.Fin
     (zero to fzero ; suc to fsuc ; _+_ to _f+_) 
   hiding (_≟_)
   public
+open import Data.Fin.Properties using (suc-injective) public
 open import Data.Unit.Polymorphic using (⊤ ; tt) public
 open import Data.Maybe using (Maybe ; just ; nothing ; _>>=_) public
 open import Data.String using (_≟_) public

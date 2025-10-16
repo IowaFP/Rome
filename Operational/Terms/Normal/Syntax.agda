@@ -180,7 +180,7 @@ data NormalEnt (Γ : NormalContext Δ) : NormalPred Δ R[ κ ] → Set where
              ----------------------
              NormalEnt Γ (⦅ ⇓Row (⇑Row ys ∖s ⇑Row xs) ⦆ ozs · ⦅ xs ⦆ oxs ~ ⦅ ys ⦆ oys)
 
-data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
+data EvValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalEnt Γ π → Set where 
 
   n-incl :  ∀ {xs ys : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
@@ -188,7 +188,7 @@ data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalE
 
           (i : xs ⊆ ys) → 
           -----------------------
-          EntValue Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-incl i)
+          EvValue Γ (⦅ xs ⦆ oxs ≲ ⦅ ys ⦆ oys) (n-incl i)
 
   n-plus : ∀ {xs ys zs : SimpleRow NormalType Δ R[ κ ]} → 
            {oxs : True (normalOrdered? xs)} 
@@ -199,7 +199,7 @@ data EntValue (Γ : NormalContext Δ) : (π : NormalPred Δ R[ κ ]) → NormalE
           (i₃ : zs ⊆[ xs ⊹ ys ])  → 
           --------------------------------------------------------------------
 
-          EntValue Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-plus i₁ i₂ i₃)
+          EvValue Γ ((⦅ xs ⦆ oxs) · (⦅ ys ⦆ oys) ~ (⦅ zs ⦆ ozs)) (n-plus i₁ i₂ i₃)
           
           
 
@@ -352,18 +352,6 @@ data NormalTerm {Δ} Γ where
         ------------------------------------------------------------------
         NormalTerm Γ (Π (φ <$>' ρ))
 
-  ana : 
-    
-        (ρ : NormalType Δ R[ κ ]) 
-        (φ : NormalType Δ (κ `→ ★)) 
-        (τ : NormalType Δ ★)
-        {τ₁ τ₂ : _}
-        (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
-        (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
-        (M : NormalTerm Γ τ₁) → 
-        
-        ------------------------------------------------------------------
-        NormalTerm Γ (τ₂ `→ τ)
 
   --------------
   -- Rω variants
@@ -401,6 +389,19 @@ data NormalTerm {Δ} Γ where
        (M₁ : NormalTerm Γ (Σ ρ₁ `→ τ)) → (M₂ : NormalTerm Γ (Σ ρ₂ `→ τ)) → NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃) → 
        ---------------------------------------------------------------------
        NormalTerm Γ (Σ ρ₃ `→ τ)
+
+  ana : 
+    
+        (ρ : NormalType Δ R[ κ ]) 
+        (φ : NormalType Δ (κ `→ ★)) 
+        (τ : NormalType Δ ★)
+        {τ₁ τ₂ : _}
+        (eq₁ : (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ))) ≡ τ₁) → 
+        (eq₂ : (⇓ (Σ · (⇑ φ <$> ⇑ ρ))) ≡ τ₂) → 
+        (M : NormalTerm Γ τ₁) → 
+        
+        ------------------------------------------------------------------
+        NormalTerm Γ (τ₂ `→ τ)
 
   ----------------------------------------
   -- Values
@@ -469,44 +470,6 @@ data Value {Δ} {Γ} where
             Value M → Value N → 
             ---------------------
             Value ((M ▿ N) e)
-
-
-  -- V-Π   : ∀ {l : Label} (ℓ : NormalTerm Γ ⌊ lab l ⌋) 
-  --           (M : NormalTerm Γ υ) → 
-
-  --           Value M → 
-  --           ---------------------
-  --           Value (ℓ Π▹ M)
-
-  -- V-⊹  : ∀ 
-  --          {e : NormalEnt Γ (ρ₁ · ρ₂ ~ ρ₃)}  (M : NormalTerm Γ (Π ρ₁)) (N : NormalTerm Γ (Π ρ₂)) → 
-
-  --           Value M → Value N → 
-  --           ---------------------
-  --           Value ((M ⊹ N) e)
-
-
-  -- V-Σ   : ∀ {l : Label}
-  --           (ℓ : NormalTerm Γ ⌊ lab l ⌋) → (M : NormalTerm Γ τ) → 
-
-  --           Value M → 
-  --           ---------------------
-  --           Value (ℓ Σ▹ M)
-
-  -- V-Unit : ∀ (M : NormalTerm Γ (Π εNF)) → 
-
-  --          -------
-  --          Value M 
-
-  -- V-syn : ∀ (ρ : NormalType Δ R[ κ ]) → (φ : NormalType Δ (κ `→ ★)) (M : NormalTerm Γ (⇓ (SynT (⇑ ρ) (⇑ φ)))) → 
-
-  --         -----------------
-  --         Value (syn ρ φ M)
-
-  -- V-ana : ∀ (ρ : NormalType Δ R[ κ ]) (φ : NormalType Δ (κ `→ ★)) (τ : NormalType Δ ★) (M : NormalTerm Γ (⇓ (AnaT (⇑ ρ) (⇑ φ) (⇑ τ)))) → 
-
-  --         -----------------
-  --         Value (ana ρ φ τ M)
 
 --------------------------------------------------------------------------------
 -- Conversion helpers.

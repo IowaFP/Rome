@@ -279,6 +279,7 @@ data _—→_ where
            M₁ · N —→ M₂ · N
 
   ξ-·2 : ∀ {M : NormalTerm Γ (τ₁ `→ τ₂)} {N₁ N₂ : NormalTerm Γ τ₁} →
+           Value M → 
            N₁ —→ N₂ →
            -----------------
            M · N₁ —→ M · N₂
@@ -309,13 +310,6 @@ data _—→_ where
              ℓ₁ —→ ℓ₂ → 
              -----------------------
              (ℓ₁ Π▹ M) —→ (ℓ₂ Π▹ M)
-
-  ξ-Σ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)}
-             {l : Label} (M₁ M₂ : NormalTerm Γ τ) (i : (l , τ) ∈ xs) → 
-
-        M₁ —→ M₂ → 
-        ------------------------------------
-        ⟨_▹_⟩via_ {xs = xs} {oxs} l M₁ i —→ ⟨ l ▹ M₂ ⟩via i
 
   ξ-Π/₁ : ∀  {l : Label}
             (M₁ M₂ : NormalTerm Γ (Π (l ▹' τ))) (ℓ : NormalTerm Γ ⌊ lab l ⌋)  → 
@@ -444,6 +438,14 @@ data _—→_ where
            r —→ᵣ r' → 
            ------------------------------
            (⟨_⟩ {oxs = oxs} r) —→ ⟨ r' ⟩
+
+  ξ-Σ : ∀ {xs : SimpleRow NormalType Δ R[ ★ ]} {oxs : True (normalOrdered? xs)}
+             {l : Label} (M₁ M₂ : NormalTerm Γ τ) (i : (l , τ) ∈ xs) → 
+
+        M₁ —→ M₂ → 
+        ------------------------------------
+        ⟨_▹_⟩via_ {xs = xs} {oxs} l M₁ i —→ ⟨ l ▹ M₂ ⟩via i
+
 
   ----------------------------------------
   -- computational rules
